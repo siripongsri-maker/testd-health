@@ -14,6 +14,140 @@ export type Database = {
   }
   public: {
     Tables: {
+      chat_messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          nickname: string
+          room_id: string
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          nickname: string
+          room_id: string
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          nickname?: string
+          room_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_rooms: {
+        Row: {
+          created_at: string | null
+          description_en: string
+          description_th: string
+          icon: string
+          id: string
+          is_active: boolean | null
+          name_en: string
+          name_th: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string | null
+          description_en: string
+          description_th: string
+          icon: string
+          id?: string
+          is_active?: boolean | null
+          name_en: string
+          name_th: string
+          slug: string
+        }
+        Update: {
+          created_at?: string | null
+          description_en?: string
+          description_th?: string
+          icon?: string
+          id?: string
+          is_active?: boolean | null
+          name_en?: string
+          name_th?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      consultation_forms: {
+        Row: {
+          created_at: string | null
+          id: string
+          prevention_use: string | null
+          questions: string[] | null
+          recent_testing: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          prevention_use?: string | null
+          questions?: string[] | null
+          recent_testing?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          prevention_use?: string | null
+          questions?: string[] | null
+          recent_testing?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      health_profiles: {
+        Row: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          pep_history: Json | null
+          prep_history: Json | null
+          side_effects: Json | null
+          testing_history: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          pep_history?: Json | null
+          prep_history?: Json | null
+          side_effects?: Json | null
+          testing_history?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          pep_history?: Json | null
+          prep_history?: Json | null
+          side_effects?: Json | null
+          testing_history?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -74,15 +208,176 @@ export type Database = {
         }
         Relationships: []
       }
+      quests: {
+        Row: {
+          badge_id: string
+          created_at: string | null
+          description_en: string
+          description_th: string
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          quest_type: string
+          slug: string
+          start_date: string | null
+          target_days: number
+          title_en: string
+          title_th: string
+        }
+        Insert: {
+          badge_id: string
+          created_at?: string | null
+          description_en: string
+          description_th: string
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          quest_type: string
+          slug: string
+          start_date?: string | null
+          target_days?: number
+          title_en: string
+          title_th: string
+        }
+        Update: {
+          badge_id?: string
+          created_at?: string | null
+          description_en?: string
+          description_th?: string
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          quest_type?: string
+          slug?: string
+          start_date?: string | null
+          target_days?: number
+          title_en?: string
+          title_th?: string
+        }
+        Relationships: []
+      }
+      self_care_reminders: {
+        Row: {
+          created_at: string | null
+          enabled: boolean | null
+          id: string
+          last_reminded_at: string | null
+          reminder_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          last_reminded_at?: string | null
+          reminder_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          last_reminded_at?: string | null
+          reminder_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_interests: {
+        Row: {
+          created_at: string | null
+          id: string
+          tag: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          tag: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          tag?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_quests: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          id: string
+          progress: number | null
+          quest_id: string
+          started_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          id?: string
+          progress?: number | null
+          quest_id: string
+          started_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          id?: string
+          progress?: number | null
+          quest_id?: string
+          started_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_quests_quest_id_fkey"
+            columns: ["quest_id"]
+            isOneToOne: false
+            referencedRelation: "quests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -209,6 +504,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
