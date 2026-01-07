@@ -8,7 +8,7 @@ import { XPBar } from "@/components/XPBar";
 import { Button } from "@/components/ui/button";
 import { getUserData, recordCheckIn, getTodayKey, getPEPDay, getXPForLevel, setUserData } from "@/lib/store";
 import { useLanguage } from "@/lib/i18n";
-import { Zap, Flame, Star, Settings, AlertTriangle } from "lucide-react";
+import { Zap, Flame, Star, Settings, AlertTriangle, TestTube } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Dashboard() {
@@ -165,6 +165,21 @@ export default function Dashboard() {
               onSkipped={handleSkipped}
             />
           )}
+        </div>
+
+        {/* HIV Self-Test Quick Link */}
+        <div className="mb-6">
+          <Button
+            variant="outline"
+            className="w-full gap-2 border-primary/30 hover:bg-primary/5"
+            onClick={() => navigate("/hiv-selftest")}
+          >
+            <TestTube className="h-5 w-5 text-primary" />
+            {userData.mode === "exploring" || !userData.mode
+              ? (t('selfCare.hivTestReminder') || 'HIV Self-Test Kit')
+              : (t('selfCare.hivTestReminder') || 'Get Free HIV Self-Test Kit')
+            }
+          </Button>
         </div>
         
         {/* Quick Actions */}
