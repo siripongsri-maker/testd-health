@@ -3,11 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ProgressIndicator } from "@/components/ProgressIndicator";
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { setUserData } from "@/lib/store";
+import { useLanguage } from "@/lib/i18n";
 import { Shield, Eye, TrendingUp, Lock } from "lucide-react";
 
 export default function Consent() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [agreed, setAgreed] = useState(false);
 
   const handleContinue = () => {
@@ -16,13 +19,18 @@ export default function Consent() {
   };
 
   const features = [
-    { icon: Eye, text: "Anonymous usage data only" },
-    { icon: Lock, text: "No personal identity required" },
-    { icon: TrendingUp, text: "Helps improve services" },
+    { icon: Eye, text: t('consent.anonymous') },
+    { icon: Lock, text: t('consent.noIdentity') },
+    { icon: TrendingUp, text: t('consent.improve') },
   ];
 
   return (
     <div className="min-h-screen gradient-hero flex flex-col px-6 py-8 safe-top safe-bottom">
+      {/* Language Toggle */}
+      <div className="absolute top-4 right-4">
+        <LanguageToggle />
+      </div>
+
       {/* Progress */}
       <ProgressIndicator current={3} total={3} className="mb-8" />
       
@@ -36,10 +44,10 @@ export default function Consent() {
       {/* Content */}
       <div className="flex-1 animate-slide-up">
         <h1 className="text-2xl font-bold text-foreground mb-2 text-center">
-          Your privacy matters
+          {t('consent.title')}
         </h1>
         <p className="text-muted-foreground text-center mb-8">
-          We believe in transparency about how we use data to help you and the community.
+          {t('consent.subtitle')}
         </p>
         
         {/* Features */}
@@ -70,8 +78,7 @@ export default function Consent() {
               className="mt-1"
             />
             <span className="text-sm text-foreground leading-relaxed">
-              I agree to anonymous data collection to help improve testD and support sexual health advocacy. 
-              I understand no personal information is required.
+              {t('consent.agree')}
             </span>
           </label>
         </div>
@@ -85,10 +92,10 @@ export default function Consent() {
           disabled={!agreed}
           className="w-full"
         >
-          Continue to testD
+          {t('consent.continue')}
         </Button>
         <p className="text-center text-xs text-muted-foreground mt-4">
-          You can change this anytime in settings
+          {t('consent.changeAnytime')}
         </p>
       </div>
     </div>

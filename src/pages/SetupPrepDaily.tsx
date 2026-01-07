@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { setUserData, addBadge, getTodayKey } from "@/lib/store";
+import { useLanguage } from "@/lib/i18n";
 import { ArrowLeft, Calendar, Clock, Info, Pill } from "lucide-react";
 
 export default function SetupPrepDaily() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [startDate, setStartDate] = useState(getTodayKey());
   const [stopDate, setStopDate] = useState("");
   const [reminderTime, setReminderTime] = useState("09:00");
@@ -32,7 +34,7 @@ export default function SetupPrepDaily() {
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-6 w-6" />
         </Button>
-        <h1 className="text-xl font-bold text-foreground">Daily PrEP Setup</h1>
+        <h1 className="text-xl font-bold text-foreground">{t('setup.daily.title')}</h1>
       </div>
       
       {/* Icon */}
@@ -48,7 +50,7 @@ export default function SetupPrepDaily() {
         <div className="space-y-2">
           <Label htmlFor="startDate" className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-primary" />
-            Start Date
+            {t('setup.daily.startDate')}
           </Label>
           <Input
             id="startDate"
@@ -63,14 +65,13 @@ export default function SetupPrepDaily() {
         <div className="space-y-2">
           <Label htmlFor="stopDate" className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
-            Stop Date (optional)
+            {t('setup.daily.stopDate')}
           </Label>
           <Input
             id="stopDate"
             type="date"
             value={stopDate}
             onChange={(e) => setStopDate(e.target.value)}
-            placeholder="No end date"
             className="h-14 text-lg"
           />
         </div>
@@ -79,7 +80,7 @@ export default function SetupPrepDaily() {
         <div className="space-y-2">
           <Label htmlFor="reminderTime" className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-primary" />
-            Daily Reminder Time
+            {t('setup.daily.reminderTime')}
           </Label>
           <Input
             id="reminderTime"
@@ -94,14 +95,13 @@ export default function SetupPrepDaily() {
         <div className="flex gap-3 rounded-xl bg-primary/5 border border-primary/20 p-4">
           <Info className="h-5 w-5 shrink-0 text-primary mt-0.5" />
           <p className="text-sm text-foreground">
-            Daily PrEP becomes fully effective after about 7 days of consistent use. 
-            Keep taking it every day for maximum protection.
+            {t('setup.daily.info')}
           </p>
         </div>
         
         {/* Start Button */}
         <Button variant="hero" onClick={handleStart} className="w-full mt-8">
-          Start Daily PrEP
+          {t('setup.daily.start')}
         </Button>
       </div>
     </PageContainer>

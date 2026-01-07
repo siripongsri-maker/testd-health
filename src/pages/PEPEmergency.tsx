@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { setUserData, getUserData, addBadge, getTodayKey } from "@/lib/store";
+import { useLanguage } from "@/lib/i18n";
 import { ArrowLeft, AlertTriangle, Clock, MapPin, ExternalLink, Shield } from "lucide-react";
 
 export default function PEPEmergency() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [hoursAgo, setHoursAgo] = useState("");
   const [urgency, setUrgency] = useState<"safe" | "warning" | "urgent">("safe");
 
@@ -27,8 +29,8 @@ export default function PEPEmergency() {
   const getTimeRemaining = () => {
     const hours = parseInt(hoursAgo) || 0;
     const remaining = 72 - hours;
-    if (remaining <= 0) return "Time exceeded";
-    return `${remaining} hours remaining`;
+    if (remaining <= 0) return t('pep.emergency.exceeded');
+    return `${remaining} ${t('pep.emergency.remaining')}`;
   };
 
   const handleStartPEP = () => {
@@ -59,7 +61,7 @@ export default function PEPEmergency() {
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
             <ArrowLeft className="h-6 w-6" />
           </Button>
-          <h1 className="text-xl font-bold text-foreground">PEP Emergency Support</h1>
+          <h1 className="text-xl font-bold text-foreground">{t('pep.emergency.title')}</h1>
         </div>
         
         {/* Urgency Icon */}
@@ -78,7 +80,7 @@ export default function PEPEmergency() {
           <div className="space-y-2">
             <Label htmlFor="hoursAgo" className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-primary" />
-              When was the possible exposure?
+              {t('pep.emergency.when')}
             </Label>
             <div className="flex gap-2">
               <Input
@@ -92,7 +94,7 @@ export default function PEPEmergency() {
                 className="h-14 text-lg"
               />
               <div className="flex items-center px-4 rounded-xl bg-muted text-muted-foreground font-medium">
-                hours ago
+                {t('pep.emergency.hoursAgo')}
               </div>
             </div>
           </div>
@@ -104,9 +106,9 @@ export default function PEPEmergency() {
               <div>
                 <p className="font-bold">{getTimeRemaining()}</p>
                 <p className="text-sm opacity-80">
-                  {urgency === "safe" && "PEP is most effective when started early"}
-                  {urgency === "warning" && "Time is running short — act now"}
-                  {urgency === "urgent" && "72-hour window has passed"}
+                  {urgency === "safe" && t('pep.emergency.safe')}
+                  {urgency === "warning" && t('pep.emergency.warning')}
+                  {urgency === "urgent" && t('pep.emergency.urgent')}
                 </p>
               </div>
             </div>
@@ -114,13 +116,12 @@ export default function PEPEmergency() {
           
           {/* Info */}
           <div className="rounded-xl bg-card border border-border p-4 shadow-card">
-            <h3 className="font-bold text-foreground mb-2">What is PEP?</h3>
+            <h3 className="font-bold text-foreground mb-2">{t('pep.emergency.whatIs')}</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              PEP (Post-Exposure Prophylaxis) is emergency HIV prevention medication. 
-              It must be started within 72 hours of possible exposure and taken for 28 days.
+              {t('pep.emergency.whatIsDesc')}
             </p>
             <p className="text-sm font-medium text-foreground">
-              PEP is most effective when started as soon as possible.
+              {t('pep.emergency.effective')}
             </p>
           </div>
           
@@ -129,13 +130,13 @@ export default function PEPEmergency() {
             <div className="flex items-start gap-3">
               <MapPin className="h-5 w-5 shrink-0 text-primary mt-0.5" />
               <div>
-                <h3 className="font-bold text-foreground mb-1">Where to get PEP</h3>
+                <h3 className="font-bold text-foreground mb-1">{t('pep.emergency.where')}</h3>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Visit SWING clinics or local sexual health services for free PEP access.
+                  {t('pep.emergency.whereDesc')}
                 </p>
                 <Button variant="outline" size="sm" onClick={() => navigate("/swing")} className="gap-2">
                   <ExternalLink className="h-4 w-4" />
-                  Find SWING locations
+                  {t('pep.emergency.findSwing')}
                 </Button>
               </div>
             </div>
@@ -148,7 +149,7 @@ export default function PEPEmergency() {
             disabled={urgency === "urgent"}
             className="w-full"
           >
-            {urgency === "urgent" ? "Please seek medical advice" : "Start PEP Tracking"}
+            {urgency === "urgent" ? t('pep.emergency.seekAdvice') : t('pep.emergency.startTracking')}
           </Button>
         </div>
       </PageContainer>

@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { setUserData, addBadge } from "@/lib/store";
+import { useLanguage } from "@/lib/i18n";
 import { ArrowLeft, Calendar, Clock, Info, Pill, Check } from "lucide-react";
 
 export default function SetupPrepOnDemand() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [eventDate, setEventDate] = useState("");
   const [eventTime, setEventTime] = useState("20:00");
 
@@ -16,24 +18,24 @@ export default function SetupPrepOnDemand() {
     if (!eventDate) return null;
     
     const event = new Date(`${eventDate}T${eventTime}`);
-    const dose1 = new Date(event.getTime() - 24 * 60 * 60 * 1000); // 24h before
-    const dose2 = new Date(event.getTime() - 2 * 60 * 60 * 1000); // 2h before
-    const dose3 = new Date(event.getTime() + 24 * 60 * 60 * 1000); // 24h after
-    const dose4 = new Date(event.getTime() + 48 * 60 * 60 * 1000); // 48h after
+    const dose1 = new Date(event.getTime() - 24 * 60 * 60 * 1000);
+    const dose2 = new Date(event.getTime() - 2 * 60 * 60 * 1000);
+    const dose3 = new Date(event.getTime() + 24 * 60 * 60 * 1000);
+    const dose4 = new Date(event.getTime() + 48 * 60 * 60 * 1000);
     
     return [
-      { label: "First dose (2 pills)", time: dose1, status: dose1 < new Date() ? "done" : "upcoming" },
-      { label: "Second dose", time: dose2, status: "upcoming" },
-      { label: "Activity", time: event, status: "event" },
-      { label: "Third dose", time: dose3, status: "upcoming" },
-      { label: "Fourth dose", time: dose4, status: "upcoming" },
+      { label: t('setup.ondemand.firstDose'), time: dose1, status: dose1 < new Date() ? "done" : "upcoming" },
+      { label: t('setup.ondemand.secondDose'), time: dose2, status: "upcoming" },
+      { label: t('setup.ondemand.activity'), time: event, status: "event" },
+      { label: t('setup.ondemand.thirdDose'), time: dose3, status: "upcoming" },
+      { label: t('setup.ondemand.fourthDose'), time: dose4, status: "upcoming" },
     ];
   };
 
   const timeline = getTimeline();
 
   const formatTime = (date: Date) => {
-    return date.toLocaleString("en-US", {
+    return date.toLocaleString("th-TH", {
       weekday: "short",
       month: "short",
       day: "numeric",
@@ -59,7 +61,7 @@ export default function SetupPrepOnDemand() {
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-6 w-6" />
         </Button>
-        <h1 className="text-xl font-bold text-foreground">On-Demand PrEP</h1>
+        <h1 className="text-xl font-bold text-foreground">{t('setup.ondemand.title')}</h1>
       </div>
       
       {/* Icon */}
@@ -75,7 +77,7 @@ export default function SetupPrepOnDemand() {
         <div className="space-y-2">
           <Label htmlFor="eventDate" className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-primary" />
-            Planned Activity Date
+            {t('setup.ondemand.eventDate')}
           </Label>
           <Input
             id="eventDate"
@@ -90,7 +92,7 @@ export default function SetupPrepOnDemand() {
         <div className="space-y-2">
           <Label htmlFor="eventTime" className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-primary" />
-            Approximate Time
+            {t('setup.ondemand.eventTime')}
           </Label>
           <Input
             id="eventTime"
@@ -106,7 +108,7 @@ export default function SetupPrepOnDemand() {
           <div className="rounded-xl bg-card border border-border p-4 shadow-card space-y-3">
             <h3 className="font-bold text-foreground flex items-center gap-2">
               <Pill className="h-4 w-4 text-primary" />
-              Your dose timeline
+              {t('setup.ondemand.timeline')}
             </h3>
             <div className="space-y-2">
               {timeline.map((item, index) => (
@@ -149,7 +151,7 @@ export default function SetupPrepOnDemand() {
         <div className="flex gap-3 rounded-xl bg-primary/5 border border-primary/20 p-4">
           <Info className="h-5 w-5 shrink-0 text-primary mt-0.5" />
           <p className="text-sm text-foreground">
-            On-demand PrEP (2-1-1) requires taking 2 pills 2-24 hours before, then 1 pill at 24h and 48h after activity.
+            {t('setup.ondemand.info')}
           </p>
         </div>
         
@@ -160,7 +162,7 @@ export default function SetupPrepOnDemand() {
           disabled={!eventDate}
           className="w-full mt-8"
         >
-          Start On-Demand PrEP
+          {t('setup.ondemand.start')}
         </Button>
       </div>
     </PageContainer>
