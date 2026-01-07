@@ -96,6 +96,20 @@ const themeDecorations: Record<ThemeType, {
       'hsl(160 70% 50% / 0.1)'
     ],
   },
+  testbkk: {
+    icons: [
+      <Star key="1" className="w-full h-full" />,
+      <Zap key="2" className="w-full h-full" />,
+      <Sparkles key="3" className="w-full h-full" />,
+      <Circle key="4" className="w-full h-full" />,
+    ],
+    colors: [
+      'hsl(45 100% 50% / 0.15)', 
+      'hsl(35 90% 45% / 0.12)', 
+      'hsl(45 90% 55% / 0.1)',
+      'hsl(350 80% 55% / 0.08)'
+    ],
+  },
 };
 
 // Predefined positions for floating elements

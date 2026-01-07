@@ -148,6 +148,66 @@ export type Database = {
         }
         Relationships: []
       }
+      hiv_selftest_requests: {
+        Row: {
+          address: string | null
+          created_at: string
+          days_since_risk: number | null
+          full_name: string | null
+          id: string
+          last_risk_date: string | null
+          line_id: string | null
+          phone: string | null
+          postal_code: string | null
+          province: string | null
+          result_photo_url: string | null
+          staff_notes: string | null
+          status: string
+          test_result: string | null
+          tracking_number: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          days_since_risk?: number | null
+          full_name?: string | null
+          id?: string
+          last_risk_date?: string | null
+          line_id?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          province?: string | null
+          result_photo_url?: string | null
+          staff_notes?: string | null
+          status?: string
+          test_result?: string | null
+          tracking_number?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          days_since_risk?: number | null
+          full_name?: string | null
+          id?: string
+          last_risk_date?: string | null
+          line_id?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          province?: string | null
+          result_photo_url?: string | null
+          staff_notes?: string | null
+          status?: string
+          test_result?: string | null
+          tracking_number?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
