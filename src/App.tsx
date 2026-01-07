@@ -18,6 +18,15 @@ import Info from "./pages/Info";
 import InfoArticle from "./pages/InfoArticle";
 import Swing from "./pages/Swing";
 import Settings from "./pages/Settings";
+import Community from "./pages/Community";
+import ChatRoom from "./pages/ChatRoom";
+import Interests from "./pages/Interests";
+import SelfCare from "./pages/SelfCare";
+import Quests from "./pages/Quests";
+import ShareAchievements from "./pages/ShareAchievements";
+import HealthProfile from "./pages/HealthProfile";
+import ConsultationForm from "./pages/ConsultationForm";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,6 +55,15 @@ const App = () => (
           <Route path="/info/:id" element={<InfoArticle />} />
           <Route path="/swing" element={<Swing />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/community/chat/:slug" element={<ChatRoom />} />
+          <Route path="/community/interests" element={<Interests />} />
+          <Route path="/self-care" element={<SelfCare />} />
+          <Route path="/quests" element={<Quests />} />
+          <Route path="/share" element={<ShareAchievements />} />
+          <Route path="/health-profile" element={<HealthProfile />} />
+          <Route path="/consultation" element={<ConsultationForm />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
