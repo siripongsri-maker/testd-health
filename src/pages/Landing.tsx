@@ -48,7 +48,7 @@ export default function Landing() {
           </Button>
           
           <Button asChild variant="hero-outline" className="w-full">
-            <Link to="/onboarding" className="gap-3">
+            <Link to="/auth" className="gap-3">
               <Heart className="h-5 w-5 text-accent" />
               {t('landing.loginEmail')}
             </Link>

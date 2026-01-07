@@ -10,12 +10,14 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 import { ThemeSelector } from "@/components/ThemeSelector";
 import { getUserData, setUserData, resetUserData } from "@/lib/store";
 import { useLanguage } from "@/lib/i18n";
-import { ArrowLeft, Bell, Pill, Clock, Shield, Trash2, Languages, Palette } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { ArrowLeft, Bell, Pill, Clock, Shield, Trash2, Languages, Palette, User, LogOut } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Settings() {
   const navigate = useNavigate();
   const { t } = useLanguage();
+  const { user, signOut } = useAuth();
   const [settings, setSettings] = useState(getUserData().notificationSettings);
   
   useEffect(() => {
@@ -37,6 +39,16 @@ export default function Settings() {
     }
   };
 
+  const handleLogout = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("Logged out successfully");
+      navigate("/");
+    }
+  };
+
   return (
     <>
       <PageContainer>
@@ -46,6 +58,35 @@ export default function Settings() {
           </Button>
           <h1 className="text-xl font-bold text-foreground">{t('settings.title')}</h1>
         </div>
+        
+        {/* Account */}
+        {user && (
+          <div className="mb-8 animate-slide-up">
+            <h2 className="mb-4 text-lg font-bold text-foreground flex items-center gap-2">
+              <User className="h-5 w-5 text-primary" />
+              {t('settings.account')}
+            </h2>
+            <div className="rounded-xl bg-card border border-border p-4 shadow-card space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full gradient-primary">
+                  <User className="h-5 w-5 text-primary-foreground" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">{t('settings.loggedInAs')}</p>
+                  <p className="font-medium text-foreground">{user.email}</p>
+                </div>
+              </div>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start gap-3"
+                onClick={handleLogout}
+              >
+                <LogOut className="h-5 w-5" />
+                {t('settings.logout')}
+              </Button>
+            </div>
+          </div>
+        )}
         
         {/* Theme */}
         <div className="mb-8 animate-slide-up">
