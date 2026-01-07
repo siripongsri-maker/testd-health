@@ -14,7 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          badges: string[] | null
+          created_at: string | null
+          display_name: string | null
+          id: string
+          language: string | null
+          last_check_in: string | null
+          level: number | null
+          mode: string | null
+          pep_start_date: string | null
+          prep_start_date: string | null
+          prep_stop_date: string | null
+          reminder_time: string | null
+          streak: number | null
+          theme: string | null
+          updated_at: string | null
+          xp: number | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          badges?: string[] | null
+          created_at?: string | null
+          display_name?: string | null
+          id: string
+          language?: string | null
+          last_check_in?: string | null
+          level?: number | null
+          mode?: string | null
+          pep_start_date?: string | null
+          prep_start_date?: string | null
+          prep_stop_date?: string | null
+          reminder_time?: string | null
+          streak?: number | null
+          theme?: string | null
+          updated_at?: string | null
+          xp?: number | null
+        }
+        Update: {
+          avatar_url?: string | null
+          badges?: string[] | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          language?: string | null
+          last_check_in?: string | null
+          level?: number | null
+          mode?: string | null
+          pep_start_date?: string | null
+          prep_start_date?: string | null
+          prep_stop_date?: string | null
+          reminder_time?: string | null
+          streak?: number | null
+          theme?: string | null
+          updated_at?: string | null
+          xp?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

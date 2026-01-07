@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemedBackground, PatternOverlay, FloatingDecorations } from "@/components/ThemedBackground";
 import Landing from "./pages/Landing";
+import Auth from "./pages/Auth";
 import Onboarding from "./pages/Onboarding";
 import Consent from "./pages/Consent";
 import Dashboard from "./pages/Dashboard";
@@ -32,6 +33,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/auth" element={<Auth />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/consent" element={<Consent />} />
           <Route path="/dashboard" element={<Dashboard />} />
