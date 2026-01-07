@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-export type ThemeType = 'casual' | 'pride' | 'lesbian' | 'youth';
+export type ThemeType = 'casual' | 'pride' | 'lesbian' | 'youth' | 'testbkk';
 
 interface ThemeState {
   theme: ThemeType;
@@ -69,5 +69,15 @@ export const themeConfig: Record<ThemeType, {
     gradientHero: 'linear-gradient(180deg, hsl(200 50% 97%) 0%, hsl(160 40% 95%) 100%)',
     gradientPrimary: 'linear-gradient(135deg, hsl(200 100% 50%) 0%, hsl(160 84% 45%) 100%)',
     pattern: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%230ea5e9' fill-opacity='0.06' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E")`,
+  },
+  testbkk: {
+    name: 'Bold Dark',
+    nameTh: 'โหมดมืด',
+    primary: '45 100% 50%',
+    accent: '350 80% 55%',
+    background: '40 30% 8%',
+    gradientHero: 'linear-gradient(180deg, hsl(40 20% 10%) 0%, hsl(35 25% 6%) 100%)',
+    gradientPrimary: 'linear-gradient(135deg, hsl(45 100% 50%) 0%, hsl(35 90% 45%) 100%)',
+    pattern: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23fbbf24' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
   },
 };

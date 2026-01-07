@@ -22,6 +22,7 @@ import Community from "./pages/Community";
 import ChatRoom from "./pages/ChatRoom";
 import Interests from "./pages/Interests";
 import SelfCare from "./pages/SelfCare";
+import HIVSelfTest from "./pages/HIVSelfTest";
 import Quests from "./pages/Quests";
 import ShareAchievements from "./pages/ShareAchievements";
 import HealthProfile from "./pages/HealthProfile";
@@ -59,6 +60,7 @@ const App = () => (
           <Route path="/community/chat/:slug" element={<ChatRoom />} />
           <Route path="/community/interests" element={<Interests />} />
           <Route path="/self-care" element={<SelfCare />} />
+          <Route path="/hiv-selftest" element={<HIVSelfTest />} />
           <Route path="/quests" element={<Quests />} />
           <Route path="/share" element={<ShareAchievements />} />
           <Route path="/health-profile" element={<HealthProfile />} />
