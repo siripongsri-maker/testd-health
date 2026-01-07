@@ -107,6 +107,12 @@ export default {
           "0%, 100%": { boxShadow: "0 0 5px hsl(var(--primary) / 0.3)" },
           "50%": { boxShadow: "0 0 20px hsl(var(--primary) / 0.5)" },
         },
+        "float": {
+          "0%, 100%": { transform: "translateY(0) rotate(0deg)", opacity: "0.6" },
+          "25%": { transform: "translateY(-8px) rotate(5deg)", opacity: "0.8" },
+          "50%": { transform: "translateY(-15px) rotate(-3deg)", opacity: "0.5" },
+          "75%": { transform: "translateY(-5px) rotate(2deg)", opacity: "0.7" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -117,6 +123,7 @@ export default {
         "progress-fill": "progress-fill 0.5s ease-out forwards",
         "bounce-gentle": "bounce-gentle 2s ease-in-out infinite",
         "glow": "glow 2s ease-in-out infinite",
+        "float": "float 8s ease-in-out infinite",
       },
     },
   },
