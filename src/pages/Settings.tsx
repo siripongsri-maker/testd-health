@@ -7,9 +7,10 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { ThemeSelector } from "@/components/ThemeSelector";
 import { getUserData, setUserData, resetUserData } from "@/lib/store";
 import { useLanguage } from "@/lib/i18n";
-import { ArrowLeft, Bell, Pill, Clock, Shield, Trash2, Languages } from "lucide-react";
+import { ArrowLeft, Bell, Pill, Clock, Shield, Trash2, Languages, Palette } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Settings() {
@@ -44,6 +45,15 @@ export default function Settings() {
             <ArrowLeft className="h-6 w-6" />
           </Button>
           <h1 className="text-xl font-bold text-foreground">{t('settings.title')}</h1>
+        </div>
+        
+        {/* Theme */}
+        <div className="mb-8 animate-slide-up">
+          <h2 className="mb-4 text-lg font-bold text-foreground flex items-center gap-2">
+            <Palette className="h-5 w-5 text-primary" />
+            {t('settings.theme') || 'Theme'}
+          </h2>
+          <ThemeSelector />
         </div>
         
         {/* Language */}
