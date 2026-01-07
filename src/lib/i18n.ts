@@ -197,6 +197,8 @@ const translations: Record<Language, Record<string, string>> = {
     'settings.resetAll': 'รีเซ็ตข้อมูลทั้งหมด',
     'settings.resetWarning': 'การดำเนินการนี้จะลบความคืบหน้า การตั้งค่า และเหรียญทั้งหมดของคุณ',
     'settings.confirmReset': 'คุณแน่ใจหรือไม่? การดำเนินการนี้จะรีเซ็ตความคืบหน้าทั้งหมด',
+    'settings.theme': 'ธีม',
+    'landing.poweredBy': 'สนับสนุนโดย',
 
     // Navigation
     'nav.home': 'หน้าแรก',
@@ -399,6 +401,8 @@ const translations: Record<Language, Record<string, string>> = {
     'settings.resetAll': 'Reset All Data',
     'settings.resetWarning': 'This will delete all your progress, settings, and badges',
     'settings.confirmReset': 'Are you sure? This will reset all your progress.',
+    'settings.theme': 'Theme',
+    'landing.poweredBy': 'Powered by',
 
     // Navigation
     'nav.home': 'Home',

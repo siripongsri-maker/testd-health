@@ -3,18 +3,19 @@ import { Heart, Shield, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/lib/i18n";
+import swingLogo from "@/assets/swing-logo.webp";
 
 export default function Landing() {
   const { t } = useLanguage();
 
   return (
-    <div className="min-h-screen gradient-hero flex flex-col">
+    <div className="min-h-screen gradient-hero flex flex-col relative">
       {/* Language Toggle */}
-      <div className="absolute top-4 right-4 safe-top">
+      <div className="absolute top-4 right-4 safe-top z-10">
         <LanguageToggle />
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 text-center safe-top">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 text-center safe-top relative z-10">
         {/* Logo & Icon */}
         <div className="mb-8 animate-bounce-gentle">
           <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full gradient-primary shadow-soft">
@@ -71,10 +72,18 @@ export default function Landing() {
         </div>
       </div>
       
-      {/* Footer */}
-      <div className="px-6 pb-8 text-center text-xs text-muted-foreground safe-bottom">
-        <p>{t('landing.disclaimer')}</p>
-        <p className="mt-1">{t('landing.consult')}</p>
+      {/* Footer with SWING logo */}
+      <div className="px-6 pb-8 text-center safe-bottom relative z-10">
+        <div className="flex items-center justify-center gap-2 mb-3">
+          <span className="text-xs text-muted-foreground">{t('landing.poweredBy') || 'Powered by'}</span>
+          <img 
+            src={swingLogo} 
+            alt="SWING Thailand" 
+            className="h-8 object-contain"
+          />
+        </div>
+        <p className="text-xs text-muted-foreground">{t('landing.disclaimer')}</p>
+        <p className="mt-1 text-xs text-muted-foreground">{t('landing.consult')}</p>
       </div>
     </div>
   );
