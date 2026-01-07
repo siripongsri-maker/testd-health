@@ -7,11 +7,13 @@ import { StatCard } from "@/components/StatCard";
 import { XPBar } from "@/components/XPBar";
 import { Button } from "@/components/ui/button";
 import { getUserData, recordCheckIn, getTodayKey, getPEPDay, getXPForLevel, setUserData } from "@/lib/store";
+import { useLanguage } from "@/lib/i18n";
 import { Zap, Flame, Star, Settings, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [userData, setLocalUserData] = useState(getUserData());
   const [todayStatus, setTodayStatus] = useState<"pending" | "taken" | "skipped">("pending");
   
@@ -38,8 +40,8 @@ export default function Dashboard() {
     const data = getUserData();
     setLocalUserData(data);
     
-    toast.success("Great job! +10 XP earned", {
-      description: `Streak: ${data.streak} days 🔥`,
+    toast.success(t('dashboard.greatJob'), {
+      description: `${t('stats.streak')}: ${data.streak} 🔥`,
     });
   };
 
@@ -58,26 +60,26 @@ export default function Dashboard() {
   const getTaskTitle = () => {
     switch (userData.mode) {
       case "prep-daily":
-        return "Take PrEP today";
+        return t('dashboard.takePrep');
       case "prep-ondemand":
-        return "On-demand PrEP active";
+        return t('onboarding.ondemand');
       case "pep":
-        return `PEP Day ${pepDay} of 28`;
+        return `${t('dashboard.pepDay')} ${pepDay} ${t('dashboard.of28')}`;
       default:
-        return "Set up your journey";
+        return t('dashboard.setupJourney');
     }
   };
 
   const getTaskSubtitle = () => {
     switch (userData.mode) {
       case "prep-daily":
-        return userData.prepReminderTime || "Daily reminder";
+        return userData.prepReminderTime || t('settings.dailyPrep.desc');
       case "prep-ondemand":
-        return "Protection period";
+        return t('settings.ondemandPrep.desc');
       case "pep":
-        return `${28 - pepDay} days remaining`;
+        return `${28 - pepDay} ${t('dashboard.daysRemaining')}`;
       default:
-        return "Choose your path";
+        return t('dashboard.setupSubtitle');
     }
   };
 
@@ -89,8 +91,8 @@ export default function Dashboard() {
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Welcome back</h1>
-            <p className="text-muted-foreground">You're doing great</p>
+            <h1 className="text-2xl font-bold text-foreground">{t('dashboard.welcome')}</h1>
+            <p className="text-muted-foreground">{t('dashboard.doingGreat')}</p>
           </div>
           <Button variant="ghost" size="icon" onClick={() => navigate("/settings")}>
             <Settings className="h-6 w-6" />
@@ -108,19 +110,19 @@ export default function Dashboard() {
         
         {/* Stats */}
         <div className="mb-6 grid grid-cols-3 gap-3">
-          <StatCard icon={Zap} label="XP" value={userData.xp} variant="xp" />
-          <StatCard icon={Flame} label="Streak" value={userData.streak} variant="streak" />
-          <StatCard icon={Star} label="Level" value={userData.level} variant="level" />
+          <StatCard icon={Zap} label={t('stats.xp')} value={userData.xp} variant="xp" />
+          <StatCard icon={Flame} label={t('stats.streak')} value={userData.streak} variant="streak" />
+          <StatCard icon={Star} label={t('stats.level')} value={userData.level} variant="level" />
         </div>
         
         {/* Today's Task */}
         <div className="mb-6">
-          <h2 className="mb-3 text-lg font-bold text-foreground">Today</h2>
+          <h2 className="mb-3 text-lg font-bold text-foreground">{t('dashboard.today')}</h2>
           {needsSetup ? (
             <div className="rounded-2xl border-2 border-primary/20 bg-card p-6 shadow-card">
               <div className="text-center">
                 <p className="mb-4 text-muted-foreground">
-                  Set up your prevention journey to start tracking
+                  {t('dashboard.setupSubtitle')}
                 </p>
                 <div className="space-y-3">
                   <Button
@@ -131,7 +133,7 @@ export default function Dashboard() {
                       navigate("/setup/prep-daily");
                     }}
                   >
-                    Start Daily PrEP
+                    {t('dashboard.startDaily')}
                   </Button>
                   <Button
                     variant="secondary"
@@ -141,7 +143,7 @@ export default function Dashboard() {
                       navigate("/setup/prep-ondemand");
                     }}
                   >
-                    Start On-demand PrEP
+                    {t('dashboard.startOndemand')}
                   </Button>
                   <Button
                     variant="outline"
@@ -149,7 +151,7 @@ export default function Dashboard() {
                     onClick={() => navigate("/pep")}
                   >
                     <AlertTriangle className="h-5 w-5 text-warning" />
-                    I need PEP
+                    {t('dashboard.needPep')}
                   </Button>
                 </div>
               </div>
@@ -174,7 +176,7 @@ export default function Dashboard() {
               onClick={() => navigate("/pep")}
             >
               <AlertTriangle className="h-5 w-5 text-warning" />
-              I need emergency PEP
+              {t('dashboard.emergencyPep')}
             </Button>
           </div>
         )}
@@ -182,7 +184,7 @@ export default function Dashboard() {
         {/* PEP Progress (if on PEP) */}
         {userData.mode === "pep" && pepDay > 0 && (
           <div className="rounded-2xl bg-card border border-border p-4 shadow-card animate-scale-in">
-            <h3 className="font-bold text-foreground mb-3">PEP Progress</h3>
+            <h3 className="font-bold text-foreground mb-3">{t('dashboard.pepProgress')}</h3>
             <div className="h-3 overflow-hidden rounded-full bg-muted">
               <div
                 className="h-full bg-success rounded-full transition-all duration-500"
@@ -190,7 +192,7 @@ export default function Dashboard() {
               />
             </div>
             <p className="mt-2 text-sm text-muted-foreground text-center">
-              Day {pepDay} of 28 — You're doing great! 💪
+              {t('dashboard.pepDay')} {pepDay} {t('dashboard.of28')} — {t('dashboard.doingGreat')}! 💪
             </p>
           </div>
         )}

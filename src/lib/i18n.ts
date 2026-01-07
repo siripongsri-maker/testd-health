@@ -1,0 +1,433 @@
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+
+type Language = 'th' | 'en';
+
+interface LanguageState {
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  t: (key: string) => string;
+}
+
+const translations: Record<Language, Record<string, string>> = {
+  th: {
+    // Landing
+    'app.name': 'testD',
+    'app.tagline': 'เพื่อนคู่ใจด้านสุขภาพทางเพศ',
+    'app.description': 'ติดตาม เรียนรู้ และดูแลการป้องกัน — ในแบบของคุณ ส่วนตัว สนับสนุน และไม่ตัดสิน',
+    'landing.startAnonymous': 'เริ่มต้นแบบไม่ระบุตัวตน',
+    'landing.loginEmail': 'เข้าสู่ระบบด้วยอีเมล',
+    'landing.anonymous': 'ไม่ระบุตัวตน',
+    'landing.secure': 'ปลอดภัย',
+    'landing.free': 'ฟรี',
+    'landing.disclaimer': 'testD เป็นเครื่องมือสนับสนุนสุขภาพ ไม่ใช่คำแนะนำทางการแพทย์',
+    'landing.consult': 'โปรดปรึกษาผู้ให้บริการด้านสุขภาพเสมอ',
+
+    // Onboarding
+    'onboarding.q1': 'คุณอยู่ในสถานะไหนตอนนี้?',
+    'onboarding.q1.subtitle': 'เลือกสิ่งที่เหมาะกับคุณ สามารถเปลี่ยนได้ภายหลัง',
+    'onboarding.prep': 'ใช้ PrEP อยู่',
+    'onboarding.prep.desc': 'การป้องกันแบบรายวันหรือตามเหตุการณ์',
+    'onboarding.pep': 'ใช้ PEP อยู่',
+    'onboarding.pep.desc': 'การรักษาหลังสัมผัสเชื้อ',
+    'onboarding.exploring': 'กำลังศึกษาข้อมูล',
+    'onboarding.exploring.desc': 'เรียนรู้เกี่ยวกับทางเลือกต่างๆ',
+    'onboarding.q2': 'คุณใช้ PrEP แบบไหน?',
+    'onboarding.daily': 'PrEP รายวัน',
+    'onboarding.daily.desc': 'กินยาหนึ่งเม็ดทุกวัน',
+    'onboarding.ondemand': 'PrEP ตามเหตุการณ์',
+    'onboarding.ondemand.desc': 'กินก่อนและหลังมีกิจกรรม',
+    'onboarding.skip': 'ข้ามไปก่อน',
+
+    // Consent
+    'consent.title': 'ความเป็นส่วนตัวของคุณสำคัญ',
+    'consent.subtitle': 'เราเชื่อในความโปร่งใสเกี่ยวกับการใช้ข้อมูลเพื่อช่วยคุณและชุมชน',
+    'consent.anonymous': 'เก็บข้อมูลการใช้งานแบบไม่ระบุตัวตนเท่านั้น',
+    'consent.noIdentity': 'ไม่จำเป็นต้องระบุตัวตน',
+    'consent.improve': 'ช่วยปรับปรุงบริการ',
+    'consent.agree': 'ฉันยินยอมให้เก็บข้อมูลแบบไม่ระบุตัวตนเพื่อช่วยปรับปรุง testD และสนับสนุนการรณรงค์ด้านสุขภาพทางเพศ ฉันเข้าใจว่าไม่จำเป็นต้องให้ข้อมูลส่วนบุคคลใดๆ',
+    'consent.continue': 'ดำเนินการต่อ',
+    'consent.changeAnytime': 'คุณสามารถเปลี่ยนแปลงได้ทุกเมื่อในการตั้งค่า',
+
+    // Dashboard
+    'dashboard.welcome': 'ยินดีต้อนรับกลับ',
+    'dashboard.doingGreat': 'คุณทำได้ดีมาก',
+    'dashboard.today': 'วันนี้',
+    'dashboard.takePrep': 'กิน PrEP วันนี้',
+    'dashboard.pepDay': 'PEP วันที่',
+    'dashboard.of28': 'จาก 28',
+    'dashboard.taken': 'กินแล้ว',
+    'dashboard.skipped': 'ข้าม',
+    'dashboard.greatJob': 'เยี่ยมมาก! +10 XP',
+    'dashboard.skippedToday': 'ข้ามวันนี้',
+    'dashboard.setupJourney': 'ตั้งค่าการเดินทางของคุณ',
+    'dashboard.setupSubtitle': 'ตั้งค่าการป้องกันเพื่อเริ่มติดตาม',
+    'dashboard.startDaily': 'เริ่ม PrEP รายวัน',
+    'dashboard.startOndemand': 'เริ่ม PrEP ตามเหตุการณ์',
+    'dashboard.needPep': 'ฉันต้องการ PEP',
+    'dashboard.emergencyPep': 'ฉันต้องการ PEP ฉุกเฉิน',
+    'dashboard.pepProgress': 'ความคืบหน้า PEP',
+    'dashboard.daysRemaining': 'วันที่เหลือ',
+
+    // Stats
+    'stats.xp': 'XP',
+    'stats.streak': 'ต่อเนื่อง',
+    'stats.level': 'เลเวล',
+    'stats.badges': 'เหรียญ',
+    'stats.totalXp': 'XP รวม',
+
+    // Setup Daily PrEP
+    'setup.daily.title': 'ตั้งค่า PrEP รายวัน',
+    'setup.daily.startDate': 'วันที่เริ่มต้น',
+    'setup.daily.stopDate': 'วันที่หยุด (ไม่บังคับ)',
+    'setup.daily.reminderTime': 'เวลาแจ้งเตือนรายวัน',
+    'setup.daily.info': 'PrEP รายวันจะมีประสิทธิภาพเต็มที่หลังจากใช้สม่ำเสมอประมาณ 7 วัน ให้กินทุกวันเพื่อการป้องกันสูงสุด',
+    'setup.daily.start': 'เริ่ม PrEP รายวัน',
+
+    // Setup On-demand PrEP
+    'setup.ondemand.title': 'PrEP ตามเหตุการณ์',
+    'setup.ondemand.eventDate': 'วันที่มีกิจกรรม',
+    'setup.ondemand.eventTime': 'เวลาโดยประมาณ',
+    'setup.ondemand.timeline': 'ตารางการกินยาของคุณ',
+    'setup.ondemand.firstDose': 'ยาโด๊สแรก (2 เม็ด)',
+    'setup.ondemand.secondDose': 'ยาโด๊สที่สอง',
+    'setup.ondemand.activity': 'กิจกรรม',
+    'setup.ondemand.thirdDose': 'ยาโด๊สที่สาม',
+    'setup.ondemand.fourthDose': 'ยาโด๊สที่สี่',
+    'setup.ondemand.info': 'PrEP ตามเหตุการณ์ (2-1-1) ต้องกิน 2 เม็ด 2-24 ชั่วโมงก่อน แล้วกิน 1 เม็ดที่ 24 ชม. และ 48 ชม. หลังกิจกรรม',
+    'setup.ondemand.start': 'เริ่ม PrEP ตามเหตุการณ์',
+
+    // PEP Emergency
+    'pep.emergency.title': 'การสนับสนุน PEP ฉุกเฉิน',
+    'pep.emergency.when': 'เมื่อไหร่ที่อาจสัมผัสเชื้อ?',
+    'pep.emergency.hoursAgo': 'ชั่วโมงที่แล้ว',
+    'pep.emergency.remaining': 'ชั่วโมงที่เหลือ',
+    'pep.emergency.exceeded': 'เกินเวลาแล้ว',
+    'pep.emergency.safe': 'PEP มีประสิทธิภาพสูงสุดเมื่อเริ่มเร็ว',
+    'pep.emergency.warning': 'เวลาใกล้หมด — รีบดำเนินการ',
+    'pep.emergency.urgent': 'หน้าต่าง 72 ชั่วโมงผ่านไปแล้ว',
+    'pep.emergency.whatIs': 'PEP คืออะไร?',
+    'pep.emergency.whatIsDesc': 'PEP (Post-Exposure Prophylaxis) คือยาป้องกัน HIV ฉุกเฉินที่ใช้หลังจากอาจสัมผัสเชื้อ ต้องเริ่มภายใน 72 ชั่วโมงหลังสัมผัสและกินต่อเนื่อง 28 วัน',
+    'pep.emergency.effective': 'PEP มีประสิทธิภาพสูงสุดเมื่อเริ่มเร็วที่สุด',
+    'pep.emergency.where': 'จะหา PEP ได้ที่ไหน',
+    'pep.emergency.whereDesc': 'ไปที่คลินิก SWING หรือสถานบริการสุขภาพทางเพศเพื่อรับ PEP ฟรี',
+    'pep.emergency.findSwing': 'ค้นหาสถานที่ SWING',
+    'pep.emergency.startTracking': 'เริ่มติดตาม PEP',
+    'pep.emergency.seekAdvice': 'โปรดขอคำปรึกษาทางการแพทย์',
+
+    // PEP Tracker
+    'pep.tracker.title': 'ติดตาม PEP',
+    'pep.tracker.ofDays': 'จาก 28 วัน',
+    'pep.tracker.todaysDose': 'ยาวันนี้',
+    'pep.tracker.thisWeek': 'สัปดาห์นี้',
+    'pep.tracker.congrats': 'ยินดีด้วย! 🎉',
+    'pep.tracker.completed': 'คุณกิน PEP ครบ 28 วันแล้ว อย่าลืมไปตรวจนะ',
+    'pep.tracker.encouragement1': 'เริ่มต้นได้ดี! สัปดาห์แรกสำคัญมาก',
+    'pep.tracker.encouragement2': 'คุณผ่านมาครึ่งทางแล้ว!',
+    'pep.tracker.encouragement3': 'ใกล้เสร็จแล้ว สู้ต่อไป!',
+    'pep.tracker.encouragement4': 'โค้งสุดท้าย — คุณทำได้!',
+
+    // Progress
+    'progress.title': 'ความคืบหน้าของคุณ',
+    'progress.subtitle': 'ทำดีต่อไป!',
+    'progress.currentLevel': 'เลเวลปัจจุบัน',
+    'progress.xpToNext': 'XP ถึงเลเวลถัดไป',
+    'progress.achievements': 'ความสำเร็จ',
+    'progress.motivation.streak': '🔥 สุดยอด! คุณต่อเนื่องสุดๆ!',
+    'progress.motivation.xp': '⭐ ความคืบหน้าดีมาก! สู้ต่อไป!',
+    'progress.motivation.default': '💪 ทุกวันมีค่า คุณทำได้!',
+
+    // Badges
+    'badge.startedPrep': 'เริ่ม PrEP',
+    'badge.7dayStreak': 'ต่อเนื่อง 7 วัน',
+    'badge.pepWarrior': 'นักรบ PEP',
+    'badge.completedPep': 'จบ PEP',
+    'badge.30dayStreak': 'ต่อเนื่อง 30 วัน',
+    'badge.level5': 'เลเวล 5',
+
+    // Info
+    'info.title': 'เรียนรู้',
+    'info.subtitle': 'ข้อมูลสุขภาพทางเพศ',
+    'info.search': 'ค้นหาหัวข้อ...',
+    'info.noResults': 'ไม่พบบทความ',
+    'info.whatIsPrep': 'PrEP คืออะไร?',
+    'info.whatIsPrep.desc': 'เรียนรู้เกี่ยวกับยาป้องกัน HIV',
+    'info.dailyVsOndemand': 'PrEP รายวัน vs ตามเหตุการณ์',
+    'info.dailyVsOndemand.desc': 'เลือกวิธีที่เหมาะกับคุณ',
+    'info.whatIsPep': 'PEP คืออะไร?',
+    'info.whatIsPep.desc': 'การป้องกัน HIV ฉุกเฉิน',
+    'info.hivTesting': 'ตรวจ HIV บ่อยแค่ไหน',
+    'info.hivTesting.desc': 'คำแนะนำการตรวจประจำ',
+    'info.condoms': 'ถุงยาง & การลดอันตราย',
+    'info.condoms.desc': 'กลยุทธ์การป้องกันเพิ่มเติม',
+
+    // SWING
+    'swing.title': 'รับ PrEP ฟรีที่ SWING',
+    'swing.subtitle': 'บริการสุขภาพทางเพศที่เป็นมิตรและไม่ตัดสิน',
+    'swing.whoCanAccess': 'ใครสามารถเข้าถึงได้',
+    'swing.welcome': 'ทุกคนยินดีต้อนรับ',
+    'swing.noJudgment': 'ไม่ตัดสิน ไม่ซักถาม',
+    'swing.lgbtq': 'บริการที่เป็นมิตรกับ LGBTQ+',
+    'swing.confidential': 'เป็นความลับและปลอดภัย',
+    'swing.whatToPrepare': 'สิ่งที่ต้องเตรียม',
+    'swing.id': 'บัตรประชาชน (ไม่บังคับแต่มีประโยชน์)',
+    'swing.medications': 'รายการยาที่ใช้อยู่',
+    'swing.questions': 'คำถามของคุณ (เราพร้อมช่วยเหลือ!)',
+    'swing.locations': 'สถานที่',
+    'swing.multipleLocations': 'มีหลายสถานที่ทั่วประเทศไทย',
+    'swing.visitWebsite': 'เยี่ยมชมเว็บไซต์เพื่อหาคลินิกใกล้บ้าน',
+    'swing.hours': 'เวลาเปิดทำการ',
+    'swing.checkHours': 'ตรวจสอบเวลาปัจจุบันที่เว็บไซต์',
+    'swing.walkIns': 'เข้ามาได้เลย แนะนำให้นัดหมายล่วงหน้า',
+    'swing.bookNow': 'จองตอนนี้',
+    'swing.opensNewWindow': 'เปิดในหน้าต่างใหม่',
+
+    // Settings
+    'settings.title': 'การตั้งค่า',
+    'settings.notifications': 'การแจ้งเตือน',
+    'settings.dailyPrep': 'PrEP รายวัน',
+    'settings.dailyPrep.desc': 'แจ้งเตือนรายวัน',
+    'settings.ondemandPrep': 'PrEP ตามเหตุการณ์',
+    'settings.ondemandPrep.desc': 'แจ้งเตือนตามเหตุการณ์',
+    'settings.pepReminders': 'แจ้งเตือน PEP',
+    'settings.pepReminders.desc': 'แจ้งเตือนหลักสูตร 28 วัน',
+    'settings.reminderTime': 'เวลาแจ้งเตือน',
+    'settings.defaultTime': 'เวลาแจ้งเตือนเริ่มต้น',
+    'settings.data': 'ข้อมูล',
+    'settings.resetAll': 'รีเซ็ตข้อมูลทั้งหมด',
+    'settings.resetWarning': 'การดำเนินการนี้จะลบความคืบหน้า การตั้งค่า และเหรียญทั้งหมดของคุณ',
+    'settings.confirmReset': 'คุณแน่ใจหรือไม่? การดำเนินการนี้จะรีเซ็ตความคืบหน้าทั้งหมด',
+
+    // Navigation
+    'nav.home': 'หน้าแรก',
+    'nav.learn': 'เรียนรู้',
+    'nav.swing': 'SWING',
+    'nav.progress': 'ความคืบหน้า',
+    'nav.settings': 'ตั้งค่า',
+
+    // Common
+    'common.back': 'กลับ',
+    'common.continue': 'ดำเนินการต่อ',
+    'common.save': 'บันทึก',
+    'common.cancel': 'ยกเลิก',
+    'common.language': 'ภาษา',
+  },
+  en: {
+    // Landing
+    'app.name': 'testD',
+    'app.tagline': 'Your sexual health companion',
+    'app.description': 'Track, learn, and stay on prevention — your way. Private, supportive, and judgment-free.',
+    'landing.startAnonymous': 'Start anonymously',
+    'landing.loginEmail': 'Login with email',
+    'landing.anonymous': 'Anonymous',
+    'landing.secure': 'Secure',
+    'landing.free': 'Free',
+    'landing.disclaimer': 'testD is a health support tool, not medical advice.',
+    'landing.consult': 'Always consult healthcare providers.',
+
+    // Onboarding
+    'onboarding.q1': 'Which best describes you right now?',
+    'onboarding.q1.subtitle': 'Choose what fits you best. You can always change this later.',
+    'onboarding.prep': 'Using PrEP',
+    'onboarding.prep.desc': 'Daily or on-demand prevention',
+    'onboarding.pep': 'Using PEP',
+    'onboarding.pep.desc': 'Post-exposure treatment',
+    'onboarding.exploring': 'Just exploring',
+    'onboarding.exploring.desc': 'Learning about options',
+    'onboarding.q2': 'What type of PrEP?',
+    'onboarding.daily': 'Daily PrEP',
+    'onboarding.daily.desc': 'One pill every day',
+    'onboarding.ondemand': 'On-demand PrEP',
+    'onboarding.ondemand.desc': 'Before & after activity',
+    'onboarding.skip': 'Skip for now',
+
+    // Consent
+    'consent.title': 'Your privacy matters',
+    'consent.subtitle': 'We believe in transparency about how we use data to help you and the community.',
+    'consent.anonymous': 'Anonymous usage data only',
+    'consent.noIdentity': 'No personal identity required',
+    'consent.improve': 'Helps improve services',
+    'consent.agree': 'I agree to anonymous data collection to help improve testD and support sexual health advocacy. I understand no personal information is required.',
+    'consent.continue': 'Continue to testD',
+    'consent.changeAnytime': 'You can change this anytime in settings',
+
+    // Dashboard
+    'dashboard.welcome': 'Welcome back',
+    'dashboard.doingGreat': "You're doing great",
+    'dashboard.today': 'Today',
+    'dashboard.takePrep': 'Take PrEP today',
+    'dashboard.pepDay': 'PEP Day',
+    'dashboard.of28': 'of 28',
+    'dashboard.taken': 'Taken',
+    'dashboard.skipped': 'Skipped',
+    'dashboard.greatJob': 'Great job! +10 XP',
+    'dashboard.skippedToday': 'Skipped today',
+    'dashboard.setupJourney': 'Set up your journey',
+    'dashboard.setupSubtitle': 'Set up your prevention to start tracking',
+    'dashboard.startDaily': 'Start Daily PrEP',
+    'dashboard.startOndemand': 'Start On-demand PrEP',
+    'dashboard.needPep': 'I need PEP',
+    'dashboard.emergencyPep': 'I need emergency PEP',
+    'dashboard.pepProgress': 'PEP Progress',
+    'dashboard.daysRemaining': 'days remaining',
+
+    // Stats
+    'stats.xp': 'XP',
+    'stats.streak': 'Streak',
+    'stats.level': 'Level',
+    'stats.badges': 'Badges',
+    'stats.totalXp': 'Total XP',
+
+    // Setup Daily PrEP
+    'setup.daily.title': 'Daily PrEP Setup',
+    'setup.daily.startDate': 'Start Date',
+    'setup.daily.stopDate': 'Stop Date (optional)',
+    'setup.daily.reminderTime': 'Daily Reminder Time',
+    'setup.daily.info': 'Daily PrEP becomes fully effective after about 7 days of consistent use. Keep taking it every day for maximum protection.',
+    'setup.daily.start': 'Start Daily PrEP',
+
+    // Setup On-demand PrEP
+    'setup.ondemand.title': 'On-Demand PrEP',
+    'setup.ondemand.eventDate': 'Planned Activity Date',
+    'setup.ondemand.eventTime': 'Approximate Time',
+    'setup.ondemand.timeline': 'Your dose timeline',
+    'setup.ondemand.firstDose': 'First dose (2 pills)',
+    'setup.ondemand.secondDose': 'Second dose',
+    'setup.ondemand.activity': 'Activity',
+    'setup.ondemand.thirdDose': 'Third dose',
+    'setup.ondemand.fourthDose': 'Fourth dose',
+    'setup.ondemand.info': 'On-demand PrEP (2-1-1) requires taking 2 pills 2-24 hours before, then 1 pill at 24h and 48h after activity.',
+    'setup.ondemand.start': 'Start On-Demand PrEP',
+
+    // PEP Emergency
+    'pep.emergency.title': 'PEP Emergency Support',
+    'pep.emergency.when': 'When was the possible exposure?',
+    'pep.emergency.hoursAgo': 'hours ago',
+    'pep.emergency.remaining': 'hours remaining',
+    'pep.emergency.exceeded': 'Time exceeded',
+    'pep.emergency.safe': 'PEP is most effective when started early',
+    'pep.emergency.warning': 'Time is running short — act now',
+    'pep.emergency.urgent': '72-hour window has passed',
+    'pep.emergency.whatIs': 'What is PEP?',
+    'pep.emergency.whatIsDesc': 'PEP (Post-Exposure Prophylaxis) is emergency HIV prevention medication taken after potential exposure. It must be started within 72 hours and taken for 28 days.',
+    'pep.emergency.effective': 'PEP is most effective when started as soon as possible.',
+    'pep.emergency.where': 'Where to get PEP',
+    'pep.emergency.whereDesc': 'Visit SWING clinics or local sexual health services for free PEP access.',
+    'pep.emergency.findSwing': 'Find SWING locations',
+    'pep.emergency.startTracking': 'Start PEP Tracking',
+    'pep.emergency.seekAdvice': 'Please seek medical advice',
+
+    // PEP Tracker
+    'pep.tracker.title': 'PEP Tracker',
+    'pep.tracker.ofDays': 'of 28 days',
+    'pep.tracker.todaysDose': "Today's Dose",
+    'pep.tracker.thisWeek': 'This Week',
+    'pep.tracker.congrats': 'Congratulations! 🎉',
+    'pep.tracker.completed': "You've completed your 28-day PEP course. Remember to get tested.",
+    'pep.tracker.encouragement1': 'Great start! The first week is crucial.',
+    'pep.tracker.encouragement2': "You're halfway there!",
+    'pep.tracker.encouragement3': 'Almost done, keep pushing!',
+    'pep.tracker.encouragement4': "Final stretch — you've got this!",
+
+    // Progress
+    'progress.title': 'Your Progress',
+    'progress.subtitle': 'Keep up the great work!',
+    'progress.currentLevel': 'Current Level',
+    'progress.xpToNext': 'XP to next level',
+    'progress.achievements': 'Achievements',
+    'progress.motivation.streak': "🔥 Amazing streak! You're on fire!",
+    'progress.motivation.xp': '⭐ Great progress! Keep going!',
+    'progress.motivation.default': "💪 Every day counts. You've got this!",
+
+    // Badges
+    'badge.startedPrep': 'Started PrEP',
+    'badge.7dayStreak': '7-Day Streak',
+    'badge.pepWarrior': 'PEP Warrior',
+    'badge.completedPep': 'Completed PEP',
+    'badge.30dayStreak': '30-Day Streak',
+    'badge.level5': 'Level 5',
+
+    // Info
+    'info.title': 'Learn',
+    'info.subtitle': 'Sexual health information',
+    'info.search': 'Search topics...',
+    'info.noResults': 'No articles found',
+    'info.whatIsPrep': 'What is PrEP?',
+    'info.whatIsPrep.desc': 'Learn about HIV prevention medication',
+    'info.dailyVsOndemand': 'Daily vs On-Demand PrEP',
+    'info.dailyVsOndemand.desc': 'Choose the right approach for you',
+    'info.whatIsPep': 'What is PEP?',
+    'info.whatIsPep.desc': 'Emergency HIV prevention',
+    'info.hivTesting': 'How Often to Test for HIV',
+    'info.hivTesting.desc': 'Regular testing recommendations',
+    'info.condoms': 'Condoms & Harm Reduction',
+    'info.condoms.desc': 'Additional protection strategies',
+
+    // SWING
+    'swing.title': 'Get Free PrEP at SWING',
+    'swing.subtitle': 'Friendly, judgment-free sexual health services',
+    'swing.whoCanAccess': 'Who Can Access',
+    'swing.welcome': 'Everyone is welcome',
+    'swing.noJudgment': 'No judgment, no questions',
+    'swing.lgbtq': 'LGBTQ+ friendly services',
+    'swing.confidential': 'Confidential and safe',
+    'swing.whatToPrepare': 'What to Prepare',
+    'swing.id': 'ID (optional but helpful)',
+    'swing.medications': 'List of current medications',
+    'swing.questions': "Your questions (we're here to help!)",
+    'swing.locations': 'Locations',
+    'swing.multipleLocations': 'Multiple locations across Thailand',
+    'swing.visitWebsite': 'Visit the website for nearest clinic',
+    'swing.hours': 'Opening Hours',
+    'swing.checkHours': 'Check website for current hours',
+    'swing.walkIns': 'Walk-ins welcome, appointments recommended',
+    'swing.bookNow': 'Book Now',
+    'swing.opensNewWindow': 'Opens in a new window',
+
+    // Settings
+    'settings.title': 'Settings',
+    'settings.notifications': 'Notifications',
+    'settings.dailyPrep': 'Daily PrEP',
+    'settings.dailyPrep.desc': 'Daily reminder',
+    'settings.ondemandPrep': 'On-demand PrEP',
+    'settings.ondemandPrep.desc': 'Event-based reminders',
+    'settings.pepReminders': 'PEP Reminders',
+    'settings.pepReminders.desc': '28-day course reminders',
+    'settings.reminderTime': 'Reminder Time',
+    'settings.defaultTime': 'Default notification time',
+    'settings.data': 'Data',
+    'settings.resetAll': 'Reset All Data',
+    'settings.resetWarning': 'This will delete all your progress, settings, and badges',
+    'settings.confirmReset': 'Are you sure? This will reset all your progress.',
+
+    // Navigation
+    'nav.home': 'Home',
+    'nav.learn': 'Learn',
+    'nav.swing': 'SWING',
+    'nav.progress': 'Progress',
+    'nav.settings': 'Settings',
+
+    // Common
+    'common.back': 'Back',
+    'common.continue': 'Continue',
+    'common.save': 'Save',
+    'common.cancel': 'Cancel',
+    'common.language': 'Language',
+  },
+};
+
+export const useLanguage = create<LanguageState>()(
+  persist(
+    (set, get) => ({
+      language: 'th', // Thai as default
+      setLanguage: (lang) => set({ language: lang }),
+      t: (key) => {
+        const { language } = get();
+        return translations[language][key] || translations['en'][key] || key;
+      },
+    }),
+    {
+      name: 'testd-language',
+    }
+  )
+);

@@ -1,17 +1,19 @@
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "react-router-dom";
 import { Home, BookOpen, Trophy, Bell, Heart } from "lucide-react";
-
-const navItems = [
-  { icon: Home, label: "Home", path: "/dashboard" },
-  { icon: BookOpen, label: "Learn", path: "/info" },
-  { icon: Heart, label: "SWING", path: "/swing" },
-  { icon: Trophy, label: "Progress", path: "/progress" },
-  { icon: Bell, label: "Settings", path: "/settings" },
-];
+import { useLanguage } from "@/lib/i18n";
 
 export function BottomNav() {
   const location = useLocation();
+  const { t } = useLanguage();
+
+  const navItems = [
+    { icon: Home, label: t('nav.home'), path: "/dashboard" },
+    { icon: BookOpen, label: t('nav.learn'), path: "/info" },
+    { icon: Heart, label: t('nav.swing'), path: "/swing" },
+    { icon: Trophy, label: t('nav.progress'), path: "/progress" },
+    { icon: Bell, label: t('nav.settings'), path: "/settings" },
+  ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur safe-bottom">

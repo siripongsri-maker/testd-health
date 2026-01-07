@@ -2,34 +2,39 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ProgressIndicator } from "@/components/ProgressIndicator";
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { setUserData, addBadge } from "@/lib/store";
+import { useLanguage } from "@/lib/i18n";
 import { Pill, Clock, Search, ArrowRight, ChevronRight } from "lucide-react";
 
 type Mode = "prep-daily" | "prep-ondemand" | "pep" | "exploring";
 
-const steps = [
-  {
-    question: "Which best describes you right now?",
-    options: [
-      { value: "prep", label: "Using PrEP", icon: Pill, description: "Daily or on-demand prevention" },
-      { value: "pep", label: "Using PEP", icon: Clock, description: "Post-exposure treatment" },
-      { value: "exploring", label: "Just exploring", icon: Search, description: "Learning about options" },
-    ],
-  },
-  {
-    question: "What type of PrEP?",
-    condition: (answers: Record<string, string>) => answers.step1 === "prep",
-    options: [
-      { value: "prep-daily", label: "Daily PrEP", icon: Pill, description: "One pill every day" },
-      { value: "prep-ondemand", label: "On-demand PrEP", icon: Clock, description: "Before & after activity" },
-    ],
-  },
-];
-
 export default function Onboarding() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+
+  const steps = [
+    {
+      question: t('onboarding.q1'),
+      subtitle: t('onboarding.q1.subtitle'),
+      options: [
+        { value: "prep", label: t('onboarding.prep'), icon: Pill, description: t('onboarding.prep.desc') },
+        { value: "pep", label: t('onboarding.pep'), icon: Clock, description: t('onboarding.pep.desc') },
+        { value: "exploring", label: t('onboarding.exploring'), icon: Search, description: t('onboarding.exploring.desc') },
+      ],
+    },
+    {
+      question: t('onboarding.q2'),
+      subtitle: t('onboarding.q1.subtitle'),
+      condition: (ans: Record<string, string>) => ans.step1 === "prep",
+      options: [
+        { value: "prep-daily", label: t('onboarding.daily'), icon: Pill, description: t('onboarding.daily.desc') },
+        { value: "prep-ondemand", label: t('onboarding.ondemand'), icon: Clock, description: t('onboarding.ondemand.desc') },
+      ],
+    },
+  ];
 
   const getActiveSteps = () => {
     return steps.filter((step, index) => {
@@ -41,13 +46,12 @@ export default function Onboarding() {
 
   const activeSteps = getActiveSteps();
   const currentStepData = activeSteps[currentStep];
-  const totalSteps = activeSteps.length + 1; // +1 for consent
+  const totalSteps = activeSteps.length + 1;
 
   const handleSelect = (value: string) => {
     const newAnswers = { ...answers, [`step${currentStep + 1}`]: value };
     setAnswers(newAnswers);
 
-    // Determine mode
     let mode: Mode = "exploring";
     if (value === "pep") {
       mode = "pep";
@@ -59,12 +63,10 @@ export default function Onboarding() {
       mode = "exploring";
     }
 
-    // Check if we need the next step
     const nextStep = currentStep + 1;
     const nextStepData = steps[nextStep];
     
     if (nextStepData && nextStepData.condition && !nextStepData.condition(newAnswers)) {
-      // Skip to consent
       saveAndNavigate(mode);
     } else if (nextStep < activeSteps.length) {
       setCurrentStep(nextStep);
@@ -76,7 +78,6 @@ export default function Onboarding() {
   const saveAndNavigate = (mode: Mode) => {
     setUserData({ mode });
     
-    // Award first badge
     if (mode.startsWith("prep")) {
       addBadge("Started PrEP Journey");
     } else if (mode === "pep") {
@@ -100,6 +101,11 @@ export default function Onboarding() {
 
   return (
     <div className="min-h-screen gradient-hero flex flex-col px-6 py-8 safe-top safe-bottom">
+      {/* Language Toggle */}
+      <div className="absolute top-4 right-4">
+        <LanguageToggle />
+      </div>
+
       {/* Progress */}
       <ProgressIndicator current={currentStep + 1} total={totalSteps} className="mb-8" />
       
@@ -109,7 +115,7 @@ export default function Onboarding() {
           {currentStepData.question}
         </h1>
         <p className="text-muted-foreground">
-          Choose what fits you best. You can always change this later.
+          {currentStepData.subtitle}
         </p>
       </div>
       
@@ -140,7 +146,7 @@ export default function Onboarding() {
       {/* Skip button */}
       <div className="mt-8">
         <Button variant="ghost" onClick={handleSkip} className="w-full text-muted-foreground">
-          Skip for now
+          {t('onboarding.skip')}
           <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
