@@ -6,10 +6,11 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { TestTube, Heart, Shield, ExternalLink, Bell, Package } from "lucide-react";
+import { TestTube, Heart, Shield, ExternalLink, Bell, Package, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface SelfCareItem {
   id: string;
@@ -59,6 +60,7 @@ interface Reminder {
 export default function SelfCare() {
   const { t, language } = useLanguage();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [reminders, setReminders] = useState<Record<string, boolean>>({
     hiv_test: true,
     condom_refill: true,
@@ -134,6 +136,27 @@ export default function SelfCare() {
           <h1 className="text-2xl font-bold text-foreground">{t('selfCare.title')}</h1>
           <p className="text-muted-foreground">{t('selfCare.subtitle')}</p>
         </div>
+
+        {/* HIV Self-Test Kit Banner */}
+        <Card 
+          className="p-4 mb-6 cursor-pointer bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 hover:border-primary/40 transition-colors"
+          onClick={() => navigate('/hiv-selftest')}
+        >
+          <div className="flex items-center gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-primary/20">
+              <TestTube className="h-7 w-7 text-primary" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-foreground">
+                {language === 'th' ? 'ขอรับชุดตรวจ HIV ฟรี' : 'Get Free HIV Self-Test Kit'}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {language === 'th' ? 'ตรวจที่บ้าน ส่งฟรีทั่วไทย โดย SWING' : 'Test at home, free delivery by SWING'}
+              </p>
+            </div>
+            <ArrowRight className="h-5 w-5 text-primary shrink-0" />
+          </div>
+        </Card>
 
         {/* Products */}
         <div className="space-y-3 mb-8">
