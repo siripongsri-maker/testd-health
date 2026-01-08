@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 import { getUserData } from "@/lib/store";
-import { TownBuilding, PixelTree, Pond, Fence, PixelRock, PixelCharacter, WalkingVillager, FlyingBird, Butterfly } from "@/components/TownBuilding";
+import { TownBuilding, PixelTree, Pond, Fence, PixelRock, TownAvatar, WalkingVillager, FlyingBird, Butterfly } from "@/components/TownBuilding";
 import { GameAvatar } from "@/components/GameAvatar";
 import { HIVTestPopup } from "@/components/HIVTestPopup";
 import { LanguageToggle } from "@/components/LanguageToggle";
@@ -218,7 +218,8 @@ export default function TownHub() {
                   onClick={() => navigate("/hiv-selftest")}
                   variant="featured"
                   badge="FREE"
-                  size="lg"
+                  size="xl"
+                  buildingStyle="clinic"
                 />
                 
                 <div className="flex justify-center items-end gap-3">
@@ -238,7 +239,8 @@ export default function TownHub() {
                     onClick={() => navigate("/dashboard")}
                     roofColor="bg-teal-500"
                     wallColor="bg-teal-50"
-                    size="md"
+                    size="lg"
+                    buildingStyle="shop"
                   />
                 </div>
 
@@ -250,6 +252,7 @@ export default function TownHub() {
                   roofColor="bg-pink-400"
                   wallColor="bg-pink-50"
                   size="md"
+                  buildingStyle="cottage"
                 />
 
                 <div className="flex flex-col items-center gap-2">
@@ -261,7 +264,8 @@ export default function TownHub() {
                     onClick={() => navigate("/quests")}
                     roofColor="bg-amber-500"
                     wallColor="bg-amber-50"
-                    size="md"
+                    size="lg"
+                    buildingStyle="castle"
                   />
                 </div>
               </div>
@@ -277,8 +281,9 @@ export default function TownHub() {
                   </div>
                 </div>
                 
-                {/* Player character */}
-                <PixelCharacter 
+                {/* Player character - reflects real avatar */}
+                <TownAvatar 
+                  avatarConfig={userData.avatarConfig}
                   onClick={() => {
                     playBuildingTap();
                     navigate("/avatar");
@@ -305,6 +310,7 @@ export default function TownHub() {
                   roofColor="bg-purple-500"
                   wallColor="bg-purple-50"
                   size="md"
+                  buildingStyle="cottage"
                 />
 
                 <div className="flex flex-col items-center gap-2">
@@ -316,7 +322,8 @@ export default function TownHub() {
                     onClick={() => navigate("/info")}
                     roofColor="bg-blue-500"
                     wallColor="bg-blue-50"
-                    size="md"
+                    size="lg"
+                    buildingStyle="mansion"
                   />
                 </div>
 
@@ -327,7 +334,8 @@ export default function TownHub() {
                   onClick={() => navigate("/swing")}
                   roofColor="bg-emerald-500"
                   wallColor="bg-emerald-50"
-                  size="md"
+                  size="lg"
+                  buildingStyle="tower"
                 />
               </div>
 
