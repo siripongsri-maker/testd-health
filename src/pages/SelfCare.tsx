@@ -7,12 +7,13 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { TestTube, Heart, Shield, ExternalLink, Bell, Package, ArrowRight } from "lucide-react";
+import { TestTube, Heart, Shield, ExternalLink, Bell, Package, ArrowRight, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
+// Fallback images
 import loveKitImg from "@/assets/love-kit.jpg";
 import selfKitImg from "@/assets/self-kit.jpg";
 import safeKitImg from "@/assets/safe-kit.jpg";
@@ -20,7 +21,7 @@ import safeKitImg from "@/assets/safe-kit.jpg";
 interface SelfCareItem {
   id: string;
   icon: React.ElementType;
-  image: string;
+  fallbackImage: string;
   titleEn: string;
   titleTh: string;
   descEn: string;
@@ -32,7 +33,7 @@ const SELF_CARE_ITEMS: SelfCareItem[] = [
   {
     id: 'condoms',
     icon: Heart,
-    image: loveKitImg,
+    fallbackImage: loveKitImg,
     titleEn: 'Love Kit - Condoms',
     titleTh: 'Love Kit - ถุงยางอนามัย',
     descEn: 'Essential protection, discreet delivery',
@@ -42,7 +43,7 @@ const SELF_CARE_ITEMS: SelfCareItem[] = [
   {
     id: 'hiv-test',
     icon: TestTube,
-    image: selfKitImg,
+    fallbackImage: selfKitImg,
     titleEn: 'Self Kit - HIV Self-Test',
     titleTh: 'Self Kit - ชุดตรวจ HIV ด้วยตัวเอง',
     descEn: 'Quick, private, and accurate home testing',
@@ -52,7 +53,7 @@ const SELF_CARE_ITEMS: SelfCareItem[] = [
   {
     id: 'harm-reduction',
     icon: Shield,
-    image: safeKitImg,
+    fallbackImage: safeKitImg,
     titleEn: 'Safe Kit - Harm Reduction Set',
     titleTh: 'Safe Kit - ชุดลดอันตราย',
     descEn: 'Lubricants and safer use supplies',
@@ -76,6 +77,36 @@ export default function SelfCare() {
     harm_reduction: true,
   });
   const [loading, setLoading] = useState(true);
+  const [productImages, setProductImages] = useState<Record<string, string>>({});
+  const [imagesLoading, setImagesLoading] = useState(true);
+
+  // Fetch Shopee product images
+  useEffect(() => {
+    const fetchShopeeImages = async () => {
+      try {
+        const products = SELF_CARE_ITEMS.map(item => ({
+          id: item.id,
+          link: item.link,
+        }));
+
+        const { data, error } = await supabase.functions.invoke('scrape-shopee-images', {
+          body: { products },
+        });
+
+        if (error) {
+          console.error('Error fetching Shopee images:', error);
+        } else if (data?.success && data?.images) {
+          setProductImages(data.images);
+        }
+      } catch (error) {
+        console.error('Error fetching Shopee images:', error);
+      } finally {
+        setImagesLoading(false);
+      }
+    };
+
+    fetchShopeeImages();
+  }, []);
 
   useEffect(() => {
     const fetchReminders = async () => {
@@ -168,9 +199,14 @@ export default function SelfCare() {
           {SELF_CARE_ITEMS.map((item) => (
             <Card key={item.id} className="overflow-hidden">
               <div className="flex">
-                <div className="w-28 h-28 shrink-0 bg-muted">
+                <div className="w-28 h-28 shrink-0 bg-muted relative">
+                  {imagesLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                    </div>
+                  )}
                   <img 
-                    src={item.image} 
+                    src={productImages[item.id] || item.fallbackImage} 
                     alt={item.titleEn}
                     className="w-full h-full object-cover"
                   />
