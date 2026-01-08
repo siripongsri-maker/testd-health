@@ -47,6 +47,19 @@ interface SelfTestRequest {
 
 type Step = 'request' | 'confirm-receipt' | 'video' | 'testing' | 'timer' | 'photo-result';
 
+// Thai ID validation using checksum algorithm
+const validateThaiId = (id: string): boolean => {
+  if (id.length !== 13 || !/^\d{13}$/.test(id)) return false;
+  
+  // Thai ID checksum algorithm
+  let sum = 0;
+  for (let i = 0; i < 12; i++) {
+    sum += parseInt(id[i]) * (13 - i);
+  }
+  const checkDigit = (11 - (sum % 11)) % 10;
+  return checkDigit === parseInt(id[12]);
+};
+
 const TESTING_STEPS = [
   { id: 'wash', th: 'ล้างมือให้สะอาดด้วยสบู่', en: 'Wash hands thoroughly with soap' },
   { id: 'open', th: 'เปิดกล่องและตรวจสอบอุปกรณ์ครบ', en: 'Open box and check all components' },
@@ -69,6 +82,7 @@ export default function HIVSelfTest() {
   // Form state
   const [formData, setFormData] = useState({
     fullName: "",
+    thaiId: "",
     phone: "",
     lineId: "",
     address: "",
@@ -76,6 +90,7 @@ export default function HIVSelfTest() {
     postalCode: "",
     lastRiskDate: "",
   });
+  const [thaiIdError, setThaiIdError] = useState<string | null>(null);
   
   // Testing state
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
@@ -178,10 +193,18 @@ export default function HIVSelfTest() {
 
     setLoading(true);
     
+    // Validate Thai ID before submitting
+    if (!validateThaiId(formData.thaiId)) {
+      setThaiIdError(language === 'th' ? 'หมายเลขบัตรประชาชนไม่ถูกต้อง' : 'Invalid Thai ID number');
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data, error } = await supabase.from('hiv_selftest_requests').insert({
         user_id: user.id,
         full_name: formData.fullName,
+        thai_id: formData.thaiId,
         phone: formData.phone,
         line_id: formData.lineId,
         address: formData.address,
@@ -202,6 +225,7 @@ export default function HIVSelfTest() {
       
       setFormData({
         fullName: "",
+        thaiId: "",
         phone: "",
         lineId: "",
         address: "",
@@ -209,6 +233,7 @@ export default function HIVSelfTest() {
         postalCode: "",
         lastRiskDate: "",
       });
+      setThaiIdError(null);
       
       if (data) {
         setActiveRequest(data);
@@ -477,6 +502,43 @@ Important: Be very careful and accurate. This is a medical test result.`
                     />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="thaiId">
+                      {language === 'th' ? 'หมายเลขบัตรประชาชน (13 หลัก)' : 'Thai ID (13 digits)'}
+                    </Label>
+                    <Input
+                      id="thaiId"
+                      value={formData.thaiId}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, '').slice(0, 13);
+                        setFormData(prev => ({ ...prev, thaiId: value }));
+                        if (value.length === 13) {
+                          if (!validateThaiId(value)) {
+                            setThaiIdError(language === 'th' ? 'หมายเลขบัตรประชาชนไม่ถูกต้อง' : 'Invalid Thai ID number');
+                          } else {
+                            setThaiIdError(null);
+                          }
+                        } else {
+                          setThaiIdError(null);
+                        }
+                      }}
+                      placeholder="X-XXXX-XXXXX-XX-X"
+                      maxLength={13}
+                      required
+                      className={thaiIdError ? 'border-destructive' : ''}
+                    />
+                    {thaiIdError && (
+                      <p className="text-sm text-destructive">{thaiIdError}</p>
+                    )}
+                    {formData.thaiId.length === 13 && !thaiIdError && (
+                      <p className="text-sm text-success flex items-center gap-1">
+                        <Check className="h-3 w-3" /> {language === 'th' ? 'หมายเลขถูกต้อง' : 'Valid ID'}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
                     <Label htmlFor="phone">
                       <Phone className="h-4 w-4 inline mr-1" />
                       {language === 'th' ? 'เบอร์โทร' : 'Phone'}
@@ -490,10 +552,59 @@ Important: Be very careful and accurate. This is a medical test result.`
                       required
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lineId">LINE ID ({language === 'th' ? 'ไม่บังคับ' : 'optional'})</Label>
+                    <Input
+                      id="lineId"
+                      value={formData.lineId}
+                      onChange={(e) => setFormData(prev => ({ ...prev, lineId: e.target.value }))}
+                      placeholder="@line_id"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="lineId">LINE ID ({language === 'th' ? 'ไม่บังคับ' : 'optional'})</Label>
+                  <Label htmlFor="address">
+                    <MapPin className="h-4 w-4 inline mr-1" />
+                    {language === 'th' ? 'ที่อยู่จัดส่ง' : 'Shipping Address'}
+                  </Label>
+                  <Textarea
+                    id="address"
+                    value={formData.address}
+                    onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                    placeholder={language === 'th' ? 'บ้านเลขที่ ซอย ถนน แขวง/ตำบล เขต/อำเภอ' : 'House number, street, subdistrict, district'}
+                    required
+                  />
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="province">{language === 'th' ? 'จังหวัด' : 'Province'}</Label>
+                    <Input
+                      id="province"
+                      value={formData.province}
+                      onChange={(e) => setFormData(prev => ({ ...prev, province: e.target.value }))}
+                      placeholder={language === 'th' ? 'กรุงเทพฯ' : 'Bangkok'}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="postalCode">{language === 'th' ? 'รหัสไปรษณีย์' : 'Postal Code'}</Label>
+                    <Input
+                      id="postalCode"
+                      value={formData.postalCode}
+                      onChange={(e) => setFormData(prev => ({ ...prev, postalCode: e.target.value }))}
+                      placeholder="10xxx"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="lastRiskDate">
+                    <Calendar className="h-4 w-4 inline mr-1" />
+                    {language === 'th' ? 'วันที่เสี่ยงครั้งล่าสุด (ถ้ามี)' : 'Last Risk Date (if any)'}
+                  </Label>
                   <Input
                     id="lineId"
                     value={formData.lineId}
