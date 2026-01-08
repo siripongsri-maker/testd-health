@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 import { getUserData } from "@/lib/store";
-import { TownBuilding } from "@/components/TownBuilding";
-import { PlayerAvatar } from "@/components/PlayerAvatar";
+import { IsometricBuilding } from "@/components/IsometricBuilding";
+import { GameAvatar } from "@/components/GameAvatar";
 import { HIVTestPopup } from "@/components/HIVTestPopup";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { Button } from "@/components/ui/button";
@@ -15,17 +15,16 @@ import {
   BookOpen,
   Trophy,
   Settings,
-  Sparkles,
   MapPin,
   Shield,
-  Users,
-  Compass,
+  User,
+  Bell,
 } from "lucide-react";
 import swingLogo from "@/assets/swing-logo.webp";
 
 export default function TownHub() {
   const navigate = useNavigate();
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const [userData, setUserData] = useState(getUserData());
 
   useEffect(() => {
@@ -34,75 +33,33 @@ export default function TownHub() {
 
   const isNewUser = !userData.onboardingComplete;
 
-  // Town buildings configuration
-  const featuredBuilding = {
-    icon: <TestTube className="h-full w-full" />,
-    name: language === 'th' ? '🏥 ศูนย์ตรวจ HIV' : '🏥 HIV Test Center',
-    description: language === 'th' ? 'รับชุดตรวจฟรี!' : 'Get FREE test kit!',
-    onClick: () => navigate("/hiv-selftest"),
-    variant: "featured" as const,
-    glowing: true,
-    badge: language === 'th' ? 'ฟรี' : 'FREE',
-  };
-
-  const mainBuildings = [
-    {
-      icon: <Pill className="h-full w-full" />,
-      name: language === 'th' ? '💊 ร้านยา' : '💊 Pharmacy',
-      description: language === 'th' ? 'PrEP & PEP' : 'PrEP & PEP',
-      onClick: () => navigate("/dashboard"),
-    },
-    {
-      icon: <Trophy className="h-full w-full" />,
-      name: language === 'th' ? '🏆 กิลด์ฮอลล์' : '🏆 Guild Hall',
-      description: language === 'th' ? 'เควสท์และความสำเร็จ' : 'Quests & Achievements',
-      onClick: () => navigate("/quests"),
-    },
-    {
-      icon: <MessageCircle className="h-full w-full" />,
-      name: language === 'th' ? '🗨️ โรงเตี๊ยม' : '🗨️ Tavern',
-      description: language === 'th' ? 'พูดคุยกับเพื่อนๆ' : 'Chat with friends',
-      onClick: () => navigate("/community"),
-    },
-    {
-      icon: <Heart className="h-full w-full" />,
-      name: language === 'th' ? '🌸 สวนสุขภาพ' : '🌸 Wellness Garden',
-      description: language === 'th' ? 'ดูแลตัวเอง' : 'Self-care tips',
-      onClick: () => navigate("/self-care"),
-    },
-    {
-      icon: <BookOpen className="h-full w-full" />,
-      name: language === 'th' ? '📚 ห้องสมุด' : '📚 Library',
-      description: language === 'th' ? 'ความรู้สุขภาพ' : 'Health info',
-      onClick: () => navigate("/info"),
-    },
-    {
-      icon: <Shield className="h-full w-full" />,
-      name: language === 'th' ? '🛡️ SWING' : '🛡️ SWING Center',
-      description: language === 'th' ? 'บริการสุขภาพ' : 'Health services',
-      onClick: () => navigate("/swing"),
-    },
-  ];
-
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {/* Sky gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-b from-sky-200 via-sky-100 to-green-100 dark:from-indigo-950 dark:via-slate-900 dark:to-emerald-950" />
+      {/* Sky gradient background - sunset/twilight feel like reference */}
+      <div className="absolute inset-0 bg-gradient-to-b from-purple-300 via-pink-200 to-sky-300 dark:from-indigo-950 dark:via-purple-900 dark:to-slate-900" />
       
       {/* Clouds */}
-      <div className="absolute top-10 left-10 w-20 h-8 bg-white/60 dark:bg-white/10 rounded-full blur-sm animate-float" style={{ animationDelay: "0s" }} />
-      <div className="absolute top-20 right-20 w-32 h-10 bg-white/50 dark:bg-white/10 rounded-full blur-sm animate-float" style={{ animationDelay: "2s" }} />
-      <div className="absolute top-16 left-1/3 w-24 h-8 bg-white/40 dark:bg-white/10 rounded-full blur-sm animate-float" style={{ animationDelay: "4s" }} />
+      <div className="absolute top-8 left-8 w-24 h-10 bg-white/50 dark:bg-white/10 rounded-full blur-md" />
+      <div className="absolute top-16 right-12 w-36 h-12 bg-white/40 dark:bg-white/10 rounded-full blur-md" />
+      <div className="absolute top-24 left-1/4 w-28 h-8 bg-white/30 dark:bg-white/10 rounded-full blur-md" />
 
       {/* Header */}
-      <header className="relative z-10 flex items-center justify-between px-4 py-3 safe-top">
-        <PlayerAvatar showStats className="flex-1" />
+      <header className="relative z-20 flex items-center justify-between px-4 py-3 safe-top">
+        <GameAvatar showStats size="md" />
         <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full bg-card/50 backdrop-blur-sm"
+            onClick={() => navigate("/personal-info")}
+          >
+            <User className="h-5 w-5" />
+          </Button>
           <LanguageToggle />
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-full"
+            className="rounded-full bg-card/50 backdrop-blur-sm"
             onClick={() => navigate("/settings")}
           >
             <Settings className="h-5 w-5" />
@@ -110,95 +67,178 @@ export default function TownHub() {
         </div>
       </header>
 
-      {/* Town Name Banner */}
-      <div className="relative z-10 text-center py-4">
-        <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-card/90 shadow-lg border-2 border-primary/20">
-          <MapPin className="h-5 w-5 text-primary" />
-          <h1 className="text-xl font-bold text-foreground">
+      {/* Town Name */}
+      <div className="relative z-10 text-center py-2">
+        <div className="inline-flex items-center gap-2 px-5 py-1.5 rounded-full bg-card/80 shadow-lg backdrop-blur-sm border border-white/30">
+          <MapPin className="h-4 w-4 text-primary" />
+          <h1 className="text-lg font-bold text-foreground">
             {language === 'th' ? 'เมือง testD' : 'testD Town'}
           </h1>
-          <Sparkles className="h-5 w-5 text-xp" />
         </div>
       </div>
 
-      {/* Main content - Town grid */}
-      <main className="relative z-10 flex-1 px-4 pb-24 overflow-y-auto">
-        {/* Welcome message for new users */}
-        {isNewUser && (
-          <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-primary/20 to-accent/20 border-2 border-primary/30">
-            <div className="flex items-center gap-3">
-              <Compass className="h-8 w-8 text-primary" />
-              <div>
-                <p className="font-bold text-foreground">
-                  {language === 'th' ? 'ยินดีต้อนรับนักผจญภัย!' : 'Welcome, Adventurer!'}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {language === 'th' ? 'สำรวจเมืองและเริ่มต้นการเดินทางของคุณ' : 'Explore the town and start your journey'}
-                </p>
+      {/* Isometric Town Map */}
+      <main className="relative z-10 flex-1 overflow-hidden">
+        {/* Ground/Island base */}
+        <div className="absolute inset-x-0 bottom-20 top-0 flex items-center justify-center">
+          <div className="relative w-full max-w-md aspect-square">
+            {/* Grass island base */}
+            <div className="absolute inset-0 rounded-[40%] bg-gradient-to-b from-green-400 to-green-600 dark:from-emerald-700 dark:to-emerald-900 shadow-2xl transform rotate-0 skew-x-0" 
+                 style={{ 
+                   borderRadius: '45% 45% 50% 50%',
+                   boxShadow: '0 20px 60px -15px rgba(0,0,0,0.3), inset 0 -10px 30px rgba(0,0,0,0.1)'
+                 }} />
+            
+            {/* Grass texture overlay */}
+            <div className="absolute inset-4 rounded-[40%] opacity-50"
+                 style={{
+                   background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 50%), radial-gradient(circle at 70% 70%, rgba(0,0,0,0.1) 0%, transparent 40%)'
+                 }} />
+
+            {/* Paths - cross pattern */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              {/* Horizontal path */}
+              <div className="absolute w-3/4 h-6 bg-gradient-to-r from-transparent via-amber-100/80 to-transparent rounded-full" />
+              {/* Vertical path */}
+              <div className="absolute w-6 h-3/4 bg-gradient-to-b from-transparent via-amber-100/80 to-transparent rounded-full" />
+              {/* Center circle */}
+              <div className="absolute w-16 h-16 rounded-full bg-amber-100/60 border-4 border-amber-200/50 flex items-center justify-center">
+                <Bell className="h-6 w-6 text-primary/60" />
               </div>
             </div>
-          </div>
-        )}
 
-        {/* Featured building - HIV Test Center */}
-        <div className="mb-6">
-          <TownBuilding
-            {...featuredBuilding}
-            className="w-full min-h-[140px]"
-          />
-        </div>
+            {/* Trees - decorative */}
+            <div className="absolute top-8 left-8 text-2xl">🌳</div>
+            <div className="absolute top-12 right-12 text-xl">🌲</div>
+            <div className="absolute bottom-16 left-12 text-2xl">🌳</div>
+            <div className="absolute bottom-20 right-8 text-xl">🌲</div>
+            <div className="absolute top-1/3 left-4 text-lg">🌲</div>
+            <div className="absolute bottom-1/3 right-4 text-lg">🌳</div>
 
-        {/* Town buildings grid */}
-        <div className="grid grid-cols-2 gap-4">
-          {mainBuildings.map((building, index) => (
-            <TownBuilding
-              key={index}
-              {...building}
-              className="min-h-[130px]"
-            />
-          ))}
-        </div>
+            {/* Flowers */}
+            <div className="absolute top-20 right-1/4 text-sm">🌸</div>
+            <div className="absolute bottom-24 left-1/4 text-sm">🌷</div>
+            <div className="absolute top-1/2 right-8 text-sm">🌺</div>
 
-        {/* Quick actions */}
-        {userData.mode && (
-          <div className="mt-6 p-4 rounded-2xl bg-card/80 border-2 border-border">
-            <p className="text-sm font-semibold text-muted-foreground mb-3">
-              {language === 'th' ? '⚡ การกระทำด่วน' : '⚡ Quick Actions'}
-            </p>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 gap-2"
+            {/* Buildings positioned around the island */}
+            
+            {/* HIV Test Center - TOP - Featured */}
+            <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10">
+              <IsometricBuilding
+                icon={<TestTube className="h-full w-full" />}
+                name={language === 'th' ? 'ศูนย์ตรวจ' : 'Test Center'}
+                description={language === 'th' ? 'รับชุดตรวจ HIV ฟรี!' : 'Get FREE HIV test!'}
+                onClick={() => navigate("/hiv-selftest")}
+                variant="featured"
+                glowing
+                badge={language === 'th' ? 'ฟรี' : 'FREE'}
+                size="lg"
+              />
+            </div>
+
+            {/* Clinic - TOP RIGHT */}
+            <div className="absolute top-16 right-2 z-10">
+              <IsometricBuilding
+                icon={<Heart className="h-full w-full" />}
+                name={language === 'th' ? 'คลินิกใจ' : 'Wellness'}
+                onClick={() => navigate("/self-care")}
+                buildingColor="from-pink-100 to-pink-200"
+                size="md"
+              />
+            </div>
+
+            {/* Pharmacy - LEFT */}
+            <div className="absolute top-1/3 left-0 z-10">
+              <IsometricBuilding
+                icon={<Pill className="h-full w-full" />}
+                name={language === 'th' ? 'ร้านยา' : 'Pharmacy'}
+                description="PrEP & PEP"
                 onClick={() => navigate("/dashboard")}
-              >
-                <Pill className="h-4 w-4" />
-                {language === 'th' ? 'บันทึกยา' : 'Log Meds'}
-              </Button>
-              <Button
-                variant="outline"
+                buildingColor="from-green-100 to-green-200"
+                size="md"
+              />
+            </div>
+
+            {/* Guild Hall / Quest - RIGHT */}
+            <div className="absolute top-1/2 right-0 -translate-y-1/2 z-10">
+              <IsometricBuilding
+                icon={<Trophy className="h-full w-full" />}
+                name={language === 'th' ? 'กิลด์' : 'Guild'}
+                onClick={() => navigate("/quests")}
+                buildingColor="from-amber-100 to-amber-200"
+                size="md"
+              />
+            </div>
+
+            {/* Community/Tavern - BOTTOM LEFT */}
+            <div className="absolute bottom-20 left-4 z-10">
+              <IsometricBuilding
+                icon={<MessageCircle className="h-full w-full" />}
+                name={language === 'th' ? 'โรงเตี๊ยม' : 'Tavern'}
+                onClick={() => navigate("/community")}
+                buildingColor="from-purple-100 to-purple-200"
+                size="md"
+              />
+            </div>
+
+            {/* Library - BOTTOM RIGHT */}
+            <div className="absolute bottom-16 right-6 z-10">
+              <IsometricBuilding
+                icon={<BookOpen className="h-full w-full" />}
+                name={language === 'th' ? 'ห้องสมุด' : 'Library'}
+                onClick={() => navigate("/info")}
+                buildingColor="from-blue-100 to-blue-200"
+                size="md"
+              />
+            </div>
+
+            {/* SWING Center - BOTTOM CENTER */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
+              <IsometricBuilding
+                icon={<Shield className="h-full w-full" />}
+                name="SWING"
+                onClick={() => navigate("/swing")}
+                buildingColor="from-teal-100 to-teal-200"
                 size="sm"
-                className="flex-1 gap-2"
-                onClick={() => navigate("/progress")}
-              >
-                <Trophy className="h-4 w-4" />
-                {language === 'th' ? 'ดูความก้าวหน้า' : 'View Progress'}
-              </Button>
+              />
+            </div>
+
+            {/* Character sprite in center - clicking goes to avatar customization */}
+            <button 
+              onClick={() => navigate("/avatar")}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 transition-transform hover:scale-110 active:scale-95"
+            >
+              <div className="relative">
+                {/* Standing shadow */}
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-3 bg-black/20 rounded-full blur-sm" />
+                {/* Character */}
+                <div className="text-4xl animate-bounce-gentle">
+                  🧍
+                </div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* Welcome message for new users */}
+        {isNewUser && (
+          <div className="absolute top-4 left-4 right-4 z-30">
+            <div className="p-3 rounded-2xl bg-card/95 backdrop-blur-sm border border-primary/20 shadow-lg">
+              <p className="text-sm font-bold text-foreground text-center">
+                {language === 'th' ? '🎮 ยินดีต้อนรับ! แตะที่ตัวละครเพื่อปรับแต่งอวาตาร์' : '🎮 Welcome! Tap your character to customize avatar'}
+              </p>
             </div>
           </div>
         )}
       </main>
 
-      {/* Bottom decorative grass */}
-      <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-green-400/30 to-transparent dark:from-emerald-900/30 pointer-events-none" />
-
       {/* Footer */}
-      <footer className="relative z-10 pb-6 pt-2 text-center safe-bottom">
+      <footer className="relative z-10 pb-4 pt-2 text-center safe-bottom">
         <div className="flex items-center justify-center gap-2">
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-foreground/70 font-medium">
             {language === 'th' ? 'สนับสนุนโดย' : 'Supported by'}
           </span>
-          <img src={swingLogo} alt="SWING Thailand" className="h-6 object-contain" />
+          <img src={swingLogo} alt="SWING Thailand" className="h-5 object-contain opacity-80" />
         </div>
       </footer>
 

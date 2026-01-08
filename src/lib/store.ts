@@ -1,6 +1,26 @@
 // Simple in-memory store for anonymous-first approach
 // Data persists in localStorage for convenience
 
+export interface PersonalInfo {
+  fullName: string;
+  gender: 'male' | 'female' | 'other' | 'prefer-not-to-say' | '';
+  birthDate: string;
+  phone: string;
+  lineId: string;
+  address: string;
+  province: string;
+  postalCode: string;
+}
+
+export interface AvatarConfig {
+  skinTone: number;
+  hairStyle: number;
+  hairColor: number;
+  outfit: number;
+  accessory: number;
+  background: number;
+}
+
 export interface UserData {
   mode: 'prep-daily' | 'prep-ondemand' | 'pep' | 'exploring' | null;
   prepStartDate?: string;
@@ -16,6 +36,8 @@ export interface UserData {
   badges: string[];
   consentGiven: boolean;
   onboardingComplete: boolean;
+  personalInfo: PersonalInfo;
+  avatarConfig: AvatarConfig;
   notificationSettings: {
     dailyPrep: boolean;
     onDemandPrep: boolean;
@@ -33,6 +55,24 @@ const DEFAULT_DATA: UserData = {
   badges: [],
   consentGiven: false,
   onboardingComplete: false,
+  personalInfo: {
+    fullName: '',
+    gender: '',
+    birthDate: '',
+    phone: '',
+    lineId: '',
+    address: '',
+    province: '',
+    postalCode: '',
+  },
+  avatarConfig: {
+    skinTone: 0,
+    hairStyle: 0,
+    hairColor: 0,
+    outfit: 0,
+    accessory: 0,
+    background: 0,
+  },
   notificationSettings: {
     dailyPrep: true,
     onDemandPrep: true,
