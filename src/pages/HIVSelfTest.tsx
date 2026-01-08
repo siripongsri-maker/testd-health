@@ -224,7 +224,8 @@ export default function HIVSelfTest() {
     }
 
     try {
-      const { data, error } = await supabase.from('hiv_selftest_requests').insert({
+      // First, insert PII into separate table
+      const { data: piiData, error: piiError } = await supabase.from('selftest_pii').insert({
         user_id: user.id,
         full_name: formData.fullName,
         thai_id: formData.thaiId,
@@ -233,6 +234,14 @@ export default function HIVSelfTest() {
         address: formData.address,
         province: formData.province,
         postal_code: formData.postalCode,
+      }).select().single();
+
+      if (piiError) throw piiError;
+
+      // Then, insert health data with reference to PII
+      const { data, error } = await supabase.from('hiv_selftest_requests').insert({
+        user_id: user.id,
+        pii_id: piiData.id,
         last_risk_date: formData.lastRiskDate || null,
         days_since_risk: daysSinceRisk,
         status: 'pending',
