@@ -30,7 +30,7 @@ interface Stats {
   pepCompletionRate: number;
 }
 
-interface HIVTestRequest {
+interface SelftestPii {
   id: string;
   full_name: string | null;
   thai_id: string | null;
@@ -39,12 +39,18 @@ interface HIVTestRequest {
   address: string | null;
   province: string | null;
   postal_code: string | null;
+}
+
+interface HIVTestRequest {
+  id: string;
+  pii_id: string | null;
   status: string;
   tracking_number: string | null;
   test_result: string | null;
   result_photo_url: string | null;
   created_at: string;
   days_since_risk: number | null;
+  selftest_pii: SelftestPii | null;
 }
 
 export default function AdminDashboard() {
@@ -146,7 +152,26 @@ export default function AdminDashboard() {
     try {
       const { data, error } = await supabase
         .from('hiv_selftest_requests')
-        .select('*')
+        .select(`
+          id,
+          pii_id,
+          status,
+          tracking_number,
+          test_result,
+          result_photo_url,
+          created_at,
+          days_since_risk,
+          selftest_pii (
+            id,
+            full_name,
+            thai_id,
+            phone,
+            line_id,
+            address,
+            province,
+            postal_code
+          )
+        `)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -409,15 +434,15 @@ export default function AdminDashboard() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <p className="font-medium text-foreground truncate">
-                            {request.full_name || 'Unknown'}
+                            {request.selftest_pii?.full_name || 'Unknown'}
                           </p>
                           {getStatusBadge(request.status)}
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          🪪 {maskThaiId(request.thai_id)}
+                          🪪 {maskThaiId(request.selftest_pii?.thai_id || null)}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          📍 {request.province || '-'} | 📞 {request.phone || '-'}
+                          📍 {request.selftest_pii?.province || '-'} | 📞 {request.selftest_pii?.phone || '-'}
                         </p>
                         {request.tracking_number && (
                           <p className="text-xs text-primary mt-1">
@@ -478,12 +503,12 @@ export default function AdminDashboard() {
           {selectedRequest && (
             <div className="space-y-4">
               <div className="space-y-2 text-sm">
-                <p><strong>{language === 'th' ? 'ชื่อ:' : 'Name:'}</strong> {selectedRequest.full_name}</p>
-                <p><strong>{language === 'th' ? 'เลขบัตร:' : 'Thai ID:'}</strong> {selectedRequest.thai_id}</p>
-                <p><strong>{language === 'th' ? 'โทร:' : 'Phone:'}</strong> {selectedRequest.phone}</p>
-                <p><strong>LINE:</strong> {selectedRequest.line_id || '-'}</p>
-                <p><strong>{language === 'th' ? 'ที่อยู่:' : 'Address:'}</strong> {selectedRequest.address}</p>
-                <p><strong>{language === 'th' ? 'จังหวัด:' : 'Province:'}</strong> {selectedRequest.province} {selectedRequest.postal_code}</p>
+                <p><strong>{language === 'th' ? 'ชื่อ:' : 'Name:'}</strong> {selectedRequest.selftest_pii?.full_name || '-'}</p>
+                <p><strong>{language === 'th' ? 'เลขบัตร:' : 'Thai ID:'}</strong> {selectedRequest.selftest_pii?.thai_id || '-'}</p>
+                <p><strong>{language === 'th' ? 'โทร:' : 'Phone:'}</strong> {selectedRequest.selftest_pii?.phone || '-'}</p>
+                <p><strong>LINE:</strong> {selectedRequest.selftest_pii?.line_id || '-'}</p>
+                <p><strong>{language === 'th' ? 'ที่อยู่:' : 'Address:'}</strong> {selectedRequest.selftest_pii?.address || '-'}</p>
+                <p><strong>{language === 'th' ? 'จังหวัด:' : 'Province:'}</strong> {selectedRequest.selftest_pii?.province || '-'} {selectedRequest.selftest_pii?.postal_code || ''}</p>
                 <p><strong>{language === 'th' ? 'สถานะ:' : 'Status:'}</strong> {getStatusBadge(selectedRequest.status)}</p>
                 {selectedRequest.test_result && (
                   <p>

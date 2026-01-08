@@ -158,6 +158,7 @@ export type Database = {
           last_risk_date: string | null
           line_id: string | null
           phone: string | null
+          pii_id: string | null
           postal_code: string | null
           province: string | null
           result_photo_url: string | null
@@ -178,6 +179,7 @@ export type Database = {
           last_risk_date?: string | null
           line_id?: string | null
           phone?: string | null
+          pii_id?: string | null
           postal_code?: string | null
           province?: string | null
           result_photo_url?: string | null
@@ -198,6 +200,7 @@ export type Database = {
           last_risk_date?: string | null
           line_id?: string | null
           phone?: string | null
+          pii_id?: string | null
           postal_code?: string | null
           province?: string | null
           result_photo_url?: string | null
@@ -209,7 +212,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "hiv_selftest_requests_pii_id_fkey"
+            columns: ["pii_id"]
+            isOneToOne: false
+            referencedRelation: "selftest_pii"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -342,6 +353,48 @@ export type Database = {
           id?: string
           last_reminded_at?: string | null
           reminder_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      selftest_pii: {
+        Row: {
+          address: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          line_id: string | null
+          phone: string | null
+          postal_code: string | null
+          province: string | null
+          thai_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          line_id?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          province?: string | null
+          thai_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          line_id?: string | null
+          phone?: string | null
+          postal_code?: string | null
+          province?: string | null
+          thai_id?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
