@@ -361,12 +361,14 @@ export type Database = {
         Row: {
           address: string | null
           created_at: string
+          district: string | null
           full_name: string | null
           id: string
           line_id: string | null
           phone: string | null
           postal_code: string | null
           province: string | null
+          subdistrict: string | null
           thai_id: string | null
           updated_at: string
           user_id: string
@@ -374,12 +376,14 @@ export type Database = {
         Insert: {
           address?: string | null
           created_at?: string
+          district?: string | null
           full_name?: string | null
           id?: string
           line_id?: string | null
           phone?: string | null
           postal_code?: string | null
           province?: string | null
+          subdistrict?: string | null
           thai_id?: string | null
           updated_at?: string
           user_id: string
@@ -387,12 +391,14 @@ export type Database = {
         Update: {
           address?: string | null
           created_at?: string
+          district?: string | null
           full_name?: string | null
           id?: string
           line_id?: string | null
           phone?: string | null
           postal_code?: string | null
           province?: string | null
+          subdistrict?: string | null
           thai_id?: string | null
           updated_at?: string
           user_id?: string
