@@ -503,30 +503,70 @@ Important: Be very careful and accurate. This is a medical test result.`
         </div>
       </Card>
 
-      {activeRequest && ['pending', 'approved', 'shipped'].includes(activeRequest.status) ? (
+      {activeRequest && ['pending', 'approved', 'shipped', 'delivered'].includes(activeRequest.status) ? (
         <Card className="p-4">
           <div className="text-center">
-            <Package className="h-12 w-12 text-primary mx-auto mb-3" />
+            {/* Status Icon */}
+            {activeRequest.status === 'pending' && <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-3" />}
+            {activeRequest.status === 'approved' && <PackageCheck className="h-12 w-12 text-primary mx-auto mb-3" />}
+            {(activeRequest.status === 'shipped' || activeRequest.status === 'delivered') && <Package className="h-12 w-12 text-success mx-auto mb-3" />}
+            
             <h3 className="font-bold text-foreground mb-2">
-              {language === 'th' ? 'คำขอของคุณอยู่ระหว่างดำเนินการ' : 'Your request is being processed'}
+              {activeRequest.status === 'pending' && (language === 'th' ? 'รอเจ้าหน้าที่ตรวจสอบ' : 'Awaiting Staff Review')}
+              {activeRequest.status === 'approved' && (language === 'th' ? 'อนุมัติแล้ว กำลังเตรียมจัดส่ง' : 'Approved - Preparing Shipment')}
+              {activeRequest.status === 'shipped' && (language === 'th' ? 'จัดส่งแล้ว รอรับพัสดุ' : 'Shipped - Awaiting Delivery')}
+              {activeRequest.status === 'delivered' && (language === 'th' ? 'พัสดุถึงแล้ว กรุณายืนยันการรับ' : 'Delivered - Please Confirm Receipt')}
             </h3>
-            <Badge variant={activeRequest.status === 'shipped' ? 'default' : 'secondary'}>
-              {activeRequest.status === 'pending' && (language === 'th' ? 'รอตรวจสอบ' : 'Pending Review')}
-              {activeRequest.status === 'approved' && (language === 'th' ? 'อนุมัติแล้ว' : 'Approved')}
-              {activeRequest.status === 'shipped' && (language === 'th' ? 'จัดส่งแล้ว' : 'Shipped')}
+            
+            <Badge variant={activeRequest.status === 'shipped' || activeRequest.status === 'delivered' ? 'default' : 'secondary'}>
+              {activeRequest.status === 'pending' && (language === 'th' ? '⏳ รอตรวจสอบ' : '⏳ Pending Review')}
+              {activeRequest.status === 'approved' && (language === 'th' ? '✓ อนุมัติแล้ว' : '✓ Approved')}
+              {activeRequest.status === 'shipped' && (language === 'th' ? '📦 จัดส่งแล้ว' : '📦 Shipped')}
+              {activeRequest.status === 'delivered' && (language === 'th' ? '🏠 ถึงปลายทาง' : '🏠 Delivered')}
             </Badge>
+            
             {activeRequest.tracking_number && (
-              <p className="text-sm text-muted-foreground mt-2">
-                📦 Tracking: {activeRequest.tracking_number}
-              </p>
+              <div className="mt-3 p-2 bg-primary/5 rounded-lg">
+                <p className="text-sm text-primary font-medium">
+                  📦 {language === 'th' ? 'เลขพัสดุ' : 'Tracking'}: {activeRequest.tracking_number}
+                </p>
+              </div>
             )}
+            
+            {/* Status explanation */}
+            <div className="mt-4 p-3 bg-muted/50 rounded-lg text-left">
+              <p className="text-xs text-muted-foreground">
+                {activeRequest.status === 'pending' && (language === 'th' 
+                  ? '💡 เจ้าหน้าที่กำลังตรวจสอบคำขอของคุณ และจะยืนยันสถานะการจัดส่งในเร็ว ๆ นี้'
+                  : '💡 Staff is reviewing your request and will confirm shipment status soon.')}
+                {activeRequest.status === 'approved' && (language === 'th' 
+                  ? '💡 คำขอได้รับการอนุมัติ เจ้าหน้าที่กำลังจัดเตรียมชุดตรวจเพื่อจัดส่ง'
+                  : '💡 Request approved. Staff is preparing your test kit for shipment.')}
+                {activeRequest.status === 'shipped' && (language === 'th' 
+                  ? '💡 ชุดตรวจจัดส่งแล้ว เมื่อได้รับพัสดุ เจ้าหน้าที่จะอัปเดตสถานะให้คุณทราบ'
+                  : '💡 Kit has been shipped. Staff will update status when delivered.')}
+                {activeRequest.status === 'delivered' && (language === 'th' 
+                  ? '💡 เจ้าหน้าที่ยืนยันว่าพัสดุถึงแล้ว กรุณากดยืนยันว่าได้รับชุดตรวจ'
+                  : '💡 Staff confirmed delivery. Please confirm you received the kit.')}
+              </p>
+            </div>
+            
             <Button 
-              className="mt-4" 
-              onClick={() => setCurrentStep('confirm-receipt')}
-              disabled={activeRequest.status !== 'shipped'}
+              className="mt-4 w-full" 
+              onClick={() => {
+                if (activeRequest.status === 'delivered') {
+                  handleConfirmReceipt();
+                } else {
+                  setCurrentStep('confirm-receipt');
+                }
+              }}
+              disabled={activeRequest.status !== 'shipped' && activeRequest.status !== 'delivered'}
+              variant={activeRequest.status === 'delivered' ? 'default' : 'outline'}
             >
-              {language === 'th' ? 'ได้รับชุดตรวจแล้ว' : 'I received the kit'}
-              <ArrowRight className="h-4 w-4 ml-2" />
+              {activeRequest.status === 'delivered' 
+                ? (language === 'th' ? '✓ ยืนยันว่าได้รับชุดตรวจแล้ว' : '✓ Confirm I received the kit')
+                : (language === 'th' ? 'รอพัสดุ...' : 'Waiting for delivery...')}
+              {(activeRequest.status === 'shipped' || activeRequest.status === 'delivered') && <ArrowRight className="h-4 w-4 ml-2" />}
             </Button>
           </div>
         </Card>
