@@ -6,24 +6,80 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { ThemeSelector } from "@/components/ThemeSelector";
 import { getUserData, setUserData, resetUserData } from "@/lib/store";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
-import { ArrowLeft, Bell, Pill, Clock, Shield, Trash2, Languages, Palette, User, LogOut } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { ArrowLeft, Bell, Pill, Clock, Shield, Trash2, Languages, Palette, User, LogOut, ShieldCheck, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
 export default function Settings() {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user, signOut } = useAuth();
   const [settings, setSettings] = useState(getUserData().notificationSettings);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminRequest, setAdminRequest] = useState<{ status: string } | null>(null);
+  const [showAdminRequest, setShowAdminRequest] = useState(false);
+  const [adminReason, setAdminReason] = useState("");
+  const [submittingRequest, setSubmittingRequest] = useState(false);
   
   useEffect(() => {
     const data = getUserData();
     setSettings(data.notificationSettings);
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      checkAdminStatus();
+      checkAdminRequest();
+    }
+  }, [user]);
+
+  const checkAdminStatus = async () => {
+    if (!user) return;
+    const { data } = await supabase.rpc('has_role', {
+      _user_id: user.id,
+      _role: 'admin',
+    });
+    setIsAdmin(!!data);
+  };
+
+  const checkAdminRequest = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('admin_requests')
+      .select('status')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    setAdminRequest(data);
+  };
+
+  const submitAdminRequest = async () => {
+    if (!user) return;
+    setSubmittingRequest(true);
+    try {
+      const { error } = await supabase.from('admin_requests').insert({
+        user_id: user.id,
+        email: user.email || '',
+        display_name: user.user_metadata?.display_name || user.email?.split('@')[0],
+        reason: adminReason,
+      });
+      if (error) throw error;
+      toast.success(language === 'th' ? 'ส่งคำขอสำเร็จ' : 'Request submitted');
+      setShowAdminRequest(false);
+      setAdminReason("");
+      checkAdminRequest();
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setSubmittingRequest(false);
+    }
+  };
 
   const updateSetting = (key: keyof typeof settings, value: boolean | string) => {
     const newSettings = { ...settings, [key]: value };
@@ -71,11 +127,81 @@ export default function Settings() {
                 <div className="flex h-10 w-10 items-center justify-center rounded-full gradient-primary">
                   <User className="h-5 w-5 text-primary-foreground" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="text-sm text-muted-foreground">{t('settings.loggedInAs')}</p>
                   <p className="font-medium text-foreground">{user.email}</p>
                 </div>
+                {isAdmin && (
+                  <Badge variant="default" className="gap-1">
+                    <ShieldCheck className="h-3 w-3" />
+                    Admin
+                  </Badge>
+                )}
               </div>
+              
+              {/* Admin Section */}
+              {isAdmin ? (
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start gap-3"
+                  onClick={() => navigate('/admin')}
+                >
+                  <Shield className="h-5 w-5" />
+                  {language === 'th' ? 'แดชบอร์ดผู้ดูแล' : 'Admin Dashboard'}
+                </Button>
+              ) : adminRequest ? (
+                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-2">
+                    <Shield className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">{language === 'th' ? 'คำขอเป็นผู้ดูแล' : 'Admin Request'}</span>
+                  </div>
+                  <Badge variant={adminRequest.status === 'pending' ? 'secondary' : adminRequest.status === 'approved' ? 'default' : 'destructive'}>
+                    {adminRequest.status === 'pending' 
+                      ? (language === 'th' ? 'รอพิจารณา' : 'Pending')
+                      : adminRequest.status === 'approved'
+                      ? (language === 'th' ? 'อนุมัติแล้ว' : 'Approved')
+                      : (language === 'th' ? 'ไม่อนุมัติ' : 'Rejected')
+                    }
+                  </Badge>
+                </div>
+              ) : !showAdminRequest ? (
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start gap-3"
+                  onClick={() => setShowAdminRequest(true)}
+                >
+                  <Shield className="h-5 w-5" />
+                  {language === 'th' ? 'ขอเป็นผู้ดูแลระบบ' : 'Request Admin Access'}
+                </Button>
+              ) : (
+                <div className="space-y-3 p-3 rounded-lg bg-muted/50">
+                  <p className="text-sm font-medium">{language === 'th' ? 'เหตุผลที่ต้องการเป็นผู้ดูแล' : 'Why do you want admin access?'}</p>
+                  <Textarea
+                    value={adminReason}
+                    onChange={(e) => setAdminReason(e.target.value)}
+                    placeholder={language === 'th' ? 'อธิบายเหตุผล...' : 'Explain your reason...'}
+                    rows={3}
+                  />
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowAdminRequest(false)}
+                    >
+                      {language === 'th' ? 'ยกเลิก' : 'Cancel'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={submitAdminRequest}
+                      disabled={submittingRequest || !adminReason.trim()}
+                    >
+                      {submittingRequest ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                      {language === 'th' ? 'ส่งคำขอ' : 'Submit'}
+                    </Button>
+                  </div>
+                </div>
+              )}
+              
               <Button 
                 variant="outline" 
                 className="w-full justify-start gap-3"
