@@ -379,10 +379,10 @@ export default function AdminDashboard() {
   return (
     <PageContainer showNav={false}>
       <div className="flex items-center gap-3 mb-6">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/settings')}>
+        <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <div>
+        <div className="flex-1">
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-primary" />
             <h1 className="text-2xl font-bold text-foreground">
@@ -390,20 +390,12 @@ export default function AdminDashboard() {
             </h1>
           </div>
           <p className="text-muted-foreground">
-            {language === 'th' ? 'ข้อมูลรวมแบบไม่ระบุตัวตน' : 'Anonymized aggregated data'}
+            {language === 'th' ? 'จัดการคำขอและข้อมูลระบบ' : 'Manage requests and system data'}
           </p>
         </div>
       </div>
 
-      <Card className="p-4 mb-6 bg-warning/5 border-warning/20">
-        <p className="text-sm text-muted-foreground">
-          {language === 'th'
-            ? '⚠️ ข้อมูลทั้งหมดเป็นข้อมูลรวมและไม่ระบุตัวตน ใช้เพื่อการวิเคราะห์และปรับปรุงบริการเท่านั้น'
-            : '⚠️ All data is aggregated and anonymized. Used for analysis and service improvement only.'}
-        </p>
-      </Card>
-
-      <Tabs defaultValue="overview" className="w-full">
+      <Tabs defaultValue="hivtests" className="w-full">
         <TabsList className="w-full mb-4 grid grid-cols-4">
           <TabsTrigger value="overview">
             {language === 'th' ? 'ภาพรวม' : 'Overview'}
