@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
+import { PageHeader } from "@/components/PageHeader";
 import { useLanguage } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -132,10 +133,7 @@ export default function SelfCare() {
   return (
     <>
       <PageContainer>
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground">{t('selfCare.title')}</h1>
-          <p className="text-muted-foreground">{t('selfCare.subtitle')}</p>
-        </div>
+        <PageHeader title={t('selfCare.title')} subtitle={t('selfCare.subtitle')} />
 
         {/* HIV Self-Test Kit Banner */}
         <Card 

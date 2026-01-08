@@ -1,5 +1,6 @@
 import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
+import { PageHeader } from "@/components/PageHeader";
 import { useLanguage } from "@/lib/i18n";
 import { InfoCard } from "@/components/InfoCard";
 import { Pill, TestTube, Heart, Shield, MessageCircle, Lock } from "lucide-react";
@@ -38,10 +39,7 @@ export default function Community() {
   return (
     <>
       <PageContainer>
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground">{t('community.title')}</h1>
-          <p className="text-muted-foreground">{t('community.subtitle')}</p>
-        </div>
+        <PageHeader title={t('community.title')} subtitle={t('community.subtitle')} />
 
         <Card className="mb-6 p-4 bg-primary/5 border-primary/20">
           <div className="flex items-center gap-3">

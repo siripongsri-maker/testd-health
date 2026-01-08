@@ -1,5 +1,6 @@
 import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
+import { PageHeader } from "@/components/PageHeader";
 import { XPBar } from "@/components/XPBar";
 import { StatCard } from "@/components/StatCard";
 import { BadgeComponent } from "@/components/Badge";
@@ -24,10 +25,7 @@ export default function Progress() {
   return (
     <>
       <PageContainer>
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground">{t('progress.title')}</h1>
-          <p className="text-muted-foreground">{t('progress.subtitle')}</p>
-        </div>
+        <PageHeader title={t('progress.title')} subtitle={t('progress.subtitle')} />
         
         <div className="mb-6 rounded-2xl bg-card border border-border p-6 shadow-card animate-scale-in">
           <div className="flex items-center gap-4 mb-4">

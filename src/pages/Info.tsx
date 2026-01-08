@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
+import { PageHeader } from "@/components/PageHeader";
 import { InfoCard } from "@/components/InfoCard";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/lib/i18n";
@@ -27,10 +28,7 @@ export default function Info() {
   return (
     <>
       <PageContainer>
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-foreground">{t('info.title')}</h1>
-          <p className="text-muted-foreground">{t('info.subtitle')}</p>
-        </div>
+        <PageHeader title={t('info.title')} subtitle={t('info.subtitle')} />
         
         <div className="mb-6 relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
