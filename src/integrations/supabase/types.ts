@@ -258,6 +258,119 @@ export type Database = {
           },
         ]
       }
+      kit_order_events: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          event_description: string | null
+          event_type: string
+          id: string
+          is_admin_event: boolean | null
+          order_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          event_description?: string | null
+          event_type: string
+          id?: string
+          is_admin_event?: boolean | null
+          order_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          event_description?: string | null
+          event_type?: string
+          id?: string
+          is_admin_event?: boolean | null
+          order_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kit_order_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "kit_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kit_orders: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          delivered_at: string | null
+          display_name: string
+          id: string
+          internal_notes: string | null
+          last_updated_by: string | null
+          order_code: string
+          order_type: string
+          out_for_delivery_at: string | null
+          packed_at: string | null
+          received_at: string | null
+          recipient_address: string
+          recipient_name: string | null
+          recipient_phone: string | null
+          shipped_at: string | null
+          shipping_carrier: string | null
+          status: Database["public"]["Enums"]["kit_order_status"]
+          tracking_number: string | null
+          tracking_url: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          delivered_at?: string | null
+          display_name?: string
+          id?: string
+          internal_notes?: string | null
+          last_updated_by?: string | null
+          order_code: string
+          order_type?: string
+          out_for_delivery_at?: string | null
+          packed_at?: string | null
+          received_at?: string | null
+          recipient_address: string
+          recipient_name?: string | null
+          recipient_phone?: string | null
+          shipped_at?: string | null
+          shipping_carrier?: string | null
+          status?: Database["public"]["Enums"]["kit_order_status"]
+          tracking_number?: string | null
+          tracking_url?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          delivered_at?: string | null
+          display_name?: string
+          id?: string
+          internal_notes?: string | null
+          last_updated_by?: string | null
+          order_code?: string
+          order_type?: string
+          out_for_delivery_at?: string | null
+          packed_at?: string | null
+          received_at?: string | null
+          recipient_address?: string
+          recipient_name?: string | null
+          recipient_phone?: string | null
+          shipped_at?: string | null
+          shipping_carrier?: string | null
+          status?: Database["public"]["Enums"]["kit_order_status"]
+          tracking_number?: string | null
+          tracking_url?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -526,6 +639,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_order_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -536,6 +650,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      kit_order_status:
+        | "requested"
+        | "packed"
+        | "shipped"
+        | "out_for_delivery"
+        | "delivered_unconfirmed"
+        | "received_confirmed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -664,6 +785,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      kit_order_status: [
+        "requested",
+        "packed",
+        "shipped",
+        "out_for_delivery",
+        "delivered_unconfirmed",
+        "received_confirmed",
+      ],
     },
   },
 } as const
