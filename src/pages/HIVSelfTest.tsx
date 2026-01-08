@@ -655,41 +655,6 @@ Important: Be very careful and accurate. This is a medical test result.`
                     />
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="lastRiskDate">
-                    <Calendar className="h-4 w-4 inline mr-1" />
-                    {language === 'th' ? 'วันที่เสี่ยงครั้งล่าสุด (ถ้ามี)' : 'Last Risk Date (if any)'}
-                  </Label>
-                  <Input
-                    id="lastRiskDate"
-                    type="date"
-                    value={formData.lastRiskDate}
-                    onChange={(e) => setFormData(prev => ({ ...prev, lastRiskDate: e.target.value }))}
-                    max={new Date().toISOString().split('T')[0]}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="lastRiskDate">
-                    <Calendar className="h-4 w-4 inline mr-1" />
-                    {language === 'th' ? 'วันที่เสี่ยงครั้งล่าสุด (ถ้ามี)' : 'Last Risk Date (if any)'}
-                  </Label>
-                  <Input
-                    id="lastRiskDate"
-                    type="date"
-                    value={formData.lastRiskDate}
-                    onChange={(e) => setFormData(prev => ({ ...prev, lastRiskDate: e.target.value }))}
-                  />
-                  {formData.lastRiskDate && calculateDaysSinceRisk(formData.lastRiskDate) < 30 && (
-                    <p className="text-xs text-amber-600">
-                      {language === 'th' 
-                        ? `⚠️ ผ่านมา ${calculateDaysSinceRisk(formData.lastRiskDate)} วัน — แนะนำให้รอครบ 30 วัน`
-                        : `⚠️ ${calculateDaysSinceRisk(formData.lastRiskDate)} days — recommend waiting 30 days`
-                      }
-                    </p>
-                  )}
-                </div>
               </Card>
 
               <Button type="submit" className="w-full gap-2" size="lg" disabled={loading}>
