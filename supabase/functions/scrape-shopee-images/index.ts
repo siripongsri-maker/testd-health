@@ -1,4 +1,5 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -8,7 +9,12 @@ const corsHeaders = {
 interface ShopeeProduct {
   id: string;
   link: string;
-  imageUrl?: string;
+}
+
+interface CacheEntry {
+  product_id: string;
+  image_url: string;
+  expires_at: string;
 }
 
 Deno.serve(async (req) => {
@@ -17,16 +23,14 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
-    if (!apiKey) {
-      console.error('FIRECRAWL_API_KEY not configured');
-      return new Response(
-        JSON.stringify({ success: false, error: 'Firecrawl not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { products } = await req.json() as { products: ShopeeProduct[] };
+    const { products, forceRefresh = false } = await req.json() as { 
+      products: ShopeeProduct[]; 
+      forceRefresh?: boolean;
+    };
 
     if (!products || !Array.isArray(products)) {
       return new Response(
@@ -35,12 +39,57 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log('Scraping images for products:', products.map(p => p.id));
-
+    const productIds = products.map(p => p.id);
     const results: Record<string, string> = {};
+    const productsToScrape: ShopeeProduct[] = [];
 
-    // Scrape each Shopee product page to get the main image
+    // Check cache first (unless forceRefresh)
+    if (!forceRefresh) {
+      const { data: cachedImages } = await supabase
+        .from('product_image_cache')
+        .select('product_id, image_url, expires_at')
+        .in('product_id', productIds);
+
+      if (cachedImages) {
+        const now = new Date();
+        for (const cached of cachedImages as CacheEntry[]) {
+          const expiresAt = new Date(cached.expires_at);
+          if (expiresAt > now) {
+            // Cache is still valid
+            results[cached.product_id] = cached.image_url;
+          }
+        }
+      }
+    }
+
+    // Find products that need scraping
     for (const product of products) {
+      if (!results[product.id]) {
+        productsToScrape.push(product);
+      }
+    }
+
+    console.log(`Cache hits: ${Object.keys(results).length}, Need to scrape: ${productsToScrape.length}`);
+
+    // If all products are cached, return early
+    if (productsToScrape.length === 0) {
+      return new Response(
+        JSON.stringify({ success: true, images: results, fromCache: true }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Scrape missing products
+    const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
+    if (!apiKey) {
+      console.error('FIRECRAWL_API_KEY not configured');
+      return new Response(
+        JSON.stringify({ success: true, images: results, error: 'Firecrawl not configured for new images' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    for (const product of productsToScrape) {
       try {
         console.log(`Scraping ${product.id}: ${product.link}`);
         
@@ -53,21 +102,57 @@ Deno.serve(async (req) => {
           body: JSON.stringify({
             url: product.link,
             formats: ['screenshot'],
-            waitFor: 3000, // Wait for dynamic content to load
+            waitFor: 3000,
           }),
         });
 
         const data = await response.json();
         
         if (response.ok && data.success) {
-          // Get the screenshot as the product image
           const screenshot = data.data?.screenshot || data.screenshot;
           if (screenshot) {
-            // The screenshot is base64 encoded
-            results[product.id] = screenshot.startsWith('data:') 
-              ? screenshot 
-              : `data:image/png;base64,${screenshot}`;
-            console.log(`Got screenshot for ${product.id}`);
+            // Convert base64 to blob and upload to storage
+            const base64Data = screenshot.replace(/^data:image\/\w+;base64,/, '');
+            const imageBytes = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+            
+            const fileName = `${product.id}-${Date.now()}.png`;
+            
+            const { data: uploadData, error: uploadError } = await supabase.storage
+              .from('product-images')
+              .upload(fileName, imageBytes, {
+                contentType: 'image/png',
+                upsert: true,
+              });
+
+            if (uploadError) {
+              console.error(`Failed to upload image for ${product.id}:`, uploadError);
+              continue;
+            }
+
+            // Get public URL
+            const { data: urlData } = supabase.storage
+              .from('product-images')
+              .getPublicUrl(fileName);
+
+            const publicUrl = urlData.publicUrl;
+            results[product.id] = publicUrl;
+
+            // Update cache (upsert)
+            const { error: cacheError } = await supabase
+              .from('product_image_cache')
+              .upsert({
+                product_id: product.id,
+                image_url: publicUrl,
+                shopee_link: product.link,
+                cached_at: new Date().toISOString(),
+                expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
+              }, { onConflict: 'product_id' });
+
+            if (cacheError) {
+              console.error(`Failed to cache image URL for ${product.id}:`, cacheError);
+            }
+
+            console.log(`Cached image for ${product.id}: ${publicUrl}`);
           }
         } else {
           console.error(`Failed to scrape ${product.id}:`, data.error);
@@ -78,7 +163,7 @@ Deno.serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify({ success: true, images: results }),
+      JSON.stringify({ success: true, images: results, fromCache: false }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {

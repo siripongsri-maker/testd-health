@@ -371,6 +371,33 @@ export type Database = {
         }
         Relationships: []
       }
+      product_image_cache: {
+        Row: {
+          cached_at: string
+          expires_at: string
+          id: string
+          image_url: string
+          product_id: string
+          shopee_link: string
+        }
+        Insert: {
+          cached_at?: string
+          expires_at?: string
+          id?: string
+          image_url: string
+          product_id: string
+          shopee_link: string
+        }
+        Update: {
+          cached_at?: string
+          expires_at?: string
+          id?: string
+          image_url?: string
+          product_id?: string
+          shopee_link?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
