@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { 
   ArrowLeft, Users, Pill, TestTube, TrendingUp, Shield, BarChart3,
-  Package, Truck, Check, Eye, Loader2
+  Package, Truck, Check, Eye, Loader2, UserPlus, UserX, UserCheck
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -55,6 +55,16 @@ interface HIVTestRequest {
   selftest_pii: SelftestPii | null;
 }
 
+interface AdminRequest {
+  id: string;
+  user_id: string;
+  email: string;
+  display_name: string | null;
+  reason: string | null;
+  status: string;
+  created_at: string;
+}
+
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
@@ -78,6 +88,10 @@ export default function AdminDashboard() {
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [viewingPhoto, setViewingPhoto] = useState<string | null>(null);
 
+  // Admin Request Management
+  const [adminRequests, setAdminRequests] = useState<AdminRequest[]>([]);
+  const [adminLoading, setAdminLoading] = useState(false);
+
   useEffect(() => {
     const checkAdmin = async () => {
       if (!user) {
@@ -99,10 +113,87 @@ export default function AdminDashboard() {
       setIsAdmin(true);
       fetchStats();
       fetchHIVRequests();
+      fetchAdminRequests();
     };
 
     checkAdmin();
   }, [user, navigate]);
+
+  const fetchAdminRequests = async () => {
+    setAdminLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('admin_requests')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setAdminRequests(data || []);
+    } catch (error) {
+      console.error('Error fetching admin requests:', error);
+    } finally {
+      setAdminLoading(false);
+    }
+  };
+
+  const handleAdminRequest = async (requestId: string, userId: string, approve: boolean) => {
+    try {
+      // Update request status
+      const { error: updateError } = await supabase
+        .from('admin_requests')
+        .update({ 
+          status: approve ? 'approved' : 'rejected',
+          reviewed_by: user?.id,
+          reviewed_at: new Date().toISOString()
+        })
+        .eq('id', requestId);
+
+      if (updateError) throw updateError;
+
+      // If approved, add admin role
+      if (approve) {
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .insert({ user_id: userId, role: 'admin' });
+        
+        if (roleError && !roleError.message.includes('duplicate')) throw roleError;
+      }
+
+      toast.success(approve 
+        ? (language === 'th' ? 'อนุมัติเป็น Admin แล้ว' : 'Admin access approved')
+        : (language === 'th' ? 'ปฏิเสธคำขอแล้ว' : 'Request rejected')
+      );
+      fetchAdminRequests();
+    } catch (error: any) {
+      console.error('Error handling admin request:', error);
+      toast.error(error.message);
+    }
+  };
+
+  const removeAdmin = async (userId: string) => {
+    if (!confirm(language === 'th' ? 'ยืนยันการถอดสิทธิ์ Admin?' : 'Remove admin access?')) return;
+    
+    try {
+      const { error } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId)
+        .eq('role', 'admin');
+      
+      if (error) throw error;
+
+      // Update request status back to rejected
+      await supabase
+        .from('admin_requests')
+        .update({ status: 'rejected' })
+        .eq('user_id', userId);
+
+      toast.success(language === 'th' ? 'ถอดสิทธิ์ Admin แล้ว' : 'Admin access removed');
+      fetchAdminRequests();
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
 
   const fetchStats = async () => {
     try {
@@ -313,14 +404,17 @@ export default function AdminDashboard() {
       </Card>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="w-full mb-4">
-          <TabsTrigger value="overview" className="flex-1">
+        <TabsList className="w-full mb-4 grid grid-cols-4">
+          <TabsTrigger value="overview">
             {language === 'th' ? 'ภาพรวม' : 'Overview'}
           </TabsTrigger>
-          <TabsTrigger value="hivtests" className="flex-1">
-            {language === 'th' ? 'ชุดตรวจ HIV' : 'HIV Tests'}
+          <TabsTrigger value="hivtests">
+            {language === 'th' ? 'ชุดตรวจ' : 'HIV Tests'}
           </TabsTrigger>
-          <TabsTrigger value="trends" className="flex-1">
+          <TabsTrigger value="admins">
+            {language === 'th' ? 'ผู้ดูแล' : 'Admins'}
+          </TabsTrigger>
+          <TabsTrigger value="trends">
             {language === 'th' ? 'แนวโน้ม' : 'Trends'}
           </TabsTrigger>
         </TabsList>
@@ -472,6 +566,98 @@ export default function AdminDashboard() {
                             onClick={() => getResultPhoto(request.result_photo_url!)}
                           >
                             <Eye className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="admins" className="space-y-4">
+          <Card className="p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-foreground flex items-center gap-2">
+                <UserPlus className="h-5 w-5 text-primary" />
+                {language === 'th' ? 'คำขอเป็นผู้ดูแล' : 'Admin Requests'}
+              </h3>
+              <Button variant="outline" size="sm" onClick={fetchAdminRequests} disabled={adminLoading}>
+                {adminLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : language === 'th' ? 'รีเฟรช' : 'Refresh'}
+              </Button>
+            </div>
+
+            {adminLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : adminRequests.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">
+                {language === 'th' ? 'ไม่มีคำขอ' : 'No requests'}
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {adminRequests.map((request) => (
+                  <Card key={request.id} className="p-3 border">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-medium text-foreground truncate">
+                            {request.display_name || request.email}
+                          </p>
+                          <Badge variant={
+                            request.status === 'pending' ? 'secondary' : 
+                            request.status === 'approved' ? 'default' : 'destructive'
+                          }>
+                            {request.status === 'pending' 
+                              ? (language === 'th' ? 'รอพิจารณา' : 'Pending')
+                              : request.status === 'approved'
+                              ? (language === 'th' ? 'อนุมัติแล้ว' : 'Approved')
+                              : (language === 'th' ? 'ไม่อนุมัติ' : 'Rejected')
+                            }
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground">📧 {request.email}</p>
+                        {request.reason && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            💬 {request.reason}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {new Date(request.created_at).toLocaleDateString('th-TH')}
+                        </p>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        {request.status === 'pending' && (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="default"
+                              onClick={() => handleAdminRequest(request.id, request.user_id, true)}
+                            >
+                              <UserCheck className="h-4 w-4 mr-1" />
+                              {language === 'th' ? 'อนุมัติ' : 'Approve'}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleAdminRequest(request.id, request.user_id, false)}
+                            >
+                              <UserX className="h-4 w-4 mr-1" />
+                              {language === 'th' ? 'ปฏิเสธ' : 'Reject'}
+                            </Button>
+                          </>
+                        )}
+                        {request.status === 'approved' && (
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => removeAdmin(request.user_id)}
+                          >
+                            <UserX className="h-4 w-4 mr-1" />
+                            {language === 'th' ? 'ถอดสิทธิ์' : 'Remove'}
                           </Button>
                         )}
                       </div>
