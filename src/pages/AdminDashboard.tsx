@@ -4,10 +4,22 @@ import { PageContainer } from "@/components/PageContainer";
 import { useLanguage } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Users, Pill, TestTube, TrendingUp, Shield, BarChart3 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { 
+  ArrowLeft, Users, Pill, TestTube, TrendingUp, Shield, BarChart3,
+  Package, Truck, Check, Eye, Loader2
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Stats {
   totalUsers: number;
@@ -16,6 +28,23 @@ interface Stats {
   avgStreak: number;
   totalCheckIns: number;
   pepCompletionRate: number;
+}
+
+interface HIVTestRequest {
+  id: string;
+  full_name: string | null;
+  thai_id: string | null;
+  phone: string | null;
+  line_id: string | null;
+  address: string | null;
+  province: string | null;
+  postal_code: string | null;
+  status: string;
+  tracking_number: string | null;
+  test_result: string | null;
+  result_photo_url: string | null;
+  created_at: string;
+  days_since_risk: number | null;
 }
 
 export default function AdminDashboard() {
@@ -32,6 +61,14 @@ export default function AdminDashboard() {
     totalCheckIns: 0,
     pepCompletionRate: 0,
   });
+  
+  // HIV Test Management
+  const [hivRequests, setHivRequests] = useState<HIVTestRequest[]>([]);
+  const [hivLoading, setHivLoading] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<HIVTestRequest | null>(null);
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [viewingPhoto, setViewingPhoto] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -53,6 +90,7 @@ export default function AdminDashboard() {
 
       setIsAdmin(true);
       fetchStats();
+      fetchHIVRequests();
     };
 
     checkAdmin();
@@ -101,6 +139,78 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchHIVRequests = async () => {
+    setHivLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('hiv_selftest_requests')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setHivRequests(data || []);
+    } catch (error) {
+      console.error('Error fetching HIV requests:', error);
+    } finally {
+      setHivLoading(false);
+    }
+  };
+
+  const updateRequestStatus = async (requestId: string, newStatus: string, tracking?: string) => {
+    setUpdatingStatus(true);
+    try {
+      const updateData: { status: string; tracking_number?: string } = { status: newStatus };
+      if (tracking) {
+        updateData.tracking_number = tracking;
+      }
+
+      const { error } = await supabase
+        .from('hiv_selftest_requests')
+        .update(updateData)
+        .eq('id', requestId);
+
+      if (error) throw error;
+
+      toast.success(language === 'th' ? 'อัปเดตสถานะสำเร็จ' : 'Status updated successfully');
+      fetchHIVRequests();
+      setSelectedRequest(null);
+      setTrackingNumber("");
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast.error(language === 'th' ? 'เกิดข้อผิดพลาด' : 'Something went wrong');
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
+  const getStatusBadge = (status: string) => {
+    const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+      pending: { label: language === 'th' ? 'รอตรวจสอบ' : 'Pending', variant: 'secondary' },
+      approved: { label: language === 'th' ? 'อนุมัติแล้ว' : 'Approved', variant: 'default' },
+      shipped: { label: language === 'th' ? 'จัดส่งแล้ว' : 'Shipped', variant: 'default' },
+      delivered: { label: language === 'th' ? 'ถึงผู้รับ' : 'Delivered', variant: 'default' },
+      confirmed: { label: language === 'th' ? 'ยืนยันรับแล้ว' : 'Confirmed', variant: 'default' },
+      result_submitted: { label: language === 'th' ? 'ส่งผลแล้ว' : 'Result Submitted', variant: 'destructive' },
+      completed: { label: language === 'th' ? 'เสร็จสิ้น' : 'Completed', variant: 'outline' },
+    };
+    const config = statusConfig[status] || { label: status, variant: 'secondary' as const };
+    return <Badge variant={config.variant}>{config.label}</Badge>;
+  };
+
+  const getResultPhoto = async (path: string) => {
+    const { data } = await supabase.storage
+      .from('selftest-results')
+      .createSignedUrl(path, 300); // 5 minutes
+    if (data?.signedUrl) {
+      setViewingPhoto(data.signedUrl);
+    }
+  };
+
+  const maskThaiId = (id: string | null) => {
+    if (!id || id.length !== 13) return id || '-';
+    return `${id.slice(0, 1)}-${id.slice(1, 5)}-XXXXX-${id.slice(10, 12)}-${id.slice(12)}`;
   };
 
   if (loading) {
@@ -177,6 +287,9 @@ export default function AdminDashboard() {
         <TabsList className="w-full mb-4">
           <TabsTrigger value="overview" className="flex-1">
             {language === 'th' ? 'ภาพรวม' : 'Overview'}
+          </TabsTrigger>
+          <TabsTrigger value="hivtests" className="flex-1">
+            {language === 'th' ? 'ชุดตรวจ HIV' : 'HIV Tests'}
           </TabsTrigger>
           <TabsTrigger value="trends" className="flex-1">
             {language === 'th' ? 'แนวโน้ม' : 'Trends'}
@@ -268,6 +381,79 @@ export default function AdminDashboard() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="hivtests" className="space-y-4">
+          <Card className="p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-foreground flex items-center gap-2">
+                <Package className="h-5 w-5 text-primary" />
+                {language === 'th' ? 'คำขอชุดตรวจ HIV' : 'HIV Test Kit Requests'}
+              </h3>
+              <Button variant="outline" size="sm" onClick={fetchHIVRequests} disabled={hivLoading}>
+                {hivLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : language === 'th' ? 'รีเฟรช' : 'Refresh'}
+              </Button>
+            </div>
+
+            {hivLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : hivRequests.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">
+                {language === 'th' ? 'ไม่มีคำขอ' : 'No requests'}
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {hivRequests.map((request) => (
+                  <Card key={request.id} className="p-3 border">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-medium text-foreground truncate">
+                            {request.full_name || 'Unknown'}
+                          </p>
+                          {getStatusBadge(request.status)}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          🪪 {maskThaiId(request.thai_id)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          📍 {request.province || '-'} | 📞 {request.phone || '-'}
+                        </p>
+                        {request.tracking_number && (
+                          <p className="text-xs text-primary mt-1">
+                            📦 {request.tracking_number}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {new Date(request.created_at).toLocaleDateString('th-TH')}
+                        </p>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setSelectedRequest(request)}
+                        >
+                          {language === 'th' ? 'จัดการ' : 'Manage'}
+                        </Button>
+                        {request.result_photo_url && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => getResultPhoto(request.result_photo_url!)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </Card>
+        </TabsContent>
+
         <TabsContent value="trends" className="space-y-4">
           <Card className="p-8 text-center">
             <BarChart3 className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
@@ -279,6 +465,108 @@ export default function AdminDashboard() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Request Management Dialog */}
+      <Dialog open={!!selectedRequest} onOpenChange={() => setSelectedRequest(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {language === 'th' ? 'จัดการคำขอ' : 'Manage Request'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedRequest && (
+            <div className="space-y-4">
+              <div className="space-y-2 text-sm">
+                <p><strong>{language === 'th' ? 'ชื่อ:' : 'Name:'}</strong> {selectedRequest.full_name}</p>
+                <p><strong>{language === 'th' ? 'เลขบัตร:' : 'Thai ID:'}</strong> {selectedRequest.thai_id}</p>
+                <p><strong>{language === 'th' ? 'โทร:' : 'Phone:'}</strong> {selectedRequest.phone}</p>
+                <p><strong>LINE:</strong> {selectedRequest.line_id || '-'}</p>
+                <p><strong>{language === 'th' ? 'ที่อยู่:' : 'Address:'}</strong> {selectedRequest.address}</p>
+                <p><strong>{language === 'th' ? 'จังหวัด:' : 'Province:'}</strong> {selectedRequest.province} {selectedRequest.postal_code}</p>
+                <p><strong>{language === 'th' ? 'สถานะ:' : 'Status:'}</strong> {getStatusBadge(selectedRequest.status)}</p>
+                {selectedRequest.test_result && (
+                  <p>
+                    <strong>{language === 'th' ? 'ผลตรวจ:' : 'Result:'}</strong>{' '}
+                    <Badge variant={selectedRequest.test_result === 'negative' ? 'default' : 'destructive'}>
+                      {selectedRequest.test_result.toUpperCase()}
+                    </Badge>
+                  </p>
+                )}
+              </div>
+
+              <div className="border-t pt-4 space-y-3">
+                <p className="font-medium text-sm">{language === 'th' ? 'อัปเดตสถานะ:' : 'Update Status:'}</p>
+                
+                {selectedRequest.status === 'pending' && (
+                  <Button
+                    className="w-full"
+                    onClick={() => updateRequestStatus(selectedRequest.id, 'approved')}
+                    disabled={updatingStatus}
+                  >
+                    <Check className="h-4 w-4 mr-2" />
+                    {language === 'th' ? 'อนุมัติคำขอ' : 'Approve Request'}
+                  </Button>
+                )}
+
+                {selectedRequest.status === 'approved' && (
+                  <div className="space-y-2">
+                    <Input
+                      placeholder={language === 'th' ? 'หมายเลขพัสดุ' : 'Tracking Number'}
+                      value={trackingNumber}
+                      onChange={(e) => setTrackingNumber(e.target.value)}
+                    />
+                    <Button
+                      className="w-full"
+                      onClick={() => updateRequestStatus(selectedRequest.id, 'shipped', trackingNumber)}
+                      disabled={updatingStatus || !trackingNumber}
+                    >
+                      <Truck className="h-4 w-4 mr-2" />
+                      {language === 'th' ? 'จัดส่งแล้ว' : 'Mark as Shipped'}
+                    </Button>
+                  </div>
+                )}
+
+                {selectedRequest.status === 'shipped' && (
+                  <Button
+                    className="w-full"
+                    onClick={() => updateRequestStatus(selectedRequest.id, 'delivered')}
+                    disabled={updatingStatus}
+                  >
+                    <Package className="h-4 w-4 mr-2" />
+                    {language === 'th' ? 'ถึงผู้รับแล้ว' : 'Mark as Delivered'}
+                  </Button>
+                )}
+
+                {selectedRequest.status === 'result_submitted' && (
+                  <Button
+                    className="w-full"
+                    onClick={() => updateRequestStatus(selectedRequest.id, 'completed')}
+                    disabled={updatingStatus}
+                  >
+                    <Check className="h-4 w-4 mr-2" />
+                    {language === 'th' ? 'ยืนยันผลและปิดเคส' : 'Confirm & Close Case'}
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Result Photo Dialog */}
+      <Dialog open={!!viewingPhoto} onOpenChange={() => setViewingPhoto(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {language === 'th' ? 'รูปผลตรวจ' : 'Test Result Photo'}
+            </DialogTitle>
+          </DialogHeader>
+          {viewingPhoto && (
+            <img src={viewingPhoto} alt="Test result" className="w-full rounded-lg" />
+          )}
+        </DialogContent>
+      </Dialog>
     </PageContainer>
   );
 }

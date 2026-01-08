@@ -164,6 +164,7 @@ export type Database = {
           staff_notes: string | null
           status: string
           test_result: string | null
+          thai_id: string | null
           tracking_number: string | null
           updated_at: string
           user_id: string
@@ -183,6 +184,7 @@ export type Database = {
           staff_notes?: string | null
           status?: string
           test_result?: string | null
+          thai_id?: string | null
           tracking_number?: string | null
           updated_at?: string
           user_id: string
@@ -202,6 +204,7 @@ export type Database = {
           staff_notes?: string | null
           status?: string
           test_result?: string | null
+          thai_id?: string | null
           tracking_number?: string | null
           updated_at?: string
           user_id?: string
