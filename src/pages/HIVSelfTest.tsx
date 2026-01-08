@@ -570,8 +570,20 @@ Important: Be very careful and accurate. This is a medical test result.`
                       id="phone"
                       type="tel"
                       value={formData.phone}
-                      onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                      placeholder="08x-xxx-xxxx"
+                      onChange={(e) => {
+                        // Remove all non-digits
+                        const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                        // Format as 0XX-XXX-XXXX
+                        let formatted = digits;
+                        if (digits.length > 3) {
+                          formatted = `${digits.slice(0, 3)}-${digits.slice(3)}`;
+                        }
+                        if (digits.length > 6) {
+                          formatted = `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+                        }
+                        setFormData(prev => ({ ...prev, phone: formatted }));
+                      }}
+                      placeholder="0XX-XXX-XXXX"
                       required
                     />
                   </div>
