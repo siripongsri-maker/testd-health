@@ -8,6 +8,8 @@ export interface PersonalInfo {
   phone: string;
   lineId: string;
   address: string;
+  subdistrict: string;
+  district: string;
   province: string;
   postalCode: string;
 }
@@ -62,6 +64,8 @@ const DEFAULT_DATA: UserData = {
     phone: '',
     lineId: '',
     address: '',
+    subdistrict: '',
+    district: '',
     province: '',
     postalCode: '',
   },
