@@ -7,6 +7,7 @@ import { GameAvatar } from "@/components/GameAvatar";
 import { HIVTestPopup } from "@/components/HIVTestPopup";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { Button } from "@/components/ui/button";
+import { playWelcome } from "@/lib/sounds";
 import {
   TestTube,
   Pill,
@@ -18,7 +19,6 @@ import {
   MapPin,
   Shield,
   User,
-  Bell,
 } from "lucide-react";
 import swingLogo from "@/assets/swing-logo.webp";
 
@@ -26,22 +26,28 @@ export default function TownHub() {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const [userData, setUserData] = useState(getUserData());
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     setUserData(getUserData());
+    setLoaded(true);
+    // Play welcome sound on first load
+    const timer = setTimeout(() => playWelcome(), 500);
+    return () => clearTimeout(timer);
   }, []);
 
   const isNewUser = !userData.onboardingComplete;
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {/* Sky gradient background - sunset/twilight feel like reference */}
-      <div className="absolute inset-0 bg-gradient-to-b from-purple-300 via-pink-200 to-sky-300 dark:from-indigo-950 dark:via-purple-900 dark:to-slate-900" />
+      {/* Sky gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-sky-300 via-sky-200 to-emerald-200 dark:from-indigo-950 dark:via-purple-900 dark:to-slate-900" />
       
-      {/* Clouds */}
-      <div className="absolute top-8 left-8 w-24 h-10 bg-white/50 dark:bg-white/10 rounded-full blur-md" />
-      <div className="absolute top-16 right-12 w-36 h-12 bg-white/40 dark:bg-white/10 rounded-full blur-md" />
-      <div className="absolute top-24 left-1/4 w-28 h-8 bg-white/30 dark:bg-white/10 rounded-full blur-md" />
+      {/* Animated clouds */}
+      <div className="absolute top-6 left-4 w-20 h-8 bg-white/60 dark:bg-white/10 rounded-full blur-sm animate-float" style={{ animationDuration: '6s' }} />
+      <div className="absolute top-10 right-8 w-28 h-10 bg-white/50 dark:bg-white/10 rounded-full blur-sm animate-float" style={{ animationDuration: '8s', animationDelay: '1s' }} />
+      <div className="absolute top-20 left-1/3 w-24 h-8 bg-white/40 dark:bg-white/10 rounded-full blur-sm animate-float" style={{ animationDuration: '7s', animationDelay: '2s' }} />
+      <div className="absolute top-14 right-1/3 w-16 h-6 bg-white/50 dark:bg-white/10 rounded-full blur-sm animate-float" style={{ animationDuration: '9s', animationDelay: '0.5s' }} />
 
       {/* Header */}
       <header className="relative z-20 flex items-center justify-between px-4 py-3 safe-top">
@@ -50,7 +56,7 @@ export default function TownHub() {
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-full bg-card/50 backdrop-blur-sm"
+            className="rounded-full bg-card/60 backdrop-blur-sm hover:bg-card/80 transition-colors"
             onClick={() => navigate("/personal-info")}
           >
             <User className="h-5 w-5" />
@@ -59,7 +65,7 @@ export default function TownHub() {
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-full bg-card/50 backdrop-blur-sm"
+            className="rounded-full bg-card/60 backdrop-blur-sm hover:bg-card/80 transition-colors"
             onClick={() => navigate("/settings")}
           >
             <Settings className="h-5 w-5" />
@@ -77,163 +83,149 @@ export default function TownHub() {
         </div>
       </div>
 
-      {/* Isometric Town Map */}
-      <main className="relative z-10 flex-1 overflow-hidden">
-        {/* Ground/Island base */}
-        <div className="absolute inset-x-0 bottom-20 top-0 flex items-center justify-center">
-          <div className="relative w-full max-w-md aspect-square">
-            {/* Grass island base */}
-            <div className="absolute inset-0 rounded-[40%] bg-gradient-to-b from-green-400 to-green-600 dark:from-emerald-700 dark:to-emerald-900 shadow-2xl transform rotate-0 skew-x-0" 
-                 style={{ 
-                   borderRadius: '45% 45% 50% 50%',
-                   boxShadow: '0 20px 60px -15px rgba(0,0,0,0.3), inset 0 -10px 30px rgba(0,0,0,0.1)'
-                 }} />
-            
-            {/* Grass texture overlay */}
-            <div className="absolute inset-4 rounded-[40%] opacity-50"
-                 style={{
-                   background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.2) 0%, transparent 50%), radial-gradient(circle at 70% 70%, rgba(0,0,0,0.1) 0%, transparent 40%)'
-                 }} />
-
-            {/* Paths - cross pattern */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              {/* Horizontal path */}
-              <div className="absolute w-3/4 h-6 bg-gradient-to-r from-transparent via-amber-100/80 to-transparent rounded-full" />
-              {/* Vertical path */}
-              <div className="absolute w-6 h-3/4 bg-gradient-to-b from-transparent via-amber-100/80 to-transparent rounded-full" />
-              {/* Center circle */}
-              <div className="absolute w-16 h-16 rounded-full bg-amber-100/60 border-4 border-amber-200/50 flex items-center justify-center">
-                <Bell className="h-6 w-6 text-primary/60" />
+      {/* Scrollable Town Map */}
+      <main className="relative z-10 flex-1 overflow-auto pb-20">
+        <div className={cn(
+          "min-h-[600px] px-4 py-6 transition-all duration-700",
+          loaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+        )}>
+          
+          {/* Welcome message for new users */}
+          {isNewUser && (
+            <div className="mb-6 mx-auto max-w-sm animate-fade-in">
+              <div className="p-4 rounded-2xl bg-card/95 backdrop-blur-sm border border-primary/20 shadow-lg">
+                <p className="text-sm font-bold text-foreground text-center">
+                  {language === 'th' ? '🎮 ยินดีต้อนรับ! แตะที่อาคารเพื่อเข้าใช้บริการ' : '🎮 Welcome! Tap buildings to explore'}
+                </p>
               </div>
             </div>
+          )}
 
-            {/* Trees - decorative */}
-            <div className="absolute top-8 left-8 text-2xl">🌳</div>
-            <div className="absolute top-12 right-12 text-xl">🌲</div>
-            <div className="absolute bottom-16 left-12 text-2xl">🌳</div>
-            <div className="absolute bottom-20 right-8 text-xl">🌲</div>
-            <div className="absolute top-1/3 left-4 text-lg">🌲</div>
-            <div className="absolute bottom-1/3 right-4 text-lg">🌳</div>
+          {/* Featured Building - HIV Test Center */}
+          <div className="flex justify-center mb-8" style={{ animationDelay: '0.1s' }}>
+            <IsometricBuilding
+              icon={<TestTube className="h-full w-full" />}
+              name={language === 'th' ? 'ศูนย์ตรวจ HIV' : 'HIV Test Center'}
+              description={language === 'th' ? '🎁 รับชุดตรวจฟรี!' : '🎁 Get FREE test kit!'}
+              onClick={() => navigate("/hiv-selftest")}
+              variant="featured"
+              glowing
+              badge={language === 'th' ? 'ฟรี' : 'FREE'}
+              size="lg"
+            />
+          </div>
 
-            {/* Flowers */}
-            <div className="absolute top-20 right-1/4 text-sm">🌸</div>
-            <div className="absolute bottom-24 left-1/4 text-sm">🌷</div>
-            <div className="absolute top-1/2 right-8 text-sm">🌺</div>
+          {/* Main Buildings Row */}
+          <div className="flex justify-center gap-6 mb-8 flex-wrap" style={{ animationDelay: '0.2s' }}>
+            <IsometricBuilding
+              icon={<Pill className="h-full w-full" />}
+              name={language === 'th' ? 'ร้านยา PrEP' : 'PrEP Pharmacy'}
+              description={language === 'th' ? 'จัดการยา PrEP/PEP' : 'Manage PrEP/PEP'}
+              onClick={() => navigate("/dashboard")}
+              buildingColor="from-emerald-100 to-emerald-200 dark:from-emerald-800 dark:to-emerald-900"
+              size="md"
+            />
+            <IsometricBuilding
+              icon={<Heart className="h-full w-full" />}
+              name={language === 'th' ? 'สปาสุขภาพ' : 'Wellness Spa'}
+              description={language === 'th' ? 'ดูแลตัวเอง' : 'Self-care tips'}
+              onClick={() => navigate("/self-care")}
+              buildingColor="from-pink-100 to-pink-200 dark:from-pink-800 dark:to-pink-900"
+              size="md"
+            />
+            <IsometricBuilding
+              icon={<Trophy className="h-full w-full" />}
+              name={language === 'th' ? 'กิลด์ผจญภัย' : 'Quest Guild'}
+              description={language === 'th' ? 'ทำภารกิจรับรางวัล' : 'Complete quests'}
+              onClick={() => navigate("/quests")}
+              buildingColor="from-amber-100 to-amber-200 dark:from-amber-800 dark:to-amber-900"
+              size="md"
+            />
+          </div>
 
-            {/* Buildings positioned around the island */}
+          {/* Secondary Buildings Row */}
+          <div className="flex justify-center gap-6 mb-8 flex-wrap" style={{ animationDelay: '0.3s' }}>
+            <IsometricBuilding
+              icon={<MessageCircle className="h-full w-full" />}
+              name={language === 'th' ? 'โรงเตี๊ยม' : 'Community Tavern'}
+              description={language === 'th' ? 'พูดคุยแชร์ประสบการณ์' : 'Chat & share'}
+              onClick={() => navigate("/community")}
+              buildingColor="from-purple-100 to-purple-200 dark:from-purple-800 dark:to-purple-900"
+              size="md"
+            />
+            <IsometricBuilding
+              icon={<BookOpen className="h-full w-full" />}
+              name={language === 'th' ? 'ห้องสมุดความรู้' : 'Knowledge Library'}
+              description={language === 'th' ? 'เรียนรู้สุขภาพ' : 'Learn health tips'}
+              onClick={() => navigate("/info")}
+              buildingColor="from-blue-100 to-blue-200 dark:from-blue-800 dark:to-blue-900"
+              size="md"
+            />
+          </div>
+
+          {/* Decorative ground area */}
+          <div className="relative mx-auto max-w-md">
+            {/* Grass area */}
+            <div className="absolute inset-0 -z-10 rounded-3xl bg-gradient-to-b from-green-400/30 to-green-500/40 dark:from-green-800/30 dark:to-green-900/40 blur-xl" />
             
-            {/* HIV Test Center - TOP - Featured */}
-            <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10">
-              <IsometricBuilding
-                icon={<TestTube className="h-full w-full" />}
-                name={language === 'th' ? 'ศูนย์ตรวจ' : 'Test Center'}
-                description={language === 'th' ? 'รับชุดตรวจ HIV ฟรี!' : 'Get FREE HIV test!'}
-                onClick={() => navigate("/hiv-selftest")}
-                variant="featured"
-                glowing
-                badge={language === 'th' ? 'ฟรี' : 'FREE'}
-                size="lg"
-              />
-            </div>
-
-            {/* Clinic - TOP RIGHT */}
-            <div className="absolute top-16 right-2 z-10">
-              <IsometricBuilding
-                icon={<Heart className="h-full w-full" />}
-                name={language === 'th' ? 'คลินิกใจ' : 'Wellness'}
-                onClick={() => navigate("/self-care")}
-                buildingColor="from-pink-100 to-pink-200"
-                size="md"
-              />
-            </div>
-
-            {/* Pharmacy - LEFT */}
-            <div className="absolute top-1/3 left-0 z-10">
-              <IsometricBuilding
-                icon={<Pill className="h-full w-full" />}
-                name={language === 'th' ? 'ร้านยา' : 'Pharmacy'}
-                description="PrEP & PEP"
-                onClick={() => navigate("/dashboard")}
-                buildingColor="from-green-100 to-green-200"
-                size="md"
-              />
-            </div>
-
-            {/* Guild Hall / Quest - RIGHT */}
-            <div className="absolute top-1/2 right-0 -translate-y-1/2 z-10">
-              <IsometricBuilding
-                icon={<Trophy className="h-full w-full" />}
-                name={language === 'th' ? 'กิลด์' : 'Guild'}
-                onClick={() => navigate("/quests")}
-                buildingColor="from-amber-100 to-amber-200"
-                size="md"
-              />
-            </div>
-
-            {/* Community/Tavern - BOTTOM LEFT */}
-            <div className="absolute bottom-20 left-4 z-10">
-              <IsometricBuilding
-                icon={<MessageCircle className="h-full w-full" />}
-                name={language === 'th' ? 'โรงเตี๊ยม' : 'Tavern'}
-                onClick={() => navigate("/community")}
-                buildingColor="from-purple-100 to-purple-200"
-                size="md"
-              />
-            </div>
-
-            {/* Library - BOTTOM RIGHT */}
-            <div className="absolute bottom-16 right-6 z-10">
-              <IsometricBuilding
-                icon={<BookOpen className="h-full w-full" />}
-                name={language === 'th' ? 'ห้องสมุด' : 'Library'}
-                onClick={() => navigate("/info")}
-                buildingColor="from-blue-100 to-blue-200"
-                size="md"
-              />
-            </div>
-
-            {/* SWING Center - BOTTOM CENTER */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10">
-              <IsometricBuilding
-                icon={<Shield className="h-full w-full" />}
-                name="SWING"
-                onClick={() => navigate("/swing")}
-                buildingColor="from-teal-100 to-teal-200"
-                size="sm"
-              />
-            </div>
-
-            {/* Character sprite in center - clicking goes to avatar customization */}
-            <button 
-              onClick={() => navigate("/avatar")}
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 transition-transform hover:scale-110 active:scale-95"
-            >
-              <div className="relative">
+            {/* Path to character */}
+            <div className="py-8 flex flex-col items-center gap-4">
+              {/* Decorative elements */}
+              <div className="flex gap-8 text-2xl">
+                <span className="animate-float" style={{ animationDelay: '0s' }}>🌳</span>
+                <span className="animate-float" style={{ animationDelay: '0.5s' }}>🌸</span>
+                <span className="animate-float" style={{ animationDelay: '1s' }}>🌳</span>
+              </div>
+              
+              {/* Character in center */}
+              <button 
+                onClick={() => navigate("/avatar")}
+                className="relative transition-all duration-300 hover:scale-110 active:scale-95 group"
+              >
+                {/* Glow effect */}
+                <div className="absolute inset-0 rounded-full bg-primary/20 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity" />
+                
                 {/* Standing shadow */}
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-3 bg-black/20 rounded-full blur-sm" />
+                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-12 h-4 bg-black/20 rounded-full blur-sm" />
+                
                 {/* Character */}
-                <div className="text-4xl animate-bounce-gentle">
+                <div className="relative text-6xl animate-bounce-gentle">
                   🧍
                 </div>
-              </div>
-            </button>
-          </div>
-        </div>
+                
+                {/* Tap hint */}
+                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                  <span className="text-xs font-medium text-foreground/70 bg-card/80 px-2 py-1 rounded-full">
+                    {language === 'th' ? 'แตะเพื่อแต่งตัว' : 'Tap to customize'}
+                  </span>
+                </div>
+              </button>
 
-        {/* Welcome message for new users */}
-        {isNewUser && (
-          <div className="absolute top-4 left-4 right-4 z-30">
-            <div className="p-3 rounded-2xl bg-card/95 backdrop-blur-sm border border-primary/20 shadow-lg">
-              <p className="text-sm font-bold text-foreground text-center">
-                {language === 'th' ? '🎮 ยินดีต้อนรับ! แตะที่ตัวละครเพื่อปรับแต่งอวาตาร์' : '🎮 Welcome! Tap your character to customize avatar'}
-              </p>
+              {/* More decorative elements */}
+              <div className="flex gap-8 text-2xl mt-8">
+                <span className="animate-float" style={{ animationDelay: '0.3s' }}>🌲</span>
+                <span className="animate-float" style={{ animationDelay: '0.8s' }}>🌷</span>
+                <span className="animate-float" style={{ animationDelay: '1.3s' }}>🌲</span>
+              </div>
             </div>
           </div>
-        )}
+
+          {/* SWING Building at bottom */}
+          <div className="flex justify-center mt-6" style={{ animationDelay: '0.4s' }}>
+            <IsometricBuilding
+              icon={<Shield className="h-full w-full" />}
+              name="SWING Thailand"
+              description={language === 'th' ? 'เกี่ยวกับเรา' : 'About SWING'}
+              onClick={() => navigate("/swing")}
+              buildingColor="from-teal-100 to-teal-200 dark:from-teal-800 dark:to-teal-900"
+              size="sm"
+            />
+          </div>
+        </div>
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 pb-4 pt-2 text-center safe-bottom">
+      <footer className="fixed bottom-0 left-0 right-0 z-10 pb-4 pt-2 text-center safe-bottom bg-gradient-to-t from-emerald-200/80 to-transparent dark:from-slate-900/80 backdrop-blur-sm">
         <div className="flex items-center justify-center gap-2">
           <span className="text-xs text-foreground/70 font-medium">
             {language === 'th' ? 'สนับสนุนโดย' : 'Supported by'}
@@ -246,4 +238,8 @@ export default function TownHub() {
       <HIVTestPopup />
     </div>
   );
+}
+
+function cn(...classes: (string | boolean | undefined)[]) {
+  return classes.filter(Boolean).join(' ');
 }
