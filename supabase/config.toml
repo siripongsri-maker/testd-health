@@ -1,1 +1,4 @@
 project_id = "tzerhfvlrssrashrcbeg"
+
+[functions.kit-orders]
+verify_jwt = false
