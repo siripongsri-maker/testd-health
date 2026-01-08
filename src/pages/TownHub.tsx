@@ -2,11 +2,14 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 import { getUserData } from "@/lib/store";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { TownBuilding, PixelTree, Pond, Fence, PixelRock, TownAvatar, WalkingVillager, FlyingBird, Butterfly } from "@/components/TownBuilding";
 import { GameAvatar } from "@/components/GameAvatar";
 import { HIVTestPopup } from "@/components/HIVTestPopup";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { playWelcome, playBuildingTap } from "@/lib/sounds";
 import {
   TestTube,
@@ -21,15 +24,19 @@ import {
   Landmark,
   Hammer,
   BedDouble,
+  ShieldCheck,
 } from "lucide-react";
 import swingLogo from "@/assets/swing-logo.webp";
 
 export default function TownHub() {
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const { user } = useAuth();
   const [userData, setUserData] = useState(getUserData());
   const [loaded, setLoaded] = useState(false);
   const [timeOfDay, setTimeOfDay] = useState<'day' | 'evening' | 'night'>('day');
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [pendingRequests, setPendingRequests] = useState(0);
 
   useEffect(() => {
     setUserData(getUserData());
@@ -44,6 +51,38 @@ export default function TownHub() {
     
     return () => clearTimeout(timer);
   }, []);
+
+  // Check admin status and pending requests
+  useEffect(() => {
+    const checkAdmin = async () => {
+      if (!user) return;
+      
+      const { data: roleData } = await supabase.rpc('has_role', {
+        _user_id: user.id,
+        _role: 'admin',
+      });
+      
+      setIsAdmin(!!roleData);
+      
+      if (roleData) {
+        // Count pending HIV test requests
+        const { count: hivCount } = await supabase
+          .from('hiv_selftest_requests')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'pending');
+        
+        // Count pending admin requests
+        const { count: adminCount } = await supabase
+          .from('admin_requests')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'pending');
+        
+        setPendingRequests((hivCount || 0) + (adminCount || 0));
+      }
+    };
+    
+    checkAdmin();
+  }, [user]);
 
   const isNewUser = !userData.onboardingComplete;
 
@@ -120,6 +159,22 @@ export default function TownHub() {
       <header className="relative z-20 flex items-center justify-between px-3 py-2 safe-top">
         <GameAvatar showStats size="md" />
         <div className="flex items-center gap-1.5">
+          {isAdmin && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 bg-amber-600 text-white hover:bg-amber-500 border-2 border-l-amber-400 border-t-amber-400 border-r-amber-800 border-b-amber-800 rounded-none relative"
+              style={{ boxShadow: "2px 2px 0 #78350f" }}
+              onClick={() => navigate("/admin")}
+            >
+              <ShieldCheck className="h-4 w-4" />
+              {pendingRequests > 0 && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                  {pendingRequests > 9 ? '9+' : pendingRequests}
+                </span>
+              )}
+            </Button>
+          )}
           <Button
             variant="ghost"
             size="icon"
