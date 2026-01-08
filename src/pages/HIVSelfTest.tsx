@@ -606,48 +606,12 @@ Important: Be very careful and accurate. This is a medical test result.`
                     {language === 'th' ? 'วันที่เสี่ยงครั้งล่าสุด (ถ้ามี)' : 'Last Risk Date (if any)'}
                   </Label>
                   <Input
-                    id="lineId"
-                    value={formData.lineId}
-                    onChange={(e) => setFormData(prev => ({ ...prev, lineId: e.target.value }))}
-                    placeholder="@line_id"
+                    id="lastRiskDate"
+                    type="date"
+                    value={formData.lastRiskDate}
+                    onChange={(e) => setFormData(prev => ({ ...prev, lastRiskDate: e.target.value }))}
+                    max={new Date().toISOString().split('T')[0]}
                   />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="address">
-                    <MapPin className="h-4 w-4 inline mr-1" />
-                    {language === 'th' ? 'ที่อยู่จัดส่ง' : 'Shipping Address'}
-                  </Label>
-                  <Textarea
-                    id="address"
-                    value={formData.address}
-                    onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                    placeholder={language === 'th' ? 'บ้านเลขที่ ซอย ถนน แขวง/ตำบล เขต/อำเภอ' : 'House number, street, subdistrict, district'}
-                    required
-                  />
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="province">{language === 'th' ? 'จังหวัด' : 'Province'}</Label>
-                    <Input
-                      id="province"
-                      value={formData.province}
-                      onChange={(e) => setFormData(prev => ({ ...prev, province: e.target.value }))}
-                      placeholder={language === 'th' ? 'กรุงเทพฯ' : 'Bangkok'}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="postalCode">{language === 'th' ? 'รหัสไปรษณีย์' : 'Postal Code'}</Label>
-                    <Input
-                      id="postalCode"
-                      value={formData.postalCode}
-                      onChange={(e) => setFormData(prev => ({ ...prev, postalCode: e.target.value }))}
-                      placeholder="10xxx"
-                      required
-                    />
-                  </div>
                 </div>
 
                 <div className="space-y-2">
