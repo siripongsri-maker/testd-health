@@ -109,6 +109,8 @@ export default function HIVSelfTest() {
     phone: "",
     lineId: "",
     address: "",
+    subdistrict: "",
+    district: "",
     province: "",
     postalCode: "",
     lastRiskDate: "",
@@ -232,6 +234,8 @@ export default function HIVSelfTest() {
         phone: formData.phone,
         line_id: formData.lineId,
         address: formData.address,
+        subdistrict: formData.subdistrict,
+        district: formData.district,
         province: formData.province,
         postal_code: formData.postalCode,
       }).select().single();
@@ -261,6 +265,8 @@ export default function HIVSelfTest() {
         phone: "",
         lineId: "",
         address: "",
+        subdistrict: "",
+        district: "",
         province: "",
         postalCode: "",
         lastRiskDate: "",
@@ -623,6 +629,29 @@ Important: Be very careful and accurate. This is a medical test result.`
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
+                    <Label htmlFor="subdistrict">{language === 'th' ? 'แขวง/ตำบล' : 'Subdistrict'}</Label>
+                    <Input
+                      id="subdistrict"
+                      value={formData.subdistrict}
+                      onChange={(e) => setFormData(prev => ({ ...prev, subdistrict: e.target.value }))}
+                      placeholder={language === 'th' ? 'แขวง/ตำบล' : 'Subdistrict'}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="district">{language === 'th' ? 'เขต/อำเภอ' : 'District'}</Label>
+                    <Input
+                      id="district"
+                      value={formData.district}
+                      onChange={(e) => setFormData(prev => ({ ...prev, district: e.target.value }))}
+                      placeholder={language === 'th' ? 'เขต/อำเภอ' : 'District'}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
                     <Label htmlFor="province">{language === 'th' ? 'จังหวัด' : 'Province'}</Label>
                     <Select
                       value={formData.province}
@@ -645,15 +674,48 @@ Important: Be very careful and accurate. This is a medical test result.`
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="postalCode">{language === 'th' ? 'รหัสไปรษณีย์' : 'Postal Code'}</Label>
+                    <Label htmlFor="postalCode">
+                      {language === 'th' ? 'รหัสไปรษณีย์' : 'Postal Code'}
+                      <a 
+                        href="https://www.thailandpost.co.th/un/zip" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="ml-2 text-xs text-primary hover:underline"
+                      >
+                        🔍 {language === 'th' ? 'ค้นหา' : 'Lookup'}
+                      </a>
+                    </Label>
                     <Input
                       id="postalCode"
                       value={formData.postalCode}
-                      onChange={(e) => setFormData(prev => ({ ...prev, postalCode: e.target.value }))}
+                      onChange={(e) => setFormData(prev => ({ ...prev, postalCode: e.target.value.replace(/\D/g, '').slice(0, 5) }))}
                       placeholder="10xxx"
+                      maxLength={5}
                       required
                     />
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="lastRiskDate">
+                    <Calendar className="h-4 w-4 inline mr-1" />
+                    {language === 'th' ? 'วันที่เสี่ยงครั้งล่าสุด (ถ้ามี)' : 'Last Risk Date (if any)'}
+                  </Label>
+                  <Input
+                    id="lastRiskDate"
+                    type="date"
+                    value={formData.lastRiskDate}
+                    onChange={(e) => setFormData(prev => ({ ...prev, lastRiskDate: e.target.value }))}
+                    max={new Date().toISOString().split('T')[0]}
+                  />
+                  {formData.lastRiskDate && calculateDaysSinceRisk(formData.lastRiskDate) < 30 && (
+                    <p className="text-xs text-amber-600">
+                      {language === 'th' 
+                        ? `⚠️ ผ่านมา ${calculateDaysSinceRisk(formData.lastRiskDate)} วัน — แนะนำให้รอครบ 30 วัน`
+                        : `⚠️ ${calculateDaysSinceRisk(formData.lastRiskDate)} days — recommend waiting 30 days`
+                      }
+                    </p>
+                  )}
                 </div>
               </Card>
 
