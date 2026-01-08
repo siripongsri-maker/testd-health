@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { TownBuilding, PixelTree, Pond, Fence, PixelRock, TownAvatar, WalkingVillager, FlyingBird, Butterfly } from "@/components/TownBuilding";
 import { GameAvatar } from "@/components/GameAvatar";
 import { HIVTestPopup } from "@/components/HIVTestPopup";
+import { AdminRequestsPopup } from "@/components/AdminRequestsPopup";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +38,7 @@ export default function TownHub() {
   const [timeOfDay, setTimeOfDay] = useState<'day' | 'evening' | 'night'>('day');
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingRequests, setPendingRequests] = useState(0);
+  const [adminPopupOpen, setAdminPopupOpen] = useState(false);
 
   useEffect(() => {
     setUserData(getUserData());
@@ -165,7 +167,7 @@ export default function TownHub() {
               size="icon"
               className="h-9 w-9 bg-amber-600 text-white hover:bg-amber-500 border-2 border-l-amber-400 border-t-amber-400 border-r-amber-800 border-b-amber-800 rounded-none relative"
               style={{ boxShadow: "2px 2px 0 #78350f" }}
-              onClick={() => navigate("/admin")}
+              onClick={() => setAdminPopupOpen(true)}
             >
               <ShieldCheck className="h-4 w-4" />
               {pendingRequests > 0 && (
@@ -487,6 +489,14 @@ export default function TownHub() {
 
       {/* HIV Test Popup */}
       <HIVTestPopup />
+      
+      {/* Admin Requests Popup */}
+      {isAdmin && (
+        <AdminRequestsPopup 
+          open={adminPopupOpen} 
+          onOpenChange={setAdminPopupOpen} 
+        />
+      )}
     </div>
   );
 }
