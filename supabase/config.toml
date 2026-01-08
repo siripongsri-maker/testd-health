@@ -2,3 +2,6 @@ project_id = "tzerhfvlrssrashrcbeg"
 
 [functions.kit-orders]
 verify_jwt = false
+
+[functions.scrape-shopee-images]
+verify_jwt = false
