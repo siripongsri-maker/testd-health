@@ -330,7 +330,8 @@ export default function AdminDashboard() {
 
   const maskThaiId = (id: string | null) => {
     if (!id || id.length !== 13) return id || '-';
-    return `${id.slice(0, 1)}-${id.slice(1, 5)}-XXXXX-${id.slice(10, 12)}-${id.slice(12)}`;
+    // Mask all but first digit and last 2 digits for better PII protection
+    return `${id.slice(0, 1)}-XXXX-XXXXX-XX-${id.slice(11)}`;
   };
 
   if (loading) {
