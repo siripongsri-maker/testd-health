@@ -148,7 +148,7 @@ export default function TownHub() {
           style={{ boxShadow: "4px 4px 0 #1c1917" }}>
           <h1 className="text-xl text-yellow-400 tracking-wider flex items-center gap-2">
             <span className="text-2xl">🏰</span>
-            {language === 'th' ? 'หมู่บ้าน SWING' : 'SWING Village'}
+            {language === 'th' ? 'testD แพลตฟอร์ม' : 'testD Platform'}
             <span className="text-2xl">🏰</span>
           </h1>
         </div>
