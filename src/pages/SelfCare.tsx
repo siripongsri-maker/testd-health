@@ -13,9 +13,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
+import loveKitImg from "@/assets/love-kit.jpg";
+import selfKitImg from "@/assets/self-kit.jpg";
+import safeKitImg from "@/assets/safe-kit.jpg";
+
 interface SelfCareItem {
   id: string;
   icon: React.ElementType;
+  image: string;
   titleEn: string;
   titleTh: string;
   descEn: string;
@@ -27,6 +32,7 @@ const SELF_CARE_ITEMS: SelfCareItem[] = [
   {
     id: 'condoms',
     icon: Heart,
+    image: loveKitImg,
     titleEn: 'Love Kit - Condoms',
     titleTh: 'Love Kit - ถุงยางอนามัย',
     descEn: 'Essential protection, discreet delivery',
@@ -36,6 +42,7 @@ const SELF_CARE_ITEMS: SelfCareItem[] = [
   {
     id: 'hiv-test',
     icon: TestTube,
+    image: selfKitImg,
     titleEn: 'Self Kit - HIV Self-Test',
     titleTh: 'Self Kit - ชุดตรวจ HIV ด้วยตัวเอง',
     descEn: 'Quick, private, and accurate home testing',
@@ -45,6 +52,7 @@ const SELF_CARE_ITEMS: SelfCareItem[] = [
   {
     id: 'harm-reduction',
     icon: Shield,
+    image: safeKitImg,
     titleEn: 'Safe Kit - Harm Reduction Set',
     titleTh: 'Safe Kit - ชุดลดอันตราย',
     descEn: 'Lubricants and safer use supplies',
@@ -156,26 +164,31 @@ export default function SelfCare() {
           </div>
         </Card>
 
-        {/* Products */}
-        <div className="space-y-3 mb-8">
+        <div className="space-y-4 mb-8">
           {SELF_CARE_ITEMS.map((item) => (
-            <Card key={item.id} className="p-4">
-              <div className="flex items-start gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-                  <item.icon className="h-6 w-6 text-primary" />
+            <Card key={item.id} className="overflow-hidden">
+              <div className="flex">
+                <div className="w-28 h-28 shrink-0 bg-muted">
+                  <img 
+                    src={item.image} 
+                    alt={item.titleEn}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-foreground">
-                    {language === 'th' ? item.titleTh : item.titleEn}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    {language === 'th' ? item.descTh : item.descEn}
-                  </p>
+                <div className="flex-1 p-4 flex flex-col justify-between">
+                  <div>
+                    <h3 className="font-bold text-foreground text-sm">
+                      {language === 'th' ? item.titleTh : item.titleEn}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {language === 'th' ? item.descTh : item.descEn}
+                    </p>
+                  </div>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => openLink(item.link)}
-                    className="gap-2"
+                    className="gap-2 w-fit mt-2"
                   >
                     <Package className="h-4 w-4" />
                     {t('selfCare.orderNow')}
