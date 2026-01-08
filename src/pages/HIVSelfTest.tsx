@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
 import { useLanguage } from "@/lib/i18n";
+import { getUserData } from "@/lib/store";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -135,6 +136,23 @@ export default function HIVSelfTest() {
   useEffect(() => {
     if (user) {
       fetchRequests();
+    }
+    
+    // Pre-fill form with saved personal info
+    const userData = getUserData();
+    if (userData.personalInfo) {
+      const pi = userData.personalInfo;
+      setFormData(prev => ({
+        ...prev,
+        fullName: pi.fullName || prev.fullName,
+        phone: pi.phone || prev.phone,
+        lineId: pi.lineId || prev.lineId,
+        address: pi.address || prev.address,
+        subdistrict: pi.subdistrict || prev.subdistrict,
+        district: pi.district || prev.district,
+        province: pi.province || prev.province,
+        postalCode: pi.postalCode || prev.postalCode,
+      }));
     }
   }, [user]);
 
