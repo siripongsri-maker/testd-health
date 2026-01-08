@@ -27,6 +27,8 @@ import ShareAchievements from "./pages/ShareAchievements";
 import HealthProfile from "./pages/HealthProfile";
 import ConsultationForm from "./pages/ConsultationForm";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminKitOrders from "./pages/AdminKitOrders";
+import TrackOrder from "./pages/TrackOrder";
 import PersonalInfo from "./pages/PersonalInfo";
 import AvatarCustomization from "./pages/AvatarCustomization";
 import NotFound from "./pages/NotFound";
@@ -64,6 +66,8 @@ const App = () => (
           <Route path="/health-profile" element={<HealthProfile />} />
           <Route path="/consultation" element={<ConsultationForm />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/kit-orders" element={<AdminKitOrders />} />
+          <Route path="/track-order" element={<TrackOrder />} />
           <Route path="/personal-info" element={<PersonalInfo />} />
           <Route path="/avatar" element={<AvatarCustomization />} />
           <Route path="*" element={<NotFound />} />
