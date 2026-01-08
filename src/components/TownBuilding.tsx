@@ -1,4 +1,4 @@
-import { ReactNode, useState, CSSProperties } from "react";
+import { ReactNode, useState, CSSProperties, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { playBuildingTap, playBuildingHover } from "@/lib/sounds";
 
@@ -22,37 +22,44 @@ export function TownBuilding({
   onClick,
   variant = "default",
   badge,
-  roofColor = "from-orange-600 to-orange-700",
-  wallColor = "from-amber-100 to-amber-200",
+  roofColor = "bg-orange-600",
+  wallColor = "bg-amber-100",
   size = "md",
   className,
 }: TownBuildingProps) {
   const [isPressed, setIsPressed] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [smokeFrame, setSmokeFrame] = useState(0);
+
+  // Animate smoke
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSmokeFrame(prev => (prev + 1) % 4);
+    }, 400);
+    return () => clearInterval(interval);
+  }, []);
 
   const sizeConfig = {
     sm: { 
-      wrapper: "w-20", 
-      roof: "h-6 -top-3", 
+      wrapper: "w-[72px]", 
+      roof: "h-8 w-16", 
       body: "h-12 w-14",
-      iconBox: "w-8 h-8",
-      iconSize: "h-4 w-4",
-      label: "text-[9px] px-1.5 py-0.5"
+      iconSize: "text-lg",
+      label: "text-[8px] px-1.5"
     },
     md: { 
-      wrapper: "w-24", 
-      roof: "h-8 -top-4", 
-      body: "h-14 w-16",
-      iconBox: "w-10 h-10",
-      iconSize: "h-5 w-5",
-      label: "text-[10px] px-2 py-1"
+      wrapper: "w-[88px]", 
+      roof: "h-10 w-20", 
+      body: "h-16 w-[72px]",
+      iconSize: "text-xl",
+      label: "text-[10px] px-2"
     },
     lg: { 
-      wrapper: "w-32", 
-      roof: "h-10 -top-5", 
-      body: "h-[72px] w-[88px]",
-      iconBox: "w-14 h-14",
-      iconSize: "h-7 w-7",
-      label: "text-xs px-3 py-1.5"
+      wrapper: "w-[120px]", 
+      roof: "h-14 w-28", 
+      body: "h-24 w-24",
+      iconSize: "text-3xl",
+      label: "text-xs px-3"
     },
   };
 
@@ -66,120 +73,151 @@ export function TownBuilding({
     onClick();
   };
 
+  const smokePositions = [
+    { x: 0, y: -4, opacity: 0.6, scale: 1 },
+    { x: 2, y: -8, opacity: 0.4, scale: 1.2 },
+    { x: -1, y: -12, opacity: 0.2, scale: 1.4 },
+    { x: 1, y: -16, opacity: 0.1, scale: 1.6 },
+  ];
+
   return (
     <button
       onClick={handleClick}
-      onMouseEnter={() => variant !== "locked" && playBuildingHover()}
+      onMouseEnter={() => {
+        setIsHovered(true);
+        variant !== "locked" && playBuildingHover();
+      }}
+      onMouseLeave={() => setIsHovered(false)}
       className={cn(
-        "group relative flex flex-col items-center transition-all duration-200 touch-manipulation",
+        "group relative flex flex-col items-center touch-manipulation",
         config.wrapper,
-        isPressed ? "scale-90" : "hover:scale-105 hover:-translate-y-1",
-        "active:scale-95",
+        "transition-transform duration-100",
+        isPressed ? "translate-y-1" : isHovered ? "-translate-y-1" : "",
         variant === "locked" && "opacity-50 cursor-not-allowed grayscale",
         className
       )}
+      style={{ imageRendering: "pixelated" }}
       disabled={variant === "locked"}
     >
-      {/* Glow for featured */}
+      {/* Pixel glow for featured */}
       {variant === "featured" && (
-        <div className="absolute inset-0 -z-10 rounded-full bg-amber-400/40 blur-2xl animate-pulse scale-150" />
+        <>
+          <div className="absolute inset-0 -z-10 bg-yellow-400/30 blur-xl scale-[2] animate-pulse" />
+          {/* Sparkle particles */}
+          <div className="absolute -top-4 left-2 text-yellow-300 text-xs animate-bounce" style={{ animationDelay: '0ms' }}>✦</div>
+          <div className="absolute -top-2 right-2 text-yellow-200 text-[10px] animate-bounce" style={{ animationDelay: '200ms' }}>✦</div>
+          <div className="absolute top-4 -left-2 text-yellow-300 text-[8px] animate-bounce" style={{ animationDelay: '400ms' }}>✦</div>
+        </>
       )}
 
       {/* Badge */}
       {badge && (
-        <div className="absolute -top-2 -right-0 z-20 flex h-6 min-w-6 px-1 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white shadow-lg border-2 border-white animate-bounce-gentle">
+        <div className="absolute -top-3 -right-1 z-20 px-1.5 py-0.5 bg-red-500 text-[8px] font-bold text-white border-2 border-red-700 shadow-[2px_2px_0_#7f1d1d]"
+          style={{ fontFamily: "'VT323', monospace" }}>
           {badge}
         </div>
       )}
 
-      {/* Building */}
+      {/* Building Structure */}
       <div className="relative">
-        {/* Chimney */}
-        <div className="absolute -top-6 right-2 w-3 h-4 bg-gradient-to-b from-stone-400 to-stone-500 rounded-t-sm z-10">
-          {/* Smoke */}
-          <div className="absolute -top-2 left-0.5 w-2 h-2 bg-white/40 rounded-full animate-float blur-[1px]" />
+        {/* Chimney with animated smoke */}
+        <div className="absolute -top-4 right-1 z-20">
+          {/* Chimney block */}
+          <div className="w-3 h-5 bg-stone-600 border-l-2 border-t-2 border-stone-500 border-r-2 border-b-2 border-r-stone-700 border-b-stone-700" />
+          {/* Animated smoke puffs */}
+          {smokePositions.map((pos, i) => (
+            <div 
+              key={i}
+              className="absolute left-0.5 w-2 h-2 bg-white/50 rounded-full transition-all duration-400"
+              style={{
+                transform: `translate(${pos.x}px, ${pos.y + (smokeFrame === i ? -2 : 0)}px) scale(${pos.scale})`,
+                opacity: (smokeFrame + i) % 4 === 0 ? pos.opacity * 1.5 : pos.opacity,
+              }}
+            />
+          ))}
         </div>
 
-        {/* Roof */}
-        <div className={cn(
-          "absolute left-1/2 -translate-x-1/2 w-full",
-          config.roof,
-          "z-10"
-        )}>
+        {/* Roof - Pixel style with stepped edges */}
+        <div className={cn("relative z-10 -mb-1", config.roof)}>
+          {/* Roof layers for 64-bit look */}
           <div className={cn(
-            "w-full h-full bg-gradient-to-b rounded-t-lg",
-            variant === "featured" ? "from-amber-500 to-amber-600" : roofColor,
-            "shadow-md"
-          )} 
-          style={{
-            clipPath: "polygon(50% 0%, 100% 100%, 0% 100%)"
-          }}
-          />
-          {/* Roof edge */}
+            "absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[40%]",
+            variant === "featured" ? "bg-yellow-500" : roofColor.replace("from-", "bg-").split(" ")[0]
+          )} style={{ boxShadow: "inset -3px 0 0 rgba(0,0,0,0.2), inset 3px 0 0 rgba(255,255,255,0.1)" }} />
           <div className={cn(
-            "absolute -bottom-1 left-0 right-0 h-2 bg-gradient-to-b rounded-sm",
-            variant === "featured" ? "from-amber-600 to-amber-700" : "from-orange-700 to-orange-800"
-          )} />
+            "absolute bottom-[40%] left-1/2 -translate-x-1/2 w-[85%] h-[30%]",
+            variant === "featured" ? "bg-yellow-400" : roofColor.replace("to-", "bg-").split(" ").pop()
+          )} style={{ boxShadow: "inset -2px 0 0 rgba(0,0,0,0.2), inset 2px 0 0 rgba(255,255,255,0.1)" }} />
+          <div className={cn(
+            "absolute bottom-[70%] left-1/2 -translate-x-1/2 w-[65%] h-[30%]",
+            variant === "featured" ? "bg-yellow-300" : "bg-orange-400"
+          )} style={{ boxShadow: "inset -2px 0 0 rgba(0,0,0,0.15)" }} />
+          {/* Roof edge shadow */}
+          <div className="absolute -bottom-1 left-0 right-0 h-1 bg-orange-900/60" />
         </div>
 
-        {/* Building body */}
+        {/* Building body - Pixel art style */}
         <div className={cn(
-          "relative rounded-md shadow-lg overflow-hidden",
+          "relative border-4",
           config.body,
-          "bg-gradient-to-b",
-          variant === "featured" ? "from-amber-50 to-amber-100 border-2 border-amber-300" : cn(wallColor, "border-2 border-amber-200/50")
-        )}>
-          {/* Window */}
-          <div className="absolute top-1 left-1 w-2.5 h-3 rounded-sm bg-sky-300 border border-sky-400">
-            <div className="absolute inset-0.5 bg-gradient-to-br from-white/50 to-transparent" />
+          variant === "featured" 
+            ? "bg-amber-50 border-l-amber-200 border-t-amber-200 border-r-amber-400 border-b-amber-400" 
+            : cn(wallColor.replace("from-", "bg-").split(" ")[0], "border-l-amber-100 border-t-amber-100 border-r-amber-300 border-b-amber-300")
+        )} style={{ boxShadow: "4px 4px 0 rgba(0,0,0,0.3)" }}>
+          
+          {/* Pixel windows */}
+          <div className="absolute top-1 left-1 w-3 h-4 bg-sky-600 border-2 border-l-sky-400 border-t-sky-400 border-r-sky-800 border-b-sky-800">
+            <div className="absolute top-0 left-0 w-1 h-1 bg-white/60" />
           </div>
-          <div className="absolute top-1 right-1 w-2.5 h-3 rounded-sm bg-sky-300 border border-sky-400">
-            <div className="absolute inset-0.5 bg-gradient-to-br from-white/50 to-transparent" />
-          </div>
-
-          {/* Door */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-5 rounded-t-md bg-gradient-to-b from-amber-700 to-amber-800 border-t-2 border-x-2 border-amber-600">
-            <div className="absolute top-2 right-0.5 w-1 h-1 rounded-full bg-amber-400" />
+          <div className="absolute top-1 right-1 w-3 h-4 bg-sky-600 border-2 border-l-sky-400 border-t-sky-400 border-r-sky-800 border-b-sky-800">
+            <div className="absolute top-0 left-0 w-1 h-1 bg-white/60" />
           </div>
 
-          {/* Icon overlay */}
+          {/* Pixel door */}
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-6 bg-amber-700 border-2 border-l-amber-600 border-t-amber-600 border-r-amber-900 border-b-amber-900">
+            <div className="absolute top-2 right-0.5 w-1 h-1 bg-yellow-400" />
+          </div>
+
+          {/* Icon with pixel border */}
           <div className={cn(
             "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
-            config.iconBox,
-            "rounded-lg flex items-center justify-center",
-            "bg-white/90 shadow-inner border-2 border-white",
-            "group-hover:scale-110 transition-transform"
+            "bg-white/90 border-2 border-l-white border-t-white border-r-gray-400 border-b-gray-400",
+            "p-1.5 transition-transform duration-100",
+            isHovered && "scale-110"
           )}>
             <div className={cn(
               config.iconSize,
-              variant === "featured" ? "text-amber-600" : "text-primary"
+              variant === "featured" ? "text-amber-600" : "text-primary",
+              "flex items-center justify-center"
             )}>
               {icon}
             </div>
           </div>
         </div>
 
-        {/* Ground shadow */}
-        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4/5 h-2 bg-black/20 rounded-full blur-sm" />
+        {/* Ground shadow - pixel style */}
+        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-full h-2 bg-black/25" 
+          style={{ clipPath: "ellipse(50% 50% at 50% 50%)" }} />
       </div>
 
-      {/* Label */}
+      {/* Pixel-style label */}
       <div className={cn(
-        "mt-3 rounded-md font-bold bg-stone-800/90 text-white shadow-lg",
-        "border border-stone-600 whitespace-nowrap",
+        "mt-3 font-bold bg-stone-800 text-white border-2",
+        "border-l-stone-600 border-t-stone-600 border-r-stone-900 border-b-stone-900",
+        "whitespace-nowrap shadow-[2px_2px_0_#1c1917]",
         config.label
-      )}>
+      )} style={{ fontFamily: "'VT323', monospace" }}>
         {name}
       </div>
 
-      {/* Description on hover */}
+      {/* Description */}
       {description && (
         <div className={cn(
-          "mt-1 rounded text-[8px] text-center whitespace-nowrap transition-all duration-200",
+          "mt-1 text-[9px] text-center whitespace-nowrap transition-opacity duration-100",
           variant === "featured" 
-            ? "opacity-100 bg-amber-500/90 text-white px-2 py-0.5 font-medium" 
-            : "opacity-0 group-hover:opacity-100 bg-stone-700/90 text-white px-1.5 py-0.5"
-        )}>
+            ? "opacity-100 bg-yellow-500 text-black px-2 py-0.5 font-bold border border-yellow-700" 
+            : cn("opacity-0 group-hover:opacity-100 bg-stone-700 text-white px-1.5 py-0.5"),
+        )} style={{ fontFamily: "'VT323', monospace" }}>
           {description}
         </div>
       )}
@@ -187,67 +225,227 @@ export function TownBuilding({
   );
 }
 
-// Pixel-style tree component
+// 64-bit style pixel tree
 interface PixelTreeProps {
-  variant?: "oak" | "pine" | "bush";
+  variant?: "oak" | "pine" | "bush" | "flower";
   className?: string;
   style?: CSSProperties;
 }
 
 export function PixelTree({ variant = "oak", className = "", style }: PixelTreeProps) {
+  const [frame, setFrame] = useState(0);
+  
+  // Subtle sway animation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFrame(prev => (prev + 1) % 2);
+    }, 800 + Math.random() * 400);
+    return () => clearInterval(interval);
+  }, []);
+
   if (variant === "pine") {
     return (
-      <div className={`relative ${className}`} style={style}>
-        <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-b-[12px] border-l-transparent border-r-transparent border-b-green-700 absolute -top-3 left-1/2 -translate-x-1/2" />
-        <div className="w-0 h-0 border-l-[10px] border-r-[10px] border-b-[14px] border-l-transparent border-r-transparent border-b-green-600 absolute -top-1 left-1/2 -translate-x-1/2" />
-        <div className="w-0 h-0 border-l-[12px] border-r-[12px] border-b-[16px] border-l-transparent border-r-transparent border-b-green-500" />
-        <div className="w-2 h-3 bg-amber-800 mx-auto -mt-1" />
+      <div className={cn("relative flex flex-col items-center", className)} style={{ ...style, imageRendering: "pixelated" }}>
+        {/* Pine layers with pixel shading */}
+        <div className="relative" style={{ transform: `translateX(${frame === 0 ? 0 : 1}px)` }}>
+          <div className="w-4 h-3 bg-green-700" style={{ clipPath: "polygon(50% 0%, 100% 100%, 0% 100%)" }} />
+          <div className="w-6 h-4 bg-green-600 -mt-1" style={{ clipPath: "polygon(50% 0%, 100% 100%, 0% 100%)" }} />
+          <div className="w-8 h-5 bg-green-500 -mt-1" style={{ clipPath: "polygon(50% 0%, 100% 100%, 0% 100%)" }} />
+          {/* Highlight */}
+          <div className="absolute top-1 left-1/2 w-2 h-2 bg-green-400/50" />
+        </div>
+        <div className="w-2 h-4 bg-amber-800 border-r border-amber-900" />
+        <div className="w-4 h-1 bg-black/20 rounded-full" />
       </div>
     );
   }
   
   if (variant === "bush") {
     return (
-      <div className={`relative ${className}`} style={style}>
-        <div className="w-6 h-4 bg-green-500 rounded-full shadow-inner" />
-        <div className="w-4 h-3 bg-green-600 rounded-full absolute -top-1 left-1" />
+      <div className={cn("relative", className)} style={{ ...style, imageRendering: "pixelated" }}>
+        <div className="relative" style={{ transform: `scaleX(${frame === 0 ? 1 : 1.02})` }}>
+          <div className="w-8 h-5 bg-green-500 rounded-full border-2 border-l-green-400 border-t-green-400 border-r-green-700 border-b-green-700" />
+          <div className="absolute -top-1 left-2 w-4 h-3 bg-green-400 rounded-full" />
+          {/* Flowers on bush */}
+          <div className="absolute top-0 left-1 w-1.5 h-1.5 bg-pink-400 rounded-full" />
+          <div className="absolute top-1 right-1 w-1 h-1 bg-yellow-300 rounded-full" />
+        </div>
+        <div className="w-6 h-1 bg-black/15 rounded-full mx-auto" />
       </div>
     );
   }
 
-  // Oak tree
+  if (variant === "flower") {
+    return (
+      <div className={cn("relative flex flex-col items-center", className)} style={style}>
+        <div className="relative" style={{ transform: `rotate(${frame === 0 ? -2 : 2}deg)` }}>
+          <div className="w-4 h-4 flex flex-wrap">
+            <div className="w-2 h-2 bg-pink-400 rounded-full" />
+            <div className="w-2 h-2 bg-pink-400 rounded-full" />
+            <div className="w-2 h-2 bg-pink-400 rounded-full" />
+            <div className="w-2 h-2 bg-pink-400 rounded-full" />
+          </div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-yellow-400 rounded-full" />
+        </div>
+        <div className="w-0.5 h-4 bg-green-600" />
+        <div className="absolute bottom-2 left-0 w-2 h-1 bg-green-500 rounded-full origin-right -rotate-45" />
+      </div>
+    );
+  }
+
+  // Oak tree - 64-bit style
   return (
-    <div className={`relative ${className}`} style={style}>
-      <div className="w-10 h-8 bg-gradient-to-b from-green-400 to-green-600 rounded-full shadow-lg" />
-      <div className="w-8 h-6 bg-gradient-to-b from-green-500 to-green-700 rounded-full absolute -top-2 left-1" />
-      <div className="w-3 h-4 bg-gradient-to-b from-amber-700 to-amber-900 mx-auto -mt-1 rounded-b" />
+    <div className={cn("relative flex flex-col items-center", className)} style={{ ...style, imageRendering: "pixelated" }}>
+      <div className="relative" style={{ transform: `translateX(${frame === 0 ? 0 : 1}px)` }}>
+        {/* Layered foliage */}
+        <div className="w-12 h-10 bg-green-500 rounded-full border-2 border-l-green-400 border-t-green-400 border-r-green-700 border-b-green-700" />
+        <div className="absolute -top-2 left-2 w-8 h-7 bg-green-400 rounded-full" />
+        <div className="absolute top-1 -left-1 w-5 h-5 bg-green-600 rounded-full" />
+        <div className="absolute top-1 -right-1 w-5 h-5 bg-green-600 rounded-full" />
+        {/* Highlights */}
+        <div className="absolute top-0 left-3 w-2 h-2 bg-green-300/60 rounded-full" />
+      </div>
+      {/* Trunk with pixel shading */}
+      <div className="w-4 h-5 bg-amber-700 -mt-2 border-r-2 border-amber-900" />
+      <div className="w-8 h-1 bg-black/20 rounded-full" />
     </div>
   );
 }
 
-// Water/pond component
+// 64-bit style pond
 export function Pond({ className = "" }: { className?: string }) {
+  const [ripple, setRipple] = useState(0);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setRipple(prev => (prev + 1) % 3);
+    }, 600);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className={`relative ${className}`}>
-      <div className="w-20 h-10 bg-gradient-to-b from-sky-400 to-blue-500 rounded-full shadow-inner border-2 border-sky-300">
-        <div className="absolute top-1 left-2 w-4 h-2 bg-white/30 rounded-full" />
-        <div className="absolute top-2 right-3 w-2 h-1 bg-white/20 rounded-full" />
+    <div className={cn("relative", className)} style={{ imageRendering: "pixelated" }}>
+      {/* Water with pixel border */}
+      <div className="w-24 h-12 bg-blue-500 rounded-full border-4 border-l-sky-400 border-t-sky-400 border-r-blue-700 border-b-blue-700"
+        style={{ boxShadow: "inset 0 -4px 8px rgba(0,0,0,0.2)" }}>
+        {/* Animated ripples */}
+        <div className="absolute top-2 left-4 w-4 h-1 bg-sky-300/60 rounded-full transition-all"
+          style={{ transform: `scaleX(${1 + ripple * 0.1})`, opacity: 1 - ripple * 0.2 }} />
+        <div className="absolute top-4 right-5 w-3 h-0.5 bg-sky-200/40 rounded-full" 
+          style={{ transform: `scaleX(${1 + ((ripple + 1) % 3) * 0.1})` }} />
       </div>
       {/* Lily pads */}
-      <div className="absolute top-2 left-4 w-3 h-2 bg-green-500 rounded-full opacity-80" />
-      <div className="absolute bottom-2 right-5 w-2 h-1.5 bg-green-600 rounded-full opacity-70" />
+      <div className="absolute top-3 left-5 w-4 h-3 bg-green-500 rounded-full border border-green-700">
+        <div className="absolute top-0 right-0 w-1 h-full bg-green-700" style={{ clipPath: "polygon(100% 0%, 100% 100%, 0% 50%)" }} />
+      </div>
+      <div className="absolute bottom-2 right-6 w-3 h-2 bg-green-600 rounded-full" />
+      {/* Water reflection */}
+      <div className="absolute top-1 left-3 w-2 h-1 bg-white/30" />
     </div>
   );
 }
 
-// Fence component
+// 64-bit style fence
 export function Fence({ className = "" }: { className?: string }) {
   return (
-    <div className={`flex gap-0.5 relative ${className}`}>
-      {[...Array(4)].map((_, i) => (
-        <div key={i} className="w-2 h-4 bg-gradient-to-b from-amber-600 to-amber-800 rounded-t-sm" />
+    <div className={cn("flex relative", className)} style={{ imageRendering: "pixelated" }}>
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className="relative">
+          <div className="w-2 h-6 bg-amber-600 border-l border-amber-500 border-r border-amber-800" />
+          <div className="absolute -top-1 left-0 w-2 h-2 bg-amber-500" style={{ clipPath: "polygon(50% 0%, 100% 100%, 0% 100%)" }} />
+        </div>
       ))}
-      <div className="absolute top-1 left-0 right-0 h-1 bg-amber-700" />
+      {/* Horizontal bars */}
+      <div className="absolute top-1 left-0 right-0 h-1 bg-amber-700 border-t border-amber-600" />
+      <div className="absolute top-3 left-0 right-0 h-1 bg-amber-700 border-t border-amber-600" />
     </div>
+  );
+}
+
+// Decorative pixel rock
+export function PixelRock({ size = "md", className = "" }: { size?: "sm" | "md" | "lg", className?: string }) {
+  const sizes = {
+    sm: "w-4 h-3",
+    md: "w-6 h-4",
+    lg: "w-8 h-5"
+  };
+  
+  return (
+    <div className={cn("relative", sizes[size], className)} style={{ imageRendering: "pixelated" }}>
+      <div className={cn("w-full h-full bg-stone-500 rounded-sm border-2 border-l-stone-400 border-t-stone-400 border-r-stone-600 border-b-stone-600")} />
+      <div className="absolute top-0.5 left-0.5 w-1/3 h-1/3 bg-stone-400/50" />
+    </div>
+  );
+}
+
+// Animated pixel character
+export function PixelCharacter({ className = "", onClick }: { className?: string, onClick?: () => void }) {
+  const [walkFrame, setWalkFrame] = useState(0);
+  const [bounce, setBounce] = useState(false);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setWalkFrame(prev => (prev + 1) % 2);
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleClick = () => {
+    setBounce(true);
+    setTimeout(() => setBounce(false), 300);
+    onClick?.();
+  };
+
+  return (
+    <button 
+      onClick={handleClick}
+      className={cn(
+        "relative flex flex-col items-center transition-transform",
+        bounce && "animate-bounce",
+        className
+      )}
+      style={{ imageRendering: "pixelated" }}
+    >
+      {/* Shadow */}
+      <div className="absolute bottom-0 w-8 h-2 bg-black/25 rounded-full" />
+      
+      {/* Character body - pixel art style */}
+      <div className="relative" style={{ transform: `translateY(${walkFrame === 0 ? 0 : -1}px)` }}>
+        {/* Head */}
+        <div className="w-8 h-8 bg-amber-200 border-2 border-l-amber-100 border-t-amber-100 border-r-amber-400 border-b-amber-400 rounded-sm">
+          {/* Hair */}
+          <div className="absolute -top-1 left-0 right-0 h-2 bg-amber-800 rounded-t-sm" />
+          {/* Eyes */}
+          <div className="absolute top-3 left-1 w-1.5 h-1.5 bg-stone-800 rounded-full" />
+          <div className="absolute top-3 right-1 w-1.5 h-1.5 bg-stone-800 rounded-full" />
+          {/* Mouth */}
+          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-2 h-0.5 bg-red-400 rounded-full" />
+        </div>
+        {/* Body */}
+        <div className="w-8 h-10 bg-blue-500 border-2 border-l-blue-400 border-t-blue-400 border-r-blue-700 border-b-blue-700 -mt-1">
+          {/* Shirt detail */}
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-4 h-1 bg-blue-400" />
+        </div>
+        {/* Legs */}
+        <div className="flex gap-0.5 justify-center -mt-1">
+          <div className={cn(
+            "w-3 h-4 bg-stone-700 border border-stone-800",
+            walkFrame === 0 && "translate-y-0",
+            walkFrame === 1 && "-translate-y-0.5"
+          )} />
+          <div className={cn(
+            "w-3 h-4 bg-stone-700 border border-stone-800",
+            walkFrame === 1 && "translate-y-0",
+            walkFrame === 0 && "-translate-y-0.5"
+          )} />
+        </div>
+      </div>
+      
+      {/* Label */}
+      <div className="mt-2 px-2 py-0.5 bg-stone-800 border-2 border-l-stone-600 border-t-stone-600 border-r-stone-900 border-b-stone-900"
+        style={{ fontFamily: "'VT323', monospace" }}>
+        <span className="text-[10px] text-white font-bold">Customize</span>
+      </div>
+    </button>
   );
 }

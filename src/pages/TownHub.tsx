@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 import { getUserData } from "@/lib/store";
-import { TownBuilding, PixelTree, Pond, Fence } from "@/components/TownBuilding";
+import { TownBuilding, PixelTree, Pond, Fence, PixelRock, PixelCharacter } from "@/components/TownBuilding";
 import { GameAvatar } from "@/components/GameAvatar";
 import { HIVTestPopup } from "@/components/HIVTestPopup";
 import { LanguageToggle } from "@/components/LanguageToggle";
@@ -18,7 +18,6 @@ import {
   Settings,
   Shield,
   User,
-  Sparkles,
 } from "lucide-react";
 import swingLogo from "@/assets/swing-logo.webp";
 
@@ -27,35 +26,87 @@ export default function TownHub() {
   const { language } = useLanguage();
   const [userData, setUserData] = useState(getUserData());
   const [loaded, setLoaded] = useState(false);
+  const [timeOfDay, setTimeOfDay] = useState<'day' | 'evening' | 'night'>('day');
 
   useEffect(() => {
     setUserData(getUserData());
     setLoaded(true);
     const timer = setTimeout(() => playWelcome(), 500);
+    
+    // Set time of day based on actual time
+    const hour = new Date().getHours();
+    if (hour >= 6 && hour < 17) setTimeOfDay('day');
+    else if (hour >= 17 && hour < 20) setTimeOfDay('evening');
+    else setTimeOfDay('night');
+    
     return () => clearTimeout(timer);
   }, []);
 
   const isNewUser = !userData.onboardingComplete;
 
+  const skyGradient = {
+    day: "from-sky-400 via-sky-300 to-cyan-200",
+    evening: "from-orange-400 via-pink-400 to-purple-500",
+    night: "from-indigo-900 via-purple-900 to-slate-900"
+  };
+
+  const groundColor = {
+    day: "from-green-500 to-green-600",
+    evening: "from-green-600 to-green-700",
+    night: "from-green-800 to-green-900"
+  };
+
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {/* Pixel-art style sky gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-sky-400 via-sky-300 to-emerald-300 dark:from-indigo-900 dark:via-purple-900 dark:to-emerald-900" />
+    <div className="min-h-screen flex flex-col relative overflow-hidden" style={{ fontFamily: "'VT323', monospace", imageRendering: "auto" }}>
+      {/* 64-bit style sky with layers */}
+      <div className={`absolute inset-0 bg-gradient-to-b ${skyGradient[timeOfDay]} transition-colors duration-1000`} />
       
-      {/* Clouds - pixel style */}
-      <div className="absolute top-8 left-8 flex gap-1">
-        <div className="w-8 h-4 bg-white/80 rounded-full" />
-        <div className="w-6 h-3 bg-white/80 rounded-full -ml-2 mt-1" />
-        <div className="w-4 h-3 bg-white/80 rounded-full -ml-1" />
+      {/* Pixel-style sun/moon */}
+      {timeOfDay === 'day' && (
+        <div className="absolute top-8 right-8 w-12 h-12 bg-yellow-300 rounded-full shadow-[0_0_40px_10px_rgba(253,224,71,0.4)]">
+          <div className="absolute inset-1 bg-yellow-200 rounded-full" />
+        </div>
+      )}
+      {timeOfDay === 'evening' && (
+        <div className="absolute top-8 right-8 w-14 h-14 bg-orange-400 rounded-full shadow-[0_0_50px_15px_rgba(251,146,60,0.3)]">
+          <div className="absolute inset-2 bg-orange-300 rounded-full" />
+        </div>
+      )}
+      {timeOfDay === 'night' && (
+        <div className="absolute top-8 right-8 w-10 h-10 bg-gray-200 rounded-full shadow-[0_0_30px_8px_rgba(229,231,235,0.2)]">
+          <div className="absolute top-2 left-2 w-3 h-3 bg-gray-400 rounded-full opacity-50" />
+          <div className="absolute bottom-2 right-3 w-2 h-2 bg-gray-400 rounded-full opacity-30" />
+        </div>
+      )}
+      
+      {/* Animated pixel clouds */}
+      <div className="absolute top-10 animate-[slideCloud_30s_linear_infinite]" style={{ left: '-80px' }}>
+        <PixelCloud size="lg" />
       </div>
-      <div className="absolute top-12 right-12 flex gap-1">
-        <div className="w-10 h-5 bg-white/70 rounded-full" />
-        <div className="w-6 h-4 bg-white/70 rounded-full -ml-3 mt-1" />
+      <div className="absolute top-20 animate-[slideCloud_40s_linear_infinite]" style={{ left: '-60px', animationDelay: '10s' }}>
+        <PixelCloud size="md" />
       </div>
-      <div className="absolute top-20 left-1/3 flex gap-1 animate-float" style={{ animationDuration: '10s' }}>
-        <div className="w-6 h-3 bg-white/60 rounded-full" />
-        <div className="w-4 h-2 bg-white/60 rounded-full -ml-1" />
+      <div className="absolute top-6 animate-[slideCloud_35s_linear_infinite]" style={{ left: '-40px', animationDelay: '20s' }}>
+        <PixelCloud size="sm" />
       </div>
+
+      {/* Stars for night */}
+      {timeOfDay === 'night' && (
+        <>
+          {[...Array(20)].map((_, i) => (
+            <div 
+              key={i}
+              className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
+              style={{ 
+                left: `${5 + (i * 17) % 90}%`, 
+                top: `${5 + (i * 13) % 30}%`,
+                animationDelay: `${i * 0.2}s`,
+                opacity: 0.5 + Math.random() * 0.5
+              }} 
+            />
+          ))}
+        </>
+      )}
 
       {/* Header */}
       <header className="relative z-20 flex items-center justify-between px-3 py-2 safe-top">
@@ -64,7 +115,8 @@ export default function TownHub() {
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 rounded-lg bg-stone-800/80 text-white hover:bg-stone-700 border-2 border-stone-600"
+            className="h-9 w-9 bg-stone-800 text-white hover:bg-stone-700 border-2 border-l-stone-600 border-t-stone-600 border-r-stone-900 border-b-stone-900 rounded-none"
+            style={{ boxShadow: "2px 2px 0 #1c1917" }}
             onClick={() => navigate("/personal-info")}
           >
             <User className="h-4 w-4" />
@@ -73,7 +125,8 @@ export default function TownHub() {
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 rounded-lg bg-stone-800/80 text-white hover:bg-stone-700 border-2 border-stone-600"
+            className="h-9 w-9 bg-stone-800 text-white hover:bg-stone-700 border-2 border-l-stone-600 border-t-stone-600 border-r-stone-900 border-b-stone-900 rounded-none"
+            style={{ boxShadow: "2px 2px 0 #1c1917" }}
             onClick={() => navigate("/settings")}
           >
             <Settings className="h-4 w-4" />
@@ -81,188 +134,208 @@ export default function TownHub() {
         </div>
       </header>
 
-      {/* Town Name Banner */}
-      <div className="relative z-10 text-center py-1">
-        <div className="inline-flex items-center gap-2 px-4 py-1 rounded-lg bg-stone-800/90 shadow-lg border-2 border-stone-600">
-          <Sparkles className="h-4 w-4 text-amber-400" />
-          <h1 className="text-base font-bold text-white tracking-wide">
-            {language === 'th' ? '🏘️ เมือง testD' : '🏘️ testD Village'}
+      {/* Town Name Banner - Pixel style */}
+      <div className="relative z-10 text-center py-2">
+        <div className="inline-block px-6 py-2 bg-stone-800 border-4 border-l-stone-600 border-t-stone-600 border-r-stone-900 border-b-stone-900"
+          style={{ boxShadow: "4px 4px 0 #1c1917" }}>
+          <h1 className="text-xl text-yellow-400 tracking-wider flex items-center gap-2">
+            <span className="text-2xl">🏰</span>
+            {language === 'th' ? 'หมู่บ้าน SWING' : 'SWING Village'}
+            <span className="text-2xl">🏰</span>
           </h1>
-          <Sparkles className="h-4 w-4 text-amber-400" />
         </div>
       </div>
 
       {/* Scrollable Town Map */}
-      <main className="relative z-10 flex-1 overflow-auto">
-        <div className={`min-h-[700px] transition-all duration-700 ${loaded ? "opacity-100" : "opacity-0"}`}>
+      <main className="relative z-10 flex-1 overflow-auto pb-20">
+        <div className={`min-h-[900px] transition-all duration-700 ${loaded ? "opacity-100" : "opacity-0"}`}>
           
           {/* Welcome message */}
           {isNewUser && (
             <div className="mx-4 mb-4 animate-fade-in">
-              <div className="p-3 rounded-lg bg-stone-800/90 border-2 border-amber-500 shadow-lg">
-                <p className="text-sm font-bold text-white text-center">
-                  {language === 'th' ? '🎮 ยินดีต้อนรับสู่หมู่บ้าน! แตะอาคารเพื่อสำรวจ' : '🎮 Welcome to the village! Tap buildings to explore'}
+              <div className="p-3 bg-stone-800 border-4 border-l-stone-600 border-t-stone-600 border-r-stone-900 border-b-stone-900"
+                style={{ boxShadow: "4px 4px 0 #1c1917" }}>
+                <p className="text-sm text-yellow-400 text-center">
+                  {language === 'th' ? '🎮 ยินดีต้อนรับนักผจญภัย! แตะอาคารเพื่อสำรวจ' : '🎮 Welcome adventurer! Tap buildings to explore'}
                 </p>
               </div>
             </div>
           )}
 
-          {/* Ground/grass layer */}
-          <div className="relative mx-2">
+          {/* Ground layer with path */}
+          <div className="relative mx-2 rounded-lg overflow-hidden">
             {/* Grass base */}
-            <div className="absolute inset-0 bg-gradient-to-b from-green-500 to-green-600 rounded-3xl" />
+            <div className={`absolute inset-0 bg-gradient-to-b ${groundColor[timeOfDay]}`} />
             
-            {/* Grass texture pattern */}
-            <div className="absolute inset-0 opacity-30 rounded-3xl" style={{
+            {/* Pixel grass texture */}
+            <div className="absolute inset-0 opacity-40" style={{
               backgroundImage: `
-                radial-gradient(circle at 20% 30%, #22c55e 1px, transparent 1px),
-                radial-gradient(circle at 80% 70%, #16a34a 1px, transparent 1px),
-                radial-gradient(circle at 50% 50%, #22c55e 1px, transparent 1px)
+                linear-gradient(90deg, transparent 50%, rgba(34,197,94,0.5) 50%),
+                linear-gradient(transparent 50%, rgba(22,163,74,0.5) 50%)
               `,
-              backgroundSize: '20px 20px'
+              backgroundSize: '4px 4px'
             }} />
 
-            {/* Dirt path */}
-            <div className="absolute top-1/2 left-0 right-0 h-12 bg-gradient-to-b from-amber-600/60 to-amber-700/60 -translate-y-1/2" />
-            <div className="absolute top-20 left-1/2 w-10 h-48 bg-gradient-to-r from-amber-600/60 to-amber-700/60 -translate-x-1/2" />
+            {/* Main cobblestone path */}
+            <div className="absolute top-[200px] left-0 right-0 h-16 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600">
+              <div className="absolute inset-0 opacity-60" style={{
+                backgroundImage: `
+                  radial-gradient(ellipse 12px 8px at center, #b45309 30%, transparent 30%),
+                  radial-gradient(ellipse 10px 6px at center, #92400e 30%, transparent 30%)
+                `,
+                backgroundSize: '20px 12px',
+                backgroundPosition: '0 0, 10px 6px'
+              }} />
+            </div>
+            
+            {/* Vertical path */}
+            <div className="absolute top-[250px] left-1/2 -translate-x-1/2 w-12 h-[300px] bg-gradient-to-b from-amber-500 to-amber-600">
+              <div className="absolute inset-0 opacity-50" style={{
+                backgroundImage: `radial-gradient(ellipse 8px 10px at center, #b45309 30%, transparent 30%)`,
+                backgroundSize: '12px 16px'
+              }} />
+            </div>
 
             {/* Content */}
-            <div className="relative py-6 px-4">
+            <div className="relative py-8 px-4 space-y-12">
               
-              {/* Top row - Trees and Featured Building */}
-              <div className="flex justify-center items-end gap-2 mb-4">
-                <PixelTree variant="pine" className="animate-float" style={{ animationDelay: '0s' }} />
-                <PixelTree variant="oak" className="animate-float" style={{ animationDelay: '0.5s' }} />
-                
-                {/* Featured HIV Test Center */}
-                <div className="mx-4">
-                  <TownBuilding
-                    icon={<TestTube className="h-full w-full" />}
-                    name={language === 'th' ? '🏥 ศูนย์ตรวจ' : '🏥 Test Center'}
-                    description={language === 'th' ? '✨ รับชุดตรวจ HIV ฟรี!' : '✨ FREE HIV test kit!'}
-                    onClick={() => navigate("/hiv-selftest")}
-                    variant="featured"
-                    badge="FREE"
-                    size="lg"
-                  />
+              {/* Row 1: Featured HIV Test Center */}
+              <div className="flex flex-col items-center gap-4">
+                <div className="flex justify-center items-end gap-3">
+                  <PixelTree variant="pine" className="animate-float" style={{ animationDelay: '0s' }} />
+                  <PixelTree variant="oak" className="animate-float" style={{ animationDelay: '0.3s' }} />
                 </div>
-
-                <PixelTree variant="oak" className="animate-float" style={{ animationDelay: '1s' }} />
-                <PixelTree variant="pine" className="animate-float" style={{ animationDelay: '1.5s' }} />
+                
+                <TownBuilding
+                  icon={<TestTube className="h-full w-full" />}
+                  name={language === 'th' ? '🏥 ศูนย์ตรวจ HIV' : '🏥 HIV Test Center'}
+                  description={language === 'th' ? '✨ รับชุดตรวจฟรี!' : '✨ Get FREE test kit!'}
+                  onClick={() => navigate("/hiv-selftest")}
+                  variant="featured"
+                  badge="FREE"
+                  size="lg"
+                />
+                
+                <div className="flex justify-center items-end gap-3">
+                  <PixelTree variant="oak" className="animate-float" style={{ animationDelay: '0.6s' }} />
+                  <PixelTree variant="pine" className="animate-float" style={{ animationDelay: '0.9s' }} />
+                </div>
               </div>
 
-              {/* Second row - Main buildings */}
-              <div className="flex justify-center items-end gap-6 mb-6">
-                <div className="flex flex-col items-center gap-1">
+              {/* Row 2: Main buildings */}
+              <div className="flex justify-center items-end gap-8 flex-wrap">
+                <div className="flex flex-col items-center gap-2">
                   <PixelTree variant="bush" />
                   <TownBuilding
                     icon={<Pill className="h-full w-full" />}
                     name={language === 'th' ? '💊 ร้านยา' : '💊 Pharmacy'}
                     description="PrEP & PEP"
                     onClick={() => navigate("/dashboard")}
-                    roofColor="from-teal-500 to-teal-600"
-                    wallColor="from-teal-50 to-teal-100"
+                    roofColor="bg-teal-500"
+                    wallColor="bg-teal-50"
                     size="md"
                   />
                 </div>
 
                 <TownBuilding
                   icon={<Heart className="h-full w-full" />}
-                  name={language === 'th' ? '💆 สปา' : '💆 Wellness'}
-                  description={language === 'th' ? 'ดูแลสุขภาพ' : 'Self-care'}
+                  name={language === 'th' ? '💆 สปาสุขภาพ' : '💆 Wellness Spa'}
+                  description={language === 'th' ? 'ดูแลตัวเอง' : 'Self-care'}
                   onClick={() => navigate("/self-care")}
-                  roofColor="from-pink-400 to-pink-500"
-                  wallColor="from-pink-50 to-pink-100"
+                  roofColor="bg-pink-400"
+                  wallColor="bg-pink-50"
                   size="md"
                 />
 
-                <div className="flex flex-col items-center gap-1">
+                <div className="flex flex-col items-center gap-2">
                   <PixelTree variant="bush" />
                   <TownBuilding
                     icon={<Trophy className="h-full w-full" />}
-                    name={language === 'th' ? '🏆 กิลด์' : '🏆 Guild'}
+                    name={language === 'th' ? '🏆 กิลด์ผจญภัย' : '🏆 Adventure Guild'}
                     description={language === 'th' ? 'ทำภารกิจ' : 'Quests'}
                     onClick={() => navigate("/quests")}
-                    roofColor="from-amber-500 to-amber-600"
-                    wallColor="from-amber-50 to-amber-100"
+                    roofColor="bg-amber-500"
+                    wallColor="bg-amber-50"
                     size="md"
                   />
                 </div>
               </div>
 
-              {/* Pond and center area */}
-              <div className="flex justify-center items-center gap-8 mb-6">
-                <Pond />
+              {/* Center area with pond and character */}
+              <div className="flex justify-center items-center gap-10 py-6">
+                <div className="flex flex-col items-center gap-3">
+                  <Pond />
+                  <div className="flex gap-2">
+                    <PixelRock size="sm" />
+                    <PixelTree variant="flower" />
+                    <PixelRock size="md" />
+                  </div>
+                </div>
                 
-                {/* Character in center */}
-                <button 
+                {/* Player character */}
+                <PixelCharacter 
                   onClick={() => {
                     playBuildingTap();
                     navigate("/avatar");
                   }}
-                  className="relative transition-all duration-200 hover:scale-110 active:scale-95 group"
-                >
-                  <div className="absolute inset-0 rounded-full bg-amber-400/30 blur-xl scale-150 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-10 h-3 bg-black/30 rounded-full blur-sm" />
-                  <div className="relative text-5xl animate-bounce-gentle">🧍</div>
-                  <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                    <span className="text-[10px] font-bold text-white bg-stone-800/90 px-2 py-0.5 rounded border border-stone-600">
-                      {language === 'th' ? 'แต่งตัว' : 'Customize'}
-                    </span>
-                  </div>
-                </button>
+                />
 
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col items-center gap-3">
                   <PixelTree variant="oak" />
-                  <PixelTree variant="bush" />
+                  <div className="flex gap-2">
+                    <PixelTree variant="flower" />
+                    <PixelRock size="sm" />
+                    <PixelTree variant="bush" />
+                  </div>
                 </div>
               </div>
 
-              {/* Third row - Secondary buildings */}
-              <div className="flex justify-center items-end gap-6 mb-6">
+              {/* Row 3: Secondary buildings */}
+              <div className="flex justify-center items-end gap-8 flex-wrap">
                 <TownBuilding
                   icon={<MessageCircle className="h-full w-full" />}
                   name={language === 'th' ? '🍺 โรงเตี๊ยม' : '🍺 Tavern'}
-                  description={language === 'th' ? 'พูดคุย' : 'Chat'}
+                  description={language === 'th' ? 'พูดคุยชุมชน' : 'Community Chat'}
                   onClick={() => navigate("/community")}
-                  roofColor="from-purple-500 to-purple-600"
-                  wallColor="from-purple-50 to-purple-100"
+                  roofColor="bg-purple-500"
+                  wallColor="bg-purple-50"
                   size="md"
                 />
 
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center gap-2">
                   <Fence />
                   <TownBuilding
                     icon={<BookOpen className="h-full w-full" />}
                     name={language === 'th' ? '📚 ห้องสมุด' : '📚 Library'}
-                    description={language === 'th' ? 'ความรู้' : 'Learn'}
+                    description={language === 'th' ? 'เรียนรู้ข้อมูล' : 'Learn & Discover'}
                     onClick={() => navigate("/info")}
-                    roofColor="from-blue-500 to-blue-600"
-                    wallColor="from-blue-50 to-blue-100"
+                    roofColor="bg-blue-500"
+                    wallColor="bg-blue-50"
                     size="md"
                   />
                 </div>
 
                 <TownBuilding
                   icon={<Shield className="h-full w-full" />}
-                  name="SWING"
-                  description={language === 'th' ? 'เกี่ยวกับเรา' : 'About us'}
+                  name="🛡️ SWING HQ"
+                  description={language === 'th' ? 'เกี่ยวกับเรา' : 'About Us'}
                   onClick={() => navigate("/swing")}
-                  roofColor="from-emerald-500 to-emerald-600"
-                  wallColor="from-emerald-50 to-emerald-100"
+                  roofColor="bg-emerald-500"
+                  wallColor="bg-emerald-50"
                   size="md"
                 />
               </div>
 
               {/* Bottom decorations */}
-              <div className="flex justify-center items-end gap-4">
+              <div className="flex justify-center items-end gap-4 pt-4">
                 <PixelTree variant="pine" />
+                <PixelTree variant="flower" />
+                <PixelRock size="lg" />
                 <PixelTree variant="oak" />
-                <div className="text-2xl">🌻</div>
+                <PixelTree variant="flower" />
                 <PixelTree variant="bush" />
+                <PixelRock size="md" />
                 <PixelTree variant="pine" />
-                <div className="text-2xl">🌷</div>
-                <PixelTree variant="oak" />
               </div>
             </div>
           </div>
@@ -270,9 +343,9 @@ export default function TownHub() {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 py-3 text-center safe-bottom bg-gradient-to-t from-green-600/80 to-transparent">
+      <footer className="fixed bottom-0 left-0 right-0 z-20 py-2 text-center bg-gradient-to-t from-green-800 via-green-700/90 to-transparent safe-bottom">
         <div className="flex items-center justify-center gap-2">
-          <span className="text-xs text-white/90 font-medium">
+          <span className="text-xs text-white/90">
             {language === 'th' ? 'สนับสนุนโดย' : 'Supported by'}
           </span>
           <img src={swingLogo} alt="SWING Thailand" className="h-5 object-contain brightness-110" />
@@ -281,6 +354,35 @@ export default function TownHub() {
 
       {/* HIV Test Popup */}
       <HIVTestPopup />
+    </div>
+  );
+}
+
+// Pixel-style cloud component
+function PixelCloud({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
+  const sizes = {
+    sm: { w: 40, h: 20, blocks: 3 },
+    md: { w: 60, h: 28, blocks: 4 },
+    lg: { w: 80, h: 36, blocks: 5 }
+  };
+  
+  const { w, h, blocks } = sizes[size];
+  
+  return (
+    <div className="relative opacity-80" style={{ width: w, height: h, imageRendering: "pixelated" }}>
+      <div className="flex items-end gap-0.5">
+        {[...Array(blocks)].map((_, i) => (
+          <div 
+            key={i} 
+            className="bg-white rounded-sm"
+            style={{ 
+              width: 8 + Math.sin(i * 1.5) * 4, 
+              height: h * (0.4 + Math.sin(i * 0.8) * 0.3),
+              boxShadow: "inset -2px -2px 0 rgba(200,200,200,0.5)"
+            }} 
+          />
+        ))}
+      </div>
     </div>
   );
 }
