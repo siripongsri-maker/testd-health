@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "react-router-dom";
-import { Home, BookOpen, Trophy, Bell, Heart } from "lucide-react";
+import { Home, BookOpen, Trophy, Bell, Pill } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
 
 export function BottomNav() {
@@ -8,9 +8,9 @@ export function BottomNav() {
   const { t } = useLanguage();
 
   const navItems = [
-    { icon: Home, label: t('nav.home'), path: "/dashboard" },
+    { icon: Home, label: t('nav.home'), path: "/" },
+    { icon: Pill, label: "PrEP/PEP", path: "/dashboard" },
     { icon: BookOpen, label: t('nav.learn'), path: "/info" },
-    { icon: Heart, label: t('nav.swing'), path: "/swing" },
     { icon: Trophy, label: t('nav.progress'), path: "/progress" },
     { icon: Bell, label: t('nav.settings'), path: "/settings" },
   ];

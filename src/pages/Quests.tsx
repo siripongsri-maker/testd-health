@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
+import { PageHeader } from "@/components/PageHeader";
 import { useLanguage } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -207,15 +208,11 @@ export default function Quests() {
   return (
     <>
       <PageContainer>
-        <div className="mb-6">
-          <div className="flex items-center gap-3">
-            <Trophy className="h-7 w-7 text-primary" />
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">{t('quests.title')}</h1>
-              <p className="text-muted-foreground">{t('quests.subtitle')}</p>
-            </div>
-          </div>
-        </div>
+        <PageHeader 
+          title={t('quests.title')} 
+          subtitle={t('quests.subtitle')} 
+          rightContent={<Trophy className="h-6 w-6 text-primary" />}
+        />
 
         <Tabs defaultValue="journey" className="w-full">
           <TabsList className="w-full mb-4">

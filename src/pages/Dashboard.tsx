@@ -8,7 +8,7 @@ import { XPBar } from "@/components/XPBar";
 import { Button } from "@/components/ui/button";
 import { getUserData, recordCheckIn, getTodayKey, getPEPDay, getXPForLevel, setUserData } from "@/lib/store";
 import { useLanguage } from "@/lib/i18n";
-import { Zap, Flame, Star, Settings, AlertTriangle, TestTube } from "lucide-react";
+import { Zap, Flame, Star, Settings, AlertTriangle, TestTube, Home, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Dashboard() {
@@ -90,9 +90,14 @@ export default function Dashboard() {
       <PageContainer>
         {/* Header */}
         <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">{t('dashboard.welcome')}</h1>
-            <p className="text-muted-foreground">{t('dashboard.doingGreat')}</p>
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">{t('dashboard.welcome')}</h1>
+              <p className="text-muted-foreground">{t('dashboard.doingGreat')}</p>
+            </div>
           </div>
           <Button variant="ghost" size="icon" onClick={() => navigate("/settings")}>
             <Settings className="h-6 w-6" />
