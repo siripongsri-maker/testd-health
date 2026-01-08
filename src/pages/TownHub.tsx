@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 import { getUserData } from "@/lib/store";
-import { TownBuilding, PixelTree, Pond, Fence, PixelRock, PixelCharacter } from "@/components/TownBuilding";
+import { TownBuilding, PixelTree, Pond, Fence, PixelRock, PixelCharacter, WalkingVillager, FlyingBird, Butterfly } from "@/components/TownBuilding";
 import { GameAvatar } from "@/components/GameAvatar";
 import { HIVTestPopup } from "@/components/HIVTestPopup";
 import { LanguageToggle } from "@/components/LanguageToggle";
@@ -107,6 +107,11 @@ export default function TownHub() {
           ))}
         </>
       )}
+
+      {/* Flying Birds */}
+      <FlyingBird variant="sparrow" startX={-10} startY={8} speed={0.8} />
+      <FlyingBird variant="bluebird" startX={20} startY={15} speed={1.2} />
+      <FlyingBird variant="cardinal" startX={-5} startY={12} speed={0.6} />
 
       {/* Header */}
       <header className="relative z-20 flex items-center justify-between px-3 py-2 safe-top">
@@ -327,7 +332,7 @@ export default function TownHub() {
               </div>
 
               {/* Bottom decorations */}
-              <div className="flex justify-center items-end gap-4 pt-4">
+              <div className="flex justify-center items-end gap-4 pt-4 relative">
                 <PixelTree variant="pine" />
                 <PixelTree variant="flower" />
                 <PixelRock size="lg" />
@@ -336,9 +341,23 @@ export default function TownHub() {
                 <PixelTree variant="bush" />
                 <PixelRock size="md" />
                 <PixelTree variant="pine" />
+                <PixelTree variant="flower" />
+              </div>
+
+              {/* Walking Villagers */}
+              <div className="relative h-16 mt-4">
+                <WalkingVillager variant="farmer" direction="right" startX={10} />
+                <WalkingVillager variant="merchant" direction="left" startX={80} />
+                <WalkingVillager variant="villager" direction="right" startX={40} />
               </div>
             </div>
           </div>
+
+          {/* Butterflies near flowers */}
+          <Butterfly color="pink" startX={25} startY={75} />
+          <Butterfly color="blue" startX={55} startY={72} />
+          <Butterfly color="yellow" startX={70} startY={78} />
+          <Butterfly color="purple" startX={40} startY={70} />
         </div>
       </main>
 
