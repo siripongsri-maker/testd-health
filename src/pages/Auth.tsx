@@ -23,7 +23,7 @@ export default function Auth() {
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   
   const { signIn, signUp, user, loading } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
 
   // Redirect if already logged in
@@ -216,6 +216,19 @@ export default function Auth() {
             ) : (
               isLogin ? t('auth.loginButton') : t('auth.signupButton')
             )}
+          </Button>
+
+          {/* Guest mode (no account) */}
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={() => {
+              toast.success(language === 'th' ? 'เข้าใช้งานแบบผู้เยี่ยมชม (ข้อมูลจะเก็บในเครื่อง)' : 'Continuing as guest (saved on this device)');
+              navigate('/');
+            }}
+          >
+            {language === 'th' ? 'เข้าใช้งานแบบผู้เยี่ยมชม' : 'Continue as guest'}
           </Button>
         </form>
 

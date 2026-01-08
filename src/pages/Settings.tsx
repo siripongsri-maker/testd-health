@@ -100,8 +100,8 @@ export default function Settings() {
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success("Logged out successfully");
-      navigate("/");
+      toast.success(language === 'th' ? 'ออกจากระบบแล้ว' : 'Logged out successfully');
+      navigate("/auth");
     }
   };
 
