@@ -80,7 +80,7 @@ export default function SelfCare() {
   const [productImages, setProductImages] = useState<Record<string, string>>({});
   const [imagesLoading, setImagesLoading] = useState(true);
 
-  const fetchShopeeImages = async () => {
+  const fetchShopeeImages = async (forceRefresh = false) => {
     setImagesLoading(true);
     try {
       const products = SELF_CARE_ITEMS.map(item => ({
@@ -89,15 +89,19 @@ export default function SelfCare() {
       }));
 
       const { data, error } = await supabase.functions.invoke('scrape-shopee-images', {
-        body: { products },
+        body: { products, forceRefresh },
       });
 
       if (error) {
         console.error('Error fetching Shopee images:', error);
-        toast.error(language === 'th' ? 'ไม่สามารถโหลดรูปภาพได้' : 'Failed to load images');
+        if (forceRefresh) {
+          toast.error(language === 'th' ? 'ไม่สามารถโหลดรูปภาพได้' : 'Failed to load images');
+        }
       } else if (data?.success && data?.images) {
         setProductImages(data.images);
-        toast.success(language === 'th' ? 'อัปเดตรูปภาพแล้ว' : 'Images updated');
+        if (forceRefresh) {
+          toast.success(language === 'th' ? 'อัปเดตรูปภาพแล้ว' : 'Images updated');
+        }
       }
     } catch (error) {
       console.error('Error fetching Shopee images:', error);
@@ -106,9 +110,9 @@ export default function SelfCare() {
     }
   };
 
-  // Fetch Shopee product images on mount
+  // Fetch Shopee product images on mount (uses cache)
   useEffect(() => {
-    fetchShopeeImages();
+    fetchShopeeImages(false);
   }, []);
 
   useEffect(() => {
@@ -205,7 +209,7 @@ export default function SelfCare() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={fetchShopeeImages}
+            onClick={() => fetchShopeeImages(true)}
             disabled={imagesLoading}
             className="gap-2"
           >
