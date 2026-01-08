@@ -25,31 +25,31 @@ interface SelfCareItem {
 
 const SELF_CARE_ITEMS: SelfCareItem[] = [
   {
-    id: 'hiv-test',
-    icon: TestTube,
-    titleEn: 'HIV Self-Test Kit',
-    titleTh: 'ชุดตรวจ HIV ด้วยตัวเอง',
-    descEn: 'Quick, private, and accurate home testing',
-    descTh: 'ตรวจที่บ้านได้ รวดเร็วและแม่นยำ',
-    link: 'https://shopee.co.th/search?keyword=hiv%20self%20test',
-  },
-  {
     id: 'condoms',
     icon: Heart,
-    titleEn: 'Condoms',
-    titleTh: 'ถุงยางอนามัย',
+    titleEn: 'Love Kit - Condoms',
+    titleTh: 'Love Kit - ถุงยางอนามัย',
     descEn: 'Essential protection, discreet delivery',
     descTh: 'ป้องกันพื้นฐาน จัดส่งอย่างลับ',
-    link: 'https://shopee.co.th/search?keyword=condoms',
+    link: 'https://shopee.co.th/swingthailand/48800599211',
+  },
+  {
+    id: 'hiv-test',
+    icon: TestTube,
+    titleEn: 'Self Kit - HIV Self-Test',
+    titleTh: 'Self Kit - ชุดตรวจ HIV ด้วยตัวเอง',
+    descEn: 'Quick, private, and accurate home testing',
+    descTh: 'ตรวจที่บ้านได้ รวดเร็วและแม่นยำ',
+    link: 'https://shopee.co.th/swingthailand/43777530134',
   },
   {
     id: 'harm-reduction',
     icon: Shield,
-    titleEn: 'Harm Reduction Set',
-    titleTh: 'ชุดลดอันตราย',
+    titleEn: 'Safe Kit - Harm Reduction Set',
+    titleTh: 'Safe Kit - ชุดลดอันตราย',
     descEn: 'Lubricants and safer use supplies',
     descTh: 'เจลหล่อลื่นและอุปกรณ์ปลอดภัย',
-    link: 'https://shopee.co.th/search?keyword=lubricant',
+    link: 'https://shopee.co.th/swingthailand/55553565341',
   },
 ];
 
