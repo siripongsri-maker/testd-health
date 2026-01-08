@@ -18,6 +18,9 @@ import {
   Settings,
   Shield,
   User,
+  Landmark,
+  Hammer,
+  BedDouble,
 } from "lucide-react";
 import swingLogo from "@/assets/swing-logo.webp";
 
@@ -337,6 +340,54 @@ export default function TownHub() {
                   size="lg"
                   buildingStyle="tower"
                 />
+              </div>
+
+              {/* Row 4: New buildings - Bank, Blacksmith, Inn */}
+              <div className="flex justify-center items-end gap-8 flex-wrap py-4">
+                <div className="flex flex-col items-center gap-2">
+                  <PixelTree variant="oak" className="animate-float" />
+                  <TownBuilding
+                    icon={<Landmark className="h-full w-full" />}
+                    name={language === 'th' ? '🏦 ธนาคาร' : '🏦 Bank'}
+                    description={language === 'th' ? 'จัดการทรัพยากร' : 'Manage Resources'}
+                    onClick={() => navigate("/progress")}
+                    roofColor="bg-amber-600"
+                    wallColor="bg-stone-100"
+                    size="lg"
+                    buildingStyle="bank"
+                  />
+                </div>
+
+                <div className="flex flex-col items-center gap-2">
+                  <TownBuilding
+                    icon={<Hammer className="h-full w-full" />}
+                    name={language === 'th' ? '🔨 ช่างตีเหล็ก' : '🔨 Blacksmith'}
+                    description={language === 'th' ? 'สร้างเครื่องมือ' : 'Craft Tools'}
+                    onClick={() => navigate("/health-profile")}
+                    roofColor="bg-stone-700"
+                    wallColor="bg-stone-300"
+                    size="md"
+                    buildingStyle="blacksmith"
+                  />
+                  <PixelRock size="md" />
+                </div>
+
+                <div className="flex flex-col items-center gap-2">
+                  <TownBuilding
+                    icon={<BedDouble className="h-full w-full" />}
+                    name={language === 'th' ? '🏨 โรงแรม' : '🏨 Inn'}
+                    description={language === 'th' ? 'พักผ่อน' : 'Rest & Recover'}
+                    onClick={() => navigate("/self-care")}
+                    roofColor="bg-red-700"
+                    wallColor="bg-amber-100"
+                    size="lg"
+                    buildingStyle="inn"
+                  />
+                  <div className="flex gap-1">
+                    <PixelTree variant="flower" />
+                    <PixelTree variant="flower" />
+                  </div>
+                </div>
               </div>
 
               {/* Bottom decorations */}

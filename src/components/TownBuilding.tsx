@@ -12,7 +12,7 @@ interface TownBuildingProps {
   roofColor?: string;
   wallColor?: string;
   size?: "sm" | "md" | "lg" | "xl";
-  buildingStyle?: "cottage" | "tower" | "mansion" | "shop" | "castle" | "clinic";
+  buildingStyle?: "cottage" | "tower" | "mansion" | "shop" | "castle" | "clinic" | "bank" | "blacksmith" | "inn";
   className?: string;
 }
 
@@ -59,6 +59,27 @@ const BUILDING_STYLES = {
     hasChimney: false,
     windowStyle: "large",
     decorations: ["cross-sign", "ambulance"],
+  },
+  bank: {
+    roofShape: "dome",
+    floors: 2,
+    hasChimney: false,
+    windowStyle: "vault",
+    decorations: ["pillars", "coin-sign"],
+  },
+  blacksmith: {
+    roofShape: "sloped",
+    floors: 1,
+    hasChimney: true,
+    windowStyle: "forge",
+    decorations: ["anvil", "bellows", "sparks"],
+  },
+  inn: {
+    roofShape: "gambrel",
+    floors: 2,
+    hasChimney: true,
+    windowStyle: "shuttered",
+    decorations: ["hanging-sign", "barrel", "lamp"],
   },
 };
 
@@ -225,6 +246,67 @@ export function TownBuilding({
             </div>
           </div>
         );
+      case "dome":
+        return (
+          <div className={cn("relative z-10 -mb-1", config.roof)}>
+            {/* Bank dome roof */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-full h-[50%] bg-amber-600"
+              style={{ boxShadow: "inset -3px 0 0 rgba(0,0,0,0.2)" }} />
+            <div className="absolute bottom-[50%] left-1/2 -translate-x-1/2 w-[80%] h-[40%] bg-amber-500 rounded-t-full"
+              style={{ boxShadow: "inset -2px 0 0 rgba(0,0,0,0.15)" }} />
+            <div className="absolute bottom-[80%] left-1/2 -translate-x-1/2 w-[50%] h-[30%] bg-amber-400 rounded-t-full" />
+            {/* Gold ornament on top */}
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-3 h-3 bg-yellow-400 rounded-full border-2 border-yellow-600"
+              style={{ boxShadow: '0 0 8px rgba(250, 204, 21, 0.6)' }} />
+            {style.decorations.includes("coin-sign") && (
+              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-yellow-300 rounded-full" />
+            )}
+          </div>
+        );
+      case "sloped":
+        return (
+          <div className={cn("relative z-10 -mb-1", config.roof)}>
+            {/* Blacksmith sloped roof with smoke vents */}
+            <div className="absolute bottom-0 left-0 w-full h-[60%] bg-stone-700"
+              style={{ 
+                clipPath: 'polygon(0 100%, 10% 0, 90% 0, 100% 100%)',
+                boxShadow: "inset -3px 0 0 rgba(0,0,0,0.3)" 
+              }} />
+            <div className="absolute bottom-[60%] left-[10%] w-[80%] h-[30%] bg-stone-600" />
+            {/* Smoke vent */}
+            <div className="absolute -top-2 right-[20%] w-4 h-3 bg-stone-800 border-2 border-stone-600" />
+            {style.decorations.includes("sparks") && (
+              <>
+                <div className="absolute -top-4 right-[22%] w-1 h-1 bg-orange-500 rounded-full animate-ping" style={{ animationDuration: '0.8s' }} />
+                <div className="absolute -top-6 right-[18%] w-1 h-1 bg-yellow-500 rounded-full animate-ping" style={{ animationDuration: '1.2s', animationDelay: '0.3s' }} />
+                <div className="absolute -top-3 right-[24%] w-1 h-1 bg-red-500 rounded-full animate-ping" style={{ animationDuration: '0.6s', animationDelay: '0.5s' }} />
+              </>
+            )}
+          </div>
+        );
+      case "gambrel":
+        return (
+          <div className={cn("relative z-10 -mb-1", config.roof)}>
+            {/* Inn gambrel (barn-style) roof */}
+            <div className="absolute bottom-0 left-0 w-full h-[40%] bg-red-800"
+              style={{ boxShadow: "inset -3px 0 0 rgba(0,0,0,0.2)" }} />
+            <div className="absolute bottom-[40%] left-[5%] w-[90%] h-[35%] bg-red-700"
+              style={{ clipPath: 'polygon(0 100%, 15% 0, 85% 0, 100% 100%)' }} />
+            <div className="absolute bottom-[75%] left-[20%] w-[60%] h-[30%] bg-red-600"
+              style={{ clipPath: 'polygon(0 100%, 25% 0, 75% 0, 100% 100%)' }} />
+            {/* Dormer window */}
+            <div className="absolute bottom-[50%] left-1/2 -translate-x-1/2 w-4 h-4 bg-yellow-200 border-2 border-amber-800" />
+            {style.decorations.includes("hanging-sign") && (
+              <div className="absolute -left-4 top-2">
+                <div className="w-1 h-4 bg-amber-800" />
+                <div className="absolute top-3 left-0.5 w-6 h-4 bg-amber-200 border border-amber-700 rounded-sm text-[6px] flex items-center justify-center font-bold"
+                  style={{ fontFamily: "'VT323', monospace" }}>
+                  INN
+                </div>
+              </div>
+            )}
+          </div>
+        );
       default: // triangular cottage
         return (
           <div className={cn("relative z-10 -mb-1", config.roof)}>
@@ -297,6 +379,60 @@ export function TownBuilding({
             </div>
           </>
         );
+      case "vault":
+        return (
+          <>
+            {/* Bank vault-style windows with bars */}
+            <div className={cn("absolute top-1 left-1 w-4 h-5 border-2 border-amber-900", windowGlow)}>
+              <div className="absolute top-0 left-0 w-1.5 h-1 bg-white/60" />
+              <div className="absolute inset-0 flex justify-around">
+                <div className="w-0.5 h-full bg-amber-800" />
+                <div className="w-0.5 h-full bg-amber-800" />
+              </div>
+            </div>
+            <div className={cn("absolute top-1 right-1 w-4 h-5 border-2 border-amber-900", windowGlow)}>
+              <div className="absolute top-0 left-0 w-1.5 h-1 bg-white/60" />
+              <div className="absolute inset-0 flex justify-around">
+                <div className="w-0.5 h-full bg-amber-800" />
+                <div className="w-0.5 h-full bg-amber-800" />
+              </div>
+            </div>
+            {/* Vault door */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-6 bg-stone-600 border-2 border-stone-800 rounded-t">
+              <div className="absolute top-1/2 right-1 -translate-y-1/2 w-1.5 h-1.5 bg-yellow-500 rounded-full border border-yellow-700" />
+            </div>
+          </>
+        );
+      case "forge":
+        return (
+          <>
+            {/* Blacksmith forge glow window */}
+            <div className="absolute top-1 left-1 right-1 h-5 bg-orange-600 border-2 border-stone-800 animate-pulse"
+              style={{ boxShadow: '0 0 12px rgba(234, 88, 12, 0.8)' }}>
+              <div className="absolute inset-0 bg-gradient-to-t from-red-600 to-orange-400" />
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-red-700" />
+            </div>
+            {/* Tools silhouette */}
+            <div className="absolute top-0 left-1 w-1 h-3 bg-stone-900 rounded-t" />
+            <div className="absolute top-0 right-1 w-1 h-3 bg-stone-900 rounded-t" />
+          </>
+        );
+      case "shuttered":
+        return (
+          <>
+            {/* Inn shuttered windows */}
+            <div className="absolute top-1 left-1 w-4 h-5 border-2 border-amber-900">
+              <div className={cn("absolute inset-0.5", windowGlow)} />
+              <div className="absolute top-0 left-0 w-1.5 h-full bg-amber-700 border-r border-amber-900" />
+              <div className="absolute top-0 right-0 w-1.5 h-full bg-amber-700 border-l border-amber-900" />
+            </div>
+            <div className="absolute top-1 right-1 w-4 h-5 border-2 border-amber-900">
+              <div className={cn("absolute inset-0.5", windowGlow)} />
+              <div className="absolute top-0 left-0 w-1.5 h-full bg-amber-700 border-r border-amber-900" />
+              <div className="absolute top-0 right-0 w-1.5 h-full bg-amber-700 border-l border-amber-900" />
+            </div>
+          </>
+        );
       default:
         return (
           <>
@@ -357,6 +493,46 @@ export function TownBuilding({
               </div>
             </div>
           </>
+        )}
+        {/* Bank decorations */}
+        {style.decorations.includes("pillars") && (
+          <>
+            <div className="absolute -left-2 bottom-0 w-2 h-full flex flex-col items-center">
+              <div className="w-3 h-1.5 bg-stone-300 border border-stone-400" />
+              <div className="w-2 h-full bg-stone-200 border-x border-stone-300" />
+              <div className="w-3 h-1.5 bg-stone-300 border border-stone-400" />
+            </div>
+            <div className="absolute -right-2 bottom-0 w-2 h-full flex flex-col items-center">
+              <div className="w-3 h-1.5 bg-stone-300 border border-stone-400" />
+              <div className="w-2 h-full bg-stone-200 border-x border-stone-300" />
+              <div className="w-3 h-1.5 bg-stone-300 border border-stone-400" />
+            </div>
+          </>
+        )}
+        {/* Blacksmith decorations */}
+        {style.decorations.includes("anvil") && (
+          <div className="absolute -right-4 bottom-0">
+            <div className="w-4 h-2 bg-stone-700 border border-stone-800" />
+            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-3 h-1.5 bg-stone-600" />
+          </div>
+        )}
+        {style.decorations.includes("bellows") && (
+          <div className="absolute -left-3 bottom-1 w-3 h-4 bg-amber-700 rounded-t border border-amber-800">
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-2 bg-amber-900" />
+          </div>
+        )}
+        {/* Inn decorations */}
+        {style.decorations.includes("barrel") && (
+          <div className="absolute -right-4 bottom-0 w-4 h-5 bg-amber-700 rounded border-2 border-amber-900">
+            <div className="absolute top-1 left-0 right-0 h-0.5 bg-amber-900" />
+            <div className="absolute bottom-1 left-0 right-0 h-0.5 bg-amber-900" />
+          </div>
+        )}
+        {style.decorations.includes("lamp") && (
+          <div className="absolute -right-1 top-0 w-2 h-3 bg-yellow-300 rounded-b animate-pulse"
+            style={{ boxShadow: '0 0 10px rgba(253, 224, 71, 0.7)' }}>
+            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-stone-600" />
+          </div>
         )}
       </>
     );
