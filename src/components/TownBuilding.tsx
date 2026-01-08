@@ -430,22 +430,274 @@ export function PixelCharacter({ className = "", onClick }: { className?: string
         <div className="flex gap-0.5 justify-center -mt-1">
           <div className={cn(
             "w-3 h-4 bg-stone-700 border border-stone-800",
-            walkFrame === 0 && "translate-y-0",
-            walkFrame === 1 && "-translate-y-0.5"
+            walkFrame === 0 ? "origin-top rotate-[5deg]" : "origin-top -rotate-[5deg]"
           )} />
           <div className={cn(
             "w-3 h-4 bg-stone-700 border border-stone-800",
-            walkFrame === 1 && "translate-y-0",
-            walkFrame === 0 && "-translate-y-0.5"
+            walkFrame === 0 ? "origin-top -rotate-[5deg]" : "origin-top rotate-[5deg]"
           )} />
         </div>
       </div>
-      
-      {/* Label */}
-      <div className="mt-2 px-2 py-0.5 bg-stone-800 border-2 border-l-stone-600 border-t-stone-600 border-r-stone-900 border-b-stone-900"
-        style={{ fontFamily: "'VT323', monospace" }}>
-        <span className="text-[10px] text-white font-bold">Customize</span>
-      </div>
     </button>
+  );
+}
+
+// Walking NPC Villager
+interface WalkingVillagerProps {
+  variant?: "farmer" | "merchant" | "villager";
+  direction?: "left" | "right";
+  startX?: number;
+  className?: string;
+}
+
+export function WalkingVillager({ 
+  variant = "villager", 
+  direction = "right",
+  startX = 0,
+  className = "" 
+}: WalkingVillagerProps) {
+  const [walkFrame, setWalkFrame] = useState(0);
+  const [position, setPosition] = useState(startX);
+  
+  const colors = {
+    farmer: { hair: "bg-amber-700", shirt: "bg-green-600", pants: "bg-amber-800" },
+    merchant: { hair: "bg-stone-800", shirt: "bg-red-500", pants: "bg-stone-600" },
+    villager: { hair: "bg-amber-600", shirt: "bg-purple-500", pants: "bg-stone-700" }
+  };
+
+  const { hair, shirt, pants } = colors[variant];
+
+  useEffect(() => {
+    const walkInterval = setInterval(() => {
+      setWalkFrame(prev => (prev + 1) % 4);
+    }, 200);
+    
+    const moveInterval = setInterval(() => {
+      setPosition(prev => {
+        const newPos = direction === "right" ? prev + 0.5 : prev - 0.5;
+        // Reset position when off screen
+        if (newPos > 110) return -10;
+        if (newPos < -10) return 110;
+        return newPos;
+      });
+    }, 50);
+    
+    return () => {
+      clearInterval(walkInterval);
+      clearInterval(moveInterval);
+    };
+  }, [direction]);
+
+  return (
+    <div 
+      className={cn("absolute bottom-4 z-10", className)}
+      style={{ 
+        left: `${position}%`,
+        transform: direction === "left" ? "scaleX(-1)" : "scaleX(1)",
+        imageRendering: "pixelated"
+      }}
+    >
+      {/* Shadow */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-1.5 bg-black/20 rounded-full" />
+      
+      <div style={{ transform: `translateY(${walkFrame % 2 === 0 ? 0 : -1}px)` }}>
+        {/* Head */}
+        <div className="w-6 h-6 bg-amber-200 border border-amber-400 rounded-sm mx-auto">
+          <div className={cn("absolute -top-0.5 left-0.5 right-0.5 h-1.5 rounded-t-sm", hair)} />
+          <div className="absolute top-2 left-1 w-1 h-1 bg-stone-800 rounded-full" />
+          <div className="absolute top-2 right-1 w-1 h-1 bg-stone-800 rounded-full" />
+        </div>
+        {/* Body */}
+        <div className={cn("w-6 h-6 mx-auto -mt-0.5 border", shirt)} />
+        {/* Legs with walking animation */}
+        <div className="flex justify-center -mt-0.5">
+          <div 
+            className={cn("w-2 h-3 border", pants)}
+            style={{ transform: `rotate(${(walkFrame === 0 || walkFrame === 2) ? 10 : -10}deg)` }}
+          />
+          <div 
+            className={cn("w-2 h-3 border", pants)}
+            style={{ transform: `rotate(${(walkFrame === 0 || walkFrame === 2) ? -10 : 10}deg)` }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Flying Bird
+interface FlyingBirdProps {
+  variant?: "sparrow" | "bluebird" | "cardinal";
+  startX?: number;
+  startY?: number;
+  speed?: number;
+  className?: string;
+}
+
+export function FlyingBird({ 
+  variant = "sparrow",
+  startX = 0,
+  startY = 20,
+  speed = 1,
+  className = ""
+}: FlyingBirdProps) {
+  const [wingFrame, setWingFrame] = useState(0);
+  const [position, setPosition] = useState({ x: startX, y: startY });
+  
+  const colors = {
+    sparrow: "bg-amber-700",
+    bluebird: "bg-blue-500",
+    cardinal: "bg-red-500"
+  };
+
+  useEffect(() => {
+    const flapInterval = setInterval(() => {
+      setWingFrame(prev => (prev + 1) % 3);
+    }, 100);
+    
+    const flyInterval = setInterval(() => {
+      setPosition(prev => {
+        const newX = prev.x + speed;
+        const wobble = Math.sin(prev.x * 0.05) * 0.5;
+        return {
+          x: newX > 120 ? -20 : newX,
+          y: startY + wobble * 5
+        };
+      });
+    }, 30);
+    
+    return () => {
+      clearInterval(flapInterval);
+      clearInterval(flyInterval);
+    };
+  }, [speed, startY]);
+
+  const wingPositions = ["rotate-[-20deg]", "rotate-[0deg]", "rotate-[20deg]"];
+
+  return (
+    <div 
+      className={cn("absolute z-30 pointer-events-none", className)}
+      style={{ 
+        left: `${position.x}%`,
+        top: `${position.y}%`,
+        imageRendering: "pixelated"
+      }}
+    >
+      <div className="relative">
+        {/* Body */}
+        <div className={cn("w-4 h-2 rounded-full", colors[variant])} />
+        {/* Head */}
+        <div className={cn("absolute -left-1 top-0 w-2 h-2 rounded-full", colors[variant])} />
+        {/* Beak */}
+        <div className="absolute -left-2 top-0.5 w-1 h-0.5 bg-orange-400" />
+        {/* Wings */}
+        <div 
+          className={cn("absolute top-0 left-1 w-3 h-1.5 rounded-full origin-left", colors[variant])}
+          style={{ 
+            transform: wingPositions[wingFrame],
+            filter: "brightness(0.9)"
+          }} 
+        />
+        {/* Tail */}
+        <div className={cn("absolute right-0 top-0.5 w-1.5 h-1 rounded-r", colors[variant])} 
+          style={{ filter: "brightness(0.8)" }} />
+      </div>
+    </div>
+  );
+}
+
+// Butterfly
+interface ButterflyProps {
+  color?: "pink" | "blue" | "yellow" | "purple";
+  startX?: number;
+  startY?: number;
+  className?: string;
+}
+
+export function Butterfly({ 
+  color = "pink",
+  startX = 50,
+  startY = 50,
+  className = ""
+}: ButterflyProps) {
+  const [wingFrame, setWingFrame] = useState(0);
+  const [position, setPosition] = useState({ x: startX, y: startY });
+  const [targetPos, setTargetPos] = useState({ x: startX + 5, y: startY + 2 });
+  
+  const colors = {
+    pink: { wing: "bg-pink-400", spot: "bg-pink-600" },
+    blue: { wing: "bg-sky-400", spot: "bg-sky-600" },
+    yellow: { wing: "bg-yellow-400", spot: "bg-yellow-600" },
+    purple: { wing: "bg-purple-400", spot: "bg-purple-600" }
+  };
+
+  const { wing, spot } = colors[color];
+
+  useEffect(() => {
+    const flapInterval = setInterval(() => {
+      setWingFrame(prev => (prev + 1) % 2);
+    }, 80);
+    
+    // Random flutter movement
+    const moveInterval = setInterval(() => {
+      setPosition(prev => {
+        const dx = (targetPos.x - prev.x) * 0.02;
+        const dy = (targetPos.y - prev.y) * 0.02;
+        return {
+          x: prev.x + dx + (Math.random() - 0.5) * 0.3,
+          y: prev.y + dy + (Math.random() - 0.5) * 0.3
+        };
+      });
+    }, 30);
+    
+    // New target every few seconds
+    const targetInterval = setInterval(() => {
+      setTargetPos({
+        x: startX + (Math.random() - 0.5) * 15,
+        y: startY + (Math.random() - 0.5) * 10
+      });
+    }, 2000);
+    
+    return () => {
+      clearInterval(flapInterval);
+      clearInterval(moveInterval);
+      clearInterval(targetInterval);
+    };
+  }, [startX, startY, targetPos]);
+
+  return (
+    <div 
+      className={cn("absolute z-20 pointer-events-none", className)}
+      style={{ 
+        left: `${position.x}%`,
+        top: `${position.y}%`,
+        imageRendering: "pixelated"
+      }}
+    >
+      <div className="relative flex items-center">
+        {/* Left wings */}
+        <div 
+          className="origin-right"
+          style={{ transform: `scaleY(${wingFrame === 0 ? 1 : 0.3})` }}
+        >
+          <div className={cn("w-2 h-3 rounded-full", wing)}>
+            <div className={cn("absolute top-0.5 left-0.5 w-1 h-1 rounded-full", spot)} />
+          </div>
+          <div className={cn("w-1.5 h-2 rounded-full -mt-1 ml-0.5", wing)} />
+        </div>
+        {/* Body */}
+        <div className="w-0.5 h-3 bg-stone-800 rounded-full" />
+        {/* Right wings */}
+        <div 
+          className="origin-left"
+          style={{ transform: `scaleY(${wingFrame === 0 ? 1 : 0.3})` }}
+        >
+          <div className={cn("w-2 h-3 rounded-full", wing)}>
+            <div className={cn("absolute top-0.5 right-0.5 w-1 h-1 rounded-full", spot)} />
+          </div>
+          <div className={cn("w-1.5 h-2 rounded-full -mt-1 mr-0.5", wing)} />
+        </div>
+      </div>
+    </div>
   );
 }
