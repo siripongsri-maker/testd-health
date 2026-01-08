@@ -37,6 +37,8 @@ interface SelftestPii {
   phone: string | null;
   line_id: string | null;
   address: string | null;
+  subdistrict: string | null;
+  district: string | null;
   province: string | null;
   postal_code: string | null;
 }
@@ -168,6 +170,8 @@ export default function AdminDashboard() {
             phone,
             line_id,
             address,
+            subdistrict,
+            district,
             province,
             postal_code
           )
@@ -508,6 +512,8 @@ export default function AdminDashboard() {
                 <p><strong>{language === 'th' ? 'โทร:' : 'Phone:'}</strong> {selectedRequest.selftest_pii?.phone || '-'}</p>
                 <p><strong>LINE:</strong> {selectedRequest.selftest_pii?.line_id || '-'}</p>
                 <p><strong>{language === 'th' ? 'ที่อยู่:' : 'Address:'}</strong> {selectedRequest.selftest_pii?.address || '-'}</p>
+                <p><strong>{language === 'th' ? 'แขวง/ตำบล:' : 'Subdistrict:'}</strong> {selectedRequest.selftest_pii?.subdistrict || '-'}</p>
+                <p><strong>{language === 'th' ? 'เขต/อำเภอ:' : 'District:'}</strong> {selectedRequest.selftest_pii?.district || '-'}</p>
                 <p><strong>{language === 'th' ? 'จังหวัด:' : 'Province:'}</strong> {selectedRequest.selftest_pii?.province || '-'} {selectedRequest.selftest_pii?.postal_code || ''}</p>
                 <p><strong>{language === 'th' ? 'สถานะ:' : 'Status:'}</strong> {getStatusBadge(selectedRequest.status)}</p>
                 {selectedRequest.test_result && (
