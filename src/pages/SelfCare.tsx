@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { TestTube, Heart, Shield, ExternalLink, Bell, Package, ArrowRight, Loader2 } from "lucide-react";
+import { TestTube, Heart, Shield, ExternalLink, Bell, Package, ArrowRight, Loader2, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -80,31 +80,34 @@ export default function SelfCare() {
   const [productImages, setProductImages] = useState<Record<string, string>>({});
   const [imagesLoading, setImagesLoading] = useState(true);
 
-  // Fetch Shopee product images
-  useEffect(() => {
-    const fetchShopeeImages = async () => {
-      try {
-        const products = SELF_CARE_ITEMS.map(item => ({
-          id: item.id,
-          link: item.link,
-        }));
+  const fetchShopeeImages = async () => {
+    setImagesLoading(true);
+    try {
+      const products = SELF_CARE_ITEMS.map(item => ({
+        id: item.id,
+        link: item.link,
+      }));
 
-        const { data, error } = await supabase.functions.invoke('scrape-shopee-images', {
-          body: { products },
-        });
+      const { data, error } = await supabase.functions.invoke('scrape-shopee-images', {
+        body: { products },
+      });
 
-        if (error) {
-          console.error('Error fetching Shopee images:', error);
-        } else if (data?.success && data?.images) {
-          setProductImages(data.images);
-        }
-      } catch (error) {
+      if (error) {
         console.error('Error fetching Shopee images:', error);
-      } finally {
-        setImagesLoading(false);
+        toast.error(language === 'th' ? 'ไม่สามารถโหลดรูปภาพได้' : 'Failed to load images');
+      } else if (data?.success && data?.images) {
+        setProductImages(data.images);
+        toast.success(language === 'th' ? 'อัปเดตรูปภาพแล้ว' : 'Images updated');
       }
-    };
+    } catch (error) {
+      console.error('Error fetching Shopee images:', error);
+    } finally {
+      setImagesLoading(false);
+    }
+  };
 
+  // Fetch Shopee product images on mount
+  useEffect(() => {
     fetchShopeeImages();
   }, []);
 
@@ -194,6 +197,22 @@ export default function SelfCare() {
             <ArrowRight className="h-5 w-5 text-primary shrink-0" />
           </div>
         </Card>
+
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-medium text-muted-foreground">
+            {language === 'th' ? 'สินค้าแนะนำ' : 'Recommended Products'}
+          </h2>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={fetchShopeeImages}
+            disabled={imagesLoading}
+            className="gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${imagesLoading ? 'animate-spin' : ''}`} />
+            {language === 'th' ? 'รีเฟรช' : 'Refresh'}
+          </Button>
+        </div>
 
         <div className="space-y-4 mb-8">
           {SELF_CARE_ITEMS.map((item) => (
