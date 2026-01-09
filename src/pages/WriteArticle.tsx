@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
-import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/lib/i18n";
-import { ArrowLeft, Send, Upload, Loader2, X, Image, Sparkles, FileText, Clock, CheckCircle, XCircle, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, Send, Upload, Loader2, X, Image, Sparkles, FileText, Clock, CheckCircle, XCircle, AlertCircle, ChevronDown, ChevronUp, Languages, Edit3, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -37,6 +36,9 @@ interface MyArticle {
 
 export default function WriteArticle() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const editId = searchParams.get('edit');
+  
   const { user } = useAuth();
   const { t, language } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -46,8 +48,11 @@ export default function WriteArticle() {
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isTranslating, setIsTranslating] = useState(false);
   const [showMyArticles, setShowMyArticles] = useState(true);
   const [expandedFeedback, setExpandedFeedback] = useState<string | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
   
   const [form, setForm] = useState({
     title_en: '',
@@ -62,9 +67,10 @@ export default function WriteArticle() {
 
   useEffect(() => {
     loadData();
-  }, [user]);
+  }, [user, editId]);
 
   const loadData = async () => {
+    setLoading(true);
     try {
       // Load categories
       const { data: catData } = await supabase
@@ -83,6 +89,31 @@ export default function WriteArticle() {
           .order('created_at', { ascending: false });
         
         if (articlesData) setMyArticles(articlesData as MyArticle[]);
+
+        // Load article for editing if edit param is present
+        if (editId) {
+          const { data: articleToEdit } = await supabase
+            .from('blog_articles')
+            .select('*')
+            .eq('id', editId)
+            .eq('author_id', user.id)
+            .single();
+
+          if (articleToEdit) {
+            setForm({
+              title_en: articleToEdit.title_en || '',
+              title_th: articleToEdit.title_th || '',
+              excerpt_en: articleToEdit.excerpt_en || '',
+              excerpt_th: articleToEdit.excerpt_th || '',
+              content_en: articleToEdit.content_en || '',
+              content_th: articleToEdit.content_th || '',
+              cover_url: articleToEdit.cover_url || '',
+              category_id: articleToEdit.category_id || '',
+            });
+            setIsEditMode(true);
+            setEditingArticleId(editId);
+          }
+        }
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -98,28 +129,32 @@ export default function WriteArticle() {
           icon: Clock, 
           color: 'text-amber-500', 
           bg: 'bg-amber-500/10',
-          label: language === 'th' ? 'รอตรวจสอบ' : 'Pending Review' 
+          label: language === 'th' ? 'รอตรวจสอบ' : 'Pending Review',
+          canEdit: false
         };
       case 'published':
         return { 
           icon: CheckCircle, 
           color: 'text-emerald-500', 
           bg: 'bg-emerald-500/10',
-          label: language === 'th' ? 'เผยแพร่แล้ว' : 'Published' 
+          label: language === 'th' ? 'เผยแพร่แล้ว' : 'Published',
+          canEdit: false
         };
       case 'archived':
         return { 
           icon: XCircle, 
           color: 'text-destructive', 
           bg: 'bg-destructive/10',
-          label: language === 'th' ? 'ถูกปฏิเสธ' : 'Rejected' 
+          label: language === 'th' ? 'ถูกปฏิเสธ' : 'Rejected',
+          canEdit: true
         };
       default:
         return { 
           icon: FileText, 
           color: 'text-muted-foreground', 
           bg: 'bg-muted',
-          label: language === 'th' ? 'แบบร่าง' : 'Draft' 
+          label: language === 'th' ? 'แบบร่าง' : 'Draft',
+          canEdit: true
         };
     }
   };
@@ -166,6 +201,44 @@ export default function WriteArticle() {
     }
   };
 
+  const translateToEnglish = async () => {
+    if (!form.title_th && !form.content_th) {
+      toast.error(language === 'th' ? 'กรุณากรอกเนื้อหาภาษาไทยก่อน' : 'Please enter Thai content first');
+      return;
+    }
+
+    setIsTranslating(true);
+    try {
+      const response = await supabase.functions.invoke('translate-article', {
+        body: {
+          title_th: form.title_th,
+          excerpt_th: form.excerpt_th,
+          content_th: form.content_th,
+        }
+      });
+
+      if (response.error) throw response.error;
+
+      const translated = response.data;
+      setForm(prev => ({
+        ...prev,
+        title_en: translated.title_en || prev.title_en,
+        excerpt_en: translated.excerpt_en || prev.excerpt_en,
+        content_en: translated.content_en || prev.content_en,
+      }));
+
+      toast.success(
+        language === 'th' ? 'แปลเป็นภาษาอังกฤษเรียบร้อย!' : 'Translated to English!',
+        { icon: '🌐' }
+      );
+    } catch (error: any) {
+      console.error('Translation error:', error);
+      toast.error(language === 'th' ? 'ไม่สามารถแปลได้ กรุณาลองใหม่' : 'Translation failed. Please try again.');
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
   const submitArticle = async () => {
     if (!user) {
       toast.error(language === 'th' ? 'กรุณาเข้าสู่ระบบ' : 'Please login first');
@@ -173,52 +246,132 @@ export default function WriteArticle() {
       return;
     }
 
-    if (!form.title_en || !form.title_th) {
-      toast.error(language === 'th' ? 'กรุณากรอกหัวข้อ' : 'Please enter a title');
+    if (!form.title_th) {
+      toast.error(language === 'th' ? 'กรุณากรอกหัวข้อภาษาไทย' : 'Please enter Thai title');
       return;
     }
 
-    if (!form.content_en && !form.content_th) {
-      toast.error(language === 'th' ? 'กรุณากรอกเนื้อหา' : 'Please enter content');
+    if (!form.content_th) {
+      toast.error(language === 'th' ? 'กรุณากรอกเนื้อหาภาษาไทย' : 'Please enter Thai content');
       return;
+    }
+
+    // Auto-translate if English content is missing
+    let finalForm = { ...form };
+    if (!form.title_en || !form.content_en) {
+      setIsTranslating(true);
+      try {
+        const response = await supabase.functions.invoke('translate-article', {
+          body: {
+            title_th: form.title_th,
+            excerpt_th: form.excerpt_th,
+            content_th: form.content_th,
+          }
+        });
+
+        if (!response.error && response.data) {
+          finalForm = {
+            ...finalForm,
+            title_en: response.data.title_en || form.title_th,
+            excerpt_en: response.data.excerpt_en || form.excerpt_th,
+            content_en: response.data.content_en || form.content_th,
+          };
+        }
+      } catch (error) {
+        console.error('Auto-translation failed:', error);
+        // Use Thai content as fallback
+        finalForm = {
+          ...finalForm,
+          title_en: form.title_en || form.title_th,
+          excerpt_en: form.excerpt_en || form.excerpt_th,
+          content_en: form.content_en || form.content_th,
+        };
+      } finally {
+        setIsTranslating(false);
+      }
     }
 
     setIsSaving(true);
     try {
-      // Get user's display name from profile
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('display_name')
-        .eq('id', user.id)
-        .single();
+      if (isEditMode && editingArticleId) {
+        // Update existing article and change status to pending_review
+        const { error } = await supabase
+          .from('blog_articles')
+          .update({
+            ...finalForm,
+            category_id: finalForm.category_id || null,
+            status: 'pending_review',
+            rejection_feedback: null, // Clear previous feedback
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', editingArticleId)
+          .eq('author_id', user.id);
 
-      const authorName = profile?.display_name || user.email?.split('@')[0] || 'Anonymous';
+        if (error) throw error;
 
-      const { error } = await supabase
-        .from('blog_articles')
-        .insert({
-          ...form,
-          category_id: form.category_id || null,
-          slug: generateSlug(form.title_en || form.title_th),
-          status: 'pending_review',
-          author_id: user.id,
-          author_name: authorName,
-        });
+        toast.success(
+          language === 'th' 
+            ? 'อัพเดทบทความแล้ว! รอการอนุมัติอีกครั้ง' 
+            : 'Article updated! Waiting for re-approval.',
+          { duration: 5000, icon: "✏️" }
+        );
+      } else {
+        // Create new article
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('display_name')
+          .eq('id', user.id)
+          .single();
 
-      if (error) throw error;
+        const authorName = profile?.display_name || user.email?.split('@')[0] || 'Anonymous';
 
-      toast.success(
-        language === 'th' 
-          ? 'ส่งบทความเรียบร้อยแล้ว! รอการอนุมัติจากแอดมิน' 
-          : 'Article submitted! Waiting for admin approval.',
-        { duration: 5000, icon: "📝" }
-      );
+        const { error } = await supabase
+          .from('blog_articles')
+          .insert({
+            ...finalForm,
+            category_id: finalForm.category_id || null,
+            slug: generateSlug(finalForm.title_en || finalForm.title_th),
+            status: 'pending_review',
+            author_id: user.id,
+            author_name: authorName,
+          });
+
+        if (error) throw error;
+
+        toast.success(
+          language === 'th' 
+            ? 'ส่งบทความเรียบร้อยแล้ว! รอการอนุมัติจากแอดมิน' 
+            : 'Article submitted! Waiting for admin approval.',
+          { duration: 5000, icon: "📝" }
+        );
+      }
+      
       navigate('/info');
     } catch (error: any) {
       toast.error(error.message);
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const startEditing = (articleId: string) => {
+    navigate(`/info/write?edit=${articleId}`);
+  };
+
+  const cancelEditing = () => {
+    setIsEditMode(false);
+    setEditingArticleId(null);
+    setForm({
+      title_en: '',
+      title_th: '',
+      excerpt_en: '',
+      excerpt_th: '',
+      content_en: '',
+      content_th: '',
+      cover_url: '',
+      category_id: '',
+    });
+    navigate('/info/write');
   };
 
   if (!user) {
@@ -263,15 +416,21 @@ export default function WriteArticle() {
       <PageContainer className="pb-8">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/info')} className="rounded-xl">
+          <Button variant="ghost" size="icon" onClick={() => isEditMode ? cancelEditing() : navigate('/info')} className="rounded-xl">
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
             <h1 className="text-xl font-bold text-foreground">
-              {language === 'th' ? 'เขียนบทความ' : 'Write Article'}
+              {isEditMode 
+                ? (language === 'th' ? 'แก้ไขบทความ' : 'Edit Article')
+                : (language === 'th' ? 'เขียนบทความ' : 'Write Article')
+              }
             </h1>
             <p className="text-sm text-muted-foreground">
-              {language === 'th' ? 'แชร์ความรู้กับชุมชน' : 'Share knowledge with the community'}
+              {isEditMode
+                ? (language === 'th' ? 'แก้ไขและส่งใหม่เพื่อตรวจสอบ' : 'Edit and resubmit for review')
+                : (language === 'th' ? 'แชร์ความรู้กับชุมชน' : 'Share knowledge with the community')
+              }
             </p>
           </div>
         </div>
@@ -286,15 +445,15 @@ export default function WriteArticle() {
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 {language === 'th' 
-                  ? 'บทความจะผ่านการตรวจสอบก่อนเผยแพร่' 
-                  : 'Articles will be reviewed before publishing'}
+                  ? 'เขียนภาษาไทยแล้วกดแปลเป็นภาษาอังกฤษอัตโนมัติได้' 
+                  : 'Write in Thai and auto-translate to English'}
               </p>
             </div>
           </div>
         </div>
 
-        {/* My Articles Section */}
-        {myArticles.length > 0 && (
+        {/* My Articles Section - Hide when in edit mode */}
+        {!isEditMode && myArticles.length > 0 && (
           <div className="mb-6">
             <button
               onClick={() => setShowMyArticles(!showMyArticles)}
@@ -344,6 +503,18 @@ export default function WriteArticle() {
                               </span>
                             </div>
                           </div>
+                          {/* Edit button for rejected/draft articles */}
+                          {statusInfo.canEdit && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => startEditing(article.id)}
+                              className="gap-1 flex-shrink-0"
+                            >
+                              <Edit3 className="h-3 w-3" />
+                              {language === 'th' ? 'แก้ไข' : 'Edit'}
+                            </Button>
+                          )}
                         </div>
 
                         {/* Rejection Feedback Toggle */}
@@ -376,6 +547,14 @@ export default function WriteArticle() {
                               {article.rejection_feedback}
                             </p>
                           </div>
+                          <Button
+                            onClick={() => startEditing(article.id)}
+                            className="w-full mt-3 gap-2"
+                            variant="default"
+                          >
+                            <RefreshCw className="h-4 w-4" />
+                            {language === 'th' ? 'แก้ไขและส่งใหม่' : 'Edit & Resubmit'}
+                          </Button>
                         </div>
                       )}
                     </div>
@@ -446,44 +625,15 @@ export default function WriteArticle() {
           </div>
 
           {/* Content Tabs */}
-          <Tabs defaultValue={language === 'th' ? 'th' : 'en'} className="w-full">
+          <Tabs defaultValue="th" className="w-full">
             <TabsList className="w-full">
-              <TabsTrigger value="en" className="flex-1">English</TabsTrigger>
-              <TabsTrigger value="th" className="flex-1">ไทย</TabsTrigger>
+              <TabsTrigger value="th" className="flex-1">🇹🇭 ไทย</TabsTrigger>
+              <TabsTrigger value="en" className="flex-1">🇬🇧 English</TabsTrigger>
             </TabsList>
-            
-            <TabsContent value="en" className="space-y-4 mt-4">
-              <div>
-                <Label className="mb-2 block">Title (EN) *</Label>
-                <Input
-                  value={form.title_en}
-                  onChange={(e) => setForm({ ...form, title_en: e.target.value })}
-                  placeholder="Article title"
-                />
-              </div>
-              <div>
-                <Label className="mb-2 block">Excerpt (EN)</Label>
-                <Textarea
-                  value={form.excerpt_en}
-                  onChange={(e) => setForm({ ...form, excerpt_en: e.target.value })}
-                  placeholder="Brief summary..."
-                  rows={2}
-                />
-              </div>
-              <div>
-                <Label className="mb-2 block">Content (EN)</Label>
-                <Textarea
-                  value={form.content_en}
-                  onChange={(e) => setForm({ ...form, content_en: e.target.value })}
-                  placeholder="Write your article content..."
-                  rows={10}
-                />
-              </div>
-            </TabsContent>
             
             <TabsContent value="th" className="space-y-4 mt-4">
               <div>
-                <Label className="mb-2 block">หัวข้อ (TH) *</Label>
+                <Label className="mb-2 block">หัวข้อ *</Label>
                 <Input
                   value={form.title_th}
                   onChange={(e) => setForm({ ...form, title_th: e.target.value })}
@@ -491,7 +641,7 @@ export default function WriteArticle() {
                 />
               </div>
               <div>
-                <Label className="mb-2 block">คำนำ (TH)</Label>
+                <Label className="mb-2 block">คำนำ</Label>
                 <Textarea
                   value={form.excerpt_th}
                   onChange={(e) => setForm({ ...form, excerpt_th: e.target.value })}
@@ -500,11 +650,66 @@ export default function WriteArticle() {
                 />
               </div>
               <div>
-                <Label className="mb-2 block">เนื้อหา (TH)</Label>
+                <Label className="mb-2 block">เนื้อหา *</Label>
                 <Textarea
                   value={form.content_th}
                   onChange={(e) => setForm({ ...form, content_th: e.target.value })}
                   placeholder="เขียนเนื้อหาบทความ..."
+                  rows={10}
+                />
+              </div>
+              
+              {/* Translate Button */}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={translateToEnglish}
+                disabled={isTranslating || (!form.title_th && !form.content_th)}
+                className="w-full gap-2"
+              >
+                {isTranslating ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Languages className="h-4 w-4" />
+                )}
+                {isTranslating 
+                  ? (language === 'th' ? 'กำลังแปล...' : 'Translating...')
+                  : (language === 'th' ? 'แปลเป็นภาษาอังกฤษอัตโนมัติ' : 'Auto-translate to English')
+                }
+              </Button>
+            </TabsContent>
+            
+            <TabsContent value="en" className="space-y-4 mt-4">
+              <div className="rounded-lg bg-muted/50 p-3 mb-4">
+                <p className="text-sm text-muted-foreground">
+                  {language === 'th' 
+                    ? '💡 เนื้อหาภาษาอังกฤษจะถูกแปลจากภาษาไทยอัตโนมัติเมื่อส่งบทความ หรือกดปุ่มแปลในแท็บภาษาไทย'
+                    : '💡 English content will be auto-translated from Thai when submitting, or press the translate button in the Thai tab'}
+                </p>
+              </div>
+              <div>
+                <Label className="mb-2 block">Title</Label>
+                <Input
+                  value={form.title_en}
+                  onChange={(e) => setForm({ ...form, title_en: e.target.value })}
+                  placeholder="Article title (auto-translated)"
+                />
+              </div>
+              <div>
+                <Label className="mb-2 block">Excerpt</Label>
+                <Textarea
+                  value={form.excerpt_en}
+                  onChange={(e) => setForm({ ...form, excerpt_en: e.target.value })}
+                  placeholder="Brief summary (auto-translated)..."
+                  rows={2}
+                />
+              </div>
+              <div>
+                <Label className="mb-2 block">Content</Label>
+                <Textarea
+                  value={form.content_en}
+                  onChange={(e) => setForm({ ...form, content_en: e.target.value })}
+                  placeholder="Article content (auto-translated)..."
                   rows={10}
                 />
               </div>
@@ -514,13 +719,36 @@ export default function WriteArticle() {
           {/* Submit Button */}
           <Button 
             onClick={submitArticle} 
-            disabled={isSaving} 
+            disabled={isSaving || isTranslating} 
             className="w-full gap-2"
             size="lg"
           >
-            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-            {language === 'th' ? 'ส่งบทความเพื่อตรวจสอบ' : 'Submit for Review'}
+            {(isSaving || isTranslating) ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : isEditMode ? (
+              <RefreshCw className="h-4 w-4" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+            {(isSaving || isTranslating)
+              ? (isTranslating 
+                  ? (language === 'th' ? 'กำลังแปล...' : 'Translating...') 
+                  : (language === 'th' ? 'กำลังส่ง...' : 'Submitting...'))
+              : isEditMode
+                ? (language === 'th' ? 'ส่งบทความที่แก้ไขแล้ว' : 'Submit Edited Article')
+                : (language === 'th' ? 'ส่งบทความเพื่อตรวจสอบ' : 'Submit for Review')
+            }
           </Button>
+
+          {isEditMode && (
+            <Button 
+              onClick={cancelEditing}
+              variant="outline"
+              className="w-full"
+            >
+              {language === 'th' ? 'ยกเลิกการแก้ไข' : 'Cancel Editing'}
+            </Button>
+          )}
         </div>
       </PageContainer>
       <BottomNav />
