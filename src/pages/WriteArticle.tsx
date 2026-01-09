@@ -11,11 +11,27 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/lib/i18n";
-import { ArrowLeft, Send, Upload, Loader2, X, Image, Sparkles, FileText, Clock, CheckCircle, XCircle, AlertCircle, ChevronDown, ChevronUp, Languages, Edit3, RefreshCw, Eye, User, Calendar, BookOpen, ImagePlus, Images } from "lucide-react";
+import { ArrowLeft, Send, Upload, Loader2, X, Image, Sparkles, FileText, Clock, CheckCircle, XCircle, AlertCircle, ChevronDown, ChevronUp, Languages, Edit3, RefreshCw, Eye, User, Calendar, BookOpen, ImagePlus, Images, Youtube } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ImageGalleryPicker } from "@/components/ImageGalleryPicker";
+
+// Helper to extract YouTube video ID from various URL formats
+const extractYouTubeVideoId = (url: string): string | null => {
+  if (!url) return null;
+  
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([^&\n?#]+)/,
+    /^([a-zA-Z0-9_-]{11})$/ // Direct video ID
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+};
 
 interface Category {
   id: string;
@@ -70,6 +86,7 @@ export default function WriteArticle() {
     content_th: '',
     cover_url: '',
     category_id: '',
+    video_url: '',
   });
 
   useEffect(() => {
@@ -116,6 +133,7 @@ export default function WriteArticle() {
               content_th: articleToEdit.content_th || '',
               cover_url: articleToEdit.cover_url || '',
               category_id: articleToEdit.category_id || '',
+              video_url: (articleToEdit as any).video_url || '',
             });
             setIsEditMode(true);
             setEditingArticleId(editId);
@@ -438,6 +456,7 @@ export default function WriteArticle() {
       content_th: '',
       cover_url: '',
       category_id: '',
+      video_url: '',
     });
     navigate('/info/write');
   };
@@ -663,6 +682,29 @@ export default function WriteArticle() {
               </div>
             </div>
 
+            {/* YouTube Video Preview */}
+            {form.video_url && extractYouTubeVideoId(form.video_url) && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Youtube className="h-5 w-5 text-red-500" />
+                  <span className="text-sm font-medium">
+                    {language === 'th' ? 'วิดีโอประกอบ' : 'Featured Video'}
+                  </span>
+                </div>
+                <div className="rounded-2xl overflow-hidden border border-border shadow-card">
+                  <div className="aspect-video">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${extractYouTubeVideoId(form.video_url)}?autoplay=1&mute=1`}
+                      title="YouTube video"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Preview Actions */}
             <div className="flex gap-3">
               <Button
@@ -886,6 +928,31 @@ export default function WriteArticle() {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* YouTube Video URL */}
+          <div>
+            <Label className="mb-2 block">
+              <div className="flex items-center gap-2">
+                <Youtube className="h-4 w-4 text-red-500" />
+                {language === 'th' ? 'ลิงก์วิดีโอ YouTube' : 'YouTube Video URL'}
+              </div>
+            </Label>
+            <Input
+              value={form.video_url}
+              onChange={(e) => setForm({ ...form, video_url: e.target.value })}
+              placeholder={language === 'th' ? 'วาง URL ของ YouTube เช่น https://youtube.com/watch?v=...' : 'Paste YouTube URL e.g. https://youtube.com/watch?v=...'}
+            />
+            {form.video_url && !extractYouTubeVideoId(form.video_url) && (
+              <p className="text-xs text-destructive mt-1">
+                {language === 'th' ? 'ลิงก์ YouTube ไม่ถูกต้อง' : 'Invalid YouTube URL'}
+              </p>
+            )}
+            {form.video_url && extractYouTubeVideoId(form.video_url) && (
+              <p className="text-xs text-muted-foreground mt-1">
+                ✓ {language === 'th' ? 'วิดีโอจะแสดงที่ด้านล่างของบทความ' : 'Video will appear at the bottom of the article'}
+              </p>
+            )}
           </div>
 
           {/* Hidden content image input */}
