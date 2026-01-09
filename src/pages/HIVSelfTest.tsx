@@ -155,13 +155,17 @@ export default function HIVSelfTest() {
     if (timerActive && timerSeconds > 0) {
       timerRef.current = setInterval(() => {
         setTimerSeconds(prev => {
-          if (prev <= 1) {
+            if (prev <= 1) {
             setTimerActive(false);
             setTimerFinished(true);
             if (timerRef.current) clearInterval(timerRef.current);
             // Play alarm sound
             if (alarmRef.current) {
               alarmRef.current.play().catch(() => {});
+            }
+            // Vibrate on mobile devices (pattern: vibrate 500ms, pause 200ms, vibrate 500ms, pause 200ms, vibrate 500ms)
+            if ('vibrate' in navigator) {
+              navigator.vibrate([500, 200, 500, 200, 500]);
             }
             toast.success(language === 'th' ? 'ถึงเวลาอ่านผล' : 'Time to read result');
             return 0;
