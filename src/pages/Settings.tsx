@@ -108,31 +108,37 @@ export default function Settings() {
   return (
     <>
       <PageContainer>
-        <div className="mb-6 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
-            <ArrowLeft className="h-6 w-6" />
+        {/* Header */}
+        <div className="mb-8 flex items-center gap-4">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => navigate("/")}
+            className="rounded-xl hover:bg-muted/80 h-10 w-10"
+          >
+            <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-xl font-bold text-foreground">{t('settings.title')}</h1>
+          <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('settings.title')}</h1>
         </div>
         
         {/* Account */}
         {user && (
-          <div className="mb-8 animate-slide-up">
-            <h2 className="mb-4 text-lg font-bold text-foreground flex items-center gap-2">
-              <User className="h-5 w-5 text-primary" />
+          <div className="mb-8">
+            <h2 className="mb-4 text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+              <User className="h-4 w-4" />
               {t('settings.account')}
             </h2>
-            <div className="rounded-xl bg-card border border-border p-4 shadow-card space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full gradient-primary">
-                  <User className="h-5 w-5 text-primary-foreground" />
+            <div className="rounded-2xl bg-card border border-border/50 p-5 space-y-4">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/20">
+                  <User className="h-6 w-6 text-primary-foreground" />
                 </div>
-                <div className="flex-1">
-                  <p className="text-sm text-muted-foreground">{t('settings.loggedInAs')}</p>
-                  <p className="font-medium text-foreground">{user.email}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-muted-foreground">{t('settings.loggedInAs')}</p>
+                  <p className="font-medium text-foreground truncate">{user.email}</p>
                 </div>
                 {isAdmin && (
-                  <Badge variant="default" className="gap-1">
+                  <Badge className="gap-1 bg-gradient-to-r from-violet-500 to-purple-500 text-white border-0">
                     <ShieldCheck className="h-3 w-3" />
                     Admin
                   </Badge>
@@ -143,17 +149,17 @@ export default function Settings() {
               {isAdmin ? (
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start gap-3"
+                  className="w-full justify-start gap-3 rounded-xl h-12"
                   onClick={() => navigate('/admin')}
                 >
-                  <Shield className="h-5 w-5" />
+                  <Shield className="h-5 w-5 text-primary" />
                   {language === 'th' ? 'แดชบอร์ดผู้ดูแล' : 'Admin Dashboard'}
                 </Button>
               ) : adminRequest ? (
-                <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                  <div className="flex items-center gap-2">
-                    <Shield className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{language === 'th' ? 'คำขอเป็นผู้ดูแล' : 'Admin Request'}</span>
+                <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
+                  <div className="flex items-center gap-3">
+                    <Shield className="h-5 w-5 text-muted-foreground" />
+                    <span className="text-sm font-medium">{language === 'th' ? 'คำขอเป็นผู้ดูแล' : 'Admin Request'}</span>
                   </div>
                   <Badge variant={adminRequest.status === 'pending' ? 'secondary' : adminRequest.status === 'approved' ? 'default' : 'destructive'}>
                     {adminRequest.status === 'pending' 
@@ -167,26 +173,28 @@ export default function Settings() {
               ) : !showAdminRequest ? (
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start gap-3"
+                  className="w-full justify-start gap-3 rounded-xl h-12"
                   onClick={() => setShowAdminRequest(true)}
                 >
                   <Shield className="h-5 w-5" />
                   {language === 'th' ? 'ขอเป็นผู้ดูแลระบบ' : 'Request Admin Access'}
                 </Button>
               ) : (
-                <div className="space-y-3 p-3 rounded-lg bg-muted/50">
+                <div className="space-y-3 p-4 rounded-xl bg-muted/30">
                   <p className="text-sm font-medium">{language === 'th' ? 'เหตุผลที่ต้องการเป็นผู้ดูแล' : 'Why do you want admin access?'}</p>
                   <Textarea
                     value={adminReason}
                     onChange={(e) => setAdminReason(e.target.value)}
                     placeholder={language === 'th' ? 'อธิบายเหตุผล...' : 'Explain your reason...'}
                     rows={3}
+                    className="rounded-xl resize-none"
                   />
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => setShowAdminRequest(false)}
+                      className="rounded-lg"
                     >
                       {language === 'th' ? 'ยกเลิก' : 'Cancel'}
                     </Button>
@@ -194,6 +202,7 @@ export default function Settings() {
                       size="sm"
                       onClick={submitAdminRequest}
                       disabled={submittingRequest || !adminReason.trim()}
+                      className="rounded-lg"
                     >
                       {submittingRequest ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                       {language === 'th' ? 'ส่งคำขอ' : 'Submit'}
@@ -204,7 +213,7 @@ export default function Settings() {
               
               <Button 
                 variant="outline" 
-                className="w-full justify-start gap-3"
+                className="w-full justify-start gap-3 rounded-xl h-12 text-muted-foreground hover:text-foreground"
                 onClick={handleLogout}
               >
                 <LogOut className="h-5 w-5" />
@@ -215,37 +224,37 @@ export default function Settings() {
         )}
         
         {/* Theme */}
-        <div className="mb-8 animate-slide-up">
-          <h2 className="mb-4 text-lg font-bold text-foreground flex items-center gap-2">
-            <Palette className="h-5 w-5 text-primary" />
+        <div className="mb-8">
+          <h2 className="mb-4 text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+            <Palette className="h-4 w-4" />
             {t('settings.theme') || 'Theme'}
           </h2>
           <ThemeSelector />
         </div>
         
         {/* Language */}
-        <div className="mb-8 animate-slide-up">
-          <h2 className="mb-4 text-lg font-bold text-foreground flex items-center gap-2">
-            <Languages className="h-5 w-5 text-primary" />
+        <div className="mb-8">
+          <h2 className="mb-4 text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+            <Languages className="h-4 w-4" />
             {t('common.language')}
           </h2>
-          <div className="flex items-center justify-between rounded-xl bg-card border border-border p-4 shadow-card">
+          <div className="flex items-center justify-between rounded-2xl bg-card border border-border/50 p-5">
             <span className="font-medium text-foreground">ภาษา / Language</span>
             <LanguageToggle />
           </div>
         </div>
         
         {/* Notifications */}
-        <div className="mb-8 animate-slide-up">
-          <h2 className="mb-4 text-lg font-bold text-foreground flex items-center gap-2">
-            <Bell className="h-5 w-5 text-primary" />
+        <div className="mb-8">
+          <h2 className="mb-4 text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+            <Bell className="h-4 w-4" />
             {t('settings.notifications')}
           </h2>
           
-          <div className="space-y-4">
-            <div className="flex items-center justify-between rounded-xl bg-card border border-border p-4 shadow-card">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+          <div className="rounded-2xl bg-card border border-border/50 divide-y divide-border/50">
+            <div className="flex items-center justify-between p-5">
+              <div className="flex items-center gap-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
                   <Pill className="h-5 w-5 text-primary" />
                 </div>
                 <div>
@@ -256,10 +265,10 @@ export default function Settings() {
               <Switch checked={settings.dailyPrep} onCheckedChange={(checked) => updateSetting("dailyPrep", checked)} />
             </div>
             
-            <div className="flex items-center justify-between rounded-xl bg-card border border-border p-4 shadow-card">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent/10">
-                  <Clock className="h-5 w-5 text-accent" />
+            <div className="flex items-center justify-between p-5">
+              <div className="flex items-center gap-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/30">
+                  <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 </div>
                 <div>
                   <p className="font-medium text-foreground">{t('settings.ondemandPrep')}</p>
@@ -269,10 +278,10 @@ export default function Settings() {
               <Switch checked={settings.onDemandPrep} onCheckedChange={(checked) => updateSetting("onDemandPrep", checked)} />
             </div>
             
-            <div className="flex items-center justify-between rounded-xl bg-card border border-border p-4 shadow-card">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-success/10">
-                  <Shield className="h-5 w-5 text-success" />
+            <div className="flex items-center justify-between p-5">
+              <div className="flex items-center gap-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
+                  <Shield className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 </div>
                 <div>
                   <p className="font-medium text-foreground">{t('settings.pepReminders')}</p>
@@ -285,18 +294,28 @@ export default function Settings() {
         </div>
         
         {/* Reminder Time */}
-        <div className="mb-8 animate-slide-up">
-          <h2 className="mb-4 text-lg font-bold text-foreground">{t('settings.reminderTime')}</h2>
-          <div className="rounded-xl bg-card border border-border p-4 shadow-card">
-            <Label htmlFor="reminderTime" className="text-muted-foreground mb-2 block">{t('settings.defaultTime')}</Label>
-            <Input id="reminderTime" type="time" value={settings.reminderTime} onChange={(e) => updateSetting("reminderTime", e.target.value)} className="h-14 text-lg" />
+        <div className="mb-8">
+          <h2 className="mb-4 text-sm font-semibold text-muted-foreground uppercase tracking-wider">{t('settings.reminderTime')}</h2>
+          <div className="rounded-2xl bg-card border border-border/50 p-5">
+            <Label htmlFor="reminderTime" className="text-muted-foreground mb-3 block text-sm">{t('settings.defaultTime')}</Label>
+            <Input 
+              id="reminderTime" 
+              type="time" 
+              value={settings.reminderTime} 
+              onChange={(e) => updateSetting("reminderTime", e.target.value)} 
+              className="h-12 text-lg rounded-xl" 
+            />
           </div>
         </div>
         
         {/* Data */}
-        <div className="animate-slide-up">
-          <h2 className="mb-4 text-lg font-bold text-foreground">{t('settings.data')}</h2>
-          <Button variant="outline" className="w-full justify-start gap-3 text-destructive border-destructive/30 hover:bg-destructive/10" onClick={handleReset}>
+        <div className="mb-8">
+          <h2 className="mb-4 text-sm font-semibold text-muted-foreground uppercase tracking-wider">{t('settings.data')}</h2>
+          <Button 
+            variant="outline" 
+            className="w-full justify-start gap-3 rounded-xl h-12 text-rose-600 border-rose-200 hover:bg-rose-50 dark:text-rose-400 dark:border-rose-800 dark:hover:bg-rose-950/30" 
+            onClick={handleReset}
+          >
             <Trash2 className="h-5 w-5" />
             {t('settings.resetAll')}
           </Button>

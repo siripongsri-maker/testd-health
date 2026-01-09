@@ -8,12 +8,12 @@ import { XPBar } from "@/components/XPBar";
 import { Button } from "@/components/ui/button";
 import { getUserData, recordCheckIn, getTodayKey, getPEPDay, getXPForLevel, setUserData } from "@/lib/store";
 import { useLanguage } from "@/lib/i18n";
-import { Zap, Flame, Star, Settings, AlertTriangle, TestTube, Home, ArrowLeft } from "lucide-react";
+import { Zap, Flame, Star, Settings, AlertTriangle, TestTube, ArrowLeft, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [userData, setLocalUserData] = useState(getUserData());
   const [todayStatus, setTodayStatus] = useState<"pending" | "taken" | "skipped">("pending");
   
@@ -89,23 +89,33 @@ export default function Dashboard() {
     <>
       <PageContainer>
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
+        <div className="mb-8 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => navigate("/")}
+              className="rounded-xl hover:bg-muted/80 h-10 w-10"
+            >
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">{t('dashboard.welcome')}</h1>
-              <p className="text-muted-foreground">{t('dashboard.doingGreat')}</p>
+              <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('dashboard.welcome')}</h1>
+              <p className="text-muted-foreground text-sm">{t('dashboard.doingGreat')}</p>
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={() => navigate("/settings")}>
-            <Settings className="h-6 w-6" />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => navigate("/settings")}
+            className="rounded-xl hover:bg-muted/80 h-10 w-10"
+          >
+            <Settings className="h-5 w-5" />
           </Button>
         </div>
         
         {/* XP Progress */}
-        <div className="mb-6 rounded-2xl bg-card border border-border p-4 shadow-card animate-scale-in">
+        <div className="mb-6 rounded-2xl bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/20 dark:to-purple-950/20 border border-violet-200/50 dark:border-violet-800/30 p-5">
           <XPBar
             current={xpInfo.current}
             required={xpInfo.required}
@@ -122,17 +132,19 @@ export default function Dashboard() {
         
         {/* Today's Task */}
         <div className="mb-6">
-          <h2 className="mb-3 text-lg font-bold text-foreground">{t('dashboard.today')}</h2>
+          <h2 className="mb-4 text-lg font-bold text-foreground flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            {t('dashboard.today')}
+          </h2>
           {needsSetup ? (
-            <div className="rounded-2xl border-2 border-primary/20 bg-card p-6 shadow-card">
+            <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-6">
               <div className="text-center">
-                <p className="mb-4 text-muted-foreground">
+                <p className="mb-5 text-muted-foreground">
                   {t('dashboard.setupSubtitle')}
                 </p>
                 <div className="space-y-3">
                   <Button
-                    variant="default"
-                    className="w-full"
+                    className="w-full rounded-xl h-12 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80"
                     onClick={() => {
                       setUserData({ mode: "prep-daily" });
                       navigate("/setup/prep-daily");
@@ -142,7 +154,7 @@ export default function Dashboard() {
                   </Button>
                   <Button
                     variant="secondary"
-                    className="w-full"
+                    className="w-full rounded-xl h-12"
                     onClick={() => {
                       setUserData({ mode: "prep-ondemand" });
                       navigate("/setup/prep-ondemand");
@@ -152,10 +164,10 @@ export default function Dashboard() {
                   </Button>
                   <Button
                     variant="outline"
-                    className="w-full"
+                    className="w-full rounded-xl h-12 border-amber-300 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/30"
                     onClick={() => navigate("/pep")}
                   >
-                    <AlertTriangle className="h-5 w-5 text-warning" />
+                    <AlertTriangle className="h-5 w-5" />
                     {t('dashboard.needPep')}
                   </Button>
                 </div>
@@ -176,14 +188,18 @@ export default function Dashboard() {
         <div className="mb-6">
           <Button
             variant="outline"
-            className="w-full gap-2 border-primary/30 hover:bg-primary/5"
+            className="w-full gap-3 rounded-xl h-14 border-primary/30 hover:bg-primary/5 hover:border-primary/50 transition-all duration-200"
             onClick={() => navigate("/hiv-selftest")}
           >
-            <TestTube className="h-5 w-5 text-primary" />
-            {userData.mode === "exploring" || !userData.mode
-              ? (t('selfCare.hivTestReminder') || 'HIV Self-Test Kit')
-              : (t('selfCare.hivTestReminder') || 'Get Free HIV Self-Test Kit')
-            }
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
+              <TestTube className="h-5 w-5 text-primary" />
+            </div>
+            <span className="flex-1 text-left font-medium">
+              {userData.mode === "exploring" || !userData.mode
+                ? (t('selfCare.hivTestReminder') || 'HIV Self-Test Kit')
+                : (t('selfCare.hivTestReminder') || 'Get Free HIV Self-Test Kit')
+              }
+            </span>
           </Button>
         </div>
         
@@ -192,26 +208,35 @@ export default function Dashboard() {
           <div className="mb-6">
             <Button
               variant="outline"
-              className="w-full"
+              className="w-full gap-3 rounded-xl h-14 border-amber-300 hover:bg-amber-50 dark:border-amber-700 dark:hover:bg-amber-950/30 transition-all duration-200"
               onClick={() => navigate("/pep")}
             >
-              <AlertTriangle className="h-5 w-5 text-warning" />
-              {t('dashboard.emergencyPep')}
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/50">
+                <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              </div>
+              <span className="flex-1 text-left font-medium text-amber-700 dark:text-amber-400">
+                {t('dashboard.emergencyPep')}
+              </span>
             </Button>
           </div>
         )}
         
         {/* PEP Progress (if on PEP) */}
         {userData.mode === "pep" && pepDay > 0 && (
-          <div className="rounded-2xl bg-card border border-border p-4 shadow-card animate-scale-in">
-            <h3 className="font-bold text-foreground mb-3">{t('dashboard.pepProgress')}</h3>
-            <div className="h-3 overflow-hidden rounded-full bg-muted">
+          <div className="rounded-2xl bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20 border border-emerald-200/50 dark:border-emerald-800/30 p-5">
+            <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/50">
+                <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              {t('dashboard.pepProgress')}
+            </h3>
+            <div className="h-3 overflow-hidden rounded-full bg-emerald-100 dark:bg-emerald-900/50">
               <div
-                className="h-full bg-success rounded-full transition-all duration-500"
+                className="h-full bg-gradient-to-r from-emerald-400 to-green-500 rounded-full transition-all duration-500"
                 style={{ width: `${(pepDay / 28) * 100}%` }}
               />
             </div>
-            <p className="mt-2 text-sm text-muted-foreground text-center">
+            <p className="mt-3 text-sm text-emerald-700 dark:text-emerald-300 text-center font-medium">
               {t('dashboard.pepDay')} {pepDay} {t('dashboard.of28')} — {t('dashboard.doingGreat')}! 💪
             </p>
           </div>
