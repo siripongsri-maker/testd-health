@@ -8,12 +8,14 @@ import { XPBar } from "@/components/XPBar";
 import { Button } from "@/components/ui/button";
 import { getUserData, recordCheckIn, getTodayKey, getPEPDay, getXPForLevel, setUserData } from "@/lib/store";
 import { useLanguage } from "@/lib/i18n";
+import { useBadgeNotifications } from "@/hooks/useBadgeNotifications";
 import { Zap, Flame, Star, Settings, AlertTriangle, TestTube, ArrowLeft, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
+  const { checkAndAwardBadges } = useBadgeNotifications();
   const [userData, setLocalUserData] = useState(getUserData());
   const [todayStatus, setTodayStatus] = useState<"pending" | "taken" | "skipped">("pending");
   
@@ -43,6 +45,11 @@ export default function Dashboard() {
     toast.success(t('dashboard.greatJob'), {
       description: `${t('stats.streak')}: ${data.streak} 🔥`,
     });
+
+    // Check for newly earned badges after a short delay
+    setTimeout(() => {
+      checkAndAwardBadges();
+    }, 1500);
   };
 
   const handleSkipped = () => {

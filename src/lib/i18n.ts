@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+
+// Badge earned notification key
 import { persist } from 'zustand/middleware';
 
 type Language = 'th' | 'en';
