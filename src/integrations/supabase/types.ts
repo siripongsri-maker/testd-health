@@ -50,6 +50,73 @@ export type Database = {
         }
         Relationships: []
       }
+      article_comments: {
+        Row: {
+          article_id: string
+          author_name: string | null
+          content: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          article_id: string
+          author_name?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          article_id?: string
+          author_name?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_comments_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "blog_articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      article_likes: {
+        Row: {
+          article_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          article_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          article_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_likes_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "blog_articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blog_articles: {
         Row: {
           author_id: string | null
@@ -62,7 +129,9 @@ export type Database = {
           excerpt_en: string | null
           excerpt_th: string | null
           id: string
+          like_count: number | null
           published_at: string | null
+          rejection_feedback: string | null
           reviewed_at: string | null
           reviewed_by: string | null
           slug: string
@@ -83,7 +152,9 @@ export type Database = {
           excerpt_en?: string | null
           excerpt_th?: string | null
           id?: string
+          like_count?: number | null
           published_at?: string | null
+          rejection_feedback?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           slug: string
@@ -104,7 +175,9 @@ export type Database = {
           excerpt_en?: string | null
           excerpt_th?: string | null
           id?: string
+          like_count?: number | null
           published_at?: string | null
+          rejection_feedback?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
           slug?: string

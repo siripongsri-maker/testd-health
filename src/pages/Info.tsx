@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
 import { PageHeader } from "@/components/PageHeader";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, BookOpen, Eye, ChevronRight, Loader2 } from "lucide-react";
+import { Search, BookOpen, Eye, ChevronRight, Loader2, PenSquare, Heart, User, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 interface Category {
   id: string;
@@ -30,8 +32,10 @@ interface Article {
   excerpt_th: string | null;
   cover_url: string | null;
   view_count: number;
+  like_count: number;
   published_at: string | null;
   category_id: string | null;
+  author_name: string | null;
 }
 
 // Category color themes
@@ -68,13 +72,13 @@ export default function Info() {
           .order('display_order'),
         supabase
           .from('blog_articles')
-          .select('id, slug, title_en, title_th, excerpt_en, excerpt_th, cover_url, view_count, published_at, category_id')
+          .select('id, slug, title_en, title_th, excerpt_en, excerpt_th, cover_url, view_count, like_count, published_at, category_id, author_name')
           .eq('status', 'published')
           .order('published_at', { ascending: false })
       ]);
 
       if (categoriesRes.data) setCategories(categoriesRes.data);
-      if (articlesRes.data) setArticles(articlesRes.data);
+      if (articlesRes.data) setArticles(articlesRes.data as Article[]);
     } catch (error) {
       console.error('Error loading blog data:', error);
     } finally {
@@ -94,8 +98,9 @@ export default function Info() {
     return matchesSearch && matchesCategory;
   });
 
+  // Get only 2 latest articles per category
   const getArticlesByCategory = (categoryId: string) => 
-    articles.filter(a => a.category_id === categoryId).slice(0, 3);
+    articles.filter(a => a.category_id === categoryId).slice(0, 2);
 
   if (loading) {
     return (
@@ -114,6 +119,16 @@ export default function Info() {
     <>
       <PageContainer>
         <PageHeader title={t('info.title')} subtitle={t('info.subtitle')} />
+        
+        {/* Write Article Button */}
+        <Button
+          onClick={() => navigate('/info/write')}
+          className="w-full mb-4 gap-2"
+          variant="outline"
+        >
+          <PenSquare className="h-4 w-4" />
+          {language === 'th' ? 'เขียนบทความ' : 'Write Article'}
+        </Button>
         
         {/* Search */}
         <div className="mb-6 relative">
@@ -192,9 +207,21 @@ export default function Info() {
                     <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
                       {language === 'th' ? article.excerpt_th : article.excerpt_en}
                     </p>
-                    <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                      <Eye className="h-3 w-3" />
-                      <span>{article.view_count.toLocaleString()}</span>
+                    <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                      {article.author_name && (
+                        <span className="flex items-center gap-1">
+                          <User className="h-3 w-3" />
+                          {article.author_name}
+                        </span>
+                      )}
+                      <span className="flex items-center gap-1">
+                        <Heart className="h-3 w-3" />
+                        {article.like_count || 0}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Eye className="h-3 w-3" />
+                        {article.view_count.toLocaleString()}
+                      </span>
                     </div>
                   </div>
                 </button>
@@ -202,7 +229,7 @@ export default function Info() {
             )}
           </div>
         ) : (
-          /* Category Cards */
+          /* Category Cards with scrollable articles */
           <div className="space-y-6">
             {categories.map((category, index) => {
               const theme = CATEGORY_THEMES[category.slug] || CATEGORY_THEMES['lifestyle'];
@@ -244,36 +271,56 @@ export default function Info() {
                     </div>
                   </button>
 
-                  {/* Category Articles Preview */}
+                  {/* Category Articles Preview - Show 2 latest with full details */}
                   {categoryArticles.length > 0 && (
-                    <div className="space-y-2 pl-2">
+                    <div className="space-y-2 pl-2 max-h-64 overflow-y-auto">
                       {categoryArticles.map((article) => (
                         <button
                           key={article.id}
                           onClick={() => navigate(`/info/article/${article.slug}`)}
-                          className="w-full text-left rounded-xl bg-card/50 border border-border/30 p-3 hover:bg-muted/30 transition-all flex items-center gap-3"
+                          className="w-full text-left rounded-xl bg-card/50 border border-border/30 p-3 hover:bg-muted/30 transition-all flex items-start gap-3"
                         >
                           {article.cover_url ? (
                             <img 
                               src={article.cover_url} 
                               alt="" 
-                              className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                              className="w-14 h-14 rounded-lg object-cover flex-shrink-0"
                             />
                           ) : (
-                            <div className="w-12 h-12 rounded-lg bg-muted/50 flex items-center justify-center flex-shrink-0">
-                              <BookOpen className="h-5 w-5 text-muted-foreground/50" />
+                            <div className="w-14 h-14 rounded-lg bg-muted/50 flex items-center justify-center flex-shrink-0">
+                              <BookOpen className="h-6 w-6 text-muted-foreground/50" />
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-foreground text-sm line-clamp-1">
+                            <h4 className="font-medium text-foreground text-sm line-clamp-2">
                               {language === 'th' ? article.title_th : article.title_en}
                             </h4>
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                              <Eye className="h-3 w-3" />
-                              <span>{article.view_count.toLocaleString()}</span>
+                            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mt-1">
+                              {article.author_name && (
+                                <span className="flex items-center gap-1">
+                                  <User className="h-3 w-3" />
+                                  {article.author_name}
+                                </span>
+                              )}
+                              {article.published_at && (
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="h-3 w-3" />
+                                  {format(new Date(article.published_at), 'MMM d, yyyy')}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <Heart className="h-3 w-3" />
+                                {article.like_count || 0}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Eye className="h-3 w-3" />
+                                {article.view_count.toLocaleString()}
+                              </span>
                             </div>
                           </div>
-                          <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                          <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-1" />
                         </button>
                       ))}
                     </div>

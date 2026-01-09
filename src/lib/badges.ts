@@ -145,6 +145,14 @@ export const BADGE_DEFINITIONS: BadgeDefinition[] = [
     category: "engagement",
     checkCriteria: (data) => data.daysActive >= 7,
   },
+  {
+    id: "writer",
+    nameKey: "badge.writer",
+    descriptionKey: "badge.writer.desc",
+    icon: Star,
+    category: "engagement",
+    checkCriteria: () => false, // Awarded manually when article is published
+  },
 ];
 
 export function getBadgeById(id: string): BadgeDefinition | undefined {

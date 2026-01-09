@@ -32,6 +32,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminKitOrders from "./pages/AdminKitOrders";
 import AdminBlog from "./pages/AdminBlog";
 import TrackOrder from "./pages/TrackOrder";
+import WriteArticle from "./pages/WriteArticle";
 import PersonalInfo from "./pages/PersonalInfo";
 import AvatarCustomization from "./pages/AvatarCustomization";
 import NotFound from "./pages/NotFound";
@@ -58,6 +59,7 @@ const App = () => (
           <Route path="/info" element={<Info />} />
           <Route path="/info/:id" element={<InfoArticle />} />
           <Route path="/info/article/:slug" element={<InfoArticle />} />
+          <Route path="/info/write" element={<WriteArticle />} />
           <Route path="/swing" element={<Swing />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/community" element={<Community />} />
