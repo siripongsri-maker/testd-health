@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
-import { getUserData } from "@/lib/store";
+import { getUserData, getTodayKey, recordCheckIn } from "@/lib/store";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { LanguageToggle } from "@/components/LanguageToggle";
@@ -20,8 +20,13 @@ import {
   Users,
   Eye,
   Calendar,
+  Pill,
+  Check,
+  X,
+  User,
 } from "lucide-react";
 import swingLogo from "@/assets/swing-logo.webp";
+import { toast } from "sonner";
 
 // Cute menu card component
 interface MenuCardProps {
@@ -85,11 +90,12 @@ export default function Home() {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const { user } = useAuth();
-  const [userData, setUserData] = useState(getUserData());
+  const [userData, setLocalUserData] = useState(getUserData());
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingRequests, setPendingRequests] = useState(0);
   const [adminPopupOpen, setAdminPopupOpen] = useState(false);
   const [totalSurveyViews, setTotalSurveyViews] = useState(0);
+  const [todayStatus, setTodayStatus] = useState<"pending" | "taken" | "skipped">("pending");
 
   // Load survey views from database
   useEffect(() => {
@@ -114,7 +120,13 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    setUserData(getUserData());
+    const data = getUserData();
+    setLocalUserData(data);
+    
+    const today = getTodayKey();
+    if (data.checkIns[today]) {
+      setTodayStatus(data.checkIns[today]);
+    }
   }, []);
 
   // Check admin status
@@ -146,6 +158,28 @@ export default function Home() {
     
     checkAdmin();
   }, [user]);
+
+  const handleTaken = () => {
+    const today = getTodayKey();
+    recordCheckIn(today, "taken");
+    setTodayStatus("taken");
+    
+    const data = getUserData();
+    setLocalUserData(data);
+    
+    toast.success(language === 'th' ? 'ดีมาก! ทำได้ดีมากวันนี้' : 'Great job today!', {
+      description: `${language === 'th' ? 'Streak' : 'Streak'}: ${data.streak} 🔥`,
+    });
+  };
+
+  const handleSkipped = () => {
+    const today = getTodayKey();
+    recordCheckIn(today, "skipped");
+    setTodayStatus("skipped");
+    
+    const data = getUserData();
+    setLocalUserData(data);
+  };
 
   const menuItems = [
     {
@@ -258,6 +292,65 @@ export default function Home() {
           </p>
         </div>
 
+        {/* Medication Reminder Card */}
+        {userData.mode && userData.mode !== 'exploring' && (
+          <div className="mb-4 rounded-2xl bg-card border-2 border-primary/30 shadow-card p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/20">
+                <Pill className="h-6 w-6 text-primary-foreground" />
+              </div>
+              <div className="flex-1">
+                <p className="font-bold text-foreground">
+                  {userData.mode === 'prep-daily' 
+                    ? (language === 'th' ? 'กินยา PrEP วันนี้' : 'Take PrEP Today')
+                    : userData.mode === 'pep'
+                    ? (language === 'th' ? 'กินยา PEP วันนี้' : 'Take PEP Today')
+                    : (language === 'th' ? 'กินยาวันนี้' : 'Take Medication Today')
+                  }
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {userData.prepReminderTime || '09:00'} • {language === 'th' ? `Streak: ${userData.streak} วัน` : `Streak: ${userData.streak} days`}
+                </p>
+              </div>
+            </div>
+            
+            {todayStatus === 'pending' ? (
+              <div className="flex gap-2">
+                <Button
+                  className="flex-1 h-11 rounded-xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80"
+                  onClick={handleTaken}
+                >
+                  <Check className="h-4 w-4 mr-2" />
+                  {language === 'th' ? 'กินแล้ว' : 'Taken'}
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1 h-11 rounded-xl"
+                  onClick={handleSkipped}
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  {language === 'th' ? 'ข้าม' : 'Skip'}
+                </Button>
+              </div>
+            ) : (
+              <div className={`flex items-center justify-center gap-2 py-2 rounded-xl ${
+                todayStatus === 'taken' 
+                  ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
+                  : 'bg-muted text-muted-foreground'
+              }`}>
+                {todayStatus === 'taken' ? (
+                  <>
+                    <Check className="h-4 w-4" />
+                    <span className="font-medium">{language === 'th' ? 'กินแล้ววันนี้ ✓' : 'Taken today ✓'}</span>
+                  </>
+                ) : (
+                  <span>{language === 'th' ? 'ข้ามวันนี้' : 'Skipped today'}</span>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Menu Grid - 3 columns, 2 rows */}
         <div className="grid grid-cols-3 gap-3">
           {menuItems.map((item, index) => (
@@ -287,7 +380,16 @@ export default function Home() {
         </div>
 
         {/* Quick links */}
-        <div className="mt-6 flex justify-center gap-3">
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="bg-card/80 backdrop-blur-sm rounded-full"
+            onClick={() => navigate("/personal-info")}
+          >
+            <User className="h-4 w-4 mr-2" />
+            {language === 'th' ? 'ข้อมูลส่วนตัว' : 'Personal Info'}
+          </Button>
           <Button
             variant="outline"
             size="sm"
@@ -303,6 +405,7 @@ export default function Home() {
             className="bg-card/80 backdrop-blur-sm rounded-full"
             onClick={() => navigate("/dashboard")}
           >
+            <Pill className="h-4 w-4 mr-2" />
             {language === 'th' ? 'PrEP / PEP' : 'PrEP / PEP'}
           </Button>
         </div>
