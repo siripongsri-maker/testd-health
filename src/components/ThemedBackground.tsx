@@ -41,6 +41,18 @@ export function PatternOverlay({ className = "" }: { className?: string }) {
   );
 }
 
+export function RainbowSwingBackground() {
+  return (
+    <>
+      {/* Rainbow gradient overlay */}
+      <div className="rainbow-swing-bg" />
+      {/* Swinging rainbow waves at bottom */}
+      <div className="rainbow-wave" />
+      <div className="rainbow-wave-2" />
+    </>
+  );
+}
+
 // Floating decorative elements for each theme
 const themeDecorations: Record<ThemeType, { 
   icons: React.ReactNode[];

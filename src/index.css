@@ -255,4 +255,84 @@
     image-rendering: pixelated;
     image-rendering: crisp-edges;
   }
+
+  /* Rainbow swing wave animation */
+  @keyframes rainbow-swing {
+    0% { transform: translateX(-100%) rotate(-2deg); }
+    50% { transform: translateX(0%) rotate(2deg); }
+    100% { transform: translateX(-100%) rotate(-2deg); }
+  }
+
+  @keyframes rainbow-flow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .rainbow-swing-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    width: 200%;
+    background: linear-gradient(
+      135deg,
+      hsl(350 85% 70% / 0.08) 0%,
+      hsl(35 95% 65% / 0.08) 16%,
+      hsl(55 95% 60% / 0.08) 32%,
+      hsl(120 65% 55% / 0.08) 48%,
+      hsl(200 85% 60% / 0.08) 64%,
+      hsl(280 70% 65% / 0.08) 80%,
+      hsl(350 85% 70% / 0.08) 100%
+    );
+    background-size: 200% 200%;
+    animation: rainbow-flow 12s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .rainbow-wave {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 300%;
+    height: 180px;
+    background: linear-gradient(
+      90deg,
+      hsl(350 85% 65% / 0.12),
+      hsl(35 95% 60% / 0.12),
+      hsl(55 95% 55% / 0.12),
+      hsl(120 65% 50% / 0.12),
+      hsl(200 85% 55% / 0.12),
+      hsl(280 70% 60% / 0.12),
+      hsl(350 85% 65% / 0.12)
+    );
+    border-radius: 100% 100% 0 0;
+    animation: rainbow-swing 8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .rainbow-wave-2 {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 300%;
+    height: 120px;
+    background: linear-gradient(
+      90deg,
+      hsl(280 70% 60% / 0.1),
+      hsl(200 85% 55% / 0.1),
+      hsl(120 65% 50% / 0.1),
+      hsl(55 95% 55% / 0.1),
+      hsl(35 95% 60% / 0.1),
+      hsl(350 85% 65% / 0.1),
+      hsl(280 70% 60% / 0.1)
+    );
+    border-radius: 100% 100% 0 0;
+    animation: rainbow-swing 10s ease-in-out infinite reverse;
+    pointer-events: none;
+    z-index: 0;
+  }
 }
