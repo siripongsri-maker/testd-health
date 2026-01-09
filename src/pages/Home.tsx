@@ -4,39 +4,91 @@ import { useLanguage } from "@/lib/i18n";
 import { getUserData } from "@/lib/store";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { ServiceCard, QuickAction } from "@/components/ServiceCard";
-import { ModernAvatar } from "@/components/ModernAvatar";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { Button } from "@/components/ui/button";
 import { HIVTestPopup } from "@/components/HIVTestPopup";
 import { AdminRequestsPopup } from "@/components/AdminRequestsPopup";
 import {
   TestTube,
-  Pill,
   MessageCircle,
   Heart,
   BookOpen,
-  Trophy,
   Settings,
-  Shield,
-  User,
   ShieldCheck,
-  Package,
-  AlertTriangle,
-  Sparkles,
-  Bell,
+  Send,
+  Users,
 } from "lucide-react";
 import swingLogo from "@/assets/swing-logo.webp";
 
+// Cute menu card component
+interface MenuCardProps {
+  icon: React.ReactNode;
+  titleTh: string;
+  titleEn: string;
+  onClick: () => void;
+  variant?: 'default' | 'featured';
+}
+
+function MenuCard({ icon, titleTh, titleEn, onClick, variant = 'default' }: MenuCardProps) {
+  return (
+    <button
+      onClick={onClick}
+      className={`
+        group relative w-full aspect-square rounded-3xl 
+        bg-card border-2 border-primary/20
+        shadow-card hover:shadow-soft
+        transition-all duration-300 
+        hover:scale-[1.02] hover:-translate-y-1
+        active:scale-[0.98]
+        flex flex-col items-center justify-center gap-3 p-4
+        ${variant === 'featured' ? 'ring-2 ring-primary/30' : ''}
+      `}
+    >
+      {/* Icon container */}
+      <div className="h-20 w-20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
+        {icon}
+      </div>
+      
+      {/* Labels */}
+      <div className="text-center space-y-0.5">
+        <p className="text-base font-bold text-foreground leading-tight">
+          {titleTh}
+        </p>
+        <p className="text-xs text-muted-foreground uppercase tracking-wide">
+          {titleEn}
+        </p>
+      </div>
+    </button>
+  );
+}
+
+// Rainbow umbrella decoration
+function RainbowUmbrella({ className }: { className?: string }) {
+  return (
+    <div className={`${className} select-none pointer-events-none`}>
+      <svg viewBox="0 0 60 50" className="w-16 h-14">
+        {/* Rainbow arc */}
+        <path d="M5 35 Q30 5 55 35" fill="none" stroke="hsl(0 85% 65%)" strokeWidth="4" />
+        <path d="M8 35 Q30 10 52 35" fill="none" stroke="hsl(25 95% 60%)" strokeWidth="4" />
+        <path d="M11 35 Q30 15 49 35" fill="none" stroke="hsl(50 95% 55%)" strokeWidth="4" />
+        <path d="M14 35 Q30 20 46 35" fill="none" stroke="hsl(120 65% 50%)" strokeWidth="4" />
+        <path d="M17 35 Q30 25 43 35" fill="none" stroke="hsl(200 85% 55%)" strokeWidth="4" />
+        <path d="M20 35 Q30 28 40 35" fill="none" stroke="hsl(280 70% 60%)" strokeWidth="4" />
+        {/* Handle */}
+        <path d="M30 35 L30 48 Q30 50 28 50" fill="none" stroke="hsl(20 25% 30%)" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    </div>
+  );
+}
+
 export default function Home() {
   const navigate = useNavigate();
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
   const { user } = useAuth();
   const [userData, setUserData] = useState(getUserData());
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingRequests, setPendingRequests] = useState(0);
   const [adminPopupOpen, setAdminPopupOpen] = useState(false);
-  const [showHIVPopup, setShowHIVPopup] = useState(false);
 
   useEffect(() => {
     setUserData(getUserData());
@@ -72,29 +124,74 @@ export default function Home() {
     checkAdmin();
   }, [user]);
 
-  const isNewUser = !userData.onboardingComplete;
-
-  // Get greeting based on time
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return language === 'th' ? 'สวัสดีตอนเช้า' : 'Good morning';
-    if (hour < 17) return language === 'th' ? 'สวัสดีตอนบ่าย' : 'Good afternoon';
-    return language === 'th' ? 'สวัสดีตอนเย็น' : 'Good evening';
-  };
+  const menuItems = [
+    {
+      icon: <TestTube className="h-full w-full" strokeWidth={1.5} />,
+      titleTh: "ขอชุดตรวจ",
+      titleEn: "SELF TEST",
+      path: "/hiv-selftest",
+    },
+    {
+      icon: (
+        <div className="flex flex-col items-center">
+          <img src={swingLogo} alt="SWING" className="h-12 object-contain" />
+        </div>
+      ),
+      titleTh: "เว็บไซต์",
+      titleEn: "WEBSITE",
+      path: "/swing",
+    },
+    {
+      icon: <Send className="h-full w-full" strokeWidth={1.5} />,
+      titleTh: "ส่งผลตรวจ",
+      titleEn: "TEST RESULT",
+      path: "/hiv-selftest",
+    },
+    {
+      icon: <Users className="h-full w-full" strokeWidth={1.5} />,
+      titleTh: "ชวนเพื่อน",
+      titleEn: "SHARE WITH FRIENDS",
+      path: "/share",
+    },
+    {
+      icon: <BookOpen className="h-full w-full" strokeWidth={1.5} />,
+      titleTh: "เรื่องน่ารู้",
+      titleEn: "DID YOU KNOW?",
+      path: "/info",
+    },
+    {
+      icon: <MessageCircle className="h-full w-full" strokeWidth={1.5} />,
+      titleTh: "ขอคำปรึกษา",
+      titleEn: "ONLINE COUNSELOR",
+      path: "/community",
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-background pb-8">
+    <div className="min-h-screen bg-gradient-to-b from-primary/30 to-primary/20 relative overflow-hidden">
+      {/* Rainbow umbrella decorations */}
+      <RainbowUmbrella className="absolute -bottom-2 -left-4 rotate-[-15deg] opacity-60" />
+      <RainbowUmbrella className="absolute -bottom-2 -right-4 rotate-[15deg] opacity-60" />
+      <RainbowUmbrella className="absolute top-20 -left-8 rotate-[-30deg] opacity-40 scale-75" />
+      <RainbowUmbrella className="absolute top-40 -right-6 rotate-[25deg] opacity-40 scale-75" />
+      
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-background/80 backdrop-blur-lg border-b border-border safe-top">
+      <header className="sticky top-0 z-20 bg-transparent safe-top">
         <div className="flex items-center justify-between px-4 py-3">
-          <ModernAvatar showStats size="md" />
-          
           <div className="flex items-center gap-2">
+            <img 
+              src={swingLogo} 
+              alt="SWING Thailand" 
+              className="h-8 object-contain"
+            />
+          </div>
+          
+          <div className="flex items-center gap-1">
             {isAdmin && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative"
+                className="relative bg-card/80 backdrop-blur-sm rounded-full"
                 onClick={() => setAdminPopupOpen(true)}
               >
                 <ShieldCheck className="h-5 w-5" />
@@ -105,10 +202,13 @@ export default function Home() {
                 )}
               </Button>
             )}
-            <LanguageToggle />
+            <div className="bg-card/80 backdrop-blur-sm rounded-full">
+              <LanguageToggle />
+            </div>
             <Button
               variant="ghost"
               size="icon"
+              className="bg-card/80 backdrop-blur-sm rounded-full"
               onClick={() => navigate("/settings")}
             >
               <Settings className="h-5 w-5" />
@@ -117,158 +217,61 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="px-4 py-6 space-y-6 max-w-lg mx-auto">
-        {/* Welcome Section */}
-        <section className="space-y-2">
+      <main className="px-4 py-4 max-w-md mx-auto relative z-10">
+        {/* Welcome text */}
+        <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-foreground">
-            {getGreeting()} 👋
+            {language === 'th' ? 'ยินดีต้อนรับ' : 'Welcome'} 👋
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground mt-1">
             {language === 'th' 
-              ? 'มีอะไรให้เราช่วยวันนี้?' 
-              : 'How can we help you today?'}
+              ? 'เลือกบริการที่ต้องการ' 
+              : 'Choose a service'}
           </p>
-        </section>
+        </div>
 
-        {/* New User Welcome */}
-        {isNewUser && (
-          <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20">
-            <div className="flex items-start gap-3">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Sparkles className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">
-                  {language === 'th' ? 'ยินดีต้อนรับ!' : 'Welcome!'}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {language === 'th' 
-                    ? 'เริ่มต้นใช้งานเพื่อดูแลสุขภาพของคุณ' 
-                    : 'Start your health journey with us'}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Menu Grid - 3 columns, 2 rows */}
+        <div className="grid grid-cols-3 gap-3">
+          {menuItems.map((item, index) => (
+            <MenuCard
+              key={index}
+              icon={item.icon}
+              titleTh={item.titleTh}
+              titleEn={item.titleEn}
+              onClick={() => navigate(item.path)}
+              variant={index === 0 ? 'featured' : 'default'}
+            />
+          ))}
+        </div>
 
-        {/* Featured Service - HIV Test */}
-        <section>
-          <ServiceCard
-            icon={<TestTube className="h-full w-full" />}
-            title={language === 'th' ? 'ตรวจ HIV ฟรี' : 'Free HIV Test'}
-            description={language === 'th' 
-              ? 'รับชุดตรวจส่งถึงบ้าน ไม่เสียค่าใช้จ่าย' 
-              : 'Get a free test kit delivered to your home'}
-            onClick={() => navigate("/hiv-selftest")}
-            variant="featured"
-            badge={language === 'th' ? 'ฟรี' : 'FREE'}
-            size="lg"
-          />
-        </section>
-
-        {/* Main Services */}
-        <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-foreground">
-            {language === 'th' ? 'บริการ' : 'Services'}
-          </h2>
-          
-          <div className="space-y-3">
-            <ServiceCard
-              icon={<Pill className="h-full w-full" />}
-              title={language === 'th' ? 'PrEP / PEP' : 'PrEP / PEP'}
-              description={language === 'th' 
-                ? 'ยาป้องกัน HIV ก่อนและหลังเสี่ยง' 
-                : 'Pre & post exposure prophylaxis'}
-              onClick={() => navigate("/dashboard")}
-            />
-
-            <ServiceCard
-              icon={<Heart className="h-full w-full" />}
-              title={language === 'th' ? 'ดูแลตัวเอง' : 'Self Care'}
-              description={language === 'th' 
-                ? 'สินค้าสุขภาพและความปลอดภัย' 
-                : 'Health & safety products'}
-              onClick={() => navigate("/self-care")}
-              variant="accent"
-            />
-
-            <ServiceCard
-              icon={<BookOpen className="h-full w-full" />}
-              title={language === 'th' ? 'ข้อมูลสุขภาพ' : 'Health Info'}
-              description={language === 'th' 
-                ? 'บทความและความรู้ที่เป็นประโยชน์' 
-                : 'Helpful articles and resources'}
-              onClick={() => navigate("/info")}
-            />
-
-            <ServiceCard
-              icon={<MessageCircle className="h-full w-full" />}
-              title={language === 'th' ? 'ชุมชน' : 'Community'}
-              description={language === 'th' 
-                ? 'พูดคุยแลกเปลี่ยนในที่ปลอดภัย' 
-                : 'Safe space to connect and share'}
-              onClick={() => navigate("/community")}
-            />
-          </div>
-        </section>
-
-        {/* Quick Actions */}
-        <section className="space-y-3">
-          <h2 className="text-lg font-semibold text-foreground">
-            {language === 'th' ? 'เมนูลัด' : 'Quick Actions'}
-          </h2>
-          
-          <div className="grid grid-cols-4 gap-2">
-            <QuickAction
-              icon={<Trophy className="h-full w-full" />}
-              label={language === 'th' ? 'ภารกิจ' : 'Quests'}
-              onClick={() => navigate("/quests")}
-              variant="primary"
-            />
-            <QuickAction
-              icon={<Package className="h-full w-full" />}
-              label={language === 'th' ? 'ติดตาม' : 'Track'}
-              onClick={() => navigate("/track-order")}
-            />
-            <QuickAction
-              icon={<User className="h-full w-full" />}
-              label={language === 'th' ? 'โปรไฟล์' : 'Profile'}
-              onClick={() => navigate("/personal-info")}
-            />
-            <QuickAction
-              icon={<Shield className="h-full w-full" />}
-              label="SWING"
-              onClick={() => navigate("/swing")}
-            />
-          </div>
-        </section>
-
-        {/* Emergency PEP Banner */}
-        <section>
-          <button
-            onClick={() => navigate("/pep")}
-            className="w-full p-4 rounded-2xl bg-destructive/10 border border-destructive/20 hover:bg-destructive/20 transition-colors"
+        {/* Quick links */}
+        <div className="mt-6 flex justify-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className="bg-card/80 backdrop-blur-sm rounded-full"
+            onClick={() => navigate("/self-care")}
           >
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-destructive/20 flex items-center justify-center">
-                <AlertTriangle className="h-5 w-5 text-destructive" />
-              </div>
-              <div className="text-left">
-                <h3 className="font-semibold text-destructive">
-                  {language === 'th' ? 'PEP ฉุกเฉิน' : 'Emergency PEP'}
-                </h3>
-                <p className="text-sm text-destructive/70">
-                  {language === 'th' 
-                    ? 'มีความเสี่ยง? รับยาภายใน 72 ชม.' 
-                    : 'Had a risk? Get medication within 72 hrs'}
-                </p>
-              </div>
-            </div>
-          </button>
-        </section>
+            <Heart className="h-4 w-4 mr-2" />
+            {language === 'th' ? 'ดูแลตัวเอง' : 'Self Care'}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="bg-card/80 backdrop-blur-sm rounded-full"
+            onClick={() => navigate("/dashboard")}
+          >
+            {language === 'th' ? 'PrEP / PEP' : 'PrEP / PEP'}
+          </Button>
+        </div>
 
         {/* Footer */}
-        <footer className="pt-6 text-center space-y-3">
+        <footer className="mt-8 text-center space-y-2 pb-8">
+          <p className="text-xs text-muted-foreground">
+            {language === 'th' 
+              ? 'บริการนี้ไม่มีค่าใช้จ่าย • ข้อมูลของคุณเป็นความลับ' 
+              : 'This service is free • Your information is confidential'}
+          </p>
           <div className="flex items-center justify-center gap-2">
             <span className="text-xs text-muted-foreground">
               {language === 'th' ? 'สนับสนุนโดย' : 'Powered by'}
@@ -276,16 +279,14 @@ export default function Home() {
             <img 
               src={swingLogo} 
               alt="SWING Thailand" 
-              className="h-6 object-contain"
+              className="h-5 object-contain opacity-70"
             />
           </div>
-          <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-            {language === 'th' 
-              ? 'บริการนี้ไม่มีค่าใช้จ่าย ข้อมูลของคุณเป็นความลับ' 
-              : 'This service is free. Your information is confidential.'}
-          </p>
         </footer>
       </main>
+
+      {/* Rainbow bottom bar */}
+      <div className="fixed bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-[hsl(0,85%,65%)] via-[hsl(50,95%,55%)] via-[hsl(120,65%,50%)] via-[hsl(200,85%,55%)] to-[hsl(280,70%,60%)]" />
 
       {/* Popups */}
       <HIVTestPopup />
