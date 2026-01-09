@@ -11,10 +11,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/lib/i18n";
-import { ArrowLeft, Send, Upload, Loader2, X, Image, Sparkles, FileText, Clock, CheckCircle, XCircle, AlertCircle, ChevronDown, ChevronUp, Languages, Edit3, RefreshCw, Eye, User, Calendar, BookOpen, ImagePlus } from "lucide-react";
+import { ArrowLeft, Send, Upload, Loader2, X, Image, Sparkles, FileText, Clock, CheckCircle, XCircle, AlertCircle, ChevronDown, ChevronUp, Languages, Edit3, RefreshCw, Eye, User, Calendar, BookOpen, ImagePlus, Images } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { ImageGalleryPicker } from "@/components/ImageGalleryPicker";
 
 interface Category {
   id: string;
@@ -838,7 +839,7 @@ export default function WriteArticle() {
                   <Image className="h-8 w-8 text-muted-foreground/30" />
                 </div>
               )}
-              <div>
+              <div className="flex flex-col gap-2">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -856,6 +857,16 @@ export default function WriteArticle() {
                   {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
                   {language === 'th' ? 'อัพโหลด' : 'Upload'}
                 </Button>
+                <ImageGalleryPicker
+                  language={language}
+                  onSelect={(url) => setForm({ ...form, cover_url: url })}
+                  trigger={
+                    <Button type="button" variant="outline" className="gap-2">
+                      <Images className="h-4 w-4" />
+                      {language === 'th' ? 'เลือกจากคลัง' : 'Gallery'}
+                    </Button>
+                  }
+                />
               </div>
             </div>
           </div>
@@ -914,21 +925,39 @@ export default function WriteArticle() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <Label>เนื้อหา *</Label>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => contentImageInputRef.current?.click()}
-                    disabled={uploadingContentImage}
-                    className="gap-1.5 h-8"
-                  >
-                    {uploadingContentImage ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <ImagePlus className="h-3.5 w-3.5" />
-                    )}
-                    {language === 'th' ? 'เพิ่มรูป' : 'Add Image'}
-                  </Button>
+                  <div className="flex gap-2">
+                    <ImageGalleryPicker
+                      language={language}
+                      onSelect={(url) => {
+                        const imageMarkdown = `\n![รูปภาพ](${url})\n`;
+                        const textarea = contentThRef.current;
+                        if (textarea) {
+                          const start = textarea.selectionStart;
+                          const end = textarea.selectionEnd;
+                          const newContent = form.content_th.substring(0, start) + imageMarkdown + form.content_th.substring(end);
+                          setForm({ ...form, content_th: newContent });
+                        } else {
+                          setForm({ ...form, content_th: form.content_th + imageMarkdown });
+                        }
+                        toast.success('เพิ่มรูปภาพในเนื้อหาแล้ว');
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => contentImageInputRef.current?.click()}
+                      disabled={uploadingContentImage}
+                      className="gap-1.5 h-8"
+                    >
+                      {uploadingContentImage ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <ImagePlus className="h-3.5 w-3.5" />
+                      )}
+                      {language === 'th' ? 'อัพโหลดใหม่' : 'Upload New'}
+                    </Button>
+                  </div>
                 </div>
                 <Textarea
                   ref={contentThRef}
@@ -987,21 +1016,39 @@ export default function WriteArticle() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <Label>Content</Label>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => contentImageInputRef.current?.click()}
-                    disabled={uploadingContentImage}
-                    className="gap-1.5 h-8"
-                  >
-                    {uploadingContentImage ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <ImagePlus className="h-3.5 w-3.5" />
-                    )}
-                    Add Image
-                  </Button>
+                  <div className="flex gap-2">
+                    <ImageGalleryPicker
+                      language={language}
+                      onSelect={(url) => {
+                        const imageMarkdown = `\n![Image](${url})\n`;
+                        const textarea = contentEnRef.current;
+                        if (textarea) {
+                          const start = textarea.selectionStart;
+                          const end = textarea.selectionEnd;
+                          const newContent = form.content_en.substring(0, start) + imageMarkdown + form.content_en.substring(end);
+                          setForm({ ...form, content_en: newContent });
+                        } else {
+                          setForm({ ...form, content_en: form.content_en + imageMarkdown });
+                        }
+                        toast.success('Image added to content');
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => contentImageInputRef.current?.click()}
+                      disabled={uploadingContentImage}
+                      className="gap-1.5 h-8"
+                    >
+                      {uploadingContentImage ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <ImagePlus className="h-3.5 w-3.5" />
+                      )}
+                      Upload New
+                    </Button>
+                  </div>
                 </div>
                 <Textarea
                   ref={contentEnRef}
