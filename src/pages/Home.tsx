@@ -91,14 +91,26 @@ export default function Home() {
   const [adminPopupOpen, setAdminPopupOpen] = useState(false);
   const [totalSurveyViews, setTotalSurveyViews] = useState(0);
 
-  // Load survey views from localStorage
+  // Load survey views from database
   useEffect(() => {
-    const savedViews = localStorage.getItem('survey_views');
-    if (savedViews) {
-      const viewData = JSON.parse(savedViews) as Record<string, number>;
-      const total = Object.values(viewData).reduce((a, b) => a + b, 0);
-      setTotalSurveyViews(total);
-    }
+    const fetchSurveyViews = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('survey_views')
+          .select('view_count');
+        
+        if (error) throw error;
+        
+        if (data) {
+          const total = data.reduce((sum, d) => sum + d.view_count, 0);
+          setTotalSurveyViews(total);
+        }
+      } catch (err) {
+        console.error('Error fetching survey views:', err);
+      }
+    };
+    
+    fetchSurveyViews();
   }, []);
 
   useEffect(() => {

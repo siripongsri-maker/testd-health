@@ -770,6 +770,30 @@ export type Database = {
         }
         Relationships: []
       }
+      survey_views: {
+        Row: {
+          created_at: string
+          id: string
+          survey_id: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          survey_id: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          survey_id?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: []
+      }
       user_interests: {
         Row: {
           created_at: string | null
@@ -863,6 +887,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_survey_view: { Args: { p_survey_id: string }; Returns: number }
       validate_thai_id: { Args: { thai_id: string }; Returns: boolean }
     }
     Enums: {

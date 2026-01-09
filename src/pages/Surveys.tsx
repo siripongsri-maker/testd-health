@@ -5,7 +5,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { useLanguage } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ExternalLink, Eye, ClipboardList } from "lucide-react";
+import { ArrowLeft, ExternalLink, Eye, ClipboardList, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Survey {
@@ -36,33 +36,60 @@ export default function Surveys() {
   const { language } = useLanguage();
   const [surveys, setSurveys] = useState<Survey[]>(SURVEYS);
   const [totalViews, setTotalViews] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Try to fetch view counts from localStorage for now
-    const savedViews = localStorage.getItem('survey_views');
-    if (savedViews) {
-      const viewData = JSON.parse(savedViews) as Record<string, number>;
-      const updatedSurveys = SURVEYS.map(s => ({
-        ...s,
-        viewCount: viewData[s.id] || 0
-      }));
-      setSurveys(updatedSurveys);
-      setTotalViews(Object.values(viewData).reduce((a, b) => a + b, 0));
-    }
+    fetchViewCounts();
   }, []);
 
-  const handleOpenSurvey = (survey: Survey) => {
-    // Increment view count
-    const savedViews = JSON.parse(localStorage.getItem('survey_views') || '{}') as Record<string, number>;
-    savedViews[survey.id] = (savedViews[survey.id] || 0) + 1;
-    localStorage.setItem('survey_views', JSON.stringify(savedViews));
+  const fetchViewCounts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('survey_views')
+        .select('survey_id, view_count');
+      
+      if (error) throw error;
+      
+      if (data) {
+        const viewMap = new Map(data.map(d => [d.survey_id, d.view_count]));
+        const updatedSurveys = SURVEYS.map(s => ({
+          ...s,
+          viewCount: viewMap.get(s.id) || 0
+        }));
+        setSurveys(updatedSurveys);
+        setTotalViews(data.reduce((sum, d) => sum + d.view_count, 0));
+      }
+    } catch (err) {
+      console.error('Error fetching view counts:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOpenSurvey = async (survey: Survey) => {
+    // Optimistically update UI
+    setSurveys(prev => prev.map(s => 
+      s.id === survey.id ? { ...s, viewCount: s.viewCount + 1 } : s
+    ));
+    setTotalViews(prev => prev + 1);
     
-    // Update state
-    const updatedSurveys = surveys.map(s => 
-      s.id === survey.id ? { ...s, viewCount: savedViews[s.id] } : s
-    );
-    setSurveys(updatedSurveys);
-    setTotalViews(Object.values(savedViews).reduce((a, b) => a + b, 0));
+    // Increment in database
+    try {
+      const { data, error } = await supabase.rpc('increment_survey_view', {
+        p_survey_id: survey.id
+      });
+      
+      if (error) throw error;
+      
+      // Update with actual count from DB
+      if (typeof data === 'number') {
+        setSurveys(prev => prev.map(s => 
+          s.id === survey.id ? { ...s, viewCount: data } : s
+        ));
+      }
+    } catch (err) {
+      console.error('Error incrementing view count:', err);
+    }
     
     // Open survey
     window.open(survey.url, '_blank', 'noopener,noreferrer');
@@ -95,7 +122,11 @@ export default function Surveys() {
               <p className="text-sm text-muted-foreground">
                 {language === 'th' ? 'จำนวนผู้เข้าชมทั้งหมด' : 'Total Viewers'}
               </p>
-              <p className="text-2xl font-bold text-primary">{totalViews.toLocaleString()}</p>
+              {loading ? (
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              ) : (
+                <p className="text-2xl font-bold text-primary">{totalViews.toLocaleString()}</p>
+              )}
             </div>
           </div>
         </Card>
@@ -122,7 +153,9 @@ export default function Surveys() {
                   <div className="flex items-center gap-4 mt-3">
                     <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                       <Eye className="h-3.5 w-3.5" />
-                      <span>{survey.viewCount.toLocaleString()} {language === 'th' ? 'คน' : 'views'}</span>
+                      <span>
+                        {loading ? '...' : survey.viewCount.toLocaleString()} {language === 'th' ? 'คน' : 'views'}
+                      </span>
                     </div>
                     <div className="flex items-center gap-1 text-xs text-primary">
                       <ExternalLink className="h-3.5 w-3.5" />
