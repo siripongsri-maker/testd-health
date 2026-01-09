@@ -63,14 +63,17 @@ function MenuCard({ icon, titleTh, titleEn, onClick, variant = 'default' }: Menu
   );
 }
 
-// Swing logo decoration
-function SwingDecoration({ className }: { className?: string }) {
+// Swing logo decoration with floating animation
+function SwingDecoration({ className, delay = 0 }: { className?: string; delay?: number }) {
   return (
-    <div className={`${className} select-none pointer-events-none`}>
+    <div 
+      className={`${className} select-none pointer-events-none animate-float`}
+      style={{ animationDelay: `${delay}s` }}
+    >
       <img 
         src={swingLogo} 
         alt="SWING" 
-        className="h-12 w-auto object-contain opacity-80"
+        className="h-10 w-auto object-contain opacity-30 blur-[0.5px]"
       />
     </div>
   );
@@ -164,11 +167,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/30 to-primary/20 relative overflow-hidden">
-      {/* Swing logo decorations */}
-      <SwingDecoration className="absolute -bottom-2 -left-4 rotate-[-15deg]" />
-      <SwingDecoration className="absolute -bottom-2 -right-4 rotate-[15deg]" />
-      <SwingDecoration className="absolute top-20 -left-8 rotate-[-30deg] scale-75" />
-      <SwingDecoration className="absolute top-40 -right-6 rotate-[25deg] scale-75" />
+      {/* Swing logo decorations - subtle floating */}
+      <SwingDecoration className="absolute bottom-20 left-2 rotate-[-10deg]" delay={0} />
+      <SwingDecoration className="absolute bottom-32 right-4 rotate-[8deg]" delay={1.5} />
+      <SwingDecoration className="absolute top-28 left-4 rotate-[-5deg] scale-75" delay={0.8} />
+      <SwingDecoration className="absolute top-48 right-2 rotate-[12deg] scale-75" delay={2} />
       
       {/* Header */}
       <header className="sticky top-0 z-20 bg-transparent safe-top">
