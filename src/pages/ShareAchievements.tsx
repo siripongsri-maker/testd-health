@@ -5,7 +5,8 @@ import { BottomNav } from "@/components/BottomNav";
 import { useLanguage } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Camera, Upload, Share2, Instagram, Facebook, Twitter, Sparkles, Image, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, Camera, Upload, Share2, Instagram, Facebook, Twitter, Sparkles, Image, X, Type, Smile, Move, Trash2 } from "lucide-react";
 import swingLogo from "@/assets/swing-logo.webp";
 
 const FRAME_STYLES = [
@@ -29,16 +30,56 @@ const FRAME_STYLES = [
   },
 ];
 
+const STICKERS = [
+  { id: 'heart', emoji: '❤️' },
+  { id: 'rainbow', emoji: '🌈' },
+  { id: 'star', emoji: '⭐' },
+  { id: 'fire', emoji: '🔥' },
+  { id: 'sparkle', emoji: '✨' },
+  { id: 'thumbsup', emoji: '👍' },
+  { id: 'muscle', emoji: '💪' },
+  { id: 'party', emoji: '🎉' },
+  { id: 'ribbon', emoji: '🎀' },
+  { id: 'love', emoji: '💕' },
+  { id: 'crown', emoji: '👑' },
+  { id: 'check', emoji: '✅' },
+];
+
+interface StickerItem {
+  id: string;
+  emoji: string;
+  x: number;
+  y: number;
+  scale: number;
+}
+
+interface TextItem {
+  id: string;
+  text: string;
+  x: number;
+  y: number;
+  color: string;
+}
+
+const TEXT_COLORS = ['#ffffff', '#000000', '#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#a855f7', '#ec4899'];
+
 export default function ShareAchievements() {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [selectedFrame, setSelectedFrame] = useState(FRAME_STYLES[0].id);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [activeTab, setActiveTab] = useState<'frame' | 'stickers' | 'text'>('frame');
+  const [stickers, setStickers] = useState<StickerItem[]>([]);
+  const [texts, setTexts] = useState<TextItem[]>([]);
+  const [newText, setNewText] = useState('');
+  const [selectedTextColor, setSelectedTextColor] = useState('#ffffff');
+  const [draggingId, setDraggingId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const photoContainerRef = useRef<HTMLDivElement>(null);
 
   const startCamera = async () => {
     try {
@@ -94,7 +135,81 @@ export default function ShareAchievements() {
 
   const clearImage = () => {
     setCapturedImage(null);
+    setStickers([]);
+    setTexts([]);
     stopCamera();
+  };
+
+  const addSticker = (emoji: string) => {
+    const newSticker: StickerItem = {
+      id: `sticker-${Date.now()}`,
+      emoji,
+      x: 50,
+      y: 50,
+      scale: 1,
+    };
+    setStickers([...stickers, newSticker]);
+  };
+
+  const addText = () => {
+    if (!newText.trim()) return;
+    const newTextItem: TextItem = {
+      id: `text-${Date.now()}`,
+      text: newText,
+      x: 50,
+      y: 30,
+      color: selectedTextColor,
+    };
+    setTexts([...texts, newTextItem]);
+    setNewText('');
+  };
+
+  const removeSticker = (id: string) => {
+    setStickers(stickers.filter(s => s.id !== id));
+  };
+
+  const removeText = (id: string) => {
+    setTexts(texts.filter(t => t.id !== id));
+  };
+
+  const handleDragStart = (id: string, e: React.TouchEvent | React.MouseEvent) => {
+    e.preventDefault();
+    setDraggingId(id);
+  };
+
+  const handleDrag = (e: React.TouchEvent | React.MouseEvent) => {
+    if (!draggingId || !photoContainerRef.current) return;
+    
+    const container = photoContainerRef.current.getBoundingClientRect();
+    let clientX, clientY;
+    
+    if ('touches' in e) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    
+    const x = ((clientX - container.left) / container.width) * 100;
+    const y = ((clientY - container.top) / container.height) * 100;
+    
+    const clampedX = Math.max(5, Math.min(95, x));
+    const clampedY = Math.max(5, Math.min(95, y));
+    
+    if (draggingId.startsWith('sticker')) {
+      setStickers(stickers.map(s => 
+        s.id === draggingId ? { ...s, x: clampedX, y: clampedY } : s
+      ));
+    } else {
+      setTexts(texts.map(t => 
+        t.id === draggingId ? { ...t, x: clampedX, y: clampedY } : t
+      ));
+    }
+  };
+
+  const handleDragEnd = () => {
+    setDraggingId(null);
   };
 
   const handleShare = async (platform: 'instagram' | 'facebook' | 'twitter') => {
@@ -103,7 +218,6 @@ export default function ShareAchievements() {
       : "I'm taking care of my health! 💪 #testD #SWINGThailand #SelfCare";
     const encodedMessage = encodeURIComponent(message);
 
-    // For sharing with image, we need to use Web Share API if available
     if (capturedImage && navigator.share && navigator.canShare) {
       try {
         const response = await fetch(capturedImage);
@@ -122,7 +236,6 @@ export default function ShareAchievements() {
       }
     }
 
-    // Fallback to URL sharing
     const urls: Record<string, string> = {
       instagram: 'https://www.instagram.com/',
       facebook: `https://www.facebook.com/sharer/sharer.php?quote=${encodedMessage}`,
@@ -135,7 +248,6 @@ export default function ShareAchievements() {
   const downloadImage = async () => {
     if (!capturedImage) return;
     
-    // Create a decorated version with frame
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -145,7 +257,7 @@ export default function ShareAchievements() {
       const size = Math.max(img.width, img.height);
       const padding = 40;
       canvas.width = size + padding * 2;
-      canvas.height = size + padding * 2 + 80; // Extra for branding
+      canvas.height = size + padding * 2 + 80;
 
       // Draw frame background
       const frame = FRAME_STYLES.find(f => f.id === selectedFrame);
@@ -179,10 +291,34 @@ export default function ShareAchievements() {
       const y = padding + (size - img.height) / 2;
       ctx.drawImage(img, x, y);
 
+      // Draw stickers
+      ctx.font = '48px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      stickers.forEach(sticker => {
+        const stickerX = padding + (sticker.x / 100) * size;
+        const stickerY = padding + (sticker.y / 100) * size;
+        ctx.font = `${48 * sticker.scale}px serif`;
+        ctx.fillText(sticker.emoji, stickerX, stickerY);
+      });
+
+      // Draw texts
+      texts.forEach(text => {
+        const textX = padding + (text.x / 100) * size;
+        const textY = padding + (text.y / 100) * size;
+        ctx.font = 'bold 24px Inter, sans-serif';
+        ctx.fillStyle = text.color;
+        ctx.strokeStyle = text.color === '#ffffff' ? '#000000' : '#ffffff';
+        ctx.lineWidth = 3;
+        ctx.strokeText(text.text, textX, textY);
+        ctx.fillText(text.text, textX, textY);
+      });
+
       // Draw branding
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 24px Inter, sans-serif';
       ctx.textAlign = 'center';
+      ctx.strokeStyle = 'transparent';
       ctx.fillText('testD คนเทสต์ดีอยู่นี่จ้า', canvas.width / 2, canvas.height - 45);
       ctx.font = '16px Inter, sans-serif';
       ctx.fillText('#testD #SWINGThailand', canvas.width / 2, canvas.height - 20);
@@ -247,11 +383,68 @@ export default function ShareAchievements() {
               {/* Frame Preview */}
               <div className={`p-3 rounded-2xl ${FRAME_STYLES.find(f => f.id === selectedFrame)?.borderClass}`}>
                 <div className="bg-white p-1 rounded-xl">
-                  <img 
-                    src={capturedImage} 
-                    alt="Captured" 
-                    className="w-full aspect-square object-cover rounded-lg"
-                  />
+                  <div 
+                    ref={photoContainerRef}
+                    className="relative w-full aspect-square rounded-lg overflow-hidden touch-none"
+                    onMouseMove={handleDrag}
+                    onMouseUp={handleDragEnd}
+                    onMouseLeave={handleDragEnd}
+                    onTouchMove={handleDrag}
+                    onTouchEnd={handleDragEnd}
+                  >
+                    <img 
+                      src={capturedImage} 
+                      alt="Captured" 
+                      className="w-full h-full object-cover"
+                    />
+                    {/* Stickers overlay */}
+                    {stickers.map((sticker) => (
+                      <div
+                        key={sticker.id}
+                        className={`absolute cursor-move select-none transition-transform ${draggingId === sticker.id ? 'scale-110' : ''}`}
+                        style={{
+                          left: `${sticker.x}%`,
+                          top: `${sticker.y}%`,
+                          transform: `translate(-50%, -50%) scale(${sticker.scale})`,
+                          fontSize: '2.5rem',
+                        }}
+                        onMouseDown={(e) => handleDragStart(sticker.id, e)}
+                        onTouchStart={(e) => handleDragStart(sticker.id, e)}
+                      >
+                        {sticker.emoji}
+                        <button
+                          className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 hover:opacity-100 transition-opacity"
+                          onClick={() => removeSticker(sticker.id)}
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                    {/* Text overlays */}
+                    {texts.map((text) => (
+                      <div
+                        key={text.id}
+                        className={`absolute cursor-move select-none font-bold text-lg transition-transform ${draggingId === text.id ? 'scale-110' : ''}`}
+                        style={{
+                          left: `${text.x}%`,
+                          top: `${text.y}%`,
+                          transform: 'translate(-50%, -50%)',
+                          color: text.color,
+                          textShadow: text.color === '#ffffff' ? '2px 2px 4px rgba(0,0,0,0.8)' : '2px 2px 4px rgba(255,255,255,0.8)',
+                        }}
+                        onMouseDown={(e) => handleDragStart(text.id, e)}
+                        onTouchStart={(e) => handleDragStart(text.id, e)}
+                      >
+                        {text.text}
+                        <button
+                          className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 hover:opacity-100 transition-opacity"
+                          onClick={() => removeText(text.id)}
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
                 <div className="text-center py-3 text-white">
                   <p className="font-bold text-lg">testD คนเทสต์ดีอยู่นี่จ้า</p>
@@ -302,31 +495,122 @@ export default function ShareAchievements() {
           onChange={handleFileUpload}
         />
 
-        {/* Frame Selection */}
+        {/* Editing Tools */}
         {capturedImage && (
           <div className="mb-6">
-            <p className="text-sm font-medium mb-3 text-muted-foreground">
-              {language === 'th' ? 'เลือกกรอบ' : 'Choose Frame'}
-            </p>
-            <div className="flex gap-3">
-              {FRAME_STYLES.map((frame) => (
-                <button
-                  key={frame.id}
-                  onClick={() => setSelectedFrame(frame.id)}
-                  className={`flex-1 p-3 rounded-xl ${frame.borderClass} transition-all ${
-                    selectedFrame === frame.id 
-                      ? 'ring-2 ring-offset-2 ring-foreground scale-105' 
-                      : 'opacity-70 hover:opacity-100'
-                  }`}
-                >
-                  <div className="bg-white rounded-lg py-2 text-center">
-                    <span className="text-xs font-medium text-foreground">
-                      {language === 'th' ? frame.nameTh : frame.name}
-                    </span>
-                  </div>
-                </button>
-              ))}
+            {/* Tab buttons */}
+            <div className="flex gap-2 mb-4">
+              <Button
+                variant={activeTab === 'frame' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setActiveTab('frame')}
+                className="flex-1 gap-2"
+              >
+                <Image className="h-4 w-4" />
+                {language === 'th' ? 'กรอบ' : 'Frame'}
+              </Button>
+              <Button
+                variant={activeTab === 'stickers' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setActiveTab('stickers')}
+                className="flex-1 gap-2"
+              >
+                <Smile className="h-4 w-4" />
+                {language === 'th' ? 'สติกเกอร์' : 'Stickers'}
+              </Button>
+              <Button
+                variant={activeTab === 'text' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setActiveTab('text')}
+                className="flex-1 gap-2"
+              >
+                <Type className="h-4 w-4" />
+                {language === 'th' ? 'ข้อความ' : 'Text'}
+              </Button>
             </div>
+
+            {/* Frame Selection */}
+            {activeTab === 'frame' && (
+              <div className="flex gap-3">
+                {FRAME_STYLES.map((frame) => (
+                  <button
+                    key={frame.id}
+                    onClick={() => setSelectedFrame(frame.id)}
+                    className={`flex-1 p-3 rounded-xl ${frame.borderClass} transition-all ${
+                      selectedFrame === frame.id 
+                        ? 'ring-2 ring-offset-2 ring-foreground scale-105' 
+                        : 'opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    <div className="bg-white rounded-lg py-2 text-center">
+                      <span className="text-xs font-medium text-foreground">
+                        {language === 'th' ? frame.nameTh : frame.name}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Stickers Selection */}
+            {activeTab === 'stickers' && (
+              <div>
+                <p className="text-xs text-muted-foreground mb-3 flex items-center gap-1">
+                  <Move className="h-3 w-3" />
+                  {language === 'th' ? 'แตะสติกเกอร์แล้วลากเพื่อย้าย' : 'Tap sticker then drag to move'}
+                </p>
+                <div className="grid grid-cols-6 gap-2">
+                  {STICKERS.map((sticker) => (
+                    <button
+                      key={sticker.id}
+                      onClick={() => addSticker(sticker.emoji)}
+                      className="aspect-square rounded-xl bg-muted hover:bg-muted/80 flex items-center justify-center text-2xl transition-all hover:scale-110 active:scale-95"
+                    >
+                      {sticker.emoji}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Text Input */}
+            {activeTab === 'text' && (
+              <div className="space-y-3">
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Move className="h-3 w-3" />
+                  {language === 'th' ? 'แตะข้อความแล้วลากเพื่อย้าย' : 'Tap text then drag to move'}
+                </p>
+                <div className="flex gap-2">
+                  <Input
+                    value={newText}
+                    onChange={(e) => setNewText(e.target.value)}
+                    placeholder={language === 'th' ? 'พิมพ์ข้อความ...' : 'Type text...'}
+                    className="flex-1"
+                    maxLength={30}
+                  />
+                  <Button onClick={addText} disabled={!newText.trim()}>
+                    {language === 'th' ? 'เพิ่ม' : 'Add'}
+                  </Button>
+                </div>
+                <div className="flex gap-2 items-center">
+                  <span className="text-xs text-muted-foreground">
+                    {language === 'th' ? 'สี:' : 'Color:'}
+                  </span>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {TEXT_COLORS.map((color) => (
+                      <button
+                        key={color}
+                        onClick={() => setSelectedTextColor(color)}
+                        className={`w-7 h-7 rounded-full border-2 transition-transform ${
+                          selectedTextColor === color ? 'scale-125 border-foreground' : 'border-transparent hover:scale-110'
+                        }`}
+                        style={{ backgroundColor: color, boxShadow: color === '#ffffff' ? 'inset 0 0 0 1px rgba(0,0,0,0.1)' : undefined }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
