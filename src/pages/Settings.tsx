@@ -9,11 +9,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { ThemeSelector } from "@/components/ThemeSelector";
+import { ProfileSettings } from "@/components/ProfileSettings";
 import { getUserData, setUserData, resetUserData } from "@/lib/store";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Bell, Pill, Clock, Shield, Trash2, Languages, Palette, User, LogOut, ShieldCheck, Loader2 } from "lucide-react";
+import { ArrowLeft, Bell, Pill, Clock, Shield, Trash2, Languages, Palette, User, LogOut, ShieldCheck, Loader2, UserCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 
@@ -121,6 +122,19 @@ export default function Settings() {
           <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('settings.title')}</h1>
         </div>
         
+        {/* Profile Settings */}
+        {user && (
+          <div className="mb-8">
+            <h2 className="mb-4 text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+              <UserCircle className="h-4 w-4" />
+              {language === 'th' ? 'โปรไฟล์' : 'Profile'}
+            </h2>
+            <div className="rounded-2xl bg-card border border-border/50 p-5">
+              <ProfileSettings />
+            </div>
+          </div>
+        )}
+
         {/* Account */}
         {user && (
           <div className="mb-8">
