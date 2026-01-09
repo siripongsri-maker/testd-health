@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/lib/i18n";
-import { ArrowLeft, Send, Upload, Loader2, X, Image, Sparkles, FileText, Clock, CheckCircle, XCircle, AlertCircle, ChevronDown, ChevronUp, Languages, Edit3, RefreshCw, Eye, User, Calendar, BookOpen } from "lucide-react";
+import { ArrowLeft, Send, Upload, Loader2, X, Image, Sparkles, FileText, Clock, CheckCircle, XCircle, AlertCircle, ChevronDown, ChevronUp, Languages, Edit3, RefreshCw, Eye, User, Calendar, BookOpen, ImagePlus } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -42,6 +42,11 @@ export default function WriteArticle() {
   const { user } = useAuth();
   const { t, language } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const contentImageInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingContentImage, setUploadingContentImage] = useState(false);
+  const [activeContentTab, setActiveContentTab] = useState<'th' | 'en'>('th');
+  const contentThRef = useRef<HTMLTextAreaElement>(null);
+  const contentEnRef = useRef<HTMLTextAreaElement>(null);
   
   const [categories, setCategories] = useState<Category[]>([]);
   const [myArticles, setMyArticles] = useState<MyArticle[]>([]);
@@ -199,6 +204,67 @@ export default function WriteArticle() {
       toast.error(error.message);
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleContentImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error(language === 'th' ? 'กรุณาเลือกไฟล์รูปภาพ' : 'Please select an image');
+      return;
+    }
+
+    setUploadingContentImage(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `content/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('blog-images')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('blog-images')
+        .getPublicUrl(fileName);
+
+      // Insert markdown image at cursor position or end
+      const imageMarkdown = `\n![${language === 'th' ? 'รูปภาพ' : 'Image'}](${publicUrl})\n`;
+      
+      if (activeContentTab === 'th') {
+        const textarea = contentThRef.current;
+        if (textarea) {
+          const start = textarea.selectionStart;
+          const end = textarea.selectionEnd;
+          const newContent = form.content_th.substring(0, start) + imageMarkdown + form.content_th.substring(end);
+          setForm({ ...form, content_th: newContent });
+        } else {
+          setForm({ ...form, content_th: form.content_th + imageMarkdown });
+        }
+      } else {
+        const textarea = contentEnRef.current;
+        if (textarea) {
+          const start = textarea.selectionStart;
+          const end = textarea.selectionEnd;
+          const newContent = form.content_en.substring(0, start) + imageMarkdown + form.content_en.substring(end);
+          setForm({ ...form, content_en: newContent });
+        } else {
+          setForm({ ...form, content_en: form.content_en + imageMarkdown });
+        }
+      }
+
+      toast.success(language === 'th' ? 'เพิ่มรูปภาพในเนื้อหาแล้ว' : 'Image added to content');
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setUploadingContentImage(false);
+      // Reset file input
+      if (contentImageInputRef.current) {
+        contentImageInputRef.current.value = '';
+      }
     }
   };
 
@@ -453,6 +519,47 @@ export default function WriteArticle() {
             {paragraph}
           </h3>
         );
+      }
+
+      // Handle markdown images ![alt](url)
+      const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+      if (imageRegex.test(paragraph)) {
+        const parts: React.ReactNode[] = [];
+        let lastIndex = 0;
+        let match;
+        const regex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+        
+        while ((match = regex.exec(paragraph)) !== null) {
+          // Add text before image
+          if (match.index > lastIndex) {
+            parts.push(
+              <span key={`text-${lastIndex}`}>
+                {paragraph.substring(lastIndex, match.index)}
+              </span>
+            );
+          }
+          // Add image
+          parts.push(
+            <img 
+              key={`img-${match.index}`}
+              src={match[2]} 
+              alt={match[1]} 
+              className="rounded-lg max-w-full my-4"
+            />
+          );
+          lastIndex = match.index + match[0].length;
+        }
+        
+        // Add remaining text
+        if (lastIndex < paragraph.length) {
+          parts.push(
+            <span key={`text-${lastIndex}`}>
+              {paragraph.substring(lastIndex)}
+            </span>
+          );
+        }
+        
+        return <div key={index} className="my-2">{parts}</div>;
       }
 
       return (
@@ -770,8 +877,17 @@ export default function WriteArticle() {
             </Select>
           </div>
 
+          {/* Hidden content image input */}
+          <input
+            ref={contentImageInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleContentImageUpload}
+            className="hidden"
+          />
+
           {/* Content Tabs */}
-          <Tabs defaultValue="th" className="w-full">
+          <Tabs defaultValue="th" className="w-full" onValueChange={(v) => setActiveContentTab(v as 'th' | 'en')}>
             <TabsList className="w-full">
               <TabsTrigger value="th" className="flex-1">🇹🇭 ไทย</TabsTrigger>
               <TabsTrigger value="en" className="flex-1">🇬🇧 English</TabsTrigger>
@@ -796,11 +912,29 @@ export default function WriteArticle() {
                 />
               </div>
               <div>
-                <Label className="mb-2 block">เนื้อหา *</Label>
+                <div className="flex items-center justify-between mb-2">
+                  <Label>เนื้อหา *</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => contentImageInputRef.current?.click()}
+                    disabled={uploadingContentImage}
+                    className="gap-1.5 h-8"
+                  >
+                    {uploadingContentImage ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <ImagePlus className="h-3.5 w-3.5" />
+                    )}
+                    {language === 'th' ? 'เพิ่มรูป' : 'Add Image'}
+                  </Button>
+                </div>
                 <Textarea
+                  ref={contentThRef}
                   value={form.content_th}
                   onChange={(e) => setForm({ ...form, content_th: e.target.value })}
-                  placeholder="เขียนเนื้อหาบทความ..."
+                  placeholder="เขียนเนื้อหาบทความ... (ใช้ ![alt](url) เพื่อเพิ่มรูปภาพ)"
                   rows={10}
                 />
               </div>
@@ -851,11 +985,29 @@ export default function WriteArticle() {
                 />
               </div>
               <div>
-                <Label className="mb-2 block">Content</Label>
+                <div className="flex items-center justify-between mb-2">
+                  <Label>Content</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => contentImageInputRef.current?.click()}
+                    disabled={uploadingContentImage}
+                    className="gap-1.5 h-8"
+                  >
+                    {uploadingContentImage ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <ImagePlus className="h-3.5 w-3.5" />
+                    )}
+                    Add Image
+                  </Button>
+                </div>
                 <Textarea
+                  ref={contentEnRef}
                   value={form.content_en}
                   onChange={(e) => setForm({ ...form, content_en: e.target.value })}
-                  placeholder="Article content (auto-translated)..."
+                  placeholder="Article content (auto-translated)... Use ![alt](url) to add images"
                   rows={10}
                 />
               </div>
