@@ -13,27 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-// Province to main postal code mapping
-const PROVINCE_POSTAL_CODES: Record<string, string> = {
-  "กรุงเทพมหานคร": "10100", "กระบี่": "81000", "กาญจนบุรี": "71000", "กาฬสินธุ์": "46000", "กำแพงเพชร": "62000",
-  "ขอนแก่น": "40000", "จันทบุรี": "22000", "ฉะเชิงเทรา": "24000", "ชลบุรี": "20000", "ชัยนาท": "17000",
-  "ชัยภูมิ": "36000", "ชุมพร": "86000", "เชียงราย": "57000", "เชียงใหม่": "50000", "ตรัง": "92000",
-  "ตราด": "23000", "ตาก": "63000", "นครนายก": "26000", "นครปฐม": "73000", "นครพนม": "48000",
-  "นครราชสีมา": "30000", "นครศรีธรรมราช": "80000", "นครสวรรค์": "60000", "นนทบุรี": "11000", "นราธิวาส": "96000",
-  "น่าน": "55000", "บึงกาฬ": "38000", "บุรีรัมย์": "31000", "ปทุมธานี": "12000", "ประจวบคีรีขันธ์": "77000",
-  "ปราจีนบุรี": "25000", "ปัตตานี": "94000", "พระนครศรีอยุธยา": "13000", "พังงา": "82000", "พัทลุง": "93000",
-  "พิจิตร": "66000", "พิษณุโลก": "65000", "เพชรบุรี": "76000", "เพชรบูรณ์": "67000", "แพร่": "54000",
-  "พะเยา": "56000", "ภูเก็ต": "83000", "มหาสารคาม": "44000", "มุกดาหาร": "49000", "แม่ฮ่องสอน": "58000",
-  "ยโสธร": "35000", "ยะลา": "95000", "ร้อยเอ็ด": "45000", "ระนอง": "85000", "ระยอง": "21000",
-  "ราชบุรี": "70000", "ลพบุรี": "15000", "ลำปาง": "52000", "ลำพูน": "51000", "เลย": "42000",
-  "ศรีสะเกษ": "33000", "สกลนคร": "47000", "สงขลา": "90000", "สตูล": "91000", "สมุทรปราการ": "10270",
-  "สมุทรสงคราม": "75000", "สมุทรสาคร": "74000", "สระแก้ว": "27000", "สระบุรี": "18000", "สิงห์บุรี": "16000",
-  "สุโขทัย": "64000", "สุพรรณบุรี": "72000", "สุราษฎร์ธานี": "84000", "สุรินทร์": "32000", "หนองคาย": "43000",
-  "หนองบัวลำภู": "39000", "อ่างทอง": "14000", "อุดรธานี": "41000", "อุทัยธานี": "61000", "อุตรดิตถ์": "53000",
-  "อุบลราชธานี": "34000", "อำนาจเจริญ": "37000"
-};
-
-const THAI_PROVINCES = Object.keys(PROVINCE_POSTAL_CODES);
+import { getProvinces, getDistricts, getSubdistricts, getPostalCode } from "@/lib/thailand-address";
 import { 
   TestTube, 
   Play, 
@@ -663,73 +643,90 @@ export default function HIVSelfTest() {
                   />
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="subdistrict">{language === 'th' ? 'แขวง/ตำบล' : 'Subdistrict'}</Label>
-                    <Input
-                      id="subdistrict"
-                      value={formData.subdistrict}
-                      onChange={(e) => setFormData(prev => ({ ...prev, subdistrict: e.target.value }))}
-                      placeholder={language === 'th' ? 'แขวง/ตำบล' : 'Subdistrict'}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="district">{language === 'th' ? 'เขต/อำเภอ' : 'District'}</Label>
-                    <Input
-                      id="district"
-                      value={formData.district}
-                      onChange={(e) => setFormData(prev => ({ ...prev, district: e.target.value }))}
-                      placeholder={language === 'th' ? 'เขต/อำเภอ' : 'District'}
-                      required
-                    />
-                  </div>
+                {/* Province */}
+                <div className="space-y-2">
+                  <Label htmlFor="province">{language === 'th' ? 'จังหวัด' : 'Province'}</Label>
+                  <Select
+                    value={formData.province}
+                    onValueChange={(value) => {
+                      setFormData(prev => ({ ...prev, province: value, district: "", subdistrict: "", postalCode: "" }));
+                    }}
+                    required
+                  >
+                    <SelectTrigger className="bg-background">
+                      <SelectValue placeholder={language === 'th' ? 'เลือกจังหวัด' : 'Select province'} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50 max-h-60">
+                      {getProvinces().map((province) => (
+                        <SelectItem key={province} value={province}>
+                          {province}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
+                  {/* District */}
                   <div className="space-y-2">
-                    <Label htmlFor="province">{language === 'th' ? 'จังหวัด' : 'Province'}</Label>
+                    <Label htmlFor="district">{language === 'th' ? 'เขต/อำเภอ' : 'District'}</Label>
                     <Select
-                      value={formData.province}
+                      value={formData.district}
                       onValueChange={(value) => {
-                        const postalCode = PROVINCE_POSTAL_CODES[value] || "";
-                        setFormData(prev => ({ ...prev, province: value, postalCode }));
+                        setFormData(prev => ({ ...prev, district: value, subdistrict: "", postalCode: "" }));
                       }}
+                      disabled={!formData.province}
                       required
                     >
                       <SelectTrigger className="bg-background">
-                        <SelectValue placeholder={language === 'th' ? 'เลือกจังหวัด' : 'Select province'} />
+                        <SelectValue placeholder={language === 'th' ? 'เลือกเขต/อำเภอ' : 'Select district'} />
                       </SelectTrigger>
                       <SelectContent className="bg-background z-50 max-h-60">
-                        {THAI_PROVINCES.map((province) => (
-                          <SelectItem key={province} value={province}>
-                            {province}
+                        {getDistricts(formData.province).map((district) => (
+                          <SelectItem key={district} value={district}>
+                            {district}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
+
+                  {/* Subdistrict */}
                   <div className="space-y-2">
-                    <Label htmlFor="postalCode">
-                      {language === 'th' ? 'รหัสไปรษณีย์' : 'Postal Code'}
-                      <a 
-                        href="https://www.thailandpost.co.th/un/zip" 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="ml-2 text-xs text-primary hover:underline"
-                      >
-                        🔍 {language === 'th' ? 'ค้นหา' : 'Lookup'}
-                      </a>
-                    </Label>
-                    <Input
-                      id="postalCode"
-                      value={formData.postalCode}
-                      onChange={(e) => setFormData(prev => ({ ...prev, postalCode: e.target.value.replace(/\D/g, '').slice(0, 5) }))}
-                      placeholder="10xxx"
-                      maxLength={5}
+                    <Label htmlFor="subdistrict">{language === 'th' ? 'แขวง/ตำบล' : 'Subdistrict'}</Label>
+                    <Select
+                      value={formData.subdistrict}
+                      onValueChange={(value) => {
+                        const postalCode = getPostalCode(formData.province, formData.district, value);
+                        setFormData(prev => ({ ...prev, subdistrict: value, postalCode }));
+                      }}
+                      disabled={!formData.district}
                       required
-                    />
+                    >
+                      <SelectTrigger className="bg-background">
+                        <SelectValue placeholder={language === 'th' ? 'เลือกแขวง/ตำบล' : 'Select subdistrict'} />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background z-50 max-h-60">
+                        {getSubdistricts(formData.province, formData.district).map((sub) => (
+                          <SelectItem key={sub.name} value={sub.name}>
+                            {sub.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
+                </div>
+
+                {/* Postal Code - Auto-generated */}
+                <div className="space-y-2">
+                  <Label htmlFor="postalCode">{language === 'th' ? 'รหัสไปรษณีย์' : 'Postal Code'}</Label>
+                  <Input
+                    id="postalCode"
+                    value={formData.postalCode}
+                    readOnly
+                    placeholder={language === 'th' ? 'จะแสดงอัตโนมัติ' : 'Auto-generated'}
+                    className="bg-muted"
+                  />
                 </div>
 
                 <div className="space-y-2">
