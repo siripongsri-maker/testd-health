@@ -674,6 +674,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      validate_thai_id: { Args: { thai_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
