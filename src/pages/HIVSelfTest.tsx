@@ -270,11 +270,35 @@ export default function HIVSelfTest() {
 
       if (error) throw error;
 
-      toast.success(
-        language === 'th' 
-          ? 'ส่งคำขอสำเร็จ! เจ้าหน้าที่จะติดต่อกลับ' 
-          : 'Request submitted! Staff will contact you.'
-      );
+      // Award 100 XP for requesting the kit
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('xp, level')
+        .eq('id', user.id)
+        .maybeSingle();
+      
+      if (profile) {
+        const currentXP = profile.xp || 0;
+        const newXP = currentXP + 100;
+        const newLevel = Math.floor(newXP / 500) + 1;
+        
+        await supabase
+          .from('profiles')
+          .update({ xp: newXP, level: newLevel })
+          .eq('id', user.id);
+        
+        toast.success(
+          language === 'th' 
+            ? `🎉 ได้รับ 100 XP! ส่งคำขอสำเร็จ` 
+            : `🎉 +100 XP! Request submitted!`
+        );
+      } else {
+        toast.success(
+          language === 'th' 
+            ? 'ส่งคำขอสำเร็จ! เจ้าหน้าที่จะติดต่อกลับ' 
+            : 'Request submitted! Staff will contact you.'
+        );
+      }
       
       setFormData({
         fullName: "",
@@ -377,13 +401,33 @@ export default function HIVSelfTest() {
   };
 
   const handleSubmitResult = async () => {
-    if (!activeRequest || !resultPhoto || !user) return;
+    if (!resultPhoto || !user) {
+      toast.error(language === 'th' ? 'กรุณาถ่ายรูปผลตรวจก่อน' : 'Please take a photo first');
+      return;
+    }
     
     setUploading(true);
     
     try {
+      let requestId = activeRequest?.id;
+      
+      // If no active request exists, create one for the result upload
+      if (!requestId) {
+        const { data: newRequest, error: createError } = await supabase
+          .from('hiv_selftest_requests')
+          .insert({
+            user_id: user.id,
+            status: 'result_submitted',
+          })
+          .select()
+          .single();
+        
+        if (createError) throw createError;
+        requestId = newRequest.id;
+      }
+      
       const fileExt = resultPhoto.name.split('.').pop();
-      const fileName = `${user.id}/${activeRequest.id}-${Date.now()}.${fileExt}`;
+      const fileName = `${user.id}/${requestId}-${Date.now()}.${fileExt}`;
       
       const { error: uploadError } = await supabase.storage
         .from('selftest-results')
@@ -398,13 +442,37 @@ export default function HIVSelfTest() {
           status: 'result_submitted',
           test_result: analysisResult
         })
-        .eq('id', activeRequest.id);
+        .eq('id', requestId);
 
-      toast.success(
-        language === 'th' 
-          ? 'ส่งผลตรวจสำเร็จ! เจ้าหน้าที่จะตรวจสอบ' 
-          : 'Result submitted! Staff will review.'
-      );
+      // Award 1000 XP for completing the test
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('xp, level')
+        .eq('id', user.id)
+        .maybeSingle();
+      
+      if (profile) {
+        const currentXP = profile.xp || 0;
+        const newXP = currentXP + 1000;
+        const newLevel = Math.floor(newXP / 500) + 1;
+        
+        await supabase
+          .from('profiles')
+          .update({ xp: newXP, level: newLevel })
+          .eq('id', user.id);
+        
+        toast.success(
+          language === 'th' 
+            ? `🎉 ได้รับ 1000 XP! ส่งผลตรวจสำเร็จ` 
+            : `🎉 +1000 XP! Result submitted!`
+        );
+      } else {
+        toast.success(
+          language === 'th' 
+            ? 'ส่งผลตรวจสำเร็จ! เจ้าหน้าที่จะตรวจสอบ' 
+            : 'Result submitted! Staff will review.'
+        );
+      }
       
       fetchRequests();
       // Reset for new test
@@ -560,6 +628,24 @@ export default function HIVSelfTest() {
             </Card>
           ) : (
             <form onSubmit={handleSubmitRequest} className="space-y-4">
+              {/* Privacy Assurance */}
+              <Card className="p-3 bg-primary/5 border-primary/20">
+                <div className="flex items-start gap-2">
+                  <span className="text-lg">🔒</span>
+                  <div>
+                    <p className="text-sm font-medium text-primary">
+                      {language === 'th' ? 'ความเป็นส่วนตัวของคุณได้รับการปกป้อง' : 'Your Privacy is Protected'}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {language === 'th' 
+                        ? 'ข้อมูลส่วนบุคคลของคุณจะไม่ถูกเชื่อมโยงกับสถานะใดๆ และเป็นความลับตามระเบียบของเรา แม้แต่ผู้ดูแลระบบก็ไม่สามารถเข้าถึงข้อมูลนี้ได้'
+                        : 'Your personal information will not be linked to any status and is kept confidential per our protocol. Even system administrators cannot access this information.'
+                      }
+                    </p>
+                  </div>
+                </div>
+              </Card>
+              
               <Card className="p-4 space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">

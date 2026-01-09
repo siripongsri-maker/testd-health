@@ -8,6 +8,7 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 import { Button } from "@/components/ui/button";
 import { HIVTestPopup } from "@/components/HIVTestPopup";
 import { AdminRequestsPopup } from "@/components/AdminRequestsPopup";
+import { RankingBoard } from "@/components/RankingBoard";
 import {
   TestTube,
   MessageCircle,
@@ -242,6 +243,11 @@ export default function Home() {
               variant={index === 0 ? 'featured' : 'default'}
             />
           ))}
+        </div>
+
+        {/* Ranking Board */}
+        <div className="mt-4">
+          <RankingBoard compact />
         </div>
 
         {/* Quick links */}
