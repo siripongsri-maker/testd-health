@@ -104,7 +104,9 @@ export default function HIVSelfTest() {
   // Timer state
   const [timerSeconds, setTimerSeconds] = useState(15 * 60); // 15 minutes
   const [timerActive, setTimerActive] = useState(false);
+  const [timerFinished, setTimerFinished] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const alarmRef = useRef<HTMLAudioElement | null>(null);
   
   // Photo & Analysis state
   const [resultPhoto, setResultPhoto] = useState<File | null>(null);
@@ -155,8 +157,13 @@ export default function HIVSelfTest() {
         setTimerSeconds(prev => {
           if (prev <= 1) {
             setTimerActive(false);
+            setTimerFinished(true);
             if (timerRef.current) clearInterval(timerRef.current);
-            toast.success(language === 'th' ? 'หมดเวลาแล้ว! พร้อมอ่านผล' : 'Time\'s up! Ready to read result');
+            // Play alarm sound
+            if (alarmRef.current) {
+              alarmRef.current.play().catch(() => {});
+            }
+            toast.success(language === 'th' ? 'ถึงเวลาอ่านผล' : 'Time to read result');
             return 0;
           }
           return prev - 1;
@@ -167,6 +174,14 @@ export default function HIVSelfTest() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [timerActive, language]);
+
+  // Stop alarm when leaving timer step
+  useEffect(() => {
+    if (currentStep !== 'timer' && alarmRef.current) {
+      alarmRef.current.pause();
+      alarmRef.current.currentTime = 0;
+    }
+  }, [currentStep]);
 
   const fetchRequests = async () => {
     if (!user) return;
@@ -923,71 +938,97 @@ export default function HIVSelfTest() {
     </div>
   );
 
-  // Step 5: Timer
+  // Step 5: Timer with YouTube video
   const renderTimerStep = () => (
     <div className="space-y-4 animate-fade-in">
+      {/* Hidden audio element for alarm */}
+      <audio 
+        ref={alarmRef} 
+        src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"
+        loop={false}
+      />
+      
       <Card className="p-6 text-center">
         <Timer className="h-12 w-12 text-primary mx-auto mb-4" />
         <h3 className="text-lg font-bold text-foreground mb-2">
-          {language === 'th' ? 'รอผลการตรวจ' : 'Waiting for Result'}
+          {timerFinished 
+            ? (language === 'th' ? 'ถึงเวลาอ่านผล' : 'Time to Read Result')
+            : (language === 'th' ? 'รอผลการตรวจ' : 'Waiting for Result')
+          }
         </h3>
-        <p className="text-muted-foreground mb-6">
-          {language === 'th' 
-            ? 'รอ 15 นาที ก่อนอ่านผล อย่าอ่านก่อนเวลา!'
-            : 'Wait 15 minutes before reading. Don\'t read early!'
+        <p className="text-muted-foreground mb-4">
+          {timerFinished
+            ? (language === 'th' ? 'สามารถอ่านผลได้แล้ว กดปุ่มด้านล่างเพื่อถ่ายรูป' : 'You can now read the result. Press button below to take photo')
+            : (language === 'th' ? 'รอ 15 นาที ก่อนอ่านผล อย่าอ่านก่อนเวลา!' : 'Wait 15 minutes before reading. Don\'t read early!')
           }
         </p>
 
-        <div className={`text-6xl font-mono font-bold mb-6 ${
-          timerSeconds <= 60 ? 'text-amber-500 animate-pulse' : 'text-foreground'
+        <div className={`text-6xl font-mono font-bold mb-4 ${
+          timerFinished ? 'text-success' : timerSeconds <= 60 ? 'text-amber-500 animate-pulse' : 'text-foreground'
         }`}>
-          {formatTime(timerSeconds)}
+          {timerFinished ? '✓' : formatTime(timerSeconds)}
         </div>
 
         <Progress value={((15 * 60 - timerSeconds) / (15 * 60)) * 100} className="mb-4" />
 
-        {timerSeconds === 0 ? (
+        {timerFinished ? (
           <div className="space-y-3">
             <div className="p-3 bg-success/10 rounded-lg border border-success/30">
               <CheckCircle2 className="h-8 w-8 text-success mx-auto mb-2" />
-              <p className="text-success font-medium">
-                {language === 'th' ? 'พร้อมอ่านผลแล้ว!' : 'Ready to read result!'}
+              <p className="text-success font-bold text-lg">
+                {language === 'th' ? 'ถึงเวลาอ่านผล' : 'Time to Read Result'}
               </p>
             </div>
-            <Button className="w-full gap-2" size="lg" onClick={() => setCurrentStep('photo-result')}>
+            <Button 
+              className="w-full gap-2" 
+              size="lg" 
+              onClick={() => {
+                if (alarmRef.current) {
+                  alarmRef.current.pause();
+                  alarmRef.current.currentTime = 0;
+                }
+                setCurrentStep('photo-result');
+              }}
+            >
               <Camera className="h-5 w-5" />
               {language === 'th' ? 'ถ่ายรูปผล' : 'Take Result Photo'}
             </Button>
           </div>
         ) : (
-          <div className="space-y-3">
-            <Button 
-              variant="outline" 
-              onClick={() => setTimerActive(!timerActive)}
-            >
-              {timerActive 
-                ? (language === 'th' ? '⏸️ หยุดชั่วคราว' : '⏸️ Pause') 
-                : (language === 'th' ? '▶️ เริ่มต่อ' : '▶️ Resume')
+          <>
+            {/* YouTube Video Embed while waiting */}
+            <Card className="p-3 mb-4 bg-muted/50">
+              <p className="text-sm text-muted-foreground mb-2">
+                {language === 'th' ? '🎬 ดูวิดีโอจาก SWING Thailand ระหว่างรอ' : '🎬 Watch SWING Thailand videos while waiting'}
+              </p>
+              <div className="aspect-video rounded-lg overflow-hidden">
+                <iframe
+                  className="w-full h-full"
+                  src="https://www.youtube.com/embed/?listType=user_uploads&list=SWINGThailandTH"
+                  title="SWING Thailand"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+              <a 
+                href="https://www.youtube.com/@SWINGThailandTH" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-xs text-primary hover:underline mt-2 inline-block"
+              >
+                {language === 'th' ? '🔗 ไปที่ช่อง YouTube' : '🔗 Visit YouTube Channel'}
+              </a>
+            </Card>
+            
+            <p className="text-xs text-muted-foreground">
+              {language === 'th' 
+                ? '⚠️ กรุณารอจนกว่าเวลาจะหมด ไม่สามารถข้ามได้'
+                : '⚠️ Please wait until timer ends. Cannot skip.'
               }
-            </Button>
-            <Button 
-              variant="ghost" 
-              className="w-full text-muted-foreground"
-              onClick={() => {
-                setTimerSeconds(0);
-                setTimerActive(false);
-              }}
-            >
-              {language === 'th' ? 'ข้ามไป (ไม่แนะนำ)' : 'Skip (not recommended)'}
-            </Button>
-          </div>
+            </p>
+          </>
         )}
       </Card>
-
-      <Button variant="outline" className="w-full" onClick={() => setCurrentStep('testing')}>
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        {language === 'th' ? 'กลับ' : 'Back'}
-      </Button>
     </div>
   );
 
