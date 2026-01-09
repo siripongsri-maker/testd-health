@@ -2,63 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 @layer base {
   :root {
-    /* Calming teal primary */
-    --primary: 174 58% 39%;
+    /* Modern teal primary - friendly and accessible */
+    --primary: 173 58% 39%;
     --primary-foreground: 0 0% 100%;
     
     /* Warm coral accent */
     --accent: 16 85% 66%;
     --accent-foreground: 0 0% 100%;
     
-    /* Soft backgrounds */
-    --background: 180 20% 98%;
-    --foreground: 220 20% 20%;
+    /* Clean, light backgrounds */
+    --background: 0 0% 98%;
+    --foreground: 222 47% 11%;
     
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 20%;
+    --card-foreground: 222 47% 11%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 20%;
+    --popover-foreground: 222 47% 11%;
     
-    --secondary: 180 15% 95%;
-    --secondary-foreground: 220 20% 30%;
+    --secondary: 210 20% 96%;
+    --secondary-foreground: 222 47% 11%;
     
-    --muted: 180 10% 92%;
-    --muted-foreground: 220 10% 45%;
+    --muted: 210 20% 94%;
+    --muted-foreground: 215 16% 47%;
     
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 180 15% 88%;
-    --input: 180 15% 88%;
-    --ring: 174 58% 39%;
+    --border: 214 20% 90%;
+    --input: 214 20% 90%;
+    --ring: 173 58% 39%;
     
-    --radius: 1rem;
+    --radius: 0.75rem;
     
-    /* Gamification colors */
-    --xp: 45 93% 58%;
-    --streak: 16 85% 66%;
-    --level: 174 58% 39%;
-    --success: 142 71% 45%;
+    /* Gamification colors - vibrant but friendly */
+    --xp: 45 93% 47%;
+    --streak: 25 95% 53%;
+    --level: 173 58% 39%;
+    --success: 142 76% 36%;
     --warning: 38 92% 50%;
     --urgent: 0 72% 51%;
     
-    /* Gradient tokens */
-    --gradient-primary: linear-gradient(135deg, hsl(174 58% 39%) 0%, hsl(180 50% 50%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(16 85% 66%) 0%, hsl(30 85% 60%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(180 20% 98%) 0%, hsl(174 30% 95%) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(180 15% 98%) 100%);
-    --gradient-xp: linear-gradient(90deg, hsl(45 93% 58%) 0%, hsl(38 92% 50%) 100%);
+    /* Modern gradient tokens */
+    --gradient-primary: linear-gradient(135deg, hsl(173 58% 39%) 0%, hsl(173 50% 50%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(16 85% 66%) 0%, hsl(25 85% 60%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(0 0% 98%) 0%, hsl(173 20% 97%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(210 20% 99%) 100%);
+    --gradient-xp: linear-gradient(90deg, hsl(45 93% 47%) 0%, hsl(38 92% 50%) 100%);
     
-    /* Shadows */
-    --shadow-soft: 0 4px 20px -4px hsl(174 58% 39% / 0.15);
-    --shadow-card: 0 2px 12px -2px hsl(220 20% 20% / 0.08);
-    --shadow-button: 0 4px 14px -3px hsl(174 58% 39% / 0.3);
+    /* Soft shadows */
+    --shadow-soft: 0 4px 20px -4px hsl(173 58% 39% / 0.12);
+    --shadow-card: 0 1px 3px 0 hsl(0 0% 0% / 0.05), 0 1px 2px -1px hsl(0 0% 0% / 0.05);
+    --shadow-button: 0 4px 14px -3px hsl(173 58% 39% / 0.25);
     
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -116,8 +115,8 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Nunito', sans-serif;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
   }
   
   html {
