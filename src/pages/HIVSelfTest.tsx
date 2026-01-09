@@ -341,58 +341,29 @@ export default function HIVSelfTest() {
     setAnalyzing(true);
     
     try {
-      // Call AI to analyze the test result image
-      const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'google/gemini-2.5-flash',
-          messages: [
-            {
-              role: 'user',
-              content: [
-                {
-                  type: 'text',
-                  text: `You are analyzing an Abbott Panbio HIV Self Test result. This is a blood-based rapid test with a result window showing two possible lines:
-- C line (Control line) - at the top position
-- T line (Test line) - at the bottom position
-
-CRITICAL INTERPRETATION RULES (follow exactly):
-
-1. POSITIVE (陽性): BOTH the C line AND T line are visible. The T line can be faint or strong - any visible line counts. Two lines visible = POSITIVE.
-
-2. NEGATIVE (陰性): ONLY the C line is visible. There is NO T line at all. One line at C position only = NEGATIVE.
-
-3. INVALID (無效): The C line is NOT visible, regardless of whether T line is visible or not. No C line = INVALID test.
-
-Look at the test cassette in the image carefully:
-- Check the C position (top) - is there a colored line?
-- Check the T position (bottom) - is there a colored line?
-
-Respond with ONLY one of these three words: "positive", "negative", or "invalid"
-
-Remember: Even a very faint T line still means POSITIVE. The C line MUST be visible for the test to be valid.`
-                },
-                {
-                  type: 'image_url',
-                  image_url: {
-                    url: photoPreview
-                  }
-                }
-              ]
-            }
-          ]
-        })
+      // Call edge function to analyze the test result image
+      const { data, error } = await supabase.functions.invoke('analyze-hiv-test', {
+        body: { imageBase64: photoPreview }
       });
 
-      const data = await response.json();
-      const resultText = data.choices?.[0]?.message?.content?.toLowerCase().trim();
+      if (error) {
+        throw error;
+      }
+
+      if (data?.error) {
+        if (data.error.includes('Rate limit')) {
+          toast.error(language === 'th' ? 'ระบบยุ่งอยู่ กรุณาลองใหม่อีกครั้ง' : 'System busy, please try again');
+        } else {
+          throw new Error(data.error);
+        }
+        return;
+      }
+
+      const result = data?.result;
       
-      if (resultText?.includes('negative')) {
+      if (result === 'negative') {
         setAnalysisResult('negative');
-      } else if (resultText?.includes('positive')) {
+      } else if (result === 'positive') {
         setAnalysisResult('positive');
       } else {
         setAnalysisResult('invalid');
