@@ -16,8 +16,10 @@ import {
   BookOpen,
   Settings,
   ShieldCheck,
-  Send,
+  ClipboardList,
   Users,
+  Eye,
+  Calendar,
 } from "lucide-react";
 import swingLogo from "@/assets/swing-logo.webp";
 
@@ -87,6 +89,17 @@ export default function Home() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingRequests, setPendingRequests] = useState(0);
   const [adminPopupOpen, setAdminPopupOpen] = useState(false);
+  const [totalSurveyViews, setTotalSurveyViews] = useState(0);
+
+  // Load survey views from localStorage
+  useEffect(() => {
+    const savedViews = localStorage.getItem('survey_views');
+    if (savedViews) {
+      const viewData = JSON.parse(savedViews) as Record<string, number>;
+      const total = Object.values(viewData).reduce((a, b) => a + b, 0);
+      setTotalSurveyViews(total);
+    }
+  }, []);
 
   useEffect(() => {
     setUserData(getUserData());
@@ -130,20 +143,17 @@ export default function Home() {
       path: "/hiv-selftest",
     },
     {
-      icon: (
-        <div className="flex flex-col items-center">
-          <img src={swingLogo} alt="SWING" className="h-12 object-contain" />
-        </div>
-      ),
-      titleTh: "เว็บไซต์",
-      titleEn: "WEBSITE",
-      path: "/swing",
+      icon: <Calendar className="h-full w-full" strokeWidth={1.5} />,
+      titleTh: "จองตรวจ",
+      titleEn: "BOOK APPOINTMENT",
+      path: "https://zerva.app/swingclinic",
+      external: true,
     },
     {
-      icon: <Send className="h-full w-full" strokeWidth={1.5} />,
-      titleTh: "ส่งผลตรวจ",
-      titleEn: "TEST RESULT",
-      path: "/hiv-selftest",
+      icon: <ClipboardList className="h-full w-full" strokeWidth={1.5} />,
+      titleTh: "แบบประเมิน",
+      titleEn: "SURVEYS",
+      path: "/surveys",
     },
     {
       icon: <Users className="h-full w-full" strokeWidth={1.5} />,
@@ -244,7 +254,13 @@ export default function Home() {
               icon={item.icon}
               titleTh={item.titleTh}
               titleEn={item.titleEn}
-              onClick={() => navigate(item.path)}
+              onClick={() => {
+                if ((item as any).external) {
+                  window.open(item.path, '_blank', 'noopener,noreferrer');
+                } else {
+                  navigate(item.path);
+                }
+              }}
               variant={index === 0 ? 'featured' : 'default'}
             />
           ))}
@@ -278,6 +294,17 @@ export default function Home() {
             {language === 'th' ? 'PrEP / PEP' : 'PrEP / PEP'}
           </Button>
         </div>
+
+        {/* Total Survey Views */}
+        {totalSurveyViews > 0 && (
+          <div className="mt-6 flex items-center justify-center gap-2 bg-card/60 backdrop-blur-sm rounded-full py-2 px-4 w-fit mx-auto">
+            <Eye className="h-4 w-4 text-primary" />
+            <span className="text-sm text-muted-foreground">
+              {language === 'th' ? 'ผู้เข้าชมสะสม' : 'Total visitors'}:
+            </span>
+            <span className="font-bold text-primary">{totalSurveyViews.toLocaleString()}</span>
+          </div>
+        )}
 
         {/* Footer */}
         <footer className="mt-8 text-center space-y-2 pb-8">
