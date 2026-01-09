@@ -5,10 +5,26 @@ import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Eye, Calendar, User, Loader2, BookOpen } from "lucide-react";
+import { ArrowLeft, Eye, Calendar, User, Loader2, BookOpen, Youtube } from "lucide-react";
 import { format } from "date-fns";
 import { ArticleLikeButton } from "@/components/ArticleLikeButton";
 import { ArticleComments } from "@/components/ArticleComments";
+
+// Helper to extract YouTube video ID from various URL formats
+const extractYouTubeVideoId = (url: string): string | null => {
+  if (!url) return null;
+  
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)([^&\n?#]+)/,
+    /^([a-zA-Z0-9_-]{11})$/ // Direct video ID
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) return match[1];
+  }
+  return null;
+};
 
 interface Article {
   id: string;
@@ -26,6 +42,7 @@ interface Article {
   like_count: number;
   published_at: string | null;
   category_id: string | null;
+  video_url: string | null;
 }
 
 interface Category {
@@ -221,6 +238,47 @@ export default function InfoArticle() {
                   );
                 }
 
+                // Handle markdown images ![alt](url)
+                const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+                if (imageRegex.test(paragraph)) {
+                  const parts: React.ReactNode[] = [];
+                  let lastIndex = 0;
+                  let match;
+                  const regex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+                  
+                  while ((match = regex.exec(paragraph)) !== null) {
+                    // Add text before image
+                    if (match.index > lastIndex) {
+                      parts.push(
+                        <span key={`text-${lastIndex}`}>
+                          {paragraph.substring(lastIndex, match.index)}
+                        </span>
+                      );
+                    }
+                    // Add image
+                    parts.push(
+                      <img 
+                        key={`img-${match.index}`}
+                        src={match[2]} 
+                        alt={match[1]} 
+                        className="rounded-lg max-w-full my-4"
+                      />
+                    );
+                    lastIndex = match.index + match[0].length;
+                  }
+                  
+                  // Add remaining text
+                  if (lastIndex < paragraph.length) {
+                    parts.push(
+                      <span key={`text-${lastIndex}`}>
+                        {paragraph.substring(lastIndex)}
+                      </span>
+                    );
+                  }
+                  
+                  return <div key={index} className="my-2">{parts}</div>;
+                }
+
                 return (
                   <p key={index} className="text-foreground leading-relaxed mb-4">
                     {paragraph}
@@ -234,6 +292,29 @@ export default function InfoArticle() {
             )}
           </div>
         </div>
+
+        {/* YouTube Video */}
+        {article.video_url && extractYouTubeVideoId(article.video_url) && (
+          <div className="mt-6 space-y-3">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Youtube className="h-5 w-5 text-red-500" />
+              <span className="text-sm font-medium">
+                {language === 'th' ? 'วิดีโอประกอบ' : 'Featured Video'}
+              </span>
+            </div>
+            <div className="rounded-2xl overflow-hidden border border-border shadow-card">
+              <div className="aspect-video">
+                <iframe
+                  src={`https://www.youtube.com/embed/${extractYouTubeVideoId(article.video_url)}?autoplay=1&mute=1`}
+                  title="YouTube video"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Comments Section */}
         <ArticleComments articleId={article.id} />
