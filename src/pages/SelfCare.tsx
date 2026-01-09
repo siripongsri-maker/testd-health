@@ -6,8 +6,7 @@ import { useLanguage } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
-import { TestTube, Heart, Shield, ExternalLink, Bell, Package, ArrowRight, Loader2, RefreshCw } from "lucide-react";
+import { TestTube, Heart, Shield, ExternalLink, Bell, Package, ArrowRight, Loader2, RefreshCw, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -61,11 +60,6 @@ const SELF_CARE_ITEMS: SelfCareItem[] = [
     link: 'https://shopee.co.th/swingthailand/55553565341',
   },
 ];
-
-interface Reminder {
-  reminder_type: string;
-  enabled: boolean;
-}
 
 export default function SelfCare() {
   const { t, language } = useLanguage();
@@ -183,12 +177,12 @@ export default function SelfCare() {
 
         {/* HIV Self-Test Kit Banner */}
         <Card 
-          className="p-4 mb-6 cursor-pointer bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 hover:border-primary/40 transition-colors"
+          className="p-5 mb-6 cursor-pointer bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/20 hover:border-primary/40 hover:shadow-lg transition-all duration-200 rounded-2xl"
           onClick={() => navigate('/hiv-selftest')}
         >
           <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-primary/20">
-              <TestTube className="h-7 w-7 text-primary" />
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/20">
+              <TestTube className="h-7 w-7 text-primary-foreground" />
             </div>
             <div className="flex-1">
               <h3 className="font-bold text-foreground">
@@ -202,8 +196,10 @@ export default function SelfCare() {
           </div>
         </Card>
 
+        {/* Products Header */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-medium text-muted-foreground">
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+            <Sparkles className="h-4 w-4" />
             {language === 'th' ? 'สินค้าแนะนำ' : 'Recommended Products'}
           </h2>
           <Button
@@ -211,21 +207,26 @@ export default function SelfCare() {
             size="sm"
             onClick={() => fetchShopeeImages(true)}
             disabled={imagesLoading}
-            className="gap-2"
+            className="gap-2 rounded-lg text-xs"
           >
-            <RefreshCw className={`h-4 w-4 ${imagesLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-3.5 w-3.5 ${imagesLoading ? 'animate-spin' : ''}`} />
             {language === 'th' ? 'รีเฟรช' : 'Refresh'}
           </Button>
         </div>
 
+        {/* Product Cards */}
         <div className="space-y-4 mb-8">
-          {SELF_CARE_ITEMS.map((item) => (
-            <Card key={item.id} className="overflow-hidden">
+          {SELF_CARE_ITEMS.map((item, index) => (
+            <Card 
+              key={item.id} 
+              className="overflow-hidden rounded-2xl border-border/50 hover:shadow-lg transition-all duration-200 animate-fade-in"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
               <div className="flex">
-                <div className="w-28 h-28 shrink-0 bg-muted relative">
+                <div className="w-28 h-28 shrink-0 bg-muted/30 relative overflow-hidden">
                   {imagesLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-muted">
-                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-muted/50 backdrop-blur-sm">
+                      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                     </div>
                   )}
                   <img 
@@ -236,7 +237,7 @@ export default function SelfCare() {
                 </div>
                 <div className="flex-1 p-4 flex flex-col justify-between">
                   <div>
-                    <h3 className="font-bold text-foreground text-sm">
+                    <h3 className="font-semibold text-foreground text-sm">
                       {language === 'th' ? item.titleTh : item.titleEn}
                     </h3>
                     <p className="text-xs text-muted-foreground mt-1">
@@ -247,9 +248,9 @@ export default function SelfCare() {
                     variant="outline"
                     size="sm"
                     onClick={() => openLink(item.link)}
-                    className="gap-2 w-fit mt-2"
+                    className="gap-2 w-fit mt-3 rounded-lg text-xs h-8"
                   >
-                    <Package className="h-4 w-4" />
+                    <Package className="h-3.5 w-3.5" />
                     {t('selfCare.orderNow')}
                     <ExternalLink className="h-3 w-3" />
                   </Button>
@@ -259,17 +260,15 @@ export default function SelfCare() {
           ))}
         </div>
 
-        <Separator className="my-6" />
-
         {/* Reminders */}
         <div>
-          <div className="flex items-center gap-2 mb-4">
-            <Bell className="h-5 w-5 text-primary" />
-            <h2 className="text-lg font-bold text-foreground">{t('selfCare.reminders')}</h2>
-          </div>
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2 mb-4">
+            <Bell className="h-4 w-4" />
+            {t('selfCare.reminders')}
+          </h2>
 
-          <Card className="divide-y divide-border">
-            <div className="flex items-center justify-between p-4">
+          <Card className="divide-y divide-border/50 rounded-2xl border-border/50">
+            <div className="flex items-center justify-between p-5">
               <div>
                 <p className="font-medium text-foreground">{t('selfCare.hivTestReminder')}</p>
                 <p className="text-sm text-muted-foreground">{t('selfCare.hivTestReminderDesc')}</p>
@@ -279,7 +278,7 @@ export default function SelfCare() {
                 onCheckedChange={(v) => toggleReminder('hiv_test', v)}
               />
             </div>
-            <div className="flex items-center justify-between p-4">
+            <div className="flex items-center justify-between p-5">
               <div>
                 <p className="font-medium text-foreground">{t('selfCare.condomReminder')}</p>
                 <p className="text-sm text-muted-foreground">{t('selfCare.condomReminderDesc')}</p>
@@ -289,7 +288,7 @@ export default function SelfCare() {
                 onCheckedChange={(v) => toggleReminder('condom_refill', v)}
               />
             </div>
-            <div className="flex items-center justify-between p-4">
+            <div className="flex items-center justify-between p-5">
               <div>
                 <p className="font-medium text-foreground">{t('selfCare.harmReductionReminder')}</p>
                 <p className="text-sm text-muted-foreground">{t('selfCare.harmReductionReminderDesc')}</p>
