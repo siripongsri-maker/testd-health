@@ -246,7 +246,10 @@ export default function Home() {
         </div>
 
         {/* Ranking Board */}
-        <div className="mt-4">
+        <div 
+          className="mt-4 cursor-pointer hover:opacity-90 transition-opacity" 
+          onClick={() => navigate("/leaderboard")}
+        >
           <RankingBoard compact />
         </div>
 
