@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/lib/i18n";
-import { ArrowLeft, Send, Upload, Loader2, X, Image, Sparkles, FileText, Clock, CheckCircle, XCircle, AlertCircle, ChevronDown, ChevronUp, Languages, Edit3, RefreshCw } from "lucide-react";
+import { ArrowLeft, Send, Upload, Loader2, X, Image, Sparkles, FileText, Clock, CheckCircle, XCircle, AlertCircle, ChevronDown, ChevronUp, Languages, Edit3, RefreshCw, Eye, User, Calendar, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -53,6 +53,7 @@ export default function WriteArticle() {
   const [expandedFeedback, setExpandedFeedback] = useState<string | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
   
   const [form, setForm] = useState({
     title_en: '',
@@ -411,46 +412,191 @@ export default function WriteArticle() {
     );
   }
 
+  // Helper to get selected category info
+  const selectedCategory = categories.find(c => c.id === form.category_id);
+
+  // Render article content for preview
+  const renderContent = (content: string | null) => {
+    if (!content) {
+      return (
+        <p className="text-muted-foreground italic">
+          {language === 'th' ? 'ไม่มีเนื้อหา' : 'No content available'}
+        </p>
+      );
+    }
+
+    return content.split("\n\n").map((paragraph, index) => {
+      // Handle bullet points
+      if (paragraph.includes("\n•") || paragraph.startsWith("•")) {
+        const lines = paragraph.split("\n");
+        return (
+          <div key={index} className="my-4">
+            {lines.map((line, i) => {
+              if (line.startsWith("•")) {
+                return (
+                  <div key={i} className="flex items-start gap-2 text-foreground my-1">
+                    <span className="text-primary mt-0.5">•</span>
+                    <span>{line.replace("• ", "")}</span>
+                  </div>
+                );
+              }
+              return <p key={i} className="font-semibold text-foreground mb-2">{line}</p>;
+            })}
+          </div>
+        );
+      }
+      
+      // Handle headings (lines ending with :)
+      if (paragraph.endsWith(":") || paragraph.match(/^[A-Z].*:$/m)) {
+        return (
+          <h3 key={index} className="text-lg font-bold text-foreground mt-6 mb-3">
+            {paragraph}
+          </h3>
+        );
+      }
+
+      return (
+        <p key={index} className="text-foreground leading-relaxed mb-4">
+          {paragraph}
+        </p>
+      );
+    });
+  };
+
   return (
     <>
       <PageContainer className="pb-8">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <Button variant="ghost" size="icon" onClick={() => isEditMode ? cancelEditing() : navigate('/info')} className="rounded-xl">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-xl font-bold text-foreground">
-              {isEditMode 
-                ? (language === 'th' ? 'แก้ไขบทความ' : 'Edit Article')
-                : (language === 'th' ? 'เขียนบทความ' : 'Write Article')
-              }
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              {isEditMode
-                ? (language === 'th' ? 'แก้ไขและส่งใหม่เพื่อตรวจสอบ' : 'Edit and resubmit for review')
-                : (language === 'th' ? 'แชร์ความรู้กับชุมชน' : 'Share knowledge with the community')
-              }
-            </p>
-          </div>
-        </div>
-
-        {/* Info Banner */}
-        <div className="rounded-xl bg-primary/10 border border-primary/20 p-4 mb-6">
-          <div className="flex items-start gap-3">
-            <Sparkles className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" onClick={() => showPreview ? setShowPreview(false) : (isEditMode ? cancelEditing() : navigate('/info'))} className="rounded-xl">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
             <div>
-              <p className="text-sm font-medium text-foreground">
-                {language === 'th' ? 'รับ 100 XP เมื่อบทความได้รับการเผยแพร่!' : 'Earn 100 XP when your article is published!'}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {language === 'th' 
-                  ? 'เขียนภาษาไทยแล้วกดแปลเป็นภาษาอังกฤษอัตโนมัติได้' 
-                  : 'Write in Thai and auto-translate to English'}
+              <h1 className="text-xl font-bold text-foreground">
+                {showPreview 
+                  ? (language === 'th' ? 'ตัวอย่างบทความ' : 'Article Preview')
+                  : isEditMode 
+                    ? (language === 'th' ? 'แก้ไขบทความ' : 'Edit Article')
+                    : (language === 'th' ? 'เขียนบทความ' : 'Write Article')
+                }
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                {showPreview
+                  ? (language === 'th' ? 'ดูตัวอย่างก่อนส่ง' : 'Preview before submitting')
+                  : isEditMode
+                    ? (language === 'th' ? 'แก้ไขและส่งใหม่เพื่อตรวจสอบ' : 'Edit and resubmit for review')
+                    : (language === 'th' ? 'แชร์ความรู้กับชุมชน' : 'Share knowledge with the community')
+                }
               </p>
             </div>
           </div>
+          {/* Preview Toggle Button */}
+          {!showPreview && (form.title_th || form.content_th) && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowPreview(true)}
+              className="gap-2"
+            >
+              <Eye className="h-4 w-4" />
+              {language === 'th' ? 'ดูตัวอย่าง' : 'Preview'}
+            </Button>
+          )}
         </div>
+
+        {/* Preview Mode */}
+        {showPreview ? (
+          <div className="space-y-6">
+            {/* Category Badge */}
+            {selectedCategory && (
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium w-fit">
+                <span>{selectedCategory.icon}</span>
+                <span>{language === 'th' ? selectedCategory.name_th : selectedCategory.name_en}</span>
+              </div>
+            )}
+
+            {/* Cover Image Preview */}
+            {form.cover_url && (
+              <div className="-mx-4 sm:mx-0">
+                <img
+                  src={form.cover_url}
+                  alt={form.title_th || form.title_en}
+                  className="w-full h-48 sm:h-64 object-cover sm:rounded-2xl"
+                />
+              </div>
+            )}
+
+            {/* Title */}
+            <h1 className="text-2xl font-bold text-foreground leading-tight">
+              {language === 'th' ? (form.title_th || form.title_en) : (form.title_en || form.title_th)}
+            </h1>
+
+            {/* Meta Info */}
+            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <User className="h-4 w-4" />
+                <span>{user?.email?.split('@')[0] || 'Author'}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Calendar className="h-4 w-4" />
+                <span>{format(new Date(), 'MMM d, yyyy')}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Eye className="h-4 w-4" />
+                <span>0 {language === 'th' ? 'ครั้ง' : 'views'}</span>
+              </div>
+            </div>
+
+            {/* Content Preview */}
+            <div className="rounded-2xl bg-card border border-border p-6 shadow-card">
+              <div className="prose prose-sm max-w-none dark:prose-invert">
+                {renderContent(language === 'th' ? (form.content_th || form.content_en) : (form.content_en || form.content_th))}
+              </div>
+            </div>
+
+            {/* Preview Actions */}
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowPreview(false)}
+                className="flex-1 gap-2"
+              >
+                <Edit3 className="h-4 w-4" />
+                {language === 'th' ? 'กลับไปแก้ไข' : 'Back to Edit'}
+              </Button>
+              <Button
+                onClick={submitArticle}
+                disabled={isSaving || isTranslating}
+                className="flex-1 gap-2"
+              >
+                {(isSaving || isTranslating) ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+                {language === 'th' ? 'ส่งบทความ' : 'Submit Article'}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Info Banner */}
+            <div className="rounded-xl bg-primary/10 border border-primary/20 p-4 mb-6">
+              <div className="flex items-start gap-3">
+                <Sparkles className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-foreground">
+                    {language === 'th' ? 'รับ 100 XP เมื่อบทความได้รับการเผยแพร่!' : 'Earn 100 XP when your article is published!'}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {language === 'th' 
+                      ? 'เขียนภาษาไทยแล้วกดแปลเป็นภาษาอังกฤษอัตโนมัติได้' 
+                      : 'Write in Thai and auto-translate to English'}
+                  </p>
+                </div>
+              </div>
+            </div>
 
         {/* My Articles Section - Hide when in edit mode */}
         {!isEditMode && myArticles.length > 0 && (
@@ -750,6 +896,8 @@ export default function WriteArticle() {
             </Button>
           )}
         </div>
+          </>
+        )}
       </PageContainer>
       <BottomNav />
     </>
