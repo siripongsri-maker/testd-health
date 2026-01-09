@@ -12,8 +12,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/lib/i18n";
-import { ArrowLeft, Send, Upload, Loader2, X, Image, Sparkles } from "lucide-react";
+import { ArrowLeft, Send, Upload, Loader2, X, Image, Sparkles, FileText, Clock, CheckCircle, XCircle, AlertCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface Category {
   id: string;
@@ -23,6 +25,16 @@ interface Category {
   icon: string;
 }
 
+interface MyArticle {
+  id: string;
+  title_en: string;
+  title_th: string;
+  status: 'draft' | 'pending_review' | 'published' | 'archived';
+  rejection_feedback: string | null;
+  created_at: string;
+  published_at: string | null;
+}
+
 export default function WriteArticle() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -30,9 +42,12 @@ export default function WriteArticle() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [categories, setCategories] = useState<Category[]>([]);
+  const [myArticles, setMyArticles] = useState<MyArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [showMyArticles, setShowMyArticles] = useState(true);
+  const [expandedFeedback, setExpandedFeedback] = useState<string | null>(null);
   
   const [form, setForm] = useState({
     title_en: '',
@@ -46,21 +61,66 @@ export default function WriteArticle() {
   });
 
   useEffect(() => {
-    loadCategories();
-  }, []);
+    loadData();
+  }, [user]);
 
-  const loadCategories = async () => {
+  const loadData = async () => {
     try {
-      const { data } = await supabase
+      // Load categories
+      const { data: catData } = await supabase
         .from('blog_categories')
         .select('id, slug, name_en, name_th, icon')
         .order('display_order');
       
-      if (data) setCategories(data);
+      if (catData) setCategories(catData);
+
+      // Load user's articles if logged in
+      if (user) {
+        const { data: articlesData } = await supabase
+          .from('blog_articles')
+          .select('id, title_en, title_th, status, rejection_feedback, created_at, published_at')
+          .eq('author_id', user.id)
+          .order('created_at', { ascending: false });
+        
+        if (articlesData) setMyArticles(articlesData as MyArticle[]);
+      }
     } catch (error) {
-      console.error('Error loading categories:', error);
+      console.error('Error loading data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getStatusInfo = (status: string) => {
+    switch (status) {
+      case 'pending_review':
+        return { 
+          icon: Clock, 
+          color: 'text-amber-500', 
+          bg: 'bg-amber-500/10',
+          label: language === 'th' ? 'รอตรวจสอบ' : 'Pending Review' 
+        };
+      case 'published':
+        return { 
+          icon: CheckCircle, 
+          color: 'text-emerald-500', 
+          bg: 'bg-emerald-500/10',
+          label: language === 'th' ? 'เผยแพร่แล้ว' : 'Published' 
+        };
+      case 'archived':
+        return { 
+          icon: XCircle, 
+          color: 'text-destructive', 
+          bg: 'bg-destructive/10',
+          label: language === 'th' ? 'ถูกปฏิเสธ' : 'Rejected' 
+        };
+      default:
+        return { 
+          icon: FileText, 
+          color: 'text-muted-foreground', 
+          bg: 'bg-muted',
+          label: language === 'th' ? 'แบบร่าง' : 'Draft' 
+        };
     }
   };
 
@@ -232,6 +292,99 @@ export default function WriteArticle() {
             </div>
           </div>
         </div>
+
+        {/* My Articles Section */}
+        {myArticles.length > 0 && (
+          <div className="mb-6">
+            <button
+              onClick={() => setShowMyArticles(!showMyArticles)}
+              className="w-full flex items-center justify-between p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium text-foreground">
+                  {language === 'th' ? 'บทความของฉัน' : 'My Articles'} ({myArticles.length})
+                </span>
+              </div>
+              {showMyArticles ? (
+                <ChevronUp className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              )}
+            </button>
+
+            {showMyArticles && (
+              <div className="mt-3 space-y-2">
+                {myArticles.map((article) => {
+                  const statusInfo = getStatusInfo(article.status);
+                  const StatusIcon = statusInfo.icon;
+                  const hasRejectionFeedback = article.status === 'archived' && article.rejection_feedback;
+                  const isExpanded = expandedFeedback === article.id;
+
+                  return (
+                    <div 
+                      key={article.id}
+                      className="rounded-xl border border-border/50 bg-card overflow-hidden"
+                    >
+                      <div className="p-3">
+                        <div className="flex items-start gap-3">
+                          <div className={cn("p-2 rounded-lg flex-shrink-0", statusInfo.bg)}>
+                            <StatusIcon className={cn("h-4 w-4", statusInfo.color)} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-foreground text-sm line-clamp-1">
+                              {language === 'th' ? article.title_th : article.title_en}
+                            </h4>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className={cn("text-xs font-medium", statusInfo.color)}>
+                                {statusInfo.label}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                • {format(new Date(article.created_at), 'MMM d, yyyy')}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Rejection Feedback Toggle */}
+                        {hasRejectionFeedback && (
+                          <button
+                            onClick={() => setExpandedFeedback(isExpanded ? null : article.id)}
+                            className="mt-3 w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-destructive/10 text-destructive text-sm hover:bg-destructive/20 transition-colors"
+                          >
+                            <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                            <span className="flex-1 text-left font-medium">
+                              {language === 'th' ? 'ดูเหตุผลที่ถูกปฏิเสธ' : 'View rejection reason'}
+                            </span>
+                            {isExpanded ? (
+                              <ChevronUp className="h-4 w-4" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4" />
+                            )}
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Expanded Feedback */}
+                      {hasRejectionFeedback && isExpanded && (
+                        <div className="px-4 pb-4">
+                          <div className="p-3 rounded-lg bg-destructive/5 border border-destructive/20">
+                            <p className="text-sm text-foreground font-medium mb-1">
+                              {language === 'th' ? 'เหตุผลจากผู้ดูแล:' : 'Admin feedback:'}
+                            </p>
+                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                              {article.rejection_feedback}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="space-y-6">
           {/* Cover Image */}
