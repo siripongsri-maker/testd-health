@@ -6,21 +6,46 @@ import { StatCard } from "@/components/StatCard";
 import { BadgeComponent } from "@/components/Badge";
 import { getUserData, getXPForLevel } from "@/lib/store";
 import { useLanguage } from "@/lib/i18n";
-import { Zap, Flame, Star, Award, Pill, Shield, Calendar } from "lucide-react";
+import { BADGE_DEFINITIONS, getBadgesByCategory, type BadgeCheckData } from "@/lib/badges";
+import { Zap, Flame, Award } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Progress() {
   const { t } = useLanguage();
   const userData = getUserData();
   const xpInfo = getXPForLevel(userData.level);
 
-  const allBadges = [
-    { id: "Started PrEP Journey", name: t('badge.startedPrep'), icon: Pill },
-    { id: "7 Day Streak", name: t('badge.7dayStreak'), icon: Flame },
-    { id: "PEP Warrior", name: t('badge.pepWarrior'), icon: Shield },
-    { id: "Completed PEP", name: t('badge.completedPep'), icon: Award },
-    { id: "30 Day Streak", name: t('badge.30dayStreak'), icon: Calendar },
-    { id: "Level 5", name: t('badge.level5'), icon: Star },
-  ];
+  // Build badge check data from user data
+  const badgeCheckData: BadgeCheckData = {
+    mode: userData.mode,
+    xp: userData.xp,
+    level: userData.level,
+    streak: userData.streak,
+    badges: userData.badges,
+    checkInsCount: Object.keys(userData.checkIns).filter(k => userData.checkIns[k] === 'taken').length,
+    pepCompleted: userData.badges.includes('completed_pep'),
+    hivTestCompleted: userData.badges.includes('first_test'),
+    articlesRead: 0, // Would need to track this
+    daysActive: Object.keys(userData.checkIns).length,
+  };
+
+  const categories = [
+    { key: 'all', label: t('badge.category.all') || 'All' },
+    { key: 'prevention', label: t('badge.category.prevention') },
+    { key: 'streak', label: t('badge.category.streak') },
+    { key: 'milestone', label: t('badge.category.milestone') },
+    { key: 'testing', label: t('badge.category.testing') },
+    { key: 'engagement', label: t('badge.category.engagement') },
+  ] as const;
+
+  const getBadgesForCategory = (category: string) => {
+    if (category === 'all') return BADGE_DEFINITIONS;
+    return getBadgesByCategory(category as any);
+  };
+
+  const earnedCount = BADGE_DEFINITIONS.filter(badge => 
+    badge.checkCriteria(badgeCheckData)
+  ).length;
 
   return (
     <>
@@ -30,7 +55,7 @@ export default function Progress() {
         <div className="mb-6 rounded-2xl bg-card border border-border p-6 shadow-card animate-scale-in">
           <div className="flex items-center gap-4 mb-4">
             <div className="flex h-16 w-16 items-center justify-center rounded-full gradient-primary shadow-soft">
-              <Star className="h-8 w-8 text-primary-foreground" />
+              <Award className="h-8 w-8 text-primary-foreground" />
             </div>
             <div>
               <p className="text-sm text-muted-foreground">{t('progress.currentLevel')}</p>
@@ -46,7 +71,7 @@ export default function Progress() {
         <div className="mb-8 grid grid-cols-3 gap-3">
           <StatCard icon={Zap} label={t('stats.totalXp')} value={userData.xp} variant="xp" />
           <StatCard icon={Flame} label={t('stats.streak')} value={userData.streak} variant="streak" />
-          <StatCard icon={Award} label={t('stats.badges')} value={userData.badges.length} variant="level" />
+          <StatCard icon={Award} label={t('stats.badges')} value={`${earnedCount}/${BADGE_DEFINITIONS.length}`} variant="level" />
         </div>
         
         <div className="animate-slide-up">
@@ -54,11 +79,39 @@ export default function Progress() {
             <Award className="h-5 w-5 text-primary" />
             {t('progress.achievements')}
           </h2>
-          <div className="grid grid-cols-3 gap-3">
-            {allBadges.map((badge) => (
-              <BadgeComponent key={badge.id} icon={badge.icon} name={badge.name} earned={userData.badges.includes(badge.id)} />
+          
+          <Tabs defaultValue="all" className="w-full">
+            <TabsList className="w-full mb-4 flex-wrap h-auto gap-1">
+              {categories.map(cat => (
+                <TabsTrigger 
+                  key={cat.key} 
+                  value={cat.key}
+                  className="text-xs px-3 py-1.5"
+                >
+                  {cat.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+            
+            {categories.map(cat => (
+              <TabsContent key={cat.key} value={cat.key}>
+                <div className="grid grid-cols-3 gap-3">
+                  {getBadgesForCategory(cat.key).map((badge) => {
+                    const isEarned = badge.checkCriteria(badgeCheckData);
+                    return (
+                      <BadgeComponent 
+                        key={badge.id} 
+                        icon={badge.icon} 
+                        name={t(badge.nameKey)} 
+                        description={t(badge.descriptionKey)}
+                        earned={isEarned}
+                      />
+                    );
+                  })}
+                </div>
+              </TabsContent>
             ))}
-          </div>
+          </Tabs>
         </div>
         
         <div className="mt-8 rounded-2xl bg-primary/5 border border-primary/20 p-6 text-center">
