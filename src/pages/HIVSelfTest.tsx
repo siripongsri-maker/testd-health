@@ -355,18 +355,25 @@ export default function HIVSelfTest() {
               content: [
                 {
                   type: 'text',
-                  text: `Analyze this HIV rapid test result image. Look for the test strip and determine:
-1. Is the Control (C) line visible? This is required for a valid test.
-2. Is the Test (T) line visible?
+                  text: `You are analyzing an Abbott Panbio HIV Self Test result. This is a blood-based rapid test with a result window showing two possible lines:
+- C line (Control line) - at the top position
+- T line (Test line) - at the bottom position
 
-Based on standard HIV rapid test interpretation:
-- If ONLY the Control (C) line is visible = NEGATIVE
-- If BOTH Control (C) AND Test (T) lines are visible = POSITIVE  
-- If NO Control (C) line is visible = INVALID (test failed)
+CRITICAL INTERPRETATION RULES (follow exactly):
 
-Respond with ONLY one word: "negative", "positive", or "invalid"
+1. POSITIVE (陽性): BOTH the C line AND T line are visible. The T line can be faint or strong - any visible line counts. Two lines visible = POSITIVE.
 
-Important: Be very careful and accurate. This is a medical test result.`
+2. NEGATIVE (陰性): ONLY the C line is visible. There is NO T line at all. One line at C position only = NEGATIVE.
+
+3. INVALID (無效): The C line is NOT visible, regardless of whether T line is visible or not. No C line = INVALID test.
+
+Look at the test cassette in the image carefully:
+- Check the C position (top) - is there a colored line?
+- Check the T position (bottom) - is there a colored line?
+
+Respond with ONLY one of these three words: "positive", "negative", or "invalid"
+
+Remember: Even a very faint T line still means POSITIVE. The C line MUST be visible for the test to be valid.`
                 },
                 {
                   type: 'image_url',
