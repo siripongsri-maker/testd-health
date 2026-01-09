@@ -4,41 +4,47 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+@import url("https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap");
+
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap");
+
 @layer base {
   :root {
     /* Warm coral/salmon - friendly and inclusive */
-    --primary: 8 60% 65%;
-    --primary-foreground: 0 0% 100%;
-    
+    --primary: 333 71% 50%;
+    --primary-foreground: 327 73% 97%;
+
     /* Teal accent for contrast */
-    --accent: 173 58% 45%;
-    --accent-foreground: 0 0% 100%;
-    
+    --accent: 355 100% 97%;
+    --accent-foreground: 349 89% 60%;
+
     /* Warm cream backgrounds */
-    --background: 20 30% 97%;
-    --foreground: 20 25% 20%;
-    
-    --card: 0 0% 100%;
-    --card-foreground: 20 25% 20%;
-    
-    --popover: 0 0% 100%;
-    --popover-foreground: 20 25% 20%;
-    
-    --secondary: 20 15% 94%;
-    --secondary-foreground: 20 25% 20%;
-    
-    --muted: 20 15% 92%;
-    --muted-foreground: 20 10% 45%;
-    
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-    
-    --border: 20 20% 88%;
-    --input: 20 20% 88%;
-    --ring: 8 60% 65%;
-    
-    --radius: 1rem;
-    
+    --background: 240 4% 95%;
+    --foreground: 240 5% 10%;
+
+    --card: 0 0% 98%;
+    --card-foreground: 240 5% 10%;
+
+    --popover: 240 5% 90%;
+    --popover-foreground: 240 5% 10%;
+
+    --secondary: 240 5% 33%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 4% 83%;
+    --muted-foreground: 240 5% 10%;
+
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 85% 97%;
+
+    --border: 240 4% 83%;
+    --input: 240 4% 83%;
+    --ring: 333 71% 50%;
+
+    --radius: 1.5rem;
+
     /* Gamification colors - vibrant but friendly */
     --xp: 45 93% 47%;
     --streak: 25 95% 53%;
@@ -46,7 +52,7 @@
     --success: 142 76% 36%;
     --warning: 38 92% 50%;
     --urgent: 0 72% 51%;
-    
+
     /* Rainbow accent for inclusivity */
     --rainbow-1: 0 85% 65%;
     --rainbow-2: 25 95% 60%;
@@ -54,7 +60,7 @@
     --rainbow-4: 120 65% 50%;
     --rainbow-5: 200 85% 55%;
     --rainbow-6: 280 70% 60%;
-    
+
     /* Modern gradient tokens */
     --gradient-primary: linear-gradient(135deg, hsl(8 60% 65%) 0%, hsl(15 70% 60%) 100%);
     --gradient-accent: linear-gradient(135deg, hsl(173 58% 45%) 0%, hsl(180 50% 50%) 100%);
@@ -64,59 +70,92 @@
     --gradient-rainbow: linear-gradient(90deg, 
       hsl(0 85% 65%), hsl(25 95% 60%), hsl(50 95% 55%), 
       hsl(120 65% 50%), hsl(200 85% 55%), hsl(280 70% 60%));
-    
+
     /* Soft shadows */
     --shadow-soft: 0 4px 20px -4px hsl(8 60% 65% / 0.15);
     --shadow-card: 0 2px 8px 0 hsl(0 0% 0% / 0.06), 0 1px 3px -1px hsl(0 0% 0% / 0.04);
     --shadow-button: 0 4px 14px -3px hsl(8 60% 65% / 0.3);
-    
+
     --sidebar-background: 20 30% 97%;
-    --sidebar-foreground: 20 25% 20%;
-    --sidebar-primary: 8 60% 65%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 20 15% 94%;
-    --sidebar-accent-foreground: 20 25% 20%;
-    --sidebar-border: 20 20% 88%;
-    --sidebar-ring: 8 60% 65%;
+    --sidebar-foreground: 240 5% 10%;
+    --sidebar-primary: 333 71% 50%;
+    --sidebar-primary-foreground: 327 73% 97%;
+    --sidebar-accent: 240 5% 33%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 4% 83%;
+    --sidebar-ring: 333 71% 50%;
+    --chart-1: 328 85% 70%;
+    --chart-2: 351 94% 71%;
+    --chart-3: 327 87% 81%;
+    --chart-4: 352 95% 81%;
+    --chart-5: 240 3% 46%;
+    --sidebar: 0 0% 98%;
+    --font-sans: 'Poppins', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+    --font-serif: 'Merriweather', ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
+    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
+    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
+    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
+    --tracking-normal: 0em;
+    --spacing: 0.25rem;
   }
 
   .dark {
-    --background: 20 15% 12%;
-    --foreground: 20 15% 95%;
-    
-    --card: 20 15% 16%;
-    --card-foreground: 20 15% 95%;
-    
-    --popover: 20 15% 16%;
-    --popover-foreground: 20 15% 95%;
-    
-    --primary: 8 55% 60%;
-    --primary-foreground: 0 0% 100%;
-    
-    --secondary: 20 12% 20%;
-    --secondary-foreground: 20 15% 90%;
-    
-    --muted: 20 12% 22%;
-    --muted-foreground: 20 10% 55%;
-    
-    --accent: 173 50% 50%;
-    --accent-foreground: 0 0% 100%;
-    
-    --destructive: 0 62.8% 45%;
-    --destructive-foreground: 0 0% 100%;
-    
-    --border: 20 12% 25%;
-    --input: 20 12% 25%;
-    --ring: 8 55% 60%;
-    
+    --background: 240 5% 10%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 3% 15%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 5% 26%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 328 85% 70%;
+    --primary-foreground: 336 83% 17%;
+
+    --secondary: 240 3% 46%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 3% 46%;
+    --muted-foreground: 0 0% 98%;
+
+    --accent: 343 87% 15%;
+    --accent-foreground: 351 94% 71%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 85% 97%;
+
+    --border: 240 5% 33%;
+    --input: 240 5% 33%;
+    --ring: 328 85% 70%;
+
     --sidebar-background: 20 15% 12%;
-    --sidebar-foreground: 20 15% 95%;
-    --sidebar-primary: 8 55% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 20 12% 20%;
-    --sidebar-accent-foreground: 20 15% 95%;
-    --sidebar-border: 20 12% 25%;
-    --sidebar-ring: 8 55% 60%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 328 85% 70%;
+    --sidebar-primary-foreground: 336 83% 17%;
+    --sidebar-accent: 351 94% 71%;
+    --sidebar-accent-foreground: 343 87% 15%;
+    --sidebar-border: 240 5% 33%;
+    --sidebar-ring: 328 85% 70%;
+    --chart-1: 327 87% 81%;
+    --chart-2: 352 95% 81%;
+    --chart-3: 328 85% 70%;
+    --chart-4: 351 94% 71%;
+    --chart-5: 240 5% 33%;
+    --sidebar: 240 3% 15%;
+    --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+    --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+    --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+    --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+    --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
+    --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
+    --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
+    --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
   }
 }
 
@@ -129,7 +168,7 @@
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, sans-serif;
   }
-  
+
   html {
     @apply scroll-smooth;
   }
@@ -139,39 +178,39 @@
   .gradient-primary {
     background: var(--gradient-primary);
   }
-  
+
   .gradient-accent {
     background: var(--gradient-accent);
   }
-  
+
   .gradient-hero {
     background: var(--gradient-hero);
   }
-  
+
   .gradient-card {
     background: var(--gradient-card);
   }
-  
+
   .gradient-xp {
     background: var(--gradient-xp);
   }
-  
+
   .shadow-soft {
     box-shadow: var(--shadow-soft);
   }
-  
+
   .shadow-card {
     box-shadow: var(--shadow-card);
   }
-  
+
   .shadow-button {
     box-shadow: var(--shadow-button);
   }
-  
+
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom, 1rem);
   }
-  
+
   .safe-top {
     padding-top: env(safe-area-inset-top, 1rem);
   }
