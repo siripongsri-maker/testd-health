@@ -25,6 +25,7 @@ import SelfCare from "./pages/SelfCare";
 import HIVSelfTest from "./pages/HIVSelfTest";
 import Quests from "./pages/Quests";
 import ShareAchievements from "./pages/ShareAchievements";
+import Leaderboard from "./pages/Leaderboard";
 import HealthProfile from "./pages/HealthProfile";
 import ConsultationForm from "./pages/ConsultationForm";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -65,6 +66,7 @@ const App = () => (
           <Route path="/self-care" element={<SelfCare />} />
           <Route path="/hiv-selftest" element={<HIVSelfTest />} />
           <Route path="/quests" element={<Quests />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/share" element={<ShareAchievements />} />
           <Route path="/health-profile" element={<HealthProfile />} />
           <Route path="/consultation" element={<ConsultationForm />} />
