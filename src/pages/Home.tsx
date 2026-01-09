@@ -63,21 +63,15 @@ function MenuCard({ icon, titleTh, titleEn, onClick, variant = 'default' }: Menu
   );
 }
 
-// Rainbow umbrella decoration
-function RainbowUmbrella({ className }: { className?: string }) {
+// Swing logo decoration
+function SwingDecoration({ className }: { className?: string }) {
   return (
     <div className={`${className} select-none pointer-events-none`}>
-      <svg viewBox="0 0 60 50" className="w-16 h-14">
-        {/* Rainbow arc */}
-        <path d="M5 35 Q30 5 55 35" fill="none" stroke="hsl(0 85% 65%)" strokeWidth="4" />
-        <path d="M8 35 Q30 10 52 35" fill="none" stroke="hsl(25 95% 60%)" strokeWidth="4" />
-        <path d="M11 35 Q30 15 49 35" fill="none" stroke="hsl(50 95% 55%)" strokeWidth="4" />
-        <path d="M14 35 Q30 20 46 35" fill="none" stroke="hsl(120 65% 50%)" strokeWidth="4" />
-        <path d="M17 35 Q30 25 43 35" fill="none" stroke="hsl(200 85% 55%)" strokeWidth="4" />
-        <path d="M20 35 Q30 28 40 35" fill="none" stroke="hsl(280 70% 60%)" strokeWidth="4" />
-        {/* Handle */}
-        <path d="M30 35 L30 48 Q30 50 28 50" fill="none" stroke="hsl(20 25% 30%)" strokeWidth="2" strokeLinecap="round" />
-      </svg>
+      <img 
+        src={swingLogo} 
+        alt="SWING" 
+        className="h-12 w-auto object-contain opacity-80"
+      />
     </div>
   );
 }
@@ -170,11 +164,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/30 to-primary/20 relative overflow-hidden">
-      {/* Rainbow umbrella decorations */}
-      <RainbowUmbrella className="absolute -bottom-2 -left-4 rotate-[-15deg] opacity-60" />
-      <RainbowUmbrella className="absolute -bottom-2 -right-4 rotate-[15deg] opacity-60" />
-      <RainbowUmbrella className="absolute top-20 -left-8 rotate-[-30deg] opacity-40 scale-75" />
-      <RainbowUmbrella className="absolute top-40 -right-6 rotate-[25deg] opacity-40 scale-75" />
+      {/* Swing logo decorations */}
+      <SwingDecoration className="absolute -bottom-2 -left-4 rotate-[-15deg]" />
+      <SwingDecoration className="absolute -bottom-2 -right-4 rotate-[15deg]" />
+      <SwingDecoration className="absolute top-20 -left-8 rotate-[-30deg] scale-75" />
+      <SwingDecoration className="absolute top-40 -right-6 rotate-[25deg] scale-75" />
       
       {/* Header */}
       <header className="sticky top-0 z-20 bg-transparent safe-top">
@@ -222,7 +216,7 @@ export default function Home() {
         {/* Welcome text */}
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-foreground">
-            {language === 'th' ? 'ยินดีต้อนรับ' : 'Welcome'} 👋
+            testD คนเทสต์ดีอยู่นี่จ้า
           </h1>
           <p className="text-muted-foreground mt-1">
             {language === 'th' 
