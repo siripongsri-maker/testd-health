@@ -7,6 +7,8 @@ import { useLanguage } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Eye, Calendar, User, Loader2, BookOpen } from "lucide-react";
 import { format } from "date-fns";
+import { ArticleLikeButton } from "@/components/ArticleLikeButton";
+import { ArticleComments } from "@/components/ArticleComments";
 
 interface Article {
   id: string;
@@ -18,8 +20,10 @@ interface Article {
   excerpt_en: string | null;
   excerpt_th: string | null;
   cover_url: string | null;
+  author_id: string | null;
   author_name: string | null;
   view_count: number;
+  like_count: number;
   published_at: string | null;
   category_id: string | null;
 }
@@ -61,7 +65,7 @@ export default function InfoArticle() {
       if (error) throw error;
       
       if (articleData) {
-        setArticle(articleData);
+        setArticle(articleData as Article);
         
         // Increment view count
         await supabase
@@ -174,6 +178,15 @@ export default function InfoArticle() {
           </div>
         </div>
 
+        {/* Like Button */}
+        <div className="mb-6">
+          <ArticleLikeButton 
+            articleId={article.id} 
+            authorId={article.author_id}
+            initialLikeCount={article.like_count || 0}
+          />
+        </div>
+
         {/* Content */}
         <div className="rounded-2xl bg-card border border-border p-6 shadow-card">
           <div className="prose prose-sm max-w-none dark:prose-invert">
@@ -221,6 +234,9 @@ export default function InfoArticle() {
             )}
           </div>
         </div>
+
+        {/* Comments Section */}
+        <ArticleComments articleId={article.id} />
       </PageContainer>
       <BottomNav />
     </>
