@@ -50,6 +50,119 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_articles: {
+        Row: {
+          author_id: string | null
+          author_name: string | null
+          category_id: string | null
+          content_en: string | null
+          content_th: string | null
+          cover_url: string | null
+          created_at: string | null
+          excerpt_en: string | null
+          excerpt_th: string | null
+          id: string
+          published_at: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          slug: string
+          status: Database["public"]["Enums"]["article_status"]
+          title_en: string
+          title_th: string
+          updated_at: string | null
+          view_count: number
+        }
+        Insert: {
+          author_id?: string | null
+          author_name?: string | null
+          category_id?: string | null
+          content_en?: string | null
+          content_th?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          excerpt_en?: string | null
+          excerpt_th?: string | null
+          id?: string
+          published_at?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          slug: string
+          status?: Database["public"]["Enums"]["article_status"]
+          title_en: string
+          title_th: string
+          updated_at?: string | null
+          view_count?: number
+        }
+        Update: {
+          author_id?: string | null
+          author_name?: string | null
+          category_id?: string | null
+          content_en?: string | null
+          content_th?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          excerpt_en?: string | null
+          excerpt_th?: string | null
+          id?: string
+          published_at?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          slug?: string
+          status?: Database["public"]["Enums"]["article_status"]
+          title_en?: string
+          title_th?: string
+          updated_at?: string | null
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_articles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "blog_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_categories: {
+        Row: {
+          cover_url: string | null
+          created_at: string | null
+          description_en: string | null
+          description_th: string | null
+          display_order: number
+          icon: string
+          id: string
+          name_en: string
+          name_th: string
+          slug: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string | null
+          description_en?: string | null
+          description_th?: string | null
+          display_order?: number
+          icon?: string
+          id?: string
+          name_en: string
+          name_th: string
+          slug: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string | null
+          description_en?: string | null
+          description_th?: string | null
+          display_order?: number
+          icon?: string
+          id?: string
+          name_en?: string
+          name_th?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       chat_messages: {
         Row: {
           content: string
@@ -678,6 +791,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      article_status: "draft" | "pending_review" | "published" | "archived"
       kit_order_status:
         | "requested"
         | "packed"
@@ -813,6 +927,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      article_status: ["draft", "pending_review", "published", "archived"],
       kit_order_status: [
         "requested",
         "packed",

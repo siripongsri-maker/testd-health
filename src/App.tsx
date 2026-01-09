@@ -29,6 +29,7 @@ import HealthProfile from "./pages/HealthProfile";
 import ConsultationForm from "./pages/ConsultationForm";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminKitOrders from "./pages/AdminKitOrders";
+import AdminBlog from "./pages/AdminBlog";
 import TrackOrder from "./pages/TrackOrder";
 import PersonalInfo from "./pages/PersonalInfo";
 import AvatarCustomization from "./pages/AvatarCustomization";
@@ -55,6 +56,7 @@ const App = () => (
           <Route path="/progress" element={<Progress />} />
           <Route path="/info" element={<Info />} />
           <Route path="/info/:id" element={<InfoArticle />} />
+          <Route path="/info/article/:slug" element={<InfoArticle />} />
           <Route path="/swing" element={<Swing />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/community" element={<Community />} />
@@ -68,6 +70,7 @@ const App = () => (
           <Route path="/consultation" element={<ConsultationForm />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/kit-orders" element={<AdminKitOrders />} />
+          <Route path="/admin/blog" element={<AdminBlog />} />
           <Route path="/track-order" element={<TrackOrder />} />
           <Route path="/personal-info" element={<PersonalInfo />} />
           <Route path="/avatar" element={<AvatarCustomization />} />
