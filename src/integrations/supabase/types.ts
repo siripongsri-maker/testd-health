@@ -139,6 +139,7 @@ export type Database = {
           title_en: string
           title_th: string
           updated_at: string | null
+          video_url: string | null
           view_count: number
         }
         Insert: {
@@ -162,6 +163,7 @@ export type Database = {
           title_en: string
           title_th: string
           updated_at?: string | null
+          video_url?: string | null
           view_count?: number
         }
         Update: {
@@ -185,6 +187,7 @@ export type Database = {
           title_en?: string
           title_th?: string
           updated_at?: string | null
+          video_url?: string | null
           view_count?: number
         }
         Relationships: [
