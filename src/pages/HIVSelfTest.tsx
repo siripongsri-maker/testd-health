@@ -101,12 +101,40 @@ export default function HIVSelfTest() {
   // Testing state
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   
-  // Timer state
-  const [timerSeconds, setTimerSeconds] = useState(15 * 60); // 15 minutes
-  const [timerActive, setTimerActive] = useState(false);
-  const [timerFinished, setTimerFinished] = useState(false);
+  // Timer state - persist across sessions
+  const TIMER_STORAGE_KEY = 'hiv-selftest-timer';
+  const [timerSeconds, setTimerSeconds] = useState(() => {
+    const stored = localStorage.getItem(TIMER_STORAGE_KEY);
+    if (stored) {
+      const { startedAt, duration } = JSON.parse(stored);
+      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+      const remaining = Math.max(0, duration - elapsed);
+      return remaining;
+    }
+    return 15 * 60; // 15 minutes default
+  });
+  const [timerActive, setTimerActive] = useState(() => {
+    const stored = localStorage.getItem(TIMER_STORAGE_KEY);
+    if (stored) {
+      const { startedAt, duration } = JSON.parse(stored);
+      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+      return elapsed < duration;
+    }
+    return false;
+  });
+  const [timerFinished, setTimerFinished] = useState(() => {
+    const stored = localStorage.getItem(TIMER_STORAGE_KEY);
+    if (stored) {
+      const { startedAt, duration } = JSON.parse(stored);
+      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+      return elapsed >= duration;
+    }
+    return false;
+  });
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const alarmRef = useRef<HTMLAudioElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const uploadInputRef = useRef<HTMLInputElement | null>(null);
   
   // Photo & Analysis state
   const [resultPhoto, setResultPhoto] = useState<File | null>(null);
@@ -155,15 +183,16 @@ export default function HIVSelfTest() {
     if (timerActive && timerSeconds > 0) {
       timerRef.current = setInterval(() => {
         setTimerSeconds(prev => {
-            if (prev <= 1) {
+          if (prev <= 1) {
             setTimerActive(false);
             setTimerFinished(true);
+            localStorage.removeItem(TIMER_STORAGE_KEY);
             if (timerRef.current) clearInterval(timerRef.current);
             // Play alarm sound
             if (alarmRef.current) {
               alarmRef.current.play().catch(() => {});
             }
-            // Vibrate on mobile devices (pattern: vibrate 500ms, pause 200ms, vibrate 500ms, pause 200ms, vibrate 500ms)
+            // Vibrate on mobile devices
             if ('vibrate' in navigator) {
               navigator.vibrate([500, 200, 500, 200, 500]);
             }
@@ -178,6 +207,29 @@ export default function HIVSelfTest() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [timerActive, language]);
+
+  // Start timer function that persists to localStorage
+  const startTimer = () => {
+    const timerData = {
+      startedAt: Date.now(),
+      duration: 15 * 60
+    };
+    localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(timerData));
+    setTimerSeconds(15 * 60);
+    setTimerActive(true);
+    setTimerFinished(false);
+    setCurrentStep('timer');
+  };
+
+  // Skip timer function
+  const skipTimer = () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    localStorage.removeItem(TIMER_STORAGE_KEY);
+    setTimerActive(false);
+    setTimerSeconds(0);
+    setTimerFinished(true);
+    setCurrentStep('photo-result');
+  };
 
   // Stop alarm when leaving timer step
   useEffect(() => {
@@ -1015,10 +1067,7 @@ export default function HIVSelfTest() {
         </Button>
         <Button 
           className="flex-1 gap-2" 
-          onClick={() => {
-            setCurrentStep('timer');
-            setTimerActive(true);
-          }}
+          onClick={startTimer}
           disabled={completedSteps.length < TESTING_STEPS.length}
         >
           <Timer className="h-4 w-4" />
@@ -1102,10 +1151,19 @@ export default function HIVSelfTest() {
               </div>
             </Card>
             
+            <Button 
+              variant="outline" 
+              className="w-full gap-2" 
+              onClick={skipTimer}
+            >
+              <ArrowRight className="h-4 w-4" />
+              {language === 'th' ? 'ข้ามและถ่ายรูปผล' : 'Skip & Take Photo'}
+            </Button>
+            
             <p className="text-xs text-muted-foreground">
               {language === 'th' 
-                ? '⚠️ กรุณารอจนกว่าเวลาจะหมด ไม่สามารถข้ามได้'
-                : '⚠️ Please wait until timer ends. Cannot skip.'
+                ? '⚠️ แนะนำให้รอครบ 15 นาทีเพื่อผลที่แม่นยำ'
+                : '⚠️ Recommended to wait 15 minutes for accurate results'
               }
             </p>
           </>
@@ -1124,21 +1182,52 @@ export default function HIVSelfTest() {
         </h3>
 
         {!photoPreview ? (
-          <div className="border-2 border-dashed border-muted-foreground/30 rounded-lg p-8 text-center">
-            <Camera className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground mb-4">
-              {language === 'th' 
-                ? 'ถ่ายรูปชุดตรวจให้เห็นแถบ C และ T ชัดเจน'
-                : 'Take a photo showing the C and T lines clearly'
-              }
-            </p>
-            <Input
-              type="file"
-              accept="image/*"
-              capture="environment"
-              onChange={handlePhotoChange}
-              className="max-w-xs mx-auto"
-            />
+          <div className="space-y-4">
+            <div className="border-2 border-dashed border-muted-foreground/30 rounded-lg p-6 text-center">
+              <Camera className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground mb-4">
+                {language === 'th' 
+                  ? 'ถ่ายรูปชุดตรวจให้เห็นแถบ C และ T ชัดเจน'
+                  : 'Take a photo showing the C and T lines clearly'
+                }
+              </p>
+              
+              {/* Hidden file inputs */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handlePhotoChange}
+                className="hidden"
+              />
+              <input
+                ref={uploadInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                className="hidden"
+              />
+              
+              {/* Two buttons: Take Photo and Upload */}
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button 
+                  className="gap-2" 
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Camera className="h-4 w-4" />
+                  {language === 'th' ? 'ถ่ายรูป' : 'Take Photo'}
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="gap-2"
+                  onClick={() => uploadInputRef.current?.click()}
+                >
+                  <Upload className="h-4 w-4" />
+                  {language === 'th' ? 'อัปโหลดรูป' : 'Upload Image'}
+                </Button>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="space-y-4">
