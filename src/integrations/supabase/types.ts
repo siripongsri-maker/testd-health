@@ -815,6 +815,81 @@ export type Database = {
         }
         Relationships: []
       }
+      user_personal_info: {
+        Row: {
+          created_at: string
+          currently_on_art: boolean | null
+          currently_on_pep: boolean | null
+          currently_on_prep: boolean | null
+          date_of_birth: string | null
+          ever_tested_hiv: boolean | null
+          gender: string | null
+          has_multiple_partners: boolean | null
+          id: string
+          last_hiv_test_date: string | null
+          last_hiv_test_result: string | null
+          line_id: string | null
+          partner_hiv_status: string | null
+          phone: string | null
+          prevention_preference: string | null
+          profile_completed: boolean | null
+          province: string | null
+          sexual_orientation: string | null
+          updated_at: string
+          user_id: string
+          uses_condoms_regularly: boolean | null
+          uses_injection_drugs: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          currently_on_art?: boolean | null
+          currently_on_pep?: boolean | null
+          currently_on_prep?: boolean | null
+          date_of_birth?: string | null
+          ever_tested_hiv?: boolean | null
+          gender?: string | null
+          has_multiple_partners?: boolean | null
+          id?: string
+          last_hiv_test_date?: string | null
+          last_hiv_test_result?: string | null
+          line_id?: string | null
+          partner_hiv_status?: string | null
+          phone?: string | null
+          prevention_preference?: string | null
+          profile_completed?: boolean | null
+          province?: string | null
+          sexual_orientation?: string | null
+          updated_at?: string
+          user_id: string
+          uses_condoms_regularly?: boolean | null
+          uses_injection_drugs?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          currently_on_art?: boolean | null
+          currently_on_pep?: boolean | null
+          currently_on_prep?: boolean | null
+          date_of_birth?: string | null
+          ever_tested_hiv?: boolean | null
+          gender?: string | null
+          has_multiple_partners?: boolean | null
+          id?: string
+          last_hiv_test_date?: string | null
+          last_hiv_test_result?: string | null
+          line_id?: string | null
+          partner_hiv_status?: string | null
+          phone?: string | null
+          prevention_preference?: string | null
+          profile_completed?: boolean | null
+          province?: string | null
+          sexual_orientation?: string | null
+          updated_at?: string
+          user_id?: string
+          uses_condoms_regularly?: boolean | null
+          uses_injection_drugs?: boolean | null
+        }
+        Relationships: []
+      }
       user_quests: {
         Row: {
           completed: boolean | null
