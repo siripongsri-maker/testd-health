@@ -34,8 +34,9 @@ export default function Leaderboard() {
   const fetchAllRankings = async () => {
     setLoading(true);
     
+    // Use the secure leaderboard_profiles view (excludes sensitive health data)
     const { data: rankings } = await supabase
-      .from('profiles')
+      .from('leaderboard_profiles')
       .select('id, display_name, xp, level, avatar_url')
       .order('xp', { ascending: false });
     

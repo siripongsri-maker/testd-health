@@ -951,7 +951,36 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      leaderboard_profiles: {
+        Row: {
+          avatar_url: string | null
+          badges: string[] | null
+          display_name: string | null
+          id: string | null
+          level: number | null
+          streak: number | null
+          xp: number | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          badges?: string[] | null
+          display_name?: string | null
+          id?: string | null
+          level?: number | null
+          streak?: number | null
+          xp?: number | null
+        }
+        Update: {
+          avatar_url?: string | null
+          badges?: string[] | null
+          display_name?: string | null
+          id?: string | null
+          level?: number | null
+          streak?: number | null
+          xp?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       generate_order_code: { Args: never; Returns: string }
