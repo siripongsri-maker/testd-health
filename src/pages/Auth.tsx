@@ -9,21 +9,20 @@ import { useLanguage } from '@/lib/i18n';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { PersonalInfoForm } from '@/components/PersonalInfoForm';
 import { supabase } from '@/integrations/supabase/client';
-import { Shield, Mail, Lock, User, ArrowLeft, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Shield, Lock, User, ArrowLeft, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-const emailSchema = z.string().email();
+const usernameSchema = z.string().min(3, 'Username must be at least 3 characters').max(30).regex(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers, and underscores');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [displayName, setDisplayName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ username?: string; password?: string }>({});
   
   // First-time user personal info collection
   const [showPersonalInfoForm, setShowPersonalInfoForm] = useState(false);
@@ -55,12 +54,12 @@ export default function Auth() {
     checkPersonalInfo();
   }, [user, loading, navigate]);
 
-  const validateEmailForm = () => {
-    const newErrors: { email?: string; password?: string } = {};
+  const validateForm = () => {
+    const newErrors: { username?: string; password?: string } = {};
     
-    const emailResult = emailSchema.safeParse(email);
-    if (!emailResult.success) {
-      newErrors.email = t('auth.invalidEmail');
+    const usernameResult = usernameSchema.safeParse(username);
+    if (!usernameResult.success) {
+      newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ต้องมี 3-30 ตัวอักษร (a-z, 0-9, _)' : 'Username must be 3-30 characters (a-z, 0-9, _)';
     }
     
     const passwordResult = passwordSchema.safeParse(password);
@@ -72,19 +71,23 @@ export default function Auth() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleEmailSubmit = async (e: React.FormEvent) => {
+  // Convert username to email format for Supabase auth
+  const usernameToEmail = (uname: string) => `${uname.toLowerCase()}@swing.local`;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateEmailForm()) return;
+    if (!validateForm()) return;
     
     setIsSubmitting(true);
+    const email = usernameToEmail(username);
     
     try {
       if (isLogin) {
         const { error } = await signIn(email, password);
         if (error) {
           if (error.message.includes('Invalid login credentials')) {
-            toast.error(t('auth.invalidCredentials'));
+            toast.error(language === 'th' ? 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' : 'Invalid username or password');
           } else {
             toast.error(error.message);
           }
@@ -92,10 +95,10 @@ export default function Auth() {
           toast.success(t('auth.loginSuccess'));
         }
       } else {
-        const { error } = await signUp(email, password, displayName);
+        const { error } = await signUp(email, password, username);
         if (error) {
           if (error.message.includes('User already registered')) {
-            toast.error(t('auth.userExists'));
+            toast.error(language === 'th' ? 'ชื่อผู้ใช้นี้ถูกใช้แล้ว' : 'Username already taken');
           } else {
             toast.error(error.message);
           }
@@ -197,55 +200,37 @@ export default function Auth() {
           {isLogin ? t('auth.loginSubtitle') : t('auth.signupSubtitle')}
         </p>
 
-        {/* Email Auth Form */}
+        {/* Username/Password Form */}
         <div className="w-full max-w-sm">
-          <form onSubmit={handleEmailSubmit} className="space-y-4">
-            {!isLogin && (
-              <div className="space-y-2">
-                <Label htmlFor="displayName" className="text-foreground">
-                  {t('auth.displayName')}
-                </Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                  <Input
-                    id="displayName"
-                    type="text"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    placeholder={t('auth.displayNamePlaceholder')}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-            )}
-
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-foreground">
-                {t('auth.email')}
+              <Label htmlFor="username" className="text-foreground">
+                {language === 'th' ? 'ชื่อผู้ใช้' : 'Username'}
               </Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
-                  id="email"
-                  type="email"
-                  value={email}
+                  id="username"
+                  type="text"
+                  value={username}
                   onChange={(e) => {
-                    setEmail(e.target.value);
-                    setErrors(prev => ({ ...prev, email: undefined }));
+                    setUsername(e.target.value);
+                    setErrors(prev => ({ ...prev, username: undefined }));
                   }}
-                  placeholder={t('auth.emailPlaceholder')}
-                  className={`pl-10 ${errors.email ? 'border-destructive' : ''}`}
+                  placeholder={language === 'th' ? 'กรอกชื่อผู้ใช้' : 'Enter username'}
+                  className={`pl-10 ${errors.username ? 'border-destructive' : ''}`}
                   required
+                  autoComplete="username"
                 />
               </div>
-              {errors.email && (
-                <p className="text-sm text-destructive">{errors.email}</p>
+              {errors.username && (
+                <p className="text-sm text-destructive">{errors.username}</p>
               )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="password" className="text-foreground">
-                {t('auth.password')}
+                {language === 'th' ? 'รหัสผ่าน' : 'Password'}
               </Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -257,9 +242,10 @@ export default function Auth() {
                     setPassword(e.target.value);
                     setErrors(prev => ({ ...prev, password: undefined }));
                   }}
-                  placeholder={t('auth.passwordPlaceholder')}
+                  placeholder={language === 'th' ? 'กรอกรหัสผ่าน' : 'Enter password'}
                   className={`pl-10 pr-10 ${errors.password ? 'border-destructive' : ''}`}
                   required
+                  autoComplete={isLogin ? 'current-password' : 'new-password'}
                 />
                 <button
                   type="button"
