@@ -3,32 +3,27 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/lib/i18n';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { PersonalInfoForm } from '@/components/PersonalInfoForm';
 import { supabase } from '@/integrations/supabase/client';
-import { Shield, Mail, Lock, User, ArrowLeft, Eye, EyeOff, Phone, Loader2 } from 'lucide-react';
+import { Shield, Mail, Lock, User, ArrowLeft, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
 const emailSchema = z.string().email();
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
-const phoneSchema = z.string().regex(/^0[0-9]{9}$/, 'Invalid Thai phone number');
 
 export default function Auth() {
-  const [authMethod, setAuthMethod] = useState<'email' | 'phone'>('email');
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [otp, setOtp] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showOtpInput, setShowOtpInput] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; phone?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   
   // First-time user personal info collection
   const [showPersonalInfoForm, setShowPersonalInfoForm] = useState(false);
@@ -77,18 +72,6 @@ export default function Auth() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const validatePhoneForm = () => {
-    const newErrors: { phone?: string } = {};
-    
-    const phoneResult = phoneSchema.safeParse(phone);
-    if (!phoneResult.success) {
-      newErrors.phone = language === 'th' ? 'เบอร์โทรศัพท์ไม่ถูกต้อง' : 'Invalid phone number';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -118,45 +101,6 @@ export default function Auth() {
           }
         } else {
           toast.success(t('auth.signupSuccess'));
-        }
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handlePhoneSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validatePhoneForm()) return;
-    
-    setIsSubmitting(true);
-    
-    try {
-      const formattedPhone = `+66${phone.substring(1)}`;
-      
-      if (!showOtpInput) {
-        const { error } = await supabase.auth.signInWithOtp({
-          phone: formattedPhone,
-        });
-        
-        if (error) {
-          toast.error(error.message);
-        } else {
-          setShowOtpInput(true);
-          toast.success(language === 'th' ? 'ส่ง OTP แล้ว' : 'OTP sent');
-        }
-      } else {
-        const { error } = await supabase.auth.verifyOtp({
-          phone: formattedPhone,
-          token: otp,
-          type: 'sms',
-        });
-        
-        if (error) {
-          toast.error(error.message);
-        } else {
-          toast.success(language === 'th' ? 'เข้าสู่ระบบสำเร็จ' : 'Login successful');
         }
       }
     } finally {
@@ -253,182 +197,97 @@ export default function Auth() {
           {isLogin ? t('auth.loginSubtitle') : t('auth.signupSubtitle')}
         </p>
 
-        {/* Auth Method Tabs */}
-        <Tabs value={authMethod} onValueChange={(v) => setAuthMethod(v as 'email' | 'phone')} className="w-full max-w-sm">
-          <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value="email" className="flex items-center gap-2">
-              <Mail className="h-4 w-4" />
-              {language === 'th' ? 'อีเมล' : 'Email'}
-            </TabsTrigger>
-            <TabsTrigger value="phone" className="flex items-center gap-2">
-              <Phone className="h-4 w-4" />
-              {language === 'th' ? 'โทรศัพท์' : 'Phone'}
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="email">
-            <form onSubmit={handleEmailSubmit} className="space-y-4">
-              {!isLogin && (
-                <div className="space-y-2">
-                  <Label htmlFor="displayName" className="text-foreground">
-                    {t('auth.displayName')}
-                  </Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                    <Input
-                      id="displayName"
-                      type="text"
-                      value={displayName}
-                      onChange={(e) => setDisplayName(e.target.value)}
-                      placeholder={t('auth.displayNamePlaceholder')}
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-              )}
-
+        {/* Email Auth Form */}
+        <div className="w-full max-w-sm">
+          <form onSubmit={handleEmailSubmit} className="space-y-4">
+            {!isLogin && (
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground">
-                  {t('auth.email')}
+                <Label htmlFor="displayName" className="text-foreground">
+                  {t('auth.displayName')}
                 </Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      setErrors(prev => ({ ...prev, email: undefined }));
-                    }}
-                    placeholder={t('auth.emailPlaceholder')}
-                    className={`pl-10 ${errors.email ? 'border-destructive' : ''}`}
-                    required
-                  />
-                </div>
-                {errors.email && (
-                  <p className="text-sm text-destructive">{errors.email}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-foreground">
-                  {t('auth.password')}
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => {
-                      setPassword(e.target.value);
-                      setErrors(prev => ({ ...prev, password: undefined }));
-                    }}
-                    placeholder={t('auth.passwordPlaceholder')}
-                    className={`pl-10 pr-10 ${errors.password ? 'border-destructive' : ''}`}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  >
-                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                  </button>
-                </div>
-                {errors.password && (
-                  <p className="text-sm text-destructive">{errors.password}</p>
-                )}
-              </div>
-
-              <Button 
-                type="submit" 
-                variant="hero" 
-                className="w-full"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  isLogin ? t('auth.loginButton') : t('auth.signupButton')
-                )}
-              </Button>
-            </form>
-          </TabsContent>
-
-          <TabsContent value="phone">
-            <form onSubmit={handlePhoneSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-foreground">
-                  {language === 'th' ? 'เบอร์โทรศัพท์' : 'Phone Number'}
-                </Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => {
-                      setPhone(e.target.value);
-                      setErrors(prev => ({ ...prev, phone: undefined }));
-                    }}
-                    placeholder="0812345678"
-                    className={`pl-10 ${errors.phone ? 'border-destructive' : ''}`}
-                    required
-                    disabled={showOtpInput}
-                  />
-                </div>
-                {errors.phone && (
-                  <p className="text-sm text-destructive">{errors.phone}</p>
-                )}
-              </div>
-
-              {showOtpInput && (
-                <div className="space-y-2">
-                  <Label htmlFor="otp" className="text-foreground">
-                    {language === 'th' ? 'รหัส OTP' : 'OTP Code'}
-                  </Label>
-                  <Input
-                    id="otp"
+                    id="displayName"
                     type="text"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    placeholder="123456"
-                    maxLength={6}
-                    required
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder={t('auth.displayNamePlaceholder')}
+                    className="pl-10"
                   />
                 </div>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-foreground">
+                {t('auth.email')}
+              </Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setErrors(prev => ({ ...prev, email: undefined }));
+                  }}
+                  placeholder={t('auth.emailPlaceholder')}
+                  className={`pl-10 ${errors.email ? 'border-destructive' : ''}`}
+                  required
+                />
+              </div>
+              {errors.email && (
+                <p className="text-sm text-destructive">{errors.email}</p>
               )}
+            </div>
 
-              <Button 
-                type="submit" 
-                variant="hero" 
-                className="w-full"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : showOtpInput ? (
-                  language === 'th' ? 'ยืนยัน OTP' : 'Verify OTP'
-                ) : (
-                  language === 'th' ? 'ส่ง OTP' : 'Send OTP'
-                )}
-              </Button>
-
-              {showOtpInput && (
-                <Button
+            <div className="space-y-2">
+              <Label htmlFor="password" className="text-foreground">
+                {t('auth.password')}
+              </Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setErrors(prev => ({ ...prev, password: undefined }));
+                  }}
+                  placeholder={t('auth.passwordPlaceholder')}
+                  className={`pl-10 pr-10 ${errors.password ? 'border-destructive' : ''}`}
+                  required
+                />
+                <button
                   type="button"
-                  variant="ghost"
-                  className="w-full"
-                  onClick={() => setShowOtpInput(false)}
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
-                  {language === 'th' ? 'เปลี่ยนเบอร์โทร' : 'Change phone number'}
-                </Button>
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
+              {errors.password && (
+                <p className="text-sm text-destructive">{errors.password}</p>
               )}
-            </form>
-          </TabsContent>
-        </Tabs>
+            </div>
+
+            <Button 
+              type="submit" 
+              variant="hero" 
+              className="w-full"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                isLogin ? t('auth.loginButton') : t('auth.signupButton')
+              )}
+            </Button>
+          </form>
+        </div>
 
         {/* Social Login Divider */}
         <div className="w-full max-w-sm mt-6">
