@@ -72,7 +72,7 @@ const App = () => (
           <Route path="/hiv-selftest" element={<HIVSelfTest />} />
           <Route path="/quests" element={<Quests />} />
           <Route path="/leaderboard" element={<Leaderboard />} />
-          <Route path="/share" element={<ShareAchievements />} />
+          <Route path="/self-care" element={<ShareAchievements />} />
           <Route path="/surveys" element={<Surveys />} />
           <Route path="/health-profile" element={<HealthProfile />} />
           <Route path="/consultation" element={<ConsultationForm />} />
