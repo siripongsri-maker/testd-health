@@ -247,6 +247,14 @@ export default function Home() {
               alt="SWING Thailand" 
               className="h-8 object-contain"
             />
+            {localStorage.getItem('isLoggedIn') === 'true' && (
+              <div className="flex items-center gap-1.5 bg-card/80 backdrop-blur-sm rounded-full px-3 py-1">
+                <User className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-foreground">
+                  {localStorage.getItem('currentUser') || 'User'}
+                </span>
+              </div>
+            )}
           </div>
           
           <div className="flex items-center gap-1">
