@@ -1,11 +1,22 @@
 import { cn } from "@/lib/utils";
-import { Link, useLocation } from "react-router-dom";
-import { Home, BookOpen, Heart, Settings, Sparkles } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Home, BookOpen, Heart, Settings, Sparkles, LogOut } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
+import { toast } from "sonner";
 
 export function BottomNav() {
   const location = useLocation();
-  const { t } = useLanguage();
+  const navigate = useNavigate();
+  const { t, language } = useLanguage();
+
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+
+  const handleLogout = () => {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('currentUser');
+    toast.success(language === 'th' ? 'ออกจากระบบแล้ว' : 'Logged out successfully');
+    navigate('/auth');
+  };
 
   const navItems = [
     { icon: Home, label: t('nav.home'), path: "/" },
@@ -25,14 +36,14 @@ export function BottomNav() {
               key={path}
               to={path}
               className={cn(
-                "flex flex-col items-center gap-0.5 px-4 py-2 transition-all duration-200 rounded-xl min-w-[64px]",
+                "flex flex-col items-center gap-0.5 px-3 py-2 transition-all duration-200 rounded-xl min-w-[56px]",
                 isActive 
                   ? "text-primary" 
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               )}
             >
               <div className={cn(
-                "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200",
+                "flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200",
                 isActive && "bg-primary/10"
               )}>
                 <Icon className={cn(
@@ -41,12 +52,27 @@ export function BottomNav() {
                 )} />
               </div>
               <span className={cn(
-                "text-[10px] font-medium transition-all duration-200",
+                "text-[9px] font-medium transition-all duration-200",
                 isActive && "font-semibold"
               )}>{label}</span>
             </Link>
           );
         })}
+        
+        {/* Logout button */}
+        {isLoggedIn && (
+          <button
+            onClick={handleLogout}
+            className="flex flex-col items-center gap-0.5 px-3 py-2 transition-all duration-200 rounded-xl min-w-[56px] text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+          >
+            <div className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200">
+              <LogOut className="h-5 w-5 transition-transform duration-200" />
+            </div>
+            <span className="text-[9px] font-medium transition-all duration-200">
+              {language === 'th' ? 'ออก' : 'Logout'}
+            </span>
+          </button>
+        )}
       </div>
     </nav>
   );
