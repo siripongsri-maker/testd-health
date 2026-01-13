@@ -205,7 +205,7 @@ export default function Home() {
       icon: <Users className="h-full w-full" strokeWidth={1.5} />,
       titleTh: "ชวนเพื่อน",
       titleEn: "SHARE WITH FRIENDS",
-      path: "/share",
+      path: "/self-care",
     },
     {
       icon: <BookOpen className="h-full w-full" strokeWidth={1.5} />,
