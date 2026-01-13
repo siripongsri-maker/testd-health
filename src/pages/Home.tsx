@@ -25,6 +25,7 @@ import {
   X,
   User,
   LogOut,
+  Sparkles,
 } from "lucide-react";
 import swingLogo from "@/assets/swing-logo.webp";
 import { toast } from "sonner";
@@ -248,11 +249,22 @@ export default function Home() {
               className="h-8 object-contain"
             />
             {localStorage.getItem('isLoggedIn') === 'true' && (
-              <div className="flex items-center gap-1.5 bg-card/80 backdrop-blur-sm rounded-full px-3 py-1">
+              <div className="flex items-center gap-2 bg-card/80 backdrop-blur-sm rounded-full px-3 py-1.5">
                 <User className="h-4 w-4 text-primary" />
                 <span className="text-sm font-medium text-foreground">
                   {localStorage.getItem('currentUser') || 'User'}
                 </span>
+                {localStorage.getItem('currentUser') === 'admin2024' && (
+                  <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-gradient-to-r from-violet-500 to-purple-500 text-white">
+                    ADMIN
+                  </span>
+                )}
+                <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30">
+                  <Sparkles className="h-3 w-3 text-amber-500" />
+                  <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                    {userData.xp || 0} XP
+                  </span>
+                </div>
               </div>
             )}
           </div>
