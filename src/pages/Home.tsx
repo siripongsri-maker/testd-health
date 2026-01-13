@@ -24,6 +24,7 @@ import {
   Check,
   X,
   User,
+  LogOut,
 } from "lucide-react";
 import swingLogo from "@/assets/swing-logo.webp";
 import { toast } from "sonner";
@@ -275,6 +276,21 @@ export default function Home() {
             >
               <Settings className="h-5 w-5" />
             </Button>
+            {localStorage.getItem('isLoggedIn') === 'true' && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="bg-card/80 backdrop-blur-sm rounded-full text-destructive hover:text-destructive hover:bg-destructive/10"
+                onClick={() => {
+                  localStorage.removeItem('isLoggedIn');
+                  localStorage.removeItem('currentUser');
+                  toast.success(language === 'th' ? 'ออกจากระบบแล้ว' : 'Logged out successfully');
+                  navigate('/auth');
+                }}
+              >
+                <LogOut className="h-5 w-5" />
+              </Button>
+            )}
           </div>
         </div>
       </header>
