@@ -44,27 +44,27 @@ function MenuCard({ icon, titleTh, titleEn, onClick, variant = 'default' }: Menu
     <button
       onClick={onClick}
       className={`
-        group relative w-full aspect-square rounded-3xl 
+        group relative w-full aspect-square rounded-2xl sm:rounded-3xl 
         bg-card border-2 border-primary/20
         shadow-card hover:shadow-soft
         transition-all duration-300 
         hover:scale-[1.02] hover:-translate-y-1
         active:scale-[0.98]
-        flex flex-col items-center justify-center gap-3 p-4
+        flex flex-col items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4
         ${variant === 'featured' ? 'ring-2 ring-primary/30' : ''}
       `}
     >
       {/* Icon container */}
-      <div className="h-20 w-20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
+      <div className="h-12 w-12 sm:h-16 md:h-20 sm:w-16 md:w-20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
         {icon}
       </div>
       
       {/* Labels */}
       <div className="text-center space-y-0.5">
-        <p className="text-base font-bold text-foreground leading-tight">
+        <p className="text-sm sm:text-base font-bold text-foreground leading-tight">
           {titleTh}
         </p>
-        <p className="text-xs text-muted-foreground uppercase tracking-wide">
+        <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">
           {titleEn}
         </p>
       </div>
@@ -315,7 +315,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="px-4 py-4 max-w-md mx-auto relative z-10">
+      <main className="px-4 sm:px-6 py-4 max-w-md mx-auto relative z-10">
         {/* Welcome text */}
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-foreground">
@@ -388,7 +388,7 @@ export default function Home() {
         )}
 
         {/* Menu Grid - 3 columns, 2 rows */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {menuItems.map((item, index) => (
             <MenuCard
               key={index}

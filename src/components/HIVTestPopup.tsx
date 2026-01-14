@@ -32,7 +32,7 @@ export function HIVTestPopup() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-w-sm mx-auto rounded-3xl border-2 border-accent/30 bg-gradient-to-b from-card to-accent/5 p-0 overflow-hidden">
+      <DialogContent className="w-[90vw] max-w-sm mx-auto rounded-3xl border-2 border-accent/30 bg-gradient-to-b from-card to-accent/5 p-0 overflow-hidden">
         {/* Decorative header */}
         <div className="relative bg-gradient-to-br from-accent/20 to-primary/20 py-8 px-6">
           <div className="absolute top-2 right-2">
