@@ -5,32 +5,38 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLanguage } from '@/lib/i18n';
 import { LanguageToggle } from '@/components/LanguageToggle';
-import { Shield, Lock, User, ArrowLeft, Eye, EyeOff, Loader2, Mail, UserPlus } from 'lucide-react';
+import { Shield, Lock, User, ArrowLeft, Eye, EyeOff, Loader2, UserPlus } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 
+// Helper to convert username to internal email format
+const usernameToEmail = (username: string) => `${username.toLowerCase().trim()}@swingth.local`;
+
 export default function Auth() {
   const [isRegisterMode, setIsRegisterMode] = useState(false);
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [displayName, setDisplayName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string; confirmPassword?: string; displayName?: string }>({});
+  const [errors, setErrors] = useState<{ username?: string; password?: string; confirmPassword?: string }>({});
   
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const navigate = useNavigate();
   const { signIn, signUp } = useAuth();
 
   const validateForm = (): boolean => {
     const newErrors: typeof errors = {};
     
-    // Email validation
-    if (!email) {
-      newErrors.email = language === 'th' ? 'กรุณากรอกอีเมล' : 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = language === 'th' ? 'รูปแบบอีเมลไม่ถูกต้อง' : 'Invalid email format';
+    // Username validation
+    if (!username.trim()) {
+      newErrors.username = language === 'th' ? 'กรุณากรอกชื่อผู้ใช้' : 'Username is required';
+    } else if (username.length < 3) {
+      newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร' : 'Username must be at least 3 characters';
+    } else if (username.length > 30) {
+      newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ต้องไม่เกิน 30 ตัวอักษร' : 'Username must be less than 30 characters';
+    } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ใช้ได้เฉพาะตัวอักษร ตัวเลข และ _' : 'Username can only contain letters, numbers, and _';
     }
     
     // Password validation
@@ -42,12 +48,6 @@ export default function Auth() {
     
     // Registration-specific validations
     if (isRegisterMode) {
-      if (!displayName.trim()) {
-        newErrors.displayName = language === 'th' ? 'กรุณากรอกชื่อที่แสดง' : 'Display name is required';
-      } else if (displayName.length > 50) {
-        newErrors.displayName = language === 'th' ? 'ชื่อต้องไม่เกิน 50 ตัวอักษร' : 'Display name must be less than 50 characters';
-      }
-      
       if (password !== confirmPassword) {
         newErrors.confirmPassword = language === 'th' ? 'รหัสผ่านไม่ตรงกัน' : 'Passwords do not match';
       }
@@ -65,34 +65,37 @@ export default function Auth() {
     setIsSubmitting(true);
     setErrors({});
     
+    const internalEmail = usernameToEmail(username);
+    
     try {
       if (isRegisterMode) {
-        // Registration
-        const { data, error } = await signUp(email, password, displayName.trim());
+        // Registration - use username as display name
+        const { data, error } = await signUp(internalEmail, password, username.trim());
         
         if (error) {
           if (error.message.includes('already registered')) {
-            setErrors({ email: language === 'th' ? 'อีเมลนี้ถูกใช้งานแล้ว' : 'This email is already registered' });
+            setErrors({ username: language === 'th' ? 'ชื่อผู้ใช้นี้ถูกใช้งานแล้ว' : 'This username is already taken' });
           } else {
-            setErrors({ email: error.message });
+            setErrors({ username: error.message });
           }
           toast.error(language === 'th' ? 'การลงทะเบียนล้มเหลว' : 'Registration failed');
         } else if (data.user) {
           localStorage.setItem('isLoggedIn', 'true');
-          localStorage.setItem('currentUser', displayName.trim());
+          localStorage.setItem('currentUser', username.trim());
           toast.success(language === 'th' ? 'ลงทะเบียนสำเร็จ! ยินดีต้อนรับ' : 'Registration successful! Welcome');
           navigate('/onboarding');
         }
       } else {
         // Login
-        const { data, error } = await signIn(email, password);
+        const { data, error } = await signIn(internalEmail, password);
         
         if (error) {
-          setErrors({ email: language === 'th' ? 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' : 'Invalid email or password' });
+          setErrors({ username: language === 'th' ? 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' : 'Invalid username or password' });
           toast.error(language === 'th' ? 'เข้าสู่ระบบล้มเหลว' : 'Login failed');
         } else if (data.user) {
+          const displayName = data.user.user_metadata?.display_name || username.trim();
           localStorage.setItem('isLoggedIn', 'true');
-          localStorage.setItem('currentUser', data.user.user_metadata?.display_name || email.split('@')[0]);
+          localStorage.setItem('currentUser', displayName);
           toast.success(language === 'th' ? 'เข้าสู่ระบบสำเร็จ' : 'Login successful');
           navigate('/');
         }
@@ -148,63 +151,37 @@ export default function Auth() {
         <p className="mb-6 text-muted-foreground text-center">
           {isRegisterMode
             ? (language === 'th' ? 'สร้างบัญชีใหม่เพื่อเริ่มต้นใช้งาน' : 'Create a new account to get started')
-            : (language === 'th' ? 'กรอกอีเมลและรหัสผ่านเพื่อเข้าสู่ระบบ' : 'Enter your email and password to login')
+            : (language === 'th' ? 'กรอกชื่อผู้ใช้และรหัสผ่านเพื่อเข้าสู่ระบบ' : 'Enter your username and password')
           }
         </p>
 
         {/* Form */}
         <div className="w-full max-w-sm">
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Display Name (Register only) */}
-            {isRegisterMode && (
-              <div className="space-y-2">
-                <Label htmlFor="displayName" className="text-foreground">
-                  {language === 'th' ? 'ชื่อที่แสดง' : 'Display Name'}
-                </Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                  <Input
-                    id="displayName"
-                    type="text"
-                    value={displayName}
-                    onChange={(e) => {
-                      setDisplayName(e.target.value);
-                      setErrors(prev => ({ ...prev, displayName: undefined }));
-                    }}
-                    placeholder={language === 'th' ? 'กรอกชื่อที่ต้องการแสดง' : 'Enter your display name'}
-                    className={`pl-10 ${errors.displayName ? 'border-destructive' : ''}`}
-                    maxLength={50}
-                  />
-                </div>
-                {errors.displayName && (
-                  <p className="text-sm text-destructive">{errors.displayName}</p>
-                )}
-              </div>
-            )}
-
-            {/* Email */}
+            {/* Username */}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-foreground">
-                {language === 'th' ? 'อีเมล' : 'Email'}
+              <Label htmlFor="username" className="text-foreground">
+                {language === 'th' ? 'ชื่อผู้ใช้' : 'Username'}
               </Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
-                  id="email"
-                  type="email"
-                  value={email}
+                  id="username"
+                  type="text"
+                  value={username}
                   onChange={(e) => {
-                    setEmail(e.target.value);
-                    setErrors(prev => ({ ...prev, email: undefined }));
+                    setUsername(e.target.value);
+                    setErrors(prev => ({ ...prev, username: undefined }));
                   }}
-                  placeholder={language === 'th' ? 'กรอกอีเมล' : 'Enter your email'}
-                  className={`pl-10 ${errors.email ? 'border-destructive' : ''}`}
+                  placeholder={language === 'th' ? 'กรอกชื่อผู้ใช้' : 'Enter username'}
+                  className={`pl-10 ${errors.username ? 'border-destructive' : ''}`}
                   required
-                  autoComplete="email"
+                  autoComplete="username"
+                  maxLength={30}
                 />
               </div>
-              {errors.email && (
-                <p className="text-sm text-destructive">{errors.email}</p>
+              {errors.username && (
+                <p className="text-sm text-destructive">{errors.username}</p>
               )}
             </div>
 
