@@ -23,6 +23,12 @@ export interface AvatarConfig {
   background: number;
 }
 
+export interface CheckInRecord {
+  status: 'taken' | 'skipped';
+  time?: string; // ISO timestamp when actually taken
+  scheduledTime?: string; // e.g., "09:00"
+}
+
 export interface UserData {
   mode: 'prep-daily' | 'prep-ondemand' | 'pep' | 'exploring' | null;
   prepStartDate?: string;
@@ -35,6 +41,7 @@ export interface UserData {
   level: number;
   streak: number;
   checkIns: Record<string, 'taken' | 'skipped'>;
+  checkInDetails: Record<string, CheckInRecord>; // New: detailed check-in records
   badges: string[];
   consentGiven: boolean;
   onboardingComplete: boolean;
@@ -54,6 +61,7 @@ const DEFAULT_DATA: UserData = {
   level: 1,
   streak: 0,
   checkIns: {},
+  checkInDetails: {},
   badges: [],
   consentGiven: false,
   onboardingComplete: false,
@@ -120,6 +128,17 @@ export function addXP(amount: number): { newXP: number; newLevel: number; levele
 export function recordCheckIn(date: string, status: 'taken' | 'skipped'): void {
   const data = getUserData();
   const checkIns = { ...data.checkIns, [date]: status };
+  const scheduledTime = data.prepReminderTime || '09:00';
+  
+  // Store detailed check-in record with actual time
+  const checkInDetails = { 
+    ...data.checkInDetails, 
+    [date]: {
+      status,
+      time: status === 'taken' ? new Date().toISOString() : undefined,
+      scheduledTime,
+    } 
+  };
   
   // Calculate streak
   let streak = 0;
@@ -133,12 +152,17 @@ export function recordCheckIn(date: string, status: 'taken' | 'skipped'): void {
     }
   }
   
-  setUserData({ checkIns, streak });
+  setUserData({ checkIns, checkInDetails, streak });
   
   // Award XP
   if (status === 'taken') {
     addXP(10);
   }
+}
+
+export function getCheckInDetails(date: string): CheckInRecord | undefined {
+  const data = getUserData();
+  return data.checkInDetails[date];
 }
 
 export function addBadge(badge: string): void {

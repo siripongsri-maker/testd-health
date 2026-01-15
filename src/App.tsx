@@ -37,6 +37,7 @@ import TrackOrder from "./pages/TrackOrder";
 import WriteArticle from "./pages/WriteArticle";
 import PersonalInfo from "./pages/PersonalInfo";
 import AvatarCustomization from "./pages/AvatarCustomization";
+import MedicationTracker from "./pages/MedicationTracker";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -82,6 +83,7 @@ const App = () => (
           <Route path="/track-order" element={<TrackOrder />} />
           <Route path="/personal-info" element={<PersonalInfo />} />
           <Route path="/avatar" element={<AvatarCustomization />} />
+          <Route path="/medication-tracker" element={<MedicationTracker />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
