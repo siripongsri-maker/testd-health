@@ -439,7 +439,7 @@ export default function Home() {
             variant="outline"
             size="sm"
             className="bg-card/80 backdrop-blur-sm rounded-full"
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/medication-tracker")}
           >
             <Pill className="h-4 w-4 mr-2" />
             {language === 'th' ? 'PrEP / PEP' : 'PrEP / PEP'}
