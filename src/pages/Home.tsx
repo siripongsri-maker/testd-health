@@ -206,7 +206,7 @@ export default function Home() {
     {
       icon: <Users className="h-full w-full" strokeWidth={1.5} />,
       titleTh: "ดูแลตัวเอง",
-      titleEn: "SHARE WITH FRIENDS",
+      titleEn: "SELF CARE",
       path: "/self-care",
     },
     {
