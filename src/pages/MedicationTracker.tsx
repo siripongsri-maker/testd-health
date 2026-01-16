@@ -64,11 +64,17 @@ export default function MedicationTracker() {
 
   const loadData = () => {
     const data = getUserData();
+    // Ensure checkIns and checkInDetails exist
+    if (!data.checkIns) data.checkIns = {};
+    if (!data.checkInDetails) data.checkInDetails = {};
+    
     setLocalUserData(data);
     
     const today = getTodayKey();
     if (data.checkIns[today]) {
       setTodayStatus(data.checkIns[today]);
+    } else {
+      setTodayStatus("pending");
     }
 
     // Build last 7 days records
@@ -76,24 +82,36 @@ export default function MedicationTracker() {
     for (let i = 6; i >= 0; i--) {
       const date = subDays(new Date(), i);
       const dateKey = format(date, 'yyyy-MM-dd');
-      const details = data.checkInDetails[dateKey];
-      const status = data.checkIns[dateKey];
+      const details = data.checkInDetails?.[dateKey];
+      const status = data.checkIns?.[dateKey];
       
       let timeDiff: number | undefined;
       if (details?.time && details?.scheduledTime) {
-        const actualTime = parseISO(details.time);
-        const [hours, mins] = details.scheduledTime.split(':').map(Number);
-        const scheduled = new Date(actualTime);
-        scheduled.setHours(hours, mins, 0, 0);
-        timeDiff = differenceInMinutes(actualTime, scheduled);
+        try {
+          const actualTime = parseISO(details.time);
+          const [hours, mins] = details.scheduledTime.split(':').map(Number);
+          const scheduled = new Date(actualTime);
+          scheduled.setHours(hours, mins, 0, 0);
+          timeDiff = differenceInMinutes(actualTime, scheduled);
+        } catch (e) {
+          // Ignore parse errors
+        }
+      }
+
+      // Determine status: today can be pending, past days without record show as 'none'
+      let dayStatus: 'taken' | 'skipped' | 'pending' | 'future';
+      if (i === 0) {
+        // Today
+        dayStatus = status || 'pending';
+      } else {
+        // Past days - show recorded status or 'none' (no record)
+        dayStatus = status || 'future'; // 'future' here means no record for past days
       }
 
       records.push({
         date: dateKey,
-        dayLabel: format(date, 'EEE'),
-        status: i === 0 
-          ? (status || 'pending') 
-          : (status || (i > 0 ? 'future' : 'pending')),
+        dayLabel: format(date, 'EEE', { locale: language === 'th' ? th : enUS }),
+        status: dayStatus,
         scheduledTime: details?.scheduledTime || data.prepReminderTime || '09:00',
         actualTime: details?.time ? format(parseISO(details.time), 'HH:mm') : undefined,
         timeDiff,
