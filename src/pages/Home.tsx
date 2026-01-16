@@ -100,6 +100,10 @@ export default function Home() {
   const [totalUsers, setTotalUsers] = useState(0);
   const [todayStatus, setTodayStatus] = useState<"pending" | "taken" | "skipped">("pending");
 
+  // Baseline numbers (historical data before tracking started)
+  const BASELINE_MEMBERS = 1300;
+  const BASELINE_VISITORS = 10796;
+
   // Load survey views and user count from database
   useEffect(() => {
     const fetchStats = async () => {
@@ -113,7 +117,9 @@ export default function Home() {
         
         if (data) {
           const total = data.reduce((sum, d) => sum + d.view_count, 0);
-          setTotalSurveyViews(total);
+          setTotalSurveyViews(BASELINE_VISITORS + total);
+        } else {
+          setTotalSurveyViews(BASELINE_VISITORS);
         }
 
         // Fetch total registered users
@@ -121,9 +127,12 @@ export default function Home() {
           .from('profiles')
           .select('*', { count: 'exact', head: true });
         
-        setTotalUsers(userCount || 0);
+        setTotalUsers(BASELINE_MEMBERS + (userCount || 0));
       } catch (err) {
         console.error('Error fetching stats:', err);
+        // Still show baseline on error
+        setTotalSurveyViews(BASELINE_VISITORS);
+        setTotalUsers(BASELINE_MEMBERS);
       }
     };
     
