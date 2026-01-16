@@ -82,12 +82,12 @@ interface RankingBoardProps {
   maxUsers?: number;
 }
 
-export function RankingBoard({ compact = false, maxUsers = 5 }: RankingBoardProps) {
+export function RankingBoard({ compact = false }: RankingBoardProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
-  const [topUsers, setTopUsers] = useState<RankedUser[]>([]);
   const [currentUserRank, setCurrentUserRank] = useState<number | null>(null);
   const [currentUserData, setCurrentUserData] = useState<RankedUser | null>(null);
+  const [totalUsers, setTotalUsers] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -97,16 +97,12 @@ export function RankingBoard({ compact = false, maxUsers = 5 }: RankingBoardProp
   const fetchRankings = async () => {
     setLoading(true);
     
-    // Fetch top users by XP
-    const { data: rankings } = await supabase
+    // Fetch total user count
+    const { count } = await supabase
       .from('profiles')
-      .select('id, display_name, xp, level, avatar_url')
-      .order('xp', { ascending: false })
-      .limit(maxUsers);
+      .select('*', { count: 'exact', head: true });
     
-    if (rankings) {
-      setTopUsers(rankings);
-    }
+    setTotalUsers(count || 0);
 
     // Fetch current user's rank
     if (user) {
@@ -134,169 +130,150 @@ export function RankingBoard({ compact = false, maxUsers = 5 }: RankingBoardProp
     setLoading(false);
   };
 
+  // Calculate knowledge percentage based on XP (max tier is Legend at 7000+ XP)
+  const getKnowledgePercentage = (xp: number) => {
+    const maxXP = 7000; // Legend tier threshold
+    return Math.min(Math.round((xp / maxXP) * 100), 100);
+  };
+
   if (loading) {
     return (
       <Card className="p-4 animate-pulse">
         <div className="h-6 bg-muted rounded w-1/3 mb-3"></div>
-        <div className="space-y-2">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="h-10 bg-muted rounded"></div>
-          ))}
-        </div>
+        <div className="h-16 bg-muted rounded"></div>
       </Card>
     );
   }
 
+  const tier = currentUserData ? getTierByXP(currentUserData.xp || 0) : TIERS[0];
+  const TierIcon = tier.icon;
+  const knowledgePercent = currentUserData ? getKnowledgePercentage(currentUserData.xp || 0) : 0;
+
   if (compact) {
     return (
-      <Card className="p-3 bg-gradient-to-br from-amber-50/50 to-orange-50/50 border-amber-200/50">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-bold text-sm flex items-center gap-1.5">
-            <Trophy className="h-4 w-4 text-amber-500" />
-            {language === 'th' ? 'อันดับ' : 'Ranking'}
-          </h3>
-          {currentUserRank && currentUserData && (
-            <Badge variant="secondary" className="text-xs">
-              #{currentUserRank} • {currentUserData.xp || 0} XP
-            </Badge>
-          )}
-        </div>
-        
-        <div className="flex items-center gap-1 overflow-x-auto pb-1">
-          {topUsers.slice(0, 5).map((rankedUser, index) => {
-            const tier = getTierByXP(rankedUser.xp || 0);
-            const TierIcon = tier.icon;
-            const isCurrentUser = user?.id === rankedUser.id;
+      <Card className="p-4 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-950/20 dark:to-orange-950/20 border-amber-200/50">
+        <div className="flex items-center gap-3">
+          {/* Tier Icon */}
+          <div className={`w-14 h-14 rounded-full ${tier.bgColor} ${tier.borderColor} border-2 flex items-center justify-center`}>
+            <TierIcon className={`h-7 w-7 ${tier.color}`} />
+          </div>
+          
+          {/* Rank Info */}
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <Trophy className="h-4 w-4 text-amber-500" />
+              <span className="font-bold text-lg">
+                {currentUserRank ? `#${currentUserRank}` : '-'}
+              </span>
+              <span className="text-muted-foreground text-sm">
+                {language === 'th' ? `จาก ${totalUsers} คน` : `from ${totalUsers} users`}
+              </span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {language === 'th' ? tier.nameTh : tier.nameEn} • {currentUserData?.xp || 0} XP
+            </p>
             
-            return (
-              <div
-                key={rankedUser.id}
-                className={`flex-shrink-0 flex flex-col items-center p-1.5 rounded-lg transition-all ${
-                  isCurrentUser ? 'bg-primary/10 ring-1 ring-primary/30' : ''
-                }`}
-              >
-                <div className={`relative w-8 h-8 rounded-full ${tier.bgColor} ${tier.borderColor} border-2 flex items-center justify-center`}>
-                  <TierIcon className={`h-4 w-4 ${tier.color}`} />
-                  {index < 3 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-amber-400 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                      {index + 1}
-                    </span>
-                  )}
-                </div>
-                <span className="text-[10px] text-muted-foreground mt-0.5 truncate max-w-[40px]">
-                  {rankedUser.display_name?.split(' ')[0] || 'User'}
+            {/* Knowledge Progress */}
+            <div className="mt-2">
+              <div className="flex items-center justify-between text-xs mb-1">
+                <span className="text-muted-foreground">
+                  {language === 'th' ? 'ความรู้ปกป้องตนเอง' : 'Self-protection knowledge'}
                 </span>
+                <span className="font-bold text-primary">{knowledgePercent}%</span>
               </div>
-            );
-          })}
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-primary to-amber-500 rounded-full transition-all duration-500"
+                  style={{ width: `${knowledgePercent}%` }}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </Card>
     );
   }
 
   return (
-    <Card className="p-4">
-      <h3 className="font-bold text-lg flex items-center gap-2 mb-4">
+    <Card className="p-6">
+      <h3 className="font-bold text-lg flex items-center gap-2 mb-6">
         <Trophy className="h-5 w-5 text-amber-500" />
-        {language === 'th' ? 'กระดานอันดับ' : 'Leaderboard'}
+        {language === 'th' ? 'อันดับของคุณ' : 'Your Rank'}
       </h3>
 
-      {/* Tier Legend */}
-      <div className="flex flex-wrap gap-1.5 mb-4">
-        {TIERS.map(tier => {
-          const TierIcon = tier.icon;
-          return (
-            <Badge key={tier.id} variant="outline" className={`${tier.bgColor} ${tier.borderColor} ${tier.color} text-xs`}>
-              <TierIcon className="h-3 w-3 mr-1" />
-              {language === 'th' ? tier.nameTh : tier.nameEn}
-            </Badge>
-          );
-        })}
+      {/* Main Rank Display */}
+      <div className="text-center mb-6">
+        <div className={`w-24 h-24 mx-auto rounded-full ${tier.bgColor} ${tier.borderColor} border-4 flex items-center justify-center mb-4`}>
+          <TierIcon className={`h-12 w-12 ${tier.color}`} />
+        </div>
+        
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <span className="text-4xl font-bold text-primary">
+            #{currentUserRank || '-'}
+          </span>
+        </div>
+        <p className="text-muted-foreground">
+          {language === 'th' ? `จากผู้ใช้ทั้งหมด ${totalUsers} คน` : `from ${totalUsers} total users`}
+        </p>
       </div>
 
-      {/* Rankings List */}
-      <div className="space-y-2">
-        {topUsers.map((rankedUser, index) => {
-          const tier = getTierByXP(rankedUser.xp || 0);
-          const TierIcon = tier.icon;
-          const isCurrentUser = user?.id === rankedUser.id;
-          
-          return (
-            <div
-              key={rankedUser.id}
-              className={`flex items-center gap-3 p-2 rounded-lg transition-all ${
-                isCurrentUser 
-                  ? 'bg-primary/10 ring-1 ring-primary/30' 
-                  : 'bg-muted/30 hover:bg-muted/50'
-              }`}
-            >
-              {/* Rank Number */}
-              <div className={`w-7 h-7 flex items-center justify-center rounded-full font-bold text-sm ${
-                index === 0 ? 'bg-amber-400 text-white' :
-                index === 1 ? 'bg-slate-400 text-white' :
-                index === 2 ? 'bg-orange-400 text-white' :
-                'bg-muted text-muted-foreground'
-              }`}>
-                {index + 1}
-              </div>
-
-              {/* Tier Badge */}
-              <div className={`w-8 h-8 rounded-full ${tier.bgColor} ${tier.borderColor} border-2 flex items-center justify-center`}>
-                <TierIcon className={`h-4 w-4 ${tier.color}`} />
-              </div>
-
-              {/* User Info */}
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm truncate">
-                  {rankedUser.display_name || (language === 'th' ? 'ผู้ใช้' : 'User')}
-                  {isCurrentUser && <span className="text-primary ml-1">({language === 'th' ? 'คุณ' : 'You'})</span>}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {language === 'th' ? tier.nameTh : tier.nameEn} • Lv.{rankedUser.level || 1}
-                </p>
-              </div>
-
-              {/* XP */}
-              <div className="text-right">
-                <p className="font-bold text-sm text-primary">{(rankedUser.xp || 0).toLocaleString()}</p>
-                <p className="text-xs text-muted-foreground">XP</p>
-              </div>
-            </div>
-          );
-        })}
+      {/* Tier Info */}
+      <div className="bg-muted/30 rounded-xl p-4 mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="font-medium">{language === 'th' ? 'ระดับปัจจุบัน' : 'Current Tier'}</span>
+          <Badge className={`${tier.bgColor} ${tier.color} ${tier.borderColor} border`}>
+            {language === 'th' ? tier.nameTh : tier.nameEn}
+          </Badge>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">XP</span>
+          <span className="font-bold text-primary">{(currentUserData?.xp || 0).toLocaleString()}</span>
+        </div>
       </div>
 
-      {/* Current User (if not in top) */}
-      {currentUserRank && currentUserRank > maxUsers && currentUserData && (
-        <>
-          <div className="my-2 text-center text-muted-foreground text-xs">• • •</div>
-          <div className="flex items-center gap-3 p-2 rounded-lg bg-primary/10 ring-1 ring-primary/30">
-            <div className="w-7 h-7 flex items-center justify-center rounded-full bg-muted text-muted-foreground font-bold text-sm">
-              {currentUserRank}
-            </div>
-            <div className={`w-8 h-8 rounded-full ${getTierByXP(currentUserData.xp || 0).bgColor} ${getTierByXP(currentUserData.xp || 0).borderColor} border-2 flex items-center justify-center`}>
-              {(() => {
-                const tier = getTierByXP(currentUserData.xp || 0);
-                const TierIcon = tier.icon;
-                return <TierIcon className={`h-4 w-4 ${tier.color}`} />;
-              })()}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-sm truncate">
-                {currentUserData.display_name || (language === 'th' ? 'คุณ' : 'You')}
-                <span className="text-primary ml-1">({language === 'th' ? 'คุณ' : 'You'})</span>
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {language === 'th' ? getTierByXP(currentUserData.xp || 0).nameTh : getTierByXP(currentUserData.xp || 0).nameEn}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="font-bold text-sm text-primary">{(currentUserData.xp || 0).toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">XP</p>
-            </div>
+      {/* Knowledge Progress */}
+      <div className="bg-gradient-to-r from-primary/10 to-amber-500/10 rounded-xl p-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="font-medium">
+            {language === 'th' ? 'ความรู้ในการปกป้องตนเองและชุมชน' : 'Knowledge to protect yourself & community'}
+          </span>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-primary to-amber-500 rounded-full transition-all duration-500"
+              style={{ width: `${knowledgePercent}%` }}
+            />
           </div>
-        </>
-      )}
+          <span className="font-bold text-lg text-primary">{knowledgePercent}%</span>
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          {language === 'th' 
+            ? 'เรียนรู้เพิ่มเติมเพื่อปลดล็อคความรู้และปกป้องชุมชน' 
+            : 'Learn more to unlock knowledge and protect your community'}
+        </p>
+      </div>
+
+      {/* Tier Legend */}
+      <div className="mt-6">
+        <p className="text-sm font-medium mb-3">{language === 'th' ? 'ระดับทั้งหมด' : 'All Tiers'}</p>
+        <div className="flex flex-wrap gap-1.5">
+          {TIERS.map(t => {
+            const Icon = t.icon;
+            const isCurrentTier = t.id === tier.id;
+            return (
+              <Badge 
+                key={t.id} 
+                variant="outline" 
+                className={`${t.bgColor} ${t.borderColor} ${t.color} text-xs ${isCurrentTier ? 'ring-2 ring-primary' : ''}`}
+              >
+                <Icon className="h-3 w-3 mr-1" />
+                {language === 'th' ? t.nameTh : t.nameEn}
+              </Badge>
+            );
+          })}
+        </div>
+      </div>
     </Card>
   );
 }
