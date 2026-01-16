@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { HIVTestPopup } from "@/components/HIVTestPopup";
 import { AdminRequestsPopup } from "@/components/AdminRequestsPopup";
 import { RankingBoard } from "@/components/RankingBoard";
+import { AnimatedCounter } from "@/components/AnimatedCounter";
 import {
   TestTube,
   MessageCircle,
@@ -467,21 +468,21 @@ export default function Home() {
         {/* Stats: Users and Visitors */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           {totalUsers > 0 && (
-            <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm rounded-full py-2 px-4">
+            <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm rounded-full py-2 px-4 animate-fade-in">
               <Users className="h-4 w-4 text-primary" />
               <span className="text-sm text-muted-foreground">
                 {language === 'th' ? 'สมาชิก' : 'Members'}:
               </span>
-              <span className="font-bold text-primary">{totalUsers.toLocaleString()}</span>
+              <AnimatedCounter value={totalUsers} className="font-bold text-primary" duration={1800} />
             </div>
           )}
           {totalSurveyViews > 0 && (
-            <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm rounded-full py-2 px-4">
+            <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm rounded-full py-2 px-4 animate-fade-in">
               <Eye className="h-4 w-4 text-primary" />
               <span className="text-sm text-muted-foreground">
                 {language === 'th' ? 'ผู้เข้าชม' : 'Visitors'}:
               </span>
-              <span className="font-bold text-primary">{totalSurveyViews.toLocaleString()}</span>
+              <AnimatedCounter value={totalSurveyViews} className="font-bold text-primary" duration={2000} />
             </div>
           )}
         </div>
