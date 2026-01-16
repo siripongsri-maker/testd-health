@@ -97,12 +97,14 @@ export default function Home() {
   const [pendingRequests, setPendingRequests] = useState(0);
   const [adminPopupOpen, setAdminPopupOpen] = useState(false);
   const [totalSurveyViews, setTotalSurveyViews] = useState(0);
+  const [totalUsers, setTotalUsers] = useState(0);
   const [todayStatus, setTodayStatus] = useState<"pending" | "taken" | "skipped">("pending");
 
-  // Load survey views from database
+  // Load survey views and user count from database
   useEffect(() => {
-    const fetchSurveyViews = async () => {
+    const fetchStats = async () => {
       try {
+        // Fetch survey views
         const { data, error } = await supabase
           .from('survey_views')
           .select('view_count');
@@ -113,12 +115,19 @@ export default function Home() {
           const total = data.reduce((sum, d) => sum + d.view_count, 0);
           setTotalSurveyViews(total);
         }
+
+        // Fetch total registered users
+        const { count: userCount } = await supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true });
+        
+        setTotalUsers(userCount || 0);
       } catch (err) {
-        console.error('Error fetching survey views:', err);
+        console.error('Error fetching stats:', err);
       }
     };
     
-    fetchSurveyViews();
+    fetchStats();
   }, []);
 
   useEffect(() => {
@@ -446,16 +455,27 @@ export default function Home() {
           </Button>
         </div>
 
-        {/* Total Survey Views */}
-        {totalSurveyViews > 0 && (
-          <div className="mt-6 flex items-center justify-center gap-2 bg-card/60 backdrop-blur-sm rounded-full py-2 px-4 w-fit mx-auto">
-            <Eye className="h-4 w-4 text-primary" />
-            <span className="text-sm text-muted-foreground">
-              {language === 'th' ? 'ผู้เข้าชมสะสม' : 'Total visitors'}:
-            </span>
-            <span className="font-bold text-primary">{totalSurveyViews.toLocaleString()}</span>
-          </div>
-        )}
+        {/* Stats: Users and Visitors */}
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          {totalUsers > 0 && (
+            <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm rounded-full py-2 px-4">
+              <Users className="h-4 w-4 text-primary" />
+              <span className="text-sm text-muted-foreground">
+                {language === 'th' ? 'สมาชิก' : 'Members'}:
+              </span>
+              <span className="font-bold text-primary">{totalUsers.toLocaleString()}</span>
+            </div>
+          )}
+          {totalSurveyViews > 0 && (
+            <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm rounded-full py-2 px-4">
+              <Eye className="h-4 w-4 text-primary" />
+              <span className="text-sm text-muted-foreground">
+                {language === 'th' ? 'ผู้เข้าชม' : 'Visitors'}:
+              </span>
+              <span className="font-bold text-primary">{totalSurveyViews.toLocaleString()}</span>
+            </div>
+          )}
+        </div>
 
         {/* Footer */}
         <footer className="mt-8 text-center space-y-2 pb-8">
