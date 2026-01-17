@@ -50,6 +50,75 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_daily_summary: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          total_pageviews: number
+          total_visitors: number
+          unique_sessions: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          total_pageviews?: number
+          total_visitors?: number
+          unique_sessions?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          total_pageviews?: number
+          total_visitors?: number
+          unique_sessions?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      analytics_events: {
+        Row: {
+          country: string | null
+          created_at: string
+          device_type: string | null
+          event_type: string
+          id: string
+          page_path: string
+          referrer: string | null
+          session_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          event_type?: string
+          id?: string
+          page_path: string
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          event_type?: string
+          id?: string
+          page_path?: string
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       article_comments: {
         Row: {
           article_id: string
