@@ -53,8 +53,13 @@ const AdminAnalytics = () => {
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
     
-    if (!user) {
-      navigate('/auth');
+    // Wait for auth to be determined - don't redirect immediately
+    if (user === undefined) {
+      return; // Still loading auth state
+    }
+    
+    if (user === null) {
+      navigate('/auth', { state: { from: '/admin/analytics' } });
       return;
     }
 
