@@ -89,8 +89,35 @@ export default function AdminBlog() {
   });
 
   useEffect(() => {
+    checkAdminAndLoadData();
+  }, [user]);
+
+  const checkAdminAndLoadData = async () => {
+    // Wait for auth to be determined - don't redirect immediately
+    if (user === undefined) {
+      return; // Still loading auth state
+    }
+    
+    if (user === null) {
+      navigate('/auth', { state: { from: '/admin/blog' } });
+      return;
+    }
+
+    // Check admin role
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('role', 'admin')
+      .single();
+
+    if (!roleData) {
+      navigate('/');
+      return;
+    }
+
     loadData();
-  }, []);
+  };
 
   const loadData = async () => {
     setLoading(true);
