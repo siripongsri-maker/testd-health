@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { 
   ArrowLeft, Users, Pill, TestTube, TrendingUp, Shield, BarChart3,
-  Package, Truck, Check, Eye, Loader2, UserPlus, UserX, UserCheck, ChevronRight
+  Package, Truck, Check, Eye, Loader2, UserPlus, UserX, UserCheck, ChevronRight, FileText
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -440,6 +440,28 @@ export default function AdminDashboard() {
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {language === 'th' ? 'ดูสถิติการใช้งาน' : 'View site statistics'}
+                </p>
+              </div>
+            </div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </div>
+        </Card>
+
+        <Card 
+          className="p-4 cursor-pointer hover:bg-accent/50 transition-colors"
+          onClick={() => navigate('/admin/blog')}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                <FileText className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="font-medium text-foreground">
+                  {language === 'th' ? 'จัดการบทความ' : 'Blog Management'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {language === 'th' ? 'บทความและหมวดหมู่' : 'Articles & categories'}
                 </p>
               </div>
             </div>
