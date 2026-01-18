@@ -157,8 +157,13 @@ export default function AdminKitOrders() {
   }, [user]);
 
   const checkAdminAndFetch = async () => {
-    if (!user) {
-      navigate('/auth');
+    // Wait for auth to be determined - don't redirect immediately
+    if (user === undefined) {
+      return; // Still loading auth state
+    }
+    
+    if (user === null) {
+      navigate('/auth', { state: { from: '/admin/kit-orders' } });
       return;
     }
 
@@ -173,6 +178,7 @@ export default function AdminKitOrders() {
     }
 
     setIsAdmin(true);
+    setLoading(false);
     fetchOrders();
     fetchHIVRequests();
   };
