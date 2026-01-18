@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { 
   ArrowLeft, Users, Pill, TestTube, TrendingUp, Shield, BarChart3,
-  Package, Truck, Check, Eye, Loader2, UserPlus, UserX, UserCheck
+  Package, Truck, Check, Eye, Loader2, UserPlus, UserX, UserCheck, ChevronRight
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -94,8 +94,13 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const checkAdmin = async () => {
-      if (!user) {
-        navigate('/auth');
+      // Wait for auth to be determined - don't redirect immediately
+      if (user === undefined) {
+        return; // Still loading auth state
+      }
+      
+      if (user === null) {
+        navigate('/auth', { state: { from: '/admin/dashboard' } });
         return;
       }
 
@@ -394,6 +399,53 @@ export default function AdminDashboard() {
             {language === 'th' ? 'จัดการคำขอและข้อมูลระบบ' : 'Manage requests and system data'}
           </p>
         </div>
+      </div>
+
+      {/* Admin Navigation Links */}
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        <Card 
+          className="p-4 cursor-pointer hover:bg-accent/50 transition-colors"
+          onClick={() => navigate('/admin/kit-orders')}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                <Package className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="font-medium text-foreground">
+                  {language === 'th' ? 'จัดการออร์เดอร์' : 'Kit Orders'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {language === 'th' ? 'ดูและจัดการคำสั่งซื้อ' : 'Manage orders & exports'}
+                </p>
+              </div>
+            </div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </div>
+        </Card>
+        
+        <Card 
+          className="p-4 cursor-pointer hover:bg-accent/50 transition-colors"
+          onClick={() => navigate('/admin/analytics')}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                <BarChart3 className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="font-medium text-foreground">
+                  {language === 'th' ? 'วิเคราะห์ข้อมูล' : 'Analytics'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {language === 'th' ? 'ดูสถิติการใช้งาน' : 'View site statistics'}
+                </p>
+              </div>
+            </div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </div>
+        </Card>
       </div>
 
       <Tabs defaultValue="hivtests" className="w-full">
