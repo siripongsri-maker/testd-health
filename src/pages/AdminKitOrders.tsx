@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
-  Package, Plus, Search, Loader2, Eye, Copy, Truck, Download, FileSpreadsheet, TestTube
+  Package, Plus, Search, Loader2, Eye, Copy, Truck, Download, FileSpreadsheet, TestTube, Printer
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -156,6 +156,10 @@ export default function AdminKitOrders() {
     tracking_url: '',
     internal_notes: '',
   });
+
+  // Print states
+  const [showPrintDialog, setShowPrintDialog] = useState(false);
+  const [selectedForPrint, setSelectedForPrint] = useState<(KitOrder | HIVTestRequest)[]>([]);
 
   useEffect(() => {
     checkAdminAndFetch();
@@ -546,6 +550,46 @@ export default function AdminKitOrders() {
     );
   };
 
+  // Print functions
+  const openPrintView = () => {
+    if (dataSource === 'kit_orders') {
+      setSelectedForPrint(filteredOrders);
+    } else {
+      setSelectedForPrint(filteredHIVRequests);
+    }
+    setShowPrintDialog(true);
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const formatAddressForLabel = (item: KitOrder | HIVTestRequest): { name: string; phone: string; address: string } => {
+    if ('order_code' in item) {
+      // KitOrder
+      return {
+        name: item.recipient_name || '',
+        phone: item.recipient_phone || '',
+        address: item.recipient_address,
+      };
+    } else {
+      // HIVTestRequest
+      const pii = item.selftest_pii;
+      const addressParts = [
+        pii?.address,
+        pii?.subdistrict,
+        pii?.district,
+        pii?.province,
+        pii?.postal_code,
+      ].filter(Boolean);
+      return {
+        name: pii?.full_name || '',
+        phone: pii?.phone || '',
+        address: addressParts.join(' '),
+      };
+    }
+  };
+
   if (loading) {
     return (
       <AdminLayout>
@@ -585,6 +629,10 @@ export default function AdminKitOrders() {
                 <DropdownMenuItem onClick={exportToGoogleSheets} className="gap-2">
                   <FileSpreadsheet className="h-4 w-4" />
                   {language === 'th' ? 'ส่งออก Google Sheets' : 'Export to Google Sheets'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={openPrintView} className="gap-2">
+                  <Printer className="h-4 w-4" />
+                  {language === 'th' ? 'พิมพ์ฉลาก' : 'Print Labels'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -988,6 +1036,119 @@ export default function AdminKitOrders() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Print Labels Dialog */}
+      <Dialog open={showPrintDialog} onOpenChange={setShowPrintDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto print:max-w-none print:max-h-none print:overflow-visible">
+          <DialogHeader className="print:hidden">
+            <DialogTitle className="flex items-center gap-2">
+              <Printer className="h-5 w-5" />
+              {language === 'th' ? 'พิมพ์ฉลากที่อยู่' : 'Print Shipping Labels'}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="print:hidden mb-4 flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              {language === 'th' 
+                ? `${selectedForPrint.length} รายการที่เลือก` 
+                : `${selectedForPrint.length} items selected`}
+            </p>
+            <Button onClick={handlePrint} className="gap-2">
+              <Printer className="h-4 w-4" />
+              {language === 'th' ? 'พิมพ์' : 'Print'}
+            </Button>
+          </div>
+
+          {/* Print-friendly label grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 print:grid-cols-2 print:gap-0">
+            {selectedForPrint.map((item, index) => {
+              const { name, phone, address } = formatAddressForLabel(item);
+              const orderCode = 'order_code' in item ? item.order_code : item.id.slice(0, 8).toUpperCase();
+              const createdAt = 'created_at' in item ? item.created_at : '';
+              
+              return (
+                <div 
+                  key={index}
+                  className="border-2 border-dashed border-gray-300 p-4 rounded-lg print:border-solid print:border-black print:rounded-none print:break-inside-avoid"
+                  style={{ minHeight: '180px' }}
+                >
+                  {/* Label Header */}
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-200 print:border-black">
+                    <div className="flex items-center gap-2">
+                      <Package className="h-4 w-4 print:h-5 print:w-5" />
+                      <span className="text-xs font-bold uppercase tracking-wider print:text-sm">
+                        {language === 'th' ? 'ผู้รับ' : 'RECIPIENT'}
+                      </span>
+                    </div>
+                    <code className="text-xs font-mono bg-gray-100 px-2 py-0.5 rounded print:bg-transparent print:text-sm">
+                      {orderCode}
+                    </code>
+                  </div>
+
+                  {/* Recipient Details */}
+                  <div className="space-y-1.5">
+                    {name && (
+                      <p className="font-bold text-lg print:text-xl leading-tight">
+                        {name}
+                      </p>
+                    )}
+                    {phone && (
+                      <p className="text-sm text-muted-foreground print:text-black print:text-base">
+                        📞 {phone}
+                      </p>
+                    )}
+                    <p className="text-sm leading-relaxed print:text-base print:leading-normal mt-2">
+                      {address}
+                    </p>
+                  </div>
+
+                  {/* Footer with date */}
+                  <div className="mt-3 pt-2 border-t border-gray-100 print:border-gray-300">
+                    <p className="text-xs text-muted-foreground print:text-gray-600">
+                      {createdAt && formatDate(createdAt)}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <DialogFooter className="print:hidden">
+            <Button variant="outline" onClick={() => setShowPrintDialog(false)}>
+              {language === 'th' ? 'ปิด' : 'Close'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Print-only styles */}
+      <style>{`
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          [role="dialog"] * {
+            visibility: visible;
+          }
+          [role="dialog"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: auto;
+            margin: 0;
+            padding: 0;
+            background: white;
+          }
+          .print\\:hidden {
+            display: none !important;
+          }
+          @page {
+            size: A4;
+            margin: 10mm;
+          }
+        }
+      `}</style>
       </div>
     </AdminLayout>
   );
