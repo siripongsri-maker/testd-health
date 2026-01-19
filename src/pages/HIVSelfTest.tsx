@@ -147,9 +147,11 @@ export default function HIVSelfTest() {
   useEffect(() => {
     if (user) {
       fetchRequests();
+      // Fetch date of birth from user_personal_info
+      fetchUserPersonalInfo();
     }
     
-    // Pre-fill form with saved personal info
+    // Pre-fill form with saved personal info from local storage
     const userData = getUserData();
     if (userData.personalInfo) {
       const pi = userData.personalInfo;
@@ -166,6 +168,23 @@ export default function HIVSelfTest() {
       }));
     }
   }, [user]);
+
+  const fetchUserPersonalInfo = async () => {
+    if (!user) return;
+    
+    const { data, error } = await supabase
+      .from('user_personal_info')
+      .select('date_of_birth')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    
+    if (!error && data?.date_of_birth) {
+      setFormData(prev => ({
+        ...prev,
+        dateOfBirth: data.date_of_birth || prev.dateOfBirth,
+      }));
+    }
+  };
 
   useEffect(() => {
     // Determine which step to show based on active request status
