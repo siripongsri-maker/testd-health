@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { PageContainer } from '@/components/PageContainer';
 import { PageHeader } from '@/components/PageHeader';
+import { AdminBreadcrumb } from '@/components/AdminBreadcrumb';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -192,6 +193,7 @@ const AdminAnalytics = () => {
 
   return (
     <PageContainer>
+      <AdminBreadcrumb currentPage="Analytics" />
       <PageHeader title="Analytics Dashboard" backTo="/admin" />
       
       <div className="space-y-6 pb-24">

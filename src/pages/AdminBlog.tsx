@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageContainer } from "@/components/PageContainer";
+import { AdminBreadcrumb } from "@/components/AdminBreadcrumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -303,6 +304,8 @@ export default function AdminBlog() {
 
   return (
     <PageContainer>
+      <AdminBreadcrumb currentPage="Blog Management" />
+      
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
