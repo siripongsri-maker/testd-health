@@ -101,10 +101,6 @@ export default function Home() {
   const [totalMembers, setTotalMembers] = useState(0);
   const [todayStatus, setTodayStatus] = useState<"pending" | "taken" | "skipped">("pending");
 
-  // Baseline numbers (historical data before tracking started)
-  const BASELINE_MEMBERS = 1300;
-  const BASELINE_VISITORS = 10796;
-
   // Load real stats from database
   useEffect(() => {
     const fetchStats = async () => {
@@ -116,9 +112,7 @@ export default function Home() {
         
         if (!analyticsError && analyticsData) {
           const uniqueSessions = new Set(analyticsData.map(e => e.session_id).filter(Boolean));
-          setTotalVisitors(BASELINE_VISITORS + uniqueSessions.size);
-        } else {
-          setTotalVisitors(BASELINE_VISITORS);
+          setTotalVisitors(uniqueSessions.size);
         }
 
         // Fetch total registered members from user_roles (unique users)
@@ -128,14 +122,10 @@ export default function Home() {
         
         if (!rolesError && rolesData) {
           const uniqueUsers = new Set(rolesData.map(r => r.user_id));
-          setTotalMembers(BASELINE_MEMBERS + uniqueUsers.size);
-        } else {
-          setTotalMembers(BASELINE_MEMBERS);
+          setTotalMembers(uniqueUsers.size);
         }
       } catch (err) {
         console.error('Error fetching stats:', err);
-        setTotalVisitors(BASELINE_VISITORS);
-        setTotalMembers(BASELINE_MEMBERS);
       }
     };
     
