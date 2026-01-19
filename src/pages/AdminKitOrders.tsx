@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageContainer } from "@/components/PageContainer";
-import { AdminBreadcrumb } from "@/components/AdminBreadcrumb";
+import { AdminLayout } from "@/components/AdminLayout";
 import { useLanguage } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
-  ArrowLeft, Package, Plus, Search, Loader2, Eye, Copy, Truck, Download, FileSpreadsheet, TestTube
+  Package, Plus, Search, Loader2, Eye, Copy, Truck, Download, FileSpreadsheet, TestTube
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -529,56 +528,52 @@ export default function AdminKitOrders() {
 
   if (loading) {
     return (
-      <PageContainer showNav={false}>
+      <AdminLayout>
         <div className="flex items-center justify-center h-64">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
-      </PageContainer>
+      </AdminLayout>
     );
   }
 
   if (!isAdmin) return null;
 
   return (
-    <PageContainer showNav={false}>
-      <AdminBreadcrumb currentPage="Kit Orders" />
-      
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/admin')}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <Package className="h-5 w-5 text-primary" />
-            <h1 className="text-xl font-bold text-foreground">
+    <AdminLayout>
+      <div className="p-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
+              <Package className="h-5 w-5 text-primary" />
               {language === 'th' ? 'จัดการคำสั่งซื้อ' : 'Orders & Requests'}
             </h1>
           </div>
-        </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2">
-              <Download className="h-4 w-4" />
-              {language === 'th' ? 'ส่งออก' : 'Export'}
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Download className="h-4 w-4" />
+                  {language === 'th' ? 'ส่งออก' : 'Export'}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={exportToCSV} className="gap-2">
+                  <Download className="h-4 w-4" />
+                  {language === 'th' ? 'ดาวน์โหลด CSV' : 'Download CSV'}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportToGoogleSheets} className="gap-2">
+                  <FileSpreadsheet className="h-4 w-4" />
+                  {language === 'th' ? 'ส่งออก Google Sheets' : 'Export to Google Sheets'}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button onClick={() => setShowCreateDialog(true)} size="sm" className="gap-2">
+              <Plus className="h-4 w-4" />
+              {language === 'th' ? 'สร้าง' : 'New'}
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={exportToCSV} className="gap-2">
-              <Download className="h-4 w-4" />
-              {language === 'th' ? 'ดาวน์โหลด CSV' : 'Download CSV'}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={exportToGoogleSheets} className="gap-2">
-              <FileSpreadsheet className="h-4 w-4" />
-              {language === 'th' ? 'ส่งออก Google Sheets' : 'Export to Google Sheets'}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Button onClick={() => setShowCreateDialog(true)} size="sm" className="gap-2">
-          <Plus className="h-4 w-4" />
-          {language === 'th' ? 'สร้าง' : 'New'}
-        </Button>
-      </div>
+          </div>
+        </div>
 
       {/* Data Source Toggle */}
       <div className="flex gap-2 mb-4">
@@ -973,6 +968,7 @@ export default function AdminKitOrders() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </PageContainer>
+      </div>
+    </AdminLayout>
   );
 }

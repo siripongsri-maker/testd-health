@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageContainer } from "@/components/PageContainer";
+import { AdminLayout } from "@/components/AdminLayout";
 import { useLanguage } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { 
-  ArrowLeft, Users, Pill, TestTube, TrendingUp, Shield, BarChart3,
-  Package, Truck, Check, Eye, Loader2, UserPlus, UserX, UserCheck, ChevronRight, FileText
+  Users, Pill, TestTube, TrendingUp, Shield, BarChart3, Package,
+  Truck, Check, Eye, Loader2, UserPlus, UserX, UserCheck
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -341,11 +341,11 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <PageContainer showNav={false}>
+      <AdminLayout>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
         </div>
-      </PageContainer>
+      </AdminLayout>
     );
   }
 
@@ -383,92 +383,16 @@ export default function AdminDashboard() {
   );
 
   return (
-    <PageContainer showNav={false}>
-      <div className="flex items-center gap-3 mb-6">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">
-              {language === 'th' ? 'แดชบอร์ดผู้ดูแล' : 'Admin Dashboard'}
-            </h1>
-          </div>
+    <AdminLayout>
+      <div className="p-6">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-foreground">
+            {language === 'th' ? 'แดชบอร์ดผู้ดูแล' : 'Admin Dashboard'}
+          </h1>
           <p className="text-muted-foreground">
             {language === 'th' ? 'จัดการคำขอและข้อมูลระบบ' : 'Manage requests and system data'}
           </p>
         </div>
-      </div>
-
-      {/* Admin Navigation Links */}
-      <div className="grid grid-cols-2 gap-3 mb-6">
-        <Card 
-          className="p-4 cursor-pointer hover:bg-accent/50 transition-colors"
-          onClick={() => navigate('/admin/kit-orders')}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                <Package className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="font-medium text-foreground">
-                  {language === 'th' ? 'จัดการออร์เดอร์' : 'Kit Orders'}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {language === 'th' ? 'ดูและจัดการคำสั่งซื้อ' : 'Manage orders & exports'}
-                </p>
-              </div>
-            </div>
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
-          </div>
-        </Card>
-        
-        <Card 
-          className="p-4 cursor-pointer hover:bg-accent/50 transition-colors"
-          onClick={() => navigate('/admin/analytics')}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                <BarChart3 className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="font-medium text-foreground">
-                  {language === 'th' ? 'วิเคราะห์ข้อมูล' : 'Analytics'}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {language === 'th' ? 'ดูสถิติการใช้งาน' : 'View site statistics'}
-                </p>
-              </div>
-            </div>
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
-          </div>
-        </Card>
-
-        <Card 
-          className="p-4 cursor-pointer hover:bg-accent/50 transition-colors"
-          onClick={() => navigate('/admin/blog')}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                <FileText className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="font-medium text-foreground">
-                  {language === 'th' ? 'จัดการบทความ' : 'Blog Management'}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {language === 'th' ? 'บทความและหมวดหมู่' : 'Articles & categories'}
-                </p>
-              </div>
-            </div>
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
-          </div>
-        </Card>
-      </div>
 
       <Tabs defaultValue="hivtests" className="w-full">
         <TabsList className="w-full mb-4 grid grid-cols-4">
@@ -851,6 +775,7 @@ export default function AdminDashboard() {
           )}
         </DialogContent>
       </Dialog>
-    </PageContainer>
+      </div>
+    </AdminLayout>
   );
 }
