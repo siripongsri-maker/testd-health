@@ -22,6 +22,7 @@ export default function Leaderboard() {
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const [allUsers, setAllUsers] = useState<RankedUser[]>([]);
+  const [totalMembers, setTotalMembers] = useState<number>(0);
   const [currentUserRank, setCurrentUserRank] = useState<number | null>(null);
   const [currentUserData, setCurrentUserData] = useState<RankedUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -33,6 +34,16 @@ export default function Leaderboard() {
 
   const fetchAllRankings = async () => {
     setLoading(true);
+    
+    // Fetch total members from user_roles (unique users)
+    const { data: rolesData } = await supabase
+      .from('user_roles')
+      .select('user_id');
+    
+    if (rolesData) {
+      const uniqueUsers = new Set(rolesData.map(r => r.user_id));
+      setTotalMembers(uniqueUsers.size);
+    }
     
     // Use the secure leaderboard_profiles view (excludes sensitive health data)
     const { data: rankings } = await supabase
@@ -102,9 +113,9 @@ export default function Leaderboard() {
             <div className="flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
               <div>
-                <p className="text-2xl font-bold">{allUsers.length}</p>
+                <p className="text-2xl font-bold">{totalMembers}</p>
                 <p className="text-xs text-muted-foreground">
-                  {language === 'th' ? 'ผู้เข้าร่วมทั้งหมด' : 'Total Members'}
+                  {language === 'th' ? 'สมาชิกทั้งหมด' : 'Total Members'}
                 </p>
               </div>
             </div>
