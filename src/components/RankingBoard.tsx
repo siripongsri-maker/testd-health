@@ -97,12 +97,15 @@ export function RankingBoard({ compact = false }: RankingBoardProps) {
   const fetchRankings = async () => {
     setLoading(true);
     
-    // Fetch total user count
-    const { count } = await supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true });
+    // Fetch total members from user_roles (unique users) - synced with home page
+    const { data: rolesData } = await supabase
+      .from('user_roles')
+      .select('user_id');
     
-    setTotalUsers(count || 0);
+    if (rolesData) {
+      const uniqueUsers = new Set(rolesData.map(r => r.user_id));
+      setTotalUsers(uniqueUsers.size);
+    }
 
     // Fetch current user's rank
     if (user) {
