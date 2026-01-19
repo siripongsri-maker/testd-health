@@ -8,7 +8,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TIERS, getTierByXP } from "@/components/RankingBoard";
-import { Crown, Trophy, Medal, TrendingUp, Users, Sparkles } from "lucide-react";
+import { Crown, Trophy, Medal, TrendingUp, Users, Sparkles, Zap } from "lucide-react";
+import { subDays } from "date-fns";
 
 interface RankedUser {
   id: string;
@@ -23,6 +24,7 @@ export default function Leaderboard() {
   const { user } = useAuth();
   const [allUsers, setAllUsers] = useState<RankedUser[]>([]);
   const [totalMembers, setTotalMembers] = useState<number>(0);
+  const [activePlayers, setActivePlayers] = useState<number>(0);
   const [currentUserRank, setCurrentUserRank] = useState<number | null>(null);
   const [currentUserData, setCurrentUserData] = useState<RankedUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -61,6 +63,16 @@ export default function Leaderboard() {
         if (userData) setCurrentUserData(userData);
       }
     }
+
+    // Fetch active players (users with XP who were active in the last 7 days)
+    const sevenDaysAgo = subDays(new Date(), 7).toISOString();
+    const { count: activeCount } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      .gt('xp', 0)
+      .gte('updated_at', sevenDaysAgo);
+    
+    setActivePlayers(activeCount || 0);
     
     setLoading(false);
   };
@@ -108,27 +120,39 @@ export default function Leaderboard() {
       
       <div className="p-4 space-y-4 pb-24">
         {/* Stats Summary */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           <Card className="p-3 bg-gradient-to-br from-primary/10 to-primary/5">
             <div className="flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
               <div>
                 <p className="text-2xl font-bold">{totalMembers}</p>
                 <p className="text-xs text-muted-foreground">
-                  {language === 'th' ? 'สมาชิกทั้งหมด' : 'Total Members'}
+                  {language === 'th' ? 'สมาชิก' : 'Members'}
+                </p>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-3 bg-gradient-to-br from-emerald-100/50 to-green-100/50 dark:from-emerald-900/30 dark:to-green-900/30">
+            <div className="flex items-center gap-2">
+              <Zap className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+              <div>
+                <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">{activePlayers}</p>
+                <p className="text-xs text-muted-foreground">
+                  {language === 'th' ? 'แอคทีฟ 7 วัน' : 'Active 7d'}
                 </p>
               </div>
             </div>
           </Card>
           
           {currentUserRank && currentUserData && (
-            <Card className="p-3 bg-gradient-to-br from-amber-100/50 to-orange-100/50">
+            <Card className="p-3 bg-gradient-to-br from-amber-100/50 to-orange-100/50 dark:from-amber-900/30 dark:to-orange-900/30">
               <div className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-amber-600" />
+                <TrendingUp className="h-5 w-5 text-amber-600 dark:text-amber-400" />
                 <div>
-                  <p className="text-2xl font-bold">#{currentUserRank}</p>
+                  <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">#{currentUserRank}</p>
                   <p className="text-xs text-muted-foreground">
-                    {language === 'th' ? 'อันดับของคุณ' : 'Your Rank'}
+                    {language === 'th' ? 'อันดับคุณ' : 'Your Rank'}
                   </p>
                 </div>
               </div>
