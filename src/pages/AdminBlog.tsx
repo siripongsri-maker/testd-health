@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { PageContainer } from "@/components/PageContainer";
-import { AdminBreadcrumb } from "@/components/AdminBreadcrumb";
+import { AdminLayout } from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/lib/i18n";
 import { 
-  ArrowLeft, Plus, Pencil, Trash2, Eye, Send, Check, X, 
+  Plus, Pencil, Trash2, Eye, Send, Check, X, 
   FileText, Clock, CheckCircle, Archive, Loader2, Upload, Image
 } from "lucide-react";
 import { toast } from "sonner";
@@ -294,33 +293,28 @@ export default function AdminBlog() {
 
   if (loading) {
     return (
-      <PageContainer>
+      <AdminLayout>
         <div className="flex items-center justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
-      </PageContainer>
+      </AdminLayout>
     );
   }
 
   return (
-    <PageContainer>
-      <AdminBreadcrumb currentPage="Blog Management" />
-      
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/admin')} className="rounded-xl">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-xl font-bold text-foreground">
+    <AdminLayout>
+      <div className="p-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
+            <FileText className="h-5 w-5 text-primary" />
             {language === 'th' ? 'จัดการบทความ' : 'Blog Management'}
           </h1>
+          <Button onClick={() => openEditor()} className="gap-2">
+            <Plus className="h-4 w-4" />
+            {language === 'th' ? 'เขียนบทความ' : 'New Article'}
+          </Button>
         </div>
-        <Button onClick={() => openEditor()} className="gap-2">
-          <Plus className="h-4 w-4" />
-          {language === 'th' ? 'เขียนบทความ' : 'New Article'}
-        </Button>
-      </div>
 
       {/* Status Filter */}
       <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
@@ -604,6 +598,7 @@ export default function AdminBlog() {
           </div>
         </DialogContent>
       </Dialog>
-    </PageContainer>
+      </div>
+    </AdminLayout>
   );
 }

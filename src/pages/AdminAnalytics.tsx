@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { PageContainer } from '@/components/PageContainer';
-import { PageHeader } from '@/components/PageHeader';
-import { AdminBreadcrumb } from '@/components/AdminBreadcrumb';
+import { AdminLayout } from '@/components/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -181,24 +179,25 @@ const AdminAnalytics = () => {
 
   if (loading) {
     return (
-      <PageContainer>
-        <div className="flex items-center justify-center min-h-screen">
+      <AdminLayout>
+        <div className="flex items-center justify-center min-h-[50vh]">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
-      </PageContainer>
+      </AdminLayout>
     );
   }
 
   if (!isAdmin) return null;
 
   return (
-    <PageContainer>
-      <AdminBreadcrumb currentPage="Analytics" />
-      <PageHeader title="Analytics Dashboard" backTo="/admin" />
-      
-      <div className="space-y-6 pb-24">
-        {/* Date Range Selector */}
-        <div className="flex justify-end">
+    <AdminLayout>
+      <div className="p-6 space-y-6">
+        {/* Header with Date Range Selector */}
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
+            <BarChart3 className="h-5 w-5 text-primary" />
+            Analytics Dashboard
+          </h1>
           <Select value={dateRange} onValueChange={setDateRange}>
             <SelectTrigger className="w-40">
               <SelectValue />
@@ -435,7 +434,7 @@ const AdminAnalytics = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </PageContainer>
+    </AdminLayout>
   );
 };
 
