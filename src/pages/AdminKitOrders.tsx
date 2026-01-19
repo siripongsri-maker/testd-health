@@ -74,8 +74,11 @@ interface SelftestPii {
   phone: string | null;
   address: string | null;
   district: string | null;
+  subdistrict: string | null;
   province: string | null;
   postal_code: string | null;
+  date_of_birth: string | null;
+  line_id: string | null;
 }
 
 interface HIVTestRequest {
@@ -85,7 +88,9 @@ interface HIVTestRequest {
   status: string;
   tracking_number: string | null;
   created_at: string;
+  updated_at: string;
   test_result: string | null;
+  staff_notes: string | null;
   selftest_pii: SelftestPii | null;
 }
 
@@ -212,15 +217,20 @@ export default function AdminKitOrders() {
           status,
           tracking_number,
           created_at,
+          updated_at,
           test_result,
+          staff_notes,
           selftest_pii (
             id,
             full_name,
             phone,
             address,
             district,
+            subdistrict,
             province,
-            postal_code
+            postal_code,
+            date_of_birth,
+            line_id
           )
         `)
         .order('created_at', { ascending: false });
@@ -446,20 +456,25 @@ export default function AdminKitOrders() {
         csvContent += row + "\n";
       });
     } else {
-      csvContent = "Name,Phone,Address,District,Province,Postal Code,Status,Tracking Number,Test Result,Created At\n";
+      csvContent = "Name,Date of Birth,Phone,Line ID,Address,Subdistrict,District,Province,Postal Code,Status,Tracking Number,Test Result,Staff Notes,Created At,Updated At\n";
       filteredHIVRequests.forEach(request => {
         const pii = request.selftest_pii;
         const row = [
           pii?.full_name || '',
+          pii?.date_of_birth || '',
           pii?.phone || '',
+          pii?.line_id || '',
           `"${(pii?.address || '').replace(/"/g, '""')}"`,
+          pii?.subdistrict || '',
           pii?.district || '',
           pii?.province || '',
           pii?.postal_code || '',
           request.status,
           request.tracking_number || '',
           request.test_result || '',
+          `"${(request.staff_notes || '').replace(/"/g, '""')}"`,
           formatDate(request.created_at),
+          formatDate(request.updated_at),
         ].join(',');
         csvContent += row + "\n";
       });
@@ -493,20 +508,25 @@ export default function AdminKitOrders() {
       ];
     } else {
       data = [
-        ["Name", "Phone", "Address", "District", "Province", "Postal Code", "Status", "Tracking Number", "Test Result", "Created At"],
+        ["Name", "Date of Birth", "Phone", "Line ID", "Address", "Subdistrict", "District", "Province", "Postal Code", "Status", "Tracking Number", "Test Result", "Staff Notes", "Created At", "Updated At"],
         ...filteredHIVRequests.map(request => {
           const pii = request.selftest_pii;
           return [
             pii?.full_name || '',
+            pii?.date_of_birth || '',
             pii?.phone || '',
+            pii?.line_id || '',
             pii?.address || '',
+            pii?.subdistrict || '',
             pii?.district || '',
             pii?.province || '',
             pii?.postal_code || '',
             request.status,
             request.tracking_number || '',
             request.test_result || '',
+            request.staff_notes || '',
             formatDate(request.created_at),
+            formatDate(request.updated_at),
           ];
         })
       ];
