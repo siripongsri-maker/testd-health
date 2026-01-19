@@ -97,43 +97,45 @@ export default function Home() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingRequests, setPendingRequests] = useState(0);
   const [adminPopupOpen, setAdminPopupOpen] = useState(false);
-  const [totalSurveyViews, setTotalSurveyViews] = useState(0);
-  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalVisitors, setTotalVisitors] = useState(0);
+  const [totalMembers, setTotalMembers] = useState(0);
   const [todayStatus, setTodayStatus] = useState<"pending" | "taken" | "skipped">("pending");
 
   // Baseline numbers (historical data before tracking started)
   const BASELINE_MEMBERS = 1300;
   const BASELINE_VISITORS = 10796;
 
-  // Load survey views and user count from database
+  // Load real stats from database
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        // Fetch survey views
-        const { data, error } = await supabase
-          .from('survey_views')
-          .select('view_count');
+        // Fetch unique visitors from analytics_events (unique sessions)
+        const { data: analyticsData, error: analyticsError } = await supabase
+          .from('analytics_events')
+          .select('session_id');
         
-        if (error) throw error;
-        
-        if (data) {
-          const total = data.reduce((sum, d) => sum + d.view_count, 0);
-          setTotalSurveyViews(BASELINE_VISITORS + total);
+        if (!analyticsError && analyticsData) {
+          const uniqueSessions = new Set(analyticsData.map(e => e.session_id).filter(Boolean));
+          setTotalVisitors(BASELINE_VISITORS + uniqueSessions.size);
         } else {
-          setTotalSurveyViews(BASELINE_VISITORS);
+          setTotalVisitors(BASELINE_VISITORS);
         }
 
-        // Fetch total registered users
-        const { count: userCount } = await supabase
-          .from('profiles')
-          .select('*', { count: 'exact', head: true });
+        // Fetch total registered members from user_roles (unique users)
+        const { data: rolesData, error: rolesError } = await supabase
+          .from('user_roles')
+          .select('user_id');
         
-        setTotalUsers(BASELINE_MEMBERS + (userCount || 0));
+        if (!rolesError && rolesData) {
+          const uniqueUsers = new Set(rolesData.map(r => r.user_id));
+          setTotalMembers(BASELINE_MEMBERS + uniqueUsers.size);
+        } else {
+          setTotalMembers(BASELINE_MEMBERS);
+        }
       } catch (err) {
         console.error('Error fetching stats:', err);
-        // Still show baseline on error
-        setTotalSurveyViews(BASELINE_VISITORS);
-        setTotalUsers(BASELINE_MEMBERS);
+        setTotalVisitors(BASELINE_VISITORS);
+        setTotalMembers(BASELINE_MEMBERS);
       }
     };
     
@@ -467,22 +469,22 @@ export default function Home() {
 
         {/* Stats: Users and Visitors */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-          {totalUsers > 0 && (
+          {totalMembers > 0 && (
             <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm rounded-full py-2 px-4 animate-fade-in">
               <Users className="h-4 w-4 text-primary" />
               <span className="text-sm text-muted-foreground">
                 {language === 'th' ? 'สมาชิก' : 'Members'}:
               </span>
-              <AnimatedCounter value={totalUsers} className="font-bold text-primary" duration={1800} />
+              <AnimatedCounter value={totalMembers} className="font-bold text-primary" duration={1800} />
             </div>
           )}
-          {totalSurveyViews > 0 && (
+          {totalVisitors > 0 && (
             <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm rounded-full py-2 px-4 animate-fade-in">
               <Eye className="h-4 w-4 text-primary" />
               <span className="text-sm text-muted-foreground">
                 {language === 'th' ? 'ผู้เข้าชม' : 'Visitors'}:
               </span>
-              <AnimatedCounter value={totalSurveyViews} className="font-bold text-primary" duration={2000} />
+              <AnimatedCounter value={totalVisitors} className="font-bold text-primary" duration={2000} />
             </div>
           )}
         </div>
