@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageContainer } from "@/components/PageContainer";
+import { AdminBreadcrumb } from "@/components/AdminBreadcrumb";
 import { useLanguage } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -540,6 +541,8 @@ export default function AdminKitOrders() {
 
   return (
     <PageContainer showNav={false}>
+      <AdminBreadcrumb currentPage="Kit Orders" />
+      
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <Button variant="ghost" size="icon" onClick={() => navigate('/admin')}>
