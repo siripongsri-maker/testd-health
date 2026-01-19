@@ -39,10 +39,22 @@ export default function AdminAnalyticsContent() {
     uniqueSessions: 0,
     avgSessionDuration: 0,
   });
+  const [totalMembers, setTotalMembers] = useState(0);
 
   useEffect(() => {
     fetchAnalytics();
+    fetchTotalMembers();
   }, [dateRange]);
+
+  const fetchTotalMembers = async () => {
+    const { count, error } = await supabase
+      .from('user_roles')
+      .select('*', { count: 'exact', head: true });
+
+    if (!error && count !== null) {
+      setTotalMembers(count);
+    }
+  };
 
   const fetchAnalytics = async () => {
     setLoading(true);
@@ -175,12 +187,28 @@ export default function AdminAnalyticsContent() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-primary/20">
                 <Users className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">สมาชิก (Members)</p>
+                <p className="text-2xl font-bold">
+                  <AnimatedCounter value={totalMembers} />
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-accent/20">
+                <Users className="h-5 w-5 text-accent" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Visitors</p>
@@ -192,7 +220,7 @@ export default function AdminAnalyticsContent() {
           </CardContent>
         </Card>
 
-        <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+        <Card className="bg-card/50 backdrop-blur-sm border-secondary/20">
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-secondary/20">
