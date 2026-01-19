@@ -86,6 +86,7 @@ export default function HIVSelfTest() {
   // Form state
   const [formData, setFormData] = useState({
     fullName: "",
+    dateOfBirth: "",
     thaiId: "",
     phone: "",
     lineId: "",
@@ -299,6 +300,7 @@ export default function HIVSelfTest() {
       const { data: piiData, error: piiError } = await supabase.from('selftest_pii').insert({
         user_id: user.id,
         full_name: formData.fullName,
+        date_of_birth: formData.dateOfBirth || null,
         thai_id: formData.thaiId,
         phone: formData.phone,
         line_id: formData.lineId,
@@ -354,6 +356,7 @@ export default function HIVSelfTest() {
       
       setFormData({
         fullName: "",
+        dateOfBirth: "",
         thaiId: "",
         phone: "",
         lineId: "",
@@ -712,6 +715,22 @@ export default function HIVSelfTest() {
                       required
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="dateOfBirth">
+                      <Calendar className="h-4 w-4 inline mr-1" />
+                      {language === 'th' ? 'วันเดือนปีเกิด' : 'Date of Birth'}
+                    </Label>
+                    <Input
+                      id="dateOfBirth"
+                      type="date"
+                      value={formData.dateOfBirth}
+                      onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
+                      max={new Date().toISOString().split('T')[0]}
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="thaiId">
                       {language === 'th' ? 'หมายเลขบัตรประชาชน (13 หลัก)' : 'Thai ID (13 digits)'}
