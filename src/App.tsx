@@ -31,10 +31,7 @@ import Surveys from "./pages/Surveys";
 import Leaderboard from "./pages/Leaderboard";
 import HealthProfile from "./pages/HealthProfile";
 import ConsultationForm from "./pages/ConsultationForm";
-import AdminDashboard from "./pages/AdminDashboard";
-import AdminKitOrders from "./pages/AdminKitOrders";
-import AdminBlog from "./pages/AdminBlog";
-import AdminAnalytics from "./pages/AdminAnalytics";
+import Admin from "./pages/Admin";
 import TrackOrder from "./pages/TrackOrder";
 import WriteArticle from "./pages/WriteArticle";
 import PersonalInfo from "./pages/PersonalInfo";
@@ -80,10 +77,7 @@ const App = () => (
             <Route path="/surveys" element={<Surveys />} />
             <Route path="/health-profile" element={<HealthProfile />} />
             <Route path="/consultation" element={<ConsultationForm />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/kit-orders" element={<AdminKitOrders />} />
-            <Route path="/admin/blog" element={<AdminBlog />} />
-            <Route path="/admin/analytics" element={<AdminAnalytics />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="/track-order" element={<TrackOrder />} />
             <Route path="/personal-info" element={<PersonalInfo />} />
             <Route path="/avatar" element={<AvatarCustomization />} />
