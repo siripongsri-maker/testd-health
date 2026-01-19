@@ -3,13 +3,14 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { AdminLayout } from "@/components/AdminLayout";
 import { useLanguage } from "@/lib/i18n";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, BarChart3, FileText, Loader2 } from "lucide-react";
+import { Package, BarChart3, FileText, Loader2, LayoutDashboard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
 // Tab content components - lazy loaded
 import { Suspense, lazy } from "react";
 
+const AdminDashboardContent = lazy(() => import("@/components/admin/AdminDashboardContent"));
 const AdminKitOrdersContent = lazy(() => import("@/components/admin/AdminKitOrdersContent"));
 const AdminAnalyticsContent = lazy(() => import("@/components/admin/AdminAnalyticsContent"));
 const AdminBlogContent = lazy(() => import("@/components/admin/AdminBlogContent"));
@@ -28,8 +29,8 @@ export default function Admin() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Get active tab from URL or default to "kit-orders"
-  const activeTab = searchParams.get("tab") || "kit-orders";
+  // Get active tab from URL or default to "dashboard"
+  const activeTab = searchParams.get("tab") || "dashboard";
 
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value });
@@ -83,7 +84,13 @@ export default function Admin() {
     <AdminLayout>
       <div className="p-4 md:p-6">
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="w-full mb-4 grid grid-cols-3 h-auto">
+          <TabsList className="w-full mb-4 grid grid-cols-4 h-auto">
+            <TabsTrigger value="dashboard" className="flex items-center gap-2 py-3">
+              <LayoutDashboard className="h-4 w-4" />
+              <span className="hidden sm:inline">
+                {language === 'th' ? 'ภาพรวม' : 'Dashboard'}
+              </span>
+            </TabsTrigger>
             <TabsTrigger value="kit-orders" className="flex items-center gap-2 py-3">
               <Package className="h-4 w-4" />
               <span className="hidden sm:inline">
@@ -112,6 +119,12 @@ export default function Admin() {
               </span>
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="dashboard" className="mt-0">
+            <Suspense fallback={<TabLoader />}>
+              <AdminDashboardContent />
+            </Suspense>
+          </TabsContent>
 
           <TabsContent value="kit-orders" className="mt-0">
             <Suspense fallback={<TabLoader />}>
