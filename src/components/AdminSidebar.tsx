@@ -1,4 +1,3 @@
-import { useLocation } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
 import { useLanguage } from "@/lib/i18n";
 import {
@@ -6,7 +5,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -14,56 +12,17 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { 
-  Shield, 
-  Package, 
-  BarChart3, 
-  FileText, 
-  Home,
-  Settings,
-  LogOut
-} from "lucide-react";
+import { Shield, Home, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-const adminNavItems = [
-  { 
-    title: { en: "Dashboard", th: "แดชบอร์ด" }, 
-    url: "/admin", 
-    icon: Shield,
-    exact: true
-  },
-  { 
-    title: { en: "Kit Orders", th: "จัดการออร์เดอร์" }, 
-    url: "/admin/kit-orders", 
-    icon: Package 
-  },
-  { 
-    title: { en: "Analytics", th: "วิเคราะห์ข้อมูล" }, 
-    url: "/admin/analytics", 
-    icon: BarChart3 
-  },
-  { 
-    title: { en: "Blog", th: "จัดการบทความ" }, 
-    url: "/admin/blog", 
-    icon: FileText 
-  },
-];
-
 export function AdminSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
-  const location = useLocation();
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const currentPath = location.pathname;
-
-  const isActive = (path: string, exact?: boolean) => {
-    if (exact) return currentPath === path;
-    return currentPath.startsWith(path);
-  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -96,40 +55,6 @@ export function AdminSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>
-            {language === 'th' ? 'เมนูหลัก' : 'Main Menu'}
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {adminNavItems.map((item) => (
-                <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton 
-                    asChild 
-                    isActive={isActive(item.url, item.exact)}
-                    tooltip={collapsed ? item.title[language as 'en' | 'th'] : undefined}
-                  >
-                    <NavLink 
-                      to={item.url} 
-                      end={item.exact}
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors"
-                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                    >
-                      <item.icon className="h-4 w-4 shrink-0" />
-                      {!collapsed && (
-                        <span>{item.title[language as 'en' | 'th']}</span>
-                      )}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel>
-            {language === 'th' ? 'ลัด' : 'Quick Links'}
-          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
@@ -143,23 +68,7 @@ export function AdminSidebar() {
                   >
                     <Home className="h-4 w-4 shrink-0" />
                     {!collapsed && (
-                      <span>{language === 'th' ? 'หน้าหลัก' : 'Back to App'}</span>
-                    )}
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  asChild
-                  tooltip={collapsed ? (language === 'th' ? 'ตั้งค่า' : 'Settings') : undefined}
-                >
-                  <NavLink 
-                    to="/settings" 
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors hover:bg-sidebar-accent"
-                  >
-                    <Settings className="h-4 w-4 shrink-0" />
-                    {!collapsed && (
-                      <span>{language === 'th' ? 'ตั้งค่า' : 'Settings'}</span>
+                      <span>{language === 'th' ? 'กลับหน้าหลัก' : 'Back to App'}</span>
                     )}
                   </NavLink>
                 </SidebarMenuButton>
