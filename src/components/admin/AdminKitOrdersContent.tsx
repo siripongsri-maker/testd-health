@@ -61,6 +61,7 @@ interface KitOrder {
 interface SelftestPii {
   id: string;
   full_name: string | null;
+  thai_id: string | null;
   phone: string | null;
   address: string | null;
   district: string | null;
@@ -189,6 +190,7 @@ export default function AdminKitOrdersContent() {
           selftest_pii (
             id,
             full_name,
+            thai_id,
             phone,
             address,
             district,
@@ -422,10 +424,12 @@ export default function AdminKitOrdersContent() {
         csvContent += row + "\n";
       });
     } else {
-      csvContent = "Name,Date of Birth,Phone,Line ID,Address,Subdistrict,District,Province,Postal Code,Status,Tracking Number,Test Result,Staff Notes,Created At,Updated At\n";
+      csvContent = "Request ID,Thai ID,Name,Date of Birth,Phone,Line ID,Address,Subdistrict,District,Province,Postal Code,Status,Tracking Number,Test Result,Staff Notes,Created At,Updated At\n";
       filteredHIVRequests.forEach(request => {
         const pii = request.selftest_pii;
         const row = [
+          request.id,
+          pii?.thai_id || '',
           pii?.full_name || '',
           pii?.date_of_birth || '',
           pii?.phone || '',
@@ -474,10 +478,12 @@ export default function AdminKitOrdersContent() {
       ];
     } else {
       data = [
-        ["Name", "Date of Birth", "Phone", "Line ID", "Address", "Subdistrict", "District", "Province", "Postal Code", "Status", "Tracking Number", "Test Result", "Staff Notes", "Created At", "Updated At"],
+        ["Request ID", "Thai ID", "Name", "Date of Birth", "Phone", "Line ID", "Address", "Subdistrict", "District", "Province", "Postal Code", "Status", "Tracking Number", "Test Result", "Staff Notes", "Created At", "Updated At"],
         ...filteredHIVRequests.map(request => {
           const pii = request.selftest_pii;
           return [
+            request.id,
+            pii?.thai_id || '',
             pii?.full_name || '',
             pii?.date_of_birth || '',
             pii?.phone || '',
