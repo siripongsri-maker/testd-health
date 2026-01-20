@@ -85,6 +85,13 @@ interface HIVTestRequest {
   selftest_pii: SelftestPii | null;
 }
 
+const HIV_STATUS_OPTIONS = [
+  { value: 'pending', labelTh: 'รอตรวจสอบ', labelEn: 'Pending' },
+  { value: 'approved', labelTh: 'อนุมัติแล้ว', labelEn: 'Approved' },
+  { value: 'shipped', labelTh: 'จัดส่งแล้ว', labelEn: 'Shipped' },
+  { value: 'delivered', labelTh: 'ถึงผู้รับแล้ว', labelEn: 'Delivered' },
+];
+
 interface OrderEvent {
   id: string;
   order_id: string;
@@ -145,6 +152,14 @@ export default function AdminKitOrdersContent() {
     tracking_url: '',
     internal_notes: '',
   });
+
+  // HIV request edit states
+  const [editingHIVRequest, setEditingHIVRequest] = useState<string | null>(null);
+  const [hivEditForm, setHivEditForm] = useState<{ status: string; tracking_number: string }>({
+    status: '',
+    tracking_number: '',
+  });
+  const [savingHIV, setSavingHIV] = useState(false);
 
   // Print states
   const [showPrintDialog, setShowPrintDialog] = useState(false);
@@ -332,6 +347,45 @@ export default function AdminKitOrdersContent() {
       toast.error(error.message);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const startEditingHIVRequest = (request: HIVTestRequest) => {
+    setEditingHIVRequest(request.id);
+    setHivEditForm({
+      status: request.status,
+      tracking_number: request.tracking_number || '',
+    });
+  };
+
+  const cancelEditingHIVRequest = () => {
+    setEditingHIVRequest(null);
+    setHivEditForm({ status: '', tracking_number: '' });
+  };
+
+  const saveHIVRequest = async (requestId: string) => {
+    setSavingHIV(true);
+    try {
+      const { error } = await supabase
+        .from('hiv_selftest_requests')
+        .update({
+          status: hivEditForm.status,
+          tracking_number: hivEditForm.tracking_number || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', requestId);
+
+      if (error) throw error;
+
+      toast.success(language === 'th' ? 'อัปเดตสำเร็จ' : 'Updated successfully');
+      setEditingHIVRequest(null);
+      setHivEditForm({ status: '', tracking_number: '' });
+      fetchHIVRequests();
+    } catch (error: any) {
+      console.error('Error updating HIV request:', error);
+      toast.error(error.message || 'Error updating request');
+    } finally {
+      setSavingHIV(false);
     }
   };
 
@@ -740,7 +794,7 @@ export default function AdminKitOrdersContent() {
                               <p className="text-sm text-muted-foreground">{request.selftest_pii.phone}</p>
                             )}
                           </div>
-                          {getHIVStatusBadge(request.status)}
+                          {editingHIVRequest !== request.id && getHIVStatusBadge(request.status)}
                         </div>
 
                         {request.selftest_pii?.address && (
@@ -751,15 +805,77 @@ export default function AdminKitOrdersContent() {
                           </p>
                         )}
 
-                        <div className="flex items-center justify-between text-xs text-muted-foreground">
-                          <span>{formatDate(request.created_at)}</span>
-                          {request.tracking_number && (
-                            <span className="flex items-center gap-1">
-                              <Truck className="h-3 w-3" />
-                              {request.tracking_number}
-                            </span>
-                          )}
-                        </div>
+                        {editingHIVRequest === request.id ? (
+                          <div className="space-y-3 mt-3 pt-3 border-t">
+                            <div>
+                              <Label className="text-xs">{language === 'th' ? 'สถานะ' : 'Status'}</Label>
+                              <Select
+                                value={hivEditForm.status}
+                                onValueChange={(value) => setHivEditForm({ ...hivEditForm, status: value })}
+                              >
+                                <SelectTrigger className="mt-1 h-9">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {HIV_STATUS_OPTIONS.map((opt) => (
+                                    <SelectItem key={opt.value} value={opt.value}>
+                                      {language === 'th' ? opt.labelTh : opt.labelEn}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label className="text-xs">{language === 'th' ? 'เลขพัสดุ' : 'Tracking Number'}</Label>
+                              <Input
+                                value={hivEditForm.tracking_number}
+                                onChange={(e) => setHivEditForm({ ...hivEditForm, tracking_number: e.target.value })}
+                                placeholder={language === 'th' ? 'กรอกเลขพัสดุ' : 'Enter tracking number'}
+                                className="mt-1 h-9"
+                              />
+                            </div>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                onClick={() => saveHIVRequest(request.id)}
+                                disabled={savingHIV}
+                                className="flex-1"
+                              >
+                                {savingHIV && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
+                                {language === 'th' ? 'บันทึก' : 'Save'}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={cancelEditingHIVRequest}
+                                className="flex-1"
+                              >
+                                {language === 'th' ? 'ยกเลิก' : 'Cancel'}
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between text-xs text-muted-foreground mt-2">
+                            <span>{formatDate(request.created_at)}</span>
+                            <div className="flex items-center gap-2">
+                              {request.tracking_number && (
+                                <span className="flex items-center gap-1">
+                                  <Truck className="h-3 w-3" />
+                                  {request.tracking_number}
+                                </span>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => startEditingHIVRequest(request)}
+                                className="h-7 px-2"
+                              >
+                                <Eye className="h-3 w-3 mr-1" />
+                                {language === 'th' ? 'แก้ไข' : 'Edit'}
+                              </Button>
+                            </div>
+                          </div>
+                        )}
                       </Card>
                     ))
                   )}
