@@ -88,6 +88,7 @@ export function RankingBoard({ compact = false }: RankingBoardProps) {
   const [currentUserRank, setCurrentUserRank] = useState<number | null>(null);
   const [currentUserData, setCurrentUserData] = useState<RankedUser | null>(null);
   const [totalUsers, setTotalUsers] = useState(0);
+  const [activePlayers, setActivePlayers] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -106,6 +107,18 @@ export function RankingBoard({ compact = false }: RankingBoardProps) {
       const uniqueUsers = new Set(rolesData.map(r => r.user_id));
       setTotalUsers(uniqueUsers.size);
     }
+    
+    // Fetch active players (users who earned XP in last 7 days)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    
+    const { count: activeCount } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      .gt('xp', 0)
+      .gte('updated_at', sevenDaysAgo.toISOString());
+    
+    setActivePlayers(activeCount || 0);
 
     // Fetch current user's rank
     if (user) {
@@ -170,6 +183,9 @@ export function RankingBoard({ compact = false }: RankingBoardProps) {
               </span>
               <span className="text-muted-foreground text-sm">
                 {language === 'th' ? `จาก ${totalUsers} คน` : `from ${totalUsers} users`}
+              </span>
+              <span className="text-xs text-green-600 dark:text-green-400">
+                • {activePlayers} {language === 'th' ? 'แอคทีฟ' : 'active'}
               </span>
             </div>
             <p className="text-sm text-muted-foreground">
