@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ArrowLeft, ExternalLink, Eye, ClipboardList, Loader2, Plus, Star, Flame, Sparkles, Calendar, Users, Zap } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { ArrowLeft, ExternalLink, Eye, ClipboardList, Loader2, Plus, Star, Flame, Sparkles, Calendar, Users, Zap, Pencil, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -42,6 +43,14 @@ export default function Surveys() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showBuilder, setShowBuilder] = useState(false);
   const [saving, setSaving] = useState(false);
+  
+  // Edit state
+  const [editingSurvey, setEditingSurvey] = useState<Survey | null>(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  
+  // Delete state
+  const [deletingSurvey, setDeletingSurvey] = useState<Survey | null>(null);
+  const [deleting, setDeleting] = useState(false);
   
   // Builder form state
   const [formData, setFormData] = useState({
@@ -166,6 +175,101 @@ export default function Surveys() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleEditClick = (e: React.MouseEvent, survey: Survey) => {
+    e.stopPropagation();
+    setEditingSurvey(survey);
+    setFormData({
+      title_th: survey.title_th,
+      title_en: survey.title_en,
+      description_th: survey.description_th || '',
+      description_en: survey.description_en || '',
+      url: survey.url,
+      xp_reward: survey.xp_reward,
+      is_hot: survey.is_hot,
+      is_new: survey.is_new,
+    });
+    setShowEditDialog(true);
+  };
+
+  const handleUpdateSurvey = async () => {
+    if (!editingSurvey) return;
+    if (!formData.title_th || !formData.title_en || !formData.url) {
+      toast.error(language === 'th' ? 'กรุณากรอกข้อมูลให้ครบ' : 'Please fill in all required fields');
+      return;
+    }
+    
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from('surveys')
+        .update({
+          title_th: formData.title_th,
+          title_en: formData.title_en,
+          description_th: formData.description_th || null,
+          description_en: formData.description_en || null,
+          url: formData.url,
+          xp_reward: formData.xp_reward,
+          is_hot: formData.is_hot,
+          is_new: formData.is_new,
+        })
+        .eq('id', editingSurvey.id);
+      
+      if (error) throw error;
+      
+      toast.success(language === 'th' ? 'บันทึกสำเร็จ!' : 'Survey updated successfully!');
+      setShowEditDialog(false);
+      setEditingSurvey(null);
+      resetFormData();
+      fetchSurveys();
+    } catch (err) {
+      console.error('Error updating survey:', err);
+      toast.error(language === 'th' ? 'เกิดข้อผิดพลาด' : 'Something went wrong');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent, survey: Survey) => {
+    e.stopPropagation();
+    setDeletingSurvey(survey);
+  };
+
+  const handleDeleteSurvey = async () => {
+    if (!deletingSurvey) return;
+    
+    setDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('surveys')
+        .delete()
+        .eq('id', deletingSurvey.id);
+      
+      if (error) throw error;
+      
+      toast.success(language === 'th' ? 'ลบสำเร็จ!' : 'Survey deleted successfully!');
+      setDeletingSurvey(null);
+      fetchSurveys();
+    } catch (err) {
+      console.error('Error deleting survey:', err);
+      toast.error(language === 'th' ? 'เกิดข้อผิดพลาด' : 'Something went wrong');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const resetFormData = () => {
+    setFormData({
+      title_th: '',
+      title_en: '',
+      description_th: '',
+      description_en: '',
+      url: '',
+      xp_reward: 10,
+      is_hot: false,
+      is_new: true,
+    });
   };
 
   const totalCompletions = surveys.reduce((sum, s) => sum + s.completion_count, 0);
@@ -442,6 +546,28 @@ export default function Surveys() {
                       </div>
                     </div>
                   </div>
+                  
+                  {/* Admin actions */}
+                  {isAdmin && (
+                    <div className="flex flex-col gap-1 flex-shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-primary"
+                        onClick={(e) => handleEditClick(e, survey)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                        onClick={(e) => handleDeleteClick(e, survey)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </Card>
             ))
@@ -455,6 +581,170 @@ export default function Surveys() {
             : '💡 Complete surveys to earn XP and help improve our services'}
         </p>
       </PageContainer>
+      
+      {/* Edit Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {language === 'th' ? '✏️ แก้ไขแบบประเมิน' : '✏️ Edit Survey'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 mt-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>{language === 'th' ? 'ชื่อ (ไทย) *' : 'Title (TH) *'}</Label>
+                <Input 
+                  value={formData.title_th}
+                  onChange={(e) => setFormData(prev => ({ ...prev, title_th: e.target.value }))}
+                  placeholder="แบบสอบถาม..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>{language === 'th' ? 'ชื่อ (EN) *' : 'Title (EN) *'}</Label>
+                <Input 
+                  value={formData.title_en}
+                  onChange={(e) => setFormData(prev => ({ ...prev, title_en: e.target.value }))}
+                  placeholder="Survey..."
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>{language === 'th' ? 'คำอธิบาย (ไทย)' : 'Description (TH)'}</Label>
+                <Textarea 
+                  value={formData.description_th}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description_th: e.target.value }))}
+                  placeholder="รายละเอียด..."
+                  rows={2}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>{language === 'th' ? 'คำอธิบาย (EN)' : 'Description (EN)'}</Label>
+                <Textarea 
+                  value={formData.description_en}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description_en: e.target.value }))}
+                  placeholder="Details..."
+                  rows={2}
+                />
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>{language === 'th' ? 'ลิงก์แบบประเมิน *' : 'Survey URL *'}</Label>
+              <Input 
+                value={formData.url}
+                onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
+                placeholder="https://..."
+                type="url"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <Zap className="h-4 w-4 text-xp" />
+                {language === 'th' ? 'รางวัล XP' : 'XP Reward'}
+              </Label>
+              <div className="flex items-center gap-3">
+                <Input 
+                  type="number"
+                  min={0}
+                  max={100}
+                  value={formData.xp_reward}
+                  onChange={(e) => setFormData(prev => ({ ...prev, xp_reward: parseInt(e.target.value) || 0 }))}
+                  className="w-24"
+                />
+                <span className="text-sm text-muted-foreground">XP</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-2">
+                <Flame className="h-4 w-4 text-orange-500" />
+                <span className="text-sm font-medium">
+                  {language === 'th' ? 'แท็ก Hot' : 'Hot Tag'}
+                </span>
+              </div>
+              <Switch 
+                checked={formData.is_hot}
+                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_hot: checked }))}
+              />
+            </div>
+            
+            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-blue-500" />
+                <span className="text-sm font-medium">
+                  {language === 'th' ? 'แท็ก New' : 'New Tag'}
+                </span>
+              </div>
+              <Switch 
+                checked={formData.is_new}
+                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_new: checked }))}
+              />
+            </div>
+            
+            <Button 
+              className="w-full" 
+              onClick={handleUpdateSurvey}
+              disabled={saving}
+            >
+              {saving ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  {language === 'th' ? 'กำลังบันทึก...' : 'Saving...'}
+                </>
+              ) : (
+                <>
+                  <Pencil className="h-4 w-4 mr-2" />
+                  {language === 'th' ? 'บันทึกการแก้ไข' : 'Save Changes'}
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deletingSurvey} onOpenChange={(open) => !open && setDeletingSurvey(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {language === 'th' ? 'ยืนยันการลบ?' : 'Confirm Delete?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {language === 'th' 
+                ? `คุณต้องการลบแบบประเมิน "${deletingSurvey?.title_th}" ใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้` 
+                : `Are you sure you want to delete "${deletingSurvey?.title_en}"? This action cannot be undone.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>
+              {language === 'th' ? 'ยกเลิก' : 'Cancel'}
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteSurvey}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  {language === 'th' ? 'กำลังลบ...' : 'Deleting...'}
+                </>
+              ) : (
+                <>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  {language === 'th' ? 'ลบ' : 'Delete'}
+                </>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
       <BottomNav />
     </>
   );
