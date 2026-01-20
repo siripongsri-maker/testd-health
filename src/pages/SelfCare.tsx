@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import loveKitImg from "@/assets/love-kit.jpg";
 import selfKitImg from "@/assets/self-kit.jpg";
 import safeKitImg from "@/assets/safe-kit.jpg";
+import hivSelftestKitImg from "@/assets/hiv-selftest-kit.jpg";
 
 interface SelfCareItem {
   id: string;
@@ -42,7 +43,7 @@ const SELF_CARE_ITEMS: SelfCareItem[] = [
   {
     id: 'hiv-test',
     icon: TestTube,
-    fallbackImage: selfKitImg,
+    fallbackImage: hivSelftestKitImg,
     titleEn: 'Self Kit - HIV Self-Test',
     titleTh: 'Self Kit - ชุดตรวจ HIV ด้วยตัวเอง',
     descEn: 'Quick, private, and accurate home testing',

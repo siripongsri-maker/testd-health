@@ -39,6 +39,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import hivSelftestKitImg from "@/assets/hiv-selftest-kit.jpg";
 
 interface SelfTestRequest {
   id: string;
@@ -601,12 +602,12 @@ export default function HIVSelfTest() {
       {/* Abbott HIV Self-Test Kit Image */}
       <Card className="p-4 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
         <div className="flex items-center gap-4">
-          <div className="w-24 h-24 bg-white rounded-xl shadow-md flex items-center justify-center p-2">
-            <div className="text-center">
-              <div className="text-3xl mb-1">🧪</div>
-              <p className="text-[8px] font-bold text-primary">Abbott</p>
-              <p className="text-[6px] text-muted-foreground">HIV Self-Test</p>
-            </div>
+          <div className="w-24 h-24 bg-white rounded-xl shadow-md flex items-center justify-center overflow-hidden">
+            <img 
+              src={hivSelftestKitImg} 
+              alt="Abbott CheckNOW HIV Self-Test Kit"
+              className="w-full h-full object-cover"
+            />
           </div>
           <div className="flex-1">
             <h3 className="font-bold text-foreground mb-1">

@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { TestTube, Heart, Gift, ArrowRight, X } from "lucide-react";
+import { Heart, Gift, ArrowRight, X } from "lucide-react";
+import hivSelftestKitImg from "@/assets/hiv-selftest-kit.jpg";
 
 const POPUP_SHOWN_KEY = "testd-hiv-popup-shown";
 
@@ -48,8 +49,12 @@ export function HIVTestPopup() {
           
           <div className="flex justify-center mb-4">
             <div className="relative">
-              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-accent/20 animate-bounce-gentle">
-                <TestTube className="h-10 w-10 text-accent" />
+              <div className="flex h-24 w-24 items-center justify-center rounded-xl bg-white shadow-md overflow-hidden animate-bounce-gentle">
+                <img 
+                  src={hivSelftestKitImg} 
+                  alt="Abbott CheckNOW HIV Self-Test Kit"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="absolute -top-1 -right-1">
                 <Gift className="h-8 w-8 text-xp animate-pulse" />
