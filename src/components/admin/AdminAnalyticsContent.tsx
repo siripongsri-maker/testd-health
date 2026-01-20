@@ -5,7 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
-import { BarChart3, Users, Eye, Smartphone, Monitor, Tablet, TrendingUp, Loader2, ClipboardList, Zap, Star } from 'lucide-react';
+import { BarChart3, Users, Eye, Smartphone, Monitor, Tablet, TrendingUp, Loader2, ClipboardList, Zap, Star, Download } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { AnimatedCounter } from '@/components/AnimatedCounter';
 import { useLanguage } from '@/lib/i18n';
 
@@ -131,6 +132,64 @@ export default function AdminAnalyticsContent() {
 
       setSurveyDailyStats(dailyData);
     }
+  };
+
+  const exportSurveyDataAsCSV = async () => {
+    const days = parseInt(dateRange);
+    const startDate = startOfDay(subDays(new Date(), days - 1));
+    const endDate = endOfDay(new Date());
+
+    // Fetch detailed completion data with survey info
+    const { data: completions } = await supabase
+      .from('survey_completions')
+      .select(`
+        id,
+        completed_at,
+        xp_awarded,
+        session_id,
+        user_id,
+        survey_id,
+        surveys:survey_id (
+          title_th,
+          title_en
+        )
+      `)
+      .gte('completed_at', startDate.toISOString())
+      .lte('completed_at', endDate.toISOString())
+      .order('completed_at', { ascending: false });
+
+    if (!completions || completions.length === 0) {
+      alert(language === 'th' ? 'ไม่มีข้อมูลให้ส่งออก' : 'No data to export');
+      return;
+    }
+
+    // Build CSV content
+    const headers = ['Completion ID', 'Survey Title (TH)', 'Survey Title (EN)', 'Completed At', 'XP Awarded', 'User ID', 'Session ID'];
+    const rows = completions.map(c => {
+      const survey = c.surveys as { title_th: string; title_en: string } | null;
+      return [
+        c.id,
+        survey?.title_th || '',
+        survey?.title_en || '',
+        format(new Date(c.completed_at), 'yyyy-MM-dd HH:mm:ss'),
+        c.xp_awarded,
+        c.user_id || '',
+        c.session_id || ''
+      ].map(val => `"${String(val).replace(/"/g, '""')}"`).join(',');
+    });
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+    
+    // Create and trigger download
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `survey-completions-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const fetchAnalytics = async () => {
@@ -377,6 +436,19 @@ export default function AdminAnalyticsContent() {
         </TabsContent>
 
         <TabsContent value="surveys">
+          {/* Export Button */}
+          <div className="flex justify-end mb-4">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={exportSurveyDataAsCSV}
+              className="gap-2"
+            >
+              <Download className="h-4 w-4" />
+              {language === 'th' ? 'ส่งออก CSV' : 'Export CSV'}
+            </Button>
+          </div>
+
           {/* Survey Summary Cards */}
           <div className="grid grid-cols-3 gap-4 mb-4">
             <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
