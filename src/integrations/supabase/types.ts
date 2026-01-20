@@ -842,27 +842,92 @@ export type Database = {
         }
         Relationships: []
       }
-      survey_views: {
+      survey_completions: {
         Row: {
-          created_at: string
+          completed_at: string
           id: string
+          session_id: string | null
           survey_id: string
-          updated_at: string
-          view_count: number
+          user_id: string | null
+          xp_awarded: number
         }
         Insert: {
-          created_at?: string
+          completed_at?: string
           id?: string
+          session_id?: string | null
           survey_id: string
-          updated_at?: string
-          view_count?: number
+          user_id?: string | null
+          xp_awarded?: number
         }
         Update: {
-          created_at?: string
+          completed_at?: string
           id?: string
+          session_id?: string | null
           survey_id?: string
+          user_id?: string | null
+          xp_awarded?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_completions_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      surveys: {
+        Row: {
+          completion_count: number
+          created_at: string
+          created_by: string | null
+          description_en: string | null
+          description_th: string | null
+          id: string
+          is_active: boolean
+          is_hot: boolean
+          is_new: boolean
+          title_en: string
+          title_th: string
+          updated_at: string
+          url: string
+          view_count: number
+          xp_reward: number
+        }
+        Insert: {
+          completion_count?: number
+          created_at?: string
+          created_by?: string | null
+          description_en?: string | null
+          description_th?: string | null
+          id?: string
+          is_active?: boolean
+          is_hot?: boolean
+          is_new?: boolean
+          title_en: string
+          title_th: string
           updated_at?: string
+          url: string
           view_count?: number
+          xp_reward?: number
+        }
+        Update: {
+          completion_count?: number
+          created_at?: string
+          created_by?: string | null
+          description_en?: string | null
+          description_th?: string | null
+          id?: string
+          is_active?: boolean
+          is_hot?: boolean
+          is_new?: boolean
+          title_en?: string
+          title_th?: string
+          updated_at?: string
+          url?: string
+          view_count?: number
+          xp_reward?: number
         }
         Relationships: []
       }
@@ -1055,6 +1120,10 @@ export type Database = {
       }
     }
     Functions: {
+      complete_survey: {
+        Args: { p_session_id?: string; p_survey_id: string }
+        Returns: number
+      }
       generate_order_code: { Args: never; Returns: string }
       has_role: {
         Args: {
