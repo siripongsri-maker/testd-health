@@ -5,8 +5,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
-import { BarChart3, Users, Eye, Smartphone, Monitor, Tablet, TrendingUp, Loader2 } from 'lucide-react';
+import { BarChart3, Users, Eye, Smartphone, Monitor, Tablet, TrendingUp, Loader2, ClipboardList, Zap, Star } from 'lucide-react';
 import { AnimatedCounter } from '@/components/AnimatedCounter';
+import { useLanguage } from '@/lib/i18n';
 
 interface DailyStats {
   date: string;
@@ -24,9 +25,24 @@ interface DeviceStats {
   count: number;
 }
 
+interface SurveyStats {
+  id: string;
+  title_th: string;
+  title_en: string;
+  completion_count: number;
+  view_count: number;
+  xp_reward: number;
+}
+
+interface SurveyDailyStats {
+  date: string;
+  completions: number;
+}
+
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', '#8884d8', '#82ca9d'];
 
 export default function AdminAnalyticsContent() {
+  const { language } = useLanguage();
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState('7');
   
@@ -40,10 +56,20 @@ export default function AdminAnalyticsContent() {
     avgSessionDuration: 0,
   });
   const [totalMembers, setTotalMembers] = useState(0);
+  
+  // Survey analytics state
+  const [surveyStats, setSurveyStats] = useState<SurveyStats[]>([]);
+  const [surveyDailyStats, setSurveyDailyStats] = useState<SurveyDailyStats[]>([]);
+  const [surveyTotals, setSurveyTotals] = useState({
+    totalSurveys: 0,
+    totalCompletions: 0,
+    totalXpAwarded: 0,
+  });
 
   useEffect(() => {
     fetchAnalytics();
     fetchTotalMembers();
+    fetchSurveyAnalytics();
   }, [dateRange]);
 
   const fetchTotalMembers = async () => {
@@ -53,6 +79,57 @@ export default function AdminAnalyticsContent() {
 
     if (!error && count !== null) {
       setTotalMembers(count);
+    }
+  };
+
+  const fetchSurveyAnalytics = async () => {
+    const days = parseInt(dateRange);
+    const startDate = startOfDay(subDays(new Date(), days - 1));
+    const endDate = endOfDay(new Date());
+
+    // Fetch surveys with their stats
+    const { data: surveys } = await supabase
+      .from('surveys')
+      .select('id, title_th, title_en, completion_count, view_count, xp_reward')
+      .order('completion_count', { ascending: false });
+
+    if (surveys) {
+      setSurveyStats(surveys);
+      setSurveyTotals({
+        totalSurveys: surveys.length,
+        totalCompletions: surveys.reduce((sum, s) => sum + s.completion_count, 0),
+        totalXpAwarded: surveys.reduce((sum, s) => sum + (s.completion_count * s.xp_reward), 0),
+      });
+    }
+
+    // Fetch daily completions
+    const { data: completions } = await supabase
+      .from('survey_completions')
+      .select('completed_at, xp_awarded')
+      .gte('completed_at', startDate.toISOString())
+      .lte('completed_at', endDate.toISOString())
+      .order('completed_at', { ascending: true });
+
+    if (completions) {
+      // Group by date
+      const dailyMap = new Map<string, number>();
+      
+      for (let i = 0; i < days; i++) {
+        const date = format(subDays(new Date(), days - 1 - i), 'yyyy-MM-dd');
+        dailyMap.set(date, 0);
+      }
+
+      completions.forEach(completion => {
+        const date = format(new Date(completion.completed_at), 'yyyy-MM-dd');
+        dailyMap.set(date, (dailyMap.get(date) || 0) + 1);
+      });
+
+      const dailyData: SurveyDailyStats[] = Array.from(dailyMap.entries()).map(([date, completions]) => ({
+        date: format(new Date(date), 'MMM dd'),
+        completions,
+      }));
+
+      setSurveyDailyStats(dailyData);
     }
   };
 
@@ -239,8 +316,9 @@ export default function AdminAnalyticsContent() {
 
       {/* Charts */}
       <Tabs defaultValue="traffic" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="traffic">Traffic</TabsTrigger>
+          <TabsTrigger value="surveys">{language === 'th' ? 'แบบประเมิน' : 'Surveys'}</TabsTrigger>
           <TabsTrigger value="pages">Pages</TabsTrigger>
           <TabsTrigger value="devices">Devices</TabsTrigger>
         </TabsList>
@@ -292,6 +370,149 @@ export default function AdminAnalyticsContent() {
               ) : (
                 <div className="flex items-center justify-center h-[300px] text-muted-foreground">
                   No data available for this period
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="surveys">
+          {/* Survey Summary Cards */}
+          <div className="grid grid-cols-3 gap-4 mb-4">
+            <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/20">
+                    <ClipboardList className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      {language === 'th' ? 'แบบประเมินทั้งหมด' : 'Total Surveys'}
+                    </p>
+                    <p className="text-2xl font-bold">
+                      <AnimatedCounter value={surveyTotals.totalSurveys} />
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-card/50 backdrop-blur-sm border-accent/20">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-accent/20">
+                    <Users className="h-5 w-5 text-accent" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      {language === 'th' ? 'ผู้ทำทั้งหมด' : 'Completions'}
+                    </p>
+                    <p className="text-2xl font-bold">
+                      <AnimatedCounter value={surveyTotals.totalCompletions} />
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-card/50 backdrop-blur-sm border-xp/20">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-xp/20">
+                    <Zap className="h-5 w-5 text-xp" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      {language === 'th' ? 'XP ที่แจก' : 'XP Awarded'}
+                    </p>
+                    <p className="text-2xl font-bold">
+                      <AnimatedCounter value={surveyTotals.totalXpAwarded} />
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Completions Over Time Chart */}
+          <Card className="bg-card/50 backdrop-blur-sm mb-4">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                {language === 'th' ? 'จำนวนผู้ทำแบบประเมินตามวัน' : 'Completions Over Time'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {surveyDailyStats.length > 0 ? (
+                <ResponsiveContainer width="100%" height={250}>
+                  <LineChart data={surveyDailyStats}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis 
+                      dataKey="date" 
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                    />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'hsl(var(--card))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px'
+                      }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="completions" 
+                      stroke="hsl(var(--primary))" 
+                      strokeWidth={2}
+                      dot={{ fill: 'hsl(var(--primary))' }}
+                      name={language === 'th' ? 'ผู้ทำ' : 'Completions'}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-[250px] text-muted-foreground">
+                  {language === 'th' ? 'ไม่มีข้อมูลในช่วงนี้' : 'No data available for this period'}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Top Surveys */}
+          <Card className="bg-card/50 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Star className="h-5 w-5" />
+                {language === 'th' ? 'แบบประเมินยอดนิยม' : 'Top Surveys'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {surveyStats.length > 0 ? (
+                <div className="space-y-3">
+                  {surveyStats.slice(0, 10).map((survey, index) => (
+                    <div key={survey.id} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <span className="text-muted-foreground w-6">{index + 1}.</span>
+                        <span className="font-medium truncate">
+                          {language === 'th' ? survey.title_th : survey.title_en}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-4 flex-shrink-0">
+                        <div className="flex items-center gap-1 text-muted-foreground text-sm">
+                          <Users className="h-3.5 w-3.5" />
+                          <span>{survey.completion_count}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-xp text-sm font-medium">
+                          <Zap className="h-3.5 w-3.5" />
+                          <span>{survey.xp_reward} XP</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-[100px] text-muted-foreground">
+                  {language === 'th' ? 'ยังไม่มีแบบประเมิน' : 'No surveys available'}
                 </div>
               )}
             </CardContent>
