@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, BookOpen, Eye, ChevronRight, Loader2, PenSquare, Heart, User, Calendar } from "lucide-react";
+import { Search, BookOpen, Eye, ChevronRight, Loader2, PenSquare, Heart, User, Calendar, Share2, Check, Link } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 import { format } from "date-fns";
 
 interface Category {
@@ -48,6 +49,9 @@ const CATEGORY_THEMES: Record<string, { bg: string; icon: string }> = {
   'lifestyle': { bg: 'from-fuchsia-500/20 to-pink-500/20', icon: 'from-fuchsia-500 to-pink-500' },
 };
 
+// Base URL for sharing
+const SHARE_BASE_URL = "https://testd-test.lovable.app";
+
 export default function Info() {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
@@ -56,6 +60,36 @@ export default function Info() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
+
+  const handleShare = async (e: React.MouseEvent, article: Article) => {
+    e.stopPropagation();
+    const shareUrl = `${SHARE_BASE_URL}/info/article/${article.slug}`;
+    const shareTitle = language === 'th' ? article.title_th : article.title_en;
+    
+    // Try native share first
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          url: shareUrl,
+        });
+        return;
+      } catch (err) {
+        // User cancelled or share failed, fall back to copy
+      }
+    }
+    
+    // Copy to clipboard
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopiedSlug(article.slug);
+      toast.success(language === 'th' ? 'คัดลอกลิงก์แล้ว!' : 'Link copied!');
+      setTimeout(() => setCopiedSlug(null), 2000);
+    } catch (err) {
+      toast.error(language === 'th' ? 'ไม่สามารถคัดลอกได้' : 'Failed to copy');
+    }
+  };
 
   useEffect(() => {
     loadData();
@@ -207,21 +241,34 @@ export default function Info() {
                     <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
                       {language === 'th' ? article.excerpt_th : article.excerpt_en}
                     </p>
-                    <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                      {article.author_name && (
+                    <div className="flex items-center justify-between mt-2">
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                        {article.author_name && (
+                          <span className="flex items-center gap-1">
+                            <User className="h-3 w-3" />
+                            {article.author_name}
+                          </span>
+                        )}
                         <span className="flex items-center gap-1">
-                          <User className="h-3 w-3" />
-                          {article.author_name}
+                          <Heart className="h-3 w-3" />
+                          {article.like_count || 0}
                         </span>
-                      )}
-                      <span className="flex items-center gap-1">
-                        <Heart className="h-3 w-3" />
-                        {article.like_count || 0}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Eye className="h-3 w-3" />
-                        {article.view_count.toLocaleString()}
-                      </span>
+                        <span className="flex items-center gap-1">
+                          <Eye className="h-3 w-3" />
+                          {article.view_count.toLocaleString()}
+                        </span>
+                      </div>
+                      <button
+                        onClick={(e) => handleShare(e, article)}
+                        className="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
+                        title={language === 'th' ? 'แชร์บทความ' : 'Share article'}
+                      >
+                        {copiedSlug === article.slug ? (
+                          <Check className="h-4 w-4" />
+                        ) : (
+                          <Share2 className="h-4 w-4" />
+                        )}
+                      </button>
                     </div>
                   </div>
                 </button>
@@ -309,18 +356,30 @@ export default function Info() {
                                 </span>
                               )}
                             </div>
-                            <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                              <span className="flex items-center gap-1">
-                                <Heart className="h-3 w-3" />
-                                {article.like_count || 0}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Eye className="h-3 w-3" />
-                                {article.view_count.toLocaleString()}
-                              </span>
+                            <div className="flex items-center justify-between mt-1">
+                              <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                <span className="flex items-center gap-1">
+                                  <Heart className="h-3 w-3" />
+                                  {article.like_count || 0}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Eye className="h-3 w-3" />
+                                  {article.view_count.toLocaleString()}
+                                </span>
+                              </div>
                             </div>
                           </div>
-                          <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-1" />
+                          <button
+                            onClick={(e) => handleShare(e, article)}
+                            className="p-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors flex-shrink-0"
+                            title={language === 'th' ? 'แชร์' : 'Share'}
+                          >
+                            {copiedSlug === article.slug ? (
+                              <Check className="h-3.5 w-3.5" />
+                            ) : (
+                              <Link className="h-3.5 w-3.5" />
+                            )}
+                          </button>
                         </button>
                       ))}
                     </div>
