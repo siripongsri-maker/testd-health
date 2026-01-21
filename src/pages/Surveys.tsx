@@ -14,6 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { ArrowLeft, ExternalLink, Eye, ClipboardList, Loader2, Plus, Star, Flame, Sparkles, Calendar, Users, Zap, Pencil, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useCelebration } from "@/hooks/useCelebration";
 import { toast } from "sonner";
 import { format, formatDistanceToNow } from "date-fns";
 import { th, enUS } from "date-fns/locale";
@@ -38,6 +39,7 @@ export default function Surveys() {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const { user } = useAuth();
+  const { celebrateAchievement } = useCelebration();
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -118,6 +120,7 @@ export default function Surveys() {
       if (error) throw error;
       
       if (data && data > 0 && user) {
+        celebrateAchievement();
         toast.success(
           language === 'th' 
             ? `ได้รับ ${data} XP! 🎉` 

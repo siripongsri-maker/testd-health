@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { getUserData, recordCheckIn, getTodayKey, getPEPDay, getXPForLevel, setUserData } from "@/lib/store";
 import { useLanguage } from "@/lib/i18n";
 import { useBadgeNotifications } from "@/hooks/useBadgeNotifications";
+import { useCelebration } from "@/hooks/useCelebration";
 import { Zap, Flame, Star, Settings, AlertTriangle, TestTube, ArrowLeft, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
@@ -16,6 +17,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const { checkAndAwardBadges } = useBadgeNotifications();
+  const { celebrateLevelUp, celebrateStreak } = useCelebration();
   const [userData, setLocalUserData] = useState(getUserData());
   const [todayStatus, setTodayStatus] = useState<"pending" | "taken" | "skipped">("pending");
   
@@ -36,15 +38,32 @@ export default function Dashboard() {
 
   const handleTaken = () => {
     const today = getTodayKey();
+    const previousLevel = getUserData().level;
+    
     recordCheckIn(today, "taken");
     setTodayStatus("taken");
     
     const data = getUserData();
     setLocalUserData(data);
     
-    toast.success(t('dashboard.greatJob'), {
-      description: `${t('stats.streak')}: ${data.streak} 🔥`,
-    });
+    // Check for level up and celebrate
+    if (data.level > previousLevel) {
+      celebrateLevelUp();
+      toast.success(language === 'th' ? '🎉 เลเวลอัพ!' : '🎉 Level Up!', {
+        description: language === 'th' ? `คุณอยู่เลเวล ${data.level} แล้ว!` : `You're now Level ${data.level}!`,
+        duration: 5000,
+      });
+    } else if (data.streak > 0 && data.streak % 7 === 0) {
+      // Celebrate weekly streak milestones
+      celebrateStreak();
+      toast.success(t('dashboard.greatJob'), {
+        description: `${t('stats.streak')}: ${data.streak} 🔥`,
+      });
+    } else {
+      toast.success(t('dashboard.greatJob'), {
+        description: `${t('stats.streak')}: ${data.streak} 🔥`,
+      });
+    }
 
     // Check for newly earned badges after a short delay
     setTimeout(() => {
