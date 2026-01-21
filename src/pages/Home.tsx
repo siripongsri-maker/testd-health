@@ -11,6 +11,7 @@ import { AdminRequestsPopup } from "@/components/AdminRequestsPopup";
 import { RankingBoard } from "@/components/RankingBoard";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { OnboardingTour } from "@/components/OnboardingTour";
+import { RecommendedNextSteps } from "@/components/RecommendedNextSteps";
 import {
   TestTube,
   MessageCircle,
@@ -417,6 +418,11 @@ export default function Home() {
               variant={index === 0 ? 'featured' : 'default'}
             />
           ))}
+        </div>
+
+        {/* Recommended Next Steps */}
+        <div className="mt-4">
+          <RecommendedNextSteps maxItems={3} variant="compact" />
         </div>
 
         {/* Ranking Board */}
