@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
-import { BarChart3, Users, Eye, Smartphone, Monitor, Tablet, TrendingUp, Loader2, ClipboardList, Zap, Star, Download } from 'lucide-react';
+import { BarChart3, Users, Eye, Smartphone, Monitor, Tablet, TrendingUp, Loader2, ClipboardList, Zap, Star, Download, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AnimatedCounter } from '@/components/AnimatedCounter';
 import { useLanguage } from '@/lib/i18n';
@@ -272,14 +272,28 @@ export default function AdminAnalyticsContent() {
 
     setDeviceStats(deviceData);
 
-    // Calculate totals
+    // Calculate totals and session duration
     const uniqueSessions = new Set(events.map(e => e.session_id).filter(Boolean));
+    
+    // Calculate average session duration from session_end events
+    const sessionEndEvents = events.filter(e => 
+      e.event_type === 'session_end' && 
+      (e as { session_duration_seconds?: number }).session_duration_seconds
+    );
+    
+    let avgDuration = 0;
+    if (sessionEndEvents.length > 0) {
+      const totalDuration = sessionEndEvents.reduce((sum, e) => 
+        sum + ((e as { session_duration_seconds?: number }).session_duration_seconds || 0), 0
+      );
+      avgDuration = Math.round(totalDuration / sessionEndEvents.length);
+    }
     
     setTotals({
       visitors: uniqueSessions.size,
       pageviews: events.filter(e => e.event_type === 'pageview').length,
       uniqueSessions: uniqueSessions.size,
-      avgSessionDuration: 0,
+      avgSessionDuration: avgDuration,
     });
 
     setLoading(false);
@@ -323,7 +337,7 @@ export default function AdminAnalyticsContent() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <Card className="bg-card/50 backdrop-blur-sm border-primary/20">
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
@@ -366,6 +380,26 @@ export default function AdminAnalyticsContent() {
                 <p className="text-sm text-muted-foreground">Pageviews</p>
                 <p className="text-2xl font-bold">
                   <AnimatedCounter value={totals.pageviews} />
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-card/50 backdrop-blur-sm border-accent/20">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-accent/20">
+                <Clock className="h-5 w-5 text-accent" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">
+                  {language === 'th' ? 'เวลาเฉลี่ย/เซสชัน' : 'Avg Session'}
+                </p>
+                <p className="text-2xl font-bold">
+                  {totals.avgSessionDuration > 0 
+                    ? `${Math.floor(totals.avgSessionDuration / 60)}:${String(totals.avgSessionDuration % 60).padStart(2, '0')}`
+                    : '--:--'}
                 </p>
               </div>
             </div>

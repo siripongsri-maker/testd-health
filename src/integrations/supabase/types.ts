@@ -89,7 +89,10 @@ export type Database = {
           id: string
           page_path: string
           referrer: string | null
+          session_duration_seconds: number | null
+          session_ended_at: string | null
           session_id: string | null
+          session_started_at: string | null
           user_agent: string | null
           user_id: string | null
         }
@@ -101,7 +104,10 @@ export type Database = {
           id?: string
           page_path: string
           referrer?: string | null
+          session_duration_seconds?: number | null
+          session_ended_at?: string | null
           session_id?: string | null
+          session_started_at?: string | null
           user_agent?: string | null
           user_id?: string | null
         }
@@ -113,7 +119,10 @@ export type Database = {
           id?: string
           page_path?: string
           referrer?: string | null
+          session_duration_seconds?: number | null
+          session_ended_at?: string | null
           session_id?: string | null
+          session_started_at?: string | null
           user_agent?: string | null
           user_id?: string | null
         }

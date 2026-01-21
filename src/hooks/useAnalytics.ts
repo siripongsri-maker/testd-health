@@ -8,8 +8,27 @@ const getSessionId = (): string => {
   if (!sessionId) {
     sessionId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     sessionStorage.setItem('analytics_session_id', sessionId);
+    // Store session start time
+    sessionStorage.setItem('analytics_session_start', Date.now().toString());
   }
   return sessionId;
+};
+
+// Get session start time
+const getSessionStartTime = (): number => {
+  const startTime = sessionStorage.getItem('analytics_session_start');
+  if (!startTime) {
+    const now = Date.now();
+    sessionStorage.setItem('analytics_session_start', now.toString());
+    return now;
+  }
+  return parseInt(startTime, 10);
+};
+
+// Calculate session duration in seconds
+const getSessionDuration = (): number => {
+  const startTime = getSessionStartTime();
+  return Math.floor((Date.now() - startTime) / 1000);
 };
 
 // Detect device type
@@ -23,6 +42,61 @@ const getDeviceType = (): string => {
   }
   return 'desktop';
 };
+
+// Track session end when user leaves
+const trackSessionEnd = async () => {
+  try {
+    const sessionId = sessionStorage.getItem('analytics_session_id');
+    if (!sessionId) return;
+
+    const duration = getSessionDuration();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    await supabase
+      .from('analytics_events')
+      .insert({
+        event_type: 'session_end',
+        page_path: window.location.pathname,
+        user_id: user?.id || null,
+        session_id: sessionId,
+        device_type: getDeviceType(),
+        session_duration_seconds: duration,
+        session_ended_at: new Date().toISOString(),
+      });
+  } catch (err) {
+    // Silently fail
+  }
+};
+
+// Set up session end tracking
+if (typeof window !== 'undefined') {
+  // Track on page unload
+  window.addEventListener('beforeunload', () => {
+    // Use sendBeacon for reliable tracking on page close
+    const sessionId = sessionStorage.getItem('analytics_session_id');
+    if (sessionId) {
+      const duration = getSessionDuration();
+      navigator.sendBeacon(
+        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/analytics_events`,
+        JSON.stringify({
+          event_type: 'session_end',
+          page_path: window.location.pathname,
+          session_id: sessionId,
+          device_type: getDeviceType(),
+          session_duration_seconds: duration,
+          session_ended_at: new Date().toISOString(),
+        })
+      );
+    }
+  });
+
+  // Also track on visibility change (tab switch/minimize)
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      trackSessionEnd();
+    }
+  });
+}
 
 export const useAnalytics = () => {
   const location = useLocation();
@@ -38,15 +112,18 @@ export const useAnalytics = () => {
     const trackPageView = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        
+        const sessionId = getSessionId();
+        const sessionStartTime = new Date(getSessionStartTime()).toISOString();
+
         const eventData = {
           event_type: 'pageview',
           page_path: location.pathname,
           user_id: user?.id || null,
-          session_id: getSessionId(),
+          session_id: sessionId,
           referrer: document.referrer || null,
           user_agent: navigator.userAgent,
           device_type: getDeviceType(),
+          session_started_at: sessionStartTime,
         };
 
         // Insert into analytics_events table
@@ -71,7 +148,7 @@ export const useAnalytics = () => {
 export const trackEvent = async (eventType: string, metadata?: Record<string, unknown>) => {
   try {
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     const eventData = {
       event_type: eventType,
       page_path: window.location.pathname,
