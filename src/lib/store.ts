@@ -113,16 +113,17 @@ export function setUserData(data: Partial<UserData>): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
 }
 
-export function addXP(amount: number): { newXP: number; newLevel: number; leveledUp: boolean } {
+export function addXP(amount: number): { newXP: number; newLevel: number; leveledUp: boolean; previousLevel: number } {
   const data = getUserData();
   const newXP = data.xp + amount;
   const xpPerLevel = 100;
   const newLevel = Math.floor(newXP / xpPerLevel) + 1;
   const leveledUp = newLevel > data.level;
+  const previousLevel = data.level;
   
   setUserData({ xp: newXP, level: newLevel });
   
-  return { newXP, newLevel, leveledUp };
+  return { newXP, newLevel, leveledUp, previousLevel };
 }
 
 export function recordCheckIn(date: string, status: 'taken' | 'skipped'): void {

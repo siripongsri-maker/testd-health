@@ -5,11 +5,13 @@ import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { TaskCard } from "@/components/TaskCard";
 import { getUserData, recordCheckIn, getTodayKey, getPEPDay, addBadge } from "@/lib/store";
+import { useCelebration } from "@/hooks/useCelebration";
 import { ArrowLeft, Calendar, Check, Award } from "lucide-react";
 import { toast } from "sonner";
 
 export default function PEPTracker() {
   const navigate = useNavigate();
+  const { celebrateLevelUp, celebrateAchievement } = useCelebration();
   const [userData, setLocalUserData] = useState(getUserData());
   const [todayStatus, setTodayStatus] = useState<"pending" | "taken" | "skipped">("pending");
   
@@ -27,19 +29,29 @@ export default function PEPTracker() {
     // Check for completion badge
     if (pepDay >= 28 && !data.badges.includes("Completed PEP")) {
       addBadge("Completed PEP");
+      celebrateLevelUp(); // Big celebration for completing PEP!
       toast.success("🎉 Congratulations!", {
         description: "You completed your 28-day PEP course!",
       });
     }
-  }, [pepDay]);
+  }, [pepDay, celebrateLevelUp]);
 
   const handleTaken = () => {
     const today = getTodayKey();
+    const previousLevel = getUserData().level;
+    
     recordCheckIn(today, "taken");
     setTodayStatus("taken");
     
     const data = getUserData();
     setLocalUserData(data);
+    
+    // Check for level up
+    if (data.level > previousLevel) {
+      celebrateLevelUp();
+    } else {
+      celebrateAchievement();
+    }
     
     toast.success("Keep going! +10 XP", {
       description: getEncouragementMessage(),
