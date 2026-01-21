@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
-import { getUserData, getTodayKey, recordCheckIn } from "@/lib/store";
+import { getUserData, getTodayKey, recordCheckIn, getStreakMultiplier } from "@/lib/store";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { LanguageToggle } from "@/components/LanguageToggle";
@@ -33,16 +33,21 @@ import {
 import swingLogo from "@/assets/swing-logo.webp";
 import { toast } from "sonner";
 
-// Cute menu card component
+// Cute menu card component with XP display
 interface MenuCardProps {
   icon: React.ReactNode;
   titleTh: string;
   titleEn: string;
   onClick: () => void;
   variant?: 'default' | 'featured';
+  xpReward?: number;
+  streakMultiplier?: { multiplier: number; label: string };
 }
 
-function MenuCard({ icon, titleTh, titleEn, onClick, variant = 'default' }: MenuCardProps) {
+function MenuCard({ icon, titleTh, titleEn, onClick, variant = 'default', xpReward, streakMultiplier }: MenuCardProps) {
+  const hasBonus = streakMultiplier && streakMultiplier.multiplier > 1;
+  const totalXP = xpReward && hasBonus ? Math.floor(xpReward * streakMultiplier.multiplier) : xpReward;
+  
   return (
     <button
       onClick={onClick}
@@ -53,21 +58,34 @@ function MenuCard({ icon, titleTh, titleEn, onClick, variant = 'default' }: Menu
         transition-all duration-300 
         hover:scale-[1.02] hover:-translate-y-1
         active:scale-[0.98]
-        flex flex-col items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4
+        flex flex-col items-center justify-center gap-1.5 sm:gap-2 p-2 sm:p-3
         ${variant === 'featured' ? 'ring-2 ring-primary/30' : ''}
       `}
     >
+      {/* XP Badge */}
+      {xpReward && (
+        <div className={`absolute top-1.5 right-1.5 sm:top-2 sm:right-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold ${
+          hasBonus 
+            ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-500/30' 
+            : 'bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400'
+        }`}>
+          <Sparkles className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+          <span>{totalXP}</span>
+          {hasBonus && <span className="text-[8px] sm:text-[9px] opacity-90">{streakMultiplier.label}</span>}
+        </div>
+      )}
+      
       {/* Icon container */}
-      <div className="h-12 w-12 sm:h-16 md:h-20 sm:w-16 md:w-20 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
+      <div className="h-10 w-10 sm:h-14 md:h-16 sm:w-14 md:w-16 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
         {icon}
       </div>
       
       {/* Labels */}
-      <div className="text-center space-y-0.5">
-        <p className="text-sm sm:text-base font-bold text-foreground leading-tight">
+      <div className="text-center space-y-0">
+        <p className="text-xs sm:text-sm font-bold text-foreground leading-tight">
           {titleTh}
         </p>
-        <p className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">
+        <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wide">
           {titleEn}
         </p>
       </div>
@@ -196,12 +214,16 @@ export default function Home() {
     setLocalUserData(data);
   };
 
+  // Get streak multiplier for display
+  const streakMultiplier = getStreakMultiplier(userData.streak);
+
   const menuItems = [
     {
       icon: <TestTube className="h-full w-full" strokeWidth={1.5} />,
       titleTh: "ขอชุดตรวจ",
       titleEn: "SELF TEST",
       path: "/hiv-selftest",
+      xpReward: 50,
     },
     {
       icon: <Calendar className="h-full w-full" strokeWidth={1.5} />,
@@ -209,30 +231,35 @@ export default function Home() {
       titleEn: "BOOK APPOINTMENT",
       path: "https://zerva.app/swingclinic",
       external: true,
+      xpReward: 30,
     },
     {
       icon: <ClipboardList className="h-full w-full" strokeWidth={1.5} />,
       titleTh: "แบบประเมิน",
       titleEn: "SURVEYS",
       path: "/surveys",
+      xpReward: 20,
     },
     {
       icon: <Users className="h-full w-full" strokeWidth={1.5} />,
       titleTh: "ดูแลตัวเอง",
       titleEn: "SELF CARE",
       path: "/self-care",
+      xpReward: 15,
     },
     {
       icon: <BookOpen className="h-full w-full" strokeWidth={1.5} />,
       titleTh: "เรื่องน่ารู้",
       titleEn: "DID YOU KNOW?",
       path: "/info",
+      xpReward: 10,
     },
     {
       icon: <MessageCircle className="h-full w-full" strokeWidth={1.5} />,
       titleTh: "ขอคำปรึกษา",
       titleEn: "ONLINE COUNSELOR",
       path: "/community",
+      xpReward: 25,
     },
   ];
 
@@ -330,7 +357,7 @@ export default function Home() {
 
       <main className="px-4 sm:px-6 py-4 max-w-md mx-auto relative z-10">
         {/* Welcome text */}
-        <div className="text-center mb-6">
+        <div className="text-center mb-4">
           <h1 className="text-2xl font-bold text-foreground">
             testD คนเทสต์ดีอยู่นี่จ้า
           </h1>
@@ -340,6 +367,35 @@ export default function Home() {
               : 'Choose a service'}
           </p>
         </div>
+
+        {/* Streak Bonus Banner */}
+        {streakMultiplier.multiplier > 1 && (
+          <div className="mb-4 rounded-xl bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 p-3 shadow-lg shadow-orange-500/20 animate-fade-in">
+            <div className="flex items-center justify-between text-white">
+              <div className="flex items-center gap-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+                  <span className="text-lg">🔥</span>
+                </div>
+                <div>
+                  <p className="font-bold text-sm">
+                    {language === 'th' 
+                      ? `โบนัส Streak ${streakMultiplier.label}!` 
+                      : `${streakMultiplier.label} Streak Bonus!`}
+                  </p>
+                  <p className="text-xs opacity-90">
+                    {language === 'th'
+                      ? `ต่อเนื่อง ${userData.streak} วัน - XP เพิ่มขึ้น!`
+                      : `${userData.streak} day streak - Extra XP!`}
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold">{streakMultiplier.label}</p>
+                <p className="text-[10px] opacity-80">{language === 'th' ? 'โบนัส' : 'BONUS'}</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Medication Reminder Card */}
         {userData.mode && userData.mode !== 'exploring' && (
@@ -408,6 +464,8 @@ export default function Home() {
               icon={item.icon}
               titleTh={item.titleTh}
               titleEn={item.titleEn}
+              xpReward={item.xpReward}
+              streakMultiplier={streakMultiplier}
               onClick={() => {
                 if ((item as any).external) {
                   window.open(item.path, '_blank', 'noopener,noreferrer');

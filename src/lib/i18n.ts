@@ -77,6 +77,12 @@ const translations: Record<Language, Record<string, string>> = {
     'stats.level': 'เลเวล',
     'stats.badges': 'เหรียญ',
     'stats.totalXp': 'XP รวม',
+    
+    // XP Rewards
+    'xp.bonus.3day': 'ต่อเนื่อง 3 วัน = XP x1.5',
+    'xp.bonus.7day': 'ต่อเนื่อง 7 วัน = XP x2',
+    'xp.reward': 'ได้รับ XP',
+    'xp.streak.bonus': 'โบนัส Streak',
 
     // Setup Daily PrEP
     'setup.daily.title': 'ตั้งค่า PrEP รายวัน',
@@ -430,6 +436,12 @@ const translations: Record<Language, Record<string, string>> = {
     'stats.level': 'Level',
     'stats.badges': 'Badges',
     'stats.totalXp': 'Total XP',
+    
+    // XP Rewards
+    'xp.bonus.3day': '3 day streak = XP x1.5',
+    'xp.bonus.7day': '7 day streak = XP x2',
+    'xp.reward': 'Earn XP',
+    'xp.streak.bonus': 'Streak Bonus',
 
     // Setup Daily PrEP
     'setup.daily.title': 'Daily PrEP Setup',
