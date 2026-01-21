@@ -5,7 +5,8 @@ import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Eye, Calendar, User, Loader2, BookOpen, Youtube } from "lucide-react";
+import { ArrowLeft, Eye, Calendar, User, Loader2, BookOpen, Youtube, Share2, Check, Link, Copy } from "lucide-react";
+import { toast } from "sonner";
 import { format } from "date-fns";
 import { ArticleLikeButton } from "@/components/ArticleLikeButton";
 import { ArticleComments } from "@/components/ArticleComments";
@@ -52,6 +53,9 @@ interface Category {
   icon: string;
 }
 
+// Base URL for sharing
+const SHARE_BASE_URL = "https://testd-test.lovable.app";
+
 export default function InfoArticle() {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -59,6 +63,38 @@ export default function InfoArticle() {
   const [article, setArticle] = useState<Article | null>(null);
   const [category, setCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    if (!article) return;
+    
+    const shareUrl = `${SHARE_BASE_URL}/info/article/${article.slug}`;
+    const shareTitle = language === 'th' ? article.title_th : article.title_en;
+    
+    // Try native share first
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: language === 'th' ? article.excerpt_th : article.excerpt_en,
+          url: shareUrl,
+        });
+        return;
+      } catch (err) {
+        // User cancelled or share failed, fall back to copy
+      }
+    }
+    
+    // Copy to clipboard
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      toast.success(language === 'th' ? 'คัดลอกลิงก์แล้ว!' : 'Link copied!');
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      toast.error(language === 'th' ? 'ไม่สามารถคัดลอกได้' : 'Failed to copy');
+    }
+  };
 
   useEffect(() => {
     if (slug) {
@@ -195,10 +231,41 @@ export default function InfoArticle() {
           </div>
         </div>
 
+        {/* Share URL Card */}
+        <div className="mb-6 p-4 rounded-xl bg-muted/30 border border-border/50">
+          <div className="flex items-center gap-2 mb-2 text-sm font-medium text-muted-foreground">
+            <Link className="h-4 w-4" />
+            <span>{language === 'th' ? 'ลิงก์สำหรับแชร์' : 'Shareable Link'}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 px-3 py-2 rounded-lg bg-background border border-border text-sm text-muted-foreground truncate font-mono">
+              {SHARE_BASE_URL}/info/article/{article.slug}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleShare}
+              className="gap-2 shrink-0"
+            >
+              {copied ? (
+                <>
+                  <Check className="h-4 w-4 text-green-500" />
+                  {language === 'th' ? 'คัดลอกแล้ว' : 'Copied'}
+                </>
+              ) : (
+                <>
+                  <Share2 className="h-4 w-4" />
+                  {language === 'th' ? 'แชร์' : 'Share'}
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+
         {/* Like Button */}
         <div className="mb-6">
           <ArticleLikeButton 
-            articleId={article.id} 
+            articleId={article.id}
             authorId={article.author_id}
             initialLikeCount={article.like_count || 0}
           />
