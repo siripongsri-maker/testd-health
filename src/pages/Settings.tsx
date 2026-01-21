@@ -10,11 +10,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { ThemeSelector } from "@/components/ThemeSelector";
 import { ProfileSettings } from "@/components/ProfileSettings";
+import { RestartTourButton } from "@/components/OnboardingTour";
 import { getUserData, setUserData, resetUserData } from "@/lib/store";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Bell, Pill, Clock, Shield, Trash2, Languages, Palette, User, LogOut, ShieldCheck, Loader2, UserCircle } from "lucide-react";
+import { ArrowLeft, Bell, Pill, Clock, Shield, Trash2, Languages, Palette, User, LogOut, ShieldCheck, Loader2, UserCircle, HelpCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 
@@ -322,6 +323,27 @@ export default function Settings() {
           </div>
         </div>
         
+        {/* Help & Tour */}
+        <div className="mb-8">
+          <h2 className="mb-4 text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+            <HelpCircle className="h-4 w-4" />
+            {language === 'th' ? 'ความช่วยเหลือ' : 'Help'}
+          </h2>
+          <div className="rounded-2xl bg-card border border-border/50 p-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-foreground">
+                  {language === 'th' ? 'แนะนำการใช้งาน' : 'App Tour'}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {language === 'th' ? 'ดูแนะนำฟีเจอร์หลักอีกครั้ง' : 'View the feature walkthrough again'}
+                </p>
+              </div>
+              <RestartTourButton />
+            </div>
+          </div>
+        </div>
+
         {/* Data */}
         <div className="mb-8">
           <h2 className="mb-4 text-sm font-semibold text-muted-foreground uppercase tracking-wider">{t('settings.data')}</h2>

@@ -10,6 +10,7 @@ import { HIVTestPopup } from "@/components/HIVTestPopup";
 import { AdminRequestsPopup } from "@/components/AdminRequestsPopup";
 import { RankingBoard } from "@/components/RankingBoard";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
+import { OnboardingTour } from "@/components/OnboardingTour";
 import {
   TestTube,
   MessageCircle,
@@ -505,6 +506,9 @@ export default function Home() {
       {/* Popups */}
       <HIVTestPopup />
       <AdminRequestsPopup open={adminPopupOpen} onOpenChange={setAdminPopupOpen} />
+      
+      {/* Onboarding Tour */}
+      <OnboardingTour />
     </div>
   );
 }
