@@ -113,9 +113,22 @@ export function setUserData(data: Partial<UserData>): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
 }
 
-export function addXP(amount: number): { newXP: number; newLevel: number; leveledUp: boolean; previousLevel: number } {
+// Get streak multiplier based on consecutive days
+export function getStreakMultiplier(streak: number): { multiplier: number; label: string } {
+  if (streak >= 7) {
+    return { multiplier: 2.0, label: 'x2' };
+  } else if (streak >= 3) {
+    return { multiplier: 1.5, label: 'x1.5' };
+  }
+  return { multiplier: 1.0, label: '' };
+}
+
+export function addXP(amount: number, applyStreakBonus: boolean = false): { newXP: number; newLevel: number; leveledUp: boolean; previousLevel: number; bonusApplied: number; multiplier: number } {
   const data = getUserData();
-  const newXP = data.xp + amount;
+  const { multiplier } = applyStreakBonus ? getStreakMultiplier(data.streak) : { multiplier: 1.0 };
+  const bonusApplied = applyStreakBonus ? Math.floor(amount * multiplier) - amount : 0;
+  const totalXP = amount + bonusApplied;
+  const newXP = data.xp + totalXP;
   const xpPerLevel = 100;
   const newLevel = Math.floor(newXP / xpPerLevel) + 1;
   const leveledUp = newLevel > data.level;
@@ -123,7 +136,7 @@ export function addXP(amount: number): { newXP: number; newLevel: number; levele
   
   setUserData({ xp: newXP, level: newLevel });
   
-  return { newXP, newLevel, leveledUp, previousLevel };
+  return { newXP, newLevel, leveledUp, previousLevel, bonusApplied, multiplier };
 }
 
 export function recordCheckIn(date: string, status: 'taken' | 'skipped'): void {
@@ -155,9 +168,9 @@ export function recordCheckIn(date: string, status: 'taken' | 'skipped'): void {
   
   setUserData({ checkIns, checkInDetails, streak });
   
-  // Award XP
+  // Award XP with streak bonus
   if (status === 'taken') {
-    addXP(10);
+    addXP(10, true); // Apply streak bonus for medication check-ins
   }
 }
 
