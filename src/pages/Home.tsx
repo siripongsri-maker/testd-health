@@ -355,13 +355,13 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="px-4 sm:px-6 lg:px-8 py-4 max-w-full sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl mx-auto relative z-10">
+      <main className="px-4 sm:px-6 py-4 max-w-md mx-auto relative z-10">
         {/* Welcome text */}
-        <div className="text-center mb-4 sm:mb-6">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
+        <div className="text-center mb-4">
+          <h1 className="text-2xl font-bold text-foreground">
             testD คนเทสต์ดีอยู่นี่จ้า
           </h1>
-          <p className="text-muted-foreground mt-1 sm:mt-2 text-sm sm:text-base">
+          <p className="text-muted-foreground mt-1">
             {language === 'th' 
               ? 'เลือกบริการที่ต้องการ' 
               : 'Choose a service'}
@@ -456,8 +456,8 @@ export default function Home() {
           </div>
         )}
 
-        {/* Menu Grid - responsive columns */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
+        {/* Menu Grid - 3 columns, 2 rows */}
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {menuItems.map((item, index) => (
             <MenuCard
               key={index}
@@ -478,45 +478,46 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Recommended Next Steps and Ranking - responsive grid on larger screens */}
-        <div className="mt-4 sm:mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+        {/* Recommended Next Steps */}
+        <div className="mt-4">
           <RecommendedNextSteps maxItems={3} variant="compact" />
-          
-          <div 
-            className="cursor-pointer hover:opacity-90 transition-opacity" 
-            onClick={() => navigate("/leaderboard")}
-          >
-            <RankingBoard compact />
-          </div>
+        </div>
+
+        {/* Ranking Board */}
+        <div 
+          className="mt-4 cursor-pointer hover:opacity-90 transition-opacity" 
+          onClick={() => navigate("/leaderboard")}
+        >
+          <RankingBoard compact />
         </div>
 
         {/* Quick links */}
-        <div className="mt-6 sm:mt-8 flex flex-wrap justify-center gap-2 sm:gap-3">
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
           <Button
             variant="outline"
             size="sm"
-            className="bg-card/80 backdrop-blur-sm rounded-full text-xs sm:text-sm"
+            className="bg-card/80 backdrop-blur-sm rounded-full"
             onClick={() => navigate("/personal-info")}
           >
-            <User className="h-4 w-4 mr-1 sm:mr-2" />
+            <User className="h-4 w-4 mr-2" />
             {language === 'th' ? 'ข้อมูลส่วนตัว' : 'Personal Info'}
           </Button>
           <Button
             variant="outline"
             size="sm"
-            className="bg-card/80 backdrop-blur-sm rounded-full text-xs sm:text-sm"
+            className="bg-card/80 backdrop-blur-sm rounded-full"
             onClick={() => navigate("/self-care")}
           >
-            <Heart className="h-4 w-4 mr-1 sm:mr-2" />
+            <Heart className="h-4 w-4 mr-2" />
             {language === 'th' ? 'ดูแลตัวเอง' : 'Self Care'}
           </Button>
           <Button
             variant="outline"
             size="sm"
-            className="bg-card/80 backdrop-blur-sm rounded-full text-xs sm:text-sm"
+            className="bg-card/80 backdrop-blur-sm rounded-full"
             onClick={() => navigate("/medication-tracker")}
           >
-            <Pill className="h-4 w-4 mr-1 sm:mr-2" />
+            <Pill className="h-4 w-4 mr-2" />
             {language === 'th' ? 'PrEP / PEP' : 'PrEP / PEP'}
           </Button>
         </div>

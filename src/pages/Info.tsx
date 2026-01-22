@@ -165,22 +165,22 @@ export default function Info() {
         </Button>
         
         {/* Search */}
-        <div className="mb-4 sm:mb-6 relative">
-          <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+        <div className="mb-6 relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
             placeholder={t('info.search')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-10 sm:h-12 pl-10 sm:pl-12 text-sm sm:text-base rounded-xl border-border/50 bg-muted/30 focus:bg-background transition-colors"
+            className="h-12 pl-12 text-base rounded-xl border-border/50 bg-muted/30 focus:bg-background transition-colors"
           />
         </div>
 
         {/* Category Filter */}
-        <div className="mb-4 sm:mb-6 flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 sm:-mx-0 sm:px-0 sm:flex-wrap">
+        <div className="mb-6 flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">
           <button
             onClick={() => setSelectedCategory(null)}
             className={cn(
-              "px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all",
+              "px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all",
               !selectedCategory 
                 ? "bg-primary text-primary-foreground" 
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -193,7 +193,7 @@ export default function Info() {
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
               className={cn(
-                "px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap transition-all flex items-center gap-1",
+                "px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all flex items-center gap-1",
                 selectedCategory === cat.id
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -207,9 +207,9 @@ export default function Info() {
 
         {/* If searching or category selected, show filtered articles */}
         {(searchQuery || selectedCategory) ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          <div className="space-y-3">
             {filteredArticles.length === 0 ? (
-              <div className="col-span-full text-center py-16">
+              <div className="text-center py-16">
                 <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted/50 mx-auto mb-4">
                   <BookOpen className="h-8 w-8 text-muted-foreground/50" />
                 </div>
@@ -220,33 +220,33 @@ export default function Info() {
                 <button
                   key={article.id}
                   onClick={() => navigate(`/info/article/${article.slug}`)}
-                  className="w-full text-left rounded-2xl bg-card border border-border/50 p-3 sm:p-4 hover:bg-muted/30 transition-all animate-fade-in flex gap-3 sm:gap-4"
+                  className="w-full text-left rounded-2xl bg-card border border-border/50 p-4 hover:bg-muted/30 transition-all animate-fade-in flex gap-4"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   {article.cover_url ? (
                     <img 
                       src={article.cover_url} 
                       alt="" 
-                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover flex-shrink-0"
+                      className="w-20 h-20 rounded-xl object-cover flex-shrink-0"
                     />
                   ) : (
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0">
-                      <BookOpen className="h-6 w-6 sm:h-8 sm:w-8 text-primary/50" />
+                    <div className="w-20 h-20 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0">
+                      <BookOpen className="h-8 w-8 text-primary/50" />
                     </div>
                   )}
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm sm:text-base text-foreground line-clamp-2">
+                    <h3 className="font-semibold text-foreground line-clamp-2">
                       {language === 'th' ? article.title_th : article.title_en}
                     </h3>
-                    <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 mt-1">
+                    <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
                       {language === 'th' ? article.excerpt_th : article.excerpt_en}
                     </p>
                     <div className="flex items-center justify-between mt-2">
-                      <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs text-muted-foreground">
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
                         {article.author_name && (
                           <span className="flex items-center gap-1">
                             <User className="h-3 w-3" />
-                            <span className="hidden sm:inline">{article.author_name}</span>
+                            {article.author_name}
                           </span>
                         )}
                         <span className="flex items-center gap-1">
@@ -260,13 +260,13 @@ export default function Info() {
                       </div>
                       <button
                         onClick={(e) => handleShare(e, article)}
-                        className="p-1.5 sm:p-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
+                        className="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
                         title={language === 'th' ? 'แชร์บทความ' : 'Share article'}
                       >
                         {copiedSlug === article.slug ? (
-                          <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                          <Check className="h-4 w-4" />
                         ) : (
-                          <Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                          <Share2 className="h-4 w-4" />
                         )}
                       </button>
                     </div>
@@ -277,7 +277,7 @@ export default function Info() {
           </div>
         ) : (
           /* Category Cards with scrollable articles */
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <div className="space-y-6">
             {categories.map((category, index) => {
               const theme = CATEGORY_THEMES[category.slug] || CATEGORY_THEMES['lifestyle'];
               const categoryArticles = getArticlesByCategory(category.id);
@@ -292,58 +292,72 @@ export default function Info() {
                   <button
                     onClick={() => setSelectedCategory(category.id)}
                     className={cn(
-                      "w-full rounded-2xl p-4 sm:p-5 mb-3 text-left transition-all hover:scale-[1.02]",
+                      "w-full rounded-2xl p-5 mb-3 text-left transition-all hover:scale-[1.02]",
                       "bg-gradient-to-br border border-border/50",
                       theme.bg
                     )}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 sm:gap-4">
+                      <div className="flex items-center gap-4">
                         <div className={cn(
-                          "w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center text-xl sm:text-2xl bg-gradient-to-br shadow-lg",
+                          "w-14 h-14 rounded-2xl flex items-center justify-center text-2xl bg-gradient-to-br shadow-lg",
                           theme.icon
                         )}>
                           {category.icon}
                         </div>
                         <div>
-                          <h2 className="text-base sm:text-lg font-bold text-foreground">
+                          <h2 className="text-lg font-bold text-foreground">
                             {language === 'th' ? category.name_th : category.name_en}
                           </h2>
-                          <p className="text-xs sm:text-sm text-muted-foreground">
+                          <p className="text-sm text-muted-foreground">
                             {language === 'th' ? category.description_th : category.description_en}
                           </p>
                         </div>
                       </div>
-                      <ChevronRight className="h-5 w-5 text-muted-foreground hidden sm:block" />
+                      <ChevronRight className="h-5 w-5 text-muted-foreground" />
                     </div>
                   </button>
 
-                  {/* Category Articles Preview */}
+                  {/* Category Articles Preview - Show 2 latest with full details */}
                   {categoryArticles.length > 0 && (
-                    <div className="space-y-2 pl-2">
+                    <div className="space-y-2 pl-2 max-h-64 overflow-y-auto">
                       {categoryArticles.map((article) => (
                         <button
                           key={article.id}
                           onClick={() => navigate(`/info/article/${article.slug}`)}
-                          className="w-full text-left rounded-xl bg-card/50 border border-border/30 p-2.5 sm:p-3 hover:bg-muted/30 transition-all flex items-start gap-2.5 sm:gap-3"
+                          className="w-full text-left rounded-xl bg-card/50 border border-border/30 p-3 hover:bg-muted/30 transition-all flex items-start gap-3"
                         >
                           {article.cover_url ? (
                             <img 
                               src={article.cover_url} 
                               alt="" 
-                              className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg object-cover flex-shrink-0"
+                              className="w-14 h-14 rounded-lg object-cover flex-shrink-0"
                             />
                           ) : (
-                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-muted/50 flex items-center justify-center flex-shrink-0">
-                              <BookOpen className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground/50" />
+                            <div className="w-14 h-14 rounded-lg bg-muted/50 flex items-center justify-center flex-shrink-0">
+                              <BookOpen className="h-6 w-6 text-muted-foreground/50" />
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-foreground text-xs sm:text-sm line-clamp-2">
+                            <h4 className="font-medium text-foreground text-sm line-clamp-2">
                               {language === 'th' ? article.title_th : article.title_en}
                             </h4>
+                            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mt-1">
+                              {article.author_name && (
+                                <span className="flex items-center gap-1">
+                                  <User className="h-3 w-3" />
+                                  {article.author_name}
+                                </span>
+                              )}
+                              {article.published_at && (
+                                <span className="flex items-center gap-1">
+                                  <Calendar className="h-3 w-3" />
+                                  {format(new Date(article.published_at), 'MMM d, yyyy')}
+                                </span>
+                              )}
+                            </div>
                             <div className="flex items-center justify-between mt-1">
-                              <div className="flex items-center gap-2 text-[10px] sm:text-xs text-muted-foreground">
+                              <div className="flex items-center gap-3 text-xs text-muted-foreground">
                                 <span className="flex items-center gap-1">
                                   <Heart className="h-3 w-3" />
                                   {article.like_count || 0}
@@ -357,13 +371,13 @@ export default function Info() {
                           </div>
                           <button
                             onClick={(e) => handleShare(e, article)}
-                            className="p-1 sm:p-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors flex-shrink-0"
+                            className="p-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors flex-shrink-0"
                             title={language === 'th' ? 'แชร์' : 'Share'}
                           >
                             {copiedSlug === article.slug ? (
-                              <Check className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                              <Check className="h-3.5 w-3.5" />
                             ) : (
-                              <Link className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                              <Link className="h-3.5 w-3.5" />
                             )}
                           </button>
                         </button>
