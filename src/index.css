@@ -223,6 +223,22 @@
 }
 
 @layer utilities {
+  /* Mobile-first spacing utilities */
+  .mobile-spacing {
+    @apply px-4 py-4 sm:px-6 sm:py-5;
+  }
+  
+  .mobile-gap {
+    @apply gap-4 sm:gap-5 md:gap-6;
+  }
+  
+  .mobile-stack {
+    @apply space-y-4 sm:space-y-5 md:space-y-6;
+  }
+
+  .mobile-section {
+    @apply py-6 sm:py-8 md:py-10;
+  }
   .gradient-primary {
     background: var(--gradient-primary);
   }
