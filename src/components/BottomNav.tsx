@@ -28,7 +28,7 @@ export function BottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-t border-border/50 safe-bottom">
-      <div className="mx-auto flex max-w-lg items-center justify-around py-1">
+      <div className="mx-auto flex max-w-lg items-center justify-around py-2 sm:py-2 md:py-3">
         {navItems.map(({ icon: Icon, label, path }) => {
           const isActive = location.pathname === path;
           return (
@@ -36,23 +36,23 @@ export function BottomNav() {
               key={path}
               to={path}
               className={cn(
-                "flex flex-col items-center gap-0.5 px-3 py-2 transition-all duration-200 rounded-xl min-w-[56px]",
+                "flex flex-col items-center gap-1 px-3 sm:px-4 py-2 sm:py-3 transition-all duration-200 rounded-xl min-w-[60px] sm:min-w-[64px] md:min-w-[72px]",
                 isActive 
                   ? "text-primary" 
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               )}
             >
               <div className={cn(
-                "flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200",
+                "flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl transition-all duration-200",
                 isActive && "bg-primary/10"
               )}>
                 <Icon className={cn(
-                  "h-5 w-5 transition-transform duration-200",
+                  "h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 transition-transform duration-200",
                   isActive && "scale-110"
                 )} />
               </div>
               <span className={cn(
-                "text-[9px] font-medium transition-all duration-200",
+                "text-[11px] sm:text-xs md:text-sm font-medium transition-all duration-200",
                 isActive && "font-semibold"
               )}>{label}</span>
             </Link>
@@ -63,12 +63,12 @@ export function BottomNav() {
         {isLoggedIn && (
           <button
             onClick={handleLogout}
-            className="flex flex-col items-center gap-0.5 px-3 py-2 transition-all duration-200 rounded-xl min-w-[56px] text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+            className="flex flex-col items-center gap-1 px-3 sm:px-4 py-2 sm:py-3 transition-all duration-200 rounded-xl min-w-[60px] sm:min-w-[64px] md:min-w-[72px] text-muted-foreground hover:text-destructive hover:bg-destructive/10"
           >
-            <div className="flex items-center justify-center w-9 h-9 rounded-xl transition-all duration-200">
-              <LogOut className="h-5 w-5 transition-transform duration-200" />
+            <div className="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl transition-all duration-200">
+              <LogOut className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 transition-transform duration-200" />
             </div>
-            <span className="text-[9px] font-medium transition-all duration-200">
+            <span className="text-[11px] sm:text-xs md:text-sm font-medium transition-all duration-200">
               {language === 'th' ? 'ออก' : 'Logout'}
             </span>
           </button>
