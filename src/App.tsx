@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { RainbowSwingBackground } from "@/components/ThemedBackground";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import Home from "./pages/Home";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
@@ -47,6 +48,7 @@ const App = () => (
       <RainbowSwingBackground />
       <Toaster />
       <Sonner position="top-center" />
+      <PWAInstallPrompt />
       <BrowserRouter>
         <AnalyticsProvider>
           <Routes>
