@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Home, BookOpen, Heart, Settings, Sparkles, LogOut } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
 import { toast } from "sonner";
+import { triggerHaptic } from "@/hooks/useHaptic";
 
 export function BottomNav() {
   const location = useLocation();
@@ -35,6 +36,7 @@ export function BottomNav() {
             <Link
               key={path}
               to={path}
+              onClick={() => triggerHaptic('selection')}
               className={cn(
                 "flex flex-col items-center gap-1 px-3 sm:px-4 py-2 sm:py-3 transition-all duration-200 rounded-xl min-w-[60px] sm:min-w-[64px] md:min-w-[72px]",
                 isActive 
@@ -62,7 +64,10 @@ export function BottomNav() {
         {/* Logout button */}
         {isLoggedIn && (
           <button
-            onClick={handleLogout}
+            onClick={() => {
+              triggerHaptic('medium');
+              handleLogout();
+            }}
             className="flex flex-col items-center gap-1 px-3 sm:px-4 py-2 sm:py-3 transition-all duration-200 rounded-xl min-w-[60px] sm:min-w-[64px] md:min-w-[72px] text-muted-foreground hover:text-destructive hover:bg-destructive/10"
           >
             <div className="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-xl transition-all duration-200">
