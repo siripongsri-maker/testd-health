@@ -42,6 +42,7 @@ const WriteArticle = lazy(() => import("./pages/WriteArticle"));
 const PersonalInfo = lazy(() => import("./pages/PersonalInfo"));
 const AvatarCustomization = lazy(() => import("./pages/AvatarCustomization"));
 const MedicationTracker = lazy(() => import("./pages/MedicationTracker"));
+const Install = lazy(() => import("./pages/Install"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -89,6 +90,7 @@ const App = () => (
               <Route path="/personal-info" element={<PersonalInfo />} />
               <Route path="/avatar" element={<AvatarCustomization />} />
               <Route path="/medication-tracker" element={<MedicationTracker />} />
+              <Route path="/install" element={<Install />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
