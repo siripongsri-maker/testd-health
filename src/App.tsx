@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { RainbowSwingBackground } from "@/components/ThemedBackground";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import { PageLoader } from "@/components/PageLoader";
 
 // Lazy load all pages for code-splitting
@@ -51,6 +52,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <RainbowSwingBackground />
+      <OfflineBanner />
       <Toaster />
       <Sonner position="top-center" />
       <PWAInstallPrompt />
