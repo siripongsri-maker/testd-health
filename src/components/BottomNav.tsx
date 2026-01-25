@@ -1,9 +1,10 @@
 import { cn } from "@/lib/utils";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Home, BookOpen, Heart, Settings, Sparkles, LogOut } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
 import { toast } from "sonner";
 import { triggerHaptic } from "@/hooks/useHaptic";
+import { PrefetchLink } from "@/components/PrefetchLink";
 
 export function BottomNav() {
   const location = useLocation();
@@ -33,7 +34,7 @@ export function BottomNav() {
         {navItems.map(({ icon: Icon, label, path }) => {
           const isActive = location.pathname === path;
           return (
-            <Link
+            <PrefetchLink
               key={path}
               to={path}
               onClick={() => triggerHaptic('selection')}
@@ -57,7 +58,7 @@ export function BottomNav() {
                 "text-[11px] sm:text-xs md:text-sm font-medium transition-all duration-200",
                 isActive && "font-semibold"
               )}>{label}</span>
-            </Link>
+            </PrefetchLink>
           );
         })}
         
