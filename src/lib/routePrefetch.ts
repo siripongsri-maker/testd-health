@@ -27,6 +27,7 @@ const routeImports: Record<string, () => Promise<unknown>> = {
   '/personal-info': () => import('@/pages/PersonalInfo'),
   '/avatar': () => import('@/pages/AvatarCustomization'),
   '/medication-tracker': () => import('@/pages/MedicationTracker'),
+  '/install': () => import('@/pages/Install'),
   '/info/write': () => import('@/pages/WriteArticle'),
 };
 
