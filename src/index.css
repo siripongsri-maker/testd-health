@@ -165,8 +165,6 @@
     @apply scroll-smooth;
     /* Increase base font size for better mobile readability */
     font-size: 16px;
-    /* Fix mobile viewport height issues */
-    height: -webkit-fill-available;
   }
 
   body {
@@ -174,9 +172,7 @@
     font-family: 'Inter', system-ui, sans-serif;
     /* Larger base text for readability */
     @apply text-base leading-relaxed;
-    /* Support for dynamic viewport on mobile */
-    min-height: 100dvh;
-    min-height: -webkit-fill-available;
+    /* Let content determine height naturally - no forced viewport height */
   }
 
   /* Ensure minimum touch target sizes (44px recommended by Apple) */
