@@ -9,6 +9,7 @@ import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { PageLoader } from "@/components/PageLoader";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 // Lazy load all pages for code-splitting
 const Home = lazy(() => import("./pages/Home"));
@@ -56,6 +57,7 @@ const App = () => (
       <Toaster />
       <Sonner position="top-center" />
       <PWAInstallPrompt />
+      <ScrollToTop />
       <BrowserRouter>
         <AnalyticsProvider>
           <Suspense fallback={<PageLoader />}>
