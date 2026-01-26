@@ -264,7 +264,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-primary/30 to-primary/20 relative overflow-hidden">
+    <div className="min-h-[100dvh] bg-gradient-to-b from-primary/30 to-primary/20 relative overflow-x-hidden">
       {/* Swing logo decorations - subtle floating */}
       <SwingDecoration className="absolute bottom-20 left-2 rotate-[-10deg]" delay={0} />
       <SwingDecoration className="absolute bottom-32 right-4 rotate-[8deg]" delay={1.5} />
@@ -355,7 +355,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="px-4 sm:px-6 py-4 max-w-md mx-auto relative z-10">
+      <main className="px-4 sm:px-6 py-3 max-w-md mx-auto relative z-10">
         {/* Welcome text */}
         <div className="text-center mb-4">
           <h1 className="text-2xl font-bold text-foreground">
@@ -545,7 +545,7 @@ export default function Home() {
         </div>
 
         {/* Footer */}
-        <footer className="mt-8 text-center space-y-2 pb-8">
+        <footer className="mt-6 text-center space-y-2 pb-[max(16px,env(safe-area-inset-bottom))]">
           <p className="text-xs text-muted-foreground">
             {language === 'th' 
               ? 'บริการนี้ไม่มีค่าใช้จ่าย • ข้อมูลของคุณเป็นความลับ' 
