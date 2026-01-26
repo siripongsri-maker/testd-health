@@ -264,24 +264,29 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-[100dvh] bg-gradient-to-b from-primary/30 to-primary/20 relative overflow-x-hidden">
-      {/* Swing logo decorations - subtle floating */}
-      <SwingDecoration className="absolute bottom-20 left-2 rotate-[-10deg]" delay={0} />
-      <SwingDecoration className="absolute bottom-32 right-4 rotate-[8deg]" delay={1.5} />
-      <SwingDecoration className="absolute top-28 left-4 rotate-[-5deg] scale-75" delay={0.8} />
-      <SwingDecoration className="absolute top-48 right-2 rotate-[12deg] scale-75" delay={2} />
-      <SwingDecoration className="absolute top-16 right-1/4 rotate-[-3deg] scale-50" delay={0.5} />
-      <SwingDecoration className="absolute top-72 left-1/3 rotate-[6deg] scale-60" delay={2.5} />
-      <SwingDecoration className="absolute bottom-48 right-1/3 rotate-[-8deg] scale-50" delay={1} />
-      <SwingDecoration className="absolute top-1/3 left-0 rotate-[15deg] scale-60" delay={3} />
-      <SwingDecoration className="absolute top-1/2 right-0 rotate-[-12deg] scale-55" delay={1.8} />
-      <SwingDecoration className="absolute bottom-64 left-1/4 rotate-[4deg] scale-45" delay={2.2} />
-      <SwingDecoration className="absolute top-96 right-8 rotate-[-6deg] scale-65" delay={0.3} />
-      <SwingDecoration className="absolute bottom-40 left-8 rotate-[10deg] scale-55" delay={2.8} />
+    <div className="relative">
+      {/* Fixed background layer - doesn't affect layout height */}
+      <div className="fixed inset-0 bg-gradient-to-b from-primary/30 to-primary/20 -z-10" />
+      
+      {/* Swing logo decorations - fixed position, subtle floating */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden -z-5">
+        <SwingDecoration className="absolute bottom-20 left-2 rotate-[-10deg]" delay={0} />
+        <SwingDecoration className="absolute bottom-32 right-4 rotate-[8deg]" delay={1.5} />
+        <SwingDecoration className="absolute top-28 left-4 rotate-[-5deg] scale-75" delay={0.8} />
+        <SwingDecoration className="absolute top-48 right-2 rotate-[12deg] scale-75" delay={2} />
+        <SwingDecoration className="absolute top-16 right-1/4 rotate-[-3deg] scale-50" delay={0.5} />
+        <SwingDecoration className="absolute top-72 left-1/3 rotate-[6deg] scale-60" delay={2.5} />
+        <SwingDecoration className="absolute bottom-48 right-1/3 rotate-[-8deg] scale-50" delay={1} />
+        <SwingDecoration className="absolute top-1/3 left-0 rotate-[15deg] scale-60" delay={3} />
+        <SwingDecoration className="absolute top-1/2 right-0 rotate-[-12deg] scale-55" delay={1.8} />
+        <SwingDecoration className="absolute bottom-64 left-1/4 rotate-[4deg] scale-45" delay={2.2} />
+        <SwingDecoration className="absolute top-96 right-8 rotate-[-6deg] scale-65" delay={0.3} />
+        <SwingDecoration className="absolute bottom-40 left-8 rotate-[10deg] scale-55" delay={2.8} />
+      </div>
       
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-transparent safe-top">
-        <div className="flex items-center justify-between px-4 py-3">
+      <header className="sticky top-0 z-20 bg-gradient-to-b from-primary/30 to-transparent safe-top">
+        <div className="flex items-center justify-between px-4 py-2">
           <div className="flex items-center gap-2">
             <img 
               src={swingLogo} 
@@ -492,7 +497,7 @@ export default function Home() {
         </div>
 
         {/* Quick links */}
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
+        <div className="mt-4 flex flex-wrap justify-center gap-2">
           <Button
             variant="outline"
             size="sm"
@@ -523,7 +528,7 @@ export default function Home() {
         </div>
 
         {/* Stats: Users and Visitors */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
           {totalMembers > 0 && (
             <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm rounded-full py-2 px-4 animate-fade-in">
               <Users className="h-4 w-4 text-primary" />
@@ -545,7 +550,7 @@ export default function Home() {
         </div>
 
         {/* Footer */}
-        <footer className="mt-6 text-center space-y-2 pb-[max(16px,env(safe-area-inset-bottom))]">
+        <footer className="mt-4 text-center space-y-1.5 pb-[max(12px,env(safe-area-inset-bottom))]">
           <p className="text-xs text-muted-foreground">
             {language === 'th' 
               ? 'บริการนี้ไม่มีค่าใช้จ่าย • ข้อมูลของคุณเป็นความลับ' 
