@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/RichTextEditor";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -609,12 +610,12 @@ export default function WriteArticle() {
           {/* Content */}
           <div>
             <Label className="mb-2 block">{language === 'th' ? 'เนื้อหา *' : 'Content *'}</Label>
-            <Textarea
+            <RichTextEditor
               value={form.content_th}
-              onChange={(e) => setForm({ ...form, content_th: e.target.value })}
+              onChange={(content) => setForm({ ...form, content_th: content })}
               placeholder={language === 'th' ? 'เขียนเนื้อหาบทความ...' : 'Write your article content...'}
               rows={10}
-              className="min-h-[200px]"
+              language={language as 'en' | 'th'}
             />
           </div>
 
