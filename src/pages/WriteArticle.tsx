@@ -7,11 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/lib/i18n";
-import { ArrowLeft, Send, Upload, Loader2, X, Image, Sparkles, FileText, Clock, CheckCircle, XCircle, AlertCircle, ChevronDown, ChevronUp, Languages, Edit3, RefreshCw, Eye, User, Calendar, BookOpen, ImagePlus, Images, Youtube } from "lucide-react";
+import { ArrowLeft, Send, Upload, Loader2, X, Image, Sparkles, FileText, Clock, CheckCircle, XCircle, AlertCircle, ChevronDown, ChevronUp, Edit3, RefreshCw, Images, Youtube } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -43,12 +42,10 @@ interface Category {
 
 interface MyArticle {
   id: string;
-  title_en: string;
   title_th: string;
   status: 'draft' | 'pending_review' | 'published' | 'archived';
   rejection_feedback: string | null;
   created_at: string;
-  published_at: string | null;
 }
 
 export default function WriteArticle() {
@@ -59,30 +56,20 @@ export default function WriteArticle() {
   const { user } = useAuth();
   const { t, language } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const contentImageInputRef = useRef<HTMLInputElement>(null);
-  const [uploadingContentImage, setUploadingContentImage] = useState(false);
-  const [activeContentTab, setActiveContentTab] = useState<'th' | 'en'>('th');
-  const contentThRef = useRef<HTMLTextAreaElement>(null);
-  const contentEnRef = useRef<HTMLTextAreaElement>(null);
   
   const [categories, setCategories] = useState<Category[]>([]);
   const [myArticles, setMyArticles] = useState<MyArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [isTranslating, setIsTranslating] = useState(false);
   const [showMyArticles, setShowMyArticles] = useState(true);
   const [expandedFeedback, setExpandedFeedback] = useState<string | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingArticleId, setEditingArticleId] = useState<string | null>(null);
-  const [showPreview, setShowPreview] = useState(false);
   
   const [form, setForm] = useState({
-    title_en: '',
     title_th: '',
-    excerpt_en: '',
     excerpt_th: '',
-    content_en: '',
     content_th: '',
     cover_url: '',
     category_id: '',
@@ -108,7 +95,7 @@ export default function WriteArticle() {
       if (user) {
         const { data: articlesData } = await supabase
           .from('blog_articles')
-          .select('id, title_en, title_th, status, rejection_feedback, created_at, published_at')
+          .select('id, title_th, status, rejection_feedback, created_at')
           .eq('author_id', user.id)
           .order('created_at', { ascending: false });
         
@@ -125,11 +112,8 @@ export default function WriteArticle() {
 
           if (articleToEdit) {
             setForm({
-              title_en: articleToEdit.title_en || '',
               title_th: articleToEdit.title_th || '',
-              excerpt_en: articleToEdit.excerpt_en || '',
               excerpt_th: articleToEdit.excerpt_th || '',
-              content_en: articleToEdit.content_en || '',
               content_th: articleToEdit.content_th || '',
               cover_url: articleToEdit.cover_url || '',
               category_id: articleToEdit.category_id || '',
@@ -187,7 +171,7 @@ export default function WriteArticle() {
   const generateSlug = (title: string) => {
     return title
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/[^a-z0-9\u0E00-\u0E7F]+/g, '-')
       .replace(/(^-|-$)/g, '')
       .substring(0, 50) + '-' + Date.now().toString(36);
   };
@@ -226,105 +210,6 @@ export default function WriteArticle() {
     }
   };
 
-  const handleContentImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      toast.error(language === 'th' ? 'กรุณาเลือกไฟล์รูปภาพ' : 'Please select an image');
-      return;
-    }
-
-    setUploadingContentImage(true);
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `content/${Date.now()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('blog-images')
-        .upload(fileName, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('blog-images')
-        .getPublicUrl(fileName);
-
-      // Insert markdown image at cursor position or end
-      const imageMarkdown = `\n![${language === 'th' ? 'รูปภาพ' : 'Image'}](${publicUrl})\n`;
-      
-      if (activeContentTab === 'th') {
-        const textarea = contentThRef.current;
-        if (textarea) {
-          const start = textarea.selectionStart;
-          const end = textarea.selectionEnd;
-          const newContent = form.content_th.substring(0, start) + imageMarkdown + form.content_th.substring(end);
-          setForm({ ...form, content_th: newContent });
-        } else {
-          setForm({ ...form, content_th: form.content_th + imageMarkdown });
-        }
-      } else {
-        const textarea = contentEnRef.current;
-        if (textarea) {
-          const start = textarea.selectionStart;
-          const end = textarea.selectionEnd;
-          const newContent = form.content_en.substring(0, start) + imageMarkdown + form.content_en.substring(end);
-          setForm({ ...form, content_en: newContent });
-        } else {
-          setForm({ ...form, content_en: form.content_en + imageMarkdown });
-        }
-      }
-
-      toast.success(language === 'th' ? 'เพิ่มรูปภาพในเนื้อหาแล้ว' : 'Image added to content');
-    } catch (error: any) {
-      toast.error(error.message);
-    } finally {
-      setUploadingContentImage(false);
-      // Reset file input
-      if (contentImageInputRef.current) {
-        contentImageInputRef.current.value = '';
-      }
-    }
-  };
-
-  const translateToEnglish = async () => {
-    if (!form.title_th && !form.content_th) {
-      toast.error(language === 'th' ? 'กรุณากรอกเนื้อหาภาษาไทยก่อน' : 'Please enter Thai content first');
-      return;
-    }
-
-    setIsTranslating(true);
-    try {
-      const response = await supabase.functions.invoke('translate-article', {
-        body: {
-          title_th: form.title_th,
-          excerpt_th: form.excerpt_th,
-          content_th: form.content_th,
-        }
-      });
-
-      if (response.error) throw response.error;
-
-      const translated = response.data;
-      setForm(prev => ({
-        ...prev,
-        title_en: translated.title_en || prev.title_en,
-        excerpt_en: translated.excerpt_en || prev.excerpt_en,
-        content_en: translated.content_en || prev.content_en,
-      }));
-
-      toast.success(
-        language === 'th' ? 'แปลเป็นภาษาอังกฤษเรียบร้อย!' : 'Translated to English!',
-        { icon: '🌐' }
-      );
-    } catch (error: any) {
-      console.error('Translation error:', error);
-      toast.error(language === 'th' ? 'ไม่สามารถแปลได้ กรุณาลองใหม่' : 'Translation failed. Please try again.');
-    } finally {
-      setIsTranslating(false);
-    }
-  };
-
   const submitArticle = async () => {
     if (!user) {
       toast.error(language === 'th' ? 'กรุณาเข้าสู่ระบบ' : 'Please login first');
@@ -332,49 +217,14 @@ export default function WriteArticle() {
       return;
     }
 
-    if (!form.title_th) {
-      toast.error(language === 'th' ? 'กรุณากรอกหัวข้อภาษาไทย' : 'Please enter Thai title');
+    if (!form.title_th.trim()) {
+      toast.error(language === 'th' ? 'กรุณากรอกหัวข้อ' : 'Please enter a title');
       return;
     }
 
-    if (!form.content_th) {
-      toast.error(language === 'th' ? 'กรุณากรอกเนื้อหาภาษาไทย' : 'Please enter Thai content');
+    if (!form.content_th.trim()) {
+      toast.error(language === 'th' ? 'กรุณากรอกเนื้อหา' : 'Please enter content');
       return;
-    }
-
-    // Auto-translate if English content is missing
-    let finalForm = { ...form };
-    if (!form.title_en || !form.content_en) {
-      setIsTranslating(true);
-      try {
-        const response = await supabase.functions.invoke('translate-article', {
-          body: {
-            title_th: form.title_th,
-            excerpt_th: form.excerpt_th,
-            content_th: form.content_th,
-          }
-        });
-
-        if (!response.error && response.data) {
-          finalForm = {
-            ...finalForm,
-            title_en: response.data.title_en || form.title_th,
-            excerpt_en: response.data.excerpt_en || form.excerpt_th,
-            content_en: response.data.content_en || form.content_th,
-          };
-        }
-      } catch (error) {
-        console.error('Auto-translation failed:', error);
-        // Use Thai content as fallback
-        finalForm = {
-          ...finalForm,
-          title_en: form.title_en || form.title_th,
-          excerpt_en: form.excerpt_en || form.excerpt_th,
-          content_en: form.content_en || form.content_th,
-        };
-      } finally {
-        setIsTranslating(false);
-      }
     }
 
     setIsSaving(true);
@@ -384,10 +234,17 @@ export default function WriteArticle() {
         const { error } = await supabase
           .from('blog_articles')
           .update({
-            ...finalForm,
-            category_id: finalForm.category_id || null,
+            title_th: form.title_th,
+            title_en: form.title_th, // Use Thai as placeholder, admin will translate
+            excerpt_th: form.excerpt_th,
+            excerpt_en: form.excerpt_th,
+            content_th: form.content_th,
+            content_en: form.content_th,
+            cover_url: form.cover_url || null,
+            category_id: form.category_id || null,
+            video_url: form.video_url || null,
             status: 'pending_review',
-            rejection_feedback: null, // Clear previous feedback
+            rejection_feedback: null,
             updated_at: new Date().toISOString(),
           })
           .eq('id', editingArticleId)
@@ -397,8 +254,8 @@ export default function WriteArticle() {
 
         toast.success(
           language === 'th' 
-            ? 'อัพเดทบทความแล้ว! รอการอนุมัติอีกครั้ง' 
-            : 'Article updated! Waiting for re-approval.',
+            ? 'อัพเดทบทความแล้ว! รอการอนุมัติจากแอดมิน' 
+            : 'Article updated! Waiting for admin approval.',
           { duration: 5000, icon: "✏️" }
         );
       } else {
@@ -414,9 +271,16 @@ export default function WriteArticle() {
         const { error } = await supabase
           .from('blog_articles')
           .insert({
-            ...finalForm,
-            category_id: finalForm.category_id || null,
-            slug: generateSlug(finalForm.title_en || finalForm.title_th),
+            title_th: form.title_th,
+            title_en: form.title_th, // Use Thai as placeholder
+            excerpt_th: form.excerpt_th,
+            excerpt_en: form.excerpt_th,
+            content_th: form.content_th,
+            content_en: form.content_th,
+            cover_url: form.cover_url || null,
+            category_id: form.category_id || null,
+            video_url: form.video_url || null,
+            slug: generateSlug(form.title_th),
             status: 'pending_review',
             author_id: user.id,
             author_name: authorName,
@@ -434,7 +298,8 @@ export default function WriteArticle() {
       
       navigate('/info');
     } catch (error: any) {
-      toast.error(error.message);
+      console.error('Submit error:', error);
+      toast.error(error.message || (language === 'th' ? 'เกิดข้อผิดพลาด' : 'An error occurred'));
     } finally {
       setIsSaving(false);
     }
@@ -448,11 +313,8 @@ export default function WriteArticle() {
     setIsEditMode(false);
     setEditingArticleId(null);
     setForm({
-      title_en: '',
       title_th: '',
-      excerpt_en: '',
       excerpt_th: '',
-      content_en: '',
       content_th: '',
       cover_url: '',
       category_id: '',
@@ -498,255 +360,48 @@ export default function WriteArticle() {
     );
   }
 
-  // Helper to get selected category info
-  const selectedCategory = categories.find(c => c.id === form.category_id);
-
-  // Render article content for preview
-  const renderContent = (content: string | null) => {
-    if (!content) {
-      return (
-        <p className="text-muted-foreground italic">
-          {language === 'th' ? 'ไม่มีเนื้อหา' : 'No content available'}
-        </p>
-      );
-    }
-
-    return content.split("\n\n").map((paragraph, index) => {
-      // Handle bullet points
-      if (paragraph.includes("\n•") || paragraph.startsWith("•")) {
-        const lines = paragraph.split("\n");
-        return (
-          <div key={index} className="my-4">
-            {lines.map((line, i) => {
-              if (line.startsWith("•")) {
-                return (
-                  <div key={i} className="flex items-start gap-2 text-foreground my-1">
-                    <span className="text-primary mt-0.5">•</span>
-                    <span>{line.replace("• ", "")}</span>
-                  </div>
-                );
-              }
-              return <p key={i} className="font-semibold text-foreground mb-2">{line}</p>;
-            })}
-          </div>
-        );
-      }
-      
-      // Handle headings (lines ending with :)
-      if (paragraph.endsWith(":") || paragraph.match(/^[A-Z].*:$/m)) {
-        return (
-          <h3 key={index} className="text-lg font-bold text-foreground mt-6 mb-3">
-            {paragraph}
-          </h3>
-        );
-      }
-
-      // Handle markdown images ![alt](url)
-      const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
-      if (imageRegex.test(paragraph)) {
-        const parts: React.ReactNode[] = [];
-        let lastIndex = 0;
-        let match;
-        const regex = /!\[([^\]]*)\]\(([^)]+)\)/g;
-        
-        while ((match = regex.exec(paragraph)) !== null) {
-          // Add text before image
-          if (match.index > lastIndex) {
-            parts.push(
-              <span key={`text-${lastIndex}`}>
-                {paragraph.substring(lastIndex, match.index)}
-              </span>
-            );
-          }
-          // Add image
-          parts.push(
-            <img 
-              key={`img-${match.index}`}
-              src={match[2]} 
-              alt={match[1]} 
-              className="rounded-lg max-w-full my-4"
-            />
-          );
-          lastIndex = match.index + match[0].length;
-        }
-        
-        // Add remaining text
-        if (lastIndex < paragraph.length) {
-          parts.push(
-            <span key={`text-${lastIndex}`}>
-              {paragraph.substring(lastIndex)}
-            </span>
-          );
-        }
-        
-        return <div key={index} className="my-2">{parts}</div>;
-      }
-
-      return (
-        <p key={index} className="text-foreground leading-relaxed mb-4">
-          {paragraph}
-        </p>
-      );
-    });
-  };
-
   return (
     <>
       <PageContainer className="pb-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => showPreview ? setShowPreview(false) : (isEditMode ? cancelEditing() : navigate('/info'))} className="rounded-xl">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
+        <div className="flex items-center gap-3 mb-6">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => isEditMode ? cancelEditing() : navigate('/info')} 
+            className="rounded-xl"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-xl font-bold text-foreground">
+              {isEditMode 
+                ? (language === 'th' ? 'แก้ไขบทความ' : 'Edit Article')
+                : (language === 'th' ? 'เขียนบทความ' : 'Write Article')
+              }
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {language === 'th' ? 'เขียนเป็นภาษาไทย แอดมินจะตรวจสอบและแปล' : 'Write in Thai, admin will review and translate'}
+            </p>
+          </div>
+        </div>
+
+        {/* Info Banner */}
+        <div className="rounded-xl bg-primary/10 border border-primary/20 p-4 mb-6">
+          <div className="flex items-start gap-3">
+            <Sparkles className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
             <div>
-              <h1 className="text-xl font-bold text-foreground">
-                {showPreview 
-                  ? (language === 'th' ? 'ตัวอย่างบทความ' : 'Article Preview')
-                  : isEditMode 
-                    ? (language === 'th' ? 'แก้ไขบทความ' : 'Edit Article')
-                    : (language === 'th' ? 'เขียนบทความ' : 'Write Article')
-                }
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                {showPreview
-                  ? (language === 'th' ? 'ดูตัวอย่างก่อนส่ง' : 'Preview before submitting')
-                  : isEditMode
-                    ? (language === 'th' ? 'แก้ไขและส่งใหม่เพื่อตรวจสอบ' : 'Edit and resubmit for review')
-                    : (language === 'th' ? 'แชร์ความรู้กับชุมชน' : 'Share knowledge with the community')
-                }
+              <p className="text-sm font-medium text-foreground">
+                {language === 'th' ? 'รับ 100 XP เมื่อบทความได้รับการเผยแพร่!' : 'Earn 100 XP when your article is published!'}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {language === 'th' 
+                  ? 'เขียนภาษาไทยอย่างเดียว แอดมินจะช่วยแปลเป็นภาษาอังกฤษให้' 
+                  : 'Just write in Thai, admin will translate to English for you'}
               </p>
             </div>
           </div>
-          {/* Preview Toggle Button */}
-          {!showPreview && (form.title_th || form.content_th) && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowPreview(true)}
-              className="gap-2"
-            >
-              <Eye className="h-4 w-4" />
-              {language === 'th' ? 'ดูตัวอย่าง' : 'Preview'}
-            </Button>
-          )}
         </div>
-
-        {/* Preview Mode */}
-        {showPreview ? (
-          <div className="space-y-6">
-            {/* Category Badge */}
-            {selectedCategory && (
-              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium w-fit">
-                <span>{selectedCategory.icon}</span>
-                <span>{language === 'th' ? selectedCategory.name_th : selectedCategory.name_en}</span>
-              </div>
-            )}
-
-            {/* Cover Image Preview */}
-            {form.cover_url && (
-              <div className="-mx-4 sm:mx-0">
-                <img
-                  src={form.cover_url}
-                  alt={form.title_th || form.title_en}
-                  className="w-full h-48 sm:h-64 object-cover sm:rounded-2xl"
-                />
-              </div>
-            )}
-
-            {/* Title */}
-            <h1 className="text-2xl font-bold text-foreground leading-tight">
-              {language === 'th' ? (form.title_th || form.title_en) : (form.title_en || form.title_th)}
-            </h1>
-
-            {/* Meta Info */}
-            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <User className="h-4 w-4" />
-                <span>{user?.email?.split('@')[0] || 'Author'}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
-                <span>{format(new Date(), 'MMM d, yyyy')}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Eye className="h-4 w-4" />
-                <span>0 {language === 'th' ? 'ครั้ง' : 'views'}</span>
-              </div>
-            </div>
-
-            {/* Content Preview */}
-            <div className="rounded-2xl bg-card border border-border p-6 shadow-card">
-              <div className="prose prose-sm max-w-none dark:prose-invert">
-                {renderContent(language === 'th' ? (form.content_th || form.content_en) : (form.content_en || form.content_th))}
-              </div>
-            </div>
-
-            {/* YouTube Video Preview */}
-            {form.video_url && extractYouTubeVideoId(form.video_url) && (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Youtube className="h-5 w-5 text-red-500" />
-                  <span className="text-sm font-medium">
-                    {language === 'th' ? 'วิดีโอประกอบ' : 'Featured Video'}
-                  </span>
-                </div>
-                <div className="rounded-2xl overflow-hidden border border-border shadow-card">
-                  <div className="aspect-video">
-                    <iframe
-                      src={`https://www.youtube.com/embed/${extractYouTubeVideoId(form.video_url)}?autoplay=1&mute=1`}
-                      title="YouTube video"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className="w-full h-full"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Preview Actions */}
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setShowPreview(false)}
-                className="flex-1 gap-2"
-              >
-                <Edit3 className="h-4 w-4" />
-                {language === 'th' ? 'กลับไปแก้ไข' : 'Back to Edit'}
-              </Button>
-              <Button
-                onClick={submitArticle}
-                disabled={isSaving || isTranslating}
-                className="flex-1 gap-2"
-              >
-                {(isSaving || isTranslating) ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Send className="h-4 w-4" />
-                )}
-                {language === 'th' ? 'ส่งบทความ' : 'Submit Article'}
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <>
-            {/* Info Banner */}
-            <div className="rounded-xl bg-primary/10 border border-primary/20 p-4 mb-6">
-              <div className="flex items-start gap-3">
-                <Sparkles className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-medium text-foreground">
-                    {language === 'th' ? 'รับ 100 XP เมื่อบทความได้รับการเผยแพร่!' : 'Earn 100 XP when your article is published!'}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {language === 'th' 
-                      ? 'เขียนภาษาไทยแล้วกดแปลเป็นภาษาอังกฤษอัตโนมัติได้' 
-                      : 'Write in Thai and auto-translate to English'}
-                  </p>
-                </div>
-              </div>
-            </div>
 
         {/* My Articles Section - Hide when in edit mode */}
         {!isEditMode && myArticles.length > 0 && (
@@ -788,7 +443,7 @@ export default function WriteArticle() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <h4 className="font-medium text-foreground text-sm line-clamp-1">
-                              {language === 'th' ? article.title_th : article.title_en}
+                              {article.title_th}
                             </h4>
                             <div className="flex items-center gap-2 mt-1">
                               <span className={cn("text-xs font-medium", statusInfo.color)}>
@@ -799,7 +454,6 @@ export default function WriteArticle() {
                               </span>
                             </div>
                           </div>
-                          {/* Edit button for rejected/draft articles */}
                           {statusInfo.canEdit && (
                             <Button
                               variant="outline"
@@ -813,7 +467,6 @@ export default function WriteArticle() {
                           )}
                         </div>
 
-                        {/* Rejection Feedback Toggle */}
                         {hasRejectionFeedback && (
                           <button
                             onClick={() => setExpandedFeedback(isExpanded ? null : article.id)}
@@ -832,7 +485,6 @@ export default function WriteArticle() {
                         )}
                       </div>
 
-                      {/* Expanded Feedback */}
                       {hasRejectionFeedback && isExpanded && (
                         <div className="px-4 pb-4">
                           <div className="p-3 rounded-lg bg-destructive/5 border border-destructive/20">
@@ -861,10 +513,11 @@ export default function WriteArticle() {
           </div>
         )}
 
-        <div className="space-y-6">
+        {/* Article Form */}
+        <div className="space-y-5">
           {/* Cover Image */}
           <div>
-            <Label className="mb-2 block">{language === 'th' ? 'ภาพปก' : 'Cover Image'}</Label>
+            <Label className="mb-2 block">{language === 'th' ? 'ภาพปก (ไม่บังคับ)' : 'Cover Image (optional)'}</Label>
             <div className="flex gap-4 items-start">
               {form.cover_url ? (
                 <div className="relative">
@@ -915,7 +568,7 @@ export default function WriteArticle() {
 
           {/* Category */}
           <div>
-            <Label className="mb-2 block">{language === 'th' ? 'หมวดหมู่' : 'Category'}</Label>
+            <Label className="mb-2 block">{language === 'th' ? 'หมวดหมู่ (ไม่บังคับ)' : 'Category (optional)'}</Label>
             <Select value={form.category_id} onValueChange={(v) => setForm({ ...form, category_id: v })}>
               <SelectTrigger>
                 <SelectValue placeholder={language === 'th' ? 'เลือกหมวดหมู่' : 'Select category'} />
@@ -930,12 +583,47 @@ export default function WriteArticle() {
             </Select>
           </div>
 
+          {/* Title */}
+          <div>
+            <Label className="mb-2 block">{language === 'th' ? 'หัวข้อ *' : 'Title *'}</Label>
+            <Input
+              value={form.title_th}
+              onChange={(e) => setForm({ ...form, title_th: e.target.value })}
+              placeholder={language === 'th' ? 'หัวข้อบทความ' : 'Article title'}
+              maxLength={200}
+            />
+          </div>
+
+          {/* Excerpt */}
+          <div>
+            <Label className="mb-2 block">{language === 'th' ? 'คำนำ (ไม่บังคับ)' : 'Excerpt (optional)'}</Label>
+            <Textarea
+              value={form.excerpt_th}
+              onChange={(e) => setForm({ ...form, excerpt_th: e.target.value })}
+              placeholder={language === 'th' ? 'สรุปย่อ...' : 'Brief summary...'}
+              rows={2}
+              maxLength={500}
+            />
+          </div>
+
+          {/* Content */}
+          <div>
+            <Label className="mb-2 block">{language === 'th' ? 'เนื้อหา *' : 'Content *'}</Label>
+            <Textarea
+              value={form.content_th}
+              onChange={(e) => setForm({ ...form, content_th: e.target.value })}
+              placeholder={language === 'th' ? 'เขียนเนื้อหาบทความ...' : 'Write your article content...'}
+              rows={10}
+              className="min-h-[200px]"
+            />
+          </div>
+
           {/* YouTube Video URL */}
           <div>
             <Label className="mb-2 block">
               <div className="flex items-center gap-2">
                 <Youtube className="h-4 w-4 text-red-500" />
-                {language === 'th' ? 'ลิงก์วิดีโอ YouTube' : 'YouTube Video URL'}
+                {language === 'th' ? 'ลิงก์วิดีโอ YouTube (ไม่บังคับ)' : 'YouTube Video URL (optional)'}
               </div>
             </Label>
             <Input
@@ -955,197 +643,22 @@ export default function WriteArticle() {
             )}
           </div>
 
-          {/* Hidden content image input */}
-          <input
-            ref={contentImageInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleContentImageUpload}
-            className="hidden"
-          />
-
-          {/* Content Tabs */}
-          <Tabs defaultValue="th" className="w-full" onValueChange={(v) => setActiveContentTab(v as 'th' | 'en')}>
-            <TabsList className="w-full">
-              <TabsTrigger value="th" className="flex-1">🇹🇭 ไทย</TabsTrigger>
-              <TabsTrigger value="en" className="flex-1">🇬🇧 English</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="th" className="space-y-4 mt-4">
-              <div>
-                <Label className="mb-2 block">หัวข้อ *</Label>
-                <Input
-                  value={form.title_th}
-                  onChange={(e) => setForm({ ...form, title_th: e.target.value })}
-                  placeholder="หัวข้อบทความ"
-                />
-              </div>
-              <div>
-                <Label className="mb-2 block">คำนำ</Label>
-                <Textarea
-                  value={form.excerpt_th}
-                  onChange={(e) => setForm({ ...form, excerpt_th: e.target.value })}
-                  placeholder="สรุปย่อ..."
-                  rows={2}
-                />
-              </div>
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <Label>เนื้อหา *</Label>
-                  <div className="flex gap-2">
-                    <ImageGalleryPicker
-                      language={language}
-                      onSelect={(url) => {
-                        const imageMarkdown = `\n![รูปภาพ](${url})\n`;
-                        const textarea = contentThRef.current;
-                        if (textarea) {
-                          const start = textarea.selectionStart;
-                          const end = textarea.selectionEnd;
-                          const newContent = form.content_th.substring(0, start) + imageMarkdown + form.content_th.substring(end);
-                          setForm({ ...form, content_th: newContent });
-                        } else {
-                          setForm({ ...form, content_th: form.content_th + imageMarkdown });
-                        }
-                        toast.success('เพิ่มรูปภาพในเนื้อหาแล้ว');
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => contentImageInputRef.current?.click()}
-                      disabled={uploadingContentImage}
-                      className="gap-1.5 h-8"
-                    >
-                      {uploadingContentImage ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <ImagePlus className="h-3.5 w-3.5" />
-                      )}
-                      {language === 'th' ? 'อัพโหลดใหม่' : 'Upload New'}
-                    </Button>
-                  </div>
-                </div>
-                <Textarea
-                  ref={contentThRef}
-                  value={form.content_th}
-                  onChange={(e) => setForm({ ...form, content_th: e.target.value })}
-                  placeholder="เขียนเนื้อหาบทความ... (ใช้ ![alt](url) เพื่อเพิ่มรูปภาพ)"
-                  rows={10}
-                />
-              </div>
-              
-              {/* Translate Button */}
-              <Button
-                type="button"
-                variant="outline"
-                onClick={translateToEnglish}
-                disabled={isTranslating || (!form.title_th && !form.content_th)}
-                className="w-full gap-2"
-              >
-                {isTranslating ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Languages className="h-4 w-4" />
-                )}
-                {isTranslating 
-                  ? (language === 'th' ? 'กำลังแปล...' : 'Translating...')
-                  : (language === 'th' ? 'แปลเป็นภาษาอังกฤษอัตโนมัติ' : 'Auto-translate to English')
-                }
-              </Button>
-            </TabsContent>
-            
-            <TabsContent value="en" className="space-y-4 mt-4">
-              <div className="rounded-lg bg-muted/50 p-3 mb-4">
-                <p className="text-sm text-muted-foreground">
-                  {language === 'th' 
-                    ? '💡 เนื้อหาภาษาอังกฤษจะถูกแปลจากภาษาไทยอัตโนมัติเมื่อส่งบทความ หรือกดปุ่มแปลในแท็บภาษาไทย'
-                    : '💡 English content will be auto-translated from Thai when submitting, or press the translate button in the Thai tab'}
-                </p>
-              </div>
-              <div>
-                <Label className="mb-2 block">Title</Label>
-                <Input
-                  value={form.title_en}
-                  onChange={(e) => setForm({ ...form, title_en: e.target.value })}
-                  placeholder="Article title (auto-translated)"
-                />
-              </div>
-              <div>
-                <Label className="mb-2 block">Excerpt</Label>
-                <Textarea
-                  value={form.excerpt_en}
-                  onChange={(e) => setForm({ ...form, excerpt_en: e.target.value })}
-                  placeholder="Brief summary (auto-translated)..."
-                  rows={2}
-                />
-              </div>
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <Label>Content</Label>
-                  <div className="flex gap-2">
-                    <ImageGalleryPicker
-                      language={language}
-                      onSelect={(url) => {
-                        const imageMarkdown = `\n![Image](${url})\n`;
-                        const textarea = contentEnRef.current;
-                        if (textarea) {
-                          const start = textarea.selectionStart;
-                          const end = textarea.selectionEnd;
-                          const newContent = form.content_en.substring(0, start) + imageMarkdown + form.content_en.substring(end);
-                          setForm({ ...form, content_en: newContent });
-                        } else {
-                          setForm({ ...form, content_en: form.content_en + imageMarkdown });
-                        }
-                        toast.success('Image added to content');
-                      }}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => contentImageInputRef.current?.click()}
-                      disabled={uploadingContentImage}
-                      className="gap-1.5 h-8"
-                    >
-                      {uploadingContentImage ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <ImagePlus className="h-3.5 w-3.5" />
-                      )}
-                      Upload New
-                    </Button>
-                  </div>
-                </div>
-                <Textarea
-                  ref={contentEnRef}
-                  value={form.content_en}
-                  onChange={(e) => setForm({ ...form, content_en: e.target.value })}
-                  placeholder="Article content (auto-translated)... Use ![alt](url) to add images"
-                  rows={10}
-                />
-              </div>
-            </TabsContent>
-          </Tabs>
-
           {/* Submit Button */}
           <Button 
             onClick={submitArticle} 
-            disabled={isSaving || isTranslating} 
+            disabled={isSaving || !form.title_th.trim() || !form.content_th.trim()} 
             className="w-full gap-2"
             size="lg"
           >
-            {(isSaving || isTranslating) ? (
+            {isSaving ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : isEditMode ? (
               <RefreshCw className="h-4 w-4" />
             ) : (
               <Send className="h-4 w-4" />
             )}
-            {(isSaving || isTranslating)
-              ? (isTranslating 
-                  ? (language === 'th' ? 'กำลังแปล...' : 'Translating...') 
-                  : (language === 'th' ? 'กำลังส่ง...' : 'Submitting...'))
+            {isSaving
+              ? (language === 'th' ? 'กำลังส่ง...' : 'Submitting...')
               : isEditMode
                 ? (language === 'th' ? 'ส่งบทความที่แก้ไขแล้ว' : 'Submit Edited Article')
                 : (language === 'th' ? 'ส่งบทความเพื่อตรวจสอบ' : 'Submit for Review')
@@ -1162,8 +675,6 @@ export default function WriteArticle() {
             </Button>
           )}
         </div>
-          </>
-        )}
       </PageContainer>
       <BottomNav />
     </>
