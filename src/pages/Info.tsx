@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, BookOpen, Eye, ChevronRight, Loader2, PenSquare, Heart, User, Calendar, Share2, Check, Link } from "lucide-react";
+import { Search, BookOpen, Eye, ChevronRight, Loader2, PenSquare, Heart, User, Calendar, Share2, Check, Link, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -136,6 +136,11 @@ export default function Info() {
   const getArticlesByCategory = (categoryId: string) => 
     articles.filter(a => a.category_id === categoryId).slice(0, 2);
 
+  // Get top 5 most viewed articles
+  const mostViewedArticles = [...articles]
+    .sort((a, b) => b.view_count - a.view_count)
+    .slice(0, 5);
+
   if (loading) {
     return (
       <>
@@ -174,6 +179,55 @@ export default function Info() {
             className="h-12 pl-12 text-base rounded-xl border-border/50 bg-muted/30 focus:bg-background transition-colors"
           />
         </div>
+
+        {/* Most Viewed Section */}
+        {!searchQuery && !selectedCategory && mostViewedArticles.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              <h2 className="font-bold text-foreground">
+                {language === 'th' ? 'ยอดนิยม' : 'Most Viewed'}
+              </h2>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4">
+              {mostViewedArticles.map((article, index) => (
+                <button
+                  key={article.id}
+                  onClick={() => navigate(`/info/article/${article.slug}`)}
+                  className="flex-shrink-0 w-40 text-left rounded-xl bg-card border border-border/50 overflow-hidden hover:bg-muted/30 transition-all animate-fade-in"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  {article.cover_url ? (
+                    <img 
+                      src={article.cover_url} 
+                      alt="" 
+                      className="w-full h-24 object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-24 bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
+                      <BookOpen className="h-8 w-8 text-primary/50" />
+                    </div>
+                  )}
+                  <div className="p-3">
+                    <h4 className="font-medium text-foreground text-xs line-clamp-2 mb-2">
+                      {language === 'th' ? article.title_th : article.title_en}
+                    </h4>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <Eye className="h-3 w-3" />
+                        {article.view_count.toLocaleString()}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Heart className="h-3 w-3" />
+                        {article.like_count || 0}
+                      </span>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Category Filter */}
         <div className="mb-6 flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">
