@@ -51,7 +51,6 @@ interface SelfTestRequest {
 }
 
 type Step = 'request' | 'confirm-receipt' | 'video' | 'testing' | 'timer' | 'photo-result';
-type UserMode = 'request-kit' | 'have-kit';
 
 // Thai ID validation using checksum algorithm
 const validateThaiId = (id: string): boolean => {
@@ -81,7 +80,6 @@ export default function HIVSelfTest() {
   const navigate = useNavigate();
   
   const [currentStep, setCurrentStep] = useState<Step>('request');
-  const [userMode, setUserMode] = useState<UserMode>('request-kit');
   const [activeRequest, setActiveRequest] = useState<SelfTestRequest | null>(null);
   const [requests, setRequests] = useState<SelfTestRequest[]>([]);
   const [loading, setLoading] = useState(false);
@@ -601,108 +599,29 @@ export default function HIVSelfTest() {
   // Step 1: Request Kit
   const renderRequestStep = () => (
     <div className="space-y-4 animate-fade-in">
-      {/* Mode Toggle - Request Kit or Already Have Kit */}
-      <div className="flex rounded-xl bg-muted p-1 gap-1">
-        <button
-          onClick={() => setUserMode('request-kit')}
-          className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all ${
-            userMode === 'request-kit'
-              ? 'bg-background text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          <Package className="h-4 w-4 inline mr-2" />
-          {language === 'th' ? 'ขอรับชุดตรวจ' : 'Request Kit'}
-        </button>
-        <button
-          onClick={() => setUserMode('have-kit')}
-          className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all ${
-            userMode === 'have-kit'
-              ? 'bg-background text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          <CheckCircle2 className="h-4 w-4 inline mr-2" />
-          {language === 'th' ? 'มีชุดตรวจแล้ว' : 'I Have a Kit'}
-        </button>
-      </div>
-
-      {/* Show different content based on mode */}
-      {userMode === 'have-kit' ? (
-        /* User already has a kit - skip to testing */
-        <Card className="p-5 bg-gradient-to-br from-success/5 to-success/10 border-success/20">
-          <div className="text-center space-y-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-success/20 mx-auto">
-              <TestTube className="h-8 w-8 text-success" />
-            </div>
-            <div>
-              <h3 className="font-bold text-foreground text-lg mb-2">
-                {language === 'th' ? 'มีชุดตรวจพร้อมแล้ว?' : 'Already Have a Test Kit?'}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                {language === 'th' 
-                  ? 'หากคุณได้รับชุดตรวจจากที่อื่น (เช่น คลินิก, โรงพยาบาล หรือ SWING) สามารถข้ามไปยังขั้นตอนการตรวจได้เลย'
-                  : 'If you got a test kit from elsewhere (clinic, hospital, or SWING), you can skip directly to the testing process.'
-                }
-              </p>
-            </div>
-            
-            {!user ? (
-              <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  {language === 'th' ? 'กรุณาเข้าสู่ระบบเพื่อบันทึกผลตรวจ' : 'Please login to save your test result'}
-                </p>
-                <Button onClick={() => navigate('/auth')} className="w-full">
-                  {language === 'th' ? 'เข้าสู่ระบบ' : 'Login'}
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <Button 
-                  className="w-full gap-2" 
-                  size="lg"
-                  onClick={() => setCurrentStep('video')}
-                >
-                  <Play className="h-4 w-4" />
-                  {language === 'th' ? 'เริ่มขั้นตอนการตรวจ' : 'Start Testing Process'}
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-                <p className="text-xs text-muted-foreground">
-                  {language === 'th' 
-                    ? '💡 คุณจะได้ดูวิดีโอแนะนำ → ทำตามขั้นตอน → จับเวลา → ส่งผลตรวจ'
-                    : '💡 You\'ll watch a guide video → follow steps → start timer → submit result'
-                  }
-                </p>
-              </div>
-            )}
+      {/* Abbott HIV Self-Test Kit Image */}
+      <Card className="p-4 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+        <div className="flex items-center gap-4">
+          <div className="w-24 h-24 bg-white rounded-xl shadow-md flex items-center justify-center overflow-hidden">
+            <img 
+              src={hivSelftestKitImg} 
+              alt="Abbott CheckNOW HIV Self-Test Kit"
+              className="w-full h-full object-cover"
+            />
           </div>
-        </Card>
-      ) : (
-        /* Normal request kit flow */
-        <>
-          {/* Abbott HIV Self-Test Kit Image */}
-          <Card className="p-4 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-            <div className="flex items-center gap-4">
-              <div className="w-24 h-24 bg-white rounded-xl shadow-md flex items-center justify-center overflow-hidden">
-                <img 
-                  src={hivSelftestKitImg} 
-                  alt="Abbott CheckNOW HIV Self-Test Kit"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-foreground mb-1">
-                  {language === 'th' ? 'ชุดตรวจ HIV Abbott' : 'Abbott HIV Self-Test Kit'}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {language === 'th' ? 'ชุดตรวจคุณภาพสูง ใช้งานง่าย ผลภายใน 15 นาที' : 'High quality, easy to use, results in 15 minutes'}
-                </p>
-                <Badge variant="secondary" className="mt-2">
-                  {language === 'th' ? '🎁 ฟรี!' : '🎁 FREE!'}
-                </Badge>
-              </div>
-            </div>
-          </Card>
+          <div className="flex-1">
+            <h3 className="font-bold text-foreground mb-1">
+              {language === 'th' ? 'ชุดตรวจ HIV Abbott' : 'Abbott HIV Self-Test Kit'}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {language === 'th' ? 'ชุดตรวจคุณภาพสูง ใช้งานง่าย ผลภายใน 15 นาที' : 'High quality, easy to use, results in 15 minutes'}
+            </p>
+            <Badge variant="secondary" className="mt-2">
+              {language === 'th' ? '🎁 ฟรี!' : '🎁 FREE!'}
+            </Badge>
+          </div>
+        </div>
+      </Card>
 
       {activeRequest && ['pending', 'approved', 'shipped', 'delivered'].includes(activeRequest.status) ? (
         <Card className="p-4">
