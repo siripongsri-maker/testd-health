@@ -209,9 +209,17 @@ export default function Info() {
                     </div>
                   )}
                   <div className="p-3">
-                    <h4 className="font-medium text-foreground text-xs line-clamp-2 mb-2">
-                      {language === 'th' ? article.title_th : article.title_en}
-                    </h4>
+                    <div className="flex items-start justify-between gap-1 mb-2">
+                      <h4 className="font-medium text-foreground text-xs line-clamp-2">
+                        {language === 'th' ? article.title_th : article.title_en}
+                      </h4>
+                      {article.published_at && 
+                        (new Date().getTime() - new Date(article.published_at).getTime()) / (1000 * 60 * 60 * 24) <= 7 && (
+                        <span className="flex-shrink-0 px-1.5 py-0.5 text-[10px] font-bold bg-green-500 text-white rounded-full">
+                          {language === 'th' ? 'ใหม่' : 'New'}
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Eye className="h-3 w-3" />
