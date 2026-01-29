@@ -12,6 +12,7 @@ import { RankingBoard } from "@/components/RankingBoard";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { RecommendedNextSteps } from "@/components/RecommendedNextSteps";
+import { NotificationBell } from "@/components/NotificationBell";
 import {
   TestTube,
   MessageCircle,
@@ -315,6 +316,9 @@ export default function Home() {
           </div>
           
           <div className="flex items-center gap-1">
+            <div className="bg-card/80 backdrop-blur-sm rounded-full">
+              <NotificationBell />
+            </div>
             {isAdmin && (
               <Button
                 variant="ghost"
