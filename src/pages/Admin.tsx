@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { AdminLayout } from "@/components/AdminLayout";
 import { useLanguage } from "@/lib/i18n";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, BarChart3, FileText, Loader2, LayoutDashboard } from "lucide-react";
+import { Package, BarChart3, FileText, Loader2, LayoutDashboard, Bell } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -14,6 +14,7 @@ const AdminDashboardContent = lazy(() => import("@/components/admin/AdminDashboa
 const AdminKitOrdersContent = lazy(() => import("@/components/admin/AdminKitOrdersContent"));
 const AdminAnalyticsContent = lazy(() => import("@/components/admin/AdminAnalyticsContent"));
 const AdminBlogContent = lazy(() => import("@/components/admin/AdminBlogContent"));
+const AdminNotificationsContent = lazy(() => import("@/components/admin/AdminNotificationsContent"));
 
 const TabLoader = () => (
   <div className="flex items-center justify-center h-64">
@@ -84,7 +85,7 @@ export default function Admin() {
     <AdminLayout>
       <div className="p-4 md:p-6">
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="w-full mb-4 grid grid-cols-4 h-auto">
+          <TabsList className="w-full mb-4 grid grid-cols-5 h-auto">
             <TabsTrigger value="dashboard" className="flex items-center gap-2 py-3">
               <LayoutDashboard className="h-4 w-4" />
               <span className="hidden sm:inline">
@@ -98,6 +99,15 @@ export default function Admin() {
               </span>
               <span className="sm:hidden">
                 {language === 'th' ? 'ชุดตรวจ' : 'Orders'}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="flex items-center gap-2 py-3">
+              <Bell className="h-4 w-4" />
+              <span className="hidden sm:inline">
+                {language === 'th' ? 'การแจ้งเตือน' : 'Notifications'}
+              </span>
+              <span className="sm:hidden">
+                {language === 'th' ? 'แจ้งเตือน' : 'Notify'}
               </span>
             </TabsTrigger>
             <TabsTrigger value="analytics" className="flex items-center gap-2 py-3">
@@ -129,6 +139,12 @@ export default function Admin() {
           <TabsContent value="kit-orders" className="mt-0">
             <Suspense fallback={<TabLoader />}>
               <AdminKitOrdersContent />
+            </Suspense>
+          </TabsContent>
+
+          <TabsContent value="notifications" className="mt-0">
+            <Suspense fallback={<TabLoader />}>
+              <AdminNotificationsContent />
             </Suspense>
           </TabsContent>
 
