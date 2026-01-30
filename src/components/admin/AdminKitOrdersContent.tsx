@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
-  Package, Plus, Search, Loader2, Eye, Copy, Truck, Download, FileSpreadsheet, TestTube, Printer
+  Package, Plus, Search, Loader2, Eye, Copy, Truck, Download, FileSpreadsheet, TestTube, Printer, PhoneCall
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -82,6 +82,8 @@ interface HIVTestRequest {
   updated_at: string;
   test_result: string | null;
   staff_notes: string | null;
+  wants_callback: boolean | null;
+  callback_phone: string | null;
   selftest_pii: SelftestPii | null;
 }
 
@@ -202,6 +204,8 @@ export default function AdminKitOrdersContent() {
           updated_at,
           test_result,
           staff_notes,
+          wants_callback,
+          callback_phone,
           selftest_pii (
             id,
             full_name,
@@ -478,7 +482,7 @@ export default function AdminKitOrdersContent() {
         csvContent += row + "\n";
       });
     } else {
-      csvContent = "Request ID,Thai ID,Name,Date of Birth,Phone,Line ID,Address,Subdistrict,District,Province,Postal Code,Status,Tracking Number,Test Result,Staff Notes,Created At,Updated At\n";
+      csvContent = "Request ID,Thai ID,Name,Date of Birth,Phone,Line ID,Address,Subdistrict,District,Province,Postal Code,Status,Tracking Number,Test Result,Wants Callback,Callback Phone,Staff Notes,Created At,Updated At\n";
       filteredHIVRequests.forEach(request => {
         const pii = request.selftest_pii;
         const row = [
@@ -496,6 +500,8 @@ export default function AdminKitOrdersContent() {
           request.status,
           request.tracking_number || '',
           request.test_result || '',
+          request.wants_callback ? 'Yes' : 'No',
+          request.callback_phone || '',
           `"${(request.staff_notes || '').replace(/"/g, '""')}"`,
           formatDate(request.created_at),
           formatDate(request.updated_at),
@@ -532,7 +538,7 @@ export default function AdminKitOrdersContent() {
       ];
     } else {
       data = [
-        ["Request ID", "Thai ID", "Name", "Date of Birth", "Phone", "Line ID", "Address", "Subdistrict", "District", "Province", "Postal Code", "Status", "Tracking Number", "Test Result", "Staff Notes", "Created At", "Updated At"],
+        ["Request ID", "Thai ID", "Name", "Date of Birth", "Phone", "Line ID", "Address", "Subdistrict", "District", "Province", "Postal Code", "Status", "Tracking Number", "Test Result", "Wants Callback", "Callback Phone", "Staff Notes", "Created At", "Updated At"],
         ...filteredHIVRequests.map(request => {
           const pii = request.selftest_pii;
           return [
@@ -550,6 +556,8 @@ export default function AdminKitOrdersContent() {
             request.status,
             request.tracking_number || '',
             request.test_result || '',
+            request.wants_callback ? 'Yes' : 'No',
+            request.callback_phone || '',
             request.staff_notes || '',
             formatDate(request.created_at),
             formatDate(request.updated_at),
@@ -803,6 +811,23 @@ export default function AdminKitOrdersContent() {
                             {request.selftest_pii.district && `, ${request.selftest_pii.district}`}
                             {request.selftest_pii.province && `, ${request.selftest_pii.province}`}
                           </p>
+                        )}
+
+                        {/* Callback consent indicator for positive results */}
+                        {request.test_result === 'positive' && request.wants_callback && (
+                          <div className="flex items-center gap-2 p-2 bg-amber-500/10 border border-amber-500/30 rounded-lg mb-2">
+                            <PhoneCall className="h-4 w-4 text-amber-600 shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium text-amber-700">
+                                {language === 'th' ? 'ต้องการให้ติดต่อกลับ' : 'Wants callback'}
+                              </p>
+                              {request.callback_phone && (
+                                <p className="text-xs text-amber-600 truncate">
+                                  📞 {request.callback_phone}
+                                </p>
+                              )}
+                            </div>
+                          </div>
                         )}
 
                         {editingHIVRequest === request.id ? (
