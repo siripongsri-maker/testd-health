@@ -454,6 +454,7 @@ export type Database = {
       hiv_selftest_requests: {
         Row: {
           address: string | null
+          callback_phone: string | null
           created_at: string
           days_since_risk: number | null
           full_name: string | null
@@ -472,9 +473,11 @@ export type Database = {
           tracking_number: string | null
           updated_at: string
           user_id: string
+          wants_callback: boolean | null
         }
         Insert: {
           address?: string | null
+          callback_phone?: string | null
           created_at?: string
           days_since_risk?: number | null
           full_name?: string | null
@@ -493,9 +496,11 @@ export type Database = {
           tracking_number?: string | null
           updated_at?: string
           user_id: string
+          wants_callback?: boolean | null
         }
         Update: {
           address?: string | null
+          callback_phone?: string | null
           created_at?: string
           days_since_risk?: number | null
           full_name?: string | null
@@ -514,6 +519,7 @@ export type Database = {
           tracking_number?: string | null
           updated_at?: string
           user_id?: string
+          wants_callback?: boolean | null
         }
         Relationships: [
           {
