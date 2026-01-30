@@ -142,6 +142,10 @@ export default function HIVSelfTest() {
   const [resultPhoto, setResultPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  
+  // Contact consent state for positive results
+  const [wantsCallback, setWantsCallback] = useState(false);
+  const [callbackPhone, setCallbackPhone] = useState("");
   const [analysisResult, setAnalysisResult] = useState<'positive' | 'negative' | 'invalid' | null>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -515,7 +519,10 @@ export default function HIVSelfTest() {
         .update({ 
           result_photo_url: fileName,
           status: 'result_submitted',
-          test_result: analysisResult
+          test_result: analysisResult,
+          // Save callback consent only for positive results
+          wants_callback: analysisResult === 'positive' ? wantsCallback : false,
+          callback_phone: analysisResult === 'positive' && wantsCallback ? callbackPhone : null
         })
         .eq('id', requestId);
 
@@ -558,6 +565,8 @@ export default function HIVSelfTest() {
       setResultPhoto(null);
       setPhotoPreview(null);
       setAnalysisResult(null);
+      setWantsCallback(false);
+      setCallbackPhone("");
     } catch (error) {
       console.error('Error uploading:', error);
       toast.error(language === 'th' ? 'อัปโหลดไม่สำเร็จ' : 'Upload failed');
@@ -1352,6 +1361,58 @@ export default function HIVSelfTest() {
                         </svg>
                         {language === 'th' ? 'ติดต่อ SWING Thailand' : 'Contact SWING Thailand'}
                       </a>
+                      
+                      {/* Optional callback consent section */}
+                      <div className="mt-4 pt-4 border-t border-destructive/20 text-left">
+                        <div className="flex items-start gap-3 mb-3">
+                          <Checkbox 
+                            id="wantsCallback" 
+                            checked={wantsCallback}
+                            onCheckedChange={(checked) => setWantsCallback(checked === true)}
+                            className="mt-0.5"
+                          />
+                          <div className="flex-1">
+                            <Label htmlFor="wantsCallback" className="text-sm font-medium text-foreground cursor-pointer">
+                              {language === 'th' 
+                                ? 'ต้องการให้เจ้าหน้าที่ติดต่อกลับ' 
+                                : 'I would like staff to contact me'
+                              }
+                            </Label>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {language === 'th' 
+                                ? '(ไม่บังคับ) หากต้องการให้เราโทรกลับเพื่อให้คำปรึกษา' 
+                                : '(Optional) If you want us to call back for counseling'
+                              }
+                            </p>
+                          </div>
+                        </div>
+                        
+                        {wantsCallback && (
+                          <div className="space-y-2 animate-fade-in">
+                            <Label htmlFor="callbackPhone" className="text-sm font-medium text-foreground">
+                              <Phone className="h-4 w-4 inline mr-1" />
+                              {language === 'th' ? 'เบอร์โทรศัพท์' : 'Phone Number'}
+                            </Label>
+                            <Input
+                              id="callbackPhone"
+                              type="tel"
+                              placeholder={language === 'th' ? '0XX-XXX-XXXX' : '0XX-XXX-XXXX'}
+                              value={callbackPhone}
+                              onChange={(e) => setCallbackPhone(e.target.value)}
+                              className="bg-background"
+                            />
+                          </div>
+                        )}
+                        
+                        <div className="mt-3 p-2 bg-muted/50 rounded-lg">
+                          <p className="text-xs text-muted-foreground">
+                            {language === 'th' 
+                              ? '🔒 ข้อมูลนี้เป็นทางเลือก เจ้าหน้าที่จะไม่ติดต่อกลับหากคุณไม่ยินยอม' 
+                              : '🔒 This is optional. Staff will not contact you without your consent.'
+                            }
+                          </p>
+                        </div>
+                      </div>
                     </>
                   )}
                   {analysisResult === 'invalid' && (
