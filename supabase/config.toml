@@ -1,7 +1,19 @@
 project_id = "tzerhfvlrssrashrcbeg"
 
+[auth]
+# Enable auto-confirm for development (users don't need email verification)
+# JWT tokens expire after 30 days (2592000 seconds)
+site_url = "https://testd-health.lovable.app"
+
+[auth.jwt]
+# 30 days in seconds = 30 * 24 * 60 * 60 = 2592000
+expiry = 2592000
+
 [functions.kit-orders]
 verify_jwt = false
 
 [functions.scrape-shopee-images]
+verify_jwt = false
+
+[functions.admin-reset-password]
 verify_jwt = false
