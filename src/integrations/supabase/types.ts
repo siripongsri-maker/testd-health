@@ -1195,6 +1195,54 @@ export type Database = {
       }
     }
     Views: {
+      kit_order_tracking: {
+        Row: {
+          created_at: string | null
+          delivered_at: string | null
+          display_name: string | null
+          order_code: string | null
+          out_for_delivery_at: string | null
+          packed_at: string | null
+          received_at: string | null
+          shipped_at: string | null
+          shipping_carrier: string | null
+          status: Database["public"]["Enums"]["kit_order_status"] | null
+          tracking_number: string | null
+          tracking_url: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          delivered_at?: string | null
+          display_name?: string | null
+          order_code?: string | null
+          out_for_delivery_at?: string | null
+          packed_at?: string | null
+          received_at?: string | null
+          shipped_at?: string | null
+          shipping_carrier?: string | null
+          status?: Database["public"]["Enums"]["kit_order_status"] | null
+          tracking_number?: string | null
+          tracking_url?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          delivered_at?: string | null
+          display_name?: string | null
+          order_code?: string | null
+          out_for_delivery_at?: string | null
+          packed_at?: string | null
+          received_at?: string | null
+          shipped_at?: string | null
+          shipping_carrier?: string | null
+          status?: Database["public"]["Enums"]["kit_order_status"] | null
+          tracking_number?: string | null
+          tracking_url?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       leaderboard_profiles: {
         Row: {
           avatar_url: string | null

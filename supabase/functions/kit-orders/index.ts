@@ -99,13 +99,16 @@ Deno.serve(async (req) => {
     }
 
     // GET /kit-orders/by-code/{code} - Get order by code (public)
+    // Uses the secure kit_order_tracking view which excludes PII
     if (req.method === "GET" && action === "by-code" && id) {
       const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+      // Use the secure tracking view instead of kit_orders table
+      // This view excludes sensitive PII (recipient_name, phone, address)
       const { data: order, error } = await supabase
-        .from("kit_orders")
+        .from("kit_order_tracking")
         .select(`
-          id, order_code, status, shipping_carrier, tracking_number, tracking_url,
+          order_code, status, shipping_carrier, tracking_number, tracking_url,
           created_at, updated_at, packed_at, shipped_at, out_for_delivery_at, 
           delivered_at, received_at, display_name
         `)
@@ -126,14 +129,8 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Get public events only
-      const { data: events } = await supabase
-        .from("kit_order_events")
-        .select("event_type, event_description, created_at")
-        .eq("order_id", order.id)
-        .eq("is_admin_event", false)
-        .order("created_at", { ascending: false });
-
+      // Note: We can't fetch events by order_id since the view doesn't expose id
+      // Events are only shown for authenticated users viewing their own orders
       return new Response(
         JSON.stringify({
           order_code: order.order_code,
@@ -150,7 +147,7 @@ Deno.serve(async (req) => {
             delivered: order.delivered_at,
             received: order.received_at,
           },
-          events: events || [],
+          events: [], // Events not available in public view for security
         }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
