@@ -680,6 +680,42 @@ export type Database = {
         }
         Relationships: []
       }
+      leaderboard_snapshots: {
+        Row: {
+          captured_at: string
+          display_name: string | null
+          id: string
+          level: number
+          rank: number | null
+          season_key: string
+          streak: number
+          user_id: string
+          xp: number
+        }
+        Insert: {
+          captured_at?: string
+          display_name?: string | null
+          id?: string
+          level?: number
+          rank?: number | null
+          season_key: string
+          streak?: number
+          user_id: string
+          xp?: number
+        }
+        Update: {
+          captured_at?: string
+          display_name?: string | null
+          id?: string
+          level?: number
+          rank?: number | null
+          season_key?: string
+          streak?: number
+          user_id?: string
+          xp?: number
+        }
+        Relationships: []
+      }
       notification_reads: {
         Row: {
           id: string

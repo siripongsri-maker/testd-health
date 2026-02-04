@@ -80,8 +80,8 @@ export default function Leaderboard() {
     
     const confirmed = window.confirm(
       language === 'th' 
-        ? 'คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ต Leaderboard และเริ่ม Season 2? การกระทำนี้ไม่สามารถย้อนกลับได้'
-        : 'Are you sure you want to reset the leaderboard and start Season 2? This action cannot be undone.'
+        ? `คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ต Leaderboard และเริ่ม Season 2?\n\n• จะบันทึกข้อมูลผู้ใช้ทั้งหมด ${allUsers.length} คน\n• ส่งการแจ้งเตือนถึงทุกคน\n• การกระทำนี้ไม่สามารถย้อนกลับได้`
+        : `Are you sure you want to reset the leaderboard and start Season 2?\n\n• Will save data for all ${allUsers.length} users\n• Send notification to everyone\n• This action cannot be undone.`
     );
     
     if (!confirmed) return;
@@ -89,38 +89,75 @@ export default function Leaderboard() {
     setResetting(true);
     
     try {
-      // Get the current #1 user
-      const winner = allUsers[0];
+      const seasonKey = 'S1_2026_01';
+      const seasonLabel = 'Season 1 — January 2026 (มกราคม 2569)';
       
+      // 1. Save ALL users' data to leaderboard_snapshots
+      const snapshotData = allUsers.map((u, index) => ({
+        season_key: seasonKey,
+        user_id: u.id,
+        display_name: u.display_name,
+        xp: u.xp || 0,
+        level: u.level || 1,
+        streak: 0, // streak not available in leaderboard view
+        rank: index + 1,
+      }));
+      
+      // Insert in batches of 100 to avoid payload limits
+      for (let i = 0; i < snapshotData.length; i += 100) {
+        const batch = snapshotData.slice(i, i + 100);
+        const { error: snapshotError } = await supabase
+          .from('leaderboard_snapshots')
+          .insert(batch);
+        
+        if (snapshotError) throw snapshotError;
+      }
+      
+      // 2. Save #1 winner to Hall of Fame
+      const winner = allUsers[0];
       if (winner) {
-        // Save snapshot to Hall of Fame
         const { error: hofError } = await supabase
           .from('hall_of_fame')
-          .insert({
-            season_key: 'S1_2026_01',
-            season_label: 'Season 1 — January 2026 (มกราคม 2569)',
+          .upsert({
+            season_key: seasonKey,
+            season_label: seasonLabel,
             category: 'Top Health Score',
             user_id: winner.id,
             display_name: winner.display_name,
             avatar_url: winner.avatar_url,
             score: winner.xp || 0,
-          });
+          }, { onConflict: 'season_key' });
         
         if (hofError) throw hofError;
       }
       
-      // Reset all leaderboard stats
+      // 3. Reset all leaderboard stats
       const { error: resetError } = await supabase
         .from('profiles')
         .update({ xp: 0, level: 1, streak: 0 })
-        .neq('id', '00000000-0000-0000-0000-000000000000'); // Update all
+        .neq('id', '00000000-0000-0000-0000-000000000000');
       
       if (resetError) throw resetError;
       
+      // 4. Create broadcast notification for Season 2
+      const { error: notifyError } = await supabase
+        .from('notifications')
+        .insert({
+          notification_type: 'broadcast',
+          title: '🎉 Season 2 เริ่มต้นแล้ว! / Season 2 Has Begun!',
+          message: language === 'th' 
+            ? '🏆 ขอแสดงความยินดีกับผู้ชนะ Season 1!\n\n🚀 Season 2 เริ่มต้นแล้ว - ทุกคนกลับมาที่ 0 XP เท่ากัน นี่คือโอกาสใหม่ในการพิชิตอันดับ!\n\n💪 มาร่วมดูแลสุขภาพและสะสม XP กันเถอะ'
+            : '🏆 Congratulations to Season 1 Champion!\n\n🚀 Season 2 has begun - everyone starts fresh at 0 XP. This is your chance to climb the leaderboard!\n\n💪 Join us in taking care of your health and earning XP together.',
+          created_by: user?.id,
+          expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
+        });
+      
+      if (notifyError) console.warn('Notification error:', notifyError);
+      
       toast.success(
         language === 'th' 
-          ? 'บันทึกผู้ชนะ Season 1 แล้ว รีเซ็ต Leaderboard สำเร็จ!'
-          : 'Season 1 winner saved. Leaderboard reset!'
+          ? `บันทึกข้อมูล ${allUsers.length} คน และแจ้งเตือน Season 2 สำเร็จ!`
+          : `Saved ${allUsers.length} users data and notified about Season 2!`
       );
       
       // Refresh data
