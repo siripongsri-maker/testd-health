@@ -32,6 +32,7 @@ import {
   LogOut,
   LogIn,
   Sparkles,
+  Trophy,
 } from "lucide-react";
 import swingLogo from "@/assets/swing-logo.webp";
 import { toast } from "sonner";
@@ -460,6 +461,17 @@ export default function Home() {
 
         {/* Quick links */}
         <div className="mt-4 flex flex-wrap justify-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-amber-500/50 backdrop-blur-sm rounded-full hover:from-amber-500/30 hover:to-orange-500/30"
+            onClick={() => navigate("/quests")}
+          >
+            <Trophy className="h-4 w-4 mr-2 text-amber-500" />
+            <span className="text-amber-700 dark:text-amber-400 font-medium">
+              {language === 'th' ? 'ภารกิจ' : 'Quests'}
+            </span>
+          </Button>
           <Button
             variant="outline"
             size="sm"
