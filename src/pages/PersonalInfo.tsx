@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 import { getUserData, setUserData, PersonalInfo as PersonalInfoType } from "@/lib/store";
+import { useQuestProgress } from "@/hooks/useQuestProgress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -35,6 +36,7 @@ const PROVINCES = Object.keys(PROVINCE_POSTAL_CODES);
 export default function PersonalInfo() {
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const { trackProfileComplete } = useQuestProgress();
   const [formData, setFormData] = useState<PersonalInfoType>({
     fullName: '',
     gender: '',
@@ -60,6 +62,12 @@ export default function PersonalInfo() {
     setUserData({ personalInfo: formData });
     setSaved(true);
     toast.success(language === 'th' ? 'บันทึกข้อมูลสำเร็จ!' : 'Information saved!');
+    
+    // Track profile complete quest if required fields are filled
+    if (formData.fullName && formData.gender && formData.birthDate) {
+      trackProfileComplete(language);
+    }
+    
     setTimeout(() => setSaved(false), 2000);
   };
 

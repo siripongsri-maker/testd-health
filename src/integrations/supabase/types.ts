@@ -905,11 +905,14 @@ export type Database = {
           id: string
           is_active: boolean | null
           quest_type: string
+          reward_xp: number
           slug: string
           start_date: string | null
+          target_count: number
           target_days: number
           title_en: string
           title_th: string
+          trigger_type: string | null
         }
         Insert: {
           badge_id: string
@@ -920,11 +923,14 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           quest_type: string
+          reward_xp?: number
           slug: string
           start_date?: string | null
+          target_count?: number
           target_days?: number
           title_en: string
           title_th: string
+          trigger_type?: string | null
         }
         Update: {
           badge_id?: string
@@ -935,11 +941,14 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           quest_type?: string
+          reward_xp?: number
           slug?: string
           start_date?: string | null
+          target_count?: number
           target_days?: number
           title_en?: string
           title_th?: string
+          trigger_type?: string | null
         }
         Relationships: []
       }
@@ -1211,27 +1220,33 @@ export type Database = {
       }
       user_quests: {
         Row: {
+          claimed_at: string | null
           completed: boolean | null
           completed_at: string | null
           id: string
+          last_reset_at: string | null
           progress: number | null
           quest_id: string
           started_at: string | null
           user_id: string
         }
         Insert: {
+          claimed_at?: string | null
           completed?: boolean | null
           completed_at?: string | null
           id?: string
+          last_reset_at?: string | null
           progress?: number | null
           quest_id: string
           started_at?: string | null
           user_id: string
         }
         Update: {
+          claimed_at?: string | null
           completed?: boolean | null
           completed_at?: string | null
           id?: string
+          last_reset_at?: string | null
           progress?: number | null
           quest_id?: string
           started_at?: string | null
