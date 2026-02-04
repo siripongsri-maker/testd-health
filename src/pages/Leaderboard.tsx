@@ -6,10 +6,11 @@ import { PageContainer } from "@/components/PageContainer";
 import { PageHeader } from "@/components/PageHeader";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { TIERS, getTierByXP } from "@/components/RankingBoard";
-import { Crown, Trophy, Medal, TrendingUp, Users, Sparkles, Zap } from "lucide-react";
+import { Crown, Trophy, Medal, TrendingUp, Users, Sparkles, Zap, Award, RotateCcw, Loader2 } from "lucide-react";
 import { subDays } from "date-fns";
+import { toast } from "sonner";
 
 interface RankedUser {
   id: string;
@@ -19,8 +20,20 @@ interface RankedUser {
   avatar_url: string | null;
 }
 
+interface HallOfFameEntry {
+  id: string;
+  season_key: string;
+  season_label: string;
+  category: string;
+  user_id: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  score: number;
+  captured_at: string;
+}
+
 export default function Leaderboard() {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const { user } = useAuth();
   const [allUsers, setAllUsers] = useState<RankedUser[]>([]);
   const [totalMembers, setTotalMembers] = useState<number>(0);
@@ -29,10 +42,98 @@ export default function Leaderboard() {
   const [currentUserData, setCurrentUserData] = useState<RankedUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedTier, setSelectedTier] = useState<string>('all');
+  const [hallOfFame, setHallOfFame] = useState<HallOfFameEntry[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   useEffect(() => {
     fetchAllRankings();
+    fetchHallOfFame();
+    checkAdminRole();
   }, [user]);
+
+  const checkAdminRole = async () => {
+    if (!user) {
+      setIsAdmin(false);
+      return;
+    }
+    const { data } = await supabase.rpc('has_role', {
+      _user_id: user.id,
+      _role: 'admin',
+    });
+    setIsAdmin(!!data);
+  };
+
+  const fetchHallOfFame = async () => {
+    const { data } = await supabase
+      .from('hall_of_fame')
+      .select('*')
+      .order('captured_at', { ascending: false });
+    
+    if (data) {
+      setHallOfFame(data);
+    }
+  };
+
+  const handleResetLeaderboard = async () => {
+    if (!isAdmin || allUsers.length === 0) return;
+    
+    const confirmed = window.confirm(
+      language === 'th' 
+        ? 'คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ต Leaderboard และเริ่ม Season 2? การกระทำนี้ไม่สามารถย้อนกลับได้'
+        : 'Are you sure you want to reset the leaderboard and start Season 2? This action cannot be undone.'
+    );
+    
+    if (!confirmed) return;
+    
+    setResetting(true);
+    
+    try {
+      // Get the current #1 user
+      const winner = allUsers[0];
+      
+      if (winner) {
+        // Save snapshot to Hall of Fame
+        const { error: hofError } = await supabase
+          .from('hall_of_fame')
+          .insert({
+            season_key: 'S1_2026_01',
+            season_label: 'Season 1 — January 2026 (มกราคม 2569)',
+            category: 'Top Health Score',
+            user_id: winner.id,
+            display_name: winner.display_name,
+            avatar_url: winner.avatar_url,
+            score: winner.xp || 0,
+          });
+        
+        if (hofError) throw hofError;
+      }
+      
+      // Reset all leaderboard stats
+      const { error: resetError } = await supabase
+        .from('profiles')
+        .update({ xp: 0, level: 1, streak: 0 })
+        .neq('id', '00000000-0000-0000-0000-000000000000'); // Update all
+      
+      if (resetError) throw resetError;
+      
+      toast.success(
+        language === 'th' 
+          ? 'บันทึกผู้ชนะ Season 1 แล้ว รีเซ็ต Leaderboard สำเร็จ!'
+          : 'Season 1 winner saved. Leaderboard reset!'
+      );
+      
+      // Refresh data
+      fetchAllRankings();
+      fetchHallOfFame();
+      
+    } catch (error) {
+      console.error('Reset error:', error);
+      toast.error(language === 'th' ? 'เกิดข้อผิดพลาด' : 'Failed to reset leaderboard');
+    } finally {
+      setResetting(false);
+    }
+  };
 
   const fetchAllRankings = async () => {
     setLoading(true);
@@ -119,6 +220,76 @@ export default function Leaderboard() {
       />
       
       <div className="p-4 space-y-4 pb-24">
+        {/* Hall of Fame Section */}
+        {hallOfFame.length > 0 && (
+          <Card className="p-4 bg-gradient-to-br from-amber-100 to-yellow-50 dark:from-amber-900/40 dark:to-yellow-900/30 border-amber-300 dark:border-amber-700">
+            <div className="flex items-center gap-2 mb-3">
+              <Award className="h-5 w-5 text-amber-600" />
+              <h3 className="font-bold text-amber-800 dark:text-amber-200">
+                {language === 'th' ? 'หอเกียรติยศ' : 'Hall of Fame'}
+              </h3>
+            </div>
+            
+            {hallOfFame.map((entry) => (
+              <div key={entry.id} className="bg-white/60 dark:bg-black/20 rounded-lg p-3">
+                <p className="text-xs text-amber-700 dark:text-amber-300 mb-2">
+                  {entry.season_label}
+                </p>
+                <p className="text-xs text-muted-foreground mb-2">
+                  {language === 'th' ? 'คะแนนสุขภาพสูงสุดประจำเซิร์ฟเวอร์' : 'Top Health Score of the Server'}
+                </p>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center ring-2 ring-amber-500">
+                    <Crown className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-bold text-amber-800 dark:text-amber-200">
+                        {entry.display_name || 'Champion'}
+                      </p>
+                      <Badge className="bg-amber-500 text-white text-xs">
+                        {language === 'th' ? 'แชมป์ Season 1' : 'Season 1 Champion'}
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-amber-700 dark:text-amber-300">
+                      {entry.score.toLocaleString()} XP
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </Card>
+        )}
+
+        {/* Admin Reset Button */}
+        {isAdmin && (
+          <Card className="p-4 border-destructive/30 bg-destructive/5">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-sm">
+                  {language === 'th' ? 'การจัดการ Admin' : 'Admin Controls'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {language === 'th' ? 'รีเซ็ต Leaderboard และเริ่ม Season ใหม่' : 'Reset leaderboard and start new season'}
+                </p>
+              </div>
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={handleResetLeaderboard}
+                disabled={resetting || allUsers.length === 0}
+              >
+                {resetting ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-1" />
+                ) : (
+                  <RotateCcw className="h-4 w-4 mr-1" />
+                )}
+                {language === 'th' ? 'รีเซ็ต (Season 2)' : 'Reset (Season 2)'}
+              </Button>
+            </div>
+          </Card>
+        )}
+
         {/* Stats Summary */}
         <div className="grid grid-cols-3 gap-3">
           <Card className="p-3 bg-gradient-to-br from-primary/10 to-primary/5">
