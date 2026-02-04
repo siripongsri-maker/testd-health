@@ -33,6 +33,7 @@ import {
   IntroStep, 
   ShippingStep, 
   NHSOVerifyStep,
+  AccountSuccessStep,
   Step,
   SelfTestRequest,
   ShippingFormData,
@@ -128,6 +129,12 @@ export default function HIVSelfTest() {
   const [callbackPhone, setCallbackPhone] = useState("");
   const [analysisResult, setAnalysisResult] = useState<'positive' | 'negative' | 'invalid' | null>(null);
   const [uploading, setUploading] = useState(false);
+  
+  // Auto-generated account credentials (for success screen)
+  const [generatedCredentials, setGeneratedCredentials] = useState<{
+    username: string;
+    password: string;
+  } | null>(null);
 
   // Fetch user data and requests on mount
   useEffect(() => {
@@ -295,8 +302,8 @@ export default function HIVSelfTest() {
   };
 
   // Auto-register guest user using Thai ID
-  const autoRegisterUser = async (): Promise<string | null> => {
-    if (user) return user.id;
+  const autoRegisterUser = async (): Promise<{ userId: string; username: string; password: string; isNew: boolean } | null> => {
+    if (user) return { userId: user.id, username: '', password: '', isNew: false };
     
     if (!nhsoData.thaiId || nhsoData.thaiId.length !== 13) {
       toast.error(language === 'th' ? 'กรุณากรอกหมายเลขบัตรประชาชนให้ถูกต้อง' : 'Please enter a valid Thai ID');
@@ -341,7 +348,7 @@ export default function HIVSelfTest() {
             return null;
           }
           
-          return signInData.user?.id || null;
+          return { userId: signInData.user?.id || '', username: email, password, isNew: false };
         }
         
         console.error('Auto-registration error:', signUpError);
@@ -349,14 +356,10 @@ export default function HIVSelfTest() {
         return null;
       }
 
-      // Registration successful
-      toast.success(
-        language === 'th' 
-          ? '✅ ลงทะเบียนอัตโนมัติสำเร็จ!' 
-          : '✅ Auto-registration successful!'
-      );
+      // Store generated credentials for success screen
+      setGeneratedCredentials({ username: email, password });
       
-      return signUpData.user?.id || null;
+      return { userId: signUpData.user?.id || '', username: email, password, isNew: true };
     } catch (error) {
       console.error('Auto-registration failed:', error);
       toast.error(language === 'th' ? 'เกิดข้อผิดพลาด กรุณาลองใหม่' : 'Something went wrong. Please try again.');
@@ -381,12 +384,16 @@ export default function HIVSelfTest() {
     try {
       // Auto-register if not logged in
       let userId = user?.id;
+      let isNewUser = false;
+      
       if (!userId) {
-        userId = await autoRegisterUser();
-        if (!userId) {
+        const result = await autoRegisterUser();
+        if (!result || !result.userId) {
           setLoading(false);
           return;
         }
+        userId = result.userId;
+        isNewUser = result.isNew;
       }
 
       // Insert PII into separate table (auto-registration)
@@ -434,32 +441,7 @@ export default function HIVSelfTest() {
           .from('profiles')
           .update({ xp: newXP, level: newLevel })
           .eq('id', userId);
-        
-        toast.success(
-          language === 'th' 
-            ? `🎉 ได้รับ 100 XP! ส่งคำขอสำเร็จ` 
-            : `🎉 +100 XP! Request submitted!`
-        );
-      } else {
-        toast.success(
-          language === 'th' 
-            ? 'ส่งคำขอสำเร็จ! เจ้าหน้าที่จะติดต่อกลับ' 
-            : 'Request submitted! Staff will contact you.'
-        );
       }
-      
-      // Reset forms
-      setShippingData({
-        fullName: "",
-        phone: "",
-        lineId: "",
-        address: "",
-        subdistrict: "",
-        district: "",
-        province: "",
-        postalCode: "",
-        lastRiskDate: "",
-      });
       
       // Keep NHSO data for reuse
       setSavedUserData({
@@ -473,7 +455,32 @@ export default function HIVSelfTest() {
       if (data) {
         setActiveRequest(data);
       }
-      setCurrentStep('intro');
+      
+      // Show account success screen for NEW users, otherwise go to intro
+      if (isNewUser && generatedCredentials) {
+        setCurrentStep('account-success');
+      } else {
+        toast.success(
+          language === 'th' 
+            ? '🎉 ส่งคำขอสำเร็จ! เจ้าหน้าที่จะติดต่อกลับ' 
+            : '🎉 Request submitted! Staff will contact you.'
+        );
+        setCurrentStep('intro');
+      }
+      
+      // Reset shipping form
+      setShippingData({
+        fullName: "",
+        phone: "",
+        lineId: "",
+        address: "",
+        subdistrict: "",
+        district: "",
+        province: "",
+        postalCode: "",
+        lastRiskDate: "",
+      });
+      
       fetchRequests();
     } catch (error) {
       console.error('Error submitting request:', error);
@@ -659,13 +666,13 @@ export default function HIVSelfTest() {
   };
 
   const getStepNumber = () => {
-    const steps: Step[] = ['intro', 'shipping', 'nhso-verify', 'confirm-receipt', 'video', 'testing', 'timer', 'photo-result'];
+    const steps: Step[] = ['intro', 'shipping', 'nhso-verify', 'account-success', 'confirm-receipt', 'video', 'testing', 'timer', 'photo-result'];
     return steps.indexOf(currentStep) + 1;
   };
 
   const renderStepIndicator = () => {
-    // Only show indicator during the request flow and testing flow
-    if (currentStep === 'intro') return null;
+    // Only show indicator during the request flow and testing flow (not on success screen)
+    if (currentStep === 'intro' || currentStep === 'account-success') return null;
     
     const requestSteps = ['shipping', 'nhso-verify'];
     const testingSteps = ['confirm-receipt', 'video', 'testing', 'timer', 'photo-result'];
@@ -1252,6 +1259,21 @@ export default function HIVSelfTest() {
             onSubmit={handleSubmitRequest}
             onBack={() => setCurrentStep('shipping')}
             loading={loading}
+          />
+        )}
+        
+        {currentStep === 'account-success' && generatedCredentials && (
+          <AccountSuccessStep 
+            username={generatedCredentials.username}
+            password={generatedCredentials.password}
+            onContinue={() => {
+              toast.success(
+                language === 'th' 
+                  ? '🎉 ส่งคำขอสำเร็จ! เจ้าหน้าที่จะติดต่อกลับ' 
+                  : '🎉 Request submitted! Staff will contact you.'
+              );
+              setCurrentStep('intro');
+            }}
           />
         )}
         
