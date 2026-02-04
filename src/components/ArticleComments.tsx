@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/lib/i18n";
+import { useQuestProgress } from "@/hooks/useQuestProgress";
 import { MessageCircle, Send, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -23,6 +24,7 @@ interface ArticleCommentsProps {
 export function ArticleComments({ articleId }: ArticleCommentsProps) {
   const { user } = useAuth();
   const { language } = useLanguage();
+  const { trackArticleComment } = useQuestProgress();
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(true);
@@ -82,6 +84,9 @@ export function ArticleComments({ articleId }: ArticleCommentsProps) {
       setNewComment("");
       loadComments();
       toast.success(language === 'th' ? 'แสดงความคิดเห็นแล้ว' : 'Comment posted');
+      
+      // Track quest completion
+      trackArticleComment(language);
     } catch (error: any) {
       toast.error(error.message);
     } finally {

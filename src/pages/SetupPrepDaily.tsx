@@ -6,11 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { setUserData, addBadge, getTodayKey } from "@/lib/store";
 import { useLanguage } from "@/lib/i18n";
+import { useQuestProgress } from "@/hooks/useQuestProgress";
 import { ArrowLeft, Calendar, Clock, Info, Pill } from "lucide-react";
 
 export default function SetupPrepDaily() {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const { trackMedicationSetup } = useQuestProgress();
   const [startDate, setStartDate] = useState(getTodayKey());
   const [stopDate, setStopDate] = useState("");
   const [reminderTime, setReminderTime] = useState("09:00");
@@ -24,6 +26,10 @@ export default function SetupPrepDaily() {
     });
     
     addBadge("Started PrEP Journey");
+    
+    // Track medication setup quest
+    trackMedicationSetup(language);
+    
     navigate("/dashboard");
   };
 

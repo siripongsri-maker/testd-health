@@ -15,6 +15,7 @@ import { ArrowLeft, ExternalLink, Eye, ClipboardList, Loader2, Plus, Star, Flame
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useCelebration } from "@/hooks/useCelebration";
+import { useQuestProgress } from "@/hooks/useQuestProgress";
 import { toast } from "sonner";
 import { format, formatDistanceToNow } from "date-fns";
 import { th, enUS } from "date-fns/locale";
@@ -40,6 +41,7 @@ export default function Surveys() {
   const { language } = useLanguage();
   const { user } = useAuth();
   const { celebrateAchievement } = useCelebration();
+  const { trackSurveyComplete } = useQuestProgress();
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -126,6 +128,8 @@ export default function Surveys() {
             ? `ได้รับ ${data} XP! 🎉` 
             : `Earned ${data} XP! 🎉`
         );
+        // Track survey quest
+        trackSurveyComplete(language);
       }
     } catch (err) {
       console.error('Error completing survey:', err);

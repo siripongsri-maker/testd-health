@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ArticleLikeButton } from "@/components/ArticleLikeButton";
 import { ArticleComments } from "@/components/ArticleComments";
+import { useQuestProgress } from "@/hooks/useQuestProgress";
 
 // Helper to extract YouTube video ID from various URL formats
 const extractYouTubeVideoId = (url: string): string | null => {
@@ -60,10 +61,24 @@ export default function InfoArticle() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { t, language } = useLanguage();
+  const { trackArticleRead } = useQuestProgress();
   const [article, setArticle] = useState<Article | null>(null);
   const [category, setCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const questTrackedRef = useRef(false);
+
+  // Track article read quest after 15 seconds on page
+  useEffect(() => {
+    if (article && !questTrackedRef.current) {
+      const timer = setTimeout(() => {
+        trackArticleRead(language);
+        questTrackedRef.current = true;
+      }, 15000); // 15 seconds
+      
+      return () => clearTimeout(timer);
+    }
+  }, [article, language, trackArticleRead]);
 
   const handleShare = async () => {
     if (!article) return;

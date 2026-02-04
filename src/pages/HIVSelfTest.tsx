@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useQuestProgress } from "@/hooks/useQuestProgress";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -44,6 +45,7 @@ import {
 export default function HIVSelfTest() {
   const { language } = useLanguage();
   const { user } = useAuth();
+  const { trackSelftestRequest } = useQuestProgress();
   const navigate = useNavigate();
   
   const [currentStep, setCurrentStep] = useState<Step>('intro');
@@ -463,6 +465,9 @@ export default function HIVSelfTest() {
       if (data) {
         setActiveRequest(data);
       }
+      
+      // Track selftest request quest
+      trackSelftestRequest(language);
       
       // Show account success screen for NEW users, otherwise go to intro
       if (isNewUser && generatedCredentials) {

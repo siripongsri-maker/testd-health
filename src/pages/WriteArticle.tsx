@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/lib/i18n";
+import { useQuestProgress } from "@/hooks/useQuestProgress";
 import { ArrowLeft, Send, Upload, Loader2, X, Image, Sparkles, FileText, Clock, CheckCircle, XCircle, AlertCircle, ChevronDown, ChevronUp, Edit3, RefreshCw, Images, Youtube } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -56,6 +57,7 @@ export default function WriteArticle() {
   
   const { user } = useAuth();
   const { t, language } = useLanguage();
+  const { trackArticleCreated } = useQuestProgress();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [categories, setCategories] = useState<Category[]>([]);
@@ -295,6 +297,9 @@ export default function WriteArticle() {
             : 'Article submitted! Waiting for admin approval.',
           { duration: 5000, icon: "📝" }
         );
+        
+        // Track article created quest
+        trackArticleCreated(language);
       }
       
       navigate('/info');
