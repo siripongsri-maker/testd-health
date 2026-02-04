@@ -356,6 +356,9 @@ export default function Settings() {
             {t('settings.resetAll')}
           </Button>
           <p className="mt-3 text-xs text-muted-foreground text-center">{t('settings.resetWarning')}</p>
+          <p className="mt-6 text-[10px] text-muted-foreground/50 text-center font-mono">
+            Build: 2025-02-04-v2
+          </p>
         </div>
       </PageContainer>
       <BottomNav />
