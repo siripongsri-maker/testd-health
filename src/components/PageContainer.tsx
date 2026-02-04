@@ -12,7 +12,7 @@ interface PageContainerProps {
   showViewToggle?: boolean;
 }
 
-export function PageContainer({ children, className, showNav = true, showViewToggle = true }: PageContainerProps) {
+export function PageContainer({ children, className, showNav = true, showViewToggle = false }: PageContainerProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("mobile");
   const isMobile = useIsMobile();
 
