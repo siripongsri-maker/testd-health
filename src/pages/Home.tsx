@@ -13,6 +13,7 @@ import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { RecommendedNextSteps } from "@/components/RecommendedNextSteps";
 import { NotificationBell } from "@/components/NotificationBell";
+import { MedicationWidget } from "@/components/MedicationWidget";
 import {
   TestTube,
   MessageCircle,
@@ -29,6 +30,7 @@ import {
   X,
   User,
   LogOut,
+  LogIn,
   Sparkles,
 } from "lucide-react";
 import swingLogo from "@/assets/swing-logo.webp";
@@ -289,12 +291,8 @@ export default function Home() {
       <header className="sticky top-0 z-20 bg-gradient-to-b from-primary/30 to-transparent safe-top">
         <div className="flex items-center justify-between px-4 py-2">
           <div className="flex items-center gap-2">
-            <img 
-              src={swingLogo} 
-              alt="SWING Thailand" 
-              className="h-8 object-contain"
-            />
-            {localStorage.getItem('isLoggedIn') === 'true' && (
+            {/* Login/Account button - top left */}
+            {localStorage.getItem('isLoggedIn') === 'true' ? (
               <div className="flex items-center gap-2 bg-card/80 backdrop-blur-sm rounded-full px-3 py-1.5">
                 <User className="h-4 w-4 text-primary" />
                 <span className="text-sm font-medium text-foreground">
@@ -311,8 +309,37 @@ export default function Home() {
                     {userData.xp || 0} XP
                   </span>
                 </div>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('currentUser');
+                    toast.success(language === 'th' ? 'ออกจากระบบแล้ว' : 'Logged out successfully');
+                    navigate('/auth');
+                  }}
+                  className="ml-1 p-1 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                  title={language === 'th' ? 'ออกจากระบบ' : 'Log out'}
+                >
+                  <LogOut className="h-4 w-4" />
+                </button>
               </div>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="bg-card/80 backdrop-blur-sm rounded-full px-4"
+                onClick={() => navigate('/auth')}
+              >
+                <LogIn className="h-4 w-4 mr-2" />
+                {language === 'th' ? 'เข้าสู่ระบบ' : 'Log in'}
+              </Button>
             )}
+            
+            {/* SWING Logo - increased size by ~25% */}
+            <img 
+              src={swingLogo} 
+              alt="SWING Thailand" 
+              className="h-10 object-contain"
+            />
           </div>
           
           <div className="flex items-center gap-1">
@@ -345,21 +372,6 @@ export default function Home() {
             >
               <Settings className="h-5 w-5" />
             </Button>
-            {localStorage.getItem('isLoggedIn') === 'true' && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="bg-card/80 backdrop-blur-sm rounded-full text-destructive hover:text-destructive hover:bg-destructive/10"
-                onClick={() => {
-                  localStorage.removeItem('isLoggedIn');
-                  localStorage.removeItem('currentUser');
-                  toast.success(language === 'th' ? 'ออกจากระบบแล้ว' : 'Logged out successfully');
-                  navigate('/auth');
-                }}
-              >
-                <LogOut className="h-5 w-5" />
-              </Button>
-            )}
           </div>
         </div>
       </header>
@@ -406,64 +418,10 @@ export default function Home() {
           </div>
         )}
 
-        {/* Medication Reminder Card */}
-        {userData.mode && userData.mode !== 'exploring' && (
-          <div className="mb-4 rounded-2xl bg-card border-2 border-primary/30 shadow-card p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/20">
-                <Pill className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <div className="flex-1">
-                <p className="font-bold text-foreground">
-                  {userData.mode === 'prep-daily' 
-                    ? (language === 'th' ? 'กินยา PrEP วันนี้' : 'Take PrEP Today')
-                    : userData.mode === 'pep'
-                    ? (language === 'th' ? 'กินยา PEP วันนี้' : 'Take PEP Today')
-                    : (language === 'th' ? 'กินยาวันนี้' : 'Take Medication Today')
-                  }
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {userData.prepReminderTime || '09:00'} • {language === 'th' ? `Streak: ${userData.streak} วัน` : `Streak: ${userData.streak} days`}
-                </p>
-              </div>
-            </div>
-            
-            {todayStatus === 'pending' ? (
-              <div className="flex gap-2">
-                <Button
-                  className="flex-1 h-11 rounded-xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80"
-                  onClick={handleTaken}
-                >
-                  <Check className="h-4 w-4 mr-2" />
-                  {language === 'th' ? 'กินแล้ว' : 'Taken'}
-                </Button>
-                <Button
-                  variant="outline"
-                  className="flex-1 h-11 rounded-xl"
-                  onClick={handleSkipped}
-                >
-                  <X className="h-4 w-4 mr-2" />
-                  {language === 'th' ? 'ข้าม' : 'Skip'}
-                </Button>
-              </div>
-            ) : (
-              <div className={`flex items-center justify-center gap-2 py-2 rounded-xl ${
-                todayStatus === 'taken' 
-                  ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300'
-                  : 'bg-muted text-muted-foreground'
-              }`}>
-                {todayStatus === 'taken' ? (
-                  <>
-                    <Check className="h-4 w-4" />
-                    <span className="font-medium">{language === 'th' ? 'กินแล้ววันนี้ ✓' : 'Taken today ✓'}</span>
-                  </>
-                ) : (
-                  <span>{language === 'th' ? 'ข้ามวันนี้' : 'Skipped today'}</span>
-                )}
-              </div>
-            )}
-          </div>
-        )}
+        {/* Medication Widget - Circular progress with reminder */}
+        <div className="mb-4">
+          <MedicationWidget onStatusChange={() => setLocalUserData(getUserData())} />
+        </div>
 
         {/* Menu Grid - 3 columns, 2 rows */}
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
