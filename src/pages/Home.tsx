@@ -125,11 +125,20 @@ export default function Home() {
   const [totalMembers, setTotalMembers] = useState(0);
   const [todayStatus, setTodayStatus] = useState<"pending" | "taken" | "skipped">("pending");
 
-  // Load real stats from database
+  // Load real stats from database with real-time updates
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        // Fetch unique visitors from analytics_events (unique sessions)
+        // Fetch total registered members from profiles table
+        const { count: membersCount, error: membersError } = await supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true });
+        
+        if (!membersError && membersCount !== null) {
+          setTotalMembers(membersCount);
+        }
+
+        // Fetch total unique visitors from analytics_events
         const { data: analyticsData, error: analyticsError } = await supabase
           .from('analytics_events')
           .select('session_id');
@@ -138,22 +147,54 @@ export default function Home() {
           const uniqueSessions = new Set(analyticsData.map(e => e.session_id).filter(Boolean));
           setTotalVisitors(uniqueSessions.size);
         }
-
-        // Fetch total registered members from user_roles (unique users)
-        const { data: rolesData, error: rolesError } = await supabase
-          .from('user_roles')
-          .select('user_id');
-        
-        if (!rolesError && rolesData) {
-          const uniqueUsers = new Set(rolesData.map(r => r.user_id));
-          setTotalMembers(uniqueUsers.size);
-        }
       } catch (err) {
         console.error('Error fetching stats:', err);
       }
     };
     
     fetchStats();
+
+    // Set up real-time subscription for profiles (new members)
+    const profilesChannel = supabase
+      .channel('home-profiles-stats')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'profiles' },
+        () => {
+          setTotalMembers(prev => prev + 1);
+        }
+      )
+      .subscribe();
+
+    // Set up real-time subscription for analytics (new visitors)
+    const analyticsChannel = supabase
+      .channel('home-analytics-stats')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'analytics_events' },
+        (payload) => {
+          // Only increment if it's a new unique session
+          const newSessionId = (payload.new as any)?.session_id;
+          if (newSessionId) {
+            // Re-fetch to get accurate unique count
+            supabase
+              .from('analytics_events')
+              .select('session_id')
+              .then(({ data }) => {
+                if (data) {
+                  const uniqueSessions = new Set(data.map(e => e.session_id).filter(Boolean));
+                  setTotalVisitors(uniqueSessions.size);
+                }
+              });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(profilesChannel);
+      supabase.removeChannel(analyticsChannel);
+    };
   }, []);
 
   useEffect(() => {
@@ -501,7 +542,7 @@ export default function Home() {
           </Button>
         </div>
 
-        {/* Stats: Users and Visitors */}
+        {/* Stats: Members and Total Visitors - Real-time */}
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
           {totalMembers > 0 && (
             <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm rounded-full py-2 px-4 animate-fade-in">
@@ -516,7 +557,7 @@ export default function Home() {
             <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm rounded-full py-2 px-4 animate-fade-in">
               <Eye className="h-4 w-4 text-primary" />
               <span className="text-sm text-muted-foreground">
-                {language === 'th' ? 'ผู้เข้าชม' : 'Visitors'}:
+                {language === 'th' ? 'ผู้เข้าชมทั้งหมด' : 'Total Visitors'}:
               </span>
               <AnimatedCounter value={totalVisitors} className="font-bold text-primary" duration={2000} />
             </div>
