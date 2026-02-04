@@ -129,22 +129,12 @@ export default function Home() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        // Fetch total registered members from profiles table
-        const { count: membersCount, error: membersError } = await supabase
-          .from('profiles')
-          .select('*', { count: 'exact', head: true });
+        // Use RPC function to get stats (bypasses RLS for accurate counts)
+        const { data, error } = await supabase.rpc('get_site_stats');
         
-        if (!membersError && membersCount !== null) {
-          setTotalMembers(membersCount);
-        }
-
-        // Fetch total analytics events count (total page views)
-        const { count: eventsCount, error: analyticsError } = await supabase
-          .from('analytics_events')
-          .select('*', { count: 'exact', head: true });
-        
-        if (!analyticsError && eventsCount !== null) {
-          setTotalVisitors(eventsCount);
+        if (!error && data && data.length > 0) {
+          setTotalMembers(Number(data[0].total_members) || 0);
+          setTotalVisitors(Number(data[0].total_page_views) || 0);
         }
       } catch (err) {
         console.error('Error fetching stats:', err);

@@ -1386,6 +1386,13 @@ export type Database = {
           total_count: number
         }[]
       }
+      get_site_stats: {
+        Args: never
+        Returns: {
+          total_members: number
+          total_page_views: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
