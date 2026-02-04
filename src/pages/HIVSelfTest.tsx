@@ -757,6 +757,99 @@ export default function HIVSelfTest() {
     </div>
   );
 
+  // New Step: Existing Kit Upload (for users who already have kits from other sources)
+  const renderExistingKitUploadStep = () => (
+    <div className="space-y-4 animate-fade-in">
+      <Card className="p-4">
+        <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
+          <Upload className="h-5 w-5 text-primary" />
+          {language === 'th' ? 'ส่งผลตรวจจากชุดที่มีอยู่' : 'Submit Result from Existing Kit'}
+        </h3>
+
+        <div className="p-3 bg-primary/5 rounded-lg mb-4">
+          <p className="text-sm text-muted-foreground">
+            {language === 'th'
+              ? '🩺 คุณสามารถส่งผลตรวจจากชุดตรวจ HIV ที่คุณมีอยู่แล้ว ไม่ว่าจะมาจากร้านขายยา โรงพยาบาล หรือองค์กรอื่น ๆ เราจะช่วยเชื่อมต่อคุณกับบริการดูแลสุขภาพต่อไป'
+              : '🩺 You can submit results from any HIV test kit you already have, whether from a pharmacy, hospital, or other organizations. We will help connect you with care services.'
+            }
+          </p>
+        </div>
+
+        {!user ? (
+          <div className="space-y-4">
+            <div className="p-4 bg-muted/50 rounded-lg text-center">
+              <p className="text-sm text-muted-foreground mb-3">
+                {language === 'th' 
+                  ? '⚠️ กรุณาเข้าสู่ระบบก่อนเพื่อส่งผลตรวจ' 
+                  : '⚠️ Please login first to submit your result'
+                }
+              </p>
+              <Button onClick={() => navigate('/auth')} className="gap-2">
+                <ArrowRight className="h-4 w-4" />
+                {language === 'th' ? 'เข้าสู่ระบบ' : 'Login'}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {/* Option 1: Watch video first */}
+            <div className="p-4 border rounded-lg space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">1</span>
+                <p className="text-sm font-medium">
+                  {language === 'th' ? 'ดูวิดีโอคำแนะนำก่อน (แนะนำ)' : 'Watch tutorial video first (recommended)'}
+                </p>
+              </div>
+              <Button 
+                variant="outline" 
+                className="w-full gap-2"
+                onClick={() => setCurrentStep('video')}
+              >
+                <Play className="h-4 w-4" />
+                {language === 'th' ? 'ดูวิดีโอ' : 'Watch Video'}
+              </Button>
+            </div>
+
+            {/* Option 2: Skip to photo upload */}
+            <div className="p-4 border rounded-lg space-y-3">
+              <div className="flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">2</span>
+                <p className="text-sm font-medium">
+                  {language === 'th' ? 'ข้ามไปส่งผลตรวจเลย' : 'Skip to submit result'}
+                </p>
+              </div>
+              <Button 
+                className="w-full gap-2"
+                onClick={() => setCurrentStep('photo-result')}
+              >
+                <Camera className="h-4 w-4" />
+                {language === 'th' ? 'ถ่ายรูปผลตรวจ' : 'Take Result Photo'}
+              </Button>
+            </div>
+          </div>
+        )}
+      </Card>
+
+      {/* Privacy note */}
+      <Card className="p-4 bg-muted/50">
+        <div className="flex items-start gap-2">
+          <span className="text-lg">🔒</span>
+          <p className="text-xs text-muted-foreground">
+            {language === 'th'
+              ? 'ผลตรวจของคุณจะถูกเก็บรักษาเป็นความลับ และใช้เฉพาะเพื่อเชื่อมต่อคุณกับบริการสุขภาพเท่านั้น'
+              : 'Your results will be kept confidential and only used to connect you with health services.'
+            }
+          </p>
+        </div>
+      </Card>
+
+      <Button variant="outline" className="w-full" onClick={() => setCurrentStep('intro')}>
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        {language === 'th' ? 'กลับ' : 'Back'}
+      </Button>
+    </div>
+  );
+
   // Step 3: Video Tutorial
   const renderVideoStep = () => (
     <div className="space-y-4 animate-fade-in">
@@ -1247,8 +1340,11 @@ export default function HIVSelfTest() {
                 setCurrentStep('confirm-receipt');
               }
             }}
+            onSubmitExistingKit={() => setCurrentStep('existing-kit-upload')}
           />
         )}
+        
+        {currentStep === 'existing-kit-upload' && renderExistingKitUploadStep()}
         
         {currentStep === 'shipping' && (
           <ShippingStep 
