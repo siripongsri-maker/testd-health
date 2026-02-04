@@ -294,14 +294,78 @@ export default function HIVSelfTest() {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
-  // Submit request with NHSO verification (auto-registration)
-  const handleSubmitRequest = async () => {
-    if (!user) {
-      toast.error(language === 'th' ? 'กรุณาเข้าสู่ระบบก่อน' : 'Please login first');
-      navigate('/auth');
-      return;
+  // Auto-register guest user using Thai ID
+  const autoRegisterUser = async (): Promise<string | null> => {
+    if (user) return user.id;
+    
+    if (!nhsoData.thaiId || nhsoData.thaiId.length !== 13) {
+      toast.error(language === 'th' ? 'กรุณากรอกหมายเลขบัตรประชาชนให้ถูกต้อง' : 'Please enter a valid Thai ID');
+      return null;
     }
 
+    // Generate username from Thai ID (last 6 digits + random suffix for privacy)
+    const suffix = nhsoData.thaiId.slice(-6);
+    const randomPart = Math.random().toString(36).slice(-4);
+    const username = `user_${suffix}_${randomPart}`;
+    const email = `${username}@swingth.local`;
+    
+    // Generate a secure password from Thai ID + DOB
+    const password = `${nhsoData.thaiId}_${nhsoData.dateOfBirth || 'default'}`;
+    
+    try {
+      // Try to sign up first
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            display_name: shippingData.fullName || username,
+          },
+        },
+      });
+
+      if (signUpError) {
+        // If user already exists with this ID pattern, try to sign in
+        if (signUpError.message.includes('already registered') || signUpError.message.includes('already exists')) {
+          // Try different email patterns for existing users
+          const existingEmail = `${username}@swingth.local`;
+          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email: existingEmail,
+            password,
+          });
+          
+          if (signInError) {
+            console.error('Auto-login failed:', signInError);
+            toast.error(language === 'th' ? 'ไม่สามารถเข้าสู่ระบบได้ กรุณาลองใหม่' : 'Could not log in. Please try again.');
+            return null;
+          }
+          
+          return signInData.user?.id || null;
+        }
+        
+        console.error('Auto-registration error:', signUpError);
+        toast.error(language === 'th' ? 'เกิดข้อผิดพลาดในการลงทะเบียน' : 'Registration error');
+        return null;
+      }
+
+      // Registration successful
+      toast.success(
+        language === 'th' 
+          ? '✅ ลงทะเบียนอัตโนมัติสำเร็จ!' 
+          : '✅ Auto-registration successful!'
+      );
+      
+      return signUpData.user?.id || null;
+    } catch (error) {
+      console.error('Auto-registration failed:', error);
+      toast.error(language === 'th' ? 'เกิดข้อผิดพลาด กรุณาลองใหม่' : 'Something went wrong. Please try again.');
+      return null;
+    }
+  };
+
+  // Submit request with NHSO verification (auto-registration for guests)
+  const handleSubmitRequest = async () => {
     const daysSinceRisk = calculateDaysSinceRisk(shippingData.lastRiskDate);
     
     if (daysSinceRisk < 30 && shippingData.lastRiskDate) {
@@ -315,9 +379,19 @@ export default function HIVSelfTest() {
     setLoading(true);
 
     try {
+      // Auto-register if not logged in
+      let userId = user?.id;
+      if (!userId) {
+        userId = await autoRegisterUser();
+        if (!userId) {
+          setLoading(false);
+          return;
+        }
+      }
+
       // Insert PII into separate table (auto-registration)
       const { data: piiData, error: piiError } = await supabase.from('selftest_pii').insert({
-        user_id: user.id,
+        user_id: userId,
         full_name: shippingData.fullName,
         date_of_birth: nhsoData.dateOfBirth || null,
         thai_id: nhsoData.thaiId,
@@ -335,7 +409,7 @@ export default function HIVSelfTest() {
 
       // Insert health data with reference to PII
       const { data, error } = await supabase.from('hiv_selftest_requests').insert({
-        user_id: user.id,
+        user_id: userId,
         pii_id: piiData.id,
         last_risk_date: shippingData.lastRiskDate || null,
         days_since_risk: daysSinceRisk,
@@ -348,7 +422,7 @@ export default function HIVSelfTest() {
       const { data: profile } = await supabase
         .from('profiles')
         .select('xp, level')
-        .eq('id', user.id)
+        .eq('id', userId)
         .maybeSingle();
       
       if (profile) {
@@ -359,7 +433,7 @@ export default function HIVSelfTest() {
         await supabase
           .from('profiles')
           .update({ xp: newXP, level: newLevel })
-          .eq('id', user.id);
+          .eq('id', userId);
         
         toast.success(
           language === 'th' 
@@ -481,8 +555,13 @@ export default function HIVSelfTest() {
   };
 
   const handleSubmitResult = async () => {
-    if (!resultPhoto || !user) {
+    if (!resultPhoto) {
       toast.error(language === 'th' ? 'กรุณาถ่ายรูปผลตรวจก่อน' : 'Please take a photo first');
+      return;
+    }
+    
+    if (!user) {
+      toast.error(language === 'th' ? 'กรุณาลงทะเบียนก่อนส่งผล' : 'Please complete registration before submitting result');
       return;
     }
     
@@ -619,13 +698,9 @@ export default function HIVSelfTest() {
     );
   };
 
-  // Handle start request flow
+  // Handle start request flow (guest-first approach)
   const handleStartRequest = () => {
-    if (!user) {
-      toast.error(language === 'th' ? 'กรุณาเข้าสู่ระบบก่อน' : 'Please login first');
-      navigate('/auth');
-      return;
-    }
+    // Allow guests to proceed - registration happens at NHSO verification step
     setCurrentStep('shipping');
   };
 
