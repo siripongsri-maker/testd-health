@@ -905,6 +905,7 @@ export type Database = {
           date_of_birth: string | null
           district: string | null
           full_name: string | null
+          gender: string | null
           id: string
           line_id: string | null
           phone: string | null
@@ -921,6 +922,7 @@ export type Database = {
           date_of_birth?: string | null
           district?: string | null
           full_name?: string | null
+          gender?: string | null
           id?: string
           line_id?: string | null
           phone?: string | null
@@ -937,6 +939,7 @@ export type Database = {
           date_of_birth?: string | null
           district?: string | null
           full_name?: string | null
+          gender?: string | null
           id?: string
           line_id?: string | null
           phone?: string | null
