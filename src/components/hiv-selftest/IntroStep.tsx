@@ -1,0 +1,183 @@
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ArrowRight, Clock, PackageCheck, Package } from "lucide-react";
+import { useLanguage } from "@/lib/i18n";
+import { SelfTestRequest } from "./types";
+import hivSelftestKitImg from "@/assets/hiv-selftest-kit.jpg";
+
+interface IntroStepProps {
+  activeRequest: SelfTestRequest | null;
+  onStartRequest: () => void;
+  onConfirmReceipt: () => void;
+}
+
+export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt }: IntroStepProps) {
+  const { language } = useLanguage();
+
+  // If there's an active request in progress
+  if (activeRequest && ['pending', 'approved', 'shipped', 'delivered'].includes(activeRequest.status)) {
+    return (
+      <div className="space-y-4 animate-fade-in">
+        <Card className="p-4 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+          <div className="flex items-center gap-4">
+            <div className="w-24 h-24 bg-white rounded-xl shadow-md flex items-center justify-center overflow-hidden">
+              <img 
+                src={hivSelftestKitImg} 
+                alt="Abbott CheckNOW HIV Self-Test Kit"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-foreground mb-1">
+                {language === 'th' ? 'ชุดตรวจ HIV Abbott' : 'Abbott HIV Self-Test Kit'}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {language === 'th' ? 'ชุดตรวจคุณภาพสูง ใช้งานง่าย ผลภายใน 15 นาที' : 'High quality, easy to use, results in 15 minutes'}
+              </p>
+              <Badge variant="secondary" className="mt-2">
+                {language === 'th' ? '🎁 ฟรี!' : '🎁 FREE!'}
+              </Badge>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-4">
+          <div className="text-center">
+            {activeRequest.status === 'pending' && <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-3" />}
+            {activeRequest.status === 'approved' && <PackageCheck className="h-12 w-12 text-primary mx-auto mb-3" />}
+            {(activeRequest.status === 'shipped' || activeRequest.status === 'delivered') && <Package className="h-12 w-12 text-success mx-auto mb-3" />}
+            
+            <h3 className="font-bold text-foreground mb-2">
+              {activeRequest.status === 'pending' && (language === 'th' ? 'รอเจ้าหน้าที่ตรวจสอบ' : 'Awaiting Staff Review')}
+              {activeRequest.status === 'approved' && (language === 'th' ? 'อนุมัติแล้ว กำลังเตรียมจัดส่ง' : 'Approved - Preparing Shipment')}
+              {activeRequest.status === 'shipped' && (language === 'th' ? 'จัดส่งแล้ว รอรับพัสดุ' : 'Shipped - Awaiting Delivery')}
+              {activeRequest.status === 'delivered' && (language === 'th' ? 'พัสดุถึงแล้ว กรุณายืนยันการรับ' : 'Delivered - Please Confirm Receipt')}
+            </h3>
+            
+            <Badge variant={activeRequest.status === 'shipped' || activeRequest.status === 'delivered' ? 'default' : 'secondary'}>
+              {activeRequest.status === 'pending' && (language === 'th' ? '⏳ รอตรวจสอบ' : '⏳ Pending Review')}
+              {activeRequest.status === 'approved' && (language === 'th' ? '✓ อนุมัติแล้ว' : '✓ Approved')}
+              {activeRequest.status === 'shipped' && (language === 'th' ? '📦 จัดส่งแล้ว' : '📦ปก Shipped')}
+              {activeRequest.status === 'delivered' && (language === 'th' ? '🏠 ถึงปลายทาง' : '🏠 Delivered')}
+            </Badge>
+            
+            {activeRequest.tracking_number && (
+              <div className="mt-3 p-2 bg-primary/5 rounded-lg">
+                <p className="text-sm text-primary font-medium">
+                  📦 {language === 'th' ? 'เลขพัสดุ' : 'Tracking'}: {activeRequest.tracking_number}
+                </p>
+              </div>
+            )}
+            
+            <div className="mt-4 p-3 bg-muted/50 rounded-lg text-left">
+              <p className="text-xs text-muted-foreground">
+                {activeRequest.status === 'pending' && (language === 'th' 
+                  ? '💡 เจ้าหน้าที่กำลังตรวจสอบคำขอของคุณ และจะยืนยันสถานะการจัดส่งในเร็ว ๆ นี้'
+                  : '💡 Staff is reviewing your request and will confirm shipment status soon.')}
+                {activeRequest.status === 'approved' && (language === 'th' 
+                  ? '💡 คำขอได้รับการอนุมัติ เจ้าหน้าที่กำลังจัดเตรียมชุดตรวจเพื่อจัดส่ง'
+                  : '💡 Request approved. Staff is preparing your test kit for shipment.')}
+                {activeRequest.status === 'shipped' && (language === 'th' 
+                  ? '💡 ชุดตรวจจัดส่งแล้ว เมื่อได้รับพัสดุ เจ้าหน้าที่จะอัปเดตสถานะให้คุณทราบ'
+                  : '💡 Kit has been shipped. Staff will update status when delivered.')}
+                {activeRequest.status === 'delivered' && (language === 'th' 
+                  ? '💡 เจ้าหน้าที่ยืนยันว่าพัสดุถึงแล้ว กรุณากดยืนยันว่าได้รับชุดตรวจ'
+                  : '💡 Staff confirmed delivery. Please confirm you received the kit.')}
+              </p>
+            </div>
+            
+            <Button 
+              className="mt-4 w-full" 
+              onClick={onConfirmReceipt}
+              disabled={activeRequest.status !== 'shipped' && activeRequest.status !== 'delivered'}
+              variant={activeRequest.status === 'delivered' ? 'default' : 'outline'}
+            >
+              {activeRequest.status === 'delivered' 
+                ? (language === 'th' ? '✓ ยืนยันว่าได้รับชุดตรวจแล้ว' : '✓ Confirm I received the kit')
+                : (language === 'th' ? 'รอพัสดุ...' : 'Waiting for delivery...')}
+              {(activeRequest.status === 'shipped' || activeRequest.status === 'delivered') && <ArrowRight className="h-4 w-4 ml-2" />}
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // Welcome screen for new requests - guest-friendly
+  return (
+    <div className="space-y-4 animate-fade-in">
+      {/* Abbott HIV Self-Test Kit Image */}
+      <Card className="p-4 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+        <div className="flex items-center gap-4">
+          <div className="w-24 h-24 bg-white rounded-xl shadow-md flex items-center justify-center overflow-hidden">
+            <img 
+              src={hivSelftestKitImg} 
+              alt="Abbott CheckNOW HIV Self-Test Kit"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="flex-1">
+            <h3 className="font-bold text-foreground mb-1">
+              {language === 'th' ? 'ชุดตรวจ HIV Abbott' : 'Abbott HIV Self-Test Kit'}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {language === 'th' ? 'ชุดตรวจคุณภาพสูง ใช้งานง่าย ผลภายใน 15 นาที' : 'High quality, easy to use, results in 15 minutes'}
+            </p>
+            <Badge variant="secondary" className="mt-2">
+              {language === 'th' ? '🎁 ฟรี!' : '🎁 FREE!'}
+            </Badge>
+          </div>
+        </div>
+      </Card>
+
+      {/* Privacy & Benefits Card */}
+      <Card className="p-4 space-y-4">
+        <div className="flex items-start gap-2">
+          <span className="text-lg">🔒</span>
+          <div>
+            <p className="text-sm font-medium text-primary">
+              {language === 'th' ? 'ความเป็นส่วนตัวของคุณได้รับการปกป้อง' : 'Your Privacy is Protected'}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {language === 'th' 
+                ? 'ข้อมูลของคุณใช้เฉพาะการจัดส่งและยืนยันสิทธิ์ สปสช. เท่านั้น'
+                : 'Your data is only used for shipping and NHSO eligibility verification.'
+              }
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-start gap-2">
+          <span className="text-lg">⚡</span>
+          <div>
+            <p className="text-sm font-medium text-foreground">
+              {language === 'th' ? 'ลงทะเบียนครั้งเดียว ใช้งานได้ตลอด' : 'Register Once, Use Forever'}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {language === 'th' 
+                ? 'การขอรับชุดตรวจครั้งถัดไปจะรวดเร็วขึ้น เพราะระบบจะจำข้อมูลของคุณไว้'
+                : 'Future kit requests will be faster as we remember your information.'
+              }
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      <Button 
+        className="w-full gap-2 h-12 text-base" 
+        size="lg"
+        onClick={onStartRequest}
+      >
+        {language === 'th' ? 'เริ่มขอรับชุดตรวจฟรี' : 'Start Free Kit Request'}
+        <ArrowRight className="h-5 w-5" />
+      </Button>
+
+      <p className="text-xs text-center text-muted-foreground">
+        {language === 'th' 
+          ? '🚚 จัดส่งฟรีทั่วประเทศ • ไม่มีค่าใช้จ่าย'
+          : '🚚 Free shipping nationwide • No cost'}
+      </p>
+    </div>
+  );
+}

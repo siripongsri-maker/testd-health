@@ -2,34 +2,23 @@ import { useState, useEffect, useRef } from "react";
 import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
 import { useLanguage } from "@/lib/i18n";
-import { getUserData } from "@/lib/store";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
-import { getProvinces, getDistricts, getSubdistricts, getPostalCode } from "@/lib/thailand-address";
 import { 
   TestTube, 
   Play, 
-  Package, 
   Camera, 
   CheckCircle2, 
-  Clock, 
   AlertTriangle,
-  Send,
   Upload,
   Phone,
-  MapPin,
-  Calendar,
   ArrowRight,
   ArrowLeft,
-  PackageCheck,
   Timer,
   Loader2,
   Check,
@@ -39,56 +28,42 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import hivSelftestKitImg from "@/assets/hiv-selftest-kit.jpg";
 
-interface SelfTestRequest {
-  id: string;
-  status: string;
-  tracking_number: string | null;
-  test_result: string | null;
-  created_at: string;
-  result_photo_url: string | null;
-}
-
-type Step = 'request' | 'confirm-receipt' | 'video' | 'testing' | 'timer' | 'photo-result';
-
-// Thai ID validation using checksum algorithm
-const validateThaiId = (id: string): boolean => {
-  if (id.length !== 13 || !/^\d{13}$/.test(id)) return false;
-  
-  // Thai ID checksum algorithm
-  let sum = 0;
-  for (let i = 0; i < 12; i++) {
-    sum += parseInt(id[i]) * (13 - i);
-  }
-  const checkDigit = (11 - (sum % 11)) % 10;
-  return checkDigit === parseInt(id[12]);
-};
-
-const TESTING_STEPS = [
-  { id: 'wash', th: 'ล้างมือให้สะอาดด้วยสบู่', en: 'Wash hands thoroughly with soap' },
-  { id: 'open', th: 'เปิดกล่องและตรวจสอบอุปกรณ์ครบ', en: 'Open box and check all components' },
-  { id: 'read', th: 'อ่านคำแนะนำในกล่องทั้งหมด', en: 'Read all instructions in the box' },
-  { id: 'lancet', th: 'เตรียมนิ้วและใช้เข็มเจาะเลือด', en: 'Prepare finger and use lancet for blood' },
-  { id: 'blood', th: 'หยดเลือดลงในช่องตัวอย่าง', en: 'Drop blood into sample well' },
-  { id: 'buffer', th: 'หยดน้ำยา buffer ตามคำแนะนำ', en: 'Add buffer solution as instructed' },
-];
+import { 
+  IntroStep, 
+  ShippingStep, 
+  NHSOVerifyStep,
+  Step,
+  SelfTestRequest,
+  ShippingFormData,
+  NHSOFormData,
+  TESTING_STEPS
+} from "@/components/hiv-selftest";
 
 export default function HIVSelfTest() {
   const { language } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
   
-  const [currentStep, setCurrentStep] = useState<Step>('request');
+  const [currentStep, setCurrentStep] = useState<Step>('intro');
   const [activeRequest, setActiveRequest] = useState<SelfTestRequest | null>(null);
   const [requests, setRequests] = useState<SelfTestRequest[]>([]);
   const [loading, setLoading] = useState(false);
   
-  // Form state
-  const [formData, setFormData] = useState({
+  // Saved user data for reuse
+  const [savedUserData, setSavedUserData] = useState<{
+    thaiId?: string;
+    dateOfBirth?: string;
+    gender?: string;
+    fullName?: string;
+    phone?: string;
+    address?: string;
+    province?: string;
+  } | null>(null);
+  
+  // Form states
+  const [shippingData, setShippingData] = useState<ShippingFormData>({
     fullName: "",
-    dateOfBirth: "",
-    thaiId: "",
     phone: "",
     lineId: "",
     address: "",
@@ -98,7 +73,12 @@ export default function HIVSelfTest() {
     postalCode: "",
     lastRiskDate: "",
   });
-  const [thaiIdError, setThaiIdError] = useState<string | null>(null);
+  
+  const [nhsoData, setNhsoData] = useState<NHSOFormData>({
+    thaiId: "",
+    dateOfBirth: "",
+    gender: "",
+  });
   
   // Testing state
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
@@ -113,7 +93,7 @@ export default function HIVSelfTest() {
       const remaining = Math.max(0, duration - elapsed);
       return remaining;
     }
-    return 15 * 60; // 15 minutes default
+    return 15 * 60;
   });
   const [timerActive, setTimerActive] = useState(() => {
     const stored = localStorage.getItem(TIMER_STORAGE_KEY);
@@ -149,53 +129,81 @@ export default function HIVSelfTest() {
   const [analysisResult, setAnalysisResult] = useState<'positive' | 'negative' | 'invalid' | null>(null);
   const [uploading, setUploading] = useState(false);
 
+  // Fetch user data and requests on mount
   useEffect(() => {
     if (user) {
       fetchRequests();
-      // Fetch date of birth from user_personal_info
-      fetchUserPersonalInfo();
-    }
-    
-    // Pre-fill form with saved personal info from local storage
-    const userData = getUserData();
-    if (userData.personalInfo) {
-      const pi = userData.personalInfo;
-      setFormData(prev => ({
-        ...prev,
-        fullName: pi.fullName || prev.fullName,
-        phone: pi.phone || prev.phone,
-        lineId: pi.lineId || prev.lineId,
-        address: pi.address || prev.address,
-        subdistrict: pi.subdistrict || prev.subdistrict,
-        district: pi.district || prev.district,
-        province: pi.province || prev.province,
-        postalCode: pi.postalCode || prev.postalCode,
-      }));
+      fetchSavedUserData();
     }
   }, [user]);
 
-  const fetchUserPersonalInfo = async () => {
+  // Fetch saved user data for auto-fill (reuse on subsequent requests)
+  const fetchSavedUserData = async () => {
     if (!user) return;
     
-    const { data, error } = await supabase
-      .from('user_personal_info')
-      .select('date_of_birth')
+    // First try to get from the most recent selftest_pii entry
+    const { data: piiData } = await supabase
+      .from('selftest_pii')
+      .select('thai_id, date_of_birth, gender, full_name, phone, address, province')
       .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
       .maybeSingle();
     
-    if (!error && data?.date_of_birth) {
-      setFormData(prev => ({
-        ...prev,
-        dateOfBirth: data.date_of_birth || prev.dateOfBirth,
-      }));
+    if (piiData) {
+      setSavedUserData({
+        thaiId: piiData.thai_id || undefined,
+        dateOfBirth: piiData.date_of_birth || undefined,
+        gender: piiData.gender || undefined,
+        fullName: piiData.full_name || undefined,
+        phone: piiData.phone || undefined,
+        address: piiData.address || undefined,
+        province: piiData.province || undefined,
+      });
+      
+      // Pre-fill NHSO data if available
+      if (piiData.thai_id || piiData.date_of_birth || piiData.gender) {
+        setNhsoData(prev => ({
+          ...prev,
+          thaiId: piiData.thai_id || prev.thaiId,
+          dateOfBirth: piiData.date_of_birth || prev.dateOfBirth,
+          gender: (piiData.gender as NHSOFormData['gender']) || prev.gender,
+        }));
+      }
+      
+      // Pre-fill shipping data if available
+      if (piiData.full_name || piiData.phone) {
+        setShippingData(prev => ({
+          ...prev,
+          fullName: piiData.full_name || prev.fullName,
+          phone: piiData.phone || prev.phone,
+          address: piiData.address || prev.address,
+          province: piiData.province || prev.province,
+        }));
+      }
+    } else {
+      // Fallback: try user_personal_info
+      const { data: personalData } = await supabase
+        .from('user_personal_info')
+        .select('date_of_birth, gender')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (personalData) {
+        setNhsoData(prev => ({
+          ...prev,
+          dateOfBirth: personalData.date_of_birth || prev.dateOfBirth,
+          gender: (personalData.gender as NHSOFormData['gender']) || prev.gender,
+        }));
+      }
     }
   };
 
+  // Determine which step to show based on active request status
   useEffect(() => {
-    // Determine which step to show based on active request status
     if (activeRequest) {
       if (activeRequest.status === 'pending' || activeRequest.status === 'approved' || activeRequest.status === 'shipped') {
-        setCurrentStep('request');
+        setCurrentStep('intro');
       } else if (activeRequest.status === 'delivered') {
         setCurrentStep('confirm-receipt');
       } else if (activeRequest.status === 'confirmed') {
@@ -204,6 +212,7 @@ export default function HIVSelfTest() {
     }
   }, [activeRequest]);
 
+  // Timer effect
   useEffect(() => {
     if (timerActive && timerSeconds > 0) {
       timerRef.current = setInterval(() => {
@@ -213,11 +222,9 @@ export default function HIVSelfTest() {
             setTimerFinished(true);
             localStorage.removeItem(TIMER_STORAGE_KEY);
             if (timerRef.current) clearInterval(timerRef.current);
-            // Play alarm sound
             if (alarmRef.current) {
               alarmRef.current.play().catch(() => {});
             }
-            // Vibrate on mobile devices
             if ('vibrate' in navigator) {
               navigator.vibrate([500, 200, 500, 200, 500]);
             }
@@ -233,7 +240,6 @@ export default function HIVSelfTest() {
     };
   }, [timerActive, language]);
 
-  // Start timer function that persists to localStorage
   const startTimer = () => {
     const timerData = {
       startedAt: Date.now(),
@@ -246,7 +252,6 @@ export default function HIVSelfTest() {
     setCurrentStep('timer');
   };
 
-  // Skip timer function
   const skipTimer = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     localStorage.removeItem(TIMER_STORAGE_KEY);
@@ -256,7 +261,6 @@ export default function HIVSelfTest() {
     setCurrentStep('photo-result');
   };
 
-  // Stop alarm when leaving timer step
   useEffect(() => {
     if (currentStep !== 'timer' && alarmRef.current) {
       alarmRef.current.pause();
@@ -275,7 +279,6 @@ export default function HIVSelfTest() {
     
     if (data) {
       setRequests(data);
-      // Find the most recent active request
       const active = data.find(r => !['completed', 'cancelled'].includes(r.status));
       if (active) {
         setActiveRequest(active);
@@ -291,18 +294,17 @@ export default function HIVSelfTest() {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
-  const handleSubmitRequest = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  // Submit request with NHSO verification (auto-registration)
+  const handleSubmitRequest = async () => {
     if (!user) {
       toast.error(language === 'th' ? 'กรุณาเข้าสู่ระบบก่อน' : 'Please login first');
       navigate('/auth');
       return;
     }
 
-    const daysSinceRisk = calculateDaysSinceRisk(formData.lastRiskDate);
+    const daysSinceRisk = calculateDaysSinceRisk(shippingData.lastRiskDate);
     
-    if (daysSinceRisk < 30 && formData.lastRiskDate) {
+    if (daysSinceRisk < 30 && shippingData.lastRiskDate) {
       toast.warning(
         language === 'th' 
           ? `ผ่านมา ${daysSinceRisk} วันเท่านั้น — แนะนำให้รอครบ 30 วัน หรือตรวจที่คลินิก`
@@ -311,37 +313,31 @@ export default function HIVSelfTest() {
     }
 
     setLoading(true);
-    
-    // Validate Thai ID before submitting
-    if (!validateThaiId(formData.thaiId)) {
-      setThaiIdError(language === 'th' ? 'หมายเลขบัตรประชาชนไม่ถูกต้อง' : 'Invalid Thai ID number');
-      setLoading(false);
-      return;
-    }
 
     try {
-      // First, insert PII into separate table
+      // Insert PII into separate table (auto-registration)
       const { data: piiData, error: piiError } = await supabase.from('selftest_pii').insert({
         user_id: user.id,
-        full_name: formData.fullName,
-        date_of_birth: formData.dateOfBirth || null,
-        thai_id: formData.thaiId,
-        phone: formData.phone,
-        line_id: formData.lineId,
-        address: formData.address,
-        subdistrict: formData.subdistrict,
-        district: formData.district,
-        province: formData.province,
-        postal_code: formData.postalCode,
+        full_name: shippingData.fullName,
+        date_of_birth: nhsoData.dateOfBirth || null,
+        thai_id: nhsoData.thaiId,
+        gender: nhsoData.gender || null,
+        phone: shippingData.phone,
+        line_id: shippingData.lineId,
+        address: shippingData.address,
+        subdistrict: shippingData.subdistrict,
+        district: shippingData.district,
+        province: shippingData.province,
+        postal_code: shippingData.postalCode,
       }).select().single();
 
       if (piiError) throw piiError;
 
-      // Then, insert health data with reference to PII
+      // Insert health data with reference to PII
       const { data, error } = await supabase.from('hiv_selftest_requests').insert({
         user_id: user.id,
         pii_id: piiData.id,
-        last_risk_date: formData.lastRiskDate || null,
+        last_risk_date: shippingData.lastRiskDate || null,
         days_since_risk: daysSinceRisk,
         status: 'pending',
       }).select().single();
@@ -378,10 +374,9 @@ export default function HIVSelfTest() {
         );
       }
       
-      setFormData({
+      // Reset forms
+      setShippingData({
         fullName: "",
-        dateOfBirth: "",
-        thaiId: "",
         phone: "",
         lineId: "",
         address: "",
@@ -391,11 +386,20 @@ export default function HIVSelfTest() {
         postalCode: "",
         lastRiskDate: "",
       });
-      setThaiIdError(null);
+      
+      // Keep NHSO data for reuse
+      setSavedUserData({
+        thaiId: nhsoData.thaiId,
+        dateOfBirth: nhsoData.dateOfBirth,
+        gender: nhsoData.gender,
+        fullName: shippingData.fullName,
+        phone: shippingData.phone,
+      });
       
       if (data) {
         setActiveRequest(data);
       }
+      setCurrentStep('intro');
       fetchRequests();
     } catch (error) {
       console.error('Error submitting request:', error);
@@ -443,14 +447,11 @@ export default function HIVSelfTest() {
     setAnalyzing(true);
     
     try {
-      // Call edge function to analyze the test result image
       const { data, error } = await supabase.functions.invoke('analyze-hiv-test', {
         body: { imageBase64: photoPreview }
       });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
       if (data?.error) {
         if (data.error.includes('Rate limit')) {
@@ -490,7 +491,6 @@ export default function HIVSelfTest() {
     try {
       let requestId = activeRequest?.id;
       
-      // If no active request exists, create one for the result upload
       if (!requestId) {
         const { data: newRequest, error: createError } = await supabase
           .from('hiv_selftest_requests')
@@ -520,7 +520,6 @@ export default function HIVSelfTest() {
           result_photo_url: fileName,
           status: 'result_submitted',
           test_result: analysisResult,
-          // Save callback consent only for positive results
           wants_callback: analysisResult === 'positive' ? wantsCallback : false,
           callback_phone: analysisResult === 'positive' && wantsCallback ? callbackPhone : null
         })
@@ -557,8 +556,7 @@ export default function HIVSelfTest() {
       }
       
       fetchRequests();
-      // Reset for new test
-      setCurrentStep('request');
+      setCurrentStep('intro');
       setActiveRequest(null);
       setCompletedSteps([]);
       setTimerSeconds(15 * 60);
@@ -582,424 +580,90 @@ export default function HIVSelfTest() {
   };
 
   const getStepNumber = () => {
-    const steps: Step[] = ['request', 'confirm-receipt', 'video', 'testing', 'timer', 'photo-result'];
+    const steps: Step[] = ['intro', 'shipping', 'nhso-verify', 'confirm-receipt', 'video', 'testing', 'timer', 'photo-result'];
     return steps.indexOf(currentStep) + 1;
   };
 
-  const renderStepIndicator = () => (
-    <div className="flex items-center justify-center gap-2 mb-6">
-      {['request', 'confirm-receipt', 'video', 'testing', 'timer', 'photo-result'].map((step, index) => (
-        <div key={step} className="flex items-center">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
-            currentStep === step 
-              ? 'bg-primary text-primary-foreground' 
-              : getStepNumber() > index + 1
-                ? 'bg-success text-white'
-                : 'bg-muted text-muted-foreground'
-          }`}>
-            {getStepNumber() > index + 1 ? <Check className="h-4 w-4" /> : index + 1}
-          </div>
-          {index < 5 && <div className={`w-4 h-0.5 ${getStepNumber() > index + 1 ? 'bg-success' : 'bg-muted'}`} />}
-        </div>
-      ))}
-    </div>
-  );
-
-  // Step 1: Request Kit
-  const renderRequestStep = () => (
-    <div className="space-y-4 animate-fade-in">
-      {/* Abbott HIV Self-Test Kit Image */}
-      <Card className="p-4 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-        <div className="flex items-center gap-4">
-          <div className="w-24 h-24 bg-white rounded-xl shadow-md flex items-center justify-center overflow-hidden">
-            <img 
-              src={hivSelftestKitImg} 
-              alt="Abbott CheckNOW HIV Self-Test Kit"
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-bold text-foreground mb-1">
-              {language === 'th' ? 'ชุดตรวจ HIV Abbott' : 'Abbott HIV Self-Test Kit'}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {language === 'th' ? 'ชุดตรวจคุณภาพสูง ใช้งานง่าย ผลภายใน 15 นาที' : 'High quality, easy to use, results in 15 minutes'}
-            </p>
-            <Badge variant="secondary" className="mt-2">
-              {language === 'th' ? '🎁 ฟรี!' : '🎁 FREE!'}
-            </Badge>
-          </div>
-        </div>
-      </Card>
-
-      {activeRequest && ['pending', 'approved', 'shipped', 'delivered'].includes(activeRequest.status) ? (
-        <Card className="p-4">
-          <div className="text-center">
-            {/* Status Icon */}
-            {activeRequest.status === 'pending' && <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-3" />}
-            {activeRequest.status === 'approved' && <PackageCheck className="h-12 w-12 text-primary mx-auto mb-3" />}
-            {(activeRequest.status === 'shipped' || activeRequest.status === 'delivered') && <Package className="h-12 w-12 text-success mx-auto mb-3" />}
-            
-            <h3 className="font-bold text-foreground mb-2">
-              {activeRequest.status === 'pending' && (language === 'th' ? 'รอเจ้าหน้าที่ตรวจสอบ' : 'Awaiting Staff Review')}
-              {activeRequest.status === 'approved' && (language === 'th' ? 'อนุมัติแล้ว กำลังเตรียมจัดส่ง' : 'Approved - Preparing Shipment')}
-              {activeRequest.status === 'shipped' && (language === 'th' ? 'จัดส่งแล้ว รอรับพัสดุ' : 'Shipped - Awaiting Delivery')}
-              {activeRequest.status === 'delivered' && (language === 'th' ? 'พัสดุถึงแล้ว กรุณายืนยันการรับ' : 'Delivered - Please Confirm Receipt')}
-            </h3>
-            
-            <Badge variant={activeRequest.status === 'shipped' || activeRequest.status === 'delivered' ? 'default' : 'secondary'}>
-              {activeRequest.status === 'pending' && (language === 'th' ? '⏳ รอตรวจสอบ' : '⏳ Pending Review')}
-              {activeRequest.status === 'approved' && (language === 'th' ? '✓ อนุมัติแล้ว' : '✓ Approved')}
-              {activeRequest.status === 'shipped' && (language === 'th' ? '📦 จัดส่งแล้ว' : '📦 Shipped')}
-              {activeRequest.status === 'delivered' && (language === 'th' ? '🏠 ถึงปลายทาง' : '🏠 Delivered')}
-            </Badge>
-            
-            {activeRequest.tracking_number && (
-              <div className="mt-3 p-2 bg-primary/5 rounded-lg">
-                <p className="text-sm text-primary font-medium">
-                  📦 {language === 'th' ? 'เลขพัสดุ' : 'Tracking'}: {activeRequest.tracking_number}
-                </p>
-              </div>
-            )}
-            
-            {/* Status explanation */}
-            <div className="mt-4 p-3 bg-muted/50 rounded-lg text-left">
-              <p className="text-xs text-muted-foreground">
-                {activeRequest.status === 'pending' && (language === 'th' 
-                  ? '💡 เจ้าหน้าที่กำลังตรวจสอบคำขอของคุณ และจะยืนยันสถานะการจัดส่งในเร็ว ๆ นี้'
-                  : '💡 Staff is reviewing your request and will confirm shipment status soon.')}
-                {activeRequest.status === 'approved' && (language === 'th' 
-                  ? '💡 คำขอได้รับการอนุมัติ เจ้าหน้าที่กำลังจัดเตรียมชุดตรวจเพื่อจัดส่ง'
-                  : '💡 Request approved. Staff is preparing your test kit for shipment.')}
-                {activeRequest.status === 'shipped' && (language === 'th' 
-                  ? '💡 ชุดตรวจจัดส่งแล้ว เมื่อได้รับพัสดุ เจ้าหน้าที่จะอัปเดตสถานะให้คุณทราบ'
-                  : '💡 Kit has been shipped. Staff will update status when delivered.')}
-                {activeRequest.status === 'delivered' && (language === 'th' 
-                  ? '💡 เจ้าหน้าที่ยืนยันว่าพัสดุถึงแล้ว กรุณากดยืนยันว่าได้รับชุดตรวจ'
-                  : '💡 Staff confirmed delivery. Please confirm you received the kit.')}
-              </p>
+  const renderStepIndicator = () => {
+    // Only show indicator during the request flow and testing flow
+    if (currentStep === 'intro') return null;
+    
+    const requestSteps = ['shipping', 'nhso-verify'];
+    const testingSteps = ['confirm-receipt', 'video', 'testing', 'timer', 'photo-result'];
+    
+    const isRequestFlow = requestSteps.includes(currentStep);
+    const isTestingFlow = testingSteps.includes(currentStep);
+    
+    const displaySteps = isRequestFlow ? requestSteps : testingSteps;
+    const currentIndex = displaySteps.indexOf(currentStep);
+    
+    return (
+      <div className="flex items-center justify-center gap-2 mb-6">
+        {displaySteps.map((step, index) => (
+          <div key={step} className="flex items-center">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
+              currentStep === step 
+                ? 'bg-primary text-primary-foreground' 
+                : currentIndex > index
+                  ? 'bg-success text-white'
+                  : 'bg-muted text-muted-foreground'
+            }`}>
+              {currentIndex > index ? <Check className="h-4 w-4" /> : index + 1}
             </div>
-            
-            <Button 
-              className="mt-4 w-full" 
-              onClick={() => {
-                if (activeRequest.status === 'delivered') {
-                  handleConfirmReceipt();
-                } else {
-                  setCurrentStep('confirm-receipt');
-                }
-              }}
-              disabled={activeRequest.status !== 'shipped' && activeRequest.status !== 'delivered'}
-              variant={activeRequest.status === 'delivered' ? 'default' : 'outline'}
-            >
-              {activeRequest.status === 'delivered' 
-                ? (language === 'th' ? '✓ ยืนยันว่าได้รับชุดตรวจแล้ว' : '✓ Confirm I received the kit')
-                : (language === 'th' ? 'รอพัสดุ...' : 'Waiting for delivery...')}
-              {(activeRequest.status === 'shipped' || activeRequest.status === 'delivered') && <ArrowRight className="h-4 w-4 ml-2" />}
-            </Button>
+            {index < displaySteps.length - 1 && (
+              <div className={`w-4 h-0.5 ${currentIndex > index ? 'bg-success' : 'bg-muted'}`} />
+            )}
           </div>
-        </Card>
-      ) : (
-        <>
-          {!user ? (
-            <Card className="p-6 text-center">
-              <p className="text-muted-foreground mb-4">
-                {language === 'th' ? 'กรุณาเข้าสู่ระบบเพื่อขอรับชุดตรวจ' : 'Please login to request a kit'}
-              </p>
-              <Button onClick={() => navigate('/auth')}>
-                {language === 'th' ? 'เข้าสู่ระบบ' : 'Login'}
-              </Button>
-            </Card>
-          ) : (
-            <form onSubmit={handleSubmitRequest} className="space-y-4">
-              {/* Privacy Assurance */}
-              <Card className="p-3 bg-primary/5 border-primary/20">
-                <div className="flex items-start gap-2">
-                  <span className="text-lg">🔒</span>
-                  <div>
-                    <p className="text-sm font-medium text-primary">
-                      {language === 'th' ? 'ความเป็นส่วนตัวของคุณได้รับการปกป้อง' : 'Your Privacy is Protected'}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {language === 'th' 
-                        ? 'ข้อมูลส่วนบุคคลของคุณจะไม่ถูกเชื่อมโยงกับสถานะใดๆ และเป็นความลับตามระเบียบของเรา แม้แต่ผู้ดูแลระบบก็ไม่สามารถเข้าถึงข้อมูลนี้ได้'
-                        : 'Your personal information will not be linked to any status and is kept confidential per our protocol. Even system administrators cannot access this information.'
-                      }
-                    </p>
-                  </div>
-                </div>
-              </Card>
-              
-              <Card className="p-4 space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName">
-                      {language === 'th' ? 'ชื่อ-นามสกุล' : 'Full Name'}
-                    </Label>
-                    <Input
-                      id="fullName"
-                      value={formData.fullName}
-                      onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
-                      placeholder={language === 'th' ? 'ชื่อจริง นามสกุล' : 'Your full name'}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="dateOfBirth">
-                      <Calendar className="h-4 w-4 inline mr-1" />
-                      {language === 'th' ? 'วันเดือนปีเกิด' : 'Date of Birth'}
-                    </Label>
-                    <Input
-                      id="dateOfBirth"
-                      type="date"
-                      value={formData.dateOfBirth}
-                      onChange={(e) => setFormData(prev => ({ ...prev, dateOfBirth: e.target.value }))}
-                      max={new Date().toISOString().split('T')[0]}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="thaiId">
-                      {language === 'th' ? 'หมายเลขบัตรประชาชน (13 หลัก)' : 'Thai ID (13 digits)'}
-                    </Label>
-                    <Input
-                      id="thaiId"
-                      value={formData.thaiId}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, '').slice(0, 13);
-                        setFormData(prev => ({ ...prev, thaiId: value }));
-                        if (value.length === 13) {
-                          if (!validateThaiId(value)) {
-                            setThaiIdError(language === 'th' ? 'หมายเลขบัตรประชาชนไม่ถูกต้อง' : 'Invalid Thai ID number');
-                          } else {
-                            setThaiIdError(null);
-                          }
-                        } else {
-                          setThaiIdError(null);
-                        }
-                      }}
-                      placeholder="X-XXXX-XXXXX-XX-X"
-                      maxLength={13}
-                      required
-                      className={thaiIdError ? 'border-destructive' : ''}
-                    />
-                    {thaiIdError && (
-                      <p className="text-sm text-destructive">{thaiIdError}</p>
-                    )}
-                    {formData.thaiId.length === 13 && !thaiIdError && (
-                      <p className="text-sm text-success flex items-center gap-1">
-                        <Check className="h-3 w-3" /> {language === 'th' ? 'หมายเลขถูกต้อง' : 'Valid ID'}
-                      </p>
-                    )}
-                  </div>
-                </div>
+        ))}
+      </div>
+    );
+  };
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">
-                      <Phone className="h-4 w-4 inline mr-1" />
-                      {language === 'th' ? 'เบอร์โทร' : 'Phone'}
-                    </Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => {
-                        // Remove all non-digits
-                        const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
-                        // Format as 0XX-XXX-XXXX
-                        let formatted = digits;
-                        if (digits.length > 3) {
-                          formatted = `${digits.slice(0, 3)}-${digits.slice(3)}`;
-                        }
-                        if (digits.length > 6) {
-                          formatted = `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
-                        }
-                        setFormData(prev => ({ ...prev, phone: formatted }));
-                      }}
-                      placeholder="0XX-XXX-XXXX"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lineId">LINE ID ({language === 'th' ? 'ไม่บังคับ' : 'optional'})</Label>
-                    <Input
-                      id="lineId"
-                      value={formData.lineId}
-                      onChange={(e) => setFormData(prev => ({ ...prev, lineId: e.target.value }))}
-                      placeholder="@line_id"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="address">
-                    <MapPin className="h-4 w-4 inline mr-1" />
-                    {language === 'th' ? 'ที่อยู่จัดส่ง' : 'Shipping Address'}
-                  </Label>
-                  <Textarea
-                    id="address"
-                    value={formData.address}
-                    onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                    placeholder={language === 'th' ? 'บ้านเลขที่ ซอย ถนน แขวง/ตำบล เขต/อำเภอ' : 'House number, street, subdistrict, district'}
-                    required
-                  />
-                </div>
-
-                {/* Province */}
-                <div className="space-y-2">
-                  <Label htmlFor="province">{language === 'th' ? 'จังหวัด' : 'Province'}</Label>
-                  <Select
-                    value={formData.province}
-                    onValueChange={(value) => {
-                      setFormData(prev => ({ ...prev, province: value, district: "", subdistrict: "", postalCode: "" }));
-                    }}
-                    required
-                  >
-                    <SelectTrigger className="bg-background">
-                      <SelectValue placeholder={language === 'th' ? 'เลือกจังหวัด' : 'Select province'} />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background z-50 max-h-60">
-                      {getProvinces().map((province) => (
-                        <SelectItem key={province} value={province}>
-                          {province}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {/* District */}
-                  <div className="space-y-2">
-                    <Label htmlFor="district">{language === 'th' ? 'เขต/อำเภอ' : 'District'}</Label>
-                    <Select
-                      value={formData.district}
-                      onValueChange={(value) => {
-                        setFormData(prev => ({ ...prev, district: value, subdistrict: "", postalCode: "" }));
-                      }}
-                      disabled={!formData.province}
-                      required
-                    >
-                      <SelectTrigger className="bg-background">
-                        <SelectValue placeholder={language === 'th' ? 'เลือกเขต/อำเภอ' : 'Select district'} />
-                      </SelectTrigger>
-                      <SelectContent className="bg-background z-50 max-h-60">
-                        {getDistricts(formData.province).map((district) => (
-                          <SelectItem key={district} value={district}>
-                            {district}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Subdistrict */}
-                  <div className="space-y-2">
-                    <Label htmlFor="subdistrict">{language === 'th' ? 'แขวง/ตำบล' : 'Subdistrict'}</Label>
-                    <Select
-                      value={formData.subdistrict}
-                      onValueChange={(value) => {
-                        const postalCode = getPostalCode(formData.province, formData.district, value);
-                        setFormData(prev => ({ ...prev, subdistrict: value, postalCode }));
-                      }}
-                      disabled={!formData.district}
-                      required
-                    >
-                      <SelectTrigger className="bg-background">
-                        <SelectValue placeholder={language === 'th' ? 'เลือกแขวง/ตำบล' : 'Select subdistrict'} />
-                      </SelectTrigger>
-                      <SelectContent className="bg-background z-50 max-h-60">
-                        {getSubdistricts(formData.province, formData.district).map((sub) => (
-                          <SelectItem key={sub.name} value={sub.name}>
-                            {sub.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                {/* Postal Code - Auto-generated */}
-                <div className="space-y-2">
-                  <Label htmlFor="postalCode">{language === 'th' ? 'รหัสไปรษณีย์' : 'Postal Code'}</Label>
-                  <Input
-                    id="postalCode"
-                    value={formData.postalCode}
-                    readOnly
-                    placeholder={language === 'th' ? 'จะแสดงอัตโนมัติ' : 'Auto-generated'}
-                    className="bg-muted"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="lastRiskDate">
-                    <Calendar className="h-4 w-4 inline mr-1" />
-                    {language === 'th' ? 'วันที่เสี่ยงครั้งล่าสุด (ถ้ามี)' : 'Last Risk Date (if any)'}
-                  </Label>
-                  <Input
-                    id="lastRiskDate"
-                    type="date"
-                    value={formData.lastRiskDate}
-                    onChange={(e) => setFormData(prev => ({ ...prev, lastRiskDate: e.target.value }))}
-                    max={new Date().toISOString().split('T')[0]}
-                  />
-                  {formData.lastRiskDate && calculateDaysSinceRisk(formData.lastRiskDate) < 30 && (
-                    <p className="text-xs text-amber-600">
-                      {language === 'th' 
-                        ? `⚠️ ผ่านมา ${calculateDaysSinceRisk(formData.lastRiskDate)} วัน — แนะนำให้รอครบ 30 วัน`
-                        : `⚠️ ${calculateDaysSinceRisk(formData.lastRiskDate)} days — recommend waiting 30 days`
-                      }
-                    </p>
-                  )}
-                </div>
-              </Card>
-
-              <Button type="submit" className="w-full gap-2" size="lg" disabled={loading}>
-                <Send className="h-4 w-4" />
-                {loading 
-                  ? (language === 'th' ? 'กำลังส่ง...' : 'Submitting...') 
-                  : (language === 'th' ? 'ส่งคำขอรับชุดตรวจ' : 'Submit Request')
-                }
-              </Button>
-            </form>
-          )}
-        </>
-      )}
-    </div>
-  );
+  // Handle start request flow
+  const handleStartRequest = () => {
+    if (!user) {
+      toast.error(language === 'th' ? 'กรุณาเข้าสู่ระบบก่อน' : 'Please login first');
+      navigate('/auth');
+      return;
+    }
+    setCurrentStep('shipping');
+  };
 
   // Step 2: Confirm Receipt
   const renderConfirmReceiptStep = () => (
     <div className="space-y-4 animate-fade-in">
       <Card className="p-6 text-center">
-        <PackageCheck className="h-16 w-16 text-success mx-auto mb-4" />
+        <CheckCircle2 className="h-16 w-16 text-success mx-auto mb-4" />
         <h3 className="text-xl font-bold text-foreground mb-2">
-          {language === 'th' ? 'ได้รับชุดตรวจแล้วใช่ไหม?' : 'Did you receive the test kit?'}
+          {language === 'th' ? 'ได้รับชุดตรวจแล้ว?' : 'Received the Kit?'}
         </h3>
-        <p className="text-muted-foreground mb-6">
+        <p className="text-muted-foreground mb-4">
           {language === 'th' 
-            ? 'กรุณายืนยันว่าคุณได้รับชุดตรวจ HIV จาก Abbott แล้ว'
-            : 'Please confirm you have received your Abbott HIV Self-Test kit'
+            ? 'กรุณายืนยันว่าคุณได้รับชุดตรวจเรียบร้อยแล้ว'
+            : 'Please confirm that you have received the test kit'
           }
         </p>
-        
-        <div className="space-y-3">
-          <Button className="w-full gap-2" size="lg" onClick={handleConfirmReceipt} disabled={loading}>
-            <CheckCircle2 className="h-5 w-5" />
-            {loading 
-              ? (language === 'th' ? 'กำลังยืนยัน...' : 'Confirming...')
-              : (language === 'th' ? 'ใช่ ได้รับแล้ว' : 'Yes, I received it')
-            }
-          </Button>
-          <Button variant="outline" className="w-full" onClick={() => setCurrentStep('request')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            {language === 'th' ? 'กลับ' : 'Back'}
-          </Button>
-        </div>
+        <Button 
+          className="w-full gap-2" 
+          size="lg"
+          onClick={handleConfirmReceipt}
+          disabled={loading}
+        >
+          {loading ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <>
+              <Check className="h-5 w-5" />
+              {language === 'th' ? 'ยืนยันว่าได้รับแล้ว' : 'Confirm Receipt'}
+            </>
+          )}
+        </Button>
       </Card>
+
+      <Button variant="outline" className="w-full" onClick={() => setCurrentStep('intro')}>
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        {language === 'th' ? 'กลับ' : 'Back'}
+      </Button>
     </div>
   );
 
@@ -1125,10 +789,9 @@ export default function HIVSelfTest() {
     </div>
   );
 
-  // Step 5: Timer with YouTube video
+  // Step 5: Timer
   const renderTimerStep = () => (
     <div className="space-y-4 animate-fade-in">
-      {/* Hidden audio element for alarm */}
       <audio 
         ref={alarmRef} 
         src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"
@@ -1183,7 +846,6 @@ export default function HIVSelfTest() {
           </div>
         ) : (
           <>
-            {/* YouTube Video Embed while waiting */}
             <Card className="p-3 mb-4 bg-muted/50">
               <p className="text-sm text-muted-foreground mb-2">
                 {language === 'th' ? '🎬 ดูวิดีโอจาก SWING Thailand ระหว่างรอ' : '🎬 Watch SWING Thailand videos while waiting'}
@@ -1240,7 +902,6 @@ export default function HIVSelfTest() {
                 }
               </p>
               
-              {/* Hidden file inputs */}
               <input
                 ref={fileInputRef}
                 type="file"
@@ -1257,7 +918,6 @@ export default function HIVSelfTest() {
                 className="hidden"
               />
               
-              {/* Two buttons: Take Photo and Upload */}
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button 
                   className="gap-2" 
@@ -1486,7 +1146,40 @@ export default function HIVSelfTest() {
 
         {renderStepIndicator()}
 
-        {currentStep === 'request' && renderRequestStep()}
+        {currentStep === 'intro' && (
+          <IntroStep 
+            activeRequest={activeRequest}
+            onStartRequest={handleStartRequest}
+            onConfirmReceipt={() => {
+              if (activeRequest?.status === 'delivered') {
+                handleConfirmReceipt();
+              } else {
+                setCurrentStep('confirm-receipt');
+              }
+            }}
+          />
+        )}
+        
+        {currentStep === 'shipping' && (
+          <ShippingStep 
+            formData={shippingData}
+            onFormChange={setShippingData}
+            onNext={() => setCurrentStep('nhso-verify')}
+            onBack={() => setCurrentStep('intro')}
+          />
+        )}
+        
+        {currentStep === 'nhso-verify' && (
+          <NHSOVerifyStep 
+            formData={nhsoData}
+            savedData={savedUserData}
+            onFormChange={setNhsoData}
+            onSubmit={handleSubmitRequest}
+            onBack={() => setCurrentStep('shipping')}
+            loading={loading}
+          />
+        )}
+        
         {currentStep === 'confirm-receipt' && renderConfirmReceiptStep()}
         {currentStep === 'video' && renderVideoStep()}
         {currentStep === 'testing' && renderTestingStep()}
