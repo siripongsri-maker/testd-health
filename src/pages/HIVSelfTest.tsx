@@ -301,6 +301,14 @@ export default function HIVSelfTest() {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
+  // Generate a cryptographically secure random password
+  const generateSecurePassword = (): string => {
+    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*';
+    const array = new Uint8Array(16);
+    crypto.getRandomValues(array);
+    return Array.from(array, (byte) => charset[byte % charset.length]).join('');
+  };
+
   // Auto-register guest user using Thai ID
   const autoRegisterUser = async (): Promise<{ userId: string; username: string; password: string; isNew: boolean } | null> => {
     if (user) return { userId: user.id, username: '', password: '', isNew: false };
@@ -316,9 +324,9 @@ export default function HIVSelfTest() {
     const username = `user_${suffix}_${randomPart}`;
     const email = `${username}@swingth.local`;
     
-    // Generate a secure password from Thai ID + DOB
-    const password = `${nhsoData.thaiId}_${nhsoData.dateOfBirth || 'default'}`;
-    
+    // Generate a cryptographically secure random password (not based on personal data)
+    const password = generateSecurePassword();
+
     try {
       // Try to sign up first
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
