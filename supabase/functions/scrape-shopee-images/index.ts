@@ -24,7 +24,45 @@ Deno.serve(async (req) => {
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+    // Validate authorization
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Authorization required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Verify user is authenticated and is an admin
+    const userSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const { data: { user }, error: authError } = await userSupabase.auth.getUser();
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check admin role - only admins can scrape
+    const { data: isAdmin } = await userSupabase.rpc('has_role', {
+      _user_id: user.id,
+      _role: 'admin'
+    });
+
+    if (!isAdmin) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Admin access required' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Use service role for storage operations
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const { products, forceRefresh = false } = await req.json() as { 
@@ -37,6 +75,24 @@ Deno.serve(async (req) => {
         JSON.stringify({ success: false, error: 'Products array is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    // Validate input limits
+    if (products.length > 10) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Maximum 10 products per request' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate Shopee URLs
+    for (const product of products) {
+      if (!product.link.startsWith('https://shopee.co.th/')) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Invalid Shopee URL: ' + product.link }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     const productIds = products.map(p => p.id);
@@ -69,7 +125,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    console.log(`Cache hits: ${Object.keys(results).length}, Need to scrape: ${productsToScrape.length}`);
+    console.log(`Admin ${user.id} - Cache hits: ${Object.keys(results).length}, Need to scrape: ${productsToScrape.length}`);
 
     // If all products are cached, return early
     if (productsToScrape.length === 0) {
