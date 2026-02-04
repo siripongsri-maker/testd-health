@@ -415,6 +415,42 @@ export type Database = {
         }
         Relationships: []
       }
+      hall_of_fame: {
+        Row: {
+          avatar_url: string | null
+          captured_at: string
+          category: string
+          display_name: string | null
+          id: string
+          score: number
+          season_key: string
+          season_label: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          captured_at?: string
+          category?: string
+          display_name?: string | null
+          id?: string
+          score?: number
+          season_key: string
+          season_label: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          captured_at?: string
+          category?: string
+          display_name?: string | null
+          id?: string
+          score?: number
+          season_key?: string
+          season_label?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       health_profiles: {
         Row: {
           created_at: string | null
