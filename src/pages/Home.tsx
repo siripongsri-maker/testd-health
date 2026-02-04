@@ -138,14 +138,13 @@ export default function Home() {
           setTotalMembers(membersCount);
         }
 
-        // Fetch total unique visitors from analytics_events
-        const { data: analyticsData, error: analyticsError } = await supabase
+        // Fetch total analytics events count (total page views)
+        const { count: eventsCount, error: analyticsError } = await supabase
           .from('analytics_events')
-          .select('session_id');
+          .select('*', { count: 'exact', head: true });
         
-        if (!analyticsError && analyticsData) {
-          const uniqueSessions = new Set(analyticsData.map(e => e.session_id).filter(Boolean));
-          setTotalVisitors(uniqueSessions.size);
+        if (!analyticsError && eventsCount !== null) {
+          setTotalVisitors(eventsCount);
         }
       } catch (err) {
         console.error('Error fetching stats:', err);
@@ -166,27 +165,15 @@ export default function Home() {
       )
       .subscribe();
 
-    // Set up real-time subscription for analytics (new visitors)
+    // Set up real-time subscription for analytics (new page views)
     const analyticsChannel = supabase
       .channel('home-analytics-stats')
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'analytics_events' },
-        (payload) => {
-          // Only increment if it's a new unique session
-          const newSessionId = (payload.new as any)?.session_id;
-          if (newSessionId) {
-            // Re-fetch to get accurate unique count
-            supabase
-              .from('analytics_events')
-              .select('session_id')
-              .then(({ data }) => {
-                if (data) {
-                  const uniqueSessions = new Set(data.map(e => e.session_id).filter(Boolean));
-                  setTotalVisitors(uniqueSessions.size);
-                }
-              });
-          }
+        () => {
+          // Increment total views count
+          setTotalVisitors(prev => prev + 1);
         }
       )
       .subscribe();
