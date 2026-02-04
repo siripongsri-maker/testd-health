@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, BookOpen, Heart, Settings, Sparkles, LogOut } from "lucide-react";
+import { Home, BookOpen, Heart, Settings, Trophy, LogOut } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
 import { toast } from "sonner";
 import { triggerHaptic } from "@/hooks/useHaptic";
@@ -22,7 +22,7 @@ export function BottomNav() {
 
   const navItems = [
     { icon: Home, label: t('nav.home'), path: "/" },
-    { icon: Sparkles, label: "PrEP/PEP", path: "/dashboard" },
+    { icon: Trophy, label: language === 'th' ? 'ภารกิจ' : 'Quests', path: "/quests" },
     { icon: Heart, label: t('selfCare.title') || 'Self-Care', path: "/self-care" },
     { icon: BookOpen, label: t('nav.learn'), path: "/info" },
     { icon: Settings, label: t('nav.settings'), path: "/settings" },
