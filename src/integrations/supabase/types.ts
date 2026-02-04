@@ -1348,6 +1348,14 @@ export type Database = {
         }
         Relationships: []
       }
+      selftest_statistics: {
+        Row: {
+          age_range: string | null
+          count: number | null
+          gender: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       complete_survey: {
@@ -1355,6 +1363,14 @@ export type Database = {
         Returns: number
       }
       generate_order_code: { Args: never; Returns: string }
+      get_selftest_statistics: {
+        Args: never
+        Returns: {
+          age_stats: Json
+          gender_stats: Json
+          total_count: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

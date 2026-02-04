@@ -1,24 +1,29 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Clock, PackageCheck, Package } from "lucide-react";
+import { ArrowRight, Clock, PackageCheck, Package, Upload } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
 import { SelfTestRequest } from "./types";
+import { TestStatistics } from "./TestStatistics";
 import hivSelftestKitImg from "@/assets/hiv-selftest-kit.jpg";
 
 interface IntroStepProps {
   activeRequest: SelfTestRequest | null;
   onStartRequest: () => void;
   onConfirmReceipt: () => void;
+  onSubmitExistingKit?: () => void;
 }
 
-export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt }: IntroStepProps) {
+export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onSubmitExistingKit }: IntroStepProps) {
   const { language } = useLanguage();
 
   // If there's an active request in progress
   if (activeRequest && ['pending', 'approved', 'shipped', 'delivered'].includes(activeRequest.status)) {
     return (
       <div className="space-y-4 animate-fade-in">
+        {/* Statistics - show community usage */}
+        <TestStatistics />
+
         <Card className="p-4 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
           <div className="flex items-center gap-4">
             <div className="w-24 h-24 bg-white rounded-xl shadow-md flex items-center justify-center overflow-hidden">
@@ -107,6 +112,9 @@ export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt }: I
   // Welcome screen for new requests - guest-friendly
   return (
     <div className="space-y-4 animate-fade-in">
+      {/* Statistics - show community usage to build confidence */}
+      <TestStatistics />
+
       {/* Abbott HIV Self-Test Kit Image */}
       <Card className="p-4 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
         <div className="flex items-center gap-4">
@@ -178,6 +186,34 @@ export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt }: I
           ? '🚚 จัดส่งฟรีทั่วประเทศ • ไม่มีค่าใช้จ่าย'
           : '🚚 Free shipping nationwide • No cost'}
       </p>
+
+      {/* Already have a kit? Submit result directly */}
+      {onSubmitExistingKit && (
+        <Card className="p-4 bg-gradient-to-br from-warning/5 to-warning/10 border-warning/20">
+          <div className="text-center space-y-3">
+            <div className="flex items-center justify-center gap-2">
+              <Upload className="h-5 w-5 text-warning" />
+              <h4 className="font-semibold text-foreground">
+                {language === 'th' ? 'มีชุดตรวจอยู่แล้ว?' : 'Already have a test kit?'}
+              </h4>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {language === 'th' 
+                ? 'ถ้าคุณมีชุดตรวจ HIV จากแหล่งอื่นอยู่แล้ว สามารถส่งผลและเชื่อมต่อการดูแลได้เลย'
+                : 'If you already have an HIV test kit from another source, you can submit your result and connect to care.'
+              }
+            </p>
+            <Button 
+              variant="outline" 
+              className="w-full gap-2 border-warning/30 hover:bg-warning/10"
+              onClick={onSubmitExistingKit}
+            >
+              <Upload className="h-4 w-4" />
+              {language === 'th' ? 'ส่งผลตรวจจากชุดที่มีอยู่' : 'Submit Result from Existing Kit'}
+            </Button>
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
