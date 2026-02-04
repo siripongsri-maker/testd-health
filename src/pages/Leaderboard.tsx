@@ -160,9 +160,9 @@ export default function Leaderboard() {
           : `Saved ${allUsers.length} users data and notified about Season 2!`
       );
       
-      // Refresh data
-      fetchAllRankings();
-      fetchHallOfFame();
+      // Refresh data immediately after reset
+      await fetchAllRankings();
+      await fetchHallOfFame();
       
     } catch (error) {
       console.error('Reset error:', error);
