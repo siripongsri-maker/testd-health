@@ -157,32 +157,32 @@ export function NotificationBell() {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="end">
-        <div className="flex items-center justify-between p-3 border-b">
-          <h4 className="font-semibold">
+        <div className="flex items-center justify-between p-4 border-b">
+          <h4 className="font-semibold text-base">
             {language === "th" ? "การแจ้งเตือน" : "Notifications"}
           </h4>
           {unreadCount > 0 && (
             <Button
               variant="ghost"
               size="sm"
-              className="text-xs h-7"
+              className="text-sm h-8"
               onClick={markAllAsRead}
             >
-              <Check className="h-3 w-3 mr-1" />
+              <Check className="h-4 w-4 mr-1" />
               {language === "th" ? "อ่านทั้งหมด" : "Mark all read"}
             </Button>
           )}
         </div>
 
-        <ScrollArea className="h-80">
+        <ScrollArea className="h-96">
           {loading ? (
-            <div className="flex items-center justify-center h-20">
-              <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full" />
+            <div className="flex items-center justify-center h-24">
+              <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
             </div>
           ) : notifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
-              <Bell className="h-8 w-8 mb-2 opacity-50" />
-              <p className="text-sm">
+            <div className="flex flex-col items-center justify-center h-40 text-muted-foreground">
+              <Bell className="h-10 w-10 mb-3 opacity-50" />
+              <p className="text-base">
                 {language === "th" ? "ไม่มีการแจ้งเตือน" : "No notifications"}
               </p>
             </div>
@@ -194,31 +194,31 @@ export function NotificationBell() {
                   <div
                     key={notification.id}
                     className={cn(
-                      "p-3 cursor-pointer hover:bg-muted/50 transition-colors",
+                      "p-4 cursor-pointer hover:bg-muted/50 transition-colors",
                       !isRead && "bg-primary/5"
                     )}
                     onClick={() => markAsRead(notification.id)}
                   >
-                    <div className="flex gap-3">
+                    <div className="flex gap-4">
                       <div
                         className={cn(
-                          "h-8 w-8 rounded-full flex items-center justify-center flex-shrink-0",
+                          "h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0",
                           notification.notification_type === "broadcast"
                             ? "bg-blue-100 text-blue-600"
                             : "bg-purple-100 text-purple-600"
                         )}
                       >
                         {notification.notification_type === "broadcast" ? (
-                          <Megaphone className="h-4 w-4" />
+                          <Megaphone className="h-5 w-5" />
                         ) : (
-                          <User className="h-4 w-4" />
+                          <User className="h-5 w-5" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
                           <p
                             className={cn(
-                              "text-sm font-medium truncate",
+                              "text-base font-semibold leading-tight",
                               !isRead && "text-foreground",
                               isRead && "text-muted-foreground"
                             )}
@@ -226,13 +226,13 @@ export function NotificationBell() {
                             {notification.title}
                           </p>
                           {!isRead && (
-                            <div className="h-2 w-2 rounded-full bg-primary flex-shrink-0 mt-1.5" />
+                            <div className="h-2.5 w-2.5 rounded-full bg-primary flex-shrink-0 mt-1.5" />
                           )}
                         </div>
-                        <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
+                        <p className="text-sm text-muted-foreground leading-relaxed mt-1">
                           {notification.message}
                         </p>
-                        <p className="text-xs text-muted-foreground mt-1">
+                        <p className="text-xs text-muted-foreground/70 mt-2">
                           {formatDistanceToNow(
                             new Date(notification.created_at),
                             {
