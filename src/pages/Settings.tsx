@@ -15,7 +15,7 @@ import { getUserData, setUserData, resetUserData } from "@/lib/store";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Bell, Pill, Clock, Shield, Trash2, Languages, Palette, User, LogOut, ShieldCheck, Loader2, UserCircle, HelpCircle } from "lucide-react";
+import { ArrowLeft, Bell, Pill, Clock, Shield, Trash2, Languages, Palette, User, LogOut, ShieldCheck, Loader2, UserCircle, HelpCircle, Building2 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 
@@ -25,6 +25,8 @@ export default function Settings() {
   const { user, signOut } = useAuth();
   const [settings, setSettings] = useState(getUserData().notificationSettings);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isModerator, setIsModerator] = useState(false);
+  const [userBranch, setUserBranch] = useState<string | null>(null);
   const [adminRequest, setAdminRequest] = useState<{ status: string } | null>(null);
   const [showAdminRequest, setShowAdminRequest] = useState(false);
   const [adminReason, setAdminReason] = useState("");
@@ -38,6 +40,7 @@ export default function Settings() {
   useEffect(() => {
     if (user) {
       checkAdminStatus();
+      checkModeratorStatus();
       checkAdminRequest();
     }
   }, [user]);
@@ -49,6 +52,25 @@ export default function Settings() {
       _role: 'admin',
     });
     setIsAdmin(!!data);
+  };
+
+  const checkModeratorStatus = async () => {
+    if (!user) return;
+    const { data: modData } = await supabase.rpc('has_role', {
+      _user_id: user.id,
+      _role: 'moderator',
+    });
+    setIsModerator(!!modData);
+    
+    if (modData) {
+      // Get branch assignment
+      const { data: branchData } = await supabase
+        .from('staff_branch_assignments')
+        .select('branch')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      setUserBranch(branchData?.branch || null);
+    }
   };
 
   const checkAdminRequest = async () => {
@@ -158,17 +180,30 @@ export default function Settings() {
                     Admin
                   </Badge>
                 )}
+              {isModerator && !isAdmin && (
+                <Badge className="gap-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0">
+                  <Building2 className="h-3 w-3" />
+                  {userBranch === 'silom' ? 'Silom Staff' : userBranch === 'pattaya' ? 'Pattaya Staff' : 'Staff'}
+                </Badge>
+              )}
               </div>
               
               {/* Admin Section */}
-              {isAdmin ? (
+              {(isAdmin || isModerator) ? (
                 <Button 
                   variant="outline" 
                   className="w-full justify-start gap-3 rounded-xl h-12"
                   onClick={() => navigate('/admin')}
                 >
-                  <Shield className="h-5 w-5 text-primary" />
-                  {language === 'th' ? 'แดชบอร์ดผู้ดูแล' : 'Admin Dashboard'}
+                  {isAdmin ? (
+                    <Shield className="h-5 w-5 text-primary" />
+                  ) : (
+                    <Building2 className="h-5 w-5 text-primary" />
+                  )}
+                  {isAdmin 
+                    ? (language === 'th' ? 'แดชบอร์ดผู้ดูแล' : 'Admin Dashboard')
+                    : (language === 'th' ? 'จัดการสาขา' : 'Branch Management')
+                  }
                 </Button>
               ) : adminRequest ? (
                 <div className="flex items-center justify-between p-4 rounded-xl bg-muted/50">
