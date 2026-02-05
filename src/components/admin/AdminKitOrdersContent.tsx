@@ -35,6 +35,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+interface AdminKitOrdersContentProps {
+  userBranch?: string | null;
+  isModerator?: boolean;
+}
+
 type OrderStatus = 'requested' | 'packed' | 'shipped' | 'out_for_delivery' | 'delivered_unconfirmed' | 'received_confirmed';
 
 interface KitOrder {
@@ -122,7 +127,7 @@ const CARRIERS = [
   { value: 'other', label: 'Other' },
 ];
 
-export default function AdminKitOrdersContent() {
+export default function AdminKitOrdersContent({ userBranch, isModerator = false }: AdminKitOrdersContentProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -130,8 +135,9 @@ export default function AdminKitOrdersContent() {
   const [hivRequests, setHivRequests] = useState<HIVTestRequest[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>("all");
-  const [dataSource, setDataSource] = useState<"kit_orders" | "hiv_requests">("kit_orders");
-  const [branchFilter, setBranchFilter] = useState<string>("all");
+  // Moderators default to HIV requests view and their branch filter
+  const [dataSource, setDataSource] = useState<"kit_orders" | "hiv_requests">(isModerator ? "hiv_requests" : "kit_orders");
+  const [branchFilter, setBranchFilter] = useState<string>(userBranch || "all");
 
   // Dialog states
   const [showCreateDialog, setShowCreateDialog] = useState(false);

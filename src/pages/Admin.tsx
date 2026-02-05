@@ -3,8 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { AdminLayout } from "@/components/AdminLayout";
 import { useLanguage } from "@/lib/i18n";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, BarChart3, FileText, Loader2, LayoutDashboard, Bell, Users } from "lucide-react";
-import { Building2 } from "lucide-react";
+import { Package, BarChart3, FileText, Loader2, LayoutDashboard, Bell, Users, Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -31,10 +30,18 @@ export default function Admin() {
   const { language } = useLanguage();
   const { user, loading: authLoading } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isModerator, setIsModerator] = useState(false);
+  const [userBranch, setUserBranch] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Get active tab from URL or default to "dashboard"
-  const activeTab = searchParams.get("tab") || "dashboard";
+  // Get active tab from URL or default based on role
+  const getDefaultTab = () => {
+    if (isAdmin) return "dashboard";
+    if (isModerator) return "kit-orders";
+    return "dashboard";
+  };
+
+  const activeTab = searchParams.get("tab") || getDefaultTab();
 
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value });
@@ -58,17 +65,46 @@ export default function Admin() {
         _role: 'admin',
       });
 
-      if (!roleData) {
-        navigate('/dashboard');
-        return;
-      }
+      if (roleData) {
+        setIsAdmin(true);
+        setLoading(false);
+      } else {
+        // Check if user is a moderator (branch staff)
+        const { data: modData } = await supabase.rpc('has_role', {
+          _user_id: user.id,
+          _role: 'moderator',
+        });
 
-      setIsAdmin(true);
-      setLoading(false);
+        if (modData) {
+          setIsModerator(true);
+          
+          // Get user's branch
+          const { data: branchData } = await supabase
+            .from('staff_branch_assignments')
+            .select('branch')
+            .eq('user_id', user.id)
+            .maybeSingle();
+          
+          if (branchData) {
+            setUserBranch(branchData.branch);
+          }
+          setLoading(false);
+        } else {
+          navigate('/dashboard');
+          return;
+        }
+      }
     };
 
     checkAdmin();
   }, [user, authLoading, navigate]);
+
+  // Set default tab for moderators after loading
+  useEffect(() => {
+    if (!loading && isModerator && !isAdmin && !searchParams.get("tab")) {
+      setSearchParams({ tab: "kit-orders" });
+    }
+  }, [loading, isModerator, isAdmin, searchParams, setSearchParams]);
 
   if (loading || authLoading) {
     return (
@@ -80,100 +116,140 @@ export default function Admin() {
     );
   }
 
-  if (!isAdmin) {
+  if (!isAdmin && !isModerator) {
     return null;
   }
+
+  // Define which tabs are visible based on role
+  const canAccessTab = (tab: string) => {
+    if (isAdmin) return true;
+    // Moderators can only access kit-orders tab
+    return tab === "kit-orders";
+  };
 
   return (
     <AdminLayout>
       <div className="p-4 md:p-6">
+        {/* Branch indicator for moderators */}
+        {isModerator && !isAdmin && userBranch && (
+          <div className="mb-4 p-3 bg-primary/10 rounded-lg border border-primary/20">
+            <p className="text-sm font-medium text-primary">
+              {language === 'th' ? `สาขา: ${userBranch === 'silom' ? 'SWING Silom' : 'SWING Pattaya'}` : `Branch: ${userBranch === 'silom' ? 'SWING Silom' : 'SWING Pattaya'}`}
+            </p>
+          </div>
+        )}
+
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="w-full mb-4 grid grid-cols-7 h-auto">
-            <TabsTrigger value="dashboard" className="flex items-center gap-2 py-3">
-              <LayoutDashboard className="h-4 w-4" />
-              <span className="hidden md:inline">
-                {language === 'th' ? 'ภาพรวม' : 'Dashboard'}
-              </span>
-            </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-2 py-3">
-              <Users className="h-4 w-4" />
-              <span className="hidden md:inline">
-                {language === 'th' ? 'ผู้ใช้' : 'Users'}
-              </span>
-            </TabsTrigger>
-            <TabsTrigger value="branch-staff" className="flex items-center gap-2 py-3">
-              <Building2 className="h-4 w-4" />
-              <span className="hidden md:inline">
-                {language === 'th' ? 'สาขา' : 'Branch'}
-              </span>
-            </TabsTrigger>
+          <TabsList className={`w-full mb-4 grid h-auto ${isAdmin ? 'grid-cols-7' : 'grid-cols-1'}`}>
+            {canAccessTab("dashboard") && (
+              <TabsTrigger value="dashboard" className="flex items-center gap-2 py-3">
+                <LayoutDashboard className="h-4 w-4" />
+                <span className="hidden md:inline">
+                  {language === 'th' ? 'ภาพรวม' : 'Dashboard'}
+                </span>
+              </TabsTrigger>
+            )}
+            {canAccessTab("users") && (
+              <TabsTrigger value="users" className="flex items-center gap-2 py-3">
+                <Users className="h-4 w-4" />
+                <span className="hidden md:inline">
+                  {language === 'th' ? 'ผู้ใช้' : 'Users'}
+                </span>
+              </TabsTrigger>
+            )}
+            {canAccessTab("branch-staff") && (
+              <TabsTrigger value="branch-staff" className="flex items-center gap-2 py-3">
+                <Building2 className="h-4 w-4" />
+                <span className="hidden md:inline">
+                  {language === 'th' ? 'สาขา' : 'Branch'}
+                </span>
+              </TabsTrigger>
+            )}
             <TabsTrigger value="kit-orders" className="flex items-center gap-2 py-3">
               <Package className="h-4 w-4" />
               <span className="hidden md:inline">
                 {language === 'th' ? 'ชุดตรวจ' : 'Orders'}
               </span>
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="flex items-center gap-2 py-3">
-              <Bell className="h-4 w-4" />
-              <span className="hidden md:inline">
-                {language === 'th' ? 'แจ้งเตือน' : 'Notify'}
-              </span>
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2 py-3">
-              <BarChart3 className="h-4 w-4" />
-              <span className="hidden md:inline">
-                {language === 'th' ? 'สถิติ' : 'Stats'}
-              </span>
-            </TabsTrigger>
-            <TabsTrigger value="blog" className="flex items-center gap-2 py-3">
-              <FileText className="h-4 w-4" />
-              <span className="hidden md:inline">
-                {language === 'th' ? 'บทความ' : 'Blog'}
-              </span>
-            </TabsTrigger>
+            {canAccessTab("notifications") && (
+              <TabsTrigger value="notifications" className="flex items-center gap-2 py-3">
+                <Bell className="h-4 w-4" />
+                <span className="hidden md:inline">
+                  {language === 'th' ? 'แจ้งเตือน' : 'Notify'}
+                </span>
+              </TabsTrigger>
+            )}
+            {canAccessTab("analytics") && (
+              <TabsTrigger value="analytics" className="flex items-center gap-2 py-3">
+                <BarChart3 className="h-4 w-4" />
+                <span className="hidden md:inline">
+                  {language === 'th' ? 'สถิติ' : 'Stats'}
+                </span>
+              </TabsTrigger>
+            )}
+            {canAccessTab("blog") && (
+              <TabsTrigger value="blog" className="flex items-center gap-2 py-3">
+                <FileText className="h-4 w-4" />
+                <span className="hidden md:inline">
+                  {language === 'th' ? 'บทความ' : 'Blog'}
+                </span>
+              </TabsTrigger>
+            )}
           </TabsList>
 
-          <TabsContent value="dashboard" className="mt-0">
-            <Suspense fallback={<TabLoader />}>
-              <AdminDashboardContent />
-            </Suspense>
-          </TabsContent>
+          {canAccessTab("dashboard") && (
+            <TabsContent value="dashboard" className="mt-0">
+              <Suspense fallback={<TabLoader />}>
+                <AdminDashboardContent />
+              </Suspense>
+            </TabsContent>
+          )}
 
-          <TabsContent value="users" className="mt-0">
-            <Suspense fallback={<TabLoader />}>
-              <AdminUsersContent />
-            </Suspense>
-          </TabsContent>
+          {canAccessTab("users") && (
+            <TabsContent value="users" className="mt-0">
+              <Suspense fallback={<TabLoader />}>
+                <AdminUsersContent />
+              </Suspense>
+            </TabsContent>
+          )}
 
-          <TabsContent value="branch-staff" className="mt-0">
-            <Suspense fallback={<TabLoader />}>
-              <AdminBranchStaffContent />
-            </Suspense>
-          </TabsContent>
+          {canAccessTab("branch-staff") && (
+            <TabsContent value="branch-staff" className="mt-0">
+              <Suspense fallback={<TabLoader />}>
+                <AdminBranchStaffContent />
+              </Suspense>
+            </TabsContent>
+          )}
 
           <TabsContent value="kit-orders" className="mt-0">
             <Suspense fallback={<TabLoader />}>
-              <AdminKitOrdersContent />
+              <AdminKitOrdersContent userBranch={userBranch} isModerator={isModerator && !isAdmin} />
             </Suspense>
           </TabsContent>
 
-          <TabsContent value="notifications" className="mt-0">
-            <Suspense fallback={<TabLoader />}>
-              <AdminNotificationsContent />
-            </Suspense>
-          </TabsContent>
+          {canAccessTab("notifications") && (
+            <TabsContent value="notifications" className="mt-0">
+              <Suspense fallback={<TabLoader />}>
+                <AdminNotificationsContent />
+              </Suspense>
+            </TabsContent>
+          )}
 
-          <TabsContent value="analytics" className="mt-0">
-            <Suspense fallback={<TabLoader />}>
-              <AdminAnalyticsContent />
-            </Suspense>
-          </TabsContent>
+          {canAccessTab("analytics") && (
+            <TabsContent value="analytics" className="mt-0">
+              <Suspense fallback={<TabLoader />}>
+                <AdminAnalyticsContent />
+              </Suspense>
+            </TabsContent>
+          )}
 
-          <TabsContent value="blog" className="mt-0">
-            <Suspense fallback={<TabLoader />}>
-              <AdminBlogContent />
-            </Suspense>
-          </TabsContent>
+          {canAccessTab("blog") && (
+            <TabsContent value="blog" className="mt-0">
+              <Suspense fallback={<TabLoader />}>
+                <AdminBlogContent />
+              </Suspense>
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </AdminLayout>

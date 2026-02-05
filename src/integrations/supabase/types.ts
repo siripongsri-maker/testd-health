@@ -1432,6 +1432,10 @@ export type Database = {
         Args: { _branch: string; _user_id: string }
         Returns: boolean
       }
+      is_branch_staff_for_request: {
+        Args: { _pii_id: string; _user_id: string }
+        Returns: boolean
+      }
       validate_thai_id: { Args: { thai_id: string }; Returns: boolean }
     }
     Enums: {
