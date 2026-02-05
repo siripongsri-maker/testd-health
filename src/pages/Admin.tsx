@@ -4,6 +4,7 @@ import { AdminLayout } from "@/components/AdminLayout";
 import { useLanguage } from "@/lib/i18n";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Package, BarChart3, FileText, Loader2, LayoutDashboard, Bell, Users } from "lucide-react";
+import { Building2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -16,6 +17,7 @@ const AdminAnalyticsContent = lazy(() => import("@/components/admin/AdminAnalyti
 const AdminBlogContent = lazy(() => import("@/components/admin/AdminBlogContent"));
 const AdminNotificationsContent = lazy(() => import("@/components/admin/AdminNotificationsContent"));
 const AdminUsersContent = lazy(() => import("@/components/admin/AdminUsersContent").then(m => ({ default: m.AdminUsersContent })));
+const AdminBranchStaffContent = lazy(() => import("@/components/admin/AdminBranchStaffContent"));
 
 const TabLoader = () => (
   <div className="flex items-center justify-center h-64">
@@ -86,7 +88,7 @@ export default function Admin() {
     <AdminLayout>
       <div className="p-4 md:p-6">
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="w-full mb-4 grid grid-cols-6 h-auto">
+          <TabsList className="w-full mb-4 grid grid-cols-7 h-auto">
             <TabsTrigger value="dashboard" className="flex items-center gap-2 py-3">
               <LayoutDashboard className="h-4 w-4" />
               <span className="hidden md:inline">
@@ -97,6 +99,12 @@ export default function Admin() {
               <Users className="h-4 w-4" />
               <span className="hidden md:inline">
                 {language === 'th' ? 'ผู้ใช้' : 'Users'}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger value="branch-staff" className="flex items-center gap-2 py-3">
+              <Building2 className="h-4 w-4" />
+              <span className="hidden md:inline">
+                {language === 'th' ? 'สาขา' : 'Branch'}
               </span>
             </TabsTrigger>
             <TabsTrigger value="kit-orders" className="flex items-center gap-2 py-3">
@@ -134,6 +142,12 @@ export default function Admin() {
           <TabsContent value="users" className="mt-0">
             <Suspense fallback={<TabLoader />}>
               <AdminUsersContent />
+            </Suspense>
+          </TabsContent>
+
+          <TabsContent value="branch-staff" className="mt-0">
+            <Suspense fallback={<TabLoader />}>
+              <AdminBranchStaffContent />
             </Suspense>
           </TabsContent>
 
