@@ -1,11 +1,18 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Clock, PackageCheck, Package, Upload, MapPin } from "lucide-react";
+import { ArrowRight, Clock, PackageCheck, Package, Upload, MapPin, Building2 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
 import { SelfTestRequest } from "./types";
 import { TestStatistics } from "./TestStatistics";
 import hivSelftestKitImg from "@/assets/hiv-selftest-kit.jpg";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const BRANCH_INFO: Record<string, { nameTh: string; nameEn: string; icon: string }> = {
   silom: { nameTh: 'SWING สีลม', nameEn: 'SWING Silom', icon: '🏙️' },
@@ -18,11 +25,13 @@ interface IntroStepProps {
   onConfirmReceipt: () => void;
   onSubmitExistingKit?: () => void;
   assignedBranch?: string;
+  showBranchSelector?: boolean;
+  onBranchChange?: (branch: string) => void;
 }
 
-export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onSubmitExistingKit, assignedBranch = 'silom' }: IntroStepProps) {
+export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onSubmitExistingKit, assignedBranch = 'silom', showBranchSelector = false, onBranchChange }: IntroStepProps) {
   const { language } = useLanguage();
-  const branchInfo = BRANCH_INFO[assignedBranch] || BRANCH_INFO.silom;
+  const branchInfo = assignedBranch ? BRANCH_INFO[assignedBranch] : null;
 
   // If there's an active request in progress
   if (activeRequest && ['pending', 'approved', 'shipped', 'delivered'].includes(activeRequest.status)) {
@@ -194,16 +203,52 @@ export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onS
           : '🚚 Free shipping nationwide • No cost'}
       </p>
 
-      {/* Branch indicator */}
-      <div className="flex items-center justify-center gap-2 py-2 px-4 bg-primary/5 rounded-lg border border-primary/10">
-        <MapPin className="h-4 w-4 text-primary" />
-        <span className="text-sm text-muted-foreground">
-          {language === 'th' ? 'จัดส่งโดย:' : 'Fulfilled by:'}
-        </span>
-        <span className="text-sm font-medium text-primary">
-          {branchInfo.icon} {language === 'th' ? branchInfo.nameTh : branchInfo.nameEn}
-        </span>
-      </div>
+      {/* Branch selector or indicator */}
+      {showBranchSelector && !assignedBranch ? (
+        <Card className="p-4 space-y-3 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
+          <div className="flex items-center gap-2">
+            <Building2 className="h-5 w-5 text-primary" />
+            <h4 className="font-semibold text-foreground">
+              {language === 'th' ? 'เลือกจุดรับชุดตรวจ' : 'Select Pickup Location'}
+            </h4>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {language === 'th' 
+              ? 'เลือกสาขา SWING ที่คุณต้องการให้จัดส่งชุดตรวจ'
+              : 'Choose the SWING branch you would like to fulfill your test kit request.'
+            }
+          </p>
+          <Select value={assignedBranch} onValueChange={onBranchChange}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={language === 'th' ? 'เลือกสาขา...' : 'Select branch...'} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="silom">
+                <div className="flex items-center gap-2">
+                  <span>🏙️</span>
+                  <span>{language === 'th' ? 'SWING สีลม (กรุงเทพฯ)' : 'SWING Silom (Bangkok)'}</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="pattaya">
+                <div className="flex items-center gap-2">
+                  <span>🏖️</span>
+                  <span>{language === 'th' ? 'SWING พัทยา' : 'SWING Pattaya'}</span>
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </Card>
+      ) : branchInfo ? (
+        <div className="flex items-center justify-center gap-2 py-2 px-4 bg-primary/5 rounded-lg border border-primary/10">
+          <MapPin className="h-4 w-4 text-primary" />
+          <span className="text-sm text-muted-foreground">
+            {language === 'th' ? 'จัดส่งโดย:' : 'Fulfilled by:'}
+          </span>
+          <span className="text-sm font-medium text-primary">
+            {branchInfo.icon} {language === 'th' ? branchInfo.nameTh : branchInfo.nameEn}
+          </span>
+        </div>
+      ) : null}
 
       {/* Already have a kit? Submit result directly */}
       {onSubmitExistingKit && (
