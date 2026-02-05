@@ -10,7 +10,12 @@ import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 
 // Helper to convert username to internal email format
-const usernameToEmail = (username: string) => `${username.toLowerCase().trim()}@swingth.local`;
+// Accepts either plain username (e.g. staff_silom) OR full internal email (e.g. staff_silom@swingth.local)
+const usernameToEmail = (value: string) => {
+  const v = value.toLowerCase().trim();
+  if (!v) return v;
+  return v.includes('@') ? v : `${v}@swingth.local`;
+};
 
 export default function Auth() {
   const [isRegisterMode, setIsRegisterMode] = useState(false);
