@@ -310,6 +310,13 @@ export default function Home() {
       <header className="sticky top-0 z-20 bg-gradient-to-b from-primary/30 to-transparent safe-top">
         <div className="flex items-center justify-between px-4 py-2">
           <div className="flex items-center gap-2">
+            {/* SWING Logo - shown first */}
+            <img 
+              src={swingLogo} 
+              alt="SWING Thailand" 
+              className="h-10 w-auto object-contain shrink-0"
+            />
+            
             {/* Login/Account button - top left */}
             {localStorage.getItem('isLoggedIn') === 'true' ? (
               <div className="flex items-center gap-2 bg-card/80 backdrop-blur-sm rounded-full px-3 py-1.5">
@@ -352,13 +359,6 @@ export default function Home() {
                 {language === 'th' ? 'เข้าสู่ระบบ' : 'Log in'}
               </Button>
             )}
-            
-            {/* SWING Logo - increased size by ~25% */}
-            <img 
-              src={swingLogo} 
-              alt="SWING Thailand" 
-              className="h-10 object-contain"
-            />
           </div>
           
           <div className="flex items-center gap-1">
