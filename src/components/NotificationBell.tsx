@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Bell, X, Check, Megaphone, User } from "lucide-react";
+import { Bell, Check, Megaphone, User, ChevronDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -30,28 +30,55 @@ export function NotificationBell() {
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(0);
+  const PAGE_SIZE = 10;
 
   const unreadCount = notifications.filter((n) => !readIds.has(n.id)).length;
 
-  useEffect(() => {
+  const fetchNotifications = async (pageNum: number, append: boolean = false) => {
     if (!user) return;
-
-    const fetchNotifications = async () => {
+    
+    if (append) {
+      setLoadingMore(true);
+    } else {
       setLoading(true);
+    }
 
-      // Fetch notifications (both broadcast and direct for this user)
-      const { data: notifs, error: notifsError } = await supabase
-        .from("notifications")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(20);
+    const offset = pageNum * PAGE_SIZE;
 
-      if (notifsError) {
-        console.error("Error fetching notifications:", notifsError);
-        setLoading(false);
-        return;
-      }
+    // Fetch notifications (both broadcast and direct for this user)
+    const { data: notifs, error: notifsError } = await supabase
+      .from("notifications")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .range(offset, offset + PAGE_SIZE - 1);
 
+    if (notifsError) {
+      console.error("Error fetching notifications:", notifsError);
+      setLoading(false);
+      setLoadingMore(false);
+      return;
+    }
+
+    // Check if there are more notifications
+    setHasMore((notifs?.length || 0) === PAGE_SIZE);
+
+    if (append) {
+      setNotifications((prev) => {
+        const existingIds = new Set(prev.map(n => n.id));
+        const newNotifs = (notifs || []).filter(n => !existingIds.has(n.id));
+        return [
+          ...prev,
+          ...newNotifs.map((n) => ({
+            ...n,
+            notification_type: n.notification_type as "broadcast" | "direct",
+            isRead: readIds.has(n.id),
+          })),
+        ];
+      });
+    } else {
       // Fetch read status
       const { data: reads, error: readsError } = await supabase
         .from("notification_reads")
@@ -72,10 +99,24 @@ export function NotificationBell() {
           isRead: readSet.has(n.id),
         }))
       );
-      setLoading(false);
-    };
+    }
 
-    fetchNotifications();
+    setLoading(false);
+    setLoadingMore(false);
+  };
+
+  const loadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchNotifications(nextPage, true);
+  };
+
+  useEffect(() => {
+    if (!user) return;
+
+    setPage(0);
+    setHasMore(true);
+    fetchNotifications(0, false);
 
     // Subscribe to realtime notifications
     const channel = supabase
@@ -187,7 +228,8 @@ export function NotificationBell() {
               </p>
             </div>
           ) : (
-            <div className="divide-y">
+            <>
+              <div className="divide-y">
               {notifications.map((notification) => {
                 const isRead = readIds.has(notification.id);
                 return (
@@ -246,7 +288,33 @@ export function NotificationBell() {
                   </div>
                 );
               })}
-            </div>
+              </div>
+              
+              {/* Load more button */}
+              {hasMore && (
+                <div className="p-3 border-t">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full text-sm"
+                    onClick={loadMore}
+                    disabled={loadingMore}
+                  >
+                    {loadingMore ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        {language === "th" ? "กำลังโหลด..." : "Loading..."}
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="h-4 w-4 mr-2" />
+                        {language === "th" ? "โหลดเพิ่มเติม" : "Load more"}
+                      </>
+                    )}
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </ScrollArea>
       </PopoverContent>
