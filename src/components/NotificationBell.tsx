@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Bell, Check, Megaphone, User, ChevronDown, Loader2 } from "lucide-react";
+import { Bell, Check, Megaphone, User, ChevronDown, Loader2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -13,6 +13,7 @@ import { useLanguage } from "@/lib/i18n";
 import { formatDistanceToNow } from "date-fns";
 import { th, enUS } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface Notification {
   id: string;
@@ -28,6 +29,7 @@ export function NotificationBell() {
   const { language } = useLanguage();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [readIds, setReadIds] = useState<Set<string>>(new Set());
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -35,7 +37,8 @@ export function NotificationBell() {
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 10;
 
-  const unreadCount = notifications.filter((n) => !readIds.has(n.id)).length;
+  const visibleNotifications = notifications.filter((n) => !dismissedIds.has(n.id));
+  const unreadCount = visibleNotifications.filter((n) => !readIds.has(n.id)).length;
 
   const fetchNotifications = async (pageNum: number, append: boolean = false) => {
     if (!user) return;
@@ -82,18 +85,20 @@ export function NotificationBell() {
       // Fetch read status
       const { data: reads, error: readsError } = await supabase
         .from("notification_reads")
-        .select("notification_id")
+        .select("notification_id, dismissed")
         .eq("user_id", user.id);
 
       if (readsError) {
         console.error("Error fetching read status:", readsError);
       }
 
-      const readSet = new Set(reads?.map((r) => r.notification_id) || []);
+      const readSet = new Set(reads?.filter((r) => !r.dismissed).map((r) => r.notification_id) || []);
+      const dismissedSet = new Set(reads?.filter((r) => r.dismissed).map((r) => r.notification_id) || []);
       setReadIds(readSet);
+      setDismissedIds(dismissedSet);
 
       setNotifications(
-        (notifs || []).map((n) => ({
+        (notifs || []).filter((n) => !dismissedSet.has(n.id)).map((n) => ({
           ...n,
           notification_type: n.notification_type as "broadcast" | "direct",
           isRead: readSet.has(n.id),
@@ -103,6 +108,31 @@ export function NotificationBell() {
 
     setLoading(false);
     setLoadingMore(false);
+  };
+
+  const dismissNotification = async (e: React.MouseEvent, notificationId: string) => {
+    e.stopPropagation();
+    if (!user) return;
+
+    const { error } = await supabase
+      .from("notification_reads")
+      .upsert(
+        {
+          notification_id: notificationId,
+          user_id: user.id,
+          dismissed: true,
+        },
+        { onConflict: "notification_id,user_id" }
+      );
+
+    if (!error) {
+      setDismissedIds((prev) => new Set([...prev, notificationId]));
+      setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+      toast.success(language === "th" ? "ลบการแจ้งเตือนแล้ว" : "Notification dismissed");
+    } else {
+      console.error("Error dismissing notification:", error);
+      toast.error(language === "th" ? "เกิดข้อผิดพลาด" : "Failed to dismiss");
+    }
   };
 
   const loadMore = () => {
@@ -220,7 +250,7 @@ export function NotificationBell() {
             <div className="flex items-center justify-center h-24">
               <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full" />
             </div>
-          ) : notifications.length === 0 ? (
+          ) : visibleNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-40 text-muted-foreground">
               <Bell className="h-10 w-10 mb-3 opacity-50" />
               <p className="text-base">
@@ -230,7 +260,7 @@ export function NotificationBell() {
           ) : (
             <>
               <div className="divide-y">
-              {notifications.map((notification) => {
+              {visibleNotifications.map((notification) => {
                 const isRead = readIds.has(notification.id);
                 return (
                   <div
@@ -267,9 +297,18 @@ export function NotificationBell() {
                           >
                             {notification.title}
                           </p>
-                          {!isRead && (
-                            <div className="h-2.5 w-2.5 rounded-full bg-primary flex-shrink-0 mt-1.5" />
-                          )}
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            {!isRead && (
+                              <div className="h-2.5 w-2.5 rounded-full bg-primary mt-1" />
+                            )}
+                            <button
+                              onClick={(e) => dismissNotification(e, notification.id)}
+                              className="p-1 rounded-full hover:bg-destructive/10 transition-colors opacity-50 hover:opacity-100"
+                              aria-label={language === "th" ? "ลบ" : "Delete"}
+                            >
+                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                            </button>
+                          </div>
                         </div>
                         <p className="text-sm text-muted-foreground leading-relaxed mt-1">
                           {notification.message}
