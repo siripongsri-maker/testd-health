@@ -85,6 +85,7 @@ interface HIVTestRequest {
   wants_callback: boolean | null;
   callback_phone: string | null;
   selftest_pii: SelftestPii | null;
+  assigned_branch: string | null;
 }
 
 const HIV_STATUS_OPTIONS = [
@@ -130,6 +131,7 @@ export default function AdminKitOrdersContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>("all");
   const [dataSource, setDataSource] = useState<"kit_orders" | "hiv_requests">("kit_orders");
+  const [branchFilter, setBranchFilter] = useState<string>("all");
 
   // Dialog states
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -206,6 +208,7 @@ export default function AdminKitOrdersContent() {
           staff_notes,
           wants_callback,
           callback_phone,
+          assigned_branch,
           selftest_pii (
             id,
             full_name,
@@ -448,7 +451,9 @@ export default function AdminKitOrdersContent() {
     
     const matchesTab = activeTab === 'all' || request.status === activeTab;
     
-    return matchesSearch && matchesTab;
+    const matchesBranch = branchFilter === 'all' || request.assigned_branch === branchFilter;
+    
+    return matchesSearch && matchesTab && matchesBranch;
   });
 
   const formatDate = (date: string) => {
@@ -482,11 +487,12 @@ export default function AdminKitOrdersContent() {
         csvContent += row + "\n";
       });
     } else {
-      csvContent = "Request ID,Thai ID,Name,Date of Birth,Phone,Line ID,Address,Subdistrict,District,Province,Postal Code,Status,Tracking Number,Test Result,Wants Callback,Callback Phone,Staff Notes,Created At,Updated At\n";
+      csvContent = "Request ID,Branch,Thai ID,Name,Date of Birth,Phone,Line ID,Address,Subdistrict,District,Province,Postal Code,Status,Tracking Number,Test Result,Wants Callback,Callback Phone,Staff Notes,Created At,Updated At\n";
       filteredHIVRequests.forEach(request => {
         const pii = request.selftest_pii;
         const row = [
           request.id,
+          request.assigned_branch || 'silom',
           pii?.thai_id || '',
           pii?.full_name || '',
           pii?.date_of_birth || '',
@@ -538,11 +544,12 @@ export default function AdminKitOrdersContent() {
       ];
     } else {
       data = [
-        ["Request ID", "Thai ID", "Name", "Date of Birth", "Phone", "Line ID", "Address", "Subdistrict", "District", "Province", "Postal Code", "Status", "Tracking Number", "Test Result", "Wants Callback", "Callback Phone", "Staff Notes", "Created At", "Updated At"],
+        ["Request ID", "Branch", "Thai ID", "Name", "Date of Birth", "Phone", "Line ID", "Address", "Subdistrict", "District", "Province", "Postal Code", "Status", "Tracking Number", "Test Result", "Wants Callback", "Callback Phone", "Staff Notes", "Created At", "Updated At"],
         ...filteredHIVRequests.map(request => {
           const pii = request.selftest_pii;
           return [
             request.id,
+            request.assigned_branch || 'silom',
             pii?.thai_id || '',
             pii?.full_name || '',
             pii?.date_of_birth || '',
@@ -680,6 +687,33 @@ export default function AdminKitOrdersContent() {
         </Button>
       </div>
 
+      {/* Branch Filter (only for HIV requests) */}
+      {dataSource === 'hiv_requests' && (
+        <div className="flex gap-2 mb-4">
+          <Button
+            variant={branchFilter === 'all' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setBranchFilter('all')}
+          >
+            {language === 'th' ? 'ทุกสาขา' : 'All Branches'}
+          </Button>
+          <Button
+            variant={branchFilter === 'silom' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setBranchFilter('silom')}
+          >
+            🏙️ {language === 'th' ? 'สีลม' : 'Silom'}
+          </Button>
+          <Button
+            variant={branchFilter === 'pattaya' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setBranchFilter('pattaya')}
+          >
+            🏖️ {language === 'th' ? 'พัทยา' : 'Pattaya'}
+          </Button>
+        </div>
+      )}
+
       {/* Search */}
       <div className="relative mb-4">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -802,7 +836,16 @@ export default function AdminKitOrdersContent() {
                               <p className="text-sm text-muted-foreground">{request.selftest_pii.phone}</p>
                             )}
                           </div>
-                          {editingHIVRequest !== request.id && getHIVStatusBadge(request.status)}
+                          <div className="flex items-center gap-2">
+                            {request.assigned_branch && (
+                              <Badge variant="outline" className="text-xs">
+                                {request.assigned_branch === 'silom' ? '🏙️' : '🏖️'} {request.assigned_branch === 'silom' 
+                                  ? (language === 'th' ? 'สีลม' : 'Silom') 
+                                  : (language === 'th' ? 'พัทยา' : 'Pattaya')}
+                              </Badge>
+                            )}
+                            {editingHIVRequest !== request.id && getHIVStatusBadge(request.status)}
+                          </div>
                         </div>
 
                         {request.selftest_pii?.address && (

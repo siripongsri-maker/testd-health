@@ -28,7 +28,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuestProgress } from "@/hooks/useQuestProgress";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { 
   IntroStep, 
@@ -47,6 +47,7 @@ export default function HIVSelfTest() {
   const { user } = useAuth();
   const { trackSelftestRequest } = useQuestProgress();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   
   const [currentStep, setCurrentStep] = useState<Step>('intro');
   const [activeRequest, setActiveRequest] = useState<SelfTestRequest | null>(null);
@@ -125,6 +126,15 @@ export default function HIVSelfTest() {
   const [resultPhoto, setResultPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  
+  // Branch assignment from URL param or default to 'silom'
+  const [assignedBranch] = useState<string>(() => {
+    const branchParam = searchParams.get('branch');
+    if (branchParam && ['silom', 'pattaya'].includes(branchParam.toLowerCase())) {
+      return branchParam.toLowerCase();
+    }
+    return 'silom';
+  });
   
   // Contact consent state for positive results
   const [wantsCallback, setWantsCallback] = useState(false);
@@ -431,6 +441,7 @@ export default function HIVSelfTest() {
         last_risk_date: shippingData.lastRiskDate || null,
         days_since_risk: daysSinceRisk,
         status: 'pending',
+        assigned_branch: assignedBranch,
       }).select().single();
 
       if (error) throw error;
@@ -1346,6 +1357,7 @@ export default function HIVSelfTest() {
               }
             }}
             onSubmitExistingKit={() => setCurrentStep('existing-kit-upload')}
+            assignedBranch={assignedBranch}
           />
         )}
         

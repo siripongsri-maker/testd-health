@@ -490,6 +490,7 @@ export type Database = {
       hiv_selftest_requests: {
         Row: {
           address: string | null
+          assigned_branch: string | null
           callback_phone: string | null
           created_at: string
           days_since_risk: number | null
@@ -513,6 +514,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          assigned_branch?: string | null
           callback_phone?: string | null
           created_at?: string
           days_since_risk?: number | null
@@ -536,6 +538,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          assigned_branch?: string | null
           callback_phone?: string | null
           created_at?: string
           days_since_risk?: number | null
@@ -1033,6 +1036,27 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_branch_assignments: {
+        Row: {
+          branch: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          branch: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          branch?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       survey_completions: {
         Row: {
           completed_at: string
@@ -1401,6 +1425,10 @@ export type Database = {
         Returns: boolean
       }
       increment_survey_view: { Args: { p_survey_id: string }; Returns: number }
+      is_branch_staff: {
+        Args: { _branch: string; _user_id: string }
+        Returns: boolean
+      }
       validate_thai_id: { Args: { thai_id: string }; Returns: boolean }
     }
     Enums: {
