@@ -127,13 +127,14 @@ export default function HIVSelfTest() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   
-  // Branch assignment from URL param or default to 'silom'
-  const [assignedBranch] = useState<string>(() => {
+  // Branch assignment from URL param
+  const hasBranchParam = searchParams.has('branch') && ['silom', 'pattaya'].includes(searchParams.get('branch')?.toLowerCase() || '');
+  const [assignedBranch, setAssignedBranch] = useState<string>(() => {
     const branchParam = searchParams.get('branch');
     if (branchParam && ['silom', 'pattaya'].includes(branchParam.toLowerCase())) {
       return branchParam.toLowerCase();
     }
-    return 'silom';
+    return ''; // No default - user must select
   });
   
   // Contact consent state for positive results
@@ -1348,7 +1349,14 @@ export default function HIVSelfTest() {
         {currentStep === 'intro' && (
           <IntroStep 
             activeRequest={activeRequest}
-            onStartRequest={handleStartRequest}
+            onStartRequest={() => {
+              // Require branch selection if no param was provided
+              if (!assignedBranch) {
+                toast.error(language === 'th' ? 'กรุณาเลือกสาขาก่อน' : 'Please select a branch first');
+                return;
+              }
+              handleStartRequest();
+            }}
             onConfirmReceipt={() => {
               if (activeRequest?.status === 'delivered') {
                 handleConfirmReceipt();
@@ -1358,6 +1366,8 @@ export default function HIVSelfTest() {
             }}
             onSubmitExistingKit={() => setCurrentStep('existing-kit-upload')}
             assignedBranch={assignedBranch}
+            showBranchSelector={!hasBranchParam}
+            onBranchChange={setAssignedBranch}
           />
         )}
         
