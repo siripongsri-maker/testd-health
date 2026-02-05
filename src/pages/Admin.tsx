@@ -11,6 +11,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Suspense, lazy } from "react";
 
 const AdminDashboardContent = lazy(() => import("@/components/admin/AdminDashboardContent"));
+const BranchDashboardContent = lazy(() => import("@/components/admin/BranchDashboardContent"));
 const AdminKitOrdersContent = lazy(() => import("@/components/admin/AdminKitOrdersContent"));
 const AdminAnalyticsContent = lazy(() => import("@/components/admin/AdminAnalyticsContent"));
 const AdminBlogContent = lazy(() => import("@/components/admin/AdminBlogContent"));
@@ -123,8 +124,8 @@ export default function Admin() {
   // Define which tabs are visible based on role
   const canAccessTab = (tab: string) => {
     if (isAdmin) return true;
-    // Moderators can only access kit-orders tab
-    return tab === "kit-orders";
+    // Moderators can access dashboard and kit-orders tabs
+    return tab === "dashboard" || tab === "kit-orders";
   };
 
   return (
@@ -140,7 +141,7 @@ export default function Admin() {
         )}
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className={`w-full mb-4 grid h-auto ${isAdmin ? 'grid-cols-7' : 'grid-cols-1'}`}>
+          <TabsList className={`w-full mb-4 grid h-auto ${isAdmin ? 'grid-cols-7' : 'grid-cols-2'}`}>
             {canAccessTab("dashboard") && (
               <TabsTrigger value="dashboard" className="flex items-center gap-2 py-3">
                 <LayoutDashboard className="h-4 w-4" />
@@ -200,7 +201,11 @@ export default function Admin() {
           {canAccessTab("dashboard") && (
             <TabsContent value="dashboard" className="mt-0">
               <Suspense fallback={<TabLoader />}>
-                <AdminDashboardContent />
+                {isAdmin ? (
+                  <AdminDashboardContent />
+                ) : (
+                  <BranchDashboardContent userBranch={userBranch} />
+                )}
               </Suspense>
             </TabsContent>
           )}
