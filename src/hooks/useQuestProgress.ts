@@ -3,6 +3,17 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
 
+// Check if user is admin (no XP for admins)
+const checkIsAdmin = async (userId: string): Promise<boolean> => {
+  const { data } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', userId)
+    .eq('role', 'admin')
+    .maybeSingle();
+  return !!data;
+};
+
 type QuestTrigger = 
   | 'medication_setup'
   | 'profile_complete'
@@ -84,6 +95,13 @@ export function useQuestProgress() {
     if (!user) return null;
 
     try {
+      // Skip XP for admin users
+      const isAdmin = await checkIsAdmin(user.id);
+      if (isAdmin) {
+        console.log('Admin user - skipping XP award');
+        return null;
+      }
+
       // 1. Find the quest matching this trigger
       const { data: quests, error: questError } = await supabase
         .from('quests')
