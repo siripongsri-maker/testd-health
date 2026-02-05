@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Clock, PackageCheck, Package, Upload, MapPin, Building2 } from "lucide-react";
+import { ArrowRight, Clock, PackageCheck, Package, Upload, MapPin, Building2, Pencil } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
 import { SelfTestRequest } from "./types";
 import { TestStatistics } from "./TestStatistics";
@@ -32,6 +33,7 @@ interface IntroStepProps {
 export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onSubmitExistingKit, assignedBranch = 'silom', showBranchSelector = false, onBranchChange }: IntroStepProps) {
   const { language } = useLanguage();
   const branchInfo = assignedBranch ? BRANCH_INFO[assignedBranch] : null;
+  const [isEditingBranch, setIsEditingBranch] = useState(false);
 
   // If there's an active request in progress
   if (activeRequest && ['pending', 'approved', 'shipped', 'delivered'].includes(activeRequest.status)) {
@@ -204,7 +206,7 @@ export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onS
       </p>
 
       {/* Branch selector or indicator */}
-      {showBranchSelector && !assignedBranch ? (
+      {(showBranchSelector && !assignedBranch) || isEditingBranch ? (
         <Card className="p-4 space-y-3 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
           <div className="flex items-center gap-2">
             <Building2 className="h-5 w-5 text-primary" />
@@ -218,7 +220,10 @@ export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onS
               : 'Choose the SWING branch you would like to fulfill your test kit request.'
             }
           </p>
-          <Select value={assignedBranch} onValueChange={onBranchChange}>
+          <Select value={assignedBranch} onValueChange={(value) => {
+            onBranchChange?.(value);
+            setIsEditingBranch(false);
+          }}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder={language === 'th' ? 'เลือกสาขา...' : 'Select branch...'} />
             </SelectTrigger>
@@ -237,6 +242,16 @@ export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onS
               </SelectItem>
             </SelectContent>
           </Select>
+          {isEditingBranch && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="w-full text-muted-foreground"
+              onClick={() => setIsEditingBranch(false)}
+            >
+              {language === 'th' ? 'ยกเลิก' : 'Cancel'}
+            </Button>
+          )}
         </Card>
       ) : branchInfo ? (
         <div className="flex items-center justify-center gap-2 py-2 px-4 bg-primary/5 rounded-lg border border-primary/10">
@@ -247,6 +262,15 @@ export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onS
           <span className="text-sm font-medium text-primary">
             {branchInfo.icon} {language === 'th' ? branchInfo.nameTh : branchInfo.nameEn}
           </span>
+          {showBranchSelector && onBranchChange && (
+            <button
+              onClick={() => setIsEditingBranch(true)}
+              className="ml-1 p-1 rounded-full hover:bg-primary/10 transition-colors"
+              aria-label={language === 'th' ? 'เปลี่ยนสาขา' : 'Change branch'}
+            >
+              <Pencil className="h-3 w-3 text-muted-foreground hover:text-primary" />
+            </button>
+          )}
         </div>
       ) : null}
 
