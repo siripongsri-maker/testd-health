@@ -1,21 +1,28 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Clock, PackageCheck, Package, Upload } from "lucide-react";
+import { ArrowRight, Clock, PackageCheck, Package, Upload, MapPin } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
 import { SelfTestRequest } from "./types";
 import { TestStatistics } from "./TestStatistics";
 import hivSelftestKitImg from "@/assets/hiv-selftest-kit.jpg";
+
+const BRANCH_INFO: Record<string, { nameTh: string; nameEn: string; icon: string }> = {
+  silom: { nameTh: 'SWING สีลม', nameEn: 'SWING Silom', icon: '🏙️' },
+  pattaya: { nameTh: 'SWING พัทยา', nameEn: 'SWING Pattaya', icon: '🏖️' },
+};
 
 interface IntroStepProps {
   activeRequest: SelfTestRequest | null;
   onStartRequest: () => void;
   onConfirmReceipt: () => void;
   onSubmitExistingKit?: () => void;
+  assignedBranch?: string;
 }
 
-export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onSubmitExistingKit }: IntroStepProps) {
+export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onSubmitExistingKit, assignedBranch = 'silom' }: IntroStepProps) {
   const { language } = useLanguage();
+  const branchInfo = BRANCH_INFO[assignedBranch] || BRANCH_INFO.silom;
 
   // If there's an active request in progress
   if (activeRequest && ['pending', 'approved', 'shipped', 'delivered'].includes(activeRequest.status)) {
@@ -186,6 +193,17 @@ export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onS
           ? '🚚 จัดส่งฟรีทั่วประเทศ • ไม่มีค่าใช้จ่าย'
           : '🚚 Free shipping nationwide • No cost'}
       </p>
+
+      {/* Branch indicator */}
+      <div className="flex items-center justify-center gap-2 py-2 px-4 bg-primary/5 rounded-lg border border-primary/10">
+        <MapPin className="h-4 w-4 text-primary" />
+        <span className="text-sm text-muted-foreground">
+          {language === 'th' ? 'จัดส่งโดย:' : 'Fulfilled by:'}
+        </span>
+        <span className="text-sm font-medium text-primary">
+          {branchInfo.icon} {language === 'th' ? branchInfo.nameTh : branchInfo.nameEn}
+        </span>
+      </div>
 
       {/* Already have a kit? Submit result directly */}
       {onSubmitExistingKit && (
