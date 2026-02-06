@@ -1390,6 +1390,14 @@ export type Database = {
         }
         Relationships: []
       }
+      public_site_stats: {
+        Row: {
+          registered_user_pageviews: number | null
+          total_pageviews: number | null
+          total_sessions: number | null
+        }
+        Relationships: []
+      }
       selftest_statistics: {
         Row: {
           age_range: string | null
@@ -1405,6 +1413,14 @@ export type Database = {
         Returns: number
       }
       generate_order_code: { Args: never; Returns: string }
+      get_public_site_stats: {
+        Args: never
+        Returns: {
+          registered_user_pageviews: number
+          total_pageviews: number
+          total_sessions: number
+        }[]
+      }
       get_selftest_statistics: {
         Args: never
         Returns: {
