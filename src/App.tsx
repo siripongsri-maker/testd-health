@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { RainbowSwingBackground } from "@/components/ThemedBackground";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
-import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { PageLoader } from "@/components/PageLoader";
 import { ScrollToTop } from "@/components/ScrollToTop";
@@ -56,7 +55,6 @@ const App = () => (
       <OfflineBanner />
       <Toaster />
       <Sonner position="top-center" />
-      <PWAInstallPrompt />
       <ScrollToTop />
       <BrowserRouter>
         <AnalyticsProvider>
