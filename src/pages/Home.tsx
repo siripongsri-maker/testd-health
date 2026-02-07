@@ -1,17 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
-import { getUserData, getTodayKey, recordCheckIn, getStreakMultiplier } from "@/lib/store";
+import { getUserData } from "@/lib/store";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { Button } from "@/components/ui/button";
 import { HIVTestPopup } from "@/components/HIVTestPopup";
 import { AdminRequestsPopup } from "@/components/AdminRequestsPopup";
-import { RankingBoard } from "@/components/RankingBoard";
-import { AnimatedCounter } from "@/components/AnimatedCounter";
-import { OnboardingTour } from "@/components/OnboardingTour";
-import { RecommendedNextSteps } from "@/components/RecommendedNextSteps";
 import { NotificationBell } from "@/components/NotificationBell";
 import { MedicationWidget } from "@/components/MedicationWidget";
 import {
@@ -26,32 +22,24 @@ import {
   Eye,
   Calendar,
   Pill,
-  Check,
-  X,
   User,
   LogOut,
   LogIn,
-  Sparkles,
   Trophy,
 } from "lucide-react";
 import swingLogo from "@/assets/swing-logo.webp";
 import { toast } from "sonner";
 
-// Cute menu card component with XP display
+// Simple menu card component (no XP display)
 interface MenuCardProps {
   icon: React.ReactNode;
   titleTh: string;
   titleEn: string;
   onClick: () => void;
   variant?: 'default' | 'featured';
-  xpReward?: number;
-  streakMultiplier?: { multiplier: number; label: string };
 }
 
-function MenuCard({ icon, titleTh, titleEn, onClick, variant = 'default', xpReward, streakMultiplier }: MenuCardProps) {
-  const hasBonus = streakMultiplier && streakMultiplier.multiplier > 1;
-  const totalXP = xpReward && hasBonus ? Math.floor(xpReward * streakMultiplier.multiplier) : xpReward;
-  
+function MenuCard({ icon, titleTh, titleEn, onClick, variant = 'default' }: MenuCardProps) {
   return (
     <button
       onClick={onClick}
@@ -66,19 +54,6 @@ function MenuCard({ icon, titleTh, titleEn, onClick, variant = 'default', xpRewa
         ${variant === 'featured' ? 'ring-2 ring-primary/30' : ''}
       `}
     >
-      {/* XP Badge */}
-      {xpReward && (
-        <div className={`absolute top-1.5 right-1.5 sm:top-2 sm:right-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold ${
-          hasBonus 
-            ? 'bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-500/30' 
-            : 'bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400'
-        }`}>
-          <Sparkles className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-          <span>{totalXP}</span>
-          {hasBonus && <span className="text-[8px] sm:text-[9px] opacity-90">{streakMultiplier.label}</span>}
-        </div>
-      )}
-      
       {/* Icon container */}
       <div className="h-10 w-10 sm:h-14 md:h-16 sm:w-14 md:w-16 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
         {icon}
@@ -97,22 +72,6 @@ function MenuCard({ icon, titleTh, titleEn, onClick, variant = 'default', xpRewa
   );
 }
 
-// Swing logo decoration with floating animation
-function SwingDecoration({ className, delay = 0 }: { className?: string; delay?: number }) {
-  return (
-    <div 
-      className={`${className} select-none pointer-events-none animate-float`}
-      style={{ animationDelay: `${delay}s` }}
-    >
-      <img 
-        src={swingLogo} 
-        alt="SWING" 
-        className="h-10 w-auto object-contain opacity-30 blur-[0.5px]"
-      />
-    </div>
-  );
-}
-
 export default function Home() {
   const navigate = useNavigate();
   const { language } = useLanguage();
@@ -123,15 +82,12 @@ export default function Home() {
   const [adminPopupOpen, setAdminPopupOpen] = useState(false);
   const [totalVisitors, setTotalVisitors] = useState(0);
   const [totalMembers, setTotalMembers] = useState(0);
-  const [todayStatus, setTodayStatus] = useState<"pending" | "taken" | "skipped">("pending");
 
-  // Load real stats from database with real-time updates
+  // Load stats once on mount (no real-time subscriptions)
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        // Use RPC function to get stats (bypasses RLS for accurate counts)
         const { data, error } = await supabase.rpc('get_site_stats');
-        
         if (!error && data && data.length > 0) {
           setTotalMembers(Number(data[0].total_members) || 0);
           setTotalVisitors(Number(data[0].total_page_views) || 0);
@@ -140,48 +96,12 @@ export default function Home() {
         console.error('Error fetching stats:', err);
       }
     };
-    
     fetchStats();
-
-    // Set up real-time subscription for profiles (new members)
-    const profilesChannel = supabase
-      .channel('home-profiles-stats')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'profiles' },
-        () => {
-          setTotalMembers(prev => prev + 1);
-        }
-      )
-      .subscribe();
-
-    // Set up real-time subscription for analytics (new page views)
-    const analyticsChannel = supabase
-      .channel('home-analytics-stats')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'analytics_events' },
-        () => {
-          // Increment total views count
-          setTotalVisitors(prev => prev + 1);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(profilesChannel);
-      supabase.removeChannel(analyticsChannel);
-    };
   }, []);
 
   useEffect(() => {
     const data = getUserData();
     setLocalUserData(data);
-    
-    const today = getTodayKey();
-    if (data.checkIns[today]) {
-      setTodayStatus(data.checkIns[today]);
-    }
   }, []);
 
   // Check admin status
@@ -214,38 +134,12 @@ export default function Home() {
     checkAdmin();
   }, [user]);
 
-  const handleTaken = () => {
-    const today = getTodayKey();
-    recordCheckIn(today, "taken");
-    setTodayStatus("taken");
-    
-    const data = getUserData();
-    setLocalUserData(data);
-    
-    toast.success(language === 'th' ? 'ดีมาก! ทำได้ดีมากวันนี้' : 'Great job today!', {
-      description: `${language === 'th' ? 'Streak' : 'Streak'}: ${data.streak} 🔥`,
-    });
-  };
-
-  const handleSkipped = () => {
-    const today = getTodayKey();
-    recordCheckIn(today, "skipped");
-    setTodayStatus("skipped");
-    
-    const data = getUserData();
-    setLocalUserData(data);
-  };
-
-  // Get streak multiplier for display
-  const streakMultiplier = getStreakMultiplier(userData.streak);
-
   const menuItems = [
     {
       icon: <TestTube className="h-full w-full" strokeWidth={1.5} />,
       titleTh: "ขอชุดตรวจ",
       titleEn: "SELF TEST",
       path: "/hiv-selftest",
-      xpReward: 50,
     },
     {
       icon: <Calendar className="h-full w-full" strokeWidth={1.5} />,
@@ -253,71 +147,50 @@ export default function Home() {
       titleEn: "BOOK APPOINTMENT",
       path: "https://zerva.app/swing_x_hornet_th",
       external: true,
-      xpReward: 30,
     },
     {
       icon: <ClipboardList className="h-full w-full" strokeWidth={1.5} />,
       titleTh: "แบบประเมิน",
       titleEn: "SURVEYS",
       path: "/surveys",
-      xpReward: 20,
     },
     {
       icon: <Users className="h-full w-full" strokeWidth={1.5} />,
       titleTh: "ดูแลตัวเอง",
       titleEn: "SELF CARE",
       path: "/self-care",
-      xpReward: 15,
     },
     {
       icon: <BookOpen className="h-full w-full" strokeWidth={1.5} />,
       titleTh: "เรื่องน่ารู้",
       titleEn: "DID YOU KNOW?",
       path: "/info",
-      xpReward: 10,
     },
     {
       icon: <MessageCircle className="h-full w-full" strokeWidth={1.5} />,
       titleTh: "ขอคำปรึกษา",
       titleEn: "ONLINE COUNSELOR",
       path: "/community",
-      xpReward: 25,
     },
   ];
 
   return (
     <div className="relative">
-      {/* Fixed background layer - doesn't affect layout height */}
+      {/* Fixed background layer */}
       <div className="fixed inset-0 bg-gradient-to-b from-primary/30 to-primary/20 -z-10" />
-      
-      {/* Swing logo decorations - fixed position, subtle floating */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden -z-5">
-        <SwingDecoration className="absolute bottom-20 left-2 rotate-[-10deg]" delay={0} />
-        <SwingDecoration className="absolute bottom-32 right-4 rotate-[8deg]" delay={1.5} />
-        <SwingDecoration className="absolute top-28 left-4 rotate-[-5deg] scale-75" delay={0.8} />
-        <SwingDecoration className="absolute top-48 right-2 rotate-[12deg] scale-75" delay={2} />
-        <SwingDecoration className="absolute top-16 right-1/4 rotate-[-3deg] scale-50" delay={0.5} />
-        <SwingDecoration className="absolute top-72 left-1/3 rotate-[6deg] scale-60" delay={2.5} />
-        <SwingDecoration className="absolute bottom-48 right-1/3 rotate-[-8deg] scale-50" delay={1} />
-        <SwingDecoration className="absolute top-1/3 left-0 rotate-[15deg] scale-60" delay={3} />
-        <SwingDecoration className="absolute top-1/2 right-0 rotate-[-12deg] scale-55" delay={1.8} />
-        <SwingDecoration className="absolute bottom-64 left-1/4 rotate-[4deg] scale-45" delay={2.2} />
-        <SwingDecoration className="absolute top-96 right-8 rotate-[-6deg] scale-65" delay={0.3} />
-        <SwingDecoration className="absolute bottom-40 left-8 rotate-[10deg] scale-55" delay={2.8} />
-      </div>
       
       {/* Header */}
       <header className="sticky top-0 z-20 bg-gradient-to-b from-primary/30 to-transparent safe-top">
         <div className="flex items-center justify-between px-4 py-2">
           <div className="flex items-center gap-2">
-            {/* SWING Logo - shown first */}
+            {/* SWING Logo */}
             <img 
               src={swingLogo} 
               alt="SWING Thailand" 
               className="h-10 w-auto object-contain shrink-0"
             />
             
-            {/* Login/Account button - top left */}
+            {/* Login/Account button */}
             {localStorage.getItem('isLoggedIn') === 'true' ? (
               <div className="flex items-center gap-2 bg-card/80 backdrop-blur-sm rounded-full px-3 py-1.5">
                 <User className="h-4 w-4 text-primary" />
@@ -329,12 +202,6 @@ export default function Home() {
                     ADMIN
                   </span>
                 )}
-                <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30">
-                  <Sparkles className="h-3 w-3 text-amber-500" />
-                  <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
-                    {userData.xp || 0} XP
-                  </span>
-                </div>
                 <button
                   onClick={() => {
                     localStorage.removeItem('isLoggedIn');
@@ -408,36 +275,7 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Streak Bonus Banner */}
-        {streakMultiplier.multiplier > 1 && (
-          <div className="mb-4 rounded-xl bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 p-3 shadow-lg shadow-orange-500/20 animate-fade-in">
-            <div className="flex items-center justify-between text-white">
-              <div className="flex items-center gap-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-                  <span className="text-lg">🔥</span>
-                </div>
-                <div>
-                  <p className="font-bold text-sm">
-                    {language === 'th' 
-                      ? `โบนัส Streak ${streakMultiplier.label}!` 
-                      : `${streakMultiplier.label} Streak Bonus!`}
-                  </p>
-                  <p className="text-xs opacity-90">
-                    {language === 'th'
-                      ? `ต่อเนื่อง ${userData.streak} วัน - XP เพิ่มขึ้น!`
-                      : `${userData.streak} day streak - Extra XP!`}
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-bold">{streakMultiplier.label}</p>
-                <p className="text-[10px] opacity-80">{language === 'th' ? 'โบนัส' : 'BONUS'}</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Medication Widget - Circular progress with reminder */}
+        {/* Medication Widget - only shows for users on medication */}
         <div className="mb-4">
           <MedicationWidget onStatusChange={() => setLocalUserData(getUserData())} />
         </div>
@@ -450,8 +288,6 @@ export default function Home() {
               icon={item.icon}
               titleTh={item.titleTh}
               titleEn={item.titleEn}
-              xpReward={item.xpReward}
-              streakMultiplier={streakMultiplier}
               onClick={() => {
                 if ((item as any).external) {
                   window.open(item.path, '_blank', 'noopener,noreferrer');
@@ -462,19 +298,6 @@ export default function Home() {
               variant={index === 0 ? 'featured' : 'default'}
             />
           ))}
-        </div>
-
-        {/* Recommended Next Steps */}
-        <div className="mt-4">
-          <RecommendedNextSteps maxItems={3} variant="compact" />
-        </div>
-
-        {/* Ranking Board */}
-        <div 
-          className="mt-4 cursor-pointer hover:opacity-90 transition-opacity" 
-          onClick={() => navigate("/leaderboard")}
-        >
-          <RankingBoard compact />
         </div>
 
         {/* Quick links */}
@@ -519,24 +342,24 @@ export default function Home() {
           </Button>
         </div>
 
-        {/* Stats: Members and Total Visitors - Real-time */}
+        {/* Stats: Members and Total Visitors - Static display */}
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
           {totalMembers > 0 && (
-            <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm rounded-full py-2 px-4 animate-fade-in">
+            <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm rounded-full py-2 px-4">
               <Users className="h-4 w-4 text-primary" />
               <span className="text-sm text-muted-foreground">
                 {language === 'th' ? 'สมาชิก' : 'Members'}:
               </span>
-              <AnimatedCounter value={totalMembers} className="font-bold text-primary" duration={1800} />
+              <span className="font-bold text-primary">{totalMembers.toLocaleString()}</span>
             </div>
           )}
           {totalVisitors > 0 && (
-            <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm rounded-full py-2 px-4 animate-fade-in">
+            <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm rounded-full py-2 px-4">
               <Eye className="h-4 w-4 text-primary" />
               <span className="text-sm text-muted-foreground">
                 {language === 'th' ? 'ผู้เข้าชมทั้งหมด' : 'Total Visitors'}:
               </span>
-              <AnimatedCounter value={totalVisitors} className="font-bold text-primary" duration={2000} />
+              <span className="font-bold text-primary">{totalVisitors.toLocaleString()}</span>
             </div>
           )}
         </div>
@@ -567,9 +390,6 @@ export default function Home() {
       {/* Popups */}
       <HIVTestPopup />
       <AdminRequestsPopup open={adminPopupOpen} onOpenChange={setAdminPopupOpen} />
-      
-      {/* Onboarding Tour */}
-      <OnboardingTour />
     </div>
   );
 }
