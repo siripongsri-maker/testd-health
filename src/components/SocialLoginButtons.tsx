@@ -17,8 +17,10 @@ export function SocialLoginButtons({ mode = 'login', onSuccess }: SocialLoginBut
   const handleSocialLogin = async (provider: 'google' | 'apple') => {
     setLoadingProvider(provider);
     try {
+      // Always redirect to home page after social login, never to admin
+      const redirectUrl = `${window.location.origin}/`;
       const { error } = await lovable.auth.signInWithOAuth(provider, {
-        redirect_uri: window.location.origin,
+        redirect_uri: redirectUrl,
       });
 
       if (error) {
