@@ -215,6 +215,7 @@ export default function Auth() {
                     required
                     autoComplete="username"
                     maxLength={30}
+                    autoFocus
                   />
                 </div>
                 {errors.username && (
