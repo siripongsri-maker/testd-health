@@ -64,13 +64,13 @@ export default function SurveyBuilder() {
       return;
     }
 
-    // Check if admin
+    // Check if admin - use maybeSingle() to avoid error when no admin role
     const { data: roleData } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id)
       .eq('role', 'admin')
-      .single();
+      .maybeSingle();
     
     const userIsAdmin = !!roleData;
     setIsAdmin(userIsAdmin);
