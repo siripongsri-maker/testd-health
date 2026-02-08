@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SWING Thailand Digital Health Platform - Technical Proposal</title>
+  <style>
+    /* Base Styles */
+    :root {
+      --primary: #7c3aed;
+      --primary-light: #a78bfa;
+      --secondary: #ec4899;
+      --text: #1f2937;
+      --text-light: #6b7280;
+      --bg: #ffffff;
+      --border: #e5e7eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --info: #3b82f6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 11pt;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+      max-width: 210mm;
+      margin: 0 auto;
+      padding: 20mm;
+    }
+
+    /* Print Styles */
+    @media print {
+      body {
+        padding: 0;
+        font-size: 10pt;
+      }
+
+      .page-break {
+        page-break-before: always;
+      }
+
+      .no-break {
+        page-break-inside: avoid;
+      }
+
+      h1, h2, h3 {
+        page-break-after: avoid;
+      }
+
+      table, pre, .diagram {
+        page-break-inside: avoid;
+      }
+
+      .cover-page {
+        height: 100vh;
+        page-break-after: always;
+      }
+    }
+
+    /* Typography */
+    h1 {
+      font-size: 28pt;
+      color: var(--primary);
+      margin-bottom: 0.5em;
+      font-weight: 700;
+    }
+
+    h2 {
+      font-size: 18pt;
+      color: var(--primary);
+      margin-top: 1.5em;
+      margin-bottom: 0.75em;
+      padding-bottom: 0.25em;
+      border-bottom: 2px solid var(--primary-light);
+    }
+
+    h3 {
+      font-size: 14pt;
+      color: var(--text);
+      margin-top: 1.25em;
+      margin-bottom: 0.5em;
+    }
+
+    h4 {
+      font-size: 12pt;
+      color: var(--text-light);
+      margin-top: 1em;
+      margin-bottom: 0.5em;
+    }
+
+    p {
+      margin-bottom: 0.75em;
+    }
+
+    /* Cover Page */
+    .cover-page {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      min-height: 90vh;
+      padding: 40mm 20mm;
+    }
+
+    .cover-logo {
+      width: 120px;
+      height: 120px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2em;
+    }
+
+    .cover-logo span {
+      font-size: 48pt;
+      color: white;
+    }
+
+    .cover-title {
+      font-size: 32pt;
+      color: var(--primary);
+      margin-bottom: 0.25em;
+    }
+
+    .cover-subtitle {
+      font-size: 16pt;
+      color: var(--text-light);
+      margin-bottom: 2em;
+    }
+
+    .cover-meta {
+      font-size: 11pt;
+      color: var(--text-light);
+      margin-top: 3em;
+    }
+
+    .cover-meta p {
+      margin: 0.25em 0;
+    }
+
+    /* Table of Contents */
+    .toc {
+      margin: 2em 0;
+    }
+
+    .toc-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5em 0;
+      border-bottom: 1px dotted var(--border);
+    }
+
+    .toc-item a {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .toc-section {
+      font-weight: 600;
+      margin-top: 0.5em;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1em 0;
+      font-size: 10pt;
+    }
+
+    th, td {
+      padding: 0.5em 0.75em;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+
+    th {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      font-weight: 600;
+    }
+
+    tr:nth-child(even) {
+      background: #f9fafb;
+    }
+
+    /* Code & Diagrams */
+    pre, .diagram {
+      background: #1f2937;
+      color: #e5e7eb;
+      padding: 1em;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 9pt;
+      line-height: 1.4;
+      margin: 1em 0;
+    }
+
+    code {
+      background: #f3f4f6;
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 9pt;
+    }
+
+    /* Badges & Tags */
+    .badge {
+      display: inline-block;
+      padding: 0.2em 0.6em;
+      border-radius: 4px;
+      font-size: 9pt;
+      font-weight: 500;
+    }
+
+    .badge-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .badge-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .badge-warning {
+      background: var(--warning);
+      color: white;
+    }
+
+    .badge-info {
+      background: var(--info);
+      color: white;
+    }
+
+    /* Cards */
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1em;
+      margin: 1em 0;
+      background: #fafafa;
+    }
+
+    .card-title {
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 0.5em;
+    }
+
+    /* Lists */
+    ul, ol {
+      margin: 0.5em 0 1em 1.5em;
+    }
+
+    li {
+      margin-bottom: 0.25em;
+    }
+
+    /* Callouts */
+    .callout {
+      padding: 1em;
+      border-radius: 8px;
+      margin: 1em 0;
+      border-left: 4px solid;
+    }
+
+    .callout-info {
+      background: #eff6ff;
+      border-color: var(--info);
+    }
+
+    .callout-warning {
+      background: #fffbeb;
+      border-color: var(--warning);
+    }
+
+    .callout-success {
+      background: #ecfdf5;
+      border-color: var(--success);
+    }
+
+    /* Footer */
+    .page-footer {
+      margin-top: 3em;
+      padding-top: 1em;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-light);
+      font-size: 9pt;
+    }
+
+    /* Flow diagrams (ASCII art style for print) */
+    .flow-box {
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      padding: 0.5em 1em;
+      display: inline-block;
+      margin: 0.5em;
+      background: white;
+    }
+
+    .flow-arrow {
+      color: var(--primary);
+      font-size: 18pt;
+      margin: 0 0.5em;
+    }
+
+    /* Grid layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1em;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1em;
+    }
+
+    @media print {
+      .grid-2, .grid-3 {
+        display: block;
+      }
+      .grid-2 > *, .grid-3 > * {
+        margin-bottom: 1em;
+      }
+    }
+
+    /* Section numbering */
+    .section-num {
+      color: var(--primary);
+      font-weight: 700;
+      margin-right: 0.5em;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- COVER PAGE -->
+  <div class="cover-page">
+    <div class="cover-logo">
+      <span>🏥</span>
+    </div>
+    <h1 class="cover-title">SWING Thailand</h1>
+    <p class="cover-subtitle">Digital Health Platform</p>
+    <p style="font-size: 14pt; color: #6b7280;">Technical Proposal & System Documentation</p>
+    
+    <div class="cover-meta">
+      <p><strong>Version:</strong> 1.0</p>
+      <p><strong>Date:</strong> February 2026</p>
+      <p><strong>Platform:</strong> https://testd-health.lovable.app</p>
+    </div>
+  </div>
+
+  <!-- TABLE OF CONTENTS -->
+  <div class="page-break">
+    <h2>Table of Contents</h2>
+    <div class="toc">
+      <div class="toc-item toc-section"><a href="#executive-summary">1. Executive Summary</a><span>3</span></div>
+      <div class="toc-item toc-section"><a href="#platform-features">2. Platform Features</a><span>4</span></div>
+      <div class="toc-item"><a href="#hiv-selftest">2.1 HIV Self-Test Kit Service</a><span>4</span></div>
+      <div class="toc-item"><a href="#medication">2.2 Medication Tracking</a><span>4</span></div>
+      <div class="toc-item"><a href="#gamification">2.3 Gamification Engine</a><span>5</span></div>
+      <div class="toc-item"><a href="#community">2.4 Community Hub</a><span>5</span></div>
+      <div class="toc-item"><a href="#admin">2.5 Admin Management Suite</a><span>5</span></div>
+      <div class="toc-item toc-section"><a href="#architecture">3. Technical Architecture</a><span>6</span></div>
+      <div class="toc-item toc-section"><a href="#database">4. Database Schema</a><span>8</span></div>
+      <div class="toc-item toc-section"><a href="#dataflow">5. Data Flow Architecture</a><span>11</span></div>
+      <div class="toc-item toc-section"><a href="#security">6. Security Architecture</a><span>13</span></div>
+      <div class="toc-item toc-section"><a href="#user-journey">7. User Journey: HIV Self-Test</a><span>15</span></div>
+      <div class="toc-item toc-section"><a href="#api">8. API Documentation</a><span>18</span></div>
+      <div class="toc-item toc-section"><a href="#tech-stack">9. Technology Stack</a><span>20</span></div>
+    </div>
+  </div>
+
+  <!-- EXECUTIVE SUMMARY -->
+  <div class="page-break" id="executive-summary">
+    <h2><span class="section-num">1.</span> Executive Summary</h2>
+    
+    <p>The SWING Thailand Digital Health Platform is a Progressive Web Application (PWA) designed to support HIV prevention, testing, and care services. Built with modern web technologies and a security-first approach, the platform serves multiple user segments including community members, healthcare staff, and administrators.</p>
+
+    <h3>Key Capabilities</h3>
+    
+    <div class="grid-2">
+      <div class="card no-break">
+        <div class="card-title">🧪 HIV Self-Test Kit Ordering</div>
+        <p>Complete flow from request to AI-powered result analysis with branch-specific routing.</p>
+      </div>
+      <div class="card no-break">
+        <div class="card-title">💊 Medication Tracking</div>
+        <p>PrEP and PEP adherence monitoring with streak tracking and reminders.</p>
+      </div>
+      <div class="card no-break">
+        <div class="card-title">🎮 Gamification System</div>
+        <p>XP, levels, badges, and quests to encourage sustained engagement.</p>
+      </div>
+      <div class="card no-break">
+        <div class="card-title">👥 Community Features</div>
+        <p>Anonymous chat rooms and interest-based connections.</p>
+      </div>
+      <div class="card no-break">
+        <div class="card-title">⚙️ Admin Suite</div>
+        <p>Branch-specific management for Silom and Pattaya locations.</p>
+      </div>
+      <div class="card no-break">
+        <div class="card-title">🌐 Multi-language</div>
+        <p>Thai and English with AI-powered translation.</p>
+      </div>
+    </div>
+
+    <h3>Target Users</h3>
+    <table>
+      <tr>
+        <th>User Type</th>
+        <th>Description</th>
+        <th>Access Level</th>
+      </tr>
+      <tr>
+        <td>Community Members</td>
+        <td>General users seeking HIV prevention services</td>
+        <td>User role</td>
+      </tr>
+      <tr>
+        <td>Branch Staff</td>
+        <td>Silom/Pattaya location employees</td>
+        <td>Moderator role</td>
+      </tr>
+      <tr>
+        <td>Administrators</td>
+        <td>System-wide management access</td>
+        <td>Admin role</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- PLATFORM FEATURES -->
+  <div class="page-break" id="platform-features">
+    <h2><span class="section-num">2.</span> Platform Features</h2>
+
+    <h3 id="hiv-selftest">2.1 HIV Self-Test Kit Service</h3>
+    <table>
+      <tr>
+        <th>Feature</th>
+        <th>Description</th>
+      </tr>
+      <tr>
+        <td>Branch Routing</td>
+        <td>Automatic assignment to Silom or Pattaya based on geography</td>
+      </tr>
+      <tr>
+        <td>NHSO Verification</td>
+        <td>Thai National ID validation with checksum algorithm</td>
+      </tr>
+      <tr>
+        <td>Guest-First Registration</td>
+        <td>Deferred account creation at NHSO verification point</td>
+      </tr>
+      <tr>
+        <td>AI Result Analysis</td>
+        <td>Computer vision detection of test line results using Gemini 2.5 Flash</td>
+      </tr>
+      <tr>
+        <td>Callback Consent</td>
+        <td>Privacy-first reactive result follow-up system</td>
+      </tr>
+    </table>
+
+    <h3 id="medication">2.2 Medication Tracking</h3>
+    <table>
+      <tr>
+        <th>Mode</th>
+        <th>Description</th>
+        <th>Schedule</th>
+      </tr>
+      <tr>
+        <td>PrEP Daily</td>
+        <td>Daily reminder system with streak tracking</td>
+        <td>Once daily</td>
+      </tr>
+      <tr>
+        <td>PrEP On-Demand</td>
+        <td>Event-driven dosing schedule</td>
+        <td>2-1-1 protocol</td>
+      </tr>
+      <tr>
+        <td>PEP Emergency</td>
+        <td>28-day countdown with adherence monitoring</td>
+        <td>Daily for 28 days</td>
+      </tr>
+    </table>
+
+    <h3 id="gamification">2.3 Gamification Engine</h3>
+    <div class="grid-3">
+      <div class="card no-break">
+        <div class="card-title">XP System</div>
+        <p>Points earned through check-ins, surveys, articles</p>
+      </div>
+      <div class="card no-break">
+        <div class="card-title">Levels</div>
+        <p>Progressive unlocking based on total XP</p>
+      </div>
+      <div class="card no-break">
+        <div class="card-title">Badges</div>
+        <p>Achievement-based rewards</p>
+      </div>
+      <div class="card no-break">
+        <div class="card-title">Quests</div>
+        <p>Daily, weekly, special challenges</p>
+      </div>
+      <div class="card no-break">
+        <div class="card-title">Leaderboard</div>
+        <p>Community rankings with snapshots</p>
+      </div>
+      <div class="card no-break">
+        <div class="card-title">Hall of Fame</div>
+        <p>Permanent top performer recognition</p>
+      </div>
+    </div>
+
+    <h3 id="community">2.4 Community Hub</h3>
+    <table>
+      <tr>
+        <th>Feature</th>
+        <th>Description</th>
+      </tr>
+      <tr>
+        <td>Chat Rooms</td>
+        <td>Topic-based anonymous discussions</td>
+      </tr>
+      <tr>
+        <td>Interest Tags</td>
+        <td>User-selected topics for personalized content</td>
+      </tr>
+      <tr>
+        <td>Blog Articles</td>
+        <td>Community-written content with admin review workflow</td>
+      </tr>
+      <tr>
+        <td>Surveys</td>
+        <td>XP-rewarded research participation</td>
+      </tr>
+    </table>
+
+    <h3 id="admin">2.5 Admin Management Suite</h3>
+    <table>
+      <tr>
+        <th>Module</th>
+        <th>Capabilities</th>
+      </tr>
+      <tr>
+        <td>Dashboard</td>
+        <td>Key metrics, recent activity, alerts</td>
+      </tr>
+      <tr>
+        <td>Kit Orders</td>
+        <td>Order lifecycle management with tracking</td>
+      </tr>
+      <tr>
+        <td>Branch Staff</td>
+        <td>Provision location-specific moderator accounts</td>
+      </tr>
+      <tr>
+        <td>User Management</td>
+        <td>Role assignment, password resets</td>
+      </tr>
+      <tr>
+        <td>Analytics</td>
+        <td>Page views, sessions, device breakdown</td>
+      </tr>
+      <tr>
+        <td>Blog Management</td>
+        <td>Article review and publication workflow</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- TECHNICAL ARCHITECTURE -->
+  <div class="page-break" id="architecture">
+    <h2><span class="section-num">3.</span> Technical Architecture</h2>
+
+    <h3>System Overview</h3>
+    <pre class="diagram">
+┌─────────────────────────────────────────────────────────────────┐
+│                        CLIENT LAYER                              │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
+│  │  React 18 PWA   │  │  Service Worker │  │  Local Storage  │  │
+│  │  TypeScript     │  │  Workbox        │  │  Zustand        │  │
+│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘  │
+└───────────┼─────────────────────┼─────────────────────┼──────────┘
+            │                     │                     │
+            ▼                     ▼                     ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     STATE MANAGEMENT                             │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
+│  │  React Query    │  │  Zustand Store  │  │  React Context  │  │
+│  │  Server Cache   │  │  Client State   │  │  Theme/i18n     │  │
+│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘  │
+└───────────┼─────────────────────┼─────────────────────┼──────────┘
+            │                     │                     │
+            ▼                     ▼                     ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     BACKEND GATEWAY                              │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
+│  │ Supabase Client │  │  Auth Module    │  │  RLS Engine     │  │
+│  │ @supabase/js    │  │  JWT Sessions   │  │  Policy Filter  │  │
+│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘  │
+└───────────┼─────────────────────┼─────────────────────┼──────────┘
+            │                     │                     │
+            ▼                     ▼                     ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     EDGE FUNCTIONS                               │
+│  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐     │
+│  │ analyze-hiv-   │  │ translate-     │  │ create-branch- │     │
+│  │ test           │  │ article        │  │ staff          │     │
+│  └────────────────┘  └────────────────┘  └────────────────┘     │
+│  ┌────────────────┐  ┌────────────────┐                         │
+│  │ admin-reset-   │  │ kit-orders     │                         │
+│  │ password       │  │                │                         │
+│  └────────────────┘  └────────────────┘                         │
+└─────────────────────────────────────────────────────────────────┘
+            │                     │                     │
+            ▼                     ▼                     ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     DATABASE LAYER                               │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
+│  │  PostgreSQL 15  │  │  Database Views │  │  DB Functions   │  │
+│  │  Primary Store  │  │  Aggregations   │  │  Business Logic │  │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+            │                     │                     │
+            ▼                     ▼                     ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     STORAGE LAYER                                │
+│  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐     │
+│  │ avatars        │  │ blog-images    │  │ selftest-      │     │
+│  │ (public)       │  │ (public)       │  │ results        │     │
+│  │                │  │                │  │ (private)      │     │
+│  └────────────────┘  └────────────────┘  └────────────────┘     │
+└─────────────────────────────────────────────────────────────────┘
+    </pre>
+
+    <h3>Component Structure</h3>
+    <pre class="diagram">
+src/
+├── components/
+│   ├── ui/                    # shadcn/ui components
+│   ├── admin/                 # Admin panel components
+│   ├── hiv-selftest/          # Self-test flow components
+│   └── [shared components]    # Reusable UI elements
+├── pages/
+│   ├── Admin.tsx              # Admin dashboard
+│   ├── HIVSelfTest.tsx        # Self-test wizard
+│   ├── Dashboard.tsx          # User home
+│   └── [other pages]
+├── hooks/
+│   ├── useAuth.tsx            # Authentication state
+│   ├── useAnalytics.ts        # Event tracking
+│   └── [custom hooks]
+├── lib/
+│   ├── i18n.ts                # Internationalization
+│   ├── badges.ts              # Badge definitions
+│   └── [utilities]
+└── integrations/
+    └── supabase/
+        ├── client.ts          # Supabase client
+        └── types.ts           # Generated types
+    </pre>
+  </div>
+
+  <!-- DATABASE SCHEMA -->
+  <div class="page-break" id="database">
+    <h2><span class="section-num">4.</span> Database Schema</h2>
+
+    <h3>Entity Relationship Diagram</h3>
+    <pre class="diagram">
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   auth.users    │────▶│    profiles     │────▶│  user_roles     │
+│   (Supabase)    │     │                 │     │                 │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+         │                      │                       │
+         ▼                      ▼                       ▼
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│ user_interests  │     │  user_quests    │     │staff_branch_    │
+│                 │     │                 │     │assignments      │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│hiv_selftest_    │────▶│  selftest_pii   │     │   kit_orders    │
+│requests         │     │  (sensitive)    │     │                 │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│ blog_articles   │────▶│blog_categories  │     │ article_likes   │
+│                 │     │                 │     │                 │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+    </pre>
+
+    <h3>Core Tables - User Management</h3>
+    <table>
+      <tr>
+        <th>Table</th>
+        <th>Purpose</th>
+        <th>Key Fields</th>
+      </tr>
+      <tr>
+        <td><code>profiles</code></td>
+        <td>User profile data</td>
+        <td>display_name, xp, level, streak, badges, mode</td>
+      </tr>
+      <tr>
+        <td><code>user_roles</code></td>
+        <td>RBAC assignments</td>
+        <td>user_id, role (admin/moderator/user)</td>
+      </tr>
+      <tr>
+        <td><code>user_interests</code></td>
+        <td>Topic preferences</td>
+        <td>user_id, tag</td>
+      </tr>
+      <tr>
+        <td><code>user_personal_info</code></td>
+        <td>Health profile</td>
+        <td>gender, dob, hiv_status, prep_status</td>
+      </tr>
+      <tr>
+        <td><code>staff_branch_assignments</code></td>
+        <td>Branch access</td>
+        <td>user_id, branch (silom/pattaya)</td>
+      </tr>
+    </table>
+
+    <h3>Core Tables - HIV Self-Test System</h3>
+    <table>
+      <tr>
+        <th>Table</th>
+        <th>Purpose</th>
+        <th>Key Fields</th>
+      </tr>
+      <tr>
+        <td><code>hiv_selftest_requests</code></td>
+        <td>Order tracking</td>
+        <td>status, assigned_branch, test_result</td>
+      </tr>
+      <tr>
+        <td><code>selftest_pii</code></td>
+        <td>Sensitive data (isolated)</td>
+        <td>thai_id, full_name, address, phone</td>
+      </tr>
+      <tr>
+        <td><code>kit_orders</code></td>
+        <td>Generic orders</td>
+        <td>order_code, status, tracking_number</td>
+      </tr>
+      <tr>
+        <td><code>kit_order_events</code></td>
+        <td>Audit trail</td>
+        <td>event_type, created_by</td>
+      </tr>
+    </table>
+
+    <h3>Core Tables - Gamification</h3>
+    <table>
+      <tr>
+        <th>Table</th>
+        <th>Purpose</th>
+        <th>Key Fields</th>
+      </tr>
+      <tr>
+        <td><code>quests</code></td>
+        <td>Quest definitions</td>
+        <td>title, target_count, reward_xp, badge_id</td>
+      </tr>
+      <tr>
+        <td><code>user_quests</code></td>
+        <td>User progress</td>
+        <td>progress, completed, claimed_at</td>
+      </tr>
+      <tr>
+        <td><code>leaderboard_snapshots</code></td>
+        <td>Historical rankings</td>
+        <td>season_key, rank, xp</td>
+      </tr>
+      <tr>
+        <td><code>hall_of_fame</code></td>
+        <td>Permanent records</td>
+        <td>season_key, category, score</td>
+      </tr>
+    </table>
+
+    <h3>Database Functions</h3>
+    <table>
+      <tr>
+        <th>Function</th>
+        <th>Purpose</th>
+      </tr>
+      <tr>
+        <td><code>has_role(user_id, role)</code></td>
+        <td>Check user role membership</td>
+      </tr>
+      <tr>
+        <td><code>is_branch_staff(user_id, branch)</code></td>
+        <td>Verify branch assignment</td>
+      </tr>
+      <tr>
+        <td><code>validate_thai_id(id)</code></td>
+        <td>Checksum validation for Thai National ID</td>
+      </tr>
+      <tr>
+        <td><code>complete_survey(survey_id)</code></td>
+        <td>Award XP and record completion</td>
+      </tr>
+      <tr>
+        <td><code>generate_order_code()</code></td>
+        <td>Create unique 8-character order codes</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- DATA FLOW -->
+  <div class="page-break" id="dataflow">
+    <h2><span class="section-num">5.</span> Data Flow Architecture</h2>
+
+    <h3>User Data Flow</h3>
+    <pre class="diagram">
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   React     │────▶│  Supabase   │────▶│    RLS      │────▶│ PostgreSQL  │
+│   Frontend  │     │   Client    │     │   Engine    │     │  Database   │
+└─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘
+      │                   │                   │                   │
+      ▼                   ▼                   ▼                   ▼
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   Zustand   │     │    JWT      │     │   Policy    │     │   Rows      │
+│   Store     │     │   Token     │     │   Check     │     │   Filtered  │
+└─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘
+    </pre>
+
+    <h3>HIV Self-Test Data Flow</h3>
+
+    <h4>Step 1: Request Submission</h4>
+    <pre class="diagram">
+┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐
+│  User    │────▶│  NHSO    │────▶│  Create  │────▶│  Branch  │
+│  Entry   │     │  Verify  │     │  Account │     │  Assign  │
+└──────────┘     └──────────┘     └──────────┘     └──────────┘
+                      │
+                      ▼
+              ┌──────────────┐
+              │ selftest_pii │
+              └──────────────┘
+    </pre>
+
+    <h4>Step 2: Order Fulfillment</h4>
+    <pre class="diagram">
+┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐
+│  Staff   │────▶│  Pack    │────▶│  Ship    │────▶│ Deliver  │
+│  Review  │     │  Kit     │     │  Track   │     │ Confirm  │
+└──────────┘     └──────────┘     └──────────┘     └──────────┘
+    </pre>
+
+    <h4>Step 3: Result Analysis</h4>
+    <pre class="diagram">
+┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐
+│  Photo   │────▶│  Upload  │────▶│   AI     │────▶│  Result  │
+│  Capture │     │  Storage │     │ Analysis │     │  Display │
+└──────────┘     └──────────┘     └──────────┘     └──────────┘
+                                       │
+                                       ▼
+                               ┌──────────────┐
+                               │ Gemini 2.5   │
+                               │ Vision API   │
+                               └──────────────┘
+    </pre>
+
+    <h3>Gamification Data Flow</h3>
+    <pre class="diagram">
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│  User Action │────▶│ Quest Check  │────▶│ Update       │
+│  (check-in)  │     │ (triggers)   │     │ user_quests  │
+└──────────────┘     └──────────────┘     └──────────────┘
+                                                 │
+                           ┌─────────────────────┤
+                           │                     │
+                           ▼                     ▼
+                    ┌──────────────┐     ┌──────────────┐
+                    │  Award XP    │     │ Grant Badge  │
+                    │  to profile  │     │  if earned   │
+                    └──────────────┘     └──────────────┘
+                           │
+                           ▼
+                    ┌──────────────┐
+                    │  Recalculate │
+                    │  Level       │
+                    └──────────────┘
+    </pre>
+  </div>
+
+  <!-- SECURITY ARCHITECTURE -->
+  <div class="page-break" id="security">
+    <h2><span class="section-num">6.</span> Security Architecture</h2>
+
+    <h3>Seven Layers of Protection</h3>
+    <pre class="diagram">
+Layer 1: Network Security
+┌─────────────────────────────────────────────────────────────────┐
+│  HTTPS/TLS 1.3 │ CORS Policy │ Rate Limiting │ DDoS Protection │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+Layer 2: Authentication
+┌─────────────────────────────────────────────────────────────────┐
+│  JWT Tokens │ Session Management │ Secure Password Storage      │
+│  30-day expiry │ localStorage │ bcrypt hashing                  │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+Layer 3: Authorization (RBAC)
+┌─────────────────────────────────────────────────────────────────┐
+│  user_roles table │ has_role() function │ is_branch_staff()    │
+│  admin │ moderator │ user                                       │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+Layer 4: Row Level Security (RLS)
+┌─────────────────────────────────────────────────────────────────┐
+│  25+ policies │ auth.uid() checks │ Role-based visibility      │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+Layer 5: Data Protection
+┌─────────────────────────────────────────────────────────────────┐
+│  PII isolation │ Encrypted storage │ Audit logging             │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+Layer 6: Edge Function Security
+┌─────────────────────────────────────────────────────────────────┐
+│  JWT validation │ Admin role checks │ Input sanitization       │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+Layer 7: Storage Security
+┌─────────────────────────────────────────────────────────────────┐
+│  Bucket policies │ User folder isolation │ Signed URLs         │
+└─────────────────────────────────────────────────────────────────┘
+    </pre>
+
+    <h3>Role-Based Access Control</h3>
+    <table>
+      <tr>
+        <th>Role</th>
+        <th>Capabilities</th>
+        <th>Scope</th>
+      </tr>
+      <tr>
+        <td><span class="badge badge-primary">admin</span></td>
+        <td>Full system access, user management</td>
+        <td>All branches</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-info">moderator</span></td>
+        <td>Branch-specific access, kit order management</td>
+        <td>Assigned branch only</td>
+      </tr>
+      <tr>
+        <td><span class="badge badge-success">user</span></td>
+        <td>Own data access, community participation</td>
+        <td>Personal data only</td>
+      </tr>
+    </table>
+
+    <h3>RLS Policy Examples</h3>
+    <pre>
+-- Users can only see their own profile
+CREATE POLICY "Users can view own profile"
+ON profiles FOR SELECT
+USING (auth.uid() = id);
+
+-- Branch staff can only see assigned branch requests
+CREATE POLICY "Branch staff view assigned requests"
+ON hiv_selftest_requests FOR SELECT
+USING (
+  has_role(auth.uid(), 'admin') OR
+  is_branch_staff(auth.uid(), assigned_branch)
+);
+
+-- PII access restricted to branch staff for their requests
+CREATE POLICY "Branch staff access PII"
+ON selftest_pii FOR SELECT
+USING (
+  auth.uid() = user_id OR
+  has_role(auth.uid(), 'admin') OR
+  is_branch_staff_for_request(auth.uid(), id)
+);
+    </pre>
+
+    <h3>Threat Mitigations</h3>
+    <table>
+      <tr>
+        <th>Threat</th>
+        <th>Mitigation</th>
+      </tr>
+      <tr>
+        <td>SQL Injection</td>
+        <td>Parameterized queries via Supabase client</td>
+      </tr>
+      <tr>
+        <td>XSS</td>
+        <td>React automatic escaping, CSP headers</td>
+      </tr>
+      <tr>
+        <td>CSRF</td>
+        <td>SameSite cookies, CORS policy</td>
+      </tr>
+      <tr>
+        <td>Data Exposure</td>
+        <td>RLS policies, view-based access</td>
+      </tr>
+      <tr>
+        <td>Brute Force</td>
+        <td>Rate limiting, account lockout</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- USER JOURNEY -->
+  <div class="page-break" id="user-journey">
+    <h2><span class="section-num">7.</span> User Journey: HIV Self-Test</h2>
+
+    <h3>Complete Flow Overview</h3>
+    
+    <div class="card no-break">
+      <div class="card-title">Step 1: Entry</div>
+      <p>User visits <code>/hiv-selftest</code></p>
+      <ul>
+        <li>New user → Start wizard</li>
+        <li>Returning user → Check existing request status</li>
+      </ul>
+    </div>
+
+    <div class="card no-break">
+      <div class="card-title">Step 2: Branch Selection</div>
+      <p>Select service branch:</p>
+      <ul>
+        <li><strong>สวิงซิลม (Silom)</strong> - Bangkok metropolitan area</li>
+        <li><strong>สวิงพัทยา (Pattaya)</strong> - Eastern seaboard region</li>
+      </ul>
+      <p>→ Saves: <code>assigned_branch</code></p>
+    </div>
+
+    <div class="card no-break">
+      <div class="card-title">Step 3: NHSO Verification (Account Creation)</div>
+      <p>Collect required information:</p>
+      <ul>
+        <li>Thai National ID (13 digits, checksum validated)</li>
+        <li>Full Name (Thai)</li>
+        <li>Date of Birth</li>
+        <li>Gender (inclusive options)</li>
+      </ul>
+      <p><strong>System actions:</strong></p>
+      <ul>
+        <li>Validate Thai ID checksum</li>
+        <li>Create auth account (<code>{id}@swingth.local</code>)</li>
+        <li>Generate secure 16-char random password</li>
+        <li>Save PII to <code>selftest_pii</code> table</li>
+      </ul>
+    </div>
+
+    <div class="card no-break">
+      <div class="card-title">Step 4: Shipping Information</div>
+      <p>Collect delivery address:</p>
+      <ul>
+        <li>Province, District, Subdistrict (cascading dropdowns)</li>
+        <li>Postal Code (auto-populated)</li>
+        <li>Full Address, Phone Number</li>
+      </ul>
+    </div>
+
+    <div class="card no-break">
+      <div class="card-title">Step 5: Account Success</div>
+      <p>Display generated credentials:</p>
+      <ul>
+        <li>Username (Thai ID-based email)</li>
+        <li>Password (with copy button)</li>
+        <li>Option to change password</li>
+      </ul>
+      <p>Request status: <span class="badge badge-warning">pending</span> → awaiting staff review</p>
+    </div>
+
+    <div class="card no-break">
+      <div class="card-title">Step 6: Staff Processing (Admin Side)</div>
+      <p>Branch staff actions:</p>
+      <ul>
+        <li>Review request details</li>
+        <li>Approve/reject request</li>
+        <li>Pack kit for shipping</li>
+        <li>Add tracking number</li>
+      </ul>
+      <p>Status flow: <span class="badge badge-warning">pending</span> → <span class="badge badge-info">approved</span> → <span class="badge badge-primary">shipped</span> → <span class="badge badge-success">delivered</span></p>
+    </div>
+
+    <div class="card no-break">
+      <div class="card-title">Step 7: Result Submission</div>
+      <p>Photo capture and upload:</p>
+      <ul>
+        <li>Camera access for result photo</li>
+        <li>Upload to <code>selftest-results</code> bucket</li>
+        <li>Trigger AI analysis via Edge Function</li>
+      </ul>
+      <p><strong>AI Analysis:</strong> Gemini 2.5 Flash Vision detects C line (Control) and T line (Test)</p>
+    </div>
+
+    <h3>Gender Options (Inclusive)</h3>
+    <table>
+      <tr>
+        <th>Thai</th>
+        <th>English</th>
+        <th>Code</th>
+      </tr>
+      <tr><td>ชาย</td><td>Male</td><td>male</td></tr>
+      <tr><td>หญิง</td><td>Female</td><td>female</td></tr>
+      <tr><td>ชายข้ามเพศ</td><td>Transgender Male</td><td>transgender_male</td></tr>
+      <tr><td>หญิงข้ามเพศ</td><td>Transgender Female</td><td>transgender_female</td></tr>
+      <tr><td>ไม่ระบุเพศ</td><td>Non-binary</td><td>non_binary</td></tr>
+      <tr><td>ไม่ต้องการระบุ</td><td>Prefer not to say</td><td>prefer_not_to_say</td></tr>
+    </table>
+  </div>
+
+  <!-- API DOCUMENTATION -->
+  <div class="page-break" id="api">
+    <h2><span class="section-num">8.</span> API Documentation</h2>
+
+    <h3>Edge Functions</h3>
+
+    <div class="card no-break">
+      <div class="card-title">analyze-hiv-test</div>
+      <p>Analyzes HIV self-test result photos using AI vision.</p>
+      <p><strong>Endpoint:</strong> <code>POST /functions/v1/analyze-hiv-test</code></p>
+      <p><strong>Authentication:</strong> Required (JWT)</p>
+      <pre>
+// Request
+{
+  "imageBase64": "data:image/jpeg;base64,/9j/4AAQ..."
+}
+
+// Response
+{
+  "result": "negative",  // negative | positive | invalid
+  "rawResponse": "negative"
+}
+      </pre>
+    </div>
+
+    <div class="card no-break">
+      <div class="card-title">translate-article</div>
+      <p>Translates article content between Thai and English.</p>
+      <p><strong>Endpoint:</strong> <code>POST /functions/v1/translate-article</code></p>
+      <p><strong>Authentication:</strong> Required (Admin only)</p>
+      <pre>
+// Request
+{
+  "articleId": "uuid",
+  "sourceLanguage": "th",
+  "targetLanguage": "en"
+}
+      </pre>
+    </div>
+
+    <div class="card no-break">
+      <div class="card-title">create-branch-staff</div>
+      <p>Creates a new branch staff account.</p>
+      <p><strong>Endpoint:</strong> <code>POST /functions/v1/create-branch-staff</code></p>
+      <p><strong>Authentication:</strong> Required (Admin only)</p>
+      <pre>
+// Request
+{
+  "username": "staff_silom_01",
+  "password": "secure_password",
+  "branch": "silom",
+  "displayName": "Silom Staff 1"
+}
+
+// Response
+{
+  "success": true,
+  "user": {
+    "id": "uuid",
+    "username": "staff_silom_01",
+    "email": "staff_silom_01@swingth.local",
+    "branch": "silom"
+  }
+}
+      </pre>
+    </div>
+
+    <h3>Database Functions (RPC)</h3>
+    <table>
+      <tr>
+        <th>Function</th>
+        <th>Parameters</th>
+        <th>Returns</th>
+      </tr>
+      <tr>
+        <td><code>complete_survey</code></td>
+        <td>p_survey_id, p_session_id</td>
+        <td>XP awarded (integer)</td>
+      </tr>
+      <tr>
+        <td><code>get_selftest_statistics</code></td>
+        <td>none</td>
+        <td>{ total_count, gender_stats, age_stats }</td>
+      </tr>
+      <tr>
+        <td><code>validate_thai_id</code></td>
+        <td>thai_id (string)</td>
+        <td>boolean</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- TECHNOLOGY STACK -->
+  <div class="page-break" id="tech-stack">
+    <h2><span class="section-num">9.</span> Technology Stack</h2>
+
+    <h3>Frontend</h3>
+    <table>
+      <tr>
+        <th>Technology</th>
+        <th>Version</th>
+        <th>Purpose</th>
+      </tr>
+      <tr><td>React</td><td>18.3.1</td><td>UI Framework</td></tr>
+      <tr><td>TypeScript</td><td>5.x</td><td>Type Safety</td></tr>
+      <tr><td>Vite</td><td>5.x</td><td>Build Tool</td></tr>
+      <tr><td>Tailwind CSS</td><td>3.x</td><td>Styling</td></tr>
+      <tr><td>shadcn/ui</td><td>Latest</td><td>Component Library</td></tr>
+      <tr><td>React Router</td><td>6.30.1</td><td>Routing</td></tr>
+      <tr><td>React Query</td><td>5.83.0</td><td>Server State</td></tr>
+      <tr><td>Zustand</td><td>5.0.9</td><td>Client State</td></tr>
+    </table>
+
+    <h3>Backend (Lovable Cloud)</h3>
+    <table>
+      <tr>
+        <th>Component</th>
+        <th>Purpose</th>
+      </tr>
+      <tr><td>PostgreSQL 15</td><td>Primary Database</td></tr>
+      <tr><td>PostgREST</td><td>REST API</td></tr>
+      <tr><td>GoTrue</td><td>Authentication</td></tr>
+      <tr><td>Realtime</td><td>WebSocket subscriptions</td></tr>
+      <tr><td>Storage</td><td>File management</td></tr>
+      <tr><td>Edge Functions</td><td>Serverless compute (Deno)</td></tr>
+    </table>
+
+    <h3>AI Services</h3>
+    <table>
+      <tr>
+        <th>Service</th>
+        <th>Model</th>
+        <th>Purpose</th>
+      </tr>
+      <tr><td>Lovable AI Gateway</td><td>Gemini 2.5 Flash</td><td>HIV test image analysis</td></tr>
+      <tr><td>Lovable AI Gateway</td><td>Gemini 2.5 Flash</td><td>Article translation</td></tr>
+    </table>
+
+    <h3>Infrastructure</h3>
+    <table>
+      <tr>
+        <th>Component</th>
+        <th>Provider</th>
+      </tr>
+      <tr><td>Hosting</td><td>Lovable Cloud</td></tr>
+      <tr><td>CDN</td><td>Global edge network</td></tr>
+      <tr><td>Database</td><td>Managed PostgreSQL</td></tr>
+      <tr><td>Storage</td><td>S3-compatible object storage</td></tr>
+    </table>
+
+    <div class="callout callout-info">
+      <strong>Deployment:</strong> The platform is deployed on Lovable Cloud with automatic HTTPS, global CDN distribution, zero-downtime deployments, and automatic database backups.
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    <p><strong>SWING Thailand Digital Health Platform</strong></p>
+    <p>Technical Proposal & System Documentation</p>
+    <p>Version 1.0 • February 2026</p>
+    <p>https://testd-health.lovable.app</p>
+  </div>
+
+  <script>
+    // Print instructions
+    console.log('To generate PDF: Press Ctrl+P (or Cmd+P on Mac) and select "Save as PDF"');
+  </script>
+</body>
+</html>
