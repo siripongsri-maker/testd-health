@@ -55,6 +55,28 @@ Deno.serve(async (req) => {
         );
       }
 
+      // Validate input lengths to prevent DoS and ensure data quality
+      if (body.recipient_name && body.recipient_name.length > 200) {
+        return new Response(
+          JSON.stringify({ error: "Recipient name too long (max 200 characters)" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (body.recipient_phone && body.recipient_phone.length > 20) {
+        return new Response(
+          JSON.stringify({ error: "Phone number too long (max 20 characters)" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (body.recipient_address.length > 500) {
+        return new Response(
+          JSON.stringify({ error: "Address too long (max 500 characters)" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
       // Use service role for creating orders
       const supabase = createClient(supabaseUrl, supabaseServiceKey);
 

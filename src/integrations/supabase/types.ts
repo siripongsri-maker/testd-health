@@ -1568,6 +1568,41 @@ export type Database = {
         }
         Relationships: []
       }
+      public_article_comments: {
+        Row: {
+          article_id: string | null
+          author_name: string | null
+          content: string | null
+          created_at: string | null
+          id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          article_id?: string | null
+          author_name?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          article_id?: string | null
+          author_name?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_comments_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "blog_articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       public_site_stats: {
         Row: {
           registered_user_pageviews: number | null

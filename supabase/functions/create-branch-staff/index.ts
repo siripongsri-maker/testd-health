@@ -51,21 +51,37 @@
        });
      }
  
-     const { username, password, branch, displayName } = await req.json();
- 
-     if (!username || !password || !branch) {
-       return new Response(
-         JSON.stringify({ error: "Missing required fields: username, password, branch" }),
-         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-       );
-     }
- 
-     if (!["silom", "pattaya"].includes(branch)) {
-       return new Response(
-         JSON.stringify({ error: "Invalid branch. Must be 'silom' or 'pattaya'" }),
-         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-       );
-     }
+    const { username, password, branch, displayName } = await req.json();
+
+    if (!username || !password || !branch) {
+      return new Response(
+        JSON.stringify({ error: "Missing required fields: username, password, branch" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate username format and length
+    if (username.length > 50 || !/^[a-zA-Z0-9_-]+$/.test(username)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid username format (max 50 chars, alphanumeric, underscore, dash only)" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate password length (min 8, max 128 to prevent DoS)
+    if (password.length < 8 || password.length > 128) {
+      return new Response(
+        JSON.stringify({ error: "Password must be 8-128 characters" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!["silom", "pattaya"].includes(branch)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid branch. Must be 'silom' or 'pattaya'" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
  
      // Create the user with username@swingth.local pattern
      const email = `${username}@swingth.local`;
