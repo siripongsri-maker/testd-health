@@ -35,6 +35,8 @@ const HIVSelfTest = lazy(() => import("./pages/HIVSelfTest"));
 const Quests = lazy(() => import("./pages/Quests"));
 const ShareAchievements = lazy(() => import("./pages/ShareAchievements"));
 const Surveys = lazy(() => import("./pages/Surveys"));
+const SurveyTake = lazy(() => import("./pages/SurveyTake"));
+const SurveyBuilder = lazy(() => import("./pages/SurveyBuilder"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const HealthProfile = lazy(() => import("./pages/HealthProfile"));
 const ConsultationForm = lazy(() => import("./pages/ConsultationForm"));
@@ -88,6 +90,8 @@ const App = () => (
               <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/share-achievements" element={<ShareAchievements />} />
               <Route path="/surveys" element={<Surveys />} />
+              <Route path="/surveys/:id" element={<SurveyTake />} />
+              <Route path="/surveys/:id/builder" element={<SurveyBuilder />} />
               <Route path="/health-profile" element={<HealthProfile />} />
               <Route path="/consultation" element={<ConsultationForm />} />
               <Route path="/admin" element={<Admin />} />
