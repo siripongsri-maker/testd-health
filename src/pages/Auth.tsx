@@ -32,30 +32,52 @@ export default function Auth() {
 
   const validateForm = (): boolean => {
     const newErrors: typeof errors = {};
-    
-    if (!username.trim()) {
-      newErrors.username = language === 'th' ? 'กรุณากรอกชื่อผู้ใช้' : 'Username is required';
-    } else if (username.length < 3) {
-      newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร' : 'Username must be at least 3 characters';
-    } else if (username.length > 30) {
-      newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ต้องไม่เกิน 30 ตัวอักษร' : 'Username must be less than 30 characters';
-    } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ใช้ได้เฉพาะตัวอักษร ตัวเลข และ _' : 'Username can only contain letters, numbers, and _';
+
+    const trimmed = username.trim();
+
+    // In register mode we require a real email so users can receive verification/reset emails.
+    if (!trimmed) {
+      newErrors.username = language === 'th'
+        ? (isRegisterMode ? 'กรุณากรอกอีเมล' : 'กรุณากรอกชื่อผู้ใช้')
+        : (isRegisterMode ? 'Email is required' : 'Username is required');
+    } else if (isRegisterMode) {
+      // Basic email validation (keep it simple here; backend will validate too)
+      const emailLike = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+      if (!emailLike) {
+        newErrors.username = language === 'th'
+          ? 'สมัครสมาชิกต้องใช้อีเมลจริง (เช่น name@gmail.com)'
+          : 'Registration requires a real email address (e.g. name@gmail.com)';
+      }
+    } else {
+      // Login mode supports username shorthand which maps to internal email.
+      if (trimmed.length < 3) {
+        newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร' : 'Username must be at least 3 characters';
+      } else if (trimmed.length > 30) {
+        newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ต้องไม่เกิน 30 ตัวอักษร' : 'Username must be less than 30 characters';
+      } else if (!/^[a-zA-Z0-9_]+$/.test(trimmed) && !trimmed.includes('@')) {
+        newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ใช้ได้เฉพาะตัวอักษร ตัวเลข และ _' : 'Username can only contain letters, numbers, and _';
+      }
     }
-    
+
     if (!password) {
       newErrors.password = language === 'th' ? 'กรุณากรอกรหัสผ่าน' : 'Password is required';
     } else if (password.length < 6) {
       newErrors.password = language === 'th' ? 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร' : 'Password must be at least 6 characters';
     }
-    
+
     if (isRegisterMode) {
       if (password !== confirmPassword) {
         newErrors.confirmPassword = language === 'th' ? 'รหัสผ่านไม่ตรงกัน' : 'Passwords do not match';
       }
     }
-    
+
     setErrors(newErrors);
+
+    // Make failures obvious on mobile (avoids feeling "stuck")
+    if (Object.keys(newErrors).length > 0) {
+      toast.error(language === 'th' ? 'กรุณาตรวจสอบข้อมูลที่กรอก' : 'Please check the form');
+    }
+
     return Object.keys(newErrors).length === 0;
   };
 
@@ -67,7 +89,7 @@ export default function Auth() {
     setIsSubmitting(true);
     setErrors({});
     
-    const internalEmail = usernameToEmail(username);
+    const internalEmail = isRegisterMode ? username.trim().toLowerCase() : usernameToEmail(username);
     
     try {
       if (isRegisterMode) {
@@ -81,10 +103,22 @@ export default function Auth() {
           }
           toast.error(language === 'th' ? 'การลงทะเบียนล้มเหลว' : 'Registration failed');
         } else if (data.user) {
-          localStorage.setItem('isLoggedIn', 'true');
-          localStorage.setItem('currentUser', username.trim());
-          toast.success(language === 'th' ? 'ลงทะเบียนสำเร็จ! ยินดีต้อนรับ' : 'Registration successful! Welcome');
-          navigate('/onboarding', { replace: true });
+          // If email confirmation is enabled, Supabase returns user but no session.
+          if (!data.session) {
+            toast.success(
+              language === 'th'
+                ? 'ส่งลิงก์ยืนยันไปที่อีเมลแล้ว กรุณายืนยันก่อนเข้าสู่ระบบ'
+                : 'We sent a confirmation email. Please verify it before signing in.'
+            );
+            setIsRegisterMode(false);
+            setPassword('');
+            setConfirmPassword('');
+          } else {
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('currentUser', username.trim());
+            toast.success(language === 'th' ? 'ลงทะเบียนสำเร็จ! ยินดีต้อนรับ' : 'Registration successful! Welcome');
+            navigate('/onboarding', { replace: true });
+          }
         }
       } else {
         const { data, error } = await signIn(internalEmail, password);
@@ -197,7 +231,9 @@ export default function Auth() {
               {/* Username */}
               <div className="space-y-2">
                 <Label htmlFor="username" className="text-foreground font-medium text-sm">
-                  {language === 'th' ? 'ชื่อผู้ใช้' : 'Username'}
+                  {isRegisterMode
+                    ? (language === 'th' ? 'อีเมล' : 'Email')
+                    : (language === 'th' ? 'ชื่อผู้ใช้' : 'Username')}
                 </Label>
                 <div className="relative group">
                   <div className="absolute inset-0 bg-primary/5 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity -m-0.5" />
@@ -210,11 +246,14 @@ export default function Auth() {
                       setUsername(e.target.value);
                       setErrors(prev => ({ ...prev, username: undefined }));
                     }}
-                    placeholder={language === 'th' ? 'กรอกชื่อผู้ใช้' : 'Enter username'}
+                    placeholder={isRegisterMode
+                      ? (language === 'th' ? 'name@gmail.com' : 'name@gmail.com')
+                      : (language === 'th' ? 'กรอกชื่อผู้ใช้' : 'Enter username')}
+
                     className={`pl-10 h-12 rounded-xl border-border/50 bg-background/50 focus:bg-background transition-all ${errors.username ? 'border-destructive focus:ring-destructive' : 'focus:border-primary focus:ring-primary/20'}`}
                     required
-                    autoComplete="username"
-                    maxLength={30}
+                    autoComplete={isRegisterMode ? 'email' : 'username'}
+                    maxLength={isRegisterMode ? 255 : 30}
                     autoFocus
                   />
                 </div>
