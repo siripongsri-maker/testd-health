@@ -5,13 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useLanguage } from '@/lib/i18n';
 import { LanguageToggle } from '@/components/LanguageToggle';
-import { Shield, Lock, User, ArrowLeft, Eye, EyeOff, Loader2, UserPlus } from 'lucide-react';
+import { Shield, Lock, User, ArrowLeft, Eye, EyeOff, Loader2, UserPlus, Sparkles, Heart } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { SocialLoginButtons } from '@/components/SocialLoginButtons';
 
 // Helper to convert username to internal email format
-// Accepts either plain username (e.g. staff_silom) OR full internal email (e.g. staff_silom@swingth.local)
 const usernameToEmail = (value: string) => {
   const v = value.toLowerCase().trim();
   if (!v) return v;
@@ -34,7 +33,6 @@ export default function Auth() {
   const validateForm = (): boolean => {
     const newErrors: typeof errors = {};
     
-    // Username validation
     if (!username.trim()) {
       newErrors.username = language === 'th' ? 'กรุณากรอกชื่อผู้ใช้' : 'Username is required';
     } else if (username.length < 3) {
@@ -45,14 +43,12 @@ export default function Auth() {
       newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ใช้ได้เฉพาะตัวอักษร ตัวเลข และ _' : 'Username can only contain letters, numbers, and _';
     }
     
-    // Password validation
     if (!password) {
       newErrors.password = language === 'th' ? 'กรุณากรอกรหัสผ่าน' : 'Password is required';
     } else if (password.length < 6) {
       newErrors.password = language === 'th' ? 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร' : 'Password must be at least 6 characters';
     }
     
-    // Registration-specific validations
     if (isRegisterMode) {
       if (password !== confirmPassword) {
         newErrors.confirmPassword = language === 'th' ? 'รหัสผ่านไม่ตรงกัน' : 'Passwords do not match';
@@ -75,7 +71,6 @@ export default function Auth() {
     
     try {
       if (isRegisterMode) {
-        // Registration - use username as display name
         const { data, error } = await signUp(internalEmail, password, username.trim());
         
         if (error) {
@@ -92,7 +87,6 @@ export default function Auth() {
           navigate('/onboarding');
         }
       } else {
-        // Login
         const { data, error } = await signIn(internalEmail, password);
         
         if (error) {
@@ -121,203 +115,250 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen gradient-hero flex flex-col relative">
+    <div className="min-h-screen flex flex-col relative overflow-hidden">
+      {/* Animated Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5" />
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-accent/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
+      </div>
+      
       {/* Header */}
-      <div className="flex items-center justify-between p-4 safe-top">
+      <div className="relative flex items-center justify-between p-4 safe-top">
         <Button 
           variant="ghost" 
           size="icon" 
           onClick={() => navigate('/')}
-          className="text-muted-foreground"
+          className="text-muted-foreground hover:text-foreground hover:bg-background/50 backdrop-blur-sm rounded-xl transition-all duration-200"
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <LanguageToggle />
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
-        {/* Logo */}
-        <div className="mb-6">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full gradient-primary shadow-soft">
-            {isRegisterMode ? (
-              <UserPlus className="h-10 w-10 text-primary-foreground" />
-            ) : (
-              <Shield className="h-10 w-10 text-primary-foreground" />
-            )}
+      <div className="relative flex-1 flex flex-col items-center justify-center px-6 py-8">
+        {/* Logo with Animation */}
+        <div className="mb-8 animate-fade-in">
+          <div className="relative">
+            <div className="absolute inset-0 bg-primary/20 rounded-3xl blur-xl animate-pulse" />
+            <div className="relative mx-auto flex h-24 w-24 items-center justify-center rounded-3xl bg-gradient-to-br from-primary via-primary to-accent shadow-2xl shadow-primary/30 transition-transform duration-300 hover:scale-105">
+              {isRegisterMode ? (
+                <UserPlus className="h-12 w-12 text-primary-foreground drop-shadow-lg" />
+              ) : (
+                <Shield className="h-12 w-12 text-primary-foreground drop-shadow-lg" />
+              )}
+            </div>
+            <div className="absolute -top-1 -right-1 h-6 w-6 bg-accent rounded-full flex items-center justify-center shadow-lg">
+              <Sparkles className="h-3.5 w-3.5 text-accent-foreground" />
+            </div>
           </div>
         </div>
 
-        {/* Title */}
-        <h1 className="mb-2 text-2xl font-bold text-foreground">
-          {isRegisterMode 
-            ? (language === 'th' ? 'ลงทะเบียน' : 'Create Account')
-            : (language === 'th' ? 'เข้าสู่ระบบ' : 'Login')
-          }
-        </h1>
-        <p className="mb-6 text-muted-foreground text-center">
-          {isRegisterMode
-            ? (language === 'th' ? 'สร้างบัญชีใหม่เพื่อเริ่มต้นใช้งาน' : 'Create a new account to get started')
-            : (language === 'th' ? 'กรอกชื่อผู้ใช้และรหัสผ่านเพื่อเข้าสู่ระบบ' : 'Enter your username and password')
-          }
-        </p>
+        {/* Title with Animation */}
+        <div className="text-center mb-8 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">
+            {isRegisterMode 
+              ? (language === 'th' ? 'สร้างบัญชีใหม่' : 'Create Account')
+              : (language === 'th' ? 'ยินดีต้อนรับกลับ' : 'Welcome Back')
+            }
+          </h1>
+          <p className="text-muted-foreground">
+            {isRegisterMode
+              ? (language === 'th' ? 'เริ่มต้นดูแลสุขภาพของคุณวันนี้' : 'Start your health journey today')
+              : (language === 'th' ? 'เข้าสู่ระบบเพื่อดำเนินการต่อ' : 'Sign in to continue')
+            }
+          </p>
+        </div>
 
-        {/* Form */}
-        <div className="w-full max-w-sm">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Username */}
-            <div className="space-y-2">
-              <Label htmlFor="username" className="text-foreground">
-                {language === 'th' ? 'ชื่อผู้ใช้' : 'Username'}
-              </Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  id="username"
-                  type="text"
-                  value={username}
-                  onChange={(e) => {
-                    setUsername(e.target.value);
-                    setErrors(prev => ({ ...prev, username: undefined }));
-                  }}
-                  placeholder={language === 'th' ? 'กรอกชื่อผู้ใช้' : 'Enter username'}
-                  className={`pl-10 ${errors.username ? 'border-destructive' : ''}`}
-                  required
-                  autoComplete="username"
-                  maxLength={30}
-                />
-              </div>
-              {errors.username && (
-                <p className="text-sm text-destructive">{errors.username}</p>
-              )}
+        {/* Card Container */}
+        <div className="w-full max-w-sm animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <div className="backdrop-blur-xl bg-card/80 border border-border/50 rounded-3xl p-6 shadow-2xl shadow-primary/5">
+            {/* Social Login First */}
+            <div className="mb-6">
+              <SocialLoginButtons mode="login" onSuccess={() => navigate('/')} />
             </div>
 
-            {/* Password */}
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-foreground">
-                {language === 'th' ? 'รหัสผ่าน' : 'Password'}
-              </Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    setErrors(prev => ({ ...prev, password: undefined }));
-                  }}
-                  placeholder={language === 'th' ? 'กรอกรหัสผ่าน (อย่างน้อย 6 ตัว)' : 'Enter password (min 6 chars)'}
-                  className={`pl-10 pr-10 ${errors.password ? 'border-destructive' : ''}`}
-                  required
-                  autoComplete={isRegisterMode ? 'new-password' : 'current-password'}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                </button>
+            {/* Divider */}
+            <div className="relative mb-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border/50" />
               </div>
-              {errors.password && (
-                <p className="text-sm text-destructive">{errors.password}</p>
-              )}
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card/80 px-4 text-muted-foreground font-medium">
+                  {language === 'th' ? 'หรือใช้ชื่อผู้ใช้' : 'or use username'}
+                </span>
+              </div>
             </div>
 
-            {/* Confirm Password (Register only) */}
-            {isRegisterMode && (
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Username */}
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-foreground">
-                  {language === 'th' ? 'ยืนยันรหัสผ่าน' : 'Confirm Password'}
+                <Label htmlFor="username" className="text-foreground font-medium text-sm">
+                  {language === 'th' ? 'ชื่อผู้ใช้' : 'Username'}
                 </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-primary/5 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity -m-0.5" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                   <Input
-                    id="confirmPassword"
-                    type={showPassword ? 'text' : 'password'}
-                    value={confirmPassword}
+                    id="username"
+                    type="text"
+                    value={username}
                     onChange={(e) => {
-                      setConfirmPassword(e.target.value);
-                      setErrors(prev => ({ ...prev, confirmPassword: undefined }));
+                      setUsername(e.target.value);
+                      setErrors(prev => ({ ...prev, username: undefined }));
                     }}
-                    placeholder={language === 'th' ? 'กรอกรหัสผ่านอีกครั้ง' : 'Confirm your password'}
-                    className={`pl-10 ${errors.confirmPassword ? 'border-destructive' : ''}`}
-                    autoComplete="new-password"
+                    placeholder={language === 'th' ? 'กรอกชื่อผู้ใช้' : 'Enter username'}
+                    className={`pl-10 h-12 rounded-xl border-border/50 bg-background/50 focus:bg-background transition-all ${errors.username ? 'border-destructive focus:ring-destructive' : 'focus:border-primary focus:ring-primary/20'}`}
+                    required
+                    autoComplete="username"
+                    maxLength={30}
                   />
                 </div>
-                {errors.confirmPassword && (
-                  <p className="text-sm text-destructive">{errors.confirmPassword}</p>
+                {errors.username && (
+                  <p className="text-sm text-destructive flex items-center gap-1.5">
+                    <span className="inline-block w-1 h-1 bg-destructive rounded-full" />
+                    {errors.username}
+                  </p>
                 )}
               </div>
-            )}
 
-            <Button 
-              type="submit" 
-              variant="hero" 
-              className="w-full"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                isRegisterMode 
-                  ? (language === 'th' ? 'ลงทะเบียน' : 'Create Account')
-                  : (language === 'th' ? 'เข้าสู่ระบบ' : 'Login')
+              {/* Password */}
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-foreground font-medium text-sm">
+                  {language === 'th' ? 'รหัสผ่าน' : 'Password'}
+                </Label>
+                <div className="relative group">
+                  <div className="absolute inset-0 bg-primary/5 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity -m-0.5" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setErrors(prev => ({ ...prev, password: undefined }));
+                    }}
+                    placeholder={language === 'th' ? 'อย่างน้อย 6 ตัวอักษร' : 'Min 6 characters'}
+                    className={`pl-10 pr-10 h-12 rounded-xl border-border/50 bg-background/50 focus:bg-background transition-all ${errors.password ? 'border-destructive focus:ring-destructive' : 'focus:border-primary focus:ring-primary/20'}`}
+                    required
+                    autoComplete={isRegisterMode ? 'new-password' : 'current-password'}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="text-sm text-destructive flex items-center gap-1.5">
+                    <span className="inline-block w-1 h-1 bg-destructive rounded-full" />
+                    {errors.password}
+                  </p>
+                )}
+              </div>
+
+              {/* Confirm Password (Register only) */}
+              {isRegisterMode && (
+                <div className="space-y-2 animate-fade-in">
+                  <Label htmlFor="confirmPassword" className="text-foreground font-medium text-sm">
+                    {language === 'th' ? 'ยืนยันรหัสผ่าน' : 'Confirm Password'}
+                  </Label>
+                  <div className="relative group">
+                    <div className="absolute inset-0 bg-primary/5 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity -m-0.5" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                    <Input
+                      id="confirmPassword"
+                      type={showPassword ? 'text' : 'password'}
+                      value={confirmPassword}
+                      onChange={(e) => {
+                        setConfirmPassword(e.target.value);
+                        setErrors(prev => ({ ...prev, confirmPassword: undefined }));
+                      }}
+                      placeholder={language === 'th' ? 'กรอกรหัสผ่านอีกครั้ง' : 'Confirm your password'}
+                      className={`pl-10 h-12 rounded-xl border-border/50 bg-background/50 focus:bg-background transition-all ${errors.confirmPassword ? 'border-destructive focus:ring-destructive' : 'focus:border-primary focus:ring-primary/20'}`}
+                      autoComplete="new-password"
+                    />
+                  </div>
+                  {errors.confirmPassword && (
+                    <p className="text-sm text-destructive flex items-center gap-1.5">
+                      <span className="inline-block w-1 h-1 bg-destructive rounded-full" />
+                      {errors.confirmPassword}
+                    </p>
+                  )}
+                </div>
               )}
-            </Button>
-          </form>
 
-          {/* Toggle between Login/Register */}
-          <div className="mt-4 text-center">
+              {/* Submit Button */}
+              <Button 
+                type="submit" 
+                className="w-full h-12 rounded-xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-semibold shadow-lg shadow-primary/25 transition-all duration-200 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <>
+                    {isRegisterMode 
+                      ? (language === 'th' ? 'สร้างบัญชี' : 'Create Account')
+                      : (language === 'th' ? 'เข้าสู่ระบบ' : 'Sign In')
+                    }
+                  </>
+                )}
+              </Button>
+            </form>
+
+            {/* Toggle between Login/Register */}
+            <div className="mt-6 text-center">
+              <button
+                type="button"
+                onClick={toggleMode}
+                className="text-sm text-muted-foreground hover:text-primary transition-colors"
+              >
+                {isRegisterMode
+                  ? (language === 'th' ? 'มีบัญชีแล้ว? ' : 'Already have an account? ')
+                  : (language === 'th' ? 'ยังไม่มีบัญชี? ' : "Don't have an account? ")
+                }
+                <span className="font-semibold text-primary">
+                  {isRegisterMode
+                    ? (language === 'th' ? 'เข้าสู่ระบบ' : 'Sign In')
+                    : (language === 'th' ? 'ลงทะเบียน' : 'Sign Up')
+                  }
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Guest mode */}
+          <div className="mt-6 text-center animate-fade-in" style={{ animationDelay: '0.3s' }}>
             <button
               type="button"
-              onClick={toggleMode}
-              className="text-sm text-primary hover:underline"
+              onClick={() => {
+                toast.success(language === 'th' ? 'เข้าใช้งานแบบผู้เยี่ยมชม' : 'Continuing as guest');
+                navigate('/');
+              }}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors group"
             >
-              {isRegisterMode
-                ? (language === 'th' ? 'มีบัญชีแล้ว? เข้าสู่ระบบ' : 'Already have an account? Login')
-                : (language === 'th' ? 'ยังไม่มีบัญชี? ลงทะเบียน' : "Don't have an account? Register")
-              }
+              {language === 'th' ? 'ข้ามไปก่อน ' : 'Skip for now '}
+              <span className="text-primary group-hover:underline">
+                {language === 'th' ? 'เข้าใช้งานแบบผู้เยี่ยมชม' : 'Continue as guest'}
+              </span>
             </button>
           </div>
-        </div>
-
-        {/* Social Login */}
-        <div className="w-full max-w-sm mt-6">
-          <div className="relative mb-4">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-border" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
-                {language === 'th' ? 'หรือ' : 'or'}
-              </span>
-            </div>
-          </div>
-          <SocialLoginButtons mode="login" onSuccess={() => navigate('/')} />
-        </div>
-
-        {/* Guest mode */}
-        <div className="w-full max-w-sm mt-6">
-          <Button
-            type="button"
-            variant="ghost"
-            className="w-full"
-            onClick={() => {
-              toast.success(language === 'th' ? 'เข้าใช้งานแบบผู้เยี่ยมชม (ข้อมูลจะเก็บในเครื่อง)' : 'Continuing as guest (saved on this device)');
-              navigate('/');
-            }}
-          >
-            {language === 'th' ? 'เข้าใช้งานแบบผู้เยี่ยมชม' : 'Continue as guest'}
-          </Button>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="px-6 pb-8 text-center safe-bottom">
-        <p className="text-xs text-muted-foreground">
-          {language === 'th' ? 'ข้อมูลของคุณจะถูกเก็บเป็นความลับ' : 'Your data is kept confidential'}
-        </p>
+      <div className="relative px-6 pb-8 text-center safe-bottom animate-fade-in" style={{ animationDelay: '0.4s' }}>
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted/50 backdrop-blur-sm">
+          <Heart className="h-3.5 w-3.5 text-primary" />
+          <p className="text-xs text-muted-foreground">
+            {language === 'th' ? 'ข้อมูลของคุณปลอดภัยและเป็นความลับ' : 'Your data is secure and confidential'}
+          </p>
+        </div>
       </div>
     </div>
   );
