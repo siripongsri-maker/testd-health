@@ -1490,6 +1490,39 @@ export type Database = {
       }
     }
     Views: {
+      hall_of_fame_public: {
+        Row: {
+          avatar_url: string | null
+          captured_at: string | null
+          category: string | null
+          display_name: string | null
+          id: string | null
+          score: number | null
+          season_key: string | null
+          season_label: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          captured_at?: string | null
+          category?: string | null
+          display_name?: string | null
+          id?: string | null
+          score?: number | null
+          season_key?: string | null
+          season_label?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          captured_at?: string | null
+          category?: string | null
+          display_name?: string | null
+          id?: string | null
+          score?: number | null
+          season_key?: string | null
+          season_label?: string | null
+        }
+        Relationships: []
+      }
       kit_order_tracking: {
         Row: {
           created_at: string | null
