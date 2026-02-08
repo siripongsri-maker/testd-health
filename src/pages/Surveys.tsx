@@ -11,7 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { ArrowLeft, ExternalLink, Eye, ClipboardList, Loader2, Plus, Star, Flame, Sparkles, Calendar, Users, Zap, Pencil, Trash2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, ExternalLink, Eye, ClipboardList, Loader2, Plus, Star, Flame, Sparkles, Calendar, Users, Zap, Pencil, Trash2, Clock, CheckCircle, XCircle, AlertTriangle, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -35,6 +36,9 @@ interface Survey {
   created_at: string;
   is_active: boolean;
   is_native: boolean;
+  status: string;
+  rejection_feedback: string | null;
+  created_by: string | null;
 }
 
 export default function Surveys() {
@@ -44,10 +48,12 @@ export default function Surveys() {
   
   const { trackSurveyComplete } = useQuestProgress();
   const [surveys, setSurveys] = useState<Survey[]>([]);
+  const [mySurveys, setMySurveys] = useState<Survey[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [showBuilder, setShowBuilder] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState<'all' | 'mine'>('all');
   
   // Edit state
   const [editingSurvey, setEditingSurvey] = useState<Survey | null>(null);
@@ -71,6 +77,7 @@ export default function Surveys() {
 
   useEffect(() => {
     fetchSurveys();
+    fetchMySurveys();
     checkAdminRole();
   }, [user]);
 
@@ -92,9 +99,11 @@ export default function Surveys() {
 
   const fetchSurveys = async () => {
     try {
+      // Fetch published surveys only
       const { data, error } = await supabase
         .from('surveys')
         .select('*')
+        .eq('status', 'published')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
       
@@ -104,6 +113,24 @@ export default function Surveys() {
       console.error('Error fetching surveys:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchMySurveys = async () => {
+    if (!user) return;
+    
+    try {
+      // Fetch user's own surveys (all statuses)
+      const { data, error } = await supabase
+        .from('surveys')
+        .select('*')
+        .eq('created_by', user.id)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setMySurveys(data || []);
+    } catch (err) {
+      console.error('Error fetching my surveys:', err);
     }
   };
 
@@ -147,8 +174,14 @@ export default function Surveys() {
   };
 
   const handleCreateNativeSurvey = async () => {
+    if (!user) {
+      toast.error(language === 'th' ? 'กรุณาเข้าสู่ระบบก่อน' : 'Please login first');
+      navigate('/auth');
+      return;
+    }
+
     try {
-      // Create a new empty native survey
+      // Create a new survey as pending_review (XP = 0, admin will set it)
       const { data, error } = await supabase
         .from('surveys')
         .insert({
@@ -156,9 +189,12 @@ export default function Surveys() {
           title_en: 'New Survey',
           url: '', // Empty for native surveys
           is_native: true,
-          xp_reward: 10,
-          is_new: true,
-          created_by: user?.id,
+          xp_reward: 0, // Admin will set XP reward
+          is_new: false, // Admin will set tags
+          is_hot: false,
+          status: 'draft',
+          created_by: user.id,
+          submitted_at: null,
         })
         .select()
         .single();
@@ -316,6 +352,22 @@ export default function Surveys() {
   const totalCompletions = surveys.reduce((sum, s) => sum + s.completion_count, 0);
   const dateLocale = language === 'th' ? th : enUS;
 
+  // Helper function to get status badge
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'draft':
+        return { icon: Clock, text: language === 'th' ? 'ร่าง' : 'Draft', className: 'bg-muted text-muted-foreground' };
+      case 'pending_review':
+        return { icon: Send, text: language === 'th' ? 'รอตรวจสอบ' : 'Pending', className: 'bg-yellow-500/20 text-yellow-600' };
+      case 'published':
+        return { icon: CheckCircle, text: language === 'th' ? 'เผยแพร่แล้ว' : 'Published', className: 'bg-success/20 text-success' };
+      case 'rejected':
+        return { icon: XCircle, text: language === 'th' ? 'ถูกปฏิเสธ' : 'Rejected', className: 'bg-destructive/20 text-destructive' };
+      default:
+        return { icon: AlertTriangle, text: status, className: 'bg-muted' };
+    }
+  };
+
   return (
     <>
       <PageContainer>
@@ -334,17 +386,19 @@ export default function Surveys() {
             </div>
           </div>
           
-          {/* Admin: Add Survey Button */}
+          {/* Create Survey Button - Available for all logged in users */}
+          {user && (
+            <Button size="sm" className="gap-1.5" onClick={handleCreateNativeSurvey}>
+              <Plus className="h-4 w-4" />
+              {language === 'th' ? 'สร้างแบบสำรวจ' : 'Create'}
+            </Button>
+          )}
+          
+          {/* Admin: External Survey Link Dialog */}
           {isAdmin && (
-            <div className="flex items-center gap-2">
-              <Button size="sm" className="gap-1.5" onClick={handleCreateNativeSurvey}>
-                <Plus className="h-4 w-4" />
-                {language === 'th' ? 'สร้างแบบสำรวจ' : 'Create Survey'}
-              </Button>
-              
               <Dialog open={showBuilder} onOpenChange={setShowBuilder}>
                 <DialogTrigger asChild>
-                  <Button size="sm" variant="outline" className="gap-1.5">
+                  <Button size="sm" variant="outline" className="gap-1.5 ml-2">
                     <ExternalLink className="h-4 w-4" />
                     {language === 'th' ? 'ลิงก์ภายนอก' : 'External'}
                   </Button>
@@ -352,7 +406,7 @@ export default function Surveys() {
               <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
-                    {language === 'th' ? '🛠️ สร้างแบบประเมินใหม่' : '🛠️ Create New Survey'}
+                    {language === 'th' ? '🔗 เพิ่มลิงก์แบบประเมินภายนอก' : '🔗 Add External Survey Link'}
                   </DialogTitle>
                 </DialogHeader>
                 
@@ -427,7 +481,7 @@ export default function Surveys() {
                   
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <div className="flex items-center gap-2">
-                      <Flame className="h-4 w-4 text-orange-500" />
+                      <Flame className="h-4 w-4 text-destructive" />
                       <span className="text-sm font-medium">
                         {language === 'th' ? 'แท็ก Hot' : 'Hot Tag'}
                       </span>
@@ -440,7 +494,7 @@ export default function Surveys() {
                   
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <div className="flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 text-blue-500" />
+                      <Sparkles className="h-4 w-4 text-primary" />
                       <span className="text-sm font-medium">
                         {language === 'th' ? 'แท็ก New' : 'New Tag'}
                       </span>
@@ -471,7 +525,6 @@ export default function Surveys() {
                 </div>
               </DialogContent>
             </Dialog>
-          </div>
           )}
         </div>
 
@@ -514,20 +567,36 @@ export default function Surveys() {
           </Card>
         </div>
 
-        {/* Survey list */}
-        <div className="space-y-4">
-          {loading ? (
-            <div className="flex justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : surveys.length === 0 ? (
-            <Card className="p-8 text-center">
-              <ClipboardList className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-              <p className="text-muted-foreground">
-                {language === 'th' ? 'ยังไม่มีแบบประเมิน' : 'No surveys available'}
-              </p>
-            </Card>
-          ) : (
+        {/* Tabs for survey lists */}
+        <Tabs defaultValue="all" className="w-full" onValueChange={(v) => setActiveTab(v as 'all' | 'mine')}>
+          <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsTrigger value="all">
+              {language === 'th' ? '📋 แบบสำรวจทั้งหมด' : '📋 All Surveys'}
+            </TabsTrigger>
+            <TabsTrigger value="mine">
+              {language === 'th' ? '✏️ ของฉัน' : '✏️ My Surveys'}
+              {mySurveys.length > 0 && (
+                <span className="ml-1.5 px-1.5 py-0.5 bg-primary/20 text-primary text-xs rounded-full">
+                  {mySurveys.length}
+                </span>
+              )}
+            </TabsTrigger>
+          </TabsList>
+
+          {/* All Published Surveys Tab */}
+          <TabsContent value="all" className="space-y-4">
+            {loading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : surveys.length === 0 ? (
+              <Card className="p-8 text-center">
+                <ClipboardList className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                <p className="text-muted-foreground">
+                  {language === 'th' ? 'ยังไม่มีแบบประเมิน' : 'No surveys available'}
+                </p>
+              </Card>
+            ) : (
             surveys.map((survey) => (
               <Card 
                 key={survey.id} 
@@ -644,7 +713,122 @@ export default function Surveys() {
               </Card>
             ))
           )}
-        </div>
+          </TabsContent>
+
+          {/* My Surveys Tab */}
+          <TabsContent value="mine" className="space-y-4">
+            {!user ? (
+              <Card className="p-8 text-center">
+                <ClipboardList className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                <p className="text-muted-foreground mb-4">
+                  {language === 'th' ? 'กรุณาเข้าสู่ระบบเพื่อสร้างแบบสำรวจ' : 'Please login to create surveys'}
+                </p>
+                <Button onClick={() => navigate('/auth')}>
+                  {language === 'th' ? 'เข้าสู่ระบบ' : 'Login'}
+                </Button>
+              </Card>
+            ) : mySurveys.length === 0 ? (
+              <Card className="p-8 text-center">
+                <ClipboardList className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                <p className="text-muted-foreground mb-4">
+                  {language === 'th' ? 'คุณยังไม่มีแบบสำรวจ' : 'You have no surveys yet'}
+                </p>
+                <Button onClick={handleCreateNativeSurvey}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  {language === 'th' ? 'สร้างแบบสำรวจแรก' : 'Create Your First Survey'}
+                </Button>
+              </Card>
+            ) : (
+              mySurveys.map((survey) => {
+                const statusBadge = getStatusBadge(survey.status);
+                const StatusIcon = statusBadge.icon;
+                return (
+                  <Card 
+                    key={survey.id} 
+                    className="p-4 hover:shadow-lg transition-all cursor-pointer hover:scale-[1.01]"
+                    onClick={() => navigate(`/surveys/${survey.id}/builder`)}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center flex-shrink-0 relative">
+                        <ClipboardList className="h-7 w-7 text-primary" />
+                        {survey.xp_reward > 0 && (
+                          <div className="absolute -bottom-1 -right-1 bg-xp text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
+                            <Star className="h-2.5 w-2.5" />
+                            {survey.xp_reward}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <h3 className="font-bold text-foreground">
+                            {language === 'th' ? survey.title_th : survey.title_en}
+                          </h3>
+                          {/* Status Badge */}
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full ${statusBadge.className}`}>
+                            <StatusIcon className="h-2.5 w-2.5" />
+                            {statusBadge.text}
+                          </span>
+                        </div>
+                        
+                        {survey.status === 'rejected' && survey.rejection_feedback && (
+                          <p className="text-xs text-destructive mb-1">
+                            ⚠️ {survey.rejection_feedback}
+                          </p>
+                        )}
+                        
+                        <div className="flex items-center gap-4 mt-2 flex-wrap">
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <Calendar className="h-3 w-3" />
+                            <span>
+                              {formatDistanceToNow(new Date(survey.created_at), { 
+                                addSuffix: true, 
+                                locale: dateLocale 
+                              })}
+                            </span>
+                          </div>
+                          
+                          {survey.status === 'published' && (
+                            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                              <Users className="h-3 w-3" />
+                              <span>
+                                {survey.completion_count.toLocaleString()} {language === 'th' ? 'คน' : 'completed'}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-col gap-1 flex-shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-primary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/surveys/${survey.id}/builder`);
+                          }}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        {survey.status !== 'published' && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                            onClick={(e) => handleDeleteClick(e, survey)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })
+            )}
+          </TabsContent>
+        </Tabs>
 
         {/* Info text */}
         <p className="text-xs text-center text-muted-foreground mt-6">

@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ArrowLeft, Loader2, Plus, Save, Eye, BarChart3, Settings, Trash2, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Loader2, Plus, Save, Eye, BarChart3, Settings, Trash2, AlertTriangle, Send } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -31,10 +31,12 @@ export default function SurveyBuilder() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [survey, setSurvey] = useState<NativeSurvey | null>(null);
   const [questions, setQuestions] = useState<QuestionFormData[]>([]);
   const [existingQuestionIds, setExistingQuestionIds] = useState<string[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isOwner, setIsOwner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
   // Survey settings form
@@ -53,34 +55,91 @@ export default function SurveyBuilder() {
   });
 
   useEffect(() => {
-    checkAdminRole();
-  }, [user]);
+    checkAccess();
+  }, [user, id]);
 
-  useEffect(() => {
-    if (id && isAdmin) {
-      fetchSurvey();
-    }
-  }, [id, isAdmin]);
-
-  const checkAdminRole = async () => {
+  const checkAccess = async () => {
     if (!user) {
       navigate('/surveys');
       return;
     }
-    
-    const { data } = await supabase
+
+    // Check if admin
+    const { data: roleData } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id)
       .eq('role', 'admin')
       .single();
     
-    if (!data) {
-      navigate('/surveys');
-      return;
+    const userIsAdmin = !!roleData;
+    setIsAdmin(userIsAdmin);
+
+    // Fetch survey to check ownership
+    if (id) {
+      const { data: surveyData, error } = await supabase
+        .from('surveys')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (error || !surveyData) {
+        toast.error(language === 'th' ? 'ไม่พบแบบสำรวจ' : 'Survey not found');
+        navigate('/surveys');
+        return;
+      }
+
+      const userIsOwner = surveyData.created_by === user.id;
+      setIsOwner(userIsOwner);
+
+      // Check if user has access (admin or owner)
+      if (!userIsAdmin && !userIsOwner) {
+        toast.error(language === 'th' ? 'คุณไม่มีสิทธิ์แก้ไขแบบสำรวจนี้' : 'You do not have permission to edit this survey');
+        navigate('/surveys');
+        return;
+      }
+
+      // Load survey data
+      setSurvey(surveyData as NativeSurvey);
+      setSettings({
+        title_th: surveyData.title_th,
+        title_en: surveyData.title_en,
+        description_th: surveyData.description_th || '',
+        description_en: surveyData.description_en || '',
+        xp_reward: surveyData.xp_reward,
+        is_hot: surveyData.is_hot,
+        is_new: surveyData.is_new,
+        consent_text_th: surveyData.consent_text_th || '',
+        consent_text_en: surveyData.consent_text_en || '',
+        allow_anonymous: surveyData.allow_anonymous ?? true,
+        require_consent: surveyData.require_consent ?? true,
+      });
+
+      // Fetch questions
+      const { data: questionsData } = await supabase
+        .from('survey_questions')
+        .select('*')
+        .eq('survey_id', id)
+        .order('display_order', { ascending: true });
+
+      const parsedQuestions: QuestionFormData[] = (questionsData || []).map((q) => ({
+        question_type: q.question_type as QuestionFormData['question_type'],
+        question_text_th: q.question_text_th,
+        question_text_en: q.question_text_en,
+        options: (q.options as unknown as QuestionFormData['options']) || [],
+        rating_min: q.rating_min || 1,
+        rating_max: q.rating_max || 5,
+        rating_label_min_th: q.rating_label_min_th || '',
+        rating_label_min_en: q.rating_label_min_en || '',
+        rating_label_max_th: q.rating_label_max_th || '',
+        rating_label_max_en: q.rating_label_max_en || '',
+        is_required: q.is_required,
+      }));
+
+      setQuestions(parsedQuestions);
+      setExistingQuestionIds(questionsData?.map((q) => q.id) || []);
     }
-    
-    setIsAdmin(true);
+
     setLoading(false);
   };
 
@@ -203,23 +262,29 @@ export default function SurveyBuilder() {
 
     setSaving(true);
     try {
-      // Update survey
+      // Update survey - only admin can set XP, tags
+      const updateData: Record<string, unknown> = {
+        title_th: settings.title_th,
+        title_en: settings.title_en,
+        description_th: settings.description_th || null,
+        description_en: settings.description_en || null,
+        consent_text_th: settings.consent_text_th,
+        consent_text_en: settings.consent_text_en,
+        allow_anonymous: settings.allow_anonymous,
+        require_consent: settings.require_consent,
+        is_native: true,
+      };
+
+      // Only admin can set XP and tags
+      if (isAdmin) {
+        updateData.xp_reward = settings.xp_reward;
+        updateData.is_hot = settings.is_hot;
+        updateData.is_new = settings.is_new;
+      }
+
       const { error: surveyError } = await supabase
         .from('surveys')
-        .update({
-          title_th: settings.title_th,
-          title_en: settings.title_en,
-          description_th: settings.description_th || null,
-          description_en: settings.description_en || null,
-          xp_reward: settings.xp_reward,
-          is_hot: settings.is_hot,
-          is_new: settings.is_new,
-          consent_text_th: settings.consent_text_th,
-          consent_text_en: settings.consent_text_en,
-          allow_anonymous: settings.allow_anonymous,
-          require_consent: settings.require_consent,
-          is_native: true,
-        })
+        .update(updateData)
         .eq('id', id);
 
       if (surveyError) throw surveyError;
@@ -257,13 +322,65 @@ export default function SurveyBuilder() {
 
       if (insertError) throw insertError;
 
+      // Re-fetch to get updated question IDs
+      const { data: updatedQuestions } = await supabase
+        .from('survey_questions')
+        .select('id')
+        .eq('survey_id', id)
+        .order('display_order', { ascending: true });
+      
+      setExistingQuestionIds(updatedQuestions?.map((q) => q.id) || []);
+
       toast.success(language === 'th' ? 'บันทึกสำเร็จ!' : 'Survey saved!');
-      fetchSurvey();
     } catch (err) {
       console.error('Error saving survey:', err);
       toast.error(language === 'th' ? 'เกิดข้อผิดพลาด' : 'Something went wrong');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSubmitForReview = async () => {
+    if (!id) return;
+
+    // Validate before submitting
+    if (!settings.title_th || !settings.title_en) {
+      toast.error(language === 'th' ? 'กรุณากรอกชื่อแบบสำรวจ' : 'Please fill in survey title');
+      return;
+    }
+
+    if (questions.length === 0) {
+      toast.error(language === 'th' ? 'กรุณาเพิ่มคำถามอย่างน้อย 1 ข้อ' : 'Please add at least one question');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      // Save first
+      await handleSave();
+
+      // Then submit for review
+      const { error } = await supabase
+        .from('surveys')
+        .update({
+          status: 'pending_review',
+          submitted_at: new Date().toISOString(),
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success(
+        language === 'th' 
+          ? 'ส่งตรวจสอบสำเร็จ! รอ Admin อนุมัติ' 
+          : 'Submitted for review! Waiting for admin approval'
+      );
+      navigate('/surveys');
+    } catch (err) {
+      console.error('Error submitting for review:', err);
+      toast.error(language === 'th' ? 'เกิดข้อผิดพลาด' : 'Something went wrong');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -280,9 +397,12 @@ export default function SurveyBuilder() {
     );
   }
 
-  if (!isAdmin) {
+  if (!isAdmin && !isOwner) {
     return null;
   }
+
+  const canEdit = isAdmin || (isOwner && survey?.status !== 'published');
+  const canSubmit = isOwner && (survey?.status === 'draft' || survey?.status === 'rejected');
 
   // Prepare questions for analytics
   const analyticsQuestions: SurveyQuestion[] = questions.map((q, index) => ({
@@ -372,15 +492,18 @@ export default function SurveyBuilder() {
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label>{language === 'th' ? 'XP Reward' : 'XP Reward'}</Label>
-                    <Input
-                      type="number"
-                      min={0}
-                      value={settings.xp_reward}
-                      onChange={(e) => setSettings({ ...settings, xp_reward: parseInt(e.target.value) || 0 })}
-                    />
-                  </div>
+                  {/* XP Reward - Only visible to admin */}
+                  {isAdmin && (
+                    <div className="space-y-1.5">
+                      <Label>{language === 'th' ? 'XP Reward (Admin)' : 'XP Reward (Admin)'}</Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        value={settings.xp_reward}
+                        onChange={(e) => setSettings({ ...settings, xp_reward: parseInt(e.target.value) || 0 })}
+                      />
+                    </div>
+                  )}
 
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <span className="text-sm font-medium">
@@ -402,21 +525,26 @@ export default function SurveyBuilder() {
                     />
                   </div>
 
-                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                    <span className="text-sm font-medium">Hot Tag</span>
-                    <Switch
-                      checked={settings.is_hot}
-                      onCheckedChange={(checked) => setSettings({ ...settings, is_hot: checked })}
-                    />
-                  </div>
+                  {/* Tags - Only visible to admin */}
+                  {isAdmin && (
+                    <>
+                      <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                        <span className="text-sm font-medium">Hot Tag</span>
+                        <Switch
+                          checked={settings.is_hot}
+                          onCheckedChange={(checked) => setSettings({ ...settings, is_hot: checked })}
+                        />
+                      </div>
 
-                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                    <span className="text-sm font-medium">New Tag</span>
-                    <Switch
-                      checked={settings.is_new}
-                      onCheckedChange={(checked) => setSettings({ ...settings, is_new: checked })}
-                    />
-                  </div>
+                      <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                        <span className="text-sm font-medium">New Tag</span>
+                        <Switch
+                          checked={settings.is_new}
+                          onCheckedChange={(checked) => setSettings({ ...settings, is_new: checked })}
+                        />
+                      </div>
+                    </>
+                  )}
 
                   <div className="space-y-1.5">
                     <Label>{language === 'th' ? 'ข้อความ Consent (TH)' : 'Consent Text (TH)'}</Label>
@@ -439,7 +567,7 @@ export default function SurveyBuilder() {
               </DialogContent>
             </Dialog>
 
-            <Button onClick={handleSave} disabled={saving}>
+            <Button onClick={handleSave} disabled={saving} variant="outline">
               {saving ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
@@ -447,15 +575,40 @@ export default function SurveyBuilder() {
               )}
               {language === 'th' ? 'บันทึก' : 'Save'}
             </Button>
+
+            {/* Submit for Review button - only for owners with draft/rejected surveys */}
+            {canSubmit && (
+              <Button onClick={handleSubmitForReview} disabled={submitting}>
+                {submitting ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4 mr-2" />
+                )}
+                {language === 'th' ? 'ส่งตรวจสอบ' : 'Submit'}
+              </Button>
+            )}
           </div>
         </div>
+
+        {/* Status Banner */}
+        {survey?.status && survey.status !== 'published' && (
+          <div className={`mb-4 p-3 rounded-lg text-sm ${
+            survey.status === 'pending_review' ? 'bg-yellow-500/20 text-yellow-700' :
+            survey.status === 'rejected' ? 'bg-destructive/20 text-destructive' :
+            'bg-muted text-muted-foreground'
+          }`}>
+            {survey.status === 'pending_review' && (language === 'th' ? '⏳ รอ Admin ตรวจสอบและอนุมัติ' : '⏳ Waiting for admin review')}
+            {survey.status === 'rejected' && (language === 'th' ? `❌ ถูกปฏิเสธ: ${survey.rejection_feedback || 'ไม่มีเหตุผล'}` : `❌ Rejected: ${survey.rejection_feedback || 'No reason given'}`)}
+            {survey.status === 'draft' && (language === 'th' ? '📝 ร่าง - กด "ส่งตรวจสอบ" เมื่อพร้อม' : '📝 Draft - Click "Submit" when ready')}
+          </div>
+        )}
 
         <Tabs defaultValue="builder" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-6">
             <TabsTrigger value="builder">
               {language === 'th' ? '✏️ สร้างคำถาม' : '✏️ Builder'}
             </TabsTrigger>
-            <TabsTrigger value="analytics">
+            <TabsTrigger value="analytics" disabled={!isAdmin}>
               {language === 'th' ? '📊 ผลลัพธ์' : '📊 Analytics'}
             </TabsTrigger>
           </TabsList>

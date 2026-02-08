@@ -68,6 +68,10 @@ export interface NativeSurvey {
   consent_text_en: string | null;
   allow_anonymous: boolean;
   require_consent: boolean;
+  status: string;
+  rejection_feedback: string | null;
+  created_by: string | null;
+  submitted_at: string | null;
 }
 
 // For building new questions
