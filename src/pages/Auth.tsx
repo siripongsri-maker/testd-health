@@ -84,7 +84,7 @@ export default function Auth() {
           localStorage.setItem('isLoggedIn', 'true');
           localStorage.setItem('currentUser', username.trim());
           toast.success(language === 'th' ? 'ลงทะเบียนสำเร็จ! ยินดีต้อนรับ' : 'Registration successful! Welcome');
-          navigate('/onboarding');
+          navigate('/onboarding', { replace: true });
         }
       } else {
         const { data, error } = await signIn(internalEmail, password);
@@ -97,7 +97,8 @@ export default function Auth() {
           localStorage.setItem('isLoggedIn', 'true');
           localStorage.setItem('currentUser', displayName);
           toast.success(language === 'th' ? 'เข้าสู่ระบบสำเร็จ' : 'Login successful');
-          navigate('/');
+          // Always redirect to home page, never to admin
+          navigate('/', { replace: true });
         }
       }
     } catch (err) {
