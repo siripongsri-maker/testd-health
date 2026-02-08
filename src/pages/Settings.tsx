@@ -15,9 +15,10 @@ import { getUserData, setUserData, resetUserData } from "@/lib/store";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Bell, Pill, Clock, Shield, Trash2, Languages, Palette, User, LogOut, ShieldCheck, Loader2, UserCircle, Building2 } from "lucide-react";
+import { ArrowLeft, Bell, Pill, Clock, Shield, Trash2, Languages, Palette, User, LogOut, ShieldCheck, Loader2, UserCircle, Building2, Link2 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { SocialLoginButtons } from "@/components/SocialLoginButtons";
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -260,6 +261,27 @@ export default function Settings() {
                   </div>
                 </div>
               )}
+              
+              {/* Link Social Accounts Section */}
+              <div className="pt-4 border-t border-border/50">
+                <div className="flex items-center gap-2 mb-3">
+                  <Link2 className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {language === 'th' ? 'เชื่อมต่อบัญชีโซเชียล' : 'Link Social Accounts'}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground mb-3">
+                  {language === 'th' 
+                    ? 'เชื่อมต่อ Google หรือ Apple เพื่อเข้าสู่ระบบได้ง่ายขึ้น' 
+                    : 'Link Google or Apple for easier sign-in'}
+                </p>
+                <SocialLoginButtons 
+                  mode="link" 
+                  onSuccess={() => {
+                    toast.success(language === 'th' ? 'เชื่อมต่อบัญชีสำเร็จ!' : 'Account linked successfully!');
+                  }} 
+                />
+              </div>
               
               <Button 
                 variant="outline" 

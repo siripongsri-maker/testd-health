@@ -8,6 +8,7 @@ import { LanguageToggle } from '@/components/LanguageToggle';
 import { Shield, Lock, User, ArrowLeft, Eye, EyeOff, Loader2, UserPlus } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
+import { SocialLoginButtons } from '@/components/SocialLoginButtons';
 
 // Helper to convert username to internal email format
 // Accepts either plain username (e.g. staff_silom) OR full internal email (e.g. staff_silom@swingth.local)
@@ -279,6 +280,21 @@ export default function Auth() {
               }
             </button>
           </div>
+        </div>
+
+        {/* Social Login */}
+        <div className="w-full max-w-sm mt-6">
+          <div className="relative mb-4">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                {language === 'th' ? 'หรือ' : 'or'}
+              </span>
+            </div>
+          </div>
+          <SocialLoginButtons mode="login" onSuccess={() => navigate('/')} />
         </div>
 
         {/* Guest mode */}
