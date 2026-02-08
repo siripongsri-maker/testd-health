@@ -1060,6 +1060,51 @@ export type Database = {
         }
         Relationships: []
       }
+      survey_answers: {
+        Row: {
+          answer_options: Json | null
+          answer_rating: number | null
+          answer_text: string | null
+          created_at: string
+          id: string
+          question_id: string
+          response_id: string
+        }
+        Insert: {
+          answer_options?: Json | null
+          answer_rating?: number | null
+          answer_text?: string | null
+          created_at?: string
+          id?: string
+          question_id: string
+          response_id: string
+        }
+        Update: {
+          answer_options?: Json | null
+          answer_rating?: number | null
+          answer_text?: string | null
+          created_at?: string
+          id?: string
+          question_id?: string
+          response_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "survey_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "survey_answers_response_id_fkey"
+            columns: ["response_id"]
+            isOneToOne: false
+            referencedRelation: "survey_responses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       survey_completions: {
         Row: {
           completed_at: string
@@ -1095,9 +1140,121 @@ export type Database = {
           },
         ]
       }
+      survey_questions: {
+        Row: {
+          created_at: string
+          display_order: number | null
+          id: string
+          is_required: boolean | null
+          options: Json | null
+          question_text_en: string
+          question_text_th: string
+          question_type: string
+          rating_label_max_en: string | null
+          rating_label_max_th: string | null
+          rating_label_min_en: string | null
+          rating_label_min_th: string | null
+          rating_max: number | null
+          rating_min: number | null
+          survey_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_required?: boolean | null
+          options?: Json | null
+          question_text_en: string
+          question_text_th: string
+          question_type: string
+          rating_label_max_en?: string | null
+          rating_label_max_th?: string | null
+          rating_label_min_en?: string | null
+          rating_label_min_th?: string | null
+          rating_max?: number | null
+          rating_min?: number | null
+          survey_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          is_required?: boolean | null
+          options?: Json | null
+          question_text_en?: string
+          question_text_th?: string
+          question_type?: string
+          rating_label_max_en?: string | null
+          rating_label_max_th?: string | null
+          rating_label_min_en?: string | null
+          rating_label_min_th?: string | null
+          rating_max?: number | null
+          rating_min?: number | null
+          survey_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_questions_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      survey_responses: {
+        Row: {
+          completed_at: string | null
+          consent_given: boolean | null
+          consent_given_at: string | null
+          created_at: string
+          id: string
+          is_anonymous: boolean | null
+          session_id: string | null
+          survey_id: string
+          user_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          consent_given?: boolean | null
+          consent_given_at?: string | null
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean | null
+          session_id?: string | null
+          survey_id: string
+          user_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          consent_given?: boolean | null
+          consent_given_at?: string | null
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean | null
+          session_id?: string | null
+          survey_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_responses_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       surveys: {
         Row: {
+          allow_anonymous: boolean | null
           completion_count: number
+          consent_text_en: string | null
+          consent_text_th: string | null
           created_at: string
           created_by: string | null
           description_en: string | null
@@ -1105,7 +1262,9 @@ export type Database = {
           id: string
           is_active: boolean
           is_hot: boolean
+          is_native: boolean | null
           is_new: boolean
+          require_consent: boolean | null
           title_en: string
           title_th: string
           updated_at: string
@@ -1114,7 +1273,10 @@ export type Database = {
           xp_reward: number
         }
         Insert: {
+          allow_anonymous?: boolean | null
           completion_count?: number
+          consent_text_en?: string | null
+          consent_text_th?: string | null
           created_at?: string
           created_by?: string | null
           description_en?: string | null
@@ -1122,7 +1284,9 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_hot?: boolean
+          is_native?: boolean | null
           is_new?: boolean
+          require_consent?: boolean | null
           title_en: string
           title_th: string
           updated_at?: string
@@ -1131,7 +1295,10 @@ export type Database = {
           xp_reward?: number
         }
         Update: {
+          allow_anonymous?: boolean | null
           completion_count?: number
+          consent_text_en?: string | null
+          consent_text_th?: string | null
           created_at?: string
           created_by?: string | null
           description_en?: string | null
@@ -1139,7 +1306,9 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_hot?: boolean
+          is_native?: boolean | null
           is_new?: boolean
+          require_consent?: boolean | null
           title_en?: string
           title_th?: string
           updated_at?: string

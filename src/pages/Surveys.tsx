@@ -34,6 +34,7 @@ interface Survey {
   completion_count: number;
   created_at: string;
   is_active: boolean;
+  is_native: boolean;
 }
 
 export default function Surveys() {
@@ -107,6 +108,13 @@ export default function Surveys() {
   };
 
   const handleOpenSurvey = async (survey: Survey) => {
+    // For native surveys, navigate to the survey page
+    if (survey.is_native) {
+      navigate(`/surveys/${survey.id}`);
+      return;
+    }
+    
+    // For external surveys, open in new tab
     // Optimistically update UI
     setSurveys(prev => prev.map(s => 
       s.id === survey.id ? { ...s, completion_count: s.completion_count + 1, view_count: s.view_count + 1 } : s
@@ -136,6 +144,33 @@ export default function Surveys() {
     
     // Open survey
     window.open(survey.url, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleCreateNativeSurvey = async () => {
+    try {
+      // Create a new empty native survey
+      const { data, error } = await supabase
+        .from('surveys')
+        .insert({
+          title_th: language === 'th' ? 'แบบสำรวจใหม่' : 'New Survey',
+          title_en: 'New Survey',
+          url: '', // Empty for native surveys
+          is_native: true,
+          xp_reward: 10,
+          is_new: true,
+          created_by: user?.id,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast.success(language === 'th' ? 'สร้างแบบสำรวจสำเร็จ!' : 'Survey created!');
+      navigate(`/surveys/${data.id}/builder`);
+    } catch (err) {
+      console.error('Error creating survey:', err);
+      toast.error(language === 'th' ? 'เกิดข้อผิดพลาด' : 'Something went wrong');
+    }
   };
 
   const handleCreateSurvey = async () => {
@@ -301,13 +336,19 @@ export default function Surveys() {
           
           {/* Admin: Add Survey Button */}
           {isAdmin && (
-            <Dialog open={showBuilder} onOpenChange={setShowBuilder}>
-              <DialogTrigger asChild>
-                <Button size="sm" className="gap-1.5">
-                  <Plus className="h-4 w-4" />
-                  {language === 'th' ? 'สร้าง' : 'Create'}
-                </Button>
-              </DialogTrigger>
+            <div className="flex items-center gap-2">
+              <Button size="sm" className="gap-1.5" onClick={handleCreateNativeSurvey}>
+                <Plus className="h-4 w-4" />
+                {language === 'th' ? 'สร้างแบบสำรวจ' : 'Create Survey'}
+              </Button>
+              
+              <Dialog open={showBuilder} onOpenChange={setShowBuilder}>
+                <DialogTrigger asChild>
+                  <Button size="sm" variant="outline" className="gap-1.5">
+                    <ExternalLink className="h-4 w-4" />
+                    {language === 'th' ? 'ลิงก์ภายนอก' : 'External'}
+                  </Button>
+                </DialogTrigger>
               <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
@@ -430,6 +471,7 @@ export default function Surveys() {
                 </div>
               </DialogContent>
             </Dialog>
+          </div>
           )}
         </div>
 
@@ -547,8 +589,17 @@ export default function Surveys() {
                       </div>
                       
                       <div className="flex items-center gap-1 text-xs text-primary font-medium">
-                        <ExternalLink className="h-3 w-3" />
-                        <span>{language === 'th' ? 'เปิด' : 'Open'}</span>
+                        {survey.is_native ? (
+                          <>
+                            <Eye className="h-3 w-3" />
+                            <span>{language === 'th' ? 'เปิด' : 'Open'}</span>
+                          </>
+                        ) : (
+                          <>
+                            <ExternalLink className="h-3 w-3" />
+                            <span>{language === 'th' ? 'ลิงก์ภายนอก' : 'External'}</span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -556,14 +607,29 @@ export default function Surveys() {
                   {/* Admin actions */}
                   {isAdmin && (
                     <div className="flex flex-col gap-1 flex-shrink-0">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-muted-foreground hover:text-primary"
-                        onClick={(e) => handleEditClick(e, survey)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
+                      {survey.is_native && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-primary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/surveys/${survey.id}/builder`);
+                          }}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {!survey.is_native && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-primary"
+                          onClick={(e) => handleEditClick(e, survey)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="icon"
