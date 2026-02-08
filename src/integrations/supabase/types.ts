@@ -1264,7 +1264,10 @@ export type Database = {
           is_hot: boolean
           is_native: boolean | null
           is_new: boolean
+          rejection_feedback: string | null
           require_consent: boolean | null
+          status: string
+          submitted_at: string | null
           title_en: string
           title_th: string
           updated_at: string
@@ -1286,7 +1289,10 @@ export type Database = {
           is_hot?: boolean
           is_native?: boolean | null
           is_new?: boolean
+          rejection_feedback?: string | null
           require_consent?: boolean | null
+          status?: string
+          submitted_at?: string | null
           title_en: string
           title_th: string
           updated_at?: string
@@ -1308,7 +1314,10 @@ export type Database = {
           is_hot?: boolean
           is_native?: boolean | null
           is_new?: boolean
+          rejection_feedback?: string | null
           require_consent?: boolean | null
+          status?: string
+          submitted_at?: string | null
           title_en?: string
           title_th?: string
           updated_at?: string
