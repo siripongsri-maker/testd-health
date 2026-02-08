@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -312,8 +312,20 @@ export default function Auth() {
               </Button>
             </form>
 
+            {/* Forgot Password Link (Login mode only) */}
+            {!isRegisterMode && (
+              <div className="mt-4 text-center">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {language === 'th' ? 'ลืมรหัสผ่าน?' : 'Forgot password?'}
+                </Link>
+              </div>
+            )}
+
             {/* Toggle between Login/Register */}
-            <div className="mt-6 text-center">
+            <div className="mt-4 text-center">
               <button
                 type="button"
                 onClick={toggleMode}
