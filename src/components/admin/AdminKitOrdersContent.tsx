@@ -75,6 +75,7 @@ interface SelftestPii {
   postal_code: string | null;
   date_of_birth: string | null;
   line_id: string | null;
+  gender: string | null; // Sourced from selftest_pii.gender
 }
 
 interface HIVTestRequest {
@@ -226,7 +227,8 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             province,
             postal_code,
             date_of_birth,
-            line_id
+            line_id,
+            gender
           )
         `)
         .order('created_at', { ascending: false });
@@ -493,7 +495,8 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         csvContent += row + "\n";
       });
     } else {
-      csvContent = "Request ID,Branch,Thai ID,Name,Date of Birth,Phone,Line ID,Address,Subdistrict,District,Province,Postal Code,Status,Tracking Number,Test Result,Wants Callback,Callback Phone,Staff Notes,Created At,Updated At\n";
+      // CSV headers include gender field sourced from selftest_pii.gender
+      csvContent = "Request ID,Branch,Thai ID,Name,Gender,Date of Birth,Phone,Line ID,Address,Subdistrict,District,Province,Postal Code,Status,Tracking Number,Test Result,Wants Callback,Callback Phone,Staff Notes,Created At,Updated At\n";
       filteredHIVRequests.forEach(request => {
         const pii = request.selftest_pii;
         const row = [
@@ -501,6 +504,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
           request.assigned_branch || 'silom',
           pii?.thai_id || '',
           pii?.full_name || '',
+          pii?.gender || '', // Gender field from selftest_pii table
           pii?.date_of_birth || '',
           pii?.phone || '',
           pii?.line_id || '',
