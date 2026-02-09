@@ -28,6 +28,37 @@ const extractYouTubeVideoId = (url: string): string | null => {
   return null;
 };
 
+// Security: Validate image URLs to prevent XSS via javascript: or malicious data: URLs
+const isSafeImageUrl = (url: string): boolean => {
+  if (!url || typeof url !== 'string') return false;
+  
+  const trimmedUrl = url.trim().toLowerCase();
+  
+  // Block javascript: protocol
+  if (trimmedUrl.startsWith('javascript:')) return false;
+  
+  // Block vbscript: protocol
+  if (trimmedUrl.startsWith('vbscript:')) return false;
+  
+  // Allow http/https URLs
+  if (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://')) return true;
+  
+  // Allow safe data: URLs (only image types, no script-capable formats)
+  if (trimmedUrl.startsWith('data:')) {
+    // Only allow actual image MIME types, block text/html, image/svg+xml (can contain scripts)
+    const safeDataPatterns = [
+      /^data:image\/(png|jpeg|jpg|gif|webp|bmp|ico)/i
+    ];
+    return safeDataPatterns.some(pattern => pattern.test(trimmedUrl));
+  }
+  
+  // Allow relative URLs starting with /
+  if (trimmedUrl.startsWith('/')) return true;
+  
+  // Block everything else (including bare data:text/html, etc.)
+  return false;
+};
+
 interface Article {
   id: string;
   slug: string;
@@ -337,15 +368,21 @@ export default function InfoArticle() {
                         </span>
                       );
                     }
-                    // Add image
-                    parts.push(
-                      <img 
-                        key={`img-${match.index}`}
-                        src={match[2]} 
-                        alt={match[1]} 
-                        className="rounded-lg max-w-full my-4"
-                      />
-                    );
+                    // Add image only if URL is safe
+                    const imageUrl = match[2];
+                    if (isSafeImageUrl(imageUrl)) {
+                      parts.push(
+                        <img 
+                          key={`img-${match.index}`}
+                          src={imageUrl} 
+                          alt={match[1]} 
+                          className="rounded-lg max-w-full my-4"
+                        />
+                      );
+                    } else {
+                      // Block unsafe URLs silently (don't render anything)
+                      console.warn('Blocked unsafe image URL in article content');
+                    }
                     lastIndex = match.index + match[0].length;
                   }
                   
