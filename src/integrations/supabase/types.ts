@@ -1659,6 +1659,10 @@ export type Database = {
         Returns: number
       }
       generate_order_code: { Args: never; Returns: string }
+      get_article_like_count: {
+        Args: { p_article_id: string }
+        Returns: number
+      }
       get_public_site_stats: {
         Args: never
         Returns: {
@@ -1698,6 +1702,7 @@ export type Database = {
         Args: { _pii_id: string; _user_id: string }
         Returns: boolean
       }
+      user_liked_article: { Args: { p_article_id: string }; Returns: boolean }
       validate_thai_id: { Args: { thai_id: string }; Returns: boolean }
     }
     Enums: {

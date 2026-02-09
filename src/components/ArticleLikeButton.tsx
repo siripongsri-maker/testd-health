@@ -40,13 +40,11 @@ export function ArticleLikeButton({
     if (!user) return;
     
     try {
-      const { data } = await supabase
-        .from('article_likes')
-        .select('id')
-        .eq('article_id', articleId)
-        .eq('user_id', user.id)
-        .maybeSingle();
+      // Use secure RPC function to check if user liked the article
+      const { data, error } = await supabase
+        .rpc('user_liked_article', { p_article_id: articleId });
 
+      if (error) throw error;
       setLiked(!!data);
     } catch (error) {
       console.error('Error checking like:', error);
