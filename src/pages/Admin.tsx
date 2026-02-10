@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { AdminLayout } from "@/components/AdminLayout";
 import { useLanguage } from "@/lib/i18n";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, BarChart3, FileText, Loader2, LayoutDashboard, Bell, Users, Building2, ClipboardList } from "lucide-react";
+import { Package, BarChart3, FileText, Loader2, LayoutDashboard, Bell, Users, Building2, ClipboardList, FileUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -19,6 +19,7 @@ const AdminNotificationsContent = lazy(() => import("@/components/admin/AdminNot
 const AdminUsersContent = lazy(() => import("@/components/admin/AdminUsersContent").then(m => ({ default: m.AdminUsersContent })));
 const AdminBranchStaffContent = lazy(() => import("@/components/admin/AdminBranchStaffContent"));
 const AdminSurveysContent = lazy(() => import("@/components/admin/AdminSurveysContent"));
+const AdminImportContent = lazy(() => import("@/components/admin/AdminImportContent"));
 
 const TabLoader = () => (
   <div className="flex items-center justify-center h-64">
@@ -142,7 +143,7 @@ export default function Admin() {
         )}
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className={`w-full mb-4 grid h-auto ${isAdmin ? 'grid-cols-8' : 'grid-cols-2'}`}>
+          <TabsList className={`w-full mb-4 grid h-auto ${isAdmin ? 'grid-cols-9' : 'grid-cols-2'}`}>
             {canAccessTab("dashboard") && (
               <TabsTrigger value="dashboard" className="flex items-center gap-2 py-3">
                 <LayoutDashboard className="h-4 w-4" />
@@ -202,6 +203,14 @@ export default function Admin() {
                 <ClipboardList className="h-4 w-4" />
                 <span className="hidden md:inline">
                   {language === 'th' ? 'แบบสำรวจ' : 'Surveys'}
+                </span>
+              </TabsTrigger>
+            )}
+            {canAccessTab("import") && (
+              <TabsTrigger value="import" className="flex items-center gap-2 py-3">
+                <FileUp className="h-4 w-4" />
+                <span className="hidden md:inline">
+                  {language === 'th' ? 'นำเข้า' : 'Import'}
                 </span>
               </TabsTrigger>
             )}
@@ -269,6 +278,14 @@ export default function Admin() {
             <TabsContent value="surveys" className="mt-0">
               <Suspense fallback={<TabLoader />}>
                 <AdminSurveysContent />
+              </Suspense>
+            </TabsContent>
+          )}
+
+          {canAccessTab("import") && (
+            <TabsContent value="import" className="mt-0">
+              <Suspense fallback={<TabLoader />}>
+                <AdminImportContent />
               </Suspense>
             </TabsContent>
           )}

@@ -19,39 +19,43 @@ export function CommunityStats() {
   });
   const [isVisible, setIsVisible] = useState(false);
 
+  const fetchStats = async () => {
+    try {
+      const { count: kitCount } = await supabase
+        .from("kit_orders")
+        .select("*", { count: "exact", head: true });
+
+      const { count: memberCount } = await supabase
+        .from("profiles")
+        .select("*", { count: "exact", head: true });
+
+      const { count: selftestCount } = await supabase
+        .from("hiv_selftest_requests")
+        .select("*", { count: "exact", head: true });
+
+      setStats({
+        totalKits: (kitCount || 0) + (selftestCount || 0),
+        totalMembers: memberCount || 0,
+        peopleHelped: (kitCount || 0) + (selftestCount || 0) + (memberCount || 0),
+      });
+    } catch (error) {
+      console.error("Error fetching stats:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        // Fetch kit orders count
-        const { count: kitCount } = await supabase
-          .from("kit_orders")
-          .select("*", { count: "exact", head: true });
-
-        // Fetch member count
-        const { count: memberCount } = await supabase
-          .from("profiles")
-          .select("*", { count: "exact", head: true });
-
-        // Fetch HIV selftest requests count
-        const { count: selftestCount } = await supabase
-          .from("hiv_selftest_requests")
-          .select("*", { count: "exact", head: true });
-
-        setStats({
-          totalKits: (kitCount || 0) + (selftestCount || 0),
-          totalMembers: memberCount || 0,
-          peopleHelped: (kitCount || 0) + (selftestCount || 0) + (memberCount || 0),
-        });
-      } catch (error) {
-        console.error("Error fetching stats:", error);
-      }
-    };
-
     fetchStats();
+    
+    // Re-fetch when import completes
+    const handleImport = () => fetchStats();
+    window.addEventListener("selftest-import-complete", handleImport);
     
     // Trigger animation after a short delay
     const timer = setTimeout(() => setIsVisible(true), 300);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("selftest-import-complete", handleImport);
+    };
   }, []);
 
   const statItems = [
