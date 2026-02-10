@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  Upload, FileSpreadsheet, Play, Eye, Loader2, CheckCircle2, AlertTriangle, Download, Database
+  Upload, FileSpreadsheet, Play, Eye, Loader2, CheckCircle2, AlertTriangle, Download, Database, FileSearch
 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -20,6 +20,7 @@ interface ImportResult {
   errors: Array<{ row: number; reason: string }>;
   insertedIds: string[];
   updatedIds: string[];
+  csvType?: "bangkok" | "pattaya_reach" | "unknown";
 }
 
 export default function AdminImportContent() {
@@ -40,6 +41,12 @@ export default function AdminImportContent() {
       setResult(null);
       setDbVerified(null);
     }
+  };
+
+  const csvTypeLabel = (type?: string) => {
+    if (type === "bangkok") return language === "th" ? "Bangkok Form (Google Form)" : "Bangkok Form (Google Form)";
+    if (type === "pattaya_reach") return language === "th" ? "Pattaya Reach" : "Pattaya Reach";
+    return language === "th" ? "ไม่ทราบ" : "Unknown";
   };
 
   const runImport = async (dryRun: boolean) => {
@@ -82,13 +89,12 @@ export default function AdminImportContent() {
       setIsDryRun(data.dry_run);
 
       if (!dryRun && data.result) {
-        // Verify inserted/updated records exist in DB
         const allIds = [...(data.result.insertedIds || []), ...(data.result.updatedIds || [])];
         if (allIds.length > 0) {
           const { count } = await supabase
             .from("hiv_selftest_requests")
             .select("*", { count: "exact", head: true })
-            .in("id", allIds.slice(0, 100)); // Check first 100
+            .in("id", allIds.slice(0, 100));
           setDbVerified(count || 0);
         }
 
@@ -98,7 +104,6 @@ export default function AdminImportContent() {
             : `Import complete — stats updated`
         );
 
-        // Force window event to trigger stat refetches across app
         window.dispatchEvent(new CustomEvent("selftest-import-complete"));
       } else if (dryRun) {
         toast.info(
@@ -140,8 +145,8 @@ export default function AdminImportContent() {
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
             {language === "th"
-              ? "นำเข้าข้อมูลจาก Bangkok site CSV เข้าตาราง selftest_pii + hiv_selftest_requests โดยตรวจสอบซ้ำอัตโนมัติ"
-              : "Import Bangkok site CSV into existing selftest_pii + hiv_selftest_requests tables with automatic deduplication"}
+              ? "รองรับ 2 รูปแบบ: Bangkok Form (Google Form) และ Pattaya Reach — ตรวจจับอัตโนมัติ"
+              : "Supports 2 formats: Bangkok Form (Google Form) and Pattaya Reach — auto-detected"}
           </p>
 
           {/* Branch selector */}
@@ -232,6 +237,22 @@ export default function AdminImportContent() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* CSV Type indicator */}
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50 border border-border/50">
+              <FileSearch className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">
+                {language === "th" ? "รูปแบบ CSV ที่ตรวจพบ:" : "Auto-detected CSV type:"}
+              </span>
+              <Badge variant="secondary" className="text-xs">
+                {csvTypeLabel(result.csvType)}
+              </Badge>
+              {result.csvType === "pattaya_reach" && (
+                <span className="text-xs text-muted-foreground">
+                  ({language === "th" ? "ไม่มีเบอร์โทร/Line/ที่อยู่ — ใช้ Thai ID เท่านั้น" : "No phone/Line/address — Thai ID only"})
+                </span>
+              )}
+            </div>
+
             {/* Summary stats */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               <div className="p-3 rounded-lg bg-muted/50 text-center">
@@ -282,7 +303,7 @@ export default function AdminImportContent() {
                 <div className="flex items-center justify-between">
                   <h4 className="text-sm font-medium flex items-center gap-1">
                     <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                    {language === "th" ? "รายละเอียดข้อผิดพลาด" : "Error Details"}
+                    {language === "th" ? "รายละเอียดข้อผิดพลาด / แถวที่ข้าม" : "Error Details / Skipped Rows"}
                   </h4>
                   <Button variant="outline" size="sm" onClick={downloadErrorReport}>
                     <Download className="h-3 w-3 mr-1" />

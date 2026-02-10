@@ -9,27 +9,16 @@ const corsHeaders = {
 /**
  * Edge Function: import-existing-selftest-csv
  * 
- * Imports Bangkok HIV self-test CSV data into existing tables:
+ * Imports HIV self-test CSV data into existing tables:
  * - selftest_pii (PII: name, thai_id, phone, gender, dob, line_id, address)
  * - hiv_selftest_requests (request record linked to selftest_pii)
  * 
- * Supports dry_run mode (no DB writes) and full import with dedupe.
+ * Supports two CSV formats:
+ * 1. Bangkok Google Form style (UTF-8)
+ * 2. Pattaya Reach style (CP874/Windows-874)
  */
 
-interface ParsedRow {
-  rowNum: number;
-  timestamp: string | null;
-  consent: boolean;
-  nickname: string | null;
-  fullName: string | null;
-  gender: string | null;
-  dateOfBirth: string | null;
-  thaiId: string | null;
-  phone: string | null;
-  lineId: string | null;
-  address: string | null;
-  // Extra fields from CSV that don't map to existing columns are ignored
-}
+type CsvType = "bangkok" | "pattaya_reach" | "unknown";
 
 interface ImportResult {
   total: number;
@@ -39,9 +28,11 @@ interface ImportResult {
   errors: Array<{ row: number; reason: string }>;
   insertedIds: string[];
   updatedIds: string[];
+  csvType: CsvType;
 }
 
-// Parse CSV handling quoted fields with commas and newlines
+// ── CSV Parsing ──
+
 function parseCSV(text: string): string[][] {
   const rows: string[][] = [];
   let current = '';
@@ -55,7 +46,7 @@ function parseCSV(text: string): string[][] {
     if (inQuotes) {
       if (char === '"' && next === '"') {
         current += '"';
-        i++; // skip next quote
+        i++;
       } else if (char === '"') {
         inQuotes = false;
       } else {
@@ -74,14 +65,12 @@ function parseCSV(text: string): string[][] {
           rows.push(row);
         }
         row = [];
-        if (char === '\r') i++; // skip \n
-
+        if (char === '\r') i++;
       } else {
         current += char;
       }
     }
   }
-  // Last row
   if (current !== '' || row.length > 0) {
     row.push(current.trim());
     if (row.some(cell => cell !== '')) {
@@ -92,7 +81,118 @@ function parseCSV(text: string): string[][] {
   return rows;
 }
 
-// Find column index by partial Thai header match
+// ── Encoding ──
+
+// Windows-874 (CP874) decode table for bytes 0x80-0xFF
+const CP874_MAP: Record<number, string> = {
+  0x80: '\u20AC', // Euro sign
+  // 0x81-0x84 undefined
+  0x85: '\u2026', // Ellipsis
+  // 0x86-0x90 undefined
+  0x91: '\u2018', 0x92: '\u2019', 0x93: '\u201C', 0x94: '\u201D',
+  0x95: '\u2022', 0x96: '\u2013', 0x97: '\u2014',
+  // 0x98-0x9F undefined
+  0xA0: '\u00A0', // Non-breaking space
+  0xA1: '\u0E01', 0xA2: '\u0E02', 0xA3: '\u0E03', 0xA4: '\u0E04',
+  0xA5: '\u0E05', 0xA6: '\u0E06', 0xA7: '\u0E07', 0xA8: '\u0E08',
+  0xA9: '\u0E09', 0xAA: '\u0E0A', 0xAB: '\u0E0B', 0xAC: '\u0E0C',
+  0xAD: '\u0E0D', 0xAE: '\u0E0E', 0xAF: '\u0E0F',
+  0xB0: '\u0E10', 0xB1: '\u0E11', 0xB2: '\u0E12', 0xB3: '\u0E13',
+  0xB4: '\u0E14', 0xB5: '\u0E15', 0xB6: '\u0E16', 0xB7: '\u0E17',
+  0xB8: '\u0E18', 0xB9: '\u0E19', 0xBA: '\u0E1A', 0xBB: '\u0E1B',
+  0xBC: '\u0E1C', 0xBD: '\u0E1D', 0xBE: '\u0E1E', 0xBF: '\u0E1F',
+  0xC0: '\u0E20', 0xC1: '\u0E21', 0xC2: '\u0E22', 0xC3: '\u0E23',
+  0xC4: '\u0E24', 0xC5: '\u0E25', 0xC6: '\u0E26', 0xC7: '\u0E27',
+  0xC8: '\u0E28', 0xC9: '\u0E29', 0xCA: '\u0E2A', 0xCB: '\u0E2B',
+  0xCC: '\u0E2C', 0xCD: '\u0E2D', 0xCE: '\u0E2E', 0xCF: '\u0E2F',
+  0xD0: '\u0E30', 0xD1: '\u0E31', 0xD2: '\u0E32', 0xD3: '\u0E33',
+  0xD4: '\u0E34', 0xD5: '\u0E35', 0xD6: '\u0E36', 0xD7: '\u0E37',
+  0xD8: '\u0E38', 0xD9: '\u0E39', 0xDA: '\u0E3A',
+  // 0xDB-0xDE undefined
+  0xDF: '\u0E3F', // Thai Baht sign
+  0xE0: '\u0E40', 0xE1: '\u0E41', 0xE2: '\u0E42', 0xE3: '\u0E43',
+  0xE4: '\u0E44', 0xE5: '\u0E45', 0xE6: '\u0E46', 0xE7: '\u0E47',
+  0xE8: '\u0E48', 0xE9: '\u0E49', 0xEA: '\u0E4A', 0xEB: '\u0E4B',
+  0xEC: '\u0E4C', 0xED: '\u0E4D', 0xEE: '\u0E4E', 0xEF: '\u0E4F',
+  0xF0: '\u0E50', 0xF1: '\u0E51', 0xF2: '\u0E52', 0xF3: '\u0E53',
+  0xF4: '\u0E54', 0xF5: '\u0E55', 0xF6: '\u0E56', 0xF7: '\u0E57',
+  0xF8: '\u0E58', 0xF9: '\u0E59', 0xFA: '\u0E5A', 0xFB: '\u0E5B',
+};
+
+function decodeCp874(bytes: Uint8Array): string {
+  let result = '';
+  for (let i = 0; i < bytes.length; i++) {
+    const b = bytes[i];
+    if (b < 0x80) {
+      result += String.fromCharCode(b);
+    } else {
+      result += CP874_MAP[b] || '\uFFFD'; // replacement char for unmapped
+    }
+  }
+  return result;
+}
+
+function isValidUtf8Thai(text: string): boolean {
+  // If decoding as UTF-8 produced replacement chars or no Thai chars in header, it's not UTF-8
+  const firstLine = text.split('\n')[0] || '';
+  const hasReplacementChars = firstLine.includes('\uFFFD');
+  // Check if the header contains recognizable Thai Unicode range (U+0E01-U+0E5B)
+  const thaiCharCount = (firstLine.match(/[\u0E01-\u0E5B]/g) || []).length;
+  return !hasReplacementChars && thaiCharCount > 3;
+}
+
+async function decodeCSVFile(file: File): Promise<string> {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  
+  // Try UTF-8 first
+  const decoder = new TextDecoder('utf-8', { fatal: false });
+  const utf8Text = decoder.decode(bytes);
+  
+  if (isValidUtf8Thai(utf8Text)) {
+    return utf8Text;
+  }
+  
+  // Fallback: CP874
+  const cp874Text = decodeCp874(bytes);
+  const cp874FirstLine = cp874Text.split('\n')[0] || '';
+  const thaiCount = (cp874FirstLine.match(/[\u0E01-\u0E5B]/g) || []).length;
+  
+  if (thaiCount > 3) {
+    console.log("Decoded CSV as CP874/Windows-874");
+    return cp874Text;
+  }
+  
+  throw new Error("Unsupported CSV encoding");
+}
+
+// ── CSV Type Detection ──
+
+function detectCsvType(headers: string[]): CsvType {
+  const joined = headers.join(' ');
+  
+  // Bangkok Google Form markers
+  if (joined.includes('ประทับเวลา') && joined.includes('ชื่อ-นามสกุล')) {
+    return 'bangkok';
+  }
+  
+  // Pattaya Reach markers
+  if (joined.includes('วันที่รับบริการ') && (joined.includes('ชื่อจริง') || joined.includes('นามสกุล'))) {
+    return 'pattaya_reach';
+  }
+  
+  // Fallback heuristics
+  if (joined.includes('ประทับเวลา') || joined.includes('Line id') || joined.includes('ที่อยู่ในการจัดส่ง')) {
+    return 'bangkok';
+  }
+  if (joined.includes('UIC') || joined.includes('HNID') || joined.includes('กลุ่มประชากร')) {
+    return 'pattaya_reach';
+  }
+  
+  return 'unknown';
+}
+
+// ── Column Helpers ──
+
 function findCol(headers: string[], ...patterns: string[]): number {
   for (const pattern of patterns) {
     const idx = headers.findIndex(h => h.includes(pattern));
@@ -101,20 +201,17 @@ function findCol(headers: string[], ...patterns: string[]): number {
   return -1;
 }
 
-// Normalize phone: keep digits, preserve leading 0
 function normalizePhone(raw: string | undefined): string | null {
   if (!raw) return null;
-  const digits = raw.replace(/[^\\d]/g, '');
+  const digits = raw.replace(/\D/g, '');
   if (!digits) return null;
   return digits;
 }
 
-// Normalize Thai ID: keep digits, validate 13 digits
 function normalizeThaiId(raw: string | undefined): { value: string | null; valid: boolean } {
   if (!raw) return { value: null, valid: false };
-  const digits = raw.replace(/[^\\d]/g, '');
+  const digits = raw.replace(/\D/g, '');
   if (digits.length !== 13) return { value: digits || null, valid: false };
-  // Checksum validation
   let sum = 0;
   for (let i = 0; i < 12; i++) {
     sum += parseInt(digits[i]) * (13 - i);
@@ -124,25 +221,21 @@ function normalizeThaiId(raw: string | undefined): { value: string | null; valid
   return { value: digits, valid };
 }
 
-// Parse Thai Buddhist date format to Gregorian YYYY-MM-DD
 function parseBuddhistDate(raw: string | undefined): string | null {
   if (!raw) return null;
   const cleaned = raw.trim();
   
-  // Try DD/MM/YYYY format (Buddhist or Gregorian)
   const slashMatch = cleaned.match(/(\d{1,2})\s*\/\s*(\d{1,2})\s*\/\s*(\d{4})/);
   if (slashMatch) {
     let day = parseInt(slashMatch[1]);
     let month = parseInt(slashMatch[2]);
     let year = parseInt(slashMatch[3]);
-    // Buddhist year > 2400
     if (year > 2400) year -= 543;
     if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
       return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     }
   }
 
-  // Try "3ม.ค.2526" Thai short month format
   const thaiMonths: Record<string, number> = {
     'ม.ค.': 1, 'ก.พ.': 2, 'มี.ค.': 3, 'เม.ย.': 4,
     'พ.ค.': 5, 'มิ.ย.': 6, 'ก.ค.': 7, 'ส.ค.': 8,
@@ -165,14 +258,12 @@ function parseBuddhistDate(raw: string | undefined): string | null {
     }
   }
 
-  // Try YYYY-MM-DD or DD/MM/YY
   const isoMatch = cleaned.match(/(\d{4})-(\d{2})-(\d{2})/);
   if (isoMatch) return cleaned;
 
   return null;
 }
 
-// Normalize gender to match existing enum values in selftest_pii
 function normalizeGender(raw: string | undefined): string | null {
   if (!raw) return null;
   const g = raw.trim().toLowerCase();
@@ -184,14 +275,12 @@ function normalizeGender(raw: string | undefined): string | null {
   return raw.trim() || null;
 }
 
-// Parse consent value
 function parseConsent(raw: string | undefined): boolean {
   if (!raw) return false;
   const v = raw.trim().toLowerCase();
   return v === 'ยินยอม' || v === 'yes' || v === 'true' || v === '1';
 }
 
-// Parse timestamp "19/11/2025, 13:30:42" → ISO string
 function parseTimestamp(raw: string | undefined): string | null {
   if (!raw) return null;
   const match = raw.trim().match(/(\d{1,2})\/(\d{1,2})\/(\d{4}),?\s*(\d{1,2}):(\d{2}):?(\d{2})?/);
@@ -199,6 +288,70 @@ function parseTimestamp(raw: string | undefined): string | null {
   const [, day, month, year, hour, min, sec] = match;
   return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${hour.padStart(2, '0')}:${min.padStart(2, '0')}:${(sec || '00').padStart(2, '0')}+07:00`;
 }
+
+// Parse DD/MM/YYYY date (Pattaya style, Gregorian) -> ISO timestamp
+function parseDateToTimestamp(raw: string | undefined): string | null {
+  if (!raw) return null;
+  const cleaned = raw.trim();
+  const match = cleaned.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (!match) return null;
+  const [, day, month, year] = match;
+  let y = parseInt(year);
+  if (y > 2400) y -= 543;
+  return `${y}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T00:00:00+07:00`;
+}
+
+// ── Bangkok Format Processing ──
+
+function processBangkokRow(
+  cells: string[],
+  headers: string[],
+  colMap: Record<string, number>,
+): { fullName: string | null; thaiId: ReturnType<typeof normalizeThaiId>; phone: string | null; lineId: string | null; gender: string | null; dob: string | null; address: string | null; timestamp: string | null } {
+  const get = (key: string) => {
+    const idx = colMap[key];
+    return idx >= 0 && idx < cells.length ? cells[idx]?.trim() : undefined;
+  };
+  return {
+    fullName: get('fullName') || null,
+    thaiId: normalizeThaiId(get('thaiId')),
+    phone: normalizePhone(get('phone')),
+    lineId: get('lineId') || null,
+    gender: normalizeGender(get('gender')),
+    dob: parseBuddhistDate(get('dob')),
+    address: get('address') || null,
+    timestamp: parseTimestamp(get('timestamp')),
+  };
+}
+
+// ── Pattaya Reach Format Processing ──
+
+function processPattayaReachRow(
+  cells: string[],
+  colMap: Record<string, number>,
+): { fullName: string | null; thaiId: ReturnType<typeof normalizeThaiId>; phone: null; lineId: null; gender: string | null; dob: null; address: null; timestamp: string | null } {
+  const get = (key: string) => {
+    const idx = colMap[key];
+    return idx >= 0 && idx < cells.length ? cells[idx]?.trim() : undefined;
+  };
+  
+  const firstName = get('firstName') || '';
+  const lastName = get('lastName') || '';
+  const fullName = [firstName, lastName].filter(Boolean).join(' ') || null;
+  
+  return {
+    fullName,
+    thaiId: normalizeThaiId(get('thaiId')),
+    phone: null, // Pattaya Reach has no phone column
+    lineId: null, // Pattaya Reach has no Line ID column
+    gender: normalizeGender(get('gender')),
+    dob: null, // Pattaya Reach has age, not DOB
+    address: null, // Pattaya Reach has no address column
+    timestamp: parseDateToTimestamp(get('serviceDate')),
+  };
+}
+
+// ── Main Handler ──
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -219,7 +372,6 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-    // Verify the caller is admin using their token
     const userClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -231,7 +383,6 @@ serve(async (req) => {
       });
     }
 
-    // Check admin role
     const { data: isAdmin } = await userClient.rpc("has_role", {
       _user_id: user.id,
       _role: "admin",
@@ -243,10 +394,8 @@ serve(async (req) => {
       });
     }
 
-    // Use service role client for DB operations (bypass RLS)
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Parse request body
     const formData = await req.formData();
     const csvFile = formData.get("csv") as File;
     const dryRun = formData.get("dry_run") === "true";
@@ -259,7 +408,17 @@ serve(async (req) => {
       });
     }
 
-    const csvText = await csvFile.text();
+    // Robust decoding: UTF-8 → CP874 fallback
+    let csvText: string;
+    try {
+      csvText = await decodeCSVFile(csvFile);
+    } catch (encErr: any) {
+      return new Response(JSON.stringify({ error: encErr.message || "Unsupported CSV encoding" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const rows = parseCSV(csvText);
 
     if (rows.length < 2) {
@@ -269,31 +428,53 @@ serve(async (req) => {
       });
     }
 
-    // Map headers
     const headers = rows[0].map(h => h.replace(/\s+/g, ' ').trim());
-    
-    const colTimestamp = findCol(headers, 'ประทับเวลา');
-    const colConsent = findCol(headers, 'ยินยอม', 'PDPA');
-    const colNickname = findCol(headers, 'ชื่อเล่น');
-    const colFullName = findCol(headers, 'ชื่อ-นามสกุล');
-    const colGender = findCol(headers, 'เพศกำเนิด');
-    const colDOB = findCol(headers, 'วันเดือนปีเกิด');
-    const colThaiId = findCol(headers, 'เลขที่บัตรปปช', 'บัตรปปช');
-    const colPhone = findCol(headers, 'เบอร์โทรศัพท์');
-    const colLineId = findCol(headers, 'Line id', 'line id', 'Line ID');
-    const colAddress = findCol(headers, 'ที่อยู่ในการจัดส่ง', 'ที่อยู่');
+    const csvType = detectCsvType(headers);
+    console.log("Detected CSV type:", csvType, "Headers:", headers.slice(0, 10));
 
-    console.log("Column mapping:", {
-      colTimestamp, colConsent, colNickname, colFullName, colGender,
-      colDOB, colThaiId, colPhone, colLineId, colAddress
-    });
+    if (csvType === 'unknown') {
+      return new Response(JSON.stringify({ error: "Unrecognized CSV format. Expected Bangkok Form or Pattaya Reach headers." }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
-    // Pre-fetch existing PII records for deduplication
+    // Build column maps per format
+    let colMap: Record<string, number> = {};
+
+    if (csvType === 'bangkok') {
+      colMap = {
+        timestamp: findCol(headers, 'ประทับเวลา'),
+        consent: findCol(headers, 'ยินยอม', 'PDPA'),
+        nickname: findCol(headers, 'ชื่อเล่น'),
+        fullName: findCol(headers, 'ชื่อ-นามสกุล'),
+        gender: findCol(headers, 'เพศกำเนิด'),
+        dob: findCol(headers, 'วันเดือนปีเกิด'),
+        thaiId: findCol(headers, 'เลขที่บัตรปปช', 'บัตรปปช'),
+        phone: findCol(headers, 'เบอร์โทรศัพท์'),
+        lineId: findCol(headers, 'Line id', 'line id', 'Line ID'),
+        address: findCol(headers, 'ที่อยู่ในการจัดส่ง', 'ที่อยู่'),
+      };
+    } else {
+      // pattaya_reach
+      colMap = {
+        serviceDate: findCol(headers, 'วันที่รับบริการ'),
+        firstName: findCol(headers, 'ชื่อจริง'),
+        lastName: findCol(headers, 'นามสกุล'),
+        gender: findCol(headers, 'เพศ'),
+        thaiId: findCol(headers, 'เลขบัตรประชาชน'),
+        hivst: findCol(headers, 'ตรวจเอชไอวี หรือชุดตรวจ', 'HIVST', 'ตรวจเอชไอวี'),
+        hivResult: findCol(headers, 'ผลตรวจ HIV'),
+      };
+    }
+
+    console.log("Column map:", colMap);
+
+    // Pre-fetch existing data for deduplication
     const { data: existingPii } = await adminClient
       .from('selftest_pii')
       .select('id, user_id, thai_id, phone, line_id, full_name, gender, date_of_birth, address, province, postal_code, district, subdistrict');
 
-    // Build lookup maps
     const piiByThaiId = new Map<string, any>();
     const piiByPhone = new Map<string, any>();
     const piiByLineId = new Map<string, any>();
@@ -304,7 +485,6 @@ serve(async (req) => {
       if (p.line_id) piiByLineId.set(p.line_id.toLowerCase(), p);
     }
 
-    // Also fetch existing hiv_selftest_requests pii_ids to avoid duplicate requests
     const { data: existingRequests } = await adminClient
       .from('hiv_selftest_requests')
       .select('id, pii_id, user_id');
@@ -321,58 +501,99 @@ serve(async (req) => {
       errors: [],
       insertedIds: [],
       updatedIds: [],
+      csvType,
     };
 
-    // Process data rows
+    // Process rows
     for (let i = 1; i < rows.length; i++) {
       const cells = rows[i];
       const rowNum = i + 1;
 
       try {
-        const get = (idx: number) => idx >= 0 && idx < cells.length ? cells[idx]?.trim() : undefined;
+        let fullName: string | null;
+        let thaiId: ReturnType<typeof normalizeThaiId>;
+        let phone: string | null;
+        let lineId: string | null;
+        let gender: string | null;
+        let dob: string | null;
+        let address: string | null;
+        let timestamp: string | null;
 
-        const fullName = get(colFullName) || null;
-        const thaiIdRaw = get(colThaiId);
-        const thaiId = normalizeThaiId(thaiIdRaw);
-        const phone = normalizePhone(get(colPhone));
-        const lineId = get(colLineId) || null;
-        const gender = normalizeGender(get(colGender));
-        const dob = parseBuddhistDate(get(colDOB));
-        const address = get(colAddress) || null;
-        const timestamp = parseTimestamp(get(colTimestamp));
+        if (csvType === 'bangkok') {
+          const parsed = processBangkokRow(cells, headers, colMap);
+          fullName = parsed.fullName;
+          thaiId = parsed.thaiId;
+          phone = parsed.phone;
+          lineId = parsed.lineId;
+          gender = parsed.gender;
+          dob = parsed.dob;
+          address = parsed.address;
+          timestamp = parsed.timestamp;
+        } else {
+          // pattaya_reach
+          const parsed = processPattayaReachRow(cells, colMap);
+          fullName = parsed.fullName;
+          thaiId = parsed.thaiId;
+          phone = null;
+          lineId = null;
+          gender = parsed.gender;
+          dob = null;
+          address = null;
+          timestamp = parsed.timestamp;
+        }
 
-        // Dedupe: find existing record
+        // ── Dedupe ──
         let existingPiiRecord: any = null;
 
         if (thaiId.value && thaiId.valid) {
           existingPiiRecord = piiByThaiId.get(thaiId.value);
         }
-        if (!existingPiiRecord && phone) {
-          existingPiiRecord = piiByPhone.get(phone);
-        }
-        if (!existingPiiRecord && lineId) {
-          existingPiiRecord = piiByLineId.get(lineId.toLowerCase());
+        // For Bangkok: also match by phone/lineId
+        if (csvType === 'bangkok') {
+          if (!existingPiiRecord && phone) {
+            existingPiiRecord = piiByPhone.get(phone);
+          }
+          if (!existingPiiRecord && lineId) {
+            existingPiiRecord = piiByLineId.get(lineId.toLowerCase());
+          }
         }
 
-        // Skip rows with no identifiers
-        if (!existingPiiRecord && !thaiId.value && !phone && !lineId) {
-          result.skipped++;
-          result.errors.push({ row: rowNum, reason: "No identifiers (Thai ID, phone, or Line ID)" });
-          continue;
+        // ── Skip logic per format ──
+        if (csvType === 'pattaya_reach') {
+          // Pattaya Reach: MUST have valid thai_id to insert or match
+          if (!thaiId.value || !thaiId.valid) {
+            result.skipped++;
+            result.errors.push({
+              row: rowNum,
+              reason: `Skipped: ${!thaiId.value ? 'Missing Thai ID' : 'Invalid Thai ID checksum'} (Pattaya Reach requires valid Thai ID)`,
+            });
+            continue;
+          }
+        } else {
+          // Bangkok: need at least one identifier
+          if (!existingPiiRecord && !thaiId.value && !phone && !lineId) {
+            result.skipped++;
+            result.errors.push({ row: rowNum, reason: "No identifiers (Thai ID, phone, or Line ID)" });
+            continue;
+          }
         }
 
         if (dryRun) {
-          // Just count what would happen
           if (existingPiiRecord) {
             result.updated++;
             result.updatedIds.push(existingPiiRecord.id);
           } else {
-            result.inserted++;
+            if (csvType === 'pattaya_reach') {
+              // Will insert (no phone/address but schema allows nulls)
+              result.inserted++;
+            } else {
+              result.inserted++;
+            }
           }
           continue;
         }
 
-        // REAL IMPORT
+        // ── REAL IMPORT ──
         if (existingPiiRecord) {
           // UPDATE existing PII - never overwrite non-null with null
           const updates: Record<string, any> = {};
@@ -393,9 +614,8 @@ serve(async (req) => {
             if (updateErr) throw updateErr;
           }
 
-          // Check if request already exists for this PII
+          // Check if request already exists
           if (!requestByPiiId.has(existingPiiRecord.id)) {
-            // Create request record
             const { data: reqData, error: reqErr } = await adminClient
               .from('hiv_selftest_requests')
               .insert({
@@ -415,10 +635,8 @@ serve(async (req) => {
 
           result.updated++;
         } else {
-          // INSERT new records - need a system user_id for imported records
-          // Use a deterministic approach: create PII without user_id won't work (NOT NULL constraint)
-          // We'll use a service-level import user or the admin's ID
-          const importUserId = user.id; // Admin user as owner for imported records
+          // INSERT new record
+          const importUserId = user.id;
 
           const { data: piiData, error: piiErr } = await adminClient
             .from('selftest_pii')
@@ -449,7 +667,7 @@ serve(async (req) => {
             .single();
           if (reqErr) throw reqErr;
 
-          // Update lookup maps to avoid duplicate inserts within same batch
+          // Update lookup maps
           if (thaiId.value && thaiId.valid) piiByThaiId.set(thaiId.value, { ...piiData, user_id: importUserId, thai_id: thaiId.value, phone, line_id: lineId });
           if (phone) piiByPhone.set(phone, { ...piiData, user_id: importUserId });
           if (lineId) piiByLineId.set(lineId.toLowerCase(), { ...piiData, user_id: importUserId });
