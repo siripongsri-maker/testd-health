@@ -7,7 +7,7 @@ import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { format, subDays, startOfWeek, endOfWeek, eachDayOfInterval, eachWeekOfInterval, subWeeks } from "date-fns";
+import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, subWeeks, subMonths } from "date-fns";
 import { th, enUS } from "date-fns/locale";
 
 interface BranchStats {
@@ -36,7 +36,7 @@ export default function BranchDashboardContent({ userBranch }: BranchDashboardCo
   const { language } = useLanguage();
   const [stats, setStats] = useState<BranchStats | null>(null);
   const [trendData, setTrendData] = useState<TrendDataPoint[]>([]);
-  const [trendView, setTrendView] = useState<"daily" | "weekly">("daily");
+  const [trendView, setTrendView] = useState<"daily" | "weekly" | "monthly">("daily");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -109,11 +109,14 @@ export default function BranchDashboardContent({ userBranch }: BranchDashboardCo
       let dateIntervals: Date[];
       
       if (trendView === "daily") {
-        startDate = subDays(now, 13); // Last 14 days
+        startDate = subDays(now, 13);
         dateIntervals = eachDayOfInterval({ start: startDate, end: now });
-      } else {
-        startDate = subWeeks(now, 7); // Last 8 weeks
+      } else if (trendView === "weekly") {
+        startDate = subWeeks(now, 7);
         dateIntervals = eachWeekOfInterval({ start: startDate, end: now });
+      } else {
+        startDate = subMonths(now, 11);
+        dateIntervals = eachMonthOfInterval({ start: startDate, end: now });
       }
 
       const { data: requests, error } = await supabase
@@ -137,10 +140,14 @@ export default function BranchDashboardContent({ userBranch }: BranchDashboardCo
           periodEnd = new Date(date);
           periodEnd.setHours(23, 59, 59, 999);
           label = format(date, "d MMM", { locale });
-        } else {
+        } else if (trendView === "weekly") {
           periodStart = startOfWeek(date, { weekStartsOn: 1 });
           periodEnd = endOfWeek(date, { weekStartsOn: 1 });
           label = `${format(periodStart, "d", { locale })}-${format(periodEnd, "d MMM", { locale })}`;
+        } else {
+          periodStart = startOfMonth(date);
+          periodEnd = endOfMonth(date);
+          label = format(date, "MMM yy", { locale });
         }
 
         const periodRequests = requests?.filter((req) => {
@@ -293,13 +300,16 @@ export default function BranchDashboardContent({ userBranch }: BranchDashboardCo
           <CardTitle className="text-lg">
             {language === 'th' ? 'แนวโน้มการจัดส่ง' : 'Delivery Trend'}
           </CardTitle>
-          <Tabs value={trendView} onValueChange={(v) => setTrendView(v as "daily" | "weekly")}>
+          <Tabs value={trendView} onValueChange={(v) => setTrendView(v as "daily" | "weekly" | "monthly")}>
             <TabsList className="h-8">
               <TabsTrigger value="daily" className="text-xs px-3 h-7">
                 {language === 'th' ? 'รายวัน' : 'Daily'}
               </TabsTrigger>
               <TabsTrigger value="weekly" className="text-xs px-3 h-7">
                 {language === 'th' ? 'รายสัปดาห์' : 'Weekly'}
+              </TabsTrigger>
+              <TabsTrigger value="monthly" className="text-xs px-3 h-7">
+                {language === 'th' ? 'รายเดือน' : 'Monthly'}
               </TabsTrigger>
             </TabsList>
           </Tabs>

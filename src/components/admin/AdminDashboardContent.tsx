@@ -7,7 +7,7 @@ import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, BarChart, Bar } from "recharts";
-import { format, subDays, startOfWeek, endOfWeek, eachDayOfInterval, eachWeekOfInterval, subWeeks } from "date-fns";
+import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, subWeeks, subMonths } from "date-fns";
 import { th, enUS } from "date-fns/locale";
 
 interface DashboardStats {
@@ -47,7 +47,7 @@ export default function AdminDashboardContent() {
   const [silomStats, setSilomStats] = useState<BranchStats | null>(null);
   const [pattayaStats, setPattayaStats] = useState<BranchStats | null>(null);
   const [trendData, setTrendData] = useState<TrendDataPoint[]>([]);
-  const [trendView, setTrendView] = useState<"daily" | "weekly">("daily");
+  const [trendView, setTrendView] = useState<"daily" | "weekly" | "monthly">("daily");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -137,9 +137,12 @@ export default function AdminDashboardContent() {
       if (trendView === "daily") {
         startDate = subDays(now, 13);
         dateIntervals = eachDayOfInterval({ start: startDate, end: now });
-      } else {
+      } else if (trendView === "weekly") {
         startDate = subWeeks(now, 7);
         dateIntervals = eachWeekOfInterval({ start: startDate, end: now });
+      } else {
+        startDate = subMonths(now, 11);
+        dateIntervals = eachMonthOfInterval({ start: startDate, end: now });
       }
 
       const [silomResult, pattayaResult] = await Promise.all([
@@ -156,10 +159,14 @@ export default function AdminDashboardContent() {
           periodStart = new Date(date); periodStart.setHours(0, 0, 0, 0);
           periodEnd = new Date(date); periodEnd.setHours(23, 59, 59, 999);
           label = format(date, "d MMM", { locale });
-        } else {
+        } else if (trendView === "weekly") {
           periodStart = startOfWeek(date, { weekStartsOn: 1 });
           periodEnd = endOfWeek(date, { weekStartsOn: 1 });
           label = `${format(periodStart, "d", { locale })}-${format(periodEnd, "d MMM", { locale })}`;
+        } else {
+          periodStart = startOfMonth(date);
+          periodEnd = endOfMonth(date);
+          label = format(date, "MMM yy", { locale });
         }
 
         const filterPeriod = (data: { created_at: string; status: string }[] | null) => 
@@ -329,10 +336,11 @@ export default function AdminDashboardContent() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg">{language === 'th' ? 'แนวโน้มการจัดส่งทุกสาขา' : 'All Branches Delivery Trend'}</CardTitle>
-          <Tabs value={trendView} onValueChange={(v) => setTrendView(v as "daily" | "weekly")}>
+          <Tabs value={trendView} onValueChange={(v) => setTrendView(v as "daily" | "weekly" | "monthly")}>
             <TabsList className="h-8">
               <TabsTrigger value="daily" className="text-xs px-3 h-7">{language === 'th' ? 'รายวัน' : 'Daily'}</TabsTrigger>
               <TabsTrigger value="weekly" className="text-xs px-3 h-7">{language === 'th' ? 'รายสัปดาห์' : 'Weekly'}</TabsTrigger>
+              <TabsTrigger value="monthly" className="text-xs px-3 h-7">{language === 'th' ? 'รายเดือน' : 'Monthly'}</TabsTrigger>
             </TabsList>
           </Tabs>
         </CardHeader>
