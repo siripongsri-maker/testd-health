@@ -329,7 +329,7 @@ function processBangkokRow(
 function processPattayaReachRow(
   cells: string[],
   colMap: Record<string, number>,
-): { fullName: string | null; thaiId: ReturnType<typeof normalizeThaiId>; phone: null; lineId: null; gender: string | null; dob: null; address: null; timestamp: string | null } {
+): { fullName: string | null; thaiId: ReturnType<typeof normalizeThaiId>; phone: null; lineId: null; gender: string | null; dob: string | null; address: null; timestamp: string | null } {
   const get = (key: string) => {
     const idx = colMap[key];
     return idx >= 0 && idx < cells.length ? cells[idx]?.trim() : undefined;
@@ -338,15 +338,31 @@ function processPattayaReachRow(
   const firstName = get('firstName') || '';
   const lastName = get('lastName') || '';
   const fullName = [firstName, lastName].filter(Boolean).join(' ') || null;
+
+  // Derive approximate DOB from อายุ (age) column using the service date as reference
+  let dob: string | null = null;
+  const ageRaw = get('age');
+  if (ageRaw) {
+    const age = parseInt(ageRaw, 10);
+    if (!isNaN(age) && age > 0 && age < 120) {
+      // Use service date as reference point, fallback to today
+      const serviceDateRaw = get('serviceDate');
+      const refTimestamp = parseDateToTimestamp(serviceDateRaw);
+      const refDate = refTimestamp ? new Date(refTimestamp) : new Date();
+      const birthYear = refDate.getFullYear() - age;
+      // Approximate: use July 1 as midpoint
+      dob = `${birthYear}-07-01`;
+    }
+  }
   
   return {
     fullName,
     thaiId: normalizeThaiId(get('thaiId')),
-    phone: null, // Pattaya Reach has no phone column
-    lineId: null, // Pattaya Reach has no Line ID column
+    phone: null,
+    lineId: null,
     gender: normalizeGender(get('gender')),
-    dob: null, // Pattaya Reach has age, not DOB
-    address: null, // Pattaya Reach has no address column
+    dob,
+    address: null,
     timestamp: parseDateToTimestamp(get('serviceDate')),
   };
 }
@@ -462,6 +478,7 @@ serve(async (req) => {
         firstName: findCol(headers, 'ชื่อจริง'),
         lastName: findCol(headers, 'นามสกุล'),
         gender: findCol(headers, 'เพศ'),
+        age: findCol(headers, 'อายุ'),
         thaiId: findCol(headers, 'เลขบัตรประชาชน'),
         hivst: findCol(headers, 'ตรวจเอชไอวี หรือชุดตรวจ', 'HIVST', 'ตรวจเอชไอวี'),
         hivResult: findCol(headers, 'ผลตรวจ HIV'),
