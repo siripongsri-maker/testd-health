@@ -481,7 +481,8 @@ serve(async (req) => {
         age: findCol(headers, 'อายุ'),
         thaiId: findCol(headers, 'เลขบัตรประชาชน'),
         hivst: findCol(headers, 'ตรวจเอชไอวี หรือชุดตรวจ', 'HIVST', 'ตรวจเอชไอวี'),
-        hivResult: findCol(headers, 'ผลตรวจ HIV'),
+        hivSelfTest: findCol(headers, 'ได้รับการตรวจ HIV ด้วยตนเอง', 'ตรวจ HIV ด้วยตนเอง'),
+        hivResult: findCol(headers, 'ผลตรวจ HIV ด้วยตนเอง', 'ผลตรวจ HIV'),
       };
     }
 
@@ -601,15 +602,27 @@ serve(async (req) => {
             continue;
           }
 
-          // Only import rows that received an HIV self-test kit (HIVST column)
-          const hivstIdx = colMap['hivst'];
-          const hivstVal = (hivstIdx >= 0 && hivstIdx < cells.length) ? cells[hivstIdx]?.trim().toLowerCase() : '';
-          const hasHivst = hivstVal === '1' || hivstVal === 'yes' || hivstVal === 'ใช่' || hivstVal === 'มี' || hivstVal.includes('ตรวจ') || hivstVal.includes('hivst');
+          // Only import rows that received an HIV self-test kit
+          // Check multiple columns: hivst (offered HIVST), hivSelfTest (received self-test)
+          const getVal = (key: string) => {
+            const idx = colMap[key];
+            return (idx >= 0 && idx < cells.length) ? cells[idx]?.trim().toLowerCase() : '';
+          };
+          const hivstVal = getVal('hivst');
+          const hivSelfTestVal = getVal('hivSelfTest');
+          
+          // Log first 5 rows' HIVST values for debugging
+          if (i <= 5) {
+            console.log(`Row ${rowNum} HIVST values: hivst="${hivstVal}", hivSelfTest="${hivSelfTestVal}"`);
+          }
+          
+          const isYes = (v: string) => v === '1' || v === 'yes' || v === 'ใช่' || v === 'มี' || v.includes('ตรวจ') || v.includes('hivst') || v.includes('รับ');
+          const hasHivst = isYes(hivstVal) || isYes(hivSelfTestVal);
           if (!hasHivst) {
             result.skipped++;
             result.errors.push({
               row: rowNum,
-              reason: `Skipped: No HIV self-test indicated (HIVST column value: "${hivstVal || 'empty'}")`,
+              reason: `Skipped: No HIV self-test (hivst="${hivstVal}", hivSelfTest="${hivSelfTestVal}")`,
             });
             continue;
           }
