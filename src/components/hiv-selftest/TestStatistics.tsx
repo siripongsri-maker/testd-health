@@ -5,20 +5,18 @@ import { supabase } from "@/integrations/supabase/client";
 import { Users, TrendingUp } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
-import { aggregateGenderStats, type NormalizedGender } from "@/lib/normalizeGender";
+import {
+  aggregateIdentityStats,
+  IDENTITY_LABELS,
+  IDENTITY_COLORS,
+  type GenderIdentityKey,
+} from "@/lib/normalizeIdentity";
 
 interface Statistics {
   totalRequests: number;
-  genderData: { name: string; value: number; color: string }[];
+  identityData: { name: string; value: number; color: string }[];
   ageData: { name: string; value: number; color: string }[];
 }
-
-// Colors keyed by NormalizedGender display value
-const GENDER_COLORS: Record<string, string> = {
-  "ชาย": "hsl(221, 83%, 53%)",
-  "หญิง": "hsl(330, 81%, 60%)",
-  "ไม่ระบุ": "hsl(220, 9%, 46%)",
-};
 
 const AGE_COLORS: Record<string, string> = {
   under_18: "hsl(280, 70%, 60%)",
@@ -34,19 +32,14 @@ export function TestStatistics() {
   const { language } = useLanguage();
   const [stats, setStats] = useState<Statistics>({
     totalRequests: 0,
-    genderData: [],
+    identityData: [],
     ageData: [],
   });
   const [loading, setLoading] = useState(true);
 
-  // Gender label translations (keyed by NormalizedGender Thai value)
-  const getGenderLabel = (gender: string): string => {
-    const labels: Record<string, { th: string; en: string }> = {
-      "ชาย": { th: "ชาย", en: "Male" },
-      "หญิง": { th: "หญิง", en: "Female" },
-      "ไม่ระบุ": { th: "ไม่ระบุ", en: "Not specified" },
-    };
-    return labels[gender]?.[language] || gender;
+  const getIdentityLabel = (key: GenderIdentityKey): string => {
+    const entry = IDENTITY_LABELS[key];
+    return entry?.[language] || key;
   };
 
   const getAgeLabel = (range: string): string => {
@@ -86,13 +79,13 @@ export function TestStatistics() {
       
       const totalRequests = result.total_count || 0;
 
-      // Normalize + re-group gender stats to prevent duplicate labels
+      // Normalize + re-group gender identity stats to show real categories
       const genderStatsArray = Array.isArray(result.gender_stats) ? result.gender_stats : [];
-      const normalizedGenderRows = aggregateGenderStats(genderStatsArray);
-      const genderData = normalizedGenderRows.map((item) => ({
-        name: getGenderLabel(item.gender),
+      const identityRows = aggregateIdentityStats(genderStatsArray);
+      const identityData = identityRows.map((item) => ({
+        name: getIdentityLabel(item.key),
         value: item.count,
-        color: GENDER_COLORS[item.gender] || "hsl(220, 9%, 46%)",
+        color: IDENTITY_COLORS[item.key] || "hsl(220, 9%, 46%)",
       }));
 
       // Parse age stats from JSONB
@@ -107,7 +100,7 @@ export function TestStatistics() {
       .sort((a, b) => a.order - b.order)
       .map(({ name, value, color }) => ({ name, value, color }));
 
-      setStats({ totalRequests, genderData, ageData });
+      setStats({ totalRequests, identityData, ageData });
     } catch (error) {
       console.error("Error fetching statistics:", error);
     } finally {
@@ -185,17 +178,17 @@ export function TestStatistics() {
 
         {/* Charts Grid */}
         <div className="grid grid-cols-2 gap-4">
-          {/* Gender Distribution */}
-          {stats.genderData.length > 0 && (
+          {/* Gender Identity Distribution */}
+          {stats.identityData.length > 0 && (
             <div>
               <h4 className="text-xs font-medium text-center text-muted-foreground mb-2">
-                {language === "th" ? "เพศ" : "Gender"}
+                {language === "th" ? "อัตลักษณ์ทางเพศ" : "Gender Identity"}
               </h4>
               <div className="h-[140px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={stats.genderData}
+                      data={stats.identityData}
                       cx="50%"
                       cy="50%"
                       innerRadius={25}
@@ -203,8 +196,8 @@ export function TestStatistics() {
                       paddingAngle={2}
                       dataKey="value"
                     >
-                      {stats.genderData.map((entry, index) => (
-                        <Cell key={`gender-${index}`} fill={entry.color} />
+                      {stats.identityData.map((entry, index) => (
+                        <Cell key={`identity-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
                     <Tooltip
@@ -219,9 +212,9 @@ export function TestStatistics() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              {/* Legend */}
+              {/* Legend – show all categories */}
               <div className="flex flex-wrap justify-center gap-1.5 mt-1">
-                {stats.genderData.slice(0, 4).map((entry, index) => (
+                {stats.identityData.map((entry, index) => (
                   <div key={index} className="flex items-center gap-1">
                     <div
                       className="w-2 h-2 rounded-full"
