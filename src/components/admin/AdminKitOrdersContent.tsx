@@ -139,6 +139,8 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   // Moderators default to HIV requests view and their branch filter
   const [dataSource, setDataSource] = useState<"kit_orders" | "hiv_requests">(isModerator ? "hiv_requests" : "kit_orders");
   const [branchFilter, setBranchFilter] = useState<string>(userBranch || "all");
+  const [pageSize, setPageSize] = useState<number>(50);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Dialog states
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -711,27 +713,30 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
 
       {/* Branch Filter (only for HIV requests) */}
       {dataSource === 'hiv_requests' && (
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-2 mb-4 flex-wrap">
           <Button
             variant={branchFilter === 'all' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setBranchFilter('all')}
+            onClick={() => { setBranchFilter('all'); setCurrentPage(1); }}
           >
             {language === 'th' ? 'ทุกสาขา' : 'All Branches'}
+            <Badge variant="secondary" className="ml-1">{hivRequests.length}</Badge>
           </Button>
           <Button
             variant={branchFilter === 'silom' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setBranchFilter('silom')}
+            onClick={() => { setBranchFilter('silom'); setCurrentPage(1); }}
           >
             🏙️ {language === 'th' ? 'สีลม' : 'Silom'}
+            <Badge variant="secondary" className="ml-1">{hivRequests.filter(r => r.assigned_branch === 'silom').length}</Badge>
           </Button>
           <Button
             variant={branchFilter === 'pattaya' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setBranchFilter('pattaya')}
+            onClick={() => { setBranchFilter('pattaya'); setCurrentPage(1); }}
           >
             🏖️ {language === 'th' ? 'พัทยา' : 'Pattaya'}
+            <Badge variant="secondary" className="ml-1">{hivRequests.filter(r => r.assigned_branch === 'pattaya').length}</Badge>
           </Button>
         </div>
       )}
@@ -742,7 +747,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         <Input
           placeholder={language === 'th' ? 'ค้นหารหัส, ชื่อ, เบอร์...' : 'Search code, name, phone...'}
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
           className="pl-10"
         />
       </div>
@@ -820,7 +825,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         </>
       ) : (
         <>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setCurrentPage(1); }} className="w-full">
             <TabsList className="w-full mb-4 grid grid-cols-4 h-auto">
               <TabsTrigger value="all" className="text-xs py-2">
                 {language === 'th' ? 'ทั้งหมด' : 'All'}
@@ -837,7 +842,27 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             </TabsList>
 
             <TabsContent value={activeTab}>
-              <ScrollArea className="h-[60vh]">
+              {/* Per-page selector & count */}
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm text-muted-foreground">
+                  {language === 'th' ? `ทั้งหมด ${filteredHIVRequests.length} รายการ` : `${filteredHIVRequests.length} total`}
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">{language === 'th' ? 'แสดง' : 'Show'}</span>
+                  <Select value={String(pageSize)} onValueChange={(v) => { setPageSize(Number(v)); setCurrentPage(1); }}>
+                    <SelectTrigger className="h-8 w-20">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[10, 50, 100, 150].map(n => (
+                        <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <ScrollArea className="h-[55vh]">
                 <div className="space-y-3">
                   {filteredHIVRequests.length === 0 ? (
                     <Card className="p-8 text-center">
@@ -847,7 +872,9 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                       </p>
                     </Card>
                   ) : (
-                    filteredHIVRequests.map((request) => (
+                    filteredHIVRequests
+                      .slice((currentPage - 1) * pageSize, currentPage * pageSize)
+                      .map((request) => (
                       <Card key={request.id} className="p-4">
                         <div className="flex items-start justify-between mb-2">
                           <div>
@@ -871,58 +898,63 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                         </div>
 
                         {request.selftest_pii?.address && (
-                          <p className="text-sm text-muted-foreground mb-2 truncate">
+                          <p className="text-xs text-muted-foreground mb-2">
                             {request.selftest_pii.address}
+                            {request.selftest_pii.subdistrict && `, ${request.selftest_pii.subdistrict}`}
                             {request.selftest_pii.district && `, ${request.selftest_pii.district}`}
                             {request.selftest_pii.province && `, ${request.selftest_pii.province}`}
+                            {request.selftest_pii.postal_code && ` ${request.selftest_pii.postal_code}`}
                           </p>
                         )}
 
-                        {/* Callback consent indicator for positive results */}
-                        {request.test_result === 'positive' && request.wants_callback && (
-                          <div className="flex items-center gap-2 p-2 bg-amber-500/10 border border-amber-500/30 rounded-lg mb-2">
-                            <PhoneCall className="h-4 w-4 text-amber-600 shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium text-amber-700">
-                                {language === 'th' ? 'ต้องการให้ติดต่อกลับ' : 'Wants callback'}
-                              </p>
-                              {request.callback_phone && (
-                                <p className="text-xs text-amber-600 truncate">
-                                  📞 {request.callback_phone}
-                                </p>
-                              )}
-                            </div>
+                        {request.selftest_pii?.thai_id && (
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant="outline" className="font-mono text-xs">
+                              {request.selftest_pii.thai_id}
+                            </Badge>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0"
+                              onClick={() => {
+                                navigator.clipboard.writeText(request.selftest_pii?.thai_id || '');
+                                toast.success(language === 'th' ? 'คัดลอกแล้ว' : 'Copied');
+                              }}
+                            >
+                              <Copy className="h-3 w-3" />
+                            </Button>
                           </div>
                         )}
 
                         {editingHIVRequest === request.id ? (
-                          <div className="space-y-3 mt-3 pt-3 border-t">
-                            <div>
-                              <Label className="text-xs">{language === 'th' ? 'สถานะ' : 'Status'}</Label>
-                              <Select
-                                value={hivEditForm.status}
-                                onValueChange={(value) => setHivEditForm({ ...hivEditForm, status: value })}
-                              >
-                                <SelectTrigger className="mt-1 h-9">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {HIV_STATUS_OPTIONS.map((opt) => (
-                                    <SelectItem key={opt.value} value={opt.value}>
-                                      {language === 'th' ? opt.labelTh : opt.labelEn}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div>
-                              <Label className="text-xs">{language === 'th' ? 'เลขพัสดุ' : 'Tracking Number'}</Label>
-                              <Input
-                                value={hivEditForm.tracking_number}
-                                onChange={(e) => setHivEditForm({ ...hivEditForm, tracking_number: e.target.value })}
-                                placeholder={language === 'th' ? 'กรอกเลขพัสดุ' : 'Enter tracking number'}
-                                className="mt-1 h-9"
-                              />
+                          <div className="space-y-3 mt-3 p-3 border rounded-lg">
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <Label className="text-xs">{language === 'th' ? 'สถานะ' : 'Status'}</Label>
+                                <Select
+                                  value={hivEditForm.status}
+                                  onValueChange={(v) => setHivEditForm(prev => ({ ...prev, status: v }))}
+                                >
+                                  <SelectTrigger className="h-8">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {HIV_STATUS_OPTIONS.map(opt => (
+                                      <SelectItem key={opt.value} value={opt.value}>
+                                        {language === 'th' ? opt.labelTh : opt.labelEn}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-xs">{language === 'th' ? 'เลขพัสดุ' : 'Tracking #'}</Label>
+                                <Input
+                                  className="h-8"
+                                  value={hivEditForm.tracking_number}
+                                  onChange={(e) => setHivEditForm(prev => ({ ...prev, tracking_number: e.target.value }))}
+                                />
+                              </div>
                             </div>
                             <div className="flex gap-2">
                               <Button
@@ -931,8 +963,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                                 disabled={savingHIV}
                                 className="flex-1"
                               >
-                                {savingHIV && <Loader2 className="h-3 w-3 mr-1 animate-spin" />}
-                                {language === 'th' ? 'บันทึก' : 'Save'}
+                                {savingHIV ? <Loader2 className="h-4 w-4 animate-spin" /> : (language === 'th' ? 'บันทึก' : 'Save')}
                               </Button>
                               <Button
                                 size="sm"
@@ -971,6 +1002,35 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                   )}
                 </div>
               </ScrollArea>
+
+              {/* Pagination controls */}
+              {filteredHIVRequests.length > pageSize && (
+                <div className="flex items-center justify-between mt-3">
+                  <p className="text-xs text-muted-foreground">
+                    {language === 'th' 
+                      ? `หน้า ${currentPage} / ${Math.ceil(filteredHIVRequests.length / pageSize)}`
+                      : `Page ${currentPage} of ${Math.ceil(filteredHIVRequests.length / pageSize)}`}
+                  </p>
+                  <div className="flex gap-1">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={currentPage <= 1}
+                      onClick={() => setCurrentPage(p => p - 1)}
+                    >
+                      {language === 'th' ? 'ก่อนหน้า' : 'Prev'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={currentPage >= Math.ceil(filteredHIVRequests.length / pageSize)}
+                      onClick={() => setCurrentPage(p => p + 1)}
+                    >
+                      {language === 'th' ? 'ถัดไป' : 'Next'}
+                    </Button>
+                  </div>
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         </>
