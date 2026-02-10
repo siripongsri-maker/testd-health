@@ -250,6 +250,7 @@ serve(async (req) => {
     const formData = await req.formData();
     const csvFile = formData.get("csv") as File;
     const dryRun = formData.get("dry_run") === "true";
+    const branch = (formData.get("branch") as string) || "silom";
 
     if (!csvFile) {
       return new Response(JSON.stringify({ error: "No CSV file provided" }), {
@@ -401,7 +402,7 @@ serve(async (req) => {
                 user_id: existingPiiRecord.user_id,
                 pii_id: existingPiiRecord.id,
                 status: 'pending',
-                assigned_branch: 'silom',
+                assigned_branch: branch,
                 created_at: timestamp || new Date().toISOString(),
               })
               .select('id')
@@ -441,7 +442,7 @@ serve(async (req) => {
               user_id: importUserId,
               pii_id: piiData.id,
               status: 'pending',
-              assigned_branch: 'silom',
+              assigned_branch: branch,
               created_at: timestamp || new Date().toISOString(),
             })
             .select('id')

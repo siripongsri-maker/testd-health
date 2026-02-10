@@ -7,6 +7,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Upload, FileSpreadsheet, Play, Eye, Loader2, CheckCircle2, AlertTriangle, Download, Database
 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -24,6 +26,7 @@ export default function AdminImportContent() {
   const { language } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedBranch, setSelectedBranch] = useState<string>("silom");
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"idle" | "dry_run" | "import">("idle");
   const [result, setResult] = useState<ImportResult | null>(null);
@@ -60,6 +63,7 @@ export default function AdminImportContent() {
       const formData = new FormData();
       formData.append("csv", selectedFile);
       formData.append("dry_run", dryRun.toString());
+      formData.append("branch", selectedBranch);
 
       const response = await supabase.functions.invoke("import-existing-selftest-csv", {
         body: formData,
@@ -139,6 +143,22 @@ export default function AdminImportContent() {
               ? "นำเข้าข้อมูลจาก Bangkok site CSV เข้าตาราง selftest_pii + hiv_selftest_requests โดยตรวจสอบซ้ำอัตโนมัติ"
               : "Import Bangkok site CSV into existing selftest_pii + hiv_selftest_requests tables with automatic deduplication"}
           </p>
+
+          {/* Branch selector */}
+          <div className="flex items-center gap-3">
+            <Label className="text-sm font-medium shrink-0">
+              {language === "th" ? "สาขา:" : "Branch:"}
+            </Label>
+            <Select value={selectedBranch} onValueChange={setSelectedBranch}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="silom">Silom (Bangkok)</SelectItem>
+                <SelectItem value="pattaya">Pattaya</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
           {/* File upload */}
           <div className="flex items-center gap-3">
