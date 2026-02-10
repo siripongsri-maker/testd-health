@@ -201,40 +201,52 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
 
   const fetchHIVRequests = async () => {
     try {
-      const { data, error } = await supabase
-        .from('hiv_selftest_requests')
-        .select(`
-          id,
-          user_id,
-          pii_id,
-          status,
-          tracking_number,
-          created_at,
-          updated_at,
-          test_result,
-          staff_notes,
-          wants_callback,
-          callback_phone,
-          assigned_branch,
-          selftest_pii (
-            id,
-            full_name,
-            thai_id,
-            phone,
-            address,
-            district,
-            subdistrict,
-            province,
-            postal_code,
-            date_of_birth,
-            line_id,
-            gender
-          )
-        `)
-        .order('created_at', { ascending: false });
+      const allData: HIVTestRequest[] = [];
+      const PAGE_SIZE = 1000;
+      let from = 0;
+      let hasMore = true;
 
-      if (error) throw error;
-      setHivRequests(data || []);
+      while (hasMore) {
+        const { data, error } = await supabase
+          .from('hiv_selftest_requests')
+          .select(`
+            id,
+            user_id,
+            pii_id,
+            status,
+            tracking_number,
+            created_at,
+            updated_at,
+            test_result,
+            staff_notes,
+            wants_callback,
+            callback_phone,
+            assigned_branch,
+            selftest_pii (
+              id,
+              full_name,
+              thai_id,
+              phone,
+              address,
+              district,
+              subdistrict,
+              province,
+              postal_code,
+              date_of_birth,
+              line_id,
+              gender
+            )
+          `)
+          .order('created_at', { ascending: false })
+          .range(from, from + PAGE_SIZE - 1);
+
+        if (error) throw error;
+        allData.push(...(data || []));
+        hasMore = (data?.length || 0) === PAGE_SIZE;
+        from += PAGE_SIZE;
+      }
+
+      setHivRequests(allData);
     } catch (error) {
       console.error('Error fetching HIV requests:', error);
     }

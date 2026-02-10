@@ -97,11 +97,30 @@ export default function AdminDashboardContent() {
     }
   };
 
+  const fetchAllRows = async (branch: string) => {
+    const PAGE_SIZE = 1000;
+    const allData: { status: string }[] = [];
+    let from = 0;
+    let hasMore = true;
+    while (hasMore) {
+      const { data, error } = await supabase
+        .from("hiv_selftest_requests")
+        .select("status")
+        .eq("assigned_branch", branch)
+        .range(from, from + PAGE_SIZE - 1);
+      if (error) throw error;
+      allData.push(...(data || []));
+      hasMore = (data?.length || 0) === PAGE_SIZE;
+      from += PAGE_SIZE;
+    }
+    return allData;
+  };
+
   const fetchBranchStats = async () => {
     try {
-      const [silomResult, pattayaResult] = await Promise.all([
-        supabase.from("hiv_selftest_requests").select("status").eq("assigned_branch", "silom"),
-        supabase.from("hiv_selftest_requests").select("status").eq("assigned_branch", "pattaya"),
+      const [silomData, pattayaData] = await Promise.all([
+        fetchAllRows("silom"),
+        fetchAllRows("pattaya"),
       ]);
 
       const countByStatus = (requests: { status: string }[] | null): BranchStats => {
@@ -121,8 +140,8 @@ export default function AdminDashboardContent() {
         return counts;
       };
 
-      setSilomStats(countByStatus(silomResult.data));
-      setPattayaStats(countByStatus(pattayaResult.data));
+      setSilomStats(countByStatus(silomData));
+      setPattayaStats(countByStatus(pattayaData));
     } catch (error) {
       console.error("Error fetching branch stats:", error);
     }
@@ -145,10 +164,32 @@ export default function AdminDashboardContent() {
         dateIntervals = eachMonthOfInterval({ start: startDate, end: now });
       }
 
-      const [silomResult, pattayaResult] = await Promise.all([
-        supabase.from("hiv_selftest_requests").select("created_at, status").eq("assigned_branch", "silom").gte("created_at", startDate.toISOString()),
-        supabase.from("hiv_selftest_requests").select("created_at, status").eq("assigned_branch", "pattaya").gte("created_at", startDate.toISOString()),
+      const fetchAllTrendRows = async (branch: string) => {
+        const PAGE_SIZE = 1000;
+        const allData: { created_at: string; status: string }[] = [];
+        let from = 0;
+        let hasMore = true;
+        while (hasMore) {
+          const { data, error } = await supabase
+            .from("hiv_selftest_requests")
+            .select("created_at, status")
+            .eq("assigned_branch", branch)
+            .gte("created_at", startDate.toISOString())
+            .range(from, from + PAGE_SIZE - 1);
+          if (error) throw error;
+          allData.push(...(data || []));
+          hasMore = (data?.length || 0) === PAGE_SIZE;
+          from += PAGE_SIZE;
+        }
+        return allData;
+      };
+
+      const [silomData, pattayaData] = await Promise.all([
+        fetchAllTrendRows("silom"),
+        fetchAllTrendRows("pattaya"),
       ]);
+      const silomResult = { data: silomData };
+      const pattayaResult = { data: pattayaData };
 
       const locale = language === 'th' ? th : enUS;
       

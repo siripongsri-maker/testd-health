@@ -81,34 +81,46 @@ export function AdminRequestsPopup({ open, onOpenChange }: AdminRequestsPopupPro
   const fetchRequests = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('hiv_selftest_requests')
-        .select(`
-          id,
-          user_id,
-          pii_id,
-          status,
-          tracking_number,
-          created_at,
-          selftest_pii (
-            id,
-            full_name,
-            phone,
-            address,
-            district,
-            province,
-            postal_code
-          )
-        `)
-        .order('created_at', { ascending: false });
+      const allData: HIVTestRequest[] = [];
+      const PAGE_SIZE = 1000;
+      let from = 0;
+      let hasMore = true;
 
-      if (error) throw error;
-      setRequests(data || []);
+      while (hasMore) {
+        const { data, error } = await supabase
+          .from('hiv_selftest_requests')
+          .select(`
+            id,
+            user_id,
+            pii_id,
+            status,
+            tracking_number,
+            created_at,
+            selftest_pii (
+              id,
+              full_name,
+              phone,
+              address,
+              district,
+              province,
+              postal_code
+            )
+          `)
+          .order('created_at', { ascending: false })
+          .range(from, from + PAGE_SIZE - 1);
+
+        if (error) throw error;
+        allData.push(...(data || []));
+        hasMore = (data?.length || 0) === PAGE_SIZE;
+        from += PAGE_SIZE;
+      }
+
+      setRequests(allData);
       
       // Initialize status and tracking for each request
       const statusMap: Record<string, string> = {};
       const trackingMap: Record<string, string> = {};
-      (data || []).forEach(req => {
+      allData.forEach(req => {
         statusMap[req.id] = req.status;
         trackingMap[req.id] = req.tracking_number || '';
       });
