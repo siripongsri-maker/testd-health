@@ -345,7 +345,33 @@
   }
 
   .safe-bottom {
-    padding-bottom: env(safe-area-inset-bottom, 1rem);
+    padding-bottom: env(safe-area-inset-bottom, 0.5rem);
+  }
+
+  /* Nav particle burst animation */
+  @keyframes nav-particle-burst {
+    0% {
+      transform: translate(-50%, -50%) rotate(var(--angle, 0deg)) translateY(0) scale(1);
+      opacity: 0.9;
+    }
+    60% {
+      opacity: 0.6;
+    }
+    100% {
+      transform: translate(-50%, -50%) rotate(var(--angle, 0deg)) translateY(-38px) scale(0);
+      opacity: 0;
+    }
+  }
+
+  .animate-nav-particle {
+    animation: nav-particle-burst 0.7s cubic-bezier(0.22, 0.68, 0.35, 1) forwards;
+    transform-origin: center center;
+  }
+
+  .nav-petal {
+    background: radial-gradient(circle, hsl(var(--primary) / 0.5), hsl(var(--primary) / 0.15));
+    border-radius: 50% 0 50% 0;
+    transform: rotate(45deg);
   }
 
   .safe-top {
