@@ -50,12 +50,22 @@ export default function BranchDashboardContent({ userBranch }: BranchDashboardCo
     if (!userBranch) return;
     
     try {
-      const { data: requests, error } = await supabase
-        .from("hiv_selftest_requests")
-        .select("status")
-        .eq("assigned_branch", userBranch);
-
-      if (error) throw error;
+      const PAGE_SIZE = 1000;
+      const allRequests: { status: string }[] = [];
+      let from = 0;
+      let hasMore = true;
+      while (hasMore) {
+        const { data, error } = await supabase
+          .from("hiv_selftest_requests")
+          .select("status")
+          .eq("assigned_branch", userBranch)
+          .range(from, from + PAGE_SIZE - 1);
+        if (error) throw error;
+        allRequests.push(...(data || []));
+        hasMore = (data?.length || 0) === PAGE_SIZE;
+        from += PAGE_SIZE;
+      }
+      const requests = allRequests;
 
       const statusCounts = {
         pending: 0,
@@ -119,13 +129,23 @@ export default function BranchDashboardContent({ userBranch }: BranchDashboardCo
         dateIntervals = eachMonthOfInterval({ start: startDate, end: now });
       }
 
-      const { data: requests, error } = await supabase
-        .from("hiv_selftest_requests")
-        .select("created_at, status, updated_at")
-        .eq("assigned_branch", userBranch)
-        .gte("created_at", startDate.toISOString());
-
-      if (error) throw error;
+      const PAGE_SIZE = 1000;
+      const allRequests: { created_at: string; status: string; updated_at: string }[] = [];
+      let from = 0;
+      let hasMore = true;
+      while (hasMore) {
+        const { data, error } = await supabase
+          .from("hiv_selftest_requests")
+          .select("created_at, status, updated_at")
+          .eq("assigned_branch", userBranch)
+          .gte("created_at", startDate.toISOString())
+          .range(from, from + PAGE_SIZE - 1);
+        if (error) throw error;
+        allRequests.push(...(data || []));
+        hasMore = (data?.length || 0) === PAGE_SIZE;
+        from += PAGE_SIZE;
+      }
+      const requests = allRequests;
 
       const locale = language === 'th' ? th : enUS;
       
