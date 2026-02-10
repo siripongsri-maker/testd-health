@@ -600,6 +600,19 @@ serve(async (req) => {
             });
             continue;
           }
+
+          // Only import rows that received an HIV self-test kit (HIVST column)
+          const hivstIdx = colMap['hivst'];
+          const hivstVal = (hivstIdx >= 0 && hivstIdx < cells.length) ? cells[hivstIdx]?.trim().toLowerCase() : '';
+          const hasHivst = hivstVal === '1' || hivstVal === 'yes' || hivstVal === 'ใช่' || hivstVal === 'มี' || hivstVal.includes('ตรวจ') || hivstVal.includes('hivst');
+          if (!hasHivst) {
+            result.skipped++;
+            result.errors.push({
+              row: rowNum,
+              reason: `Skipped: No HIV self-test indicated (HIVST column value: "${hivstVal || 'empty'}")`,
+            });
+            continue;
+          }
         } else {
           // Bangkok: need at least one identifier
           if (!existingPiiRecord && !thaiId.value && !phone && !lineId) {
