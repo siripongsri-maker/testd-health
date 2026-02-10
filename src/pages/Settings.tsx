@@ -145,8 +145,8 @@ export default function Settings() {
             variant="ghost" 
             size="icon" 
             onClick={() => navigate("/")}
-            className="rounded-xl hover:bg-muted/80 h-10 w-10"
-          >
+              className="rounded-2xl glass-sm hover:glass h-10 w-10"
+            >
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('settings.title')}</h1>
@@ -159,7 +159,7 @@ export default function Settings() {
               <UserCircle className="h-4 w-4" />
               {language === 'th' ? 'โปรไฟล์' : 'Profile'}
             </h2>
-            <div className="rounded-2xl bg-card border border-border/50 p-5">
+             <div className="rounded-2xl glass p-5">
               <ProfileSettings />
             </div>
           </div>
@@ -172,7 +172,7 @@ export default function Settings() {
               <User className="h-4 w-4" />
               {t('settings.account')}
             </h2>
-            <div className="rounded-2xl bg-card border border-border/50 p-5 space-y-4">
+            <div className="rounded-2xl glass p-5 space-y-4">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/20">
                   <User className="h-6 w-6 text-primary-foreground" />
@@ -401,7 +401,7 @@ export default function Settings() {
             <Languages className="h-4 w-4" />
             {t('common.language')}
           </h2>
-          <div className="flex items-center justify-between rounded-2xl bg-card border border-border/50 p-5">
+          <div className="flex items-center justify-between rounded-2xl glass p-5">
             <span className="font-medium text-foreground">ภาษา / Language</span>
             <LanguageToggle />
           </div>
@@ -414,7 +414,7 @@ export default function Settings() {
             {t('settings.notifications')}
           </h2>
           
-          <div className="rounded-2xl bg-card border border-border/50 divide-y divide-border/50">
+          <div className="rounded-2xl glass divide-y divide-border/50">
             <div className="flex items-center justify-between p-5">
               <div className="flex items-center gap-4">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
@@ -459,7 +459,7 @@ export default function Settings() {
         {/* Reminder Time */}
         <div className="mb-8">
           <h2 className="mb-4 text-sm font-semibold text-muted-foreground uppercase tracking-wider">{t('settings.reminderTime')}</h2>
-          <div className="rounded-2xl bg-card border border-border/50 p-5">
+          <div className="rounded-2xl glass p-5">
             <Label htmlFor="reminderTime" className="text-muted-foreground mb-3 block text-sm">{t('settings.defaultTime')}</Label>
             <Input 
               id="reminderTime" 

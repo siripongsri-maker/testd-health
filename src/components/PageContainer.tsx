@@ -52,7 +52,7 @@ export function PageContainer({ children, className, showNav = true, showViewTog
       )}
     >
       {shouldShowToggle && (
-        <div className="sticky top-0 z-50 flex justify-center py-2 bg-background/80 backdrop-blur-sm border-b border-border/30">
+        <div className="sticky top-0 z-50 flex justify-center py-2 glass-heavy border-b border-border/30">
           <ResponsiveViewToggle onViewChange={setViewMode} />
         </div>
       )}

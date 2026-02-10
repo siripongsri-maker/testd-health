@@ -121,7 +121,7 @@ export default function Dashboard() {
               variant="ghost" 
               size="icon" 
               onClick={() => navigate("/")}
-              className="rounded-xl hover:bg-muted/80 h-10 w-10"
+              className="rounded-2xl glass-sm hover:glass h-10 w-10"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
@@ -134,14 +134,14 @@ export default function Dashboard() {
             variant="ghost" 
             size="icon" 
             onClick={() => navigate("/settings")}
-            className="rounded-xl hover:bg-muted/80 h-10 w-10"
-          >
+              className="rounded-2xl glass-sm hover:glass h-10 w-10"
+            >
             <Settings className="h-5 w-5" />
           </Button>
         </div>
         
         {/* XP Progress */}
-        <div className="mb-6 rounded-2xl bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/20 dark:to-purple-950/20 border border-violet-200/50 dark:border-violet-800/30 p-5">
+        <div className="mb-6 rounded-2xl glass p-5">
           <XPBar
             current={xpInfo.current}
             required={xpInfo.required}
@@ -163,7 +163,7 @@ export default function Dashboard() {
             {t('dashboard.today')}
           </h2>
           {needsSetup ? (
-            <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 to-transparent p-6">
+            <div className="rounded-2xl glass p-6">
               <div className="text-center">
                 <p className="mb-5 text-muted-foreground">
                   {t('dashboard.setupSubtitle')}
@@ -249,7 +249,7 @@ export default function Dashboard() {
         
         {/* PEP Progress (if on PEP) */}
         {userData.mode === "pep" && pepDay > 0 && (
-          <div className="rounded-2xl bg-gradient-to-br from-emerald-50 to-green-50 dark:from-emerald-950/20 dark:to-green-950/20 border border-emerald-200/50 dark:border-emerald-800/30 p-5">
+          <div className="rounded-2xl glass p-5">
             <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-900/50">
                 <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />

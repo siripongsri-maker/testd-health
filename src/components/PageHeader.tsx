@@ -28,7 +28,7 @@ export function PageHeader({
           variant="ghost" 
           size="icon" 
           onClick={() => backTo ? navigate(backTo) : navigate("/")}
-          className="shrink-0 rounded-xl hover:bg-muted/80 h-10 w-10"
+          className="shrink-0 rounded-2xl glass-sm hover:glass h-10 w-10"
         >
           {backTo ? <ArrowLeft className="h-5 w-5" /> : <Home className="h-5 w-5" />}
         </Button>
