@@ -29,7 +29,7 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-t border-border/50 safe-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 glass-heavy safe-bottom">
       <div className="mx-auto flex max-w-lg items-center justify-around py-2 sm:py-2 md:py-3">
         {navItems.map(({ icon: Icon, label, path }) => {
           const isActive = location.pathname === path;

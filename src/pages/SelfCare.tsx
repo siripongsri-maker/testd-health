@@ -177,8 +177,8 @@ export default function SelfCare() {
         <PageHeader title={t('selfCare.title')} subtitle={t('selfCare.subtitle')} />
 
         {/* HIV Self-Test Kit Banner */}
-        <Card 
-          className="p-5 mb-6 cursor-pointer bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/20 hover:border-primary/40 hover:shadow-lg transition-all duration-200 rounded-2xl"
+         <Card 
+          className="p-5 mb-6 cursor-pointer glass glass-shine hover:shadow-soft transition-all duration-200 rounded-2xl"
           onClick={() => navigate('/hiv-selftest')}
         >
           <div className="flex items-center gap-4">
@@ -218,9 +218,9 @@ export default function SelfCare() {
         {/* Product Cards */}
         <div className="space-y-4 mb-8">
           {SELF_CARE_ITEMS.map((item, index) => (
-            <Card 
+             <Card 
               key={item.id} 
-              className="overflow-hidden rounded-2xl border-border/50 hover:shadow-lg transition-all duration-200 animate-fade-in"
+              className="overflow-hidden rounded-2xl glass hover:shadow-soft transition-all duration-200 animate-fade-in"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="flex">
@@ -268,7 +268,7 @@ export default function SelfCare() {
             {t('selfCare.reminders')}
           </h2>
 
-          <Card className="divide-y divide-border/50 rounded-2xl border-border/50">
+          <Card className="divide-y divide-border/50 rounded-2xl glass">
             <div className="flex items-center justify-between p-5">
               <div>
                 <p className="font-medium text-foreground">{t('selfCare.hivTestReminder')}</p>

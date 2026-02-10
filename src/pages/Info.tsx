@@ -172,11 +172,11 @@ export default function Info() {
         {/* Search */}
         <div className="mb-6 relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input
+           <Input
             placeholder={t('info.search')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-12 pl-12 text-base rounded-xl border-border/50 bg-muted/30 focus:bg-background transition-colors"
+            className="h-12 pl-12 text-base rounded-2xl glass focus:glass-heavy transition-colors"
           />
         </div>
 
@@ -194,7 +194,7 @@ export default function Info() {
                 <button
                   key={article.id}
                   onClick={() => navigate(`/info/article/${article.slug}`)}
-                  className="flex-shrink-0 w-40 text-left rounded-xl bg-card border border-border/50 overflow-hidden hover:bg-muted/30 transition-all animate-fade-in"
+                  className="flex-shrink-0 w-40 text-left rounded-2xl glass overflow-hidden hover:shadow-soft transition-all animate-fade-in"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   {article.cover_url ? (
@@ -282,7 +282,7 @@ export default function Info() {
                 <button
                   key={article.id}
                   onClick={() => navigate(`/info/article/${article.slug}`)}
-                  className="w-full text-left rounded-2xl bg-card border border-border/50 p-4 hover:bg-muted/30 transition-all animate-fade-in flex gap-4"
+                  className="w-full text-left rounded-2xl glass p-4 hover:shadow-soft transition-all animate-fade-in flex gap-4"
                   style={{ animationDelay: `${index * 50}ms` }}
                 >
                   {article.cover_url ? (
@@ -355,8 +355,7 @@ export default function Info() {
                     onClick={() => setSelectedCategory(category.id)}
                     className={cn(
                       "w-full rounded-2xl p-5 mb-3 text-left transition-all hover:scale-[1.02]",
-                      "bg-gradient-to-br border border-border/50",
-                      theme.bg
+                      "glass glass-shine",
                     )}
                   >
                     <div className="flex items-center justify-between">
@@ -387,7 +386,7 @@ export default function Info() {
                         <button
                           key={article.id}
                           onClick={() => navigate(`/info/article/${article.slug}`)}
-                          className="w-full text-left rounded-xl bg-card/50 border border-border/30 p-3 hover:bg-muted/30 transition-all flex items-start gap-3"
+                          className="w-full text-left rounded-xl glass-sm p-3 hover:glass transition-all flex items-start gap-3"
                         >
                           {article.cover_url ? (
                             <img 

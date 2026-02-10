@@ -45,8 +45,8 @@ function MenuCard({ icon, titleTh, titleEn, onClick, variant = 'default' }: Menu
       onClick={onClick}
       className={`
         group relative w-full aspect-square rounded-2xl sm:rounded-3xl 
-        bg-card border-2 border-primary/20
-        shadow-card hover:shadow-soft
+        glass glass-shine
+        hover:shadow-soft
         transition-all duration-300 
         hover:scale-[1.02] hover:-translate-y-1
         active:scale-[0.98]
@@ -177,10 +177,10 @@ export default function Home() {
   return (
     <div className="relative">
       {/* Fixed background layer */}
-      <div className="fixed inset-0 bg-gradient-to-b from-primary/30 to-primary/20 -z-10" />
+      <div className="fixed inset-0 gradient-hero -z-10" />
       
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-gradient-to-b from-primary/30 to-transparent safe-top">
+      <header className="sticky top-0 z-20 glass-heavy safe-top">
         <div className="flex items-center justify-between px-4 py-2">
           <div className="flex items-center gap-2">
             {/* SWING Logo */}
@@ -192,7 +192,7 @@ export default function Home() {
             
             {/* Login/Account button */}
             {localStorage.getItem('isLoggedIn') === 'true' ? (
-              <div className="flex items-center gap-2 bg-card/80 backdrop-blur-sm rounded-full px-3 py-1.5">
+              <div className="flex items-center gap-2 glass-sm rounded-full px-3 py-1.5">
                 <User className="h-4 w-4 text-primary" />
                 <span className="text-sm font-medium text-foreground">
                   {localStorage.getItem('currentUser') || 'User'}
@@ -219,7 +219,7 @@ export default function Home() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="bg-card/80 backdrop-blur-sm rounded-full px-4"
+                className="glass-sm rounded-full px-4"
                 onClick={() => navigate('/auth')}
               >
                 <LogIn className="h-4 w-4 mr-2" />
@@ -229,14 +229,14 @@ export default function Home() {
           </div>
           
           <div className="flex items-center gap-1">
-            <div className="bg-card/80 backdrop-blur-sm rounded-full">
+            <div className="glass-sm rounded-full">
               <NotificationBell />
             </div>
             {isAdmin && (
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative bg-card/80 backdrop-blur-sm rounded-full"
+                className="relative glass-sm rounded-full"
                 onClick={() => setAdminPopupOpen(true)}
               >
                 <ShieldCheck className="h-5 w-5" />
@@ -247,13 +247,13 @@ export default function Home() {
                 )}
               </Button>
             )}
-            <div className="bg-card/80 backdrop-blur-sm rounded-full">
+            <div className="glass-sm rounded-full">
               <LanguageToggle />
             </div>
             <Button
               variant="ghost"
               size="icon"
-              className="bg-card/80 backdrop-blur-sm rounded-full"
+              className="glass-sm rounded-full"
               onClick={() => navigate("/settings")}
             >
               <Settings className="h-5 w-5" />
@@ -305,7 +305,7 @@ export default function Home() {
           <Button
             variant="outline"
             size="sm"
-            className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-amber-500/50 backdrop-blur-sm rounded-full hover:from-amber-500/30 hover:to-orange-500/30"
+            className="glass-sm backdrop-blur-sm rounded-full hover:glass"
             onClick={() => navigate("/quests")}
           >
             <Trophy className="h-4 w-4 mr-2 text-amber-500" />
@@ -316,7 +316,7 @@ export default function Home() {
           <Button
             variant="outline"
             size="sm"
-            className="bg-card/80 backdrop-blur-sm rounded-full"
+            className="glass-sm rounded-full hover:glass"
             onClick={() => navigate("/personal-info")}
           >
             <User className="h-4 w-4 mr-2" />
@@ -325,7 +325,7 @@ export default function Home() {
           <Button
             variant="outline"
             size="sm"
-            className="bg-card/80 backdrop-blur-sm rounded-full"
+            className="glass-sm rounded-full hover:glass"
             onClick={() => navigate("/self-care")}
           >
             <Heart className="h-4 w-4 mr-2" />
@@ -334,7 +334,7 @@ export default function Home() {
           <Button
             variant="outline"
             size="sm"
-            className="bg-card/80 backdrop-blur-sm rounded-full"
+            className="glass-sm rounded-full hover:glass"
             onClick={() => navigate("/medication-tracker")}
           >
             <Pill className="h-4 w-4 mr-2" />
@@ -345,7 +345,7 @@ export default function Home() {
         {/* Stats: Members and Total Visitors - Static display */}
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
           {totalMembers > 0 && (
-            <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm rounded-full py-2 px-4">
+            <div className="flex items-center gap-2 glass-sm rounded-full py-2 px-4">
               <Users className="h-4 w-4 text-primary" />
               <span className="text-sm text-muted-foreground">
                 {language === 'th' ? 'สมาชิก' : 'Members'}:
@@ -354,7 +354,7 @@ export default function Home() {
             </div>
           )}
           {totalVisitors > 0 && (
-            <div className="flex items-center gap-2 bg-card/60 backdrop-blur-sm rounded-full py-2 px-4">
+            <div className="flex items-center gap-2 glass-sm rounded-full py-2 px-4">
               <Eye className="h-4 w-4 text-primary" />
               <span className="text-sm text-muted-foreground">
                 {language === 'th' ? 'ผู้เข้าชมทั้งหมด' : 'Total Visitors'}:

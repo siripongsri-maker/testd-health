@@ -10,10 +10,10 @@ interface StatCardProps {
 }
 
 const variantStyles = {
-  xp: "bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30 border-amber-200/50 dark:border-amber-800/30",
-  streak: "bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/30 dark:to-pink-950/30 border-rose-200/50 dark:border-rose-800/30",
-  level: "bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30 border-violet-200/50 dark:border-violet-800/30",
-  default: "bg-card border-border",
+  xp: "glass border-amber-200/30 dark:border-amber-800/20",
+  streak: "glass border-rose-200/30 dark:border-rose-800/20",
+  level: "glass border-violet-200/30 dark:border-violet-800/20",
+  default: "glass",
 };
 
 const iconStyles = {
