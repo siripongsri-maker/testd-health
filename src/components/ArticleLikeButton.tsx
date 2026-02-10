@@ -87,19 +87,10 @@ export function ArticleLikeButton({
 
         // Award XP to author if they're not the same as the liker
         if (authorId && authorId !== user.id) {
-          // Update author's XP in profiles
-          const { data: authorProfile } = await supabase
-            .from('profiles')
-            .select('xp')
-            .eq('id', authorId)
-            .single();
-
-          if (authorProfile) {
-            await supabase
-              .from('profiles')
-              .update({ xp: (authorProfile.xp || 0) + 10 })
-              .eq('id', authorId);
-          }
+          await supabase.rpc('award_xp_to_user', {
+            target_user_id: authorId,
+            xp_amount: 10
+          });
         }
 
         toast.success(language === 'th' ? '❤️ ถูกใจแล้ว!' : '❤️ Liked!', { duration: 2000 });

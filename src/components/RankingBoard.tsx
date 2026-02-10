@@ -112,23 +112,20 @@ export function RankingBoard({ compact = false }: RankingBoardProps) {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     
-    const { count: activeCount } = await supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true })
-      .gt('xp', 0)
-      .gte('updated_at', sevenDaysAgo.toISOString());
+    // Use leaderboard_profiles view (doesn't expose sensitive fields like mode)
+    const { data: allLeaderboard } = await supabase
+      .from('leaderboard_profiles')
+      .select('id, xp')
+      .order('xp', { ascending: false });
     
-    setActivePlayers(activeCount || 0);
+    // Estimate active players from leaderboard view
+    const activeEstimate = allLeaderboard?.filter(u => (u.xp || 0) > 0).length || 0;
+    setActivePlayers(activeEstimate);
 
     // Fetch current user's rank
     if (user) {
-      const { data: allUsers } = await supabase
-        .from('profiles')
-        .select('id, xp')
-        .order('xp', { ascending: false });
-      
-      if (allUsers) {
-        const rank = allUsers.findIndex(u => u.id === user.id) + 1;
+      if (allLeaderboard) {
+        const rank = allLeaderboard.findIndex(u => u.id === user.id) + 1;
         setCurrentUserRank(rank > 0 ? rank : null);
       }
 

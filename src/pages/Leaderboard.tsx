@@ -202,15 +202,9 @@ export default function Leaderboard() {
       }
     }
 
-    // Fetch active players (users with XP who were active in the last 7 days)
-    const sevenDaysAgo = subDays(new Date(), 7).toISOString();
-    const { count: activeCount } = await supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true })
-      .gt('xp', 0)
-      .gte('updated_at', sevenDaysAgo);
-    
-    setActivePlayers(activeCount || 0);
+    // Estimate active players from leaderboard view (avoids querying all profiles)
+    const activePlayers = rankings?.filter(u => (u.xp || 0) > 0).length || 0;
+    setActivePlayers(activePlayers);
     
     setLoading(false);
   };

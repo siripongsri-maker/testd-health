@@ -1654,6 +1654,10 @@ export type Database = {
       }
     }
     Functions: {
+      award_xp_to_user: {
+        Args: { target_user_id: string; xp_amount: number }
+        Returns: undefined
+      }
       complete_survey: {
         Args: { p_session_id?: string; p_survey_id: string }
         Returns: number
