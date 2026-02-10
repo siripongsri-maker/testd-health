@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Users, TrendingUp } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
+import { aggregateGenderStats, type NormalizedGender } from "@/lib/normalizeGender";
 
 interface Statistics {
   totalRequests: number;
@@ -12,15 +13,11 @@ interface Statistics {
   ageData: { name: string; value: number; color: string }[];
 }
 
-// Inclusive color palette for gender representation
+// Colors keyed by NormalizedGender display value
 const GENDER_COLORS: Record<string, string> = {
-  male: "hsl(221, 83%, 53%)",
-  female: "hsl(330, 81%, 60%)",
-  transgender_male: "hsl(173, 80%, 40%)",
-  transgender_female: "hsl(280, 70%, 60%)",
-  non_binary: "hsl(45, 93%, 47%)",
-  prefer_not_to_say: "hsl(220, 9%, 46%)",
-  unknown: "hsl(220, 9%, 70%)",
+  "ชาย": "hsl(221, 83%, 53%)",
+  "หญิง": "hsl(330, 81%, 60%)",
+  "ไม่ระบุ": "hsl(220, 9%, 46%)",
 };
 
 const AGE_COLORS: Record<string, string> = {
@@ -42,16 +39,12 @@ export function TestStatistics() {
   });
   const [loading, setLoading] = useState(true);
 
-  // Gender label translations
+  // Gender label translations (keyed by NormalizedGender Thai value)
   const getGenderLabel = (gender: string): string => {
     const labels: Record<string, { th: string; en: string }> = {
-      male: { th: "ชาย", en: "Male" },
-      female: { th: "หญิง", en: "Female" },
-      transgender_male: { th: "ชายข้ามเพศ", en: "Trans Male" },
-      transgender_female: { th: "หญิงข้ามเพศ", en: "Trans Female" },
-      non_binary: { th: "นอนไบนารี", en: "Non-binary" },
-      prefer_not_to_say: { th: "ไม่ระบุ", en: "Not specified" },
-      unknown: { th: "ไม่ระบุ", en: "Unknown" },
+      "ชาย": { th: "ชาย", en: "Male" },
+      "หญิง": { th: "หญิง", en: "Female" },
+      "ไม่ระบุ": { th: "ไม่ระบุ", en: "Not specified" },
     };
     return labels[gender]?.[language] || gender;
   };
@@ -93,13 +86,14 @@ export function TestStatistics() {
       
       const totalRequests = result.total_count || 0;
 
-      // Parse gender stats from JSONB
+      // Normalize + re-group gender stats to prevent duplicate labels
       const genderStatsArray = Array.isArray(result.gender_stats) ? result.gender_stats : [];
-      const genderData = genderStatsArray.map((item) => ({
+      const normalizedGenderRows = aggregateGenderStats(genderStatsArray);
+      const genderData = normalizedGenderRows.map((item) => ({
         name: getGenderLabel(item.gender),
         value: item.count,
-        color: GENDER_COLORS[item.gender] || GENDER_COLORS.unknown,
-      })).sort((a, b) => b.value - a.value);
+        color: GENDER_COLORS[item.gender] || "hsl(220, 9%, 46%)",
+      }));
 
       // Parse age stats from JSONB
       const ageOrder = ["under_18", "18_24", "25_34", "35_44", "45_54", "55_plus", "unknown"];
