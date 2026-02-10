@@ -487,10 +487,26 @@ serve(async (req) => {
 
     console.log("Column map:", colMap);
 
-    // Pre-fetch existing data for deduplication
-    const { data: existingPii } = await adminClient
-      .from('selftest_pii')
-      .select('id, user_id, thai_id, phone, line_id, full_name, gender, date_of_birth, address, province, postal_code, district, subdistrict');
+    // Pre-fetch existing data for deduplication (paginate to avoid 1000-row limit)
+    const fetchAll = async (table: string, select: string) => {
+      const allRows: any[] = [];
+      let from = 0;
+      const pageSize = 1000;
+      while (true) {
+        const { data, error } = await adminClient
+          .from(table)
+          .select(select)
+          .range(from, from + pageSize - 1);
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+        allRows.push(...data);
+        if (data.length < pageSize) break;
+        from += pageSize;
+      }
+      return allRows;
+    };
+
+    const existingPii = await fetchAll('selftest_pii', 'id, user_id, thai_id, phone, line_id, full_name, gender, date_of_birth, address, province, postal_code, district, subdistrict');
 
     const piiByThaiId = new Map<string, any>();
     const piiByPhone = new Map<string, any>();
@@ -502,9 +518,7 @@ serve(async (req) => {
       if (p.line_id) piiByLineId.set(p.line_id.toLowerCase(), p);
     }
 
-    const { data: existingRequests } = await adminClient
-      .from('hiv_selftest_requests')
-      .select('id, pii_id, user_id');
+    const existingRequests = await fetchAll('hiv_selftest_requests', 'id, pii_id, user_id');
     const requestByPiiId = new Map<string, any>();
     for (const r of existingRequests || []) {
       if (r.pii_id) requestByPiiId.set(r.pii_id, r);
@@ -554,7 +568,7 @@ serve(async (req) => {
           phone = null;
           lineId = null;
           gender = parsed.gender;
-          dob = null;
+          dob = parsed.dob;
           address = null;
           timestamp = parsed.timestamp;
         }
