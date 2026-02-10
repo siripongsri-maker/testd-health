@@ -401,7 +401,7 @@ serve(async (req) => {
               .insert({
                 user_id: existingPiiRecord.user_id,
                 pii_id: existingPiiRecord.id,
-                status: 'pending',
+                status: 'delivered',
                 assigned_branch: branch,
                 created_at: timestamp || new Date().toISOString(),
               })
@@ -441,7 +441,7 @@ serve(async (req) => {
             .insert({
               user_id: importUserId,
               pii_id: piiData.id,
-              status: 'pending',
+              status: 'delivered',
               assigned_branch: branch,
               created_at: timestamp || new Date().toISOString(),
             })
