@@ -10,6 +10,7 @@ import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { PageLoader } from "@/components/PageLoader";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { FloatingMedClock } from "@/components/FloatingMedClock";
 
 // Lazy load all pages for code-splitting
 const Home = lazy(() => import("./pages/Home"));
@@ -106,6 +107,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
+          <FloatingMedClock />
         </AnalyticsProvider>
       </BrowserRouter>
     </TooltipProvider>
