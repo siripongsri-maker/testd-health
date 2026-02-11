@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { Button } from "@/components/ui/button";
 import { HIVTestPopup } from "@/components/HIVTestPopup";
+import { HomeLeaderboard } from "@/components/HomeLeaderboard";
 import { AdminRequestsPopup } from "@/components/AdminRequestsPopup";
 import { NotificationBell } from "@/components/NotificationBell";
 import { MedicationWidget } from "@/components/MedicationWidget";
@@ -278,6 +279,11 @@ export default function Home() {
         {/* Medication Widget - only shows for users on medication */}
         <div className="mb-4">
           <MedicationWidget onStatusChange={() => setLocalUserData(getUserData())} />
+        </div>
+
+        {/* Leaderboard Widget - main gamification component */}
+        <div className="mb-4">
+          <HomeLeaderboard />
         </div>
 
         {/* Menu Grid - 3 columns, 2 rows */}
