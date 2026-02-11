@@ -29,38 +29,28 @@ Deno.serve(async (req) => {
 
     // Validate authorization
     const authHeader = req.headers.get('authorization');
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Authorization required' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    const token = authHeader?.replace('Bearer ', '');
+    
+    let user = null;
+    let isAdmin = false;
+    
+    if (authHeader && token) {
+      const userSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } }
+      });
+
+      const { data: { user: authUser }, error: authError } = await userSupabase.auth.getUser(token);
+      if (!authError && authUser) {
+        user = authUser;
+        const { data: adminCheck } = await userSupabase.rpc('has_role', {
+          _user_id: user.id,
+          _role: 'admin'
+        });
+        isAdmin = !!adminCheck;
+      }
     }
 
-    // Verify user is authenticated and is an admin
-    const userSupabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
-
-    const { data: { user }, error: authError } = await userSupabase.auth.getUser();
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Invalid token' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    // Check admin role - only admins can scrape
-    const { data: isAdmin } = await userSupabase.rpc('has_role', {
-      _user_id: user.id,
-      _role: 'admin'
-    });
-
-    if (!isAdmin) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Admin access required' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    // Note: admin check moved to scraping section below
 
     // Use service role for storage operations
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -125,12 +115,20 @@ Deno.serve(async (req) => {
       }
     }
 
-    console.log(`Admin ${user.id} - Cache hits: ${Object.keys(results).length}, Need to scrape: ${productsToScrape.length}`);
+    console.log(`User ${user?.id || 'anon'} - Cache hits: ${Object.keys(results).length}, Need to scrape: ${productsToScrape.length}`);
 
     // If all products are cached, return early
     if (productsToScrape.length === 0) {
       return new Response(
         JSON.stringify({ success: true, images: results, fromCache: true }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Only admins can trigger actual scraping
+    if (!isAdmin) {
+      return new Response(
+        JSON.stringify({ success: true, images: results, error: 'Cached images only for non-admin users' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
