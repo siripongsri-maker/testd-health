@@ -236,7 +236,7 @@ export default function Auth() {
                     : (language === 'th' ? 'ชื่อผู้ใช้' : 'Username')}
                 </Label>
                 <div className="relative group">
-                  <div className="absolute inset-0 bg-primary/5 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity -m-0.5" />
+                  <div className="absolute inset-0 bg-primary/5 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity -m-0.5 pointer-events-none" />
                   <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                   <Input
                     id="username"
@@ -271,10 +271,10 @@ export default function Auth() {
                   {language === 'th' ? 'รหัสผ่าน' : 'Password'}
                 </Label>
                 <div className="relative group">
-                  <div className="absolute inset-0 bg-primary/5 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity -m-0.5" />
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                   <div className="absolute inset-0 bg-primary/5 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity -m-0.5 pointer-events-none" />
+                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                   <Input
-                    id="password"
+                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => {
@@ -309,10 +309,10 @@ export default function Auth() {
                     {language === 'th' ? 'ยืนยันรหัสผ่าน' : 'Confirm Password'}
                   </Label>
                   <div className="relative group">
-                    <div className="absolute inset-0 bg-primary/5 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity -m-0.5" />
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                    <Input
-                      id="confirmPassword"
+                    <div className="absolute inset-0 bg-primary/5 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity -m-0.5 pointer-events-none" />
+                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                     <Input
+                       id="confirmPassword"
                       type={showPassword ? 'text' : 'password'}
                       value={confirmPassword}
                       onChange={(e) => {
