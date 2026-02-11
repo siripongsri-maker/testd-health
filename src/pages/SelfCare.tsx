@@ -6,7 +6,7 @@ import { useLanguage } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { TestTube, Heart, Shield, ExternalLink, Bell, Package, ArrowRight, Loader2, RefreshCw, Sparkles } from "lucide-react";
+import { TestTube, Heart, Shield, ExternalLink, Bell, Package, ArrowRight, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -72,43 +72,6 @@ export default function SelfCare() {
     harm_reduction: true,
   });
   const [loading, setLoading] = useState(true);
-  const [productImages, setProductImages] = useState<Record<string, string>>({});
-  const [imagesLoading, setImagesLoading] = useState(true);
-
-  const fetchShopeeImages = async (forceRefresh = false) => {
-    setImagesLoading(true);
-    try {
-      const products = SELF_CARE_ITEMS.map(item => ({
-        id: item.id,
-        link: item.link,
-      }));
-
-      const { data, error } = await supabase.functions.invoke('scrape-shopee-images', {
-        body: { products, forceRefresh },
-      });
-
-      if (error) {
-        console.error('Error fetching Shopee images:', error);
-        if (forceRefresh) {
-          toast.error(language === 'th' ? 'ไม่สามารถโหลดรูปภาพได้' : 'Failed to load images');
-        }
-      } else if (data?.success && data?.images) {
-        setProductImages(data.images);
-        if (forceRefresh) {
-          toast.success(language === 'th' ? 'อัปเดตรูปภาพแล้ว' : 'Images updated');
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching Shopee images:', error);
-    } finally {
-      setImagesLoading(false);
-    }
-  };
-
-  // Fetch Shopee product images on mount (uses cache)
-  useEffect(() => {
-    fetchShopeeImages(false);
-  }, []);
 
   useEffect(() => {
     const fetchReminders = async () => {
@@ -203,16 +166,6 @@ export default function SelfCare() {
             <Sparkles className="h-4 w-4" />
             {language === 'th' ? 'สินค้าแนะนำ' : 'Recommended Products'}
           </h2>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => fetchShopeeImages(true)}
-            disabled={imagesLoading}
-            className="gap-2 rounded-lg text-xs"
-          >
-            <RefreshCw className={`h-3.5 w-3.5 ${imagesLoading ? 'animate-spin' : ''}`} />
-            {language === 'th' ? 'รีเฟรช' : 'Refresh'}
-          </Button>
         </div>
 
         {/* Product Cards */}
@@ -225,13 +178,8 @@ export default function SelfCare() {
             >
               <div className="flex">
                 <div className="w-28 h-28 shrink-0 bg-muted/30 relative overflow-hidden">
-                  {imagesLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-muted/50 backdrop-blur-sm">
-                      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                    </div>
-                  )}
                   <img 
-                    src={productImages[item.id] || item.fallbackImage} 
+                    src={item.fallbackImage} 
                     alt={item.titleEn}
                     className="w-full h-full object-cover"
                   />
