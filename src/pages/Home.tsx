@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 import { getUserData } from "@/lib/store";
@@ -10,11 +10,10 @@ import { HIVTestPopup } from "@/components/HIVTestPopup";
 import { HomeLeaderboard } from "@/components/HomeLeaderboard";
 import { AdminRequestsPopup } from "@/components/AdminRequestsPopup";
 import { NotificationBell } from "@/components/NotificationBell";
-import { MedicationWidget } from "@/components/MedicationWidget";
+import { WeeklyMedicationTracker } from "@/components/WeeklyMedicationTracker";
 import {
   TestTube,
   MessageCircle,
-  Heart,
   BookOpen,
   Settings,
   ShieldCheck,
@@ -22,16 +21,17 @@ import {
   Users,
   Eye,
   Calendar,
-  Pill,
   User,
   LogOut,
   LogIn,
   Trophy,
+  ChevronDown,
+  UserCircle,
 } from "lucide-react";
 import swingLogo from "@/assets/swing-logo.webp";
 import { toast } from "sonner";
 
-// Simple menu card component (no XP display)
+// Simple menu card component
 interface MenuCardProps {
   icon: React.ReactNode;
   titleTh: string;
@@ -55,12 +55,9 @@ function MenuCard({ icon, titleTh, titleEn, onClick, variant = 'default' }: Menu
         ${variant === 'featured' ? 'ring-2 ring-primary/30' : ''}
       `}
     >
-      {/* Icon container */}
       <div className="h-10 w-10 sm:h-14 md:h-16 sm:w-14 md:w-16 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
         {icon}
       </div>
-      
-      {/* Labels */}
       <div className="text-center space-y-0">
         <p className="text-xs sm:text-sm font-bold text-foreground leading-tight">
           {titleTh}
@@ -70,6 +67,76 @@ function MenuCard({ icon, titleTh, titleEn, onClick, variant = 'default' }: Menu
         </p>
       </div>
     </button>
+  );
+}
+
+// User dropdown menu component
+function UserDropdownMenu({ language, navigate }: { language: string; navigate: (path: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const userName = localStorage.getItem('currentUser') || 'User';
+  const isAdmin = localStorage.getItem('currentUser') === 'admin2024';
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-2 glass-sm rounded-full px-3 py-1.5 hover:bg-muted/50 transition-colors"
+      >
+        <User className="h-4 w-4 text-primary" />
+        <span className="text-sm font-medium text-foreground max-w-[100px] truncate">
+          {userName}
+        </span>
+        {isAdmin && (
+          <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-gradient-to-r from-violet-500 to-purple-500 text-white">
+            ADMIN
+          </span>
+        )}
+        <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      {open && (
+        <div className="absolute top-full left-0 mt-1.5 w-48 glass rounded-xl shadow-lg border border-border/50 py-1 z-50 animate-fade-in">
+          <button
+            onClick={() => { setOpen(false); navigate('/quests'); }}
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm hover:bg-muted/50 transition-colors"
+          >
+            <Trophy className="h-4 w-4 text-amber-500" />
+            <span className="font-medium">{language === 'th' ? 'ภารกิจ' : 'Quests'}</span>
+          </button>
+          <button
+            onClick={() => { setOpen(false); navigate('/personal-info'); }}
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm hover:bg-muted/50 transition-colors"
+          >
+            <UserCircle className="h-4 w-4 text-primary" />
+            <span className="font-medium">{language === 'th' ? 'ข้อมูลส่วนตัว' : 'Personal Info'}</span>
+          </button>
+          <div className="border-t border-border/50 my-1" />
+          <button
+            onClick={() => {
+              setOpen(false);
+              localStorage.removeItem('isLoggedIn');
+              localStorage.removeItem('currentUser');
+              toast.success(language === 'th' ? 'ออกจากระบบแล้ว' : 'Logged out successfully');
+              navigate('/auth');
+            }}
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm hover:bg-destructive/10 text-destructive transition-colors"
+          >
+            <LogOut className="h-4 w-4" />
+            <span className="font-medium">{language === 'th' ? 'ออกจากระบบ' : 'Log out'}</span>
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -84,7 +151,7 @@ export default function Home() {
   const [totalVisitors, setTotalVisitors] = useState(0);
   const [totalMembers, setTotalMembers] = useState(0);
 
-  // Load stats once on mount (no real-time subscriptions)
+  // Load stats once on mount
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -156,12 +223,6 @@ export default function Home() {
       path: "/surveys",
     },
     {
-      icon: <Users className="h-full w-full" strokeWidth={1.5} />,
-      titleTh: "ดูแลตัวเอง",
-      titleEn: "SELF CARE",
-      path: "/self-care",
-    },
-    {
       icon: <BookOpen className="h-full w-full" strokeWidth={1.5} />,
       titleTh: "เรื่องน่ารู้",
       titleEn: "DID YOU KNOW?",
@@ -191,31 +252,9 @@ export default function Home() {
               className="h-10 w-auto object-contain shrink-0"
             />
             
-            {/* Login/Account button */}
+            {/* Login/Account */}
             {localStorage.getItem('isLoggedIn') === 'true' ? (
-              <div className="flex items-center gap-2 glass-sm rounded-full px-3 py-1.5">
-                <User className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium text-foreground">
-                  {localStorage.getItem('currentUser') || 'User'}
-                </span>
-                {localStorage.getItem('currentUser') === 'admin2024' && (
-                  <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-gradient-to-r from-violet-500 to-purple-500 text-white">
-                    ADMIN
-                  </span>
-                )}
-                <button
-                  onClick={() => {
-                    localStorage.removeItem('isLoggedIn');
-                    localStorage.removeItem('currentUser');
-                    toast.success(language === 'th' ? 'ออกจากระบบแล้ว' : 'Logged out successfully');
-                    navigate('/auth');
-                  }}
-                  className="ml-1 p-1 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
-                  title={language === 'th' ? 'ออกจากระบบ' : 'Log out'}
-                >
-                  <LogOut className="h-4 w-4" />
-                </button>
-              </div>
+              <UserDropdownMenu language={language} navigate={navigate} />
             ) : (
               <Button
                 variant="ghost"
@@ -276,17 +315,17 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Medication Widget - only shows for users on medication */}
+        {/* Weekly Medication Tracker - 7-day view */}
         <div className="mb-4">
-          <MedicationWidget onStatusChange={() => setLocalUserData(getUserData())} />
+          <WeeklyMedicationTracker onStatusChange={() => setLocalUserData(getUserData())} />
         </div>
 
-        {/* Leaderboard Widget - main gamification component */}
+        {/* Leaderboard Widget */}
         <div className="mb-4">
           <HomeLeaderboard />
         </div>
 
-        {/* Menu Grid - 3 columns, 2 rows */}
+        {/* Menu Grid */}
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {menuItems.map((item, index) => (
             <MenuCard
@@ -306,58 +345,7 @@ export default function Home() {
           ))}
         </div>
 
-        {/* Quick links */}
-        <div className="mt-4 flex flex-wrap justify-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="glass-sm backdrop-blur-sm rounded-full hover:glass"
-            onClick={() => navigate("/quests")}
-          >
-            <Trophy className="h-4 w-4 mr-2 text-amber-500" />
-            <span className="text-amber-700 dark:text-amber-400 font-medium">
-              {language === 'th' ? 'ภารกิจ' : 'Quests'}
-            </span>
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="glass-sm backdrop-blur-sm rounded-full hover:glass"
-            onClick={() => navigate("/leaderboard")}
-          >
-            <Trophy className="h-4 w-4 mr-2 text-primary" />
-            {language === 'th' ? 'ลีดเดอร์บอร์ด' : 'Leaderboard'}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="glass-sm rounded-full hover:glass"
-            onClick={() => navigate("/personal-info")}
-          >
-            <User className="h-4 w-4 mr-2" />
-            {language === 'th' ? 'ข้อมูลส่วนตัว' : 'Personal Info'}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="glass-sm rounded-full hover:glass"
-            onClick={() => navigate("/self-care")}
-          >
-            <Heart className="h-4 w-4 mr-2" />
-            {language === 'th' ? 'ดูแลตัวเอง' : 'Self Care'}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="glass-sm rounded-full hover:glass"
-            onClick={() => navigate("/medication-tracker")}
-          >
-            <Pill className="h-4 w-4 mr-2" />
-            {language === 'th' ? 'PrEP / PEP' : 'PrEP / PEP'}
-          </Button>
-        </div>
-
-        {/* Stats: Members and Total Visitors - Static display */}
+        {/* Stats: Members and Total Visitors */}
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
           {totalMembers > 0 && (
             <div className="flex items-center gap-2 glass-sm rounded-full py-2 px-4">
