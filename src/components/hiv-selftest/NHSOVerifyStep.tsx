@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowRight, ArrowLeft, Calendar, Check, Shield, Loader2 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
 import { NHSOFormData, GENDER_OPTIONS, validateThaiId } from "./types";
+import { ListenButton } from "@/components/ListenButton";
 
 interface NHSOVerifyStepProps {
   formData: NHSOFormData;
@@ -70,6 +71,11 @@ export function NHSOVerifyStep({ formData, savedData, onFormChange, onSubmit, on
           </div>
         </div>
       </Card>
+
+      <ListenButton
+        textTh="ขั้นตอนนี้จำเป็นสำหรับการยืนยันสิทธิ์ สปสช. กรุณากรอกเลขบัตรประชาชน 13 หลัก วันเดือนปีเกิด และเพศ เพื่อดำเนินการต่อ ข้อมูลของคุณจะถูกเก็บเป็นความลับ"
+        textEn="This step is required for NHSO eligibility verification. Please enter your 13-digit Thai National ID, date of birth, and gender to continue. Your information is kept confidential."
+      />
 
       {/* Show saved data notification if available */}
       {hasSavedData && (
