@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Check, Clock, Pill, X, Bell, BellOff, GripVertical } from 'lucide-react';
+import { Check, Clock, Pill, X, GripVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useLanguage } from '@/lib/i18n';
-import { getUserData, getTodayKey, recordCheckIn, setUserData } from '@/lib/store';
+import { getUserData, getTodayKey, recordCheckIn } from '@/lib/store';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const POSITION_KEY = 'medClockPosition';
@@ -16,6 +18,7 @@ interface Medicine {
   name: string;
   time: string;
   enabled: boolean;
+  dbId?: string; // database UUID
 }
 
 function getStoredPosition(): { x: number; y: number } {
@@ -36,8 +39,8 @@ function getStoredMedicines(): Medicine[] {
 
 export function FloatingMedClock() {
   const { language } = useLanguage();
+  const { user } = useAuth();
   const userData = getUserData();
-  const isActive = true; // Always visible
 
   const [position, setPosition] = useState(getStoredPosition);
   const [isDragging, setIsDragging] = useState(false);
@@ -45,6 +48,7 @@ export function FloatingMedClock() {
   const [medicines, setMedicines] = useState<Medicine[]>(getStoredMedicines);
   const [countdown, setCountdown] = useState('');
   const [isLate, setIsLate] = useState(false);
+  const [syncing, setSyncing] = useState(false);
 
   const dragRef = useRef<HTMLDivElement>(null);
   const dragStartRef = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
@@ -52,7 +56,32 @@ export function FloatingMedClock() {
   const todayKey = getTodayKey();
   const todayTaken = userData.checkIns[todayKey] === 'taken';
 
-  // Save medicines
+  // Load medicines from DB on login
+  useEffect(() => {
+    if (!user) return;
+    const loadFromDb = async () => {
+      const { data, error } = await supabase
+        .from('user_medicines')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: true });
+
+      if (!error && data && data.length > 0) {
+        const dbMeds: Medicine[] = data.map((m: any) => ({
+          id: m.id,
+          name: m.name,
+          time: typeof m.time === 'string' ? m.time.slice(0, 5) : '20:00',
+          enabled: m.enabled,
+          dbId: m.id,
+        }));
+        setMedicines(dbMeds);
+        localStorage.setItem(MEDICINES_KEY, JSON.stringify(dbMeds));
+      }
+    };
+    loadFromDb();
+  }, [user]);
+
+  // Save medicines to localStorage
   useEffect(() => {
     localStorage.setItem(MEDICINES_KEY, JSON.stringify(medicines));
   }, [medicines]);
@@ -73,7 +102,6 @@ export function FloatingMedClock() {
 
     const update = () => {
       const now = new Date();
-      let nearest = Infinity;
       let nearestDiff = Infinity;
 
       for (const med of activeMeds) {
@@ -133,8 +161,59 @@ export function FloatingMedClock() {
     }
   }, []);
 
-  const handleMarkTaken = () => {
+  // Sync medicines to DB
+  const syncToDb = useCallback(async (meds: Medicine[]) => {
+    if (!user) return;
+    setSyncing(true);
+    try {
+      // Delete all existing then re-insert (simple sync)
+      await supabase.from('user_medicines').delete().eq('user_id', user.id);
+
+      if (meds.length > 0) {
+        const rows = meds.map(m => ({
+          user_id: user.id,
+          name: m.name || 'Unnamed',
+          time: m.time + ':00', // format as HH:MM:SS for TIME column
+          enabled: m.enabled,
+        }));
+        const { data } = await supabase.from('user_medicines').insert(rows).select();
+        if (data) {
+          // Update local medicines with DB IDs
+          const updated = meds.map((m, i) => ({
+            ...m,
+            dbId: data[i]?.id,
+            id: data[i]?.id || m.id,
+          }));
+          setMedicines(updated);
+          localStorage.setItem(MEDICINES_KEY, JSON.stringify(updated));
+        }
+      }
+    } catch (err) {
+      console.error('Failed to sync medicines:', err);
+    } finally {
+      setSyncing(false);
+    }
+  }, [user]);
+
+  const handleMarkTaken = async () => {
+    // Local check-in
     recordCheckIn(todayKey, 'taken');
+
+    // DB check-in for each enabled medicine
+    if (user) {
+      const activeMeds = medicines.filter(m => m.enabled && m.dbId);
+      for (const med of activeMeds) {
+        await supabase.from('medication_checkins').upsert({
+          user_id: user.id,
+          medicine_id: med.dbId!,
+          date: todayKey,
+          status: 'taken',
+          taken_at: new Date().toISOString(),
+          scheduled_time: med.time + ':00',
+        }, { onConflict: 'user_id,medicine_id,date' });
+      }
+    }
+
     toast.success(
       language === 'th' ? 'ดีมาก! 💪' : 'Great job! 💪',
       { description: `Streak: ${getUserData().streak} 🔥` }
@@ -160,7 +239,11 @@ export function FloatingMedClock() {
     setMedicines(prev => prev.filter(m => m.id !== id));
   };
 
-  if (!isActive) return null;
+  // Save & sync when panel closes
+  const handleClosePanel = () => {
+    setPanelOpen(false);
+    syncToDb(medicines);
+  };
 
   // Ring progress
   const progress = todayTaken ? 100 : (() => {
@@ -202,10 +285,10 @@ export function FloatingMedClock() {
         }}
       >
         <div className={`relative w-14 h-14 rounded-full glass-heavy border-2 flex items-center justify-center transition-all ${
-          todayTaken 
-            ? 'border-emerald-400 bg-emerald-500/20' 
-            : isLate 
-              ? 'border-amber-400 bg-amber-500/20 animate-pulse' 
+          todayTaken
+            ? 'border-emerald-400 bg-emerald-500/20'
+            : isLate
+              ? 'border-amber-400 bg-amber-500/20 animate-pulse'
               : 'border-primary/40 bg-primary/10'
         }`}>
           {/* Progress ring */}
@@ -243,27 +326,24 @@ export function FloatingMedClock() {
         </div>
       </div>
 
-      {/* Settings Panel (appears on click) */}
+      {/* Settings Panel */}
       {panelOpen && (
         <>
-          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40" onClick={() => setPanelOpen(false)} />
-          <div 
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40" onClick={handleClosePanel} />
+          <div
             className="fixed z-50 w-[calc(100%-2rem)] max-w-sm glass-heavy rounded-2xl p-4 shadow-2xl border border-border/50 animate-scale-in"
-            style={{
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-            }}
+            style={{ left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}
           >
-            {/* Panel Header */}
+            {/* Header */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Pill className="h-5 w-5 text-primary" />
                 <h3 className="font-bold text-foreground">
                   {language === 'th' ? 'ตั้งค่ายา' : 'Medication Settings'}
                 </h3>
+                {syncing && <span className="text-[10px] text-muted-foreground animate-pulse">syncing...</span>}
               </div>
-              <button onClick={() => setPanelOpen(false)} className="p-1 rounded-full hover:bg-muted/50">
+              <button onClick={handleClosePanel} className="p-1 rounded-full hover:bg-muted/50">
                 <X className="h-4 w-4 text-muted-foreground" />
               </button>
             </div>
@@ -273,7 +353,7 @@ export function FloatingMedClock() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className={`text-sm font-bold ${todayTaken ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground'}`}>
-                    {todayTaken 
+                    {todayTaken
                       ? (language === 'th' ? '✓ กินยาแล้ววันนี้' : '✓ Taken today')
                       : (language === 'th' ? 'ยังไม่ได้กินยา' : 'Not taken yet')
                     }
@@ -329,12 +409,15 @@ export function FloatingMedClock() {
               + {language === 'th' ? 'เพิ่มยา' : 'Add Medicine'}
             </Button>
 
-            {/* Streak */}
-            {userData.streak > 0 && (
-              <div className="text-center text-xs text-muted-foreground">
-                🔥 Streak: <span className="font-bold text-amber-600">{userData.streak}</span> {language === 'th' ? 'วัน' : 'days'}
-              </div>
-            )}
+            {/* Streak & sync info */}
+            <div className="text-center text-xs text-muted-foreground space-y-1">
+              {userData.streak > 0 && (
+                <p>🔥 Streak: <span className="font-bold text-amber-600">{userData.streak}</span> {language === 'th' ? 'วัน' : 'days'}</p>
+              )}
+              {user && (
+                <p className="text-[10px]">☁️ {language === 'th' ? 'ซิงค์กับคลาวด์อัตโนมัติ' : 'Auto-synced to cloud'}</p>
+              )}
+            </div>
           </div>
         </>
       )}

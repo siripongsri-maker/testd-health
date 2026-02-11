@@ -719,6 +719,47 @@ export type Database = {
         }
         Relationships: []
       }
+      medication_checkins: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          medicine_id: string | null
+          scheduled_time: string | null
+          status: string
+          taken_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          id?: string
+          medicine_id?: string | null
+          scheduled_time?: string | null
+          status?: string
+          taken_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          medicine_id?: string | null
+          scheduled_time?: string | null
+          status?: string
+          taken_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medication_checkins_medicine_id_fkey"
+            columns: ["medicine_id"]
+            isOneToOne: false
+            referencedRelation: "user_medicines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_reads: {
         Row: {
           dismissed: boolean | null
@@ -1344,6 +1385,36 @@ export type Database = {
           created_at?: string | null
           id?: string
           tag?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_medicines: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          name: string
+          time: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          name?: string
+          time?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          name?: string
+          time?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
