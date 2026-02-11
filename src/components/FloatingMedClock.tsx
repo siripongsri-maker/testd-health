@@ -37,7 +37,7 @@ function getStoredMedicines(): Medicine[] {
 export function FloatingMedClock() {
   const { language } = useLanguage();
   const userData = getUserData();
-  const isActive = userData.mode && userData.mode !== 'exploring';
+  const isActive = true; // Always visible
 
   const [position, setPosition] = useState(getStoredPosition);
   const [isDragging, setIsDragging] = useState(false);
