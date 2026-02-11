@@ -10,7 +10,7 @@ import { HIVTestPopup } from "@/components/HIVTestPopup";
 import { HomeLeaderboard } from "@/components/HomeLeaderboard";
 import { AdminRequestsPopup } from "@/components/AdminRequestsPopup";
 import { NotificationBell } from "@/components/NotificationBell";
-import { WeeklyMedicationTracker } from "@/components/WeeklyMedicationTracker";
+
 import {
   TestTube,
   MessageCircle,
@@ -322,10 +322,7 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Weekly Medication Tracker - 7-day view */}
-        <div className="mb-4">
-          <WeeklyMedicationTracker onStatusChange={() => setLocalUserData(getUserData())} />
-        </div>
+        {/* Floating Med Clock handles medication tracking now */}
 
         {/* Leaderboard Widget */}
         <div className="mb-4">
