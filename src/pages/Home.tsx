@@ -316,6 +316,15 @@ export default function Home() {
           <Button
             variant="outline"
             size="sm"
+            className="glass-sm backdrop-blur-sm rounded-full hover:glass"
+            onClick={() => navigate("/leaderboard")}
+          >
+            <Trophy className="h-4 w-4 mr-2 text-primary" />
+            {language === 'th' ? 'ลีดเดอร์บอร์ด' : 'Leaderboard'}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
             className="glass-sm rounded-full hover:glass"
             onClick={() => navigate("/personal-info")}
           >
