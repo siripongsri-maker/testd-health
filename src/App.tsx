@@ -11,7 +11,6 @@ import { OfflineBanner } from "@/components/OfflineBanner";
 import { PageLoader } from "@/components/PageLoader";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { FloatingMedClock } from "@/components/FloatingMedClock";
-import { VoiceHealthAgent } from "@/components/VoiceHealthAgent";
 
 // Lazy load all pages for code-splitting
 const Home = lazy(() => import("./pages/Home"));
@@ -109,7 +108,6 @@ const App = () => (
             </Routes>
           </Suspense>
           <FloatingMedClock />
-          <VoiceHealthAgent />
         </AnalyticsProvider>
       </BrowserRouter>
     </TooltipProvider>

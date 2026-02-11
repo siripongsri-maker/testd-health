@@ -17,9 +17,3 @@ verify_jwt = false
 
 [functions.admin-reset-password]
 verify_jwt = false
-
-[functions.elevenlabs-tts]
-verify_jwt = false
-
-[functions.health-voice-chat]
-verify_jwt = false
