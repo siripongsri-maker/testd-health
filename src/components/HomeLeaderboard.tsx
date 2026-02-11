@@ -79,7 +79,21 @@ export function HomeLeaderboard() {
     );
   }
 
-  if (topUsers.length === 0) return null;
+  if (loading || topUsers.length === 0) {
+    if (loading) {
+      return (
+        <div className="glass rounded-2xl p-4 animate-pulse">
+          <div className="h-5 bg-muted rounded w-1/3 mb-3" />
+          <div className="space-y-2">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-10 bg-muted rounded-xl" />
+            ))}
+          </div>
+        </div>
+      );
+    }
+    return null;
+  }
 
   return (
     <button
