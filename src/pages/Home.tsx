@@ -22,6 +22,7 @@ import {
   Eye,
   Calendar,
   User,
+  Heart,
   LogOut,
   LogIn,
   Trophy,
@@ -233,6 +234,12 @@ export default function Home() {
       titleTh: "ขอคำปรึกษา",
       titleEn: "ONLINE COUNSELOR",
       path: "/community",
+    },
+    {
+      icon: <Heart className="h-full w-full" strokeWidth={1.5} />,
+      titleTh: "ดูแลตัวเอง",
+      titleEn: "SELF CARE",
+      path: "/self-care",
     },
   ];
 
