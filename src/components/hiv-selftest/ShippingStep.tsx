@@ -10,6 +10,7 @@ import { useLanguage } from "@/lib/i18n";
 import { getUserData } from "@/lib/store";
 import { getProvinces, getDistricts, getSubdistricts, getPostalCode, Subdistrict } from "@/lib/thailand-address";
 import { ShippingFormData } from "./types";
+import { ListenButton } from "@/components/ListenButton";
 
 interface ShippingStepProps {
   formData: ShippingFormData;
@@ -104,6 +105,11 @@ export function ShippingStep({ formData, onFormChange, onNext, onBack }: Shippin
           </div>
         </div>
       </Card>
+
+      <ListenButton
+        textTh="กรุณากรอกชื่อ เบอร์โทร และที่อยู่จัดส่ง เพื่อให้เราส่งชุดตรวจถึงบ้านคุณ จัดส่งฟรีทั่วประเทศ"
+        textEn="Please enter your name, phone number, and shipping address so we can deliver the test kit to your door. Free shipping nationwide."
+      />
 
       <Card className="p-4 space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">

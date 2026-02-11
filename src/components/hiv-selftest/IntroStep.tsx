@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
+import { ListenButton } from "@/components/ListenButton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Clock, PackageCheck, Package, Upload, MapPin, Building2, Pencil } from "lucide-react";
@@ -189,6 +190,12 @@ export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onS
           </div>
         </div>
       </Card>
+
+      <ListenButton
+        textTh="สวัสดีค่ะ คุณสามารถขอรับชุดตรวจ HIV ฟรีได้ที่นี่ ชุดตรวจ Abbott ใช้งานง่าย รู้ผลภายใน 15 นาที จัดส่งฟรีทั่วประเทศ ข้อมูลของคุณจะถูกเก็บเป็นความลับ"
+        textEn="Hello! You can request a free HIV self-test kit here. The Abbott test kit is easy to use with results in 15 minutes. Free shipping nationwide. Your information is kept confidential."
+        className="w-full"
+      />
 
       <Button 
         className="w-full gap-2 h-12 text-base" 
