@@ -316,6 +316,9 @@ export default function Home() {
           <div className="flex justify-center mb-2">
             <img src={testdLogo} alt="testD" className="h-32 w-auto object-contain drop-shadow-[0_4px_24px_rgba(255,100,150,0.4)] animate-scale-in" />
           </div>
+          <p className="text-sm font-medium text-foreground/80 animate-fade-in">
+            คนเทสต์ดีอยู่นี่จ้า
+          </p>
           <p className="text-muted-foreground">
             {language === 'th' 
               ? 'เลือกบริการที่ต้องการ' 
