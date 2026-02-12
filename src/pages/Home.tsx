@@ -30,6 +30,7 @@ import {
   UserCircle,
 } from "lucide-react";
 import swingLogo from "@/assets/swing-logo.webp";
+import testdLogo from "@/assets/testd-logo.png";
 import { toast } from "sonner";
 
 // Simple menu card component
@@ -312,10 +313,10 @@ export default function Home() {
       <main className="px-4 sm:px-6 py-3 max-w-md mx-auto relative z-10">
         {/* Welcome text */}
         <div className="text-center mb-4">
-          <h1 className="text-2xl font-bold text-foreground">
-            testD คนเทสต์ดีอยู่นี่จ้า
-          </h1>
-          <p className="text-muted-foreground mt-1">
+          <div className="flex justify-center mb-2">
+            <img src={testdLogo} alt="testD" className="h-24 w-auto object-contain" />
+          </div>
+          <p className="text-muted-foreground">
             {language === 'th' 
               ? 'เลือกบริการที่ต้องการ' 
               : 'Choose a service'}
