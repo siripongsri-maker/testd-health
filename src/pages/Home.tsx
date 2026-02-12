@@ -382,14 +382,14 @@ export default function Home() {
             'บริการนี้ไม่มีค่าใช้จ่าย • ข้อมูลของคุณเป็นความลับ' :
             'This service is free • Your information is confidential'}
           </p>
-          <div className="flex flex-col items-center gap-1.5">
+          <div className="items-center justify-start flex flex-col gap-0 border-none border-0">
             <span className="text-xs text-muted-foreground/70">
               {language === 'th' ? 'สนับสนุนโดย' : 'Powered by'}
             </span>
             <img
               src={swingLogo}
               alt="SWING Thailand"
-              className="h-30 object-contain opacity-70 -mt-4" />
+              className="h-24 object-contain opacity-70 -mt-4" />
 
           </div>
         </footer>
