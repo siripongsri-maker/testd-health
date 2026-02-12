@@ -372,29 +372,27 @@ export default function Home() {
         </div>
 
         {/* Footer */}
-        <footer className="mt-4 text-center space-y-1.5 pb-[max(12px,env(safe-area-inset-bottom))]">
-          <p className="text-xs text-muted-foreground">
+        <footer className="mt-6 text-center space-y-3 pb-20">
+          <p className="text-sm leading-relaxed text-muted-foreground px-4">
             {language === 'th' 
               ? 'บริการนี้ไม่มีค่าใช้จ่าย • ข้อมูลของคุณเป็นความลับ' 
               : 'This service is free • Your information is confidential'}
           </p>
+          <div className="flex flex-col items-center gap-1.5">
+            <span className="text-xs text-muted-foreground/70">
+              {language === 'th' ? 'สนับสนุนโดย' : 'Powered by'}
+            </span>
+            <img 
+              src={swingLogo} 
+              alt="SWING Thailand" 
+              className="h-10 object-contain opacity-70"
+            />
+          </div>
         </footer>
       </main>
 
       {/* Rainbow bottom bar */}
       <div className="fixed bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-[hsl(0,85%,65%)] via-[hsl(50,95%,55%)] via-[hsl(120,65%,50%)] via-[hsl(200,85%,55%)] to-[hsl(280,70%,60%)]" />
-
-      {/* SWING logo at bottom */}
-      <div className="fixed bottom-3 left-0 right-0 flex items-center justify-center gap-2 z-10">
-        <span className="text-xs text-muted-foreground">
-          {language === 'th' ? 'สนับสนุนโดย' : 'Powered by'}
-        </span>
-        <img 
-          src={swingLogo} 
-          alt="SWING Thailand" 
-          className="h-12 object-contain opacity-70"
-        />
-      </div>
 
       {/* Popups */}
       <HIVTestPopup />
