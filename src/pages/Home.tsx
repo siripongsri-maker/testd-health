@@ -314,7 +314,7 @@ export default function Home() {
         {/* Welcome text */}
         <div className="text-center mb-4">
           <div className="flex justify-center mb-2">
-            <img src={testdLogo} alt="testD" className="h-28 w-auto object-contain" />
+            <img src={testdLogo} alt="testD" className="h-32 w-auto object-contain" />
           </div>
           <p className="text-muted-foreground">
             {language === 'th' 
