@@ -385,7 +385,7 @@ export default function Home() {
             <img 
               src={swingLogo} 
               alt="SWING Thailand" 
-              className="h-5 object-contain opacity-70"
+              className="h-25 object-contain opacity-70"
             />
           </div>
         </footer>
