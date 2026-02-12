@@ -27,8 +27,8 @@ import {
   LogIn,
   Trophy,
   ChevronDown,
-  UserCircle,
-} from "lucide-react";
+  UserCircle } from
+"lucide-react";
 import swingLogo from "@/assets/swing-logo.webp";
 import testdLogo from "@/assets/testd-logo.png";
 import { toast } from "sonner";
@@ -55,8 +55,8 @@ function MenuCard({ icon, titleTh, titleEn, onClick, variant = 'default' }: Menu
         active:scale-[0.98]
         flex flex-col items-center justify-center gap-1.5 sm:gap-2 p-2 sm:p-3
         ${variant === 'featured' ? 'ring-2 ring-primary/30' : ''}
-      `}
-    >
+      `}>
+
       <div className="h-10 w-10 sm:h-14 md:h-16 sm:w-14 md:w-16 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
         {icon}
       </div>
@@ -68,12 +68,12 @@ function MenuCard({ icon, titleTh, titleEn, onClick, variant = 'default' }: Menu
           {titleEn}
         </p>
       </div>
-    </button>
-  );
+    </button>);
+
 }
 
 // User dropdown menu component
-function UserDropdownMenu({ language, navigate }: { language: string; navigate: (path: string) => void }) {
+function UserDropdownMenu({ language, navigate }: {language: string;navigate: (path: string) => void;}) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -92,54 +92,54 @@ function UserDropdownMenu({ language, navigate }: { language: string; navigate: 
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 glass-sm rounded-full px-3 py-1.5 hover:bg-muted/50 transition-colors"
-      >
+        className="flex items-center gap-2 glass-sm rounded-full px-3 py-1.5 hover:bg-muted/50 transition-colors">
+
         <User className="h-4 w-4 text-primary" />
         <span className="text-sm font-medium text-foreground max-w-[100px] truncate">
           {userName}
         </span>
-        {isAdmin && (
-          <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-gradient-to-r from-violet-500 to-purple-500 text-white">
+        {isAdmin &&
+        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-gradient-to-r from-violet-500 to-purple-500 text-white">
             ADMIN
           </span>
-        )}
+        }
         <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
 
-      {open && (
-        <div className="absolute top-full left-0 mt-1.5 w-48 glass rounded-xl shadow-lg border border-border/50 py-1 z-50 animate-fade-in">
+      {open &&
+      <div className="absolute top-full left-0 mt-1.5 w-48 glass rounded-xl shadow-lg border border-border/50 py-1 z-50 animate-fade-in">
           <button
-            onClick={() => { setOpen(false); navigate('/quests'); }}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm hover:bg-muted/50 transition-colors"
-          >
+          onClick={() => {setOpen(false);navigate('/quests');}}
+          className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm hover:bg-muted/50 transition-colors">
+
             <Trophy className="h-4 w-4 text-amber-500" />
             <span className="font-medium">{language === 'th' ? 'ภารกิจ' : 'Quests'}</span>
           </button>
           <button
-            onClick={() => { setOpen(false); navigate('/personal-info'); }}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm hover:bg-muted/50 transition-colors"
-          >
+          onClick={() => {setOpen(false);navigate('/personal-info');}}
+          className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm hover:bg-muted/50 transition-colors">
+
             <UserCircle className="h-4 w-4 text-primary" />
             <span className="font-medium">{language === 'th' ? 'ข้อมูลส่วนตัว' : 'Personal Info'}</span>
           </button>
           <div className="border-t border-border/50 my-1" />
           <button
-            onClick={() => {
-              setOpen(false);
-              localStorage.removeItem('isLoggedIn');
-              localStorage.removeItem('currentUser');
-              toast.success(language === 'th' ? 'ออกจากระบบแล้ว' : 'Logged out successfully');
-              navigate('/auth');
-            }}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm hover:bg-destructive/10 text-destructive transition-colors"
-          >
+          onClick={() => {
+            setOpen(false);
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('currentUser');
+            toast.success(language === 'th' ? 'ออกจากระบบแล้ว' : 'Logged out successfully');
+            navigate('/auth');
+          }}
+          className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm hover:bg-destructive/10 text-destructive transition-colors">
+
             <LogOut className="h-4 w-4" />
             <span className="font-medium">{language === 'th' ? 'ออกจากระบบ' : 'Log out'}</span>
           </button>
         </div>
-      )}
-    </div>
-  );
+      }
+    </div>);
+
 }
 
 export default function Home() {
@@ -178,71 +178,71 @@ export default function Home() {
   useEffect(() => {
     const checkAdmin = async () => {
       if (!user) return;
-      
+
       const { data: roleData } = await supabase.rpc('has_role', {
         _user_id: user.id,
-        _role: 'admin',
+        _role: 'admin'
       });
-      
+
       setIsAdmin(!!roleData);
-      
+
       if (roleData) {
-        const { count: hivCount } = await supabase
-          .from('hiv_selftest_requests')
-          .select('*', { count: 'exact', head: true })
-          .eq('status', 'pending');
-        
-        const { count: adminCount } = await supabase
-          .from('admin_requests')
-          .select('*', { count: 'exact', head: true })
-          .eq('status', 'pending');
-        
+        const { count: hivCount } = await supabase.
+        from('hiv_selftest_requests').
+        select('*', { count: 'exact', head: true }).
+        eq('status', 'pending');
+
+        const { count: adminCount } = await supabase.
+        from('admin_requests').
+        select('*', { count: 'exact', head: true }).
+        eq('status', 'pending');
+
         setPendingRequests((hivCount || 0) + (adminCount || 0));
       }
     };
-    
+
     checkAdmin();
   }, [user]);
 
   const menuItems = [
-    {
-      icon: <TestTube className="h-full w-full" strokeWidth={1.5} />,
-      titleTh: "ขอชุดตรวจ",
-      titleEn: "SELF TEST",
-      path: "/hiv-selftest",
-    },
-    {
-      icon: <Calendar className="h-full w-full" strokeWidth={1.5} />,
-      titleTh: "จองตรวจ",
-      titleEn: "BOOK APPOINTMENT",
-      path: "https://zerva.app/swing_x_hornet_th",
-      external: true,
-    },
-    {
-      icon: <ClipboardList className="h-full w-full" strokeWidth={1.5} />,
-      titleTh: "แบบประเมิน",
-      titleEn: "SURVEYS",
-      path: "/surveys",
-    },
-    {
-      icon: <BookOpen className="h-full w-full" strokeWidth={1.5} />,
-      titleTh: "เรื่องน่ารู้",
-      titleEn: "DID YOU KNOW?",
-      path: "/info",
-    },
-    {
-      icon: <MessageCircle className="h-full w-full" strokeWidth={1.5} />,
-      titleTh: "ขอคำปรึกษา",
-      titleEn: "ONLINE COUNSELOR",
-      path: "/community",
-    },
-    {
-      icon: <Heart className="h-full w-full" strokeWidth={1.5} />,
-      titleTh: "ดูแลตัวเอง",
-      titleEn: "SELF CARE",
-      path: "/self-care",
-    },
-  ];
+  {
+    icon: <TestTube className="h-full w-full" strokeWidth={1.5} />,
+    titleTh: "ขอชุดตรวจ",
+    titleEn: "SELF TEST",
+    path: "/hiv-selftest"
+  },
+  {
+    icon: <Calendar className="h-full w-full" strokeWidth={1.5} />,
+    titleTh: "จองตรวจ",
+    titleEn: "BOOK APPOINTMENT",
+    path: "https://zerva.app/swing_x_hornet_th",
+    external: true
+  },
+  {
+    icon: <ClipboardList className="h-full w-full" strokeWidth={1.5} />,
+    titleTh: "แบบประเมิน",
+    titleEn: "SURVEYS",
+    path: "/surveys"
+  },
+  {
+    icon: <BookOpen className="h-full w-full" strokeWidth={1.5} />,
+    titleTh: "เรื่องน่ารู้",
+    titleEn: "DID YOU KNOW?",
+    path: "/info"
+  },
+  {
+    icon: <MessageCircle className="h-full w-full" strokeWidth={1.5} />,
+    titleTh: "ขอคำปรึกษา",
+    titleEn: "ONLINE COUNSELOR",
+    path: "/community"
+  },
+  {
+    icon: <Heart className="h-full w-full" strokeWidth={1.5} />,
+    titleTh: "ดูแลตัวเอง",
+    titleEn: "SELF CARE",
+    path: "/self-care"
+  }];
+
 
   return (
     <div className="relative">
@@ -254,47 +254,47 @@ export default function Home() {
         <div className="flex items-center justify-between px-4 py-2">
           <div className="flex items-center gap-2">
             {/* SWING Logo */}
-            <img 
-              src={swingLogo} 
-              alt="SWING Thailand" 
-              className="h-10 w-auto object-contain shrink-0"
-            />
+            
+
+
+
+
             
             {/* Login/Account */}
-            {localStorage.getItem('isLoggedIn') === 'true' ? (
-              <UserDropdownMenu language={language} navigate={navigate} />
-            ) : (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="glass-sm rounded-full px-4"
-                onClick={() => navigate('/auth')}
-              >
+            {localStorage.getItem('isLoggedIn') === 'true' ?
+            <UserDropdownMenu language={language} navigate={navigate} /> :
+
+            <Button
+              variant="ghost"
+              size="sm"
+              className="glass-sm rounded-full px-4"
+              onClick={() => navigate('/auth')}>
+
                 <LogIn className="h-4 w-4 mr-2" />
                 {language === 'th' ? 'เข้าสู่ระบบ' : 'Log in'}
               </Button>
-            )}
+            }
           </div>
           
           <div className="flex items-center gap-1">
             <div className="glass-sm rounded-full">
               <NotificationBell />
             </div>
-            {isAdmin && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative glass-sm rounded-full"
-                onClick={() => setAdminPopupOpen(true)}
-              >
+            {isAdmin &&
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative glass-sm rounded-full"
+              onClick={() => setAdminPopupOpen(true)}>
+
                 <ShieldCheck className="h-5 w-5" />
-                {pendingRequests > 0 && (
-                  <span className="absolute -top-1 -right-1 h-4 w-4 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center font-bold">
+                {pendingRequests > 0 &&
+              <span className="absolute -top-1 -right-1 h-4 w-4 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center font-bold">
                     {pendingRequests > 9 ? '9+' : pendingRequests}
                   </span>
-                )}
+              }
               </Button>
-            )}
+            }
             <div className="glass-sm rounded-full">
               <LanguageToggle />
             </div>
@@ -302,8 +302,8 @@ export default function Home() {
               variant="ghost"
               size="icon"
               className="glass-sm rounded-full"
-              onClick={() => navigate("/settings")}
-            >
+              onClick={() => navigate("/settings")}>
+
               <Settings className="h-5 w-5" />
             </Button>
           </div>
@@ -316,13 +316,13 @@ export default function Home() {
           <div className="flex justify-center mb-2">
             <img src={testdLogo} alt="testD" className="h-32 w-auto object-contain drop-shadow-[0_4px_24px_rgba(255,100,150,0.4)] animate-scale-in" />
           </div>
-          <p className="text-sm font-medium text-foreground/80 animate-fade-in">
+          <p className="font-medium text-foreground/80 animate-fade-in text-lg text-center">
             คนเทสต์ดีอยู่นี่จ้า
           </p>
           <p className="text-muted-foreground">
-            {language === 'th' 
-              ? 'เลือกบริการที่ต้องการ' 
-              : 'Choose a service'}
+            {language === 'th' ?
+            'เลือกบริการที่ต้องการ' :
+            'Choose a service'}
           </p>
         </div>
 
@@ -335,62 +335,62 @@ export default function Home() {
 
         {/* Menu Grid */}
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
-          {menuItems.map((item, index) => (
-            <MenuCard
-              key={index}
-              icon={item.icon}
-              titleTh={item.titleTh}
-              titleEn={item.titleEn}
-              onClick={() => {
-                if ((item as any).external) {
-                  window.open(item.path, '_blank', 'noopener,noreferrer');
-                } else {
-                  navigate(item.path);
-                }
-              }}
-              variant={index === 0 ? 'featured' : 'default'}
-            />
-          ))}
+          {menuItems.map((item, index) =>
+          <MenuCard
+            key={index}
+            icon={item.icon}
+            titleTh={item.titleTh}
+            titleEn={item.titleEn}
+            onClick={() => {
+              if ((item as any).external) {
+                window.open(item.path, '_blank', 'noopener,noreferrer');
+              } else {
+                navigate(item.path);
+              }
+            }}
+            variant={index === 0 ? 'featured' : 'default'} />
+
+          )}
         </div>
 
         {/* Stats: Members and Total Visitors */}
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-          {totalMembers > 0 && (
-            <div className="flex items-center gap-2 glass-sm rounded-full py-2 px-4">
+          {totalMembers > 0 &&
+          <div className="flex items-center gap-2 glass-sm rounded-full py-2 px-4">
               <Users className="h-4 w-4 text-primary" />
               <span className="text-sm text-muted-foreground">
                 {language === 'th' ? 'สมาชิก' : 'Members'}:
               </span>
               <span className="font-bold text-primary">{totalMembers.toLocaleString()}</span>
             </div>
-          )}
-          {totalVisitors > 0 && (
-            <div className="flex items-center gap-2 glass-sm rounded-full py-2 px-4">
+          }
+          {totalVisitors > 0 &&
+          <div className="flex items-center gap-2 glass-sm rounded-full py-2 px-4">
               <Eye className="h-4 w-4 text-primary" />
               <span className="text-sm text-muted-foreground">
                 {language === 'th' ? 'ผู้เข้าชมทั้งหมด' : 'Total Visitors'}:
               </span>
               <span className="font-bold text-primary">{totalVisitors.toLocaleString()}</span>
             </div>
-          )}
+          }
         </div>
 
         {/* Footer */}
         <footer className="mt-6 text-center space-y-3 pb-20">
           <p className="text-sm leading-relaxed text-muted-foreground px-4">
-            {language === 'th' 
-              ? 'บริการนี้ไม่มีค่าใช้จ่าย • ข้อมูลของคุณเป็นความลับ' 
-              : 'This service is free • Your information is confidential'}
+            {language === 'th' ?
+            'บริการนี้ไม่มีค่าใช้จ่าย • ข้อมูลของคุณเป็นความลับ' :
+            'This service is free • Your information is confidential'}
           </p>
           <div className="flex flex-col items-center gap-1.5">
             <span className="text-xs text-muted-foreground/70">
               {language === 'th' ? 'สนับสนุนโดย' : 'Powered by'}
             </span>
-            <img 
-              src={swingLogo} 
-              alt="SWING Thailand" 
-              className="h-10 object-contain opacity-70"
-            />
+            <img
+              src={swingLogo}
+              alt="SWING Thailand"
+              className="h-30 object-contain opacity-70" />
+
           </div>
         </footer>
       </main>
@@ -401,6 +401,6 @@ export default function Home() {
       {/* Popups */}
       <HIVTestPopup />
       <AdminRequestsPopup open={adminPopupOpen} onOpenChange={setAdminPopupOpen} />
-    </div>
-  );
+    </div>);
+
 }
