@@ -1,6 +1,8 @@
 // HIV Self-Test Flow Types
 
-export type Step = 'intro' | 'shipping' | 'nhso-verify' | 'account-success' | 'confirm-receipt' | 'video' | 'testing' | 'timer' | 'photo-result' | 'existing-kit-upload';
+export type Step = 'intro' | 'shipping' | 'nhso-verify' | 'lite-request' | 'account-success' | 'confirm-receipt' | 'video' | 'testing' | 'timer' | 'photo-result' | 'existing-kit-upload';
+
+export type DeliveryMode = 'ship' | 'pickup';
 
 export interface SelfTestRequest {
   id: string;

@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { AdminLayout } from "@/components/AdminLayout";
 import { useLanguage } from "@/lib/i18n";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, BarChart3, FileText, Loader2, LayoutDashboard, Bell, Users, Building2, ClipboardList, FileUp } from "lucide-react";
+import { Package, BarChart3, FileText, Loader2, LayoutDashboard, Bell, Users, Building2, ClipboardList, FileUp, UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -20,6 +20,7 @@ const AdminUsersContent = lazy(() => import("@/components/admin/AdminUsersConten
 const AdminBranchStaffContent = lazy(() => import("@/components/admin/AdminBranchStaffContent"));
 const AdminSurveysContent = lazy(() => import("@/components/admin/AdminSurveysContent"));
 const AdminImportContent = lazy(() => import("@/components/admin/AdminImportContent"));
+const AdminQuickRegister = lazy(() => import("@/components/admin/AdminQuickRegister"));
 
 const TabLoader = () => (
   <div className="flex items-center justify-center h-64">
@@ -126,8 +127,8 @@ export default function Admin() {
   // Define which tabs are visible based on role
   const canAccessTab = (tab: string) => {
     if (isAdmin) return true;
-    // Moderators can access dashboard and kit-orders tabs
-    return tab === "dashboard" || tab === "kit-orders";
+    // Moderators can access dashboard, kit-orders, and quick-register tabs
+    return tab === "dashboard" || tab === "kit-orders" || tab === "quick-register";
   };
 
   return (
@@ -143,7 +144,7 @@ export default function Admin() {
         )}
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className={`w-full mb-4 grid h-auto ${isAdmin ? 'grid-cols-9' : 'grid-cols-2'}`}>
+          <TabsList className={`w-full mb-4 grid h-auto ${isAdmin ? 'grid-cols-10' : 'grid-cols-3'}`}>
             {canAccessTab("dashboard") && (
               <TabsTrigger value="dashboard" className="flex items-center gap-2 py-3">
                 <LayoutDashboard className="h-4 w-4" />
@@ -174,6 +175,14 @@ export default function Admin() {
                 {language === 'th' ? 'ชุดตรวจ' : 'Orders'}
               </span>
             </TabsTrigger>
+            {canAccessTab("quick-register") && (
+              <TabsTrigger value="quick-register" className="flex items-center gap-2 py-3">
+                <UserPlus className="h-4 w-4" />
+                <span className="hidden md:inline">
+                  {language === 'th' ? 'ลงทะเบียน' : 'Register'}
+                </span>
+              </TabsTrigger>
+            )}
             {canAccessTab("notifications") && (
               <TabsTrigger value="notifications" className="flex items-center gap-2 py-3">
                 <Bell className="h-4 w-4" />
@@ -249,6 +258,15 @@ export default function Admin() {
               <AdminKitOrdersContent userBranch={userBranch} isModerator={isModerator && !isAdmin} />
             </Suspense>
           </TabsContent>
+
+          {canAccessTab("quick-register") && (
+            <TabsContent value="quick-register" className="mt-0">
+              <Suspense fallback={<TabLoader />}>
+                <AdminQuickRegister userBranch={userBranch} />
+              </Suspense>
+            </TabsContent>
+          )}
+
 
           {canAccessTab("notifications") && (
             <TabsContent value="notifications" className="mt-0">

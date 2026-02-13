@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Clock, PackageCheck, Package, Upload, MapPin, Building2, Pencil } from "lucide-react";
+import { ArrowRight, Clock, PackageCheck, Package, Upload, MapPin, Building2, Pencil, Store } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
-import { SelfTestRequest } from "./types";
+import { SelfTestRequest, DeliveryMode } from "./types";
 import { TestStatistics } from "./TestStatistics";
 import hivSelftestKitImg from "@/assets/hiv-selftest-kit.jpg";
 import {
@@ -22,7 +22,7 @@ const BRANCH_INFO: Record<string, { nameTh: string; nameEn: string; icon: string
 
 interface IntroStepProps {
   activeRequest: SelfTestRequest | null;
-  onStartRequest: () => void;
+  onStartRequest: (mode: DeliveryMode) => void;
   onConfirmReceipt: () => void;
   onSubmitExistingKit?: () => void;
   assignedBranch?: string;
@@ -193,10 +193,20 @@ export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onS
       <Button 
         className="w-full gap-2 h-12 text-base" 
         size="lg"
-        onClick={onStartRequest}
+        onClick={() => onStartRequest('ship')}
       >
-        {language === 'th' ? 'เริ่มขอรับชุดตรวจฟรี' : 'Start Free Kit Request'}
+        {language === 'th' ? '🚚 จัดส่งถึงบ้าน' : '🚚 Ship to Home'}
         <ArrowRight className="h-5 w-5" />
+      </Button>
+
+      <Button 
+        variant="outline"
+        className="w-full gap-2 h-12 text-base" 
+        size="lg"
+        onClick={() => onStartRequest('pickup')}
+      >
+        <Store className="h-5 w-5" />
+        {language === 'th' ? 'รับชุดตรวจที่หน้างาน' : 'Pickup at Venue'}
       </Button>
 
       <p className="text-xs text-center text-muted-foreground">

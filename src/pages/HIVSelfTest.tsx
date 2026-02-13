@@ -32,15 +32,16 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { 
   IntroStep, 
-  ShippingStep, 
-  NHSOVerifyStep,
+  LiteRequestStep,
   AccountSuccessStep,
   Step,
+  DeliveryMode,
   SelfTestRequest,
   ShippingFormData,
   NHSOFormData,
   TESTING_STEPS
 } from "@/components/hiv-selftest";
+import { useFormAutosave } from "@/hooks/useFormAutosave";
 
 export default function HIVSelfTest() {
   const { language } = useLanguage();
@@ -53,7 +54,8 @@ export default function HIVSelfTest() {
   const [activeRequest, setActiveRequest] = useState<SelfTestRequest | null>(null);
   const [requests, setRequests] = useState<SelfTestRequest[]>([]);
   const [loading, setLoading] = useState(false);
-  
+  const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>('ship');
+  const { saveDraft, loadDraft, clearDraft } = useFormAutosave();
   // Saved user data for reuse
   const [savedUserData, setSavedUserData] = useState<{
     thaiId?: string;
@@ -731,9 +733,15 @@ export default function HIVSelfTest() {
   };
 
   // Handle start request flow (guest-first approach)
-  const handleStartRequest = () => {
-    // Allow guests to proceed - registration happens at NHSO verification step
-    setCurrentStep('shipping');
+  const handleStartRequest = (mode: DeliveryMode) => {
+    setDeliveryMode(mode);
+    // Load any saved draft
+    const draft = loadDraft();
+    if (draft) {
+      if (draft.shippingData) setShippingData(prev => ({ ...prev, ...draft.shippingData }));
+      if (draft.nhsoData) setNhsoData(prev => ({ ...prev, ...draft.nhsoData as any }));
+    }
+    setCurrentStep('lite-request');
   };
 
   // Step 2: Confirm Receipt
@@ -1349,13 +1357,12 @@ export default function HIVSelfTest() {
         {currentStep === 'intro' && (
           <IntroStep 
             activeRequest={activeRequest}
-            onStartRequest={() => {
-              // Require branch selection if no param was provided
+            onStartRequest={(mode) => {
               if (!assignedBranch) {
                 toast.error(language === 'th' ? 'กรุณาเลือกสาขาก่อน' : 'Please select a branch first');
                 return;
               }
-              handleStartRequest();
+              handleStartRequest(mode);
             }}
             onConfirmReceipt={() => {
               if (activeRequest?.status === 'delivered') {
@@ -1373,23 +1380,30 @@ export default function HIVSelfTest() {
         
         {currentStep === 'existing-kit-upload' && renderExistingKitUploadStep()}
         
-        {currentStep === 'shipping' && (
-          <ShippingStep 
-            formData={shippingData}
-            onFormChange={setShippingData}
-            onNext={() => setCurrentStep('nhso-verify')}
+        {currentStep === 'lite-request' && (
+          <LiteRequestStep
+            shippingData={shippingData}
+            nhsoData={nhsoData}
+            onShippingChange={(d) => {
+              setShippingData(d);
+              saveDraft({ shippingData: d as any, nhsoData: nhsoData as any, assignedBranch, deliveryMode });
+            }}
+            onNhsoChange={(d) => {
+              setNhsoData(d);
+              saveDraft({ shippingData: shippingData as any, nhsoData: d as any, assignedBranch, deliveryMode });
+            }}
+            onSubmit={async () => {
+              try {
+                await handleSubmitRequest();
+                clearDraft();
+              } catch {
+                toast.error(language === 'th' ? 'ส่งไม่สำเร็จ กรุณาลองใหม่' : 'Submission failed. Please retry.');
+              }
+            }}
             onBack={() => setCurrentStep('intro')}
-          />
-        )}
-        
-        {currentStep === 'nhso-verify' && (
-          <NHSOVerifyStep 
-            formData={nhsoData}
-            savedData={savedUserData}
-            onFormChange={setNhsoData}
-            onSubmit={handleSubmitRequest}
-            onBack={() => setCurrentStep('shipping')}
             loading={loading}
+            hasSavedData={!!savedUserData?.thaiId}
+            deliveryMode={deliveryMode}
           />
         )}
         
