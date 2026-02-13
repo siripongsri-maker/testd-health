@@ -76,11 +76,14 @@ Deno.serve(async (req) => {
                 text: `Extract text from this Thai National ID card image. Return ONLY a JSON object with these fields (use null if not found):
 {
   "thaiId": "13-digit number without dashes",
-  "fullNameTh": "Thai name",
+  "fullNameTh": "Thai full name (ชื่อ-นามสกุล)",
   "fullNameEn": "English name if visible",
-  "dateOfBirth": "YYYY-MM-DD format",
+  "dateOfBirth": "YYYY-MM-DD format (convert Buddhist Era year to Gregorian by subtracting 543)",
   "gender": "male or female based on Thai prefix (นาย=male, นาง/นางสาว=female)",
-  "address": "address text if visible"
+  "address": "full address line (บ้านเลขที่ ซอย ถนน หมู่)",
+  "subdistrict": "ตำบล/แขวง name only (without prefix ตำบล/แขวง)",
+  "district": "อำเภอ/เขต name only (without prefix อำเภอ/เขต)",
+  "province": "จังหวัด name only (without prefix จังหวัด)"
 }
 Do NOT include any markdown formatting. Return ONLY the JSON object.`,
               },
