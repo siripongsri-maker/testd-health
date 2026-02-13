@@ -6,13 +6,16 @@ import { useLanguage } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-interface ScannedData {
+export interface ScannedData {
   thaiId?: string;
   fullNameTh?: string;
   fullNameEn?: string;
   dateOfBirth?: string;
   gender?: string;
   address?: string;
+  subdistrict?: string;
+  district?: string;
+  province?: string;
 }
 
 interface ThaiIdScannerProps {

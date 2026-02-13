@@ -4,13 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, ArrowRight, Loader2, MapPin, Shield, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Loader2, MapPin, Shield, Check, Home } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 import { ShippingFormData, NHSOFormData, GENDER_OPTIONS, validateThaiId } from './types';
-import { ThaiIdScanner } from './ThaiIdScanner';
+import { ThaiIdScanner, ScannedData } from './ThaiIdScanner';
 import { getProvinces, getDistricts, getSubdistricts, getPostalCode, Subdistrict } from '@/lib/thailand-address';
 
 interface LiteRequestStepProps {
@@ -33,6 +34,15 @@ export function LiteRequestStep({
   const [thaiIdError, setThaiIdError] = useState<string | null>(null);
   const [districts, setDistricts] = useState<string[]>([]);
   const [subdistricts, setSubdistricts] = useState<Subdistrict[]>([]);
+  // ID card address from OCR
+  const [idCardAddress, setIdCardAddress] = useState<{
+    address?: string;
+    subdistrict?: string;
+    district?: string;
+    province?: string;
+  } | null>(null);
+  // Toggle: use different address for delivery
+  const [useDifferentAddress, setUseDifferentAddress] = useState(false);
 
   // Address cascading for ship mode
   useEffect(() => {
@@ -66,16 +76,74 @@ export function LiteRequestStep({
     }
   }, [nhsoData, onNhsoChange, language]);
 
-  const handleScanComplete = useCallback((data: Record<string, string | undefined>) => {
-    if (data.thaiId) handleThaiIdChange(data.thaiId);
-    if (data.dateOfBirth) onNhsoChange({ ...nhsoData, thaiId: data.thaiId || nhsoData.thaiId, dateOfBirth: data.dateOfBirth, gender: (data.gender as NHSOFormData['gender']) || nhsoData.gender });
+  const handleScanComplete = useCallback((data: ScannedData) => {
+    // Update NHSO fields
+    const newNhso = { ...nhsoData };
+    if (data.thaiId) newNhso.thaiId = data.thaiId;
+    if (data.dateOfBirth) newNhso.dateOfBirth = data.dateOfBirth;
+    if (data.gender) newNhso.gender = (data.gender as NHSOFormData['gender']) || nhsoData.gender;
+    onNhsoChange(newNhso);
+
+    if (data.thaiId) {
+      const clean = data.thaiId.replace(/\D/g, '').slice(0, 13);
+      if (clean.length === 13) {
+        setThaiIdError(validateThaiId(clean) ? null : (language === 'th' ? 'หมายเลขไม่ถูกต้อง' : 'Invalid ID'));
+      }
+    }
+
+    // Update name
+    const newShipping = { ...shippingData };
     if (data.fullNameTh || data.fullNameEn) {
-      onShippingChange({ ...shippingData, fullName: data.fullNameTh || data.fullNameEn || shippingData.fullName });
+      newShipping.fullName = data.fullNameTh || data.fullNameEn || shippingData.fullName;
     }
-    if (data.address) {
-      onShippingChange({ ...shippingData, fullName: data.fullNameTh || data.fullNameEn || shippingData.fullName, address: data.address || shippingData.address });
+
+    // Store ID card address for reference
+    if (data.address || data.province || data.district || data.subdistrict) {
+      const scannedAddr = {
+        address: data.address || undefined,
+        subdistrict: data.subdistrict || undefined,
+        district: data.district || undefined,
+        province: data.province || undefined,
+      };
+      setIdCardAddress(scannedAddr);
+
+      // Auto-fill shipping address from ID card (if not using different address)
+      if (!useDifferentAddress) {
+        if (data.address) newShipping.address = data.address;
+        if (data.province) newShipping.province = data.province;
+        if (data.district) newShipping.district = data.district;
+        if (data.subdistrict) newShipping.subdistrict = data.subdistrict;
+      }
     }
-  }, [nhsoData, shippingData, onNhsoChange, onShippingChange, handleThaiIdChange]);
+
+    onShippingChange(newShipping);
+  }, [nhsoData, shippingData, onNhsoChange, onShippingChange, useDifferentAddress, language]);
+
+  // When toggling back to ID card address, re-apply it
+  const handleToggleDifferentAddress = (checked: boolean) => {
+    setUseDifferentAddress(checked);
+    if (!checked && idCardAddress) {
+      // Revert to ID card address
+      onShippingChange({
+        ...shippingData,
+        address: idCardAddress.address || shippingData.address,
+        province: idCardAddress.province || shippingData.province,
+        district: idCardAddress.district || shippingData.district,
+        subdistrict: idCardAddress.subdistrict || shippingData.subdistrict,
+        postalCode: '',
+      });
+    } else if (checked) {
+      // Clear address fields for manual entry
+      onShippingChange({
+        ...shippingData,
+        address: '',
+        province: '',
+        district: '',
+        subdistrict: '',
+        postalCode: '',
+      });
+    }
+  };
 
   const isNhsoValid = nhsoData.thaiId.length === 13 && !thaiIdError && nhsoData.dateOfBirth && nhsoData.gender;
   const isShippingValid = deliveryMode === 'pickup' || (shippingData.fullName && shippingData.phone && shippingData.province);
@@ -189,51 +257,87 @@ export function LiteRequestStep({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>{language === 'th' ? 'ที่อยู่' : 'Address'} *</Label>
-            <Textarea
-              value={shippingData.address}
-              onChange={(e) => onShippingChange({ ...shippingData, address: e.target.value })}
-              placeholder={language === 'th' ? 'บ้านเลขที่ ซอย ถนน' : 'House number, street'}
-              className="min-h-[50px]"
-            />
-          </div>
+          {/* Show scanned ID card address summary */}
+          {idCardAddress && (
+            <Card className="p-3 bg-muted/50 border-muted">
+              <div className="flex items-start gap-2">
+                <Home className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-muted-foreground mb-1">
+                    {language === 'th' ? 'ที่อยู่ตามบัตรประชาชน' : 'ID Card Address'}
+                  </p>
+                  <p className="text-sm text-foreground">
+                    {[idCardAddress.address, idCardAddress.subdistrict, idCardAddress.district, idCardAddress.province].filter(Boolean).join(', ')}
+                  </p>
+                </div>
+              </div>
+            </Card>
+          )}
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label>{language === 'th' ? 'จังหวัด' : 'Province'} *</Label>
-              <Select value={shippingData.province} onValueChange={(v) => onShippingChange({ ...shippingData, province: v, district: '', subdistrict: '', postalCode: '' })}>
-                <SelectTrigger><SelectValue placeholder={language === 'th' ? 'เลือก' : 'Select'} /></SelectTrigger>
-                <SelectContent className="max-h-60">{getProvinces().map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>{language === 'th' ? 'อำเภอ' : 'District'}</Label>
-              <Select value={shippingData.district} onValueChange={(v) => onShippingChange({ ...shippingData, district: v, subdistrict: '', postalCode: '' })} disabled={!shippingData.province}>
-                <SelectTrigger><SelectValue placeholder={language === 'th' ? 'เลือก' : 'Select'} /></SelectTrigger>
-                <SelectContent className="max-h-60">{districts.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label>{language === 'th' ? 'ตำบล' : 'Subdistrict'}</Label>
-              <Select value={shippingData.subdistrict} onValueChange={(v) => onShippingChange({ ...shippingData, subdistrict: v })} disabled={!shippingData.district}>
-                <SelectTrigger><SelectValue placeholder={language === 'th' ? 'เลือก' : 'Select'} /></SelectTrigger>
-                <SelectContent className="max-h-60">{subdistricts.map(s => <SelectItem key={s.name} value={s.name}>{s.name}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>{language === 'th' ? 'รหัสไปรษณีย์' : 'Postal'}</Label>
-              <Input
-                value={shippingData.postalCode}
-                onChange={(e) => onShippingChange({ ...shippingData, postalCode: e.target.value.replace(/\D/g, '').slice(0, 5) })}
-                inputMode="numeric"
-                maxLength={5}
+          {/* Toggle: use different delivery address */}
+          {idCardAddress && (
+            <div className="flex items-center justify-between py-2">
+              <Label htmlFor="diff-addr" className="text-sm cursor-pointer">
+                {language === 'th' ? 'ที่อยู่จัดส่งต่างจากบัตร' : 'Different delivery address'}
+              </Label>
+              <Switch
+                id="diff-addr"
+                checked={useDifferentAddress}
+                onCheckedChange={handleToggleDifferentAddress}
               />
             </div>
-          </div>
+          )}
+
+          {/* Address fields — show always if no scanned address, or when user toggles different address */}
+          {(!idCardAddress || useDifferentAddress) && (
+            <>
+              <div className="space-y-2">
+                <Label>{language === 'th' ? 'ที่อยู่' : 'Address'} *</Label>
+                <Textarea
+                  value={shippingData.address}
+                  onChange={(e) => onShippingChange({ ...shippingData, address: e.target.value })}
+                  placeholder={language === 'th' ? 'บ้านเลขที่ ซอย ถนน' : 'House number, street'}
+                  className="min-h-[50px]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label>{language === 'th' ? 'จังหวัด' : 'Province'} *</Label>
+                  <Select value={shippingData.province} onValueChange={(v) => onShippingChange({ ...shippingData, province: v, district: '', subdistrict: '', postalCode: '' })}>
+                    <SelectTrigger><SelectValue placeholder={language === 'th' ? 'เลือก' : 'Select'} /></SelectTrigger>
+                    <SelectContent className="max-h-60">{getProvinces().map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>{language === 'th' ? 'อำเภอ' : 'District'}</Label>
+                  <Select value={shippingData.district} onValueChange={(v) => onShippingChange({ ...shippingData, district: v, subdistrict: '', postalCode: '' })} disabled={!shippingData.province}>
+                    <SelectTrigger><SelectValue placeholder={language === 'th' ? 'เลือก' : 'Select'} /></SelectTrigger>
+                    <SelectContent className="max-h-60">{districts.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label>{language === 'th' ? 'ตำบล' : 'Subdistrict'}</Label>
+                  <Select value={shippingData.subdistrict} onValueChange={(v) => onShippingChange({ ...shippingData, subdistrict: v })} disabled={!shippingData.district}>
+                    <SelectTrigger><SelectValue placeholder={language === 'th' ? 'เลือก' : 'Select'} /></SelectTrigger>
+                    <SelectContent className="max-h-60">{subdistricts.map(s => <SelectItem key={s.name} value={s.name}>{s.name}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>{language === 'th' ? 'รหัสไปรษณีย์' : 'Postal'}</Label>
+                  <Input
+                    value={shippingData.postalCode}
+                    onChange={(e) => onShippingChange({ ...shippingData, postalCode: e.target.value.replace(/\D/g, '').slice(0, 5) })}
+                    inputMode="numeric"
+                    maxLength={5}
+                  />
+                </div>
+              </div>
+            </>
+          )}
         </Card>
       )}
 
