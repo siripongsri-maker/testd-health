@@ -317,7 +317,7 @@ export default function Home() {
             <img src={testdLogo} alt="testD" className="h-32 w-auto object-contain drop-shadow-[0_4px_24px_rgba(255,100,150,0.4)] animate-scale-in" />
           </div>
           <p className="font-medium text-foreground/80 animate-fade-in text-lg text-center">
-            คนเทสต์ดีอยู่นี่จ้า
+            {language === 'th' ? 'คนเทสต์ดีอยู่นี่จ้า' : 'Good testers are right here!'}
           </p>
           <p className="text-muted-foreground">
             {language === 'th' ?
