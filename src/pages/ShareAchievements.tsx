@@ -319,7 +319,7 @@ export default function ShareAchievements() {
       ctx.font = 'bold 24px Inter, sans-serif';
       ctx.textAlign = 'center';
       ctx.strokeStyle = 'transparent';
-      ctx.fillText('testD คนเทสต์ดีอยู่นี่จ้า', canvas.width / 2, canvas.height - 45);
+      ctx.fillText(language === 'th' ? 'testD คนเทสต์ดีอยู่นี่จ้า' : 'testD — Good testers are right here!', canvas.width / 2, canvas.height - 45);
       ctx.font = '16px Inter, sans-serif';
       ctx.fillText('#testD #SWINGThailand', canvas.width / 2, canvas.height - 20);
 
@@ -447,7 +447,7 @@ export default function ShareAchievements() {
                   </div>
                 </div>
                 <div className="text-center py-3 text-white">
-                  <p className="font-bold text-lg">testD คนเทสต์ดีอยู่นี่จ้า</p>
+                  <p className="font-bold text-lg">{language === 'th' ? 'testD คนเทสต์ดีอยู่นี่จ้า' : 'testD — Good testers are right here!'}</p>
                   <div className="flex items-center justify-center gap-2 mt-1">
                     <img src={swingLogo} alt="SWING" className="h-4" />
                     <span className="text-sm opacity-90">#SWINGThailand</span>
