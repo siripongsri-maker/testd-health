@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Users, Search, KeyRound, Shield, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
+import { useLanguage } from '@/lib/i18n';
 import { AdminPasswordResetDialog } from './AdminPasswordResetDialog';
 
 interface UserProfile {
@@ -29,6 +30,7 @@ export function AdminUsersContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const { language } = useLanguage();
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -105,13 +107,13 @@ export function AdminUsersContent() {
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <Users className="h-6 w-6" />
-            จัดการผู้ใช้
+            {language === 'th' ? 'จัดการผู้ใช้' : 'Manage Users'}
           </h2>
-          <p className="text-muted-foreground">ดูและจัดการบัญชีผู้ใช้ทั้งหมด</p>
+          <p className="text-muted-foreground">{language === 'th' ? 'ดูและจัดการบัญชีผู้ใช้ทั้งหมด' : 'View and manage all user accounts'}</p>
         </div>
         <Button variant="outline" onClick={fetchUsers} disabled={loading}>
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-          รีเฟรช
+          {language === 'th' ? 'รีเฟรช' : 'Refresh'}
         </Button>
       </div>
 
@@ -120,13 +122,13 @@ export function AdminUsersContent() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-2xl font-bold">{users.length}</div>
-            <p className="text-sm text-muted-foreground">ผู้ใช้ทั้งหมด</p>
+            <p className="text-sm text-muted-foreground">{language === 'th' ? 'ผู้ใช้ทั้งหมด' : 'Total Users'}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
             <div className="text-2xl font-bold">{users.filter(u => u.isAdmin).length}</div>
-            <p className="text-sm text-muted-foreground">แอดมิน</p>
+            <p className="text-sm text-muted-foreground">{language === 'th' ? 'แอดมิน' : 'Admins'}</p>
           </CardContent>
         </Card>
         <Card>
@@ -140,7 +142,7 @@ export function AdminUsersContent() {
                 return diffDays <= 7;
               }).length}
             </div>
-            <p className="text-sm text-muted-foreground">ใหม่ (7 วัน)</p>
+            <p className="text-sm text-muted-foreground">{language === 'th' ? 'ใหม่ (7 วัน)' : 'New (7 days)'}</p>
           </CardContent>
         </Card>
         <Card>
@@ -148,7 +150,7 @@ export function AdminUsersContent() {
             <div className="text-2xl font-bold">
               {users.filter(u => (u.streak || 0) > 0).length}
             </div>
-            <p className="text-sm text-muted-foreground">Active Streaks</p>
+            <p className="text-sm text-muted-foreground">{language === 'th' ? 'สตรีคที่ยังทำอยู่' : 'Active Streaks'}</p>
           </CardContent>
         </Card>
       </div>
@@ -158,12 +160,12 @@ export function AdminUsersContent() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Search className="h-5 w-5" />
-            ค้นหาผู้ใช้
+            {language === 'th' ? 'ค้นหาผู้ใช้' : 'Search Users'}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <Input
-            placeholder="ค้นหาด้วยชื่อหรือ ID..."
+            placeholder={language === 'th' ? 'ค้นหาด้วยชื่อหรือ ID...' : 'Search by name or ID...'}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="max-w-md"
@@ -188,19 +190,19 @@ export function AdminUsersContent() {
             </div>
           ) : filteredUsers.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground">
-              {searchQuery ? 'ไม่พบผู้ใช้ที่ค้นหา' : 'ยังไม่มีผู้ใช้'}
+              {searchQuery ? (language === 'th' ? 'ไม่พบผู้ใช้ที่ค้นหา' : 'No users found') : (language === 'th' ? 'ยังไม่มีผู้ใช้' : 'No users yet')}
             </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>ผู้ใช้</TableHead>
+                    <TableHead>{language === 'th' ? 'ผู้ใช้' : 'User'}</TableHead>
                     <TableHead className="text-center">Level</TableHead>
                     <TableHead className="text-center">XP</TableHead>
                     <TableHead className="text-center">Streak</TableHead>
-                    <TableHead>สมัครเมื่อ</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{language === 'th' ? 'สมัครเมื่อ' : 'Joined'}</TableHead>
+                    <TableHead className="text-right">{language === 'th' ? 'การดำเนินการ' : 'Actions'}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -249,7 +251,7 @@ export function AdminUsersContent() {
                           onClick={() => handlePasswordReset(user)}
                         >
                           <KeyRound className="h-4 w-4 mr-2" />
-                          รีเซ็ตรหัสผ่าน
+                          {language === 'th' ? 'รีเซ็ตรหัสผ่าน' : 'Reset Password'}
                         </Button>
                       </TableCell>
                     </TableRow>
