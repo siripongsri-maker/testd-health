@@ -346,7 +346,7 @@ export default function AdminAnalyticsContent() {
                 <Users className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">สมาชิก (Members)</p>
+                <p className="text-sm text-muted-foreground">{language === 'th' ? 'สมาชิก' : 'Members'}</p>
                 <p className="text-2xl font-bold">
                   <AnimatedCounter value={totalMembers} />
                 </p>

@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Eye, EyeOff, Loader2, KeyRound } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/lib/i18n';
 
 interface User {
   id: string;
@@ -24,18 +25,19 @@ export function AdminPasswordResetDialog({ user, open, onOpenChange }: AdminPass
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const { language } = useLanguage();
 
   const handleReset = async () => {
     if (!user) return;
 
     // Validation
     if (newPassword.length < 6) {
-      setError('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
+      setError(language === 'th' ? 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร' : 'Password must be at least 6 characters');
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError('รหัสผ่านไม่ตรงกัน');
+      setError(language === 'th' ? 'รหัสผ่านไม่ตรงกัน' : 'Passwords do not match');
       return;
     }
 
@@ -65,7 +67,7 @@ export function AdminPasswordResetDialog({ user, open, onOpenChange }: AdminPass
         throw new Error(data.error);
       }
 
-      toast.success(`รีเซ็ตรหัสผ่านสำหรับ ${user.display_name || 'User'} สำเร็จแล้ว`);
+      toast.success(language === 'th' ? `รีเซ็ตรหัสผ่านสำหรับ ${user.display_name || 'User'} สำเร็จแล้ว` : `Password reset for ${user.display_name || 'User'} successful`);
       setNewPassword('');
       setConfirmPassword('');
       onOpenChange(false);
@@ -91,16 +93,16 @@ export function AdminPasswordResetDialog({ user, open, onOpenChange }: AdminPass
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <KeyRound className="h-5 w-5" />
-            รีเซ็ตรหัสผ่าน
+            {language === 'th' ? 'รีเซ็ตรหัสผ่าน' : 'Reset Password'}
           </DialogTitle>
           <DialogDescription>
-            ตั้งรหัสผ่านใหม่สำหรับ <strong>{user?.display_name || 'User'}</strong>
+            {language === 'th' ? <>ตั้งรหัสผ่านใหม่สำหรับ <strong>{user?.display_name || 'User'}</strong></> : <>Set a new password for <strong>{user?.display_name || 'User'}</strong></>}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="newPassword">รหัสผ่านใหม่</Label>
+            <Label htmlFor="newPassword">{language === 'th' ? 'รหัสผ่านใหม่' : 'New Password'}</Label>
             <div className="relative">
               <Input
                 id="newPassword"
@@ -110,7 +112,7 @@ export function AdminPasswordResetDialog({ user, open, onOpenChange }: AdminPass
                   setNewPassword(e.target.value);
                   setError('');
                 }}
-                placeholder="อย่างน้อย 6 ตัวอักษร"
+                placeholder={language === 'th' ? 'อย่างน้อย 6 ตัวอักษร' : 'At least 6 characters'}
                 className="pr-10"
               />
               <button
@@ -124,7 +126,7 @@ export function AdminPasswordResetDialog({ user, open, onOpenChange }: AdminPass
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">ยืนยันรหัสผ่านใหม่</Label>
+            <Label htmlFor="confirmPassword">{language === 'th' ? 'ยืนยันรหัสผ่านใหม่' : 'Confirm New Password'}</Label>
             <Input
               id="confirmPassword"
               type={showPassword ? 'text' : 'password'}
@@ -133,7 +135,7 @@ export function AdminPasswordResetDialog({ user, open, onOpenChange }: AdminPass
                 setConfirmPassword(e.target.value);
                 setError('');
               }}
-              placeholder="กรอกรหัสผ่านอีกครั้ง"
+              placeholder={language === 'th' ? 'กรอกรหัสผ่านอีกครั้ง' : 'Enter password again'}
             />
           </div>
 
@@ -144,16 +146,16 @@ export function AdminPasswordResetDialog({ user, open, onOpenChange }: AdminPass
 
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={handleClose} disabled={isSubmitting}>
-            ยกเลิก
+            {language === 'th' ? 'ยกเลิก' : 'Cancel'}
           </Button>
           <Button onClick={handleReset} disabled={isSubmitting || !newPassword || !confirmPassword}>
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                กำลังรีเซ็ต...
+                {language === 'th' ? 'กำลังรีเซ็ต...' : 'Resetting...'}
               </>
             ) : (
-              'รีเซ็ตรหัสผ่าน'
+              language === 'th' ? 'รีเซ็ตรหัสผ่าน' : 'Reset Password'
             )}
           </Button>
         </div>
