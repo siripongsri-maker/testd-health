@@ -10,13 +10,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ArrowLeft, Loader2, Plus, Save, Eye, BarChart3, Settings, Trash2, AlertTriangle, Send } from "lucide-react";
+import { ArrowLeft, Loader2, Plus, Save, Eye, BarChart3, Settings, Trash2, AlertTriangle, Send, Share2, Copy, Check, Link2 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { 
   QuestionBuilder, 
+  SurveyTaker,
   SurveyAnalytics,
   type QuestionFormData, 
   type SurveyQuestion,
@@ -38,6 +39,7 @@ export default function SurveyBuilder() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   // Survey settings form
   const [settings, setSettings] = useState({
@@ -64,7 +66,6 @@ export default function SurveyBuilder() {
       return;
     }
 
-    // Check if admin - use maybeSingle() to avoid error when no admin role
     const { data: roleData } = await supabase
       .from('user_roles')
       .select('role')
@@ -75,7 +76,6 @@ export default function SurveyBuilder() {
     const userIsAdmin = !!roleData;
     setIsAdmin(userIsAdmin);
 
-    // Fetch survey to check ownership
     if (id) {
       const { data: surveyData, error } = await supabase
         .from('surveys')
@@ -92,14 +92,12 @@ export default function SurveyBuilder() {
       const userIsOwner = surveyData.created_by === user.id;
       setIsOwner(userIsOwner);
 
-      // Check if user has access (admin or owner)
       if (!userIsAdmin && !userIsOwner) {
         toast.error(language === 'th' ? 'คุณไม่มีสิทธิ์แก้ไขแบบสำรวจนี้' : 'You do not have permission to edit this survey');
         navigate('/surveys');
         return;
       }
 
-      // Load survey data
       setSurvey(surveyData as NativeSurvey);
       setSettings({
         title_th: surveyData.title_th,
@@ -115,7 +113,6 @@ export default function SurveyBuilder() {
         require_consent: surveyData.require_consent ?? true,
       });
 
-      // Fetch questions
       const { data: questionsData } = await supabase
         .from('survey_questions')
         .select('*')
@@ -141,67 +138,6 @@ export default function SurveyBuilder() {
     }
 
     setLoading(false);
-  };
-
-  const fetchSurvey = async () => {
-    setLoading(true);
-    try {
-      // Fetch survey
-      const { data: surveyData, error: surveyError } = await supabase
-        .from('surveys')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-      if (surveyError) throw surveyError;
-      setSurvey(surveyData as NativeSurvey);
-      
-      setSettings({
-        title_th: surveyData.title_th,
-        title_en: surveyData.title_en,
-        description_th: surveyData.description_th || '',
-        description_en: surveyData.description_en || '',
-        xp_reward: surveyData.xp_reward,
-        is_hot: surveyData.is_hot,
-        is_new: surveyData.is_new,
-        consent_text_th: surveyData.consent_text_th || '',
-        consent_text_en: surveyData.consent_text_en || '',
-        allow_anonymous: surveyData.allow_anonymous ?? true,
-        require_consent: surveyData.require_consent ?? true,
-      });
-
-      // Fetch questions
-      const { data: questionsData, error: questionsError } = await supabase
-        .from('survey_questions')
-        .select('*')
-        .eq('survey_id', id)
-        .order('display_order', { ascending: true });
-
-      if (questionsError) throw questionsError;
-
-      const parsedQuestions: QuestionFormData[] = (questionsData || []).map((q) => ({
-        question_type: q.question_type as QuestionFormData['question_type'],
-        question_text_th: q.question_text_th,
-        question_text_en: q.question_text_en,
-        options: (q.options as unknown as QuestionFormData['options']) || [],
-        rating_min: q.rating_min || 1,
-        rating_max: q.rating_max || 5,
-        rating_label_min_th: q.rating_label_min_th || '',
-        rating_label_min_en: q.rating_label_min_en || '',
-        rating_label_max_th: q.rating_label_max_th || '',
-        rating_label_max_en: q.rating_label_max_en || '',
-        is_required: q.is_required,
-      }));
-
-      setQuestions(parsedQuestions);
-      setExistingQuestionIds(questionsData?.map((q) => q.id) || []);
-    } catch (err) {
-      console.error('Error fetching survey:', err);
-      toast.error(language === 'th' ? 'ไม่พบแบบสำรวจ' : 'Survey not found');
-      navigate('/surveys');
-    } finally {
-      setLoading(false);
-    }
   };
 
   const addQuestion = () => {
@@ -234,10 +170,31 @@ export default function SurveyBuilder() {
     setQuestions(questions.filter((_, i) => i !== index));
   };
 
+  const moveQuestion = (fromIndex: number, direction: 'up' | 'down') => {
+    const toIndex = direction === 'up' ? fromIndex - 1 : fromIndex + 1;
+    if (toIndex < 0 || toIndex >= questions.length) return;
+    const updated = [...questions];
+    [updated[fromIndex], updated[toIndex]] = [updated[toIndex], updated[fromIndex]];
+    setQuestions(updated);
+  };
+
+  const duplicateQuestion = (index: number) => {
+    const original = questions[index];
+    const duplicate: QuestionFormData = {
+      ...original,
+      options: original.options.map((opt) => ({
+        ...opt,
+        id: crypto.randomUUID(),
+      })),
+    };
+    const updated = [...questions];
+    updated.splice(index + 1, 0, duplicate);
+    setQuestions(updated);
+  };
+
   const handleSave = async () => {
     if (!id) return;
 
-    // Validate
     if (!settings.title_th || !settings.title_en) {
       toast.error(language === 'th' ? 'กรุณากรอกชื่อแบบสำรวจ' : 'Please fill in survey title');
       return;
@@ -262,7 +219,6 @@ export default function SurveyBuilder() {
 
     setSaving(true);
     try {
-      // Update survey - only admin can set XP, tags
       const updateData: Record<string, unknown> = {
         title_th: settings.title_th,
         title_en: settings.title_en,
@@ -275,7 +231,6 @@ export default function SurveyBuilder() {
         is_native: true,
       };
 
-      // Only admin can set XP and tags
       if (isAdmin) {
         updateData.xp_reward = settings.xp_reward;
         updateData.is_hot = settings.is_hot;
@@ -289,7 +244,6 @@ export default function SurveyBuilder() {
 
       if (surveyError) throw surveyError;
 
-      // Delete existing questions and recreate
       if (existingQuestionIds.length > 0) {
         const { error: deleteError } = await supabase
           .from('survey_questions')
@@ -299,13 +253,12 @@ export default function SurveyBuilder() {
         if (deleteError) throw deleteError;
       }
 
-      // Insert new questions
       const questionsToInsert = questions.map((q, index) => ({
         survey_id: id,
         question_type: q.question_type,
         question_text_th: q.question_text_th,
         question_text_en: q.question_text_en,
-        options: JSON.parse(JSON.stringify(q.options)), // Convert to plain JSON
+        options: JSON.parse(JSON.stringify(q.options)),
         rating_min: q.rating_min,
         rating_max: q.rating_max,
         rating_label_min_th: q.rating_label_min_th || null,
@@ -322,7 +275,6 @@ export default function SurveyBuilder() {
 
       if (insertError) throw insertError;
 
-      // Re-fetch to get updated question IDs
       const { data: updatedQuestions } = await supabase
         .from('survey_questions')
         .select('id')
@@ -343,7 +295,6 @@ export default function SurveyBuilder() {
   const handleSubmitForReview = async () => {
     if (!id) return;
 
-    // Validate before submitting
     if (!settings.title_th || !settings.title_en) {
       toast.error(language === 'th' ? 'กรุณากรอกชื่อแบบสำรวจ' : 'Please fill in survey title');
       return;
@@ -356,10 +307,8 @@ export default function SurveyBuilder() {
 
     setSubmitting(true);
     try {
-      // Save first
       await handleSave();
 
-      // Then submit for review
       const { error } = await supabase
         .from('surveys')
         .update({
@@ -384,6 +333,19 @@ export default function SurveyBuilder() {
     }
   };
 
+  const shareUrl = `${window.location.origin}/surveys/${id}`;
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setLinkCopied(true);
+      toast.success(language === 'th' ? 'คัดลอกลิงก์แล้ว!' : 'Link copied!');
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch {
+      toast.error(language === 'th' ? 'ไม่สามารถคัดลอกได้' : 'Failed to copy');
+    }
+  };
+
   if (loading) {
     return (
       <>
@@ -403,9 +365,10 @@ export default function SurveyBuilder() {
 
   const canEdit = isAdmin || (isOwner && survey?.status !== 'published');
   const canSubmit = isOwner && (survey?.status === 'draft' || survey?.status === 'rejected');
+  const isPublished = survey?.status === 'published';
 
-  // Prepare questions for analytics
-  const analyticsQuestions: SurveyQuestion[] = questions.map((q, index) => ({
+  // Prepare questions for preview and analytics
+  const previewQuestions: SurveyQuestion[] = questions.map((q, index) => ({
     id: existingQuestionIds[index] || `temp-${index}`,
     survey_id: id || '',
     question_type: q.question_type,
@@ -443,6 +406,45 @@ export default function SurveyBuilder() {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Share Link Button - only for published surveys */}
+            {isPublished && (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <Share2 className="h-4 w-4" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>
+                      {language === 'th' ? '🔗 แชร์แบบสำรวจ' : '🔗 Share Survey'}
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 mt-4">
+                    <p className="text-sm text-muted-foreground">
+                      {language === 'th' 
+                        ? 'คัดลอกลิงก์ด้านล่างเพื่อแชร์แบบสำรวจ' 
+                        : 'Copy the link below to share this survey'}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Input value={shareUrl} readOnly className="text-sm" />
+                      <Button size="icon" variant="outline" onClick={handleCopyLink}>
+                        {linkCopied ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                    <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+                      <Link2 className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">
+                        {language === 'th' 
+                          ? 'ทุกคนที่มีลิงก์สามารถทำแบบสำรวจได้' 
+                          : 'Anyone with the link can take this survey'}
+                      </span>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            )}
+
             <Dialog open={showSettings} onOpenChange={setShowSettings}>
               <DialogTrigger asChild>
                 <Button variant="outline" size="icon">
@@ -492,7 +494,6 @@ export default function SurveyBuilder() {
                     </div>
                   </div>
 
-                  {/* XP Reward - Only visible to admin */}
                   {isAdmin && (
                     <div className="space-y-1.5">
                       <Label>{language === 'th' ? 'XP Reward (Admin)' : 'XP Reward (Admin)'}</Label>
@@ -525,7 +526,6 @@ export default function SurveyBuilder() {
                     />
                   </div>
 
-                  {/* Tags - Only visible to admin */}
                   {isAdmin && (
                     <>
                       <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
@@ -576,7 +576,6 @@ export default function SurveyBuilder() {
               {language === 'th' ? 'บันทึก' : 'Save'}
             </Button>
 
-            {/* Submit for Review button - only for owners with draft/rejected surveys */}
             {canSubmit && (
               <Button onClick={handleSubmitForReview} disabled={submitting}>
                 {submitting ? (
@@ -603,12 +602,29 @@ export default function SurveyBuilder() {
           </div>
         )}
 
+        {/* Share Link Banner for published surveys */}
+        {isPublished && (
+          <div className="mb-4 p-3 rounded-lg bg-success/10 border border-success/20 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
+              <Link2 className="h-4 w-4 text-success flex-shrink-0" />
+              <span className="text-sm text-success font-medium truncate">{shareUrl}</span>
+            </div>
+            <Button size="sm" variant="outline" onClick={handleCopyLink} className="flex-shrink-0">
+              {linkCopied ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+              {language === 'th' ? 'คัดลอก' : 'Copy'}
+            </Button>
+          </div>
+        )}
+
         <Tabs defaultValue="builder" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
             <TabsTrigger value="builder">
               {language === 'th' ? '✏️ สร้างคำถาม' : '✏️ Builder'}
             </TabsTrigger>
-            <TabsTrigger value="analytics" disabled={!isAdmin}>
+            <TabsTrigger value="preview" disabled={questions.length === 0}>
+              {language === 'th' ? '👁️ ตัวอย่าง' : '👁️ Preview'}
+            </TabsTrigger>
+            <TabsTrigger value="analytics" disabled={existingQuestionIds.length === 0}>
               {language === 'th' ? '📊 ผลลัพธ์' : '📊 Analytics'}
             </TabsTrigger>
           </TabsList>
@@ -631,8 +647,12 @@ export default function SurveyBuilder() {
                   key={index}
                   question={question}
                   index={index}
+                  totalQuestions={questions.length}
                   onChange={(q) => updateQuestion(index, q)}
                   onRemove={() => removeQuestion(index)}
+                  onMoveUp={() => moveQuestion(index, 'up')}
+                  onMoveDown={() => moveQuestion(index, 'down')}
+                  onDuplicate={() => duplicateQuestion(index)}
                 />
               ))
             )}
@@ -645,9 +665,32 @@ export default function SurveyBuilder() {
             )}
           </TabsContent>
 
+          <TabsContent value="preview">
+            {previewQuestions.length > 0 ? (
+              <div className="space-y-4">
+                <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground text-center">
+                  {language === 'th' ? '👁️ นี่คือตัวอย่างแบบสำรวจ - คำตอบจะไม่ถูกบันทึก' : '👁️ This is a preview - answers will not be saved'}
+                </div>
+                <SurveyTaker
+                  questions={previewQuestions}
+                  onSubmit={async () => {
+                    toast.info(language === 'th' ? 'นี่คือโหมดตัวอย่าง' : 'This is preview mode');
+                  }}
+                />
+              </div>
+            ) : (
+              <Card className="p-8 text-center">
+                <Eye className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                <p className="text-muted-foreground">
+                  {language === 'th' ? 'เพิ่มคำถามก่อนเพื่อดูตัวอย่าง' : 'Add questions first to see a preview'}
+                </p>
+              </Card>
+            )}
+          </TabsContent>
+
           <TabsContent value="analytics">
-            {id && analyticsQuestions.length > 0 ? (
-              <SurveyAnalytics surveyId={id} questions={analyticsQuestions} />
+            {id && previewQuestions.length > 0 ? (
+              <SurveyAnalytics surveyId={id} questions={previewQuestions} />
             ) : (
               <Card className="p-8 text-center">
                 <BarChart3 className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
