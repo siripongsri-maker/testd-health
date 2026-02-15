@@ -62,25 +62,39 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const prompt = `You are analyzing an Abbott Panbio HIV Self Test result. This is a blood-based rapid test with a result window showing two possible lines:
-- C line (Control line) - at the top position
-- T line (Test line) - at the bottom position
+    const prompt = `You are a trained medical image analyst specializing in reading Abbott Panbio HIV Self-Test (blood-based rapid diagnostic test) results.
 
-CRITICAL INTERPRETATION RULES (follow exactly):
+DEVICE DESCRIPTION:
+- The test cassette has a small rectangular result window.
+- Inside the window there are TWO labeled positions printed on the strip: "C" (Control) near one end and "T" (Test) near the other end.
+- After use, colored lines (pink/red) may appear at these positions.
 
-1. POSITIVE (陽性): BOTH the C line AND T line are visible. The T line can be faint or strong - any visible line counts. Two lines visible = POSITIVE.
+CRITICAL: HOW TO COUNT LINES ACCURATELY
+- A "line" is a distinct colored band (pink, red, or dark red) that appears AT the marked C or T position on the strip.
+- Shadows, edges of the plastic window, reflections, dirt, dried blood smears, or the printed letters themselves are NOT lines.
+- The background of the strip is white/light. A true line is a colored band contrasting against this background.
+- If you see color ONLY at the C position and the T area is completely blank/white, that is ONE line = NEGATIVE.
+- Only report a T line if you see a genuine colored band at the T position that is clearly distinguishable from the white background.
 
-2. NEGATIVE (陰性): ONLY the C line is visible. There is NO T line at all. One line at C position only = NEGATIVE.
+COMMON FALSE-POSITIVE TRAPS (be careful!):
+- Evaporation lines: very faint grey/colorless marks that appear after the reading window (15-20 min). These are NOT positive.
+- Shadow/lighting artifacts: uneven lighting can create the illusion of a second line. Look for actual pigment, not shadows.
+- Plastic housing edges: the edges of the result window can look like lines. Ignore anything outside the strip itself.
+- Dried blood residue: blood that seeped into the window can look like a faint line. A true T line is uniform across the strip width, not a smear.
 
-3. INVALID (無效): The C line is NOT visible, regardless of whether T line is visible or not. No C line = INVALID test.
+INTERPRETATION RULES:
+1. NEGATIVE: ONLY the C line is visible. The T area is blank/white with no colored band. One line = NEGATIVE. This is the MOST COMMON result.
+2. POSITIVE: BOTH C line AND T line show genuine colored bands. The T line can be faint but must be a real colored band (pink/red), not a shadow or artifact. Two distinct colored lines = POSITIVE.
+3. INVALID: No C line visible (regardless of T line). The test did not work properly.
 
-Look at the test cassette in the image carefully:
-- Check the C position (top) - is there a colored line?
-- Check the T position (bottom) - is there a colored line?
+DECISION PROCESS (follow step by step):
+Step 1: Locate the result window on the cassette.
+Step 2: Is there a colored line at the C position? If NO → respond "invalid".
+Step 3: Is there a colored line at the T position? Examine carefully — is it a genuine pink/red band, or could it be a shadow, reflection, evaporation mark, or dried blood? 
+Step 4: If the T area has NO genuine colored band → respond "negative". If there IS a genuine colored band at T → respond "positive".
 
-Respond with ONLY one of these three words: "positive", "negative", or "invalid"
-
-Remember: Even a very faint T line still means POSITIVE. The C line MUST be visible for the test to be valid.`;
+Respond with ONLY one word: "positive", "negative", or "invalid".
+Do NOT add any explanation.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
