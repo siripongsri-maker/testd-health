@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ArrowLeft, Loader2, Plus, Save, Eye, BarChart3, Settings, Trash2, AlertTriangle, Send, Share2, Copy, Check, Link2 } from "lucide-react";
+import { ArrowLeft, Loader2, Plus, Save, Eye, BarChart3, Settings, AlertTriangle, Send, Share2, Copy, Check, Link2, FileText } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,6 +40,7 @@ export default function SurveyBuilder() {
   const [isOwner, setIsOwner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState("builder");
 
   // Survey settings form
   const [settings, setSettings] = useState({
@@ -367,7 +368,6 @@ export default function SurveyBuilder() {
   const canSubmit = isOwner && (survey?.status === 'draft' || survey?.status === 'rejected');
   const isPublished = survey?.status === 'published';
 
-  // Prepare questions for preview and analytics
   const previewQuestions: SurveyQuestion[] = questions.map((q, index) => ({
     id: existingQuestionIds[index] || `temp-${index}`,
     survey_id: id || '',
@@ -387,67 +387,38 @@ export default function SurveyBuilder() {
     updated_at: '',
   }));
 
+  const statusConfig = {
+    pending_review: { color: 'bg-warning/15 text-warning border-warning/20', icon: '⏳', label: language === 'th' ? 'รอตรวจสอบ' : 'Pending Review' },
+    rejected: { color: 'bg-destructive/10 text-destructive border-destructive/20', icon: '❌', label: language === 'th' ? 'ถูกปฏิเสธ' : 'Rejected' },
+    draft: { color: 'bg-muted text-muted-foreground border-border', icon: '📝', label: language === 'th' ? 'ร่าง' : 'Draft' },
+    published: { color: 'bg-success/10 text-success border-success/20', icon: '✅', label: language === 'th' ? 'เผยแพร่แล้ว' : 'Published' },
+  };
+
+  const currentStatus = statusConfig[survey?.status as keyof typeof statusConfig] || statusConfig.draft;
+
   return (
     <>
       <PageContainer>
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/surveys')}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div>
-              <h1 className="text-xl font-bold text-foreground">
-                {language === 'th' ? 'สร้างแบบสำรวจ' : 'Survey Builder'}
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                {settings.title_th || settings.title_en || (language === 'th' ? 'แบบสำรวจใหม่' : 'New Survey')}
-              </p>
+        {/* Top navigation bar */}
+        <div className="flex items-center gap-2 mb-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/surveys')} className="h-9 w-9 flex-shrink-0">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="flex-1 min-w-0">
+            <div className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full border ${currentStatus.color}`}>
+              <span>{currentStatus.icon}</span>
+              <span>{currentStatus.label}</span>
             </div>
           </div>
-
-          <div className="flex items-center gap-2">
-            {/* Share Link Button - only for published surveys */}
+          <div className="flex items-center gap-1.5">
             {isPublished && (
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="icon">
-                    <Share2 className="h-4 w-4" />
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>
-                      {language === 'th' ? '🔗 แชร์แบบสำรวจ' : '🔗 Share Survey'}
-                    </DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4 mt-4">
-                    <p className="text-sm text-muted-foreground">
-                      {language === 'th' 
-                        ? 'คัดลอกลิงก์ด้านล่างเพื่อแชร์แบบสำรวจ' 
-                        : 'Copy the link below to share this survey'}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <Input value={shareUrl} readOnly className="text-sm" />
-                      <Button size="icon" variant="outline" onClick={handleCopyLink}>
-                        {linkCopied ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
-                      </Button>
-                    </div>
-                    <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
-                      <Link2 className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">
-                        {language === 'th' 
-                          ? 'ทุกคนที่มีลิงก์สามารถทำแบบสำรวจได้' 
-                          : 'Anyone with the link can take this survey'}
-                      </span>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
+              <Button variant="ghost" size="icon" className="h-9 w-9" onClick={handleCopyLink}>
+                {linkCopied ? <Check className="h-4 w-4 text-success" /> : <Share2 className="h-4 w-4" />}
+              </Button>
             )}
-
             <Dialog open={showSettings} onOpenChange={setShowSettings}>
               <DialogTrigger asChild>
-                <Button variant="outline" size="icon">
+                <Button variant="ghost" size="icon" className="h-9 w-9">
                   <Settings className="h-4 w-4" />
                 </Button>
               </DialogTrigger>
@@ -458,45 +429,9 @@ export default function SurveyBuilder() {
                   </DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4 mt-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <Label>{language === 'th' ? 'ชื่อ (TH) *' : 'Title (TH) *'}</Label>
-                      <Input
-                        value={settings.title_th}
-                        onChange={(e) => setSettings({ ...settings, title_th: e.target.value })}
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label>{language === 'th' ? 'ชื่อ (EN) *' : 'Title (EN) *'}</Label>
-                      <Input
-                        value={settings.title_en}
-                        onChange={(e) => setSettings({ ...settings, title_en: e.target.value })}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <Label>{language === 'th' ? 'คำอธิบาย (TH)' : 'Description (TH)'}</Label>
-                      <Textarea
-                        value={settings.description_th}
-                        onChange={(e) => setSettings({ ...settings, description_th: e.target.value })}
-                        rows={2}
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label>{language === 'th' ? 'คำอธิบาย (EN)' : 'Description (EN)'}</Label>
-                      <Textarea
-                        value={settings.description_en}
-                        onChange={(e) => setSettings({ ...settings, description_en: e.target.value })}
-                        rows={2}
-                      />
-                    </div>
-                  </div>
-
                   {isAdmin && (
                     <div className="space-y-1.5">
-                      <Label>{language === 'th' ? 'XP Reward (Admin)' : 'XP Reward (Admin)'}</Label>
+                      <Label>{language === 'th' ? 'XP Reward' : 'XP Reward'}</Label>
                       <Input
                         type="number"
                         min={0}
@@ -505,7 +440,6 @@ export default function SurveyBuilder() {
                       />
                     </div>
                   )}
-
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <span className="text-sm font-medium">
                       {language === 'th' ? 'ขอ Consent ก่อนทำ' : 'Require Consent'}
@@ -515,7 +449,6 @@ export default function SurveyBuilder() {
                       onCheckedChange={(checked) => setSettings({ ...settings, require_consent: checked })}
                     />
                   </div>
-
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <span className="text-sm font-medium">
                       {language === 'th' ? 'อนุญาตตอบแบบไม่ระบุตัวตน' : 'Allow Anonymous'}
@@ -525,19 +458,17 @@ export default function SurveyBuilder() {
                       onCheckedChange={(checked) => setSettings({ ...settings, allow_anonymous: checked })}
                     />
                   </div>
-
                   {isAdmin && (
                     <>
                       <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                        <span className="text-sm font-medium">Hot Tag</span>
+                        <span className="text-sm font-medium">🔥 Hot Tag</span>
                         <Switch
                           checked={settings.is_hot}
                           onCheckedChange={(checked) => setSettings({ ...settings, is_hot: checked })}
                         />
                       </div>
-
                       <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                        <span className="text-sm font-medium">New Tag</span>
+                        <span className="text-sm font-medium">🆕 New Tag</span>
                         <Switch
                           checked={settings.is_new}
                           onCheckedChange={(checked) => setSettings({ ...settings, is_new: checked })}
@@ -545,18 +476,16 @@ export default function SurveyBuilder() {
                       </div>
                     </>
                   )}
-
                   <div className="space-y-1.5">
-                    <Label>{language === 'th' ? 'ข้อความ Consent (TH)' : 'Consent Text (TH)'}</Label>
+                    <Label className="text-xs">{language === 'th' ? 'Consent (TH)' : 'Consent Text (TH)'}</Label>
                     <Textarea
                       value={settings.consent_text_th}
                       onChange={(e) => setSettings({ ...settings, consent_text_th: e.target.value })}
                       rows={2}
                     />
                   </div>
-
                   <div className="space-y-1.5">
-                    <Label>{language === 'th' ? 'ข้อความ Consent (EN)' : 'Consent Text (EN)'}</Label>
+                    <Label className="text-xs">{language === 'th' ? 'Consent (EN)' : 'Consent Text (EN)'}</Label>
                     <Textarea
                       value={settings.consent_text_en}
                       onChange={(e) => setSettings({ ...settings, consent_text_en: e.target.value })}
@@ -566,110 +495,131 @@ export default function SurveyBuilder() {
                 </div>
               </DialogContent>
             </Dialog>
-
-            <Button onClick={handleSave} disabled={saving} variant="outline">
-              {saving ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Save className="h-4 w-4 mr-2" />
-              )}
-              {language === 'th' ? 'บันทึก' : 'Save'}
-            </Button>
-
-            {canSubmit && (
-              <Button onClick={handleSubmitForReview} disabled={submitting}>
-                {submitting ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Send className="h-4 w-4 mr-2" />
-                )}
-                {language === 'th' ? 'ส่งตรวจสอบ' : 'Submit'}
-              </Button>
-            )}
           </div>
         </div>
 
-        {/* Status Banner */}
-        {survey?.status && survey.status !== 'published' && (
-          <div className={`mb-4 p-3 rounded-lg text-sm ${
-            survey.status === 'pending_review' ? 'bg-yellow-500/20 text-yellow-700' :
-            survey.status === 'rejected' ? 'bg-destructive/20 text-destructive' :
-            'bg-muted text-muted-foreground'
-          }`}>
-            {survey.status === 'pending_review' && (language === 'th' ? '⏳ รอ Admin ตรวจสอบและอนุมัติ' : '⏳ Waiting for admin review')}
-            {survey.status === 'rejected' && (language === 'th' ? `❌ ถูกปฏิเสธ: ${survey.rejection_feedback || 'ไม่มีเหตุผล'}` : `❌ Rejected: ${survey.rejection_feedback || 'No reason given'}`)}
-            {survey.status === 'draft' && (language === 'th' ? '📝 ร่าง - กด "ส่งตรวจสอบ" เมื่อพร้อม' : '📝 Draft - Click "Submit" when ready')}
+        {/* Inline title & description editing */}
+        <div className="mb-5 space-y-3">
+          <div className="space-y-2">
+            <Input
+              value={settings.title_th}
+              onChange={(e) => setSettings({ ...settings, title_th: e.target.value })}
+              placeholder={language === 'th' ? 'ชื่อแบบสำรวจ (ภาษาไทย) *' : 'Survey title (Thai) *'}
+              className="text-lg font-bold h-12 bg-transparent border-0 border-b border-border/50 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary placeholder:text-muted-foreground/50"
+            />
+            <Input
+              value={settings.title_en}
+              onChange={(e) => setSettings({ ...settings, title_en: e.target.value })}
+              placeholder={language === 'th' ? 'Survey title (English) *' : 'Survey title (English) *'}
+              className="text-base h-10 bg-transparent border-0 border-b border-border/50 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary placeholder:text-muted-foreground/50"
+            />
+          </div>
+          <div className="space-y-2">
+            <Textarea
+              value={settings.description_th}
+              onChange={(e) => setSettings({ ...settings, description_th: e.target.value })}
+              placeholder={language === 'th' ? 'คำอธิบาย (ไทย) — ไม่จำเป็น' : 'Description (Thai) — optional'}
+              rows={1}
+              className="text-sm bg-transparent border-0 border-b border-border/30 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary resize-none min-h-0 placeholder:text-muted-foreground/40"
+            />
+            <Textarea
+              value={settings.description_en}
+              onChange={(e) => setSettings({ ...settings, description_en: e.target.value })}
+              placeholder={language === 'th' ? 'Description (English) — optional' : 'Description (English) — optional'}
+              rows={1}
+              className="text-sm bg-transparent border-0 border-b border-border/30 rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary resize-none min-h-0 placeholder:text-muted-foreground/40"
+            />
+          </div>
+        </div>
+
+        {/* Status banner for rejected */}
+        {survey?.status === 'rejected' && survey.rejection_feedback && (
+          <div className="mb-4 p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-sm text-destructive">
+            <strong>{language === 'th' ? 'เหตุผล:' : 'Reason:'}</strong> {survey.rejection_feedback}
           </div>
         )}
 
-        {/* Share Link Banner for published surveys */}
+        {/* Share banner for published */}
         {isPublished && (
-          <div className="mb-4 p-3 rounded-lg bg-success/10 border border-success/20 flex items-center justify-between gap-3">
+          <div className="mb-4 p-3 rounded-xl bg-success/10 border border-success/20 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 min-w-0">
               <Link2 className="h-4 w-4 text-success flex-shrink-0" />
-              <span className="text-sm text-success font-medium truncate">{shareUrl}</span>
+              <span className="text-xs text-success font-medium truncate">{shareUrl}</span>
             </div>
-            <Button size="sm" variant="outline" onClick={handleCopyLink} className="flex-shrink-0">
+            <Button size="sm" variant="outline" onClick={handleCopyLink} className="flex-shrink-0 h-8 text-xs">
               {linkCopied ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
               {language === 'th' ? 'คัดลอก' : 'Copy'}
             </Button>
           </div>
         )}
 
-        <Tabs defaultValue="builder" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="builder">
-              {language === 'th' ? '✏️ สร้างคำถาม' : '✏️ Builder'}
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-4 h-10">
+            <TabsTrigger value="builder" className="text-xs sm:text-sm gap-1.5">
+              <FileText className="h-3.5 w-3.5" />
+              {language === 'th' ? 'สร้าง' : 'Build'}
             </TabsTrigger>
-            <TabsTrigger value="preview" disabled={questions.length === 0}>
-              {language === 'th' ? '👁️ ตัวอย่าง' : '👁️ Preview'}
+            <TabsTrigger value="preview" disabled={questions.length === 0} className="text-xs sm:text-sm gap-1.5">
+              <Eye className="h-3.5 w-3.5" />
+              {language === 'th' ? 'ตัวอย่าง' : 'Preview'}
             </TabsTrigger>
-            <TabsTrigger value="analytics" disabled={existingQuestionIds.length === 0}>
-              {language === 'th' ? '📊 ผลลัพธ์' : '📊 Analytics'}
+            <TabsTrigger value="analytics" disabled={existingQuestionIds.length === 0} className="text-xs sm:text-sm gap-1.5">
+              <BarChart3 className="h-3.5 w-3.5" />
+              {language === 'th' ? 'ผลลัพธ์' : 'Results'}
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="builder" className="space-y-4">
+          {/* Builder Tab */}
+          <TabsContent value="builder" className="space-y-3 mt-0">
             {questions.length === 0 ? (
-              <Card className="p-8 text-center border-2 border-dashed">
-                <AlertTriangle className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-                <p className="text-muted-foreground mb-4">
-                  {language === 'th' ? 'ยังไม่มีคำถาม กดปุ่มด้านล่างเพื่อเพิ่ม' : 'No questions yet. Click below to add one.'}
+              <Card className="p-10 text-center border-2 border-dashed bg-card/50">
+                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                  <Plus className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-base font-semibold text-foreground mb-1">
+                  {language === 'th' ? 'เริ่มสร้างแบบสำรวจ' : 'Start building your survey'}
+                </h3>
+                <p className="text-sm text-muted-foreground mb-5 max-w-[280px] mx-auto">
+                  {language === 'th' 
+                    ? 'เพิ่มคำถามแบบ Multiple Choice, ข้อความ, หรือ Rating' 
+                    : 'Add Multiple Choice, Text, or Rating questions'}
                 </p>
-                <Button onClick={addQuestion}>
-                  <Plus className="h-4 w-4 mr-2" />
+                <Button onClick={addQuestion} size="lg">
+                  <Plus className="h-5 w-5 mr-2" />
                   {language === 'th' ? 'เพิ่มคำถามแรก' : 'Add First Question'}
                 </Button>
               </Card>
             ) : (
-              questions.map((question, index) => (
-                <QuestionBuilder
-                  key={index}
-                  question={question}
-                  index={index}
-                  totalQuestions={questions.length}
-                  onChange={(q) => updateQuestion(index, q)}
-                  onRemove={() => removeQuestion(index)}
-                  onMoveUp={() => moveQuestion(index, 'up')}
-                  onMoveDown={() => moveQuestion(index, 'down')}
-                  onDuplicate={() => duplicateQuestion(index)}
-                />
-              ))
-            )}
+              <>
+                {questions.map((question, index) => (
+                  <QuestionBuilder
+                    key={index}
+                    question={question}
+                    index={index}
+                    totalQuestions={questions.length}
+                    onChange={(q) => updateQuestion(index, q)}
+                    onRemove={() => removeQuestion(index)}
+                    onMoveUp={() => moveQuestion(index, 'up')}
+                    onMoveDown={() => moveQuestion(index, 'down')}
+                    onDuplicate={() => duplicateQuestion(index)}
+                  />
+                ))}
 
-            {questions.length > 0 && (
-              <Button variant="outline" onClick={addQuestion} className="w-full border-dashed">
-                <Plus className="h-4 w-4 mr-2" />
-                {language === 'th' ? 'เพิ่มคำถาม' : 'Add Question'}
-              </Button>
+                <Button variant="outline" onClick={addQuestion} className="w-full h-12 border-dashed border-2 text-muted-foreground hover:text-primary hover:border-primary/50">
+                  <Plus className="h-4 w-4 mr-2" />
+                  {language === 'th' ? 'เพิ่มคำถาม' : 'Add Question'}
+                </Button>
+              </>
             )}
           </TabsContent>
 
-          <TabsContent value="preview">
+          {/* Preview Tab */}
+          <TabsContent value="preview" className="mt-0">
             {previewQuestions.length > 0 ? (
               <div className="space-y-4">
-                <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground text-center">
-                  {language === 'th' ? '👁️ นี่คือตัวอย่างแบบสำรวจ - คำตอบจะไม่ถูกบันทึก' : '👁️ This is a preview - answers will not be saved'}
+                <div className="p-2.5 bg-muted/50 rounded-xl text-xs text-muted-foreground text-center">
+                  {language === 'th' ? '👁️ โหมดตัวอย่าง — คำตอบจะไม่ถูกบันทึก' : '👁️ Preview mode — answers will not be saved'}
                 </div>
                 <SurveyTaker
                   questions={previewQuestions}
@@ -688,7 +638,8 @@ export default function SurveyBuilder() {
             )}
           </TabsContent>
 
-          <TabsContent value="analytics">
+          {/* Analytics Tab */}
+          <TabsContent value="analytics" className="mt-0">
             {id && previewQuestions.length > 0 ? (
               <SurveyAnalytics surveyId={id} questions={previewQuestions} />
             ) : (
@@ -701,6 +652,33 @@ export default function SurveyBuilder() {
             )}
           </TabsContent>
         </Tabs>
+
+        {/* Sticky bottom action bar */}
+        {activeTab === 'builder' && questions.length > 0 && (
+          <div className="sticky bottom-20 z-10 mt-4">
+            <div className="bg-card/90 backdrop-blur-xl border border-border/50 rounded-2xl p-3 shadow-lg flex items-center gap-2">
+              <div className="flex-1 text-xs text-muted-foreground">
+                {questions.length} {language === 'th' ? 'คำถาม' : questions.length === 1 ? 'question' : 'questions'}
+              </div>
+              <Button onClick={handleSave} disabled={saving} variant="outline" size="sm" className="h-9">
+                {saving ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Save className="h-3.5 w-3.5 mr-1.5" />}
+                {language === 'th' ? 'บันทึก' : 'Save'}
+              </Button>
+              {canSubmit && (
+                <Button onClick={handleSubmitForReview} disabled={submitting} size="sm" className="h-9">
+                  {submitting ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Send className="h-3.5 w-3.5 mr-1.5" />}
+                  {language === 'th' ? 'ส่งตรวจสอบ' : 'Submit'}
+                </Button>
+              )}
+              {isAdmin && (
+                <Button onClick={handleSave} disabled={saving} size="sm" className="h-9">
+                  {saving ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" /> : <Save className="h-3.5 w-3.5 mr-1.5" />}
+                  {language === 'th' ? 'บันทึก & เผยแพร่' : 'Save & Publish'}
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
       </PageContainer>
       <BottomNav />
     </>

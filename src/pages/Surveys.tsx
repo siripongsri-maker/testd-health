@@ -255,6 +255,11 @@ export default function Surveys() {
 
   const handleEditClick = (e: React.MouseEvent, survey: Survey) => {
     e.stopPropagation();
+    // Native surveys go to the full builder page
+    if (survey.is_native) {
+      navigate(`/surveys/${survey.id}/builder`);
+      return;
+    }
     setEditingSurvey(survey);
     setFormData({
       title_th: survey.title_th,
