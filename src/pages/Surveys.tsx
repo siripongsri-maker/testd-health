@@ -225,27 +225,26 @@ export default function Surveys() {
           description_th: formData.description_th || null,
           description_en: formData.description_en || null,
           url: formData.url,
-          xp_reward: formData.xp_reward,
-          is_hot: formData.is_hot,
-          is_new: formData.is_new,
           created_by: user?.id,
+          is_native: false,
+          xp_reward: isAdmin ? formData.xp_reward : 0,
+          is_hot: isAdmin ? formData.is_hot : false,
+          is_new: isAdmin ? formData.is_new : false,
+          status: isAdmin ? 'published' : 'pending_review',
+          submitted_at: isAdmin ? null : new Date().toISOString(),
         });
       
       if (error) throw error;
       
-      toast.success(language === 'th' ? 'สร้างแบบประเมินสำเร็จ!' : 'Survey created successfully!');
+      if (isAdmin) {
+        toast.success(language === 'th' ? 'สร้างแบบประเมินสำเร็จ!' : 'Survey created successfully!');
+      } else {
+        toast.success(language === 'th' ? 'ส่งลิงก์ตรวจสอบสำเร็จ! รอ Admin อนุมัติ' : 'Link submitted for review! Waiting for admin approval');
+      }
       setShowBuilder(false);
-      setFormData({
-        title_th: '',
-        title_en: '',
-        description_th: '',
-        description_en: '',
-        url: '',
-        xp_reward: 10,
-        is_hot: false,
-        is_new: true,
-      });
+      resetFormData();
       fetchSurveys();
+      fetchMySurveys();
     } catch (err) {
       console.error('Error creating survey:', err);
       toast.error(language === 'th' ? 'เกิดข้อผิดพลาด' : 'Something went wrong');
@@ -328,6 +327,7 @@ export default function Surveys() {
       toast.success(language === 'th' ? 'ลบสำเร็จ!' : 'Survey deleted successfully!');
       setDeletingSurvey(null);
       fetchSurveys();
+      fetchMySurveys();
     } catch (err) {
       console.error('Error deleting survey:', err);
       toast.error(language === 'th' ? 'เกิดข้อผิดพลาด' : 'Something went wrong');
@@ -386,28 +386,32 @@ export default function Surveys() {
             </div>
           </div>
           
-          {/* Create Survey Button - Available for all logged in users */}
+          {/* Create Survey Buttons - Available for all logged in users */}
           {user && (
-            <Button size="sm" className="gap-1.5" onClick={handleCreateNativeSurvey}>
-              <Plus className="h-4 w-4" />
-              {language === 'th' ? 'สร้างแบบสำรวจ' : 'Create'}
-            </Button>
-          )}
-          
-          {/* Admin: External Survey Link Dialog */}
-          {isAdmin && (
+            <div className="flex items-center gap-2">
+              <Button size="sm" className="gap-1.5" onClick={handleCreateNativeSurvey}>
+                <Plus className="h-4 w-4" />
+                {language === 'th' ? 'สร้าง' : 'Create'}
+              </Button>
               <Dialog open={showBuilder} onOpenChange={setShowBuilder}>
                 <DialogTrigger asChild>
-                  <Button size="sm" variant="outline" className="gap-1.5 ml-2">
+                  <Button size="sm" variant="outline" className="gap-1.5">
                     <ExternalLink className="h-4 w-4" />
-                    {language === 'th' ? 'ลิงก์ภายนอก' : 'External'}
+                    {language === 'th' ? 'ลิงก์' : 'Link'}
                   </Button>
                 </DialogTrigger>
               <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>
-                    {language === 'th' ? '🔗 เพิ่มลิงก์แบบประเมินภายนอก' : '🔗 Add External Survey Link'}
+                    {language === 'th' ? '🔗 เพิ่มลิงก์แบบประเมินภายนอก' : '🔗 Submit External Survey Link'}
                   </DialogTitle>
+                  {!isAdmin && (
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {language === 'th' 
+                        ? 'ลิงก์จะถูกส่งไปตรวจสอบก่อนเผยแพร่' 
+                        : 'Your link will be submitted for review before publishing'}
+                    </p>
+                  )}
                 </DialogHeader>
                 
                 <div className="space-y-4 mt-4">
@@ -461,49 +465,54 @@ export default function Surveys() {
                     />
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2">
-                      <Zap className="h-4 w-4 text-xp" />
-                      {language === 'th' ? 'รางวัล XP' : 'XP Reward'}
-                    </Label>
-                    <div className="flex items-center gap-3">
-                      <Input 
-                        type="number"
-                        min={0}
-                        max={100}
-                        value={formData.xp_reward}
-                        onChange={(e) => setFormData(prev => ({ ...prev, xp_reward: parseInt(e.target.value) || 0 }))}
-                        className="w-24"
-                      />
-                      <span className="text-sm text-muted-foreground">XP</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Flame className="h-4 w-4 text-destructive" />
-                      <span className="text-sm font-medium">
-                        {language === 'th' ? 'แท็ก Hot' : 'Hot Tag'}
-                      </span>
-                    </div>
-                    <Switch 
-                      checked={formData.is_hot}
-                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_hot: checked }))}
-                    />
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-medium">
-                        {language === 'th' ? 'แท็ก New' : 'New Tag'}
-                      </span>
-                    </div>
-                    <Switch 
-                      checked={formData.is_new}
-                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_new: checked }))}
-                    />
-                  </div>
+                  {/* XP & Tags - Admin only */}
+                  {isAdmin && (
+                    <>
+                      <div className="space-y-2">
+                        <Label className="flex items-center gap-2">
+                          <Zap className="h-4 w-4 text-xp" />
+                          {language === 'th' ? 'รางวัล XP' : 'XP Reward'}
+                        </Label>
+                        <div className="flex items-center gap-3">
+                          <Input 
+                            type="number"
+                            min={0}
+                            max={100}
+                            value={formData.xp_reward}
+                            onChange={(e) => setFormData(prev => ({ ...prev, xp_reward: parseInt(e.target.value) || 0 }))}
+                            className="w-24"
+                          />
+                          <span className="text-sm text-muted-foreground">XP</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Flame className="h-4 w-4 text-destructive" />
+                          <span className="text-sm font-medium">
+                            {language === 'th' ? 'แท็ก Hot' : 'Hot Tag'}
+                          </span>
+                        </div>
+                        <Switch 
+                          checked={formData.is_hot}
+                          onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_hot: checked }))}
+                        />
+                      </div>
+                      
+                      <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Sparkles className="h-4 w-4 text-primary" />
+                          <span className="text-sm font-medium">
+                            {language === 'th' ? 'แท็ก New' : 'New Tag'}
+                          </span>
+                        </div>
+                        <Switch 
+                          checked={formData.is_new}
+                          onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_new: checked }))}
+                        />
+                      </div>
+                    </>
+                  )}
                   
                   <Button 
                     className="w-full" 
@@ -513,18 +522,22 @@ export default function Surveys() {
                     {saving ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        {language === 'th' ? 'กำลังสร้าง...' : 'Creating...'}
+                        {language === 'th' ? 'กำลังส่ง...' : 'Submitting...'}
                       </>
                     ) : (
                       <>
-                        <Plus className="h-4 w-4 mr-2" />
-                        {language === 'th' ? 'สร้างแบบประเมิน' : 'Create Survey'}
+                        {isAdmin ? <Plus className="h-4 w-4 mr-2" /> : <Send className="h-4 w-4 mr-2" />}
+                        {isAdmin 
+                          ? (language === 'th' ? 'สร้างและเผยแพร่' : 'Create & Publish')
+                          : (language === 'th' ? 'ส่งตรวจสอบ' : 'Submit for Review')
+                        }
                       </>
                     )}
                   </Button>
                 </div>
               </DialogContent>
             </Dialog>
+            </div>
           )}
         </div>
 
