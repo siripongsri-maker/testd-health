@@ -143,6 +143,14 @@ export default function HIVSelfTest() {
   const [wantsCallback, setWantsCallback] = useState(false);
   const [callbackPhone, setCallbackPhone] = useState("");
   const [analysisResult, setAnalysisResult] = useState<'positive' | 'negative' | 'invalid' | null>(null);
+  const [analysisDetails, setAnalysisDetails] = useState<{
+    confidence?: string;
+    artifact_risk?: string;
+    test_line_strength?: string;
+    reasoning?: string;
+    verified?: boolean;
+    passes_agreed?: boolean;
+  } | null>(null);
   const [uploading, setUploading] = useState(false);
   
   // Auto-generated account credentials (for success screen)
@@ -564,6 +572,8 @@ export default function HIVSelfTest() {
       if (data?.error) {
         if (data.error.includes('Rate limit')) {
           toast.error(language === 'th' ? 'ระบบยุ่งอยู่ กรุณาลองใหม่อีกครั้ง' : 'System busy, please try again');
+        } else if (data.error.includes('Payment required')) {
+          toast.error(language === 'th' ? 'ระบบไม่พร้อมใช้งาน กรุณาลองใหม่ภายหลัง' : 'Service unavailable, please try later');
         } else {
           throw new Error(data.error);
         }
@@ -579,10 +589,21 @@ export default function HIVSelfTest() {
       } else {
         setAnalysisResult('invalid');
       }
+
+      // Store detailed analysis info
+      setAnalysisDetails({
+        confidence: data?.confidence,
+        artifact_risk: data?.artifact_risk,
+        test_line_strength: data?.test_line_strength,
+        reasoning: data?.reasoning,
+        verified: data?.verified,
+        passes_agreed: data?.passes_agreed,
+      });
     } catch (error) {
       console.error('Error analyzing image:', error);
       toast.error(language === 'th' ? 'ไม่สามารถวิเคราะห์ภาพได้' : 'Could not analyze image');
       setAnalysisResult('invalid');
+      setAnalysisDetails(null);
     } finally {
       setAnalyzing(false);
     }
@@ -676,6 +697,7 @@ export default function HIVSelfTest() {
       setResultPhoto(null);
       setPhotoPreview(null);
       setAnalysisResult(null);
+      setAnalysisDetails(null);
       setWantsCallback(false);
       setCallbackPhone("");
     } catch (error) {
@@ -1161,6 +1183,7 @@ export default function HIVSelfTest() {
                   setResultPhoto(null);
                   setPhotoPreview(null);
                   setAnalysisResult(null);
+                  setAnalysisDetails(null);
                 }}
               >
                 <X className="h-4 w-4" />
@@ -1175,10 +1198,10 @@ export default function HIVSelfTest() {
             )}
 
             {analyzing && (
-              <div className="flex items-center justify-center gap-2 p-4">
-                <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                <span className="text-muted-foreground">
-                  {language === 'th' ? 'กำลังวิเคราะห์...' : 'Analyzing...'}
+              <div className="flex flex-col items-center justify-center gap-2 p-4">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                <span className="text-muted-foreground text-sm">
+                  {language === 'th' ? 'กำลังวิเคราะห์ด้วย AI (อาจใช้เวลา 10-15 วินาที)...' : 'AI analyzing (may take 10-15 seconds)...'}
                 </span>
               </div>
             )}
@@ -1212,6 +1235,11 @@ export default function HIVSelfTest() {
                       <h4 className="text-xl font-bold text-destructive mb-1">
                         {language === 'th' ? 'พบสัญญาณบวก (Reactive)' : 'Reactive'}
                       </h4>
+                      {analysisDetails?.verified && analysisDetails?.passes_agreed && (
+                        <p className="text-xs text-destructive/70 mb-2">
+                          {language === 'th' ? '✓ ยืนยันโดย AI 2 รอบ' : '✓ Verified by 2-pass AI'}
+                        </p>
+                      )}
                       <p className="text-sm text-destructive/80 mb-3">
                         {language === 'th' 
                           ? 'กรุณาติดต่อคลินิกเพื่อตรวจยืนยัน'
@@ -1296,6 +1324,44 @@ export default function HIVSelfTest() {
                         }
                       </p>
                     </>
+                  )}
+
+                  {/* Confidence & verification details */}
+                  {analysisDetails && (
+                    <div className="mt-3 pt-3 border-t border-border/30">
+                      <div className="flex items-center justify-center gap-2 flex-wrap">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+                          analysisDetails.confidence === 'high' 
+                            ? 'bg-success/20 text-success' 
+                            : analysisDetails.confidence === 'medium'
+                              ? 'bg-amber-500/20 text-amber-600'
+                              : 'bg-destructive/20 text-destructive'
+                        }`}>
+                          {analysisDetails.confidence === 'high' ? '●' : analysisDetails.confidence === 'medium' ? '◐' : '○'}
+                          {language === 'th' ? 'ความมั่นใจ: ' : 'Confidence: '}
+                          {analysisDetails.confidence === 'high' 
+                            ? (language === 'th' ? 'สูง' : 'High')
+                            : analysisDetails.confidence === 'medium'
+                              ? (language === 'th' ? 'ปานกลาง' : 'Medium')
+                              : (language === 'th' ? 'ต่ำ' : 'Low')
+                          }
+                        </span>
+                        {analysisDetails.verified && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-primary/20 text-primary">
+                            <Check className="h-3 w-3" />
+                            {language === 'th' ? 'ตรวจซ้ำแล้ว' : 'Double-checked'}
+                          </span>
+                        )}
+                      </div>
+                      {analysisDetails.confidence !== 'high' && (
+                        <p className="text-xs text-muted-foreground mt-2">
+                          {language === 'th'
+                            ? '⚠️ ผลวิเคราะห์ยังไม่ชัดเจน กรุณาส่งให้เจ้าหน้าที่ตรวจสอบ'
+                            : '⚠️ Analysis uncertain — please submit for staff verification'
+                          }
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
               </Card>
