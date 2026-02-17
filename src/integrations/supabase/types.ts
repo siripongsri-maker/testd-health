@@ -487,6 +487,54 @@ export type Database = {
         }
         Relationships: []
       }
+      hiv_self_test_checks: {
+        Row: {
+          artifact_risk: string | null
+          confidence: number
+          control_line_present: boolean | null
+          created_at: string
+          id: string
+          image_path: string
+          outcome: string
+          reasoning_short: string | null
+          test_line_present: boolean | null
+          test_line_strength: string | null
+          user_id: string | null
+          user_marked_wrong: boolean | null
+          user_note: string | null
+        }
+        Insert: {
+          artifact_risk?: string | null
+          confidence: number
+          control_line_present?: boolean | null
+          created_at?: string
+          id?: string
+          image_path: string
+          outcome: string
+          reasoning_short?: string | null
+          test_line_present?: boolean | null
+          test_line_strength?: string | null
+          user_id?: string | null
+          user_marked_wrong?: boolean | null
+          user_note?: string | null
+        }
+        Update: {
+          artifact_risk?: string | null
+          confidence?: number
+          control_line_present?: boolean | null
+          created_at?: string
+          id?: string
+          image_path?: string
+          outcome?: string
+          reasoning_short?: string | null
+          test_line_present?: boolean | null
+          test_line_strength?: string | null
+          user_id?: string | null
+          user_marked_wrong?: boolean | null
+          user_note?: string | null
+        }
+        Relationships: []
+      }
       hiv_selftest_requests: {
         Row: {
           address: string | null
