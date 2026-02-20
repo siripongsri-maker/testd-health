@@ -7,16 +7,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Escape special characters to prevent prompt injection
-const escapePrompt = (text: string): string => {
-  if (!text) return '';
-  return text
-    .replace(/\\/g, '\\\\')
-    .replace(/"/g, '\\"')
-    .replace(/\n/g, '\\n')
-    .replace(/\r/g, '\\r')
-    .replace(/\t/g, '\\t');
-};
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -90,21 +80,7 @@ serve(async (req) => {
       );
     }
 
-    // Escape user input to prevent prompt injection
-    const safeTitle = escapePrompt(title_th || '');
-    const safeExcerpt = escapePrompt(excerpt_th || '');
-    const safeContent = escapePrompt(content_th || '');
-
-    const prompt = `You are a professional translator. Translate the following Thai text to English accurately and naturally. Maintain the original meaning and tone. Return ONLY a JSON object with the translated fields, no markdown or code blocks.
-
-Input:
-- title_th: "${safeTitle}"
-- excerpt_th: "${safeExcerpt}"  
-- content_th: "${safeContent}"
-
-Return format (JSON only):
-{"title_en": "translated title", "excerpt_en": "translated excerpt", "content_en": "translated content"}`;
-
+    // Use structured messages to prevent prompt injection
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -116,9 +92,21 @@ Return format (JSON only):
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "user", content: prompt }
+          { 
+            role: "system", 
+            content: "You are a professional translator. Translate Thai text to English accurately and naturally. Maintain the original meaning and tone. Return ONLY a JSON object with exactly these keys: title_en, excerpt_en, content_en. No markdown, no code blocks, no extra keys." 
+          },
+          { 
+            role: "user", 
+            content: JSON.stringify({
+              title_th: title_th || '',
+              excerpt_th: excerpt_th || '',
+              content_th: content_th || ''
+            })
+          }
         ],
         temperature: 0.3,
+        max_tokens: 8000,
       }),
     });
 
@@ -140,6 +128,21 @@ Return format (JSON only):
         jsonStr = jsonStr.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
       }
       translatedContent = JSON.parse(jsonStr);
+      
+      // Validate output structure - only allow expected keys
+      const allowedKeys = ['title_en', 'excerpt_en', 'content_en'];
+      for (const key of Object.keys(translatedContent)) {
+        if (!allowedKeys.includes(key)) {
+          delete translatedContent[key];
+        }
+      }
+      
+      // Validate types
+      if (typeof translatedContent.title_en !== 'string' ||
+          typeof translatedContent.excerpt_en !== 'string' ||
+          typeof translatedContent.content_en !== 'string') {
+        throw new Error('Invalid translation response structure');
+      }
     } catch (parseError) {
       console.error('Parse error:', parseError, 'Content:', content);
       throw new Error('Failed to parse translation response');
