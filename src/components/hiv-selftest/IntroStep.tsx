@@ -36,7 +36,9 @@ export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onS
   const [isEditingBranch, setIsEditingBranch] = useState(false);
 
   // If there's an active request in progress
-  if (activeRequest && ['pending', 'approved', 'shipped', 'delivered'].includes(activeRequest.status)) {
+  if (activeRequest && ['pending', 'approved', 'shipped', 'delivered', 'received'].includes(activeRequest.status)) {
+    // For 'received' (venue pickup auto-confirmed), show confirmed status
+    const isReceived = activeRequest.status === 'received';
     return (
       <div className="space-y-4 animate-fade-in">
         {/* Statistics - show community usage */}
@@ -70,19 +72,22 @@ export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onS
             {activeRequest.status === 'pending' && <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-3" />}
             {activeRequest.status === 'approved' && <PackageCheck className="h-12 w-12 text-primary mx-auto mb-3" />}
             {(activeRequest.status === 'shipped' || activeRequest.status === 'delivered') && <Package className="h-12 w-12 text-success mx-auto mb-3" />}
+            {activeRequest.status === 'received' && <PackageCheck className="h-12 w-12 text-success mx-auto mb-3" />}
             
             <h3 className="font-bold text-foreground mb-2">
               {activeRequest.status === 'pending' && (language === 'th' ? 'รอเจ้าหน้าที่ตรวจสอบ' : 'Awaiting Staff Review')}
               {activeRequest.status === 'approved' && (language === 'th' ? 'อนุมัติแล้ว กำลังเตรียมจัดส่ง' : 'Approved - Preparing Shipment')}
               {activeRequest.status === 'shipped' && (language === 'th' ? 'จัดส่งแล้ว รอรับพัสดุ' : 'Shipped - Awaiting Delivery')}
               {activeRequest.status === 'delivered' && (language === 'th' ? 'พัสดุถึงแล้ว กรุณายืนยันการรับ' : 'Delivered - Please Confirm Receipt')}
+              {activeRequest.status === 'received' && (language === 'th' ? 'ยืนยันว่าได้รับแล้ว' : 'Confirmed Received')}
             </h3>
             
-            <Badge variant={activeRequest.status === 'shipped' || activeRequest.status === 'delivered' ? 'default' : 'secondary'}>
+            <Badge variant={activeRequest.status === 'shipped' || activeRequest.status === 'delivered' || activeRequest.status === 'received' ? 'default' : 'secondary'}>
               {activeRequest.status === 'pending' && (language === 'th' ? '⏳ รอตรวจสอบ' : '⏳ Pending Review')}
               {activeRequest.status === 'approved' && (language === 'th' ? '✓ อนุมัติแล้ว' : '✓ Approved')}
-              {activeRequest.status === 'shipped' && (language === 'th' ? '📦 จัดส่งแล้ว' : '📦ปก Shipped')}
+              {activeRequest.status === 'shipped' && (language === 'th' ? '📦 จัดส่งแล้ว' : '📦 Shipped')}
               {activeRequest.status === 'delivered' && (language === 'th' ? '🏠 ถึงปลายทาง' : '🏠 Delivered')}
+              {activeRequest.status === 'received' && (language === 'th' ? '✅ ยืนยันว่าได้รับแล้ว' : '✅ Confirmed Received')}
             </Badge>
             
             {activeRequest.tracking_number && (
@@ -107,20 +112,33 @@ export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onS
                 {activeRequest.status === 'delivered' && (language === 'th' 
                   ? '💡 เจ้าหน้าที่ยืนยันว่าพัสดุถึงแล้ว กรุณากดยืนยันว่าได้รับชุดตรวจ'
                   : '💡 Staff confirmed delivery. Please confirm you received the kit.')}
+                {activeRequest.status === 'received' && (language === 'th' 
+                  ? '💡 คุณได้รับชุดตรวจที่หน้างานแล้ว กดเริ่มตรวจเพื่อดูวิดีโอแนะนำ'
+                  : '💡 You received the kit at the venue. Press Start Testing to watch the tutorial.')}
               </p>
             </div>
             
-            <Button 
-              className="mt-4 w-full" 
-              onClick={onConfirmReceipt}
-              disabled={activeRequest.status !== 'shipped' && activeRequest.status !== 'delivered'}
-              variant={activeRequest.status === 'delivered' ? 'default' : 'outline'}
-            >
-              {activeRequest.status === 'delivered' 
-                ? (language === 'th' ? '✓ ยืนยันว่าได้รับชุดตรวจแล้ว' : '✓ Confirm I received the kit')
-                : (language === 'th' ? 'รอพัสดุ...' : 'Waiting for delivery...')}
-              {(activeRequest.status === 'shipped' || activeRequest.status === 'delivered') && <ArrowRight className="h-4 w-4 ml-2" />}
-            </Button>
+            {activeRequest.status === 'received' ? (
+              <Button 
+                className="mt-4 w-full" 
+                onClick={onConfirmReceipt}
+              >
+                {language === 'th' ? '🧪 เริ่มตรวจ' : '🧪 Start Testing'}
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            ) : (
+              <Button 
+                className="mt-4 w-full" 
+                onClick={onConfirmReceipt}
+                disabled={activeRequest.status !== 'shipped' && activeRequest.status !== 'delivered'}
+                variant={activeRequest.status === 'delivered' ? 'default' : 'outline'}
+              >
+                {activeRequest.status === 'delivered' 
+                  ? (language === 'th' ? '✓ ยืนยันว่าได้รับชุดตรวจแล้ว' : '✓ Confirm I received the kit')
+                  : (language === 'th' ? 'รอพัสดุ...' : 'Waiting for delivery...')}
+                {(activeRequest.status === 'shipped' || activeRequest.status === 'delivered') && <ArrowRight className="h-4 w-4 ml-2" />}
+              </Button>
+            )}
           </div>
         </Card>
       </div>

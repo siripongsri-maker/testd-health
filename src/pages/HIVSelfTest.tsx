@@ -236,7 +236,7 @@ export default function HIVSelfTest() {
         setCurrentStep('intro');
       } else if (activeRequest.status === 'delivered') {
         setCurrentStep('confirm-receipt');
-      } else if (activeRequest.status === 'confirmed') {
+      } else if (activeRequest.status === 'confirmed' || activeRequest.status === 'received') {
         setCurrentStep('video');
       }
     }
@@ -445,17 +445,24 @@ export default function HIVSelfTest() {
 
       if (piiError) throw piiError;
 
+      // For venue pickup: auto-confirm as 'received' immediately
+      // For shipping: use normal 'pending' workflow
+      const isPickup = deliveryMode === 'pickup';
+      const initialStatus = isPickup ? 'received' : 'pending';
+
       // Insert health data with reference to PII
       const { data, error } = await supabase.from('hiv_selftest_requests').insert({
         user_id: userId,
         pii_id: piiData.id,
         last_risk_date: shippingData.lastRiskDate || null,
         days_since_risk: daysSinceRisk,
-        status: 'pending',
+        status: initialStatus,
         assigned_branch: assignedBranch,
       }).select().single();
 
       if (error) throw error;
+
+      // Note: Venue pickup auto-confirmed status is recorded directly in the request record
 
       // Award 100 XP for requesting the kit
       const { data: profile } = await supabase
@@ -491,9 +498,17 @@ export default function HIVSelfTest() {
       // Track selftest request quest
       trackSelftestRequest(language);
       
-      // Show account success screen for NEW users, otherwise go to intro
+      // Show account success screen for NEW users, otherwise go to appropriate step
       if (isNewUser && generatedCredentials) {
         setCurrentStep('account-success');
+      } else if (isPickup) {
+        // Venue pickup: auto-confirmed, go straight to video/testing
+        toast.success(
+          language === 'th' 
+            ? '🎉 ยืนยันว่าได้รับแล้ว! พร้อมเริ่มตรวจ' 
+            : '🎉 Confirmed received! Ready to start testing.'
+        );
+        setCurrentStep('video');
       } else {
         toast.success(
           language === 'th' 
