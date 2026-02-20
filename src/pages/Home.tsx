@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
-import { getUserData } from "@/lib/store";
+
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { LanguageToggle } from "@/components/LanguageToggle";
@@ -73,7 +74,7 @@ function MenuCard({ icon, titleTh, titleEn, onClick, variant = 'default' }: Menu
 }
 
 // User dropdown menu component
-function UserDropdownMenu({ language, navigate }: {language: string;navigate: (path: string) => void;}) {
+function UserDropdownMenu({ language, navigate, user }: {language: string; navigate: (path: string) => void; user: SupabaseUser;}) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -85,8 +86,7 @@ function UserDropdownMenu({ language, navigate }: {language: string;navigate: (p
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  const userName = localStorage.getItem('currentUser') || 'User';
-  const isAdmin = localStorage.getItem('currentUser') === 'admin2024';
+  const userName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'User';
 
   return (
     <div ref={ref} className="relative">
@@ -98,11 +98,6 @@ function UserDropdownMenu({ language, navigate }: {language: string;navigate: (p
         <span className="text-sm font-medium text-foreground max-w-[100px] truncate">
           {userName}
         </span>
-        {isAdmin &&
-        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-gradient-to-r from-violet-500 to-purple-500 text-white">
-            ADMIN
-          </span>
-        }
         <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
 
@@ -124,10 +119,12 @@ function UserDropdownMenu({ language, navigate }: {language: string;navigate: (p
           </button>
           <div className="border-t border-border/50 my-1" />
           <button
-          onClick={() => {
+          onClick={async () => {
             setOpen(false);
+            await supabase.auth.signOut();
             localStorage.removeItem('isLoggedIn');
             localStorage.removeItem('currentUser');
+            localStorage.removeItem('testd-user-data');
             toast.success(language === 'th' ? 'ออกจากระบบแล้ว' : 'Logged out successfully');
             navigate('/auth');
           }}
@@ -145,13 +142,20 @@ function UserDropdownMenu({ language, navigate }: {language: string;navigate: (p
 export default function Home() {
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const { user } = useAuth();
-  const [userData, setLocalUserData] = useState(getUserData());
+  const { user, loading } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingRequests, setPendingRequests] = useState(0);
   const [adminPopupOpen, setAdminPopupOpen] = useState(false);
   const [totalVisitors, setTotalVisitors] = useState(0);
   const [totalMembers, setTotalMembers] = useState(0);
+
+  // Clear stale localStorage if no authenticated user
+  useEffect(() => {
+    if (!loading && !user) {
+      localStorage.removeItem('isLoggedIn');
+      localStorage.removeItem('currentUser');
+    }
+  }, [user, loading]);
 
   // Load stats once on mount
   useEffect(() => {
@@ -169,10 +173,7 @@ export default function Home() {
     fetchStats();
   }, []);
 
-  useEffect(() => {
-    const data = getUserData();
-    setLocalUserData(data);
-  }, []);
+  
 
   // Check admin status
   useEffect(() => {
@@ -261,8 +262,8 @@ export default function Home() {
 
             
             {/* Login/Account */}
-            {localStorage.getItem('isLoggedIn') === 'true' ?
-            <UserDropdownMenu language={language} navigate={navigate} /> :
+            {user ?
+            <UserDropdownMenu language={language} navigate={navigate} user={user} /> :
 
             <Button
               variant="ghost"

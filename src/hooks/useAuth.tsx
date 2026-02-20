@@ -14,6 +14,21 @@ export function useAuth() {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Clean up stale localStorage when user signs out or session expires
+        if (event === 'SIGNED_OUT' || !session) {
+          localStorage.removeItem('isLoggedIn');
+          localStorage.removeItem('currentUser');
+          localStorage.removeItem('testd-user-data');
+          localStorage.removeItem('hiv-selftest-draft');
+        }
+
+        // Sync localStorage login state with actual auth
+        if (event === 'SIGNED_IN' && session?.user) {
+          localStorage.setItem('isLoggedIn', 'true');
+          const displayName = session.user.user_metadata?.display_name || session.user.email?.split('@')[0] || 'User';
+          localStorage.setItem('currentUser', displayName);
+        }
       }
     );
 
