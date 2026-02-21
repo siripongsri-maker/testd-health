@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { getTierByXP } from "@/components/RankingBoard";
-import { Crown, Medal, Trophy, ChevronRight, Zap } from "lucide-react";
+import { getSafeDisplayName } from "@/lib/safeDisplayName";
+import { Crown, Medal, Trophy, ChevronRight, Zap, ShieldAlert } from "lucide-react";
 
 interface RankedUser {
   id: string;
@@ -28,6 +29,7 @@ export function HomeLeaderboard() {
   }, [user]);
 
   const fetchLeaderboard = async () => {
+    // leaderboard_profiles view already excludes admins at DB level
     const { data } = await supabase
       .from('leaderboard_profiles')
       .select('id, display_name, xp, level, avatar_url')
@@ -42,7 +44,6 @@ export function HomeLeaderboard() {
           setCurrentUserRank(rank);
           setCurrentUserData(data[rank - 1]);
         } else {
-          // User not in top 5, fetch their rank separately
           const { data: allData } = await supabase
             .from('leaderboard_profiles')
             .select('id, display_name, xp, level, avatar_url')
@@ -79,21 +80,7 @@ export function HomeLeaderboard() {
     );
   }
 
-  if (loading || topUsers.length === 0) {
-    if (loading) {
-      return (
-        <div className="glass rounded-2xl p-4 animate-pulse">
-          <div className="h-5 bg-muted rounded w-1/3 mb-3" />
-          <div className="space-y-2">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="h-10 bg-muted rounded-xl" />
-            ))}
-          </div>
-        </div>
-      );
-    }
-    return null;
-  }
+  if (topUsers.length === 0) return null;
 
   return (
     <button
@@ -119,6 +106,11 @@ export function HomeLeaderboard() {
           const tier = getTierByXP(u.xp || 0);
           const TierIcon = tier.icon;
           const isCurrentUser = user?.id === u.id;
+          const safeName = getSafeDisplayName(
+            u.display_name,
+            u.id || '',
+            language === 'th' ? 'ผู้ใช้' : 'User'
+          );
           return (
             <div
               key={u.id}
@@ -128,7 +120,6 @@ export function HomeLeaderboard() {
                   : 'bg-muted/30'
               }`}
             >
-              {/* Rank */}
               <div className="w-6 flex justify-center shrink-0">
                 {getRankIcon(i) || (
                   <span className="text-xs font-bold text-muted-foreground">
@@ -136,25 +127,19 @@ export function HomeLeaderboard() {
                   </span>
                 )}
               </div>
-
-              {/* Tier badge */}
               <div className={`h-7 w-7 shrink-0 rounded-full ${tier.bgColor} ${tier.borderColor} border flex items-center justify-center`}>
                 <TierIcon className={`h-3.5 w-3.5 ${tier.color}`} />
               </div>
-
-              {/* Name */}
               <span className={`flex-1 text-sm font-medium truncate ${
                 isCurrentUser ? 'text-primary' : 'text-foreground'
               }`}>
-                {u.display_name || (language === 'th' ? 'ผู้ใช้' : 'User')}
+                {safeName}
                 {isCurrentUser && (
                   <span className="ml-1 text-[10px] text-primary/70">
                     ({language === 'th' ? 'คุณ' : 'You'})
                   </span>
                 )}
               </span>
-
-              {/* XP */}
               <div className="flex items-center gap-1 shrink-0">
                 <Zap className="h-3 w-3 text-amber-500" />
                 <span className="text-xs font-bold text-foreground">
@@ -183,7 +168,7 @@ export function HomeLeaderboard() {
               })()}
             </div>
             <span className="flex-1 text-sm font-medium truncate text-primary">
-              {currentUserData.display_name || (language === 'th' ? 'คุณ' : 'You')}
+              {getSafeDisplayName(currentUserData.display_name, currentUserData.id || '', language === 'th' ? 'คุณ' : 'You')}
             </span>
             <div className="flex items-center gap-1 shrink-0">
               <Zap className="h-3 w-3 text-amber-500" />
@@ -193,8 +178,15 @@ export function HomeLeaderboard() {
         </div>
       )}
 
-      {/* CTA */}
-      <p className="text-[11px] text-center text-muted-foreground mt-2.5">
+      {/* Privacy notice */}
+      <p className="text-[10px] text-center text-muted-foreground mt-2">
+        <ShieldAlert className="inline h-3 w-3 mr-0.5 -mt-0.5" />
+        {language === 'th'
+          ? 'เพื่อความเป็นส่วนตัว ระบบจะแสดงเฉพาะชื่อผู้ใช้หรือชื่อเล่นเท่านั้น'
+          : 'For privacy, only usernames or nicknames are displayed.'}
+      </p>
+
+      <p className="text-[11px] text-center text-muted-foreground mt-1">
         {language === 'th' ? 'แตะเพื่อดูอันดับทั้งหมด →' : 'Tap to view full rankings →'}
       </p>
     </button>
