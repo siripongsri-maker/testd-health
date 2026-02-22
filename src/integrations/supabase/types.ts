@@ -128,6 +128,110 @@ export type Database = {
         }
         Relationships: []
       }
+      appointment_logs: {
+        Row: {
+          action: string
+          appointment_id: string
+          created_at: string
+          details: string | null
+          id: string
+          performed_by: string | null
+        }
+        Insert: {
+          action: string
+          appointment_id: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          performed_by?: string | null
+        }
+        Update: {
+          action?: string
+          appointment_id?: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          performed_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_logs_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      appointments: {
+        Row: {
+          appointment_date: string
+          attended_by: string | null
+          branch_id: string
+          cancellation_reason: string | null
+          cancelled_at: string | null
+          completed_at: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          service_id: string
+          staff_notes: string | null
+          start_time: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          appointment_date: string
+          attended_by?: string | null
+          branch_id: string
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          service_id: string
+          staff_notes?: string | null
+          start_time: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          appointment_date?: string
+          attended_by?: string | null
+          branch_id?: string
+          cancellation_reason?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          service_id?: string
+          staff_notes?: string | null
+          start_time?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "booking_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       article_comments: {
         Row: {
           article_id: string
@@ -311,6 +415,108 @@ export type Database = {
           display_order?: number
           icon?: string
           id?: string
+          name_en?: string
+          name_th?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      booking_branches: {
+        Row: {
+          address_en: string | null
+          address_th: string | null
+          close_time: string
+          counselor_count: number
+          created_at: string
+          id: string
+          is_active: boolean
+          name_en: string
+          name_th: string
+          open_days: number[]
+          open_time: string
+          phone: string | null
+          slot_duration_minutes: number
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          address_en?: string | null
+          address_th?: string | null
+          close_time?: string
+          counselor_count?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name_en: string
+          name_th: string
+          open_days?: number[]
+          open_time?: string
+          phone?: string | null
+          slot_duration_minutes?: number
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          address_en?: string | null
+          address_th?: string | null
+          close_time?: string
+          counselor_count?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name_en?: string
+          name_th?: string
+          open_days?: number[]
+          open_time?: string
+          phone?: string | null
+          slot_duration_minutes?: number
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      booking_services: {
+        Row: {
+          created_at: string
+          description_en: string | null
+          description_th: string | null
+          display_order: number
+          external_price_url: string | null
+          icon: string
+          id: string
+          is_active: boolean
+          is_free_global_fund: boolean
+          is_free_thai: boolean
+          name_en: string
+          name_th: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          description_en?: string | null
+          description_th?: string | null
+          display_order?: number
+          external_price_url?: string | null
+          icon?: string
+          id?: string
+          is_active?: boolean
+          is_free_global_fund?: boolean
+          is_free_thai?: boolean
+          name_en: string
+          name_th: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          description_en?: string | null
+          description_th?: string | null
+          display_order?: number
+          external_price_url?: string | null
+          icon?: string
+          id?: string
+          is_active?: boolean
+          is_free_global_fund?: boolean
+          is_free_thai?: boolean
           name_en?: string
           name_th?: string
           slug?: string
@@ -1779,6 +1985,10 @@ export type Database = {
       }
       complete_survey: {
         Args: { p_session_id?: string; p_survey_id: string }
+        Returns: number
+      }
+      count_booked_slots: {
+        Args: { p_branch_id: string; p_date: string; p_time: string }
         Returns: number
       }
       generate_order_code: { Args: never; Returns: string }
