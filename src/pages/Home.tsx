@@ -216,8 +216,7 @@ export default function Home() {
     icon: <Calendar className="h-full w-full" strokeWidth={1.5} />,
     titleTh: "จองตรวจ",
     titleEn: "BOOK APPOINTMENT",
-    path: "https://zerva.app/swing_x_hornet_th",
-    external: true
+    path: "/booking"
   },
   {
     icon: <ClipboardList className="h-full w-full" strokeWidth={1.5} />,

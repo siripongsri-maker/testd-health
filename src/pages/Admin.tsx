@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { AdminLayout } from "@/components/AdminLayout";
 import { useLanguage } from "@/lib/i18n";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, BarChart3, FileText, Loader2, LayoutDashboard, Bell, Users, Building2, ClipboardList, FileUp, UserPlus } from "lucide-react";
+import { Package, BarChart3, FileText, Loader2, LayoutDashboard, Bell, Users, Building2, ClipboardList, FileUp, UserPlus, CalendarDays } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -21,6 +21,7 @@ const AdminBranchStaffContent = lazy(() => import("@/components/admin/AdminBranc
 const AdminSurveysContent = lazy(() => import("@/components/admin/AdminSurveysContent"));
 const AdminImportContent = lazy(() => import("@/components/admin/AdminImportContent"));
 const AdminQuickRegister = lazy(() => import("@/components/admin/AdminQuickRegister"));
+const AdminBookingContent = lazy(() => import("@/components/admin/AdminBookingContent"));
 
 const TabLoader = () => (
   <div className="flex items-center justify-center h-64">
@@ -127,8 +128,8 @@ export default function Admin() {
   // Define which tabs are visible based on role
   const canAccessTab = (tab: string) => {
     if (isAdmin) return true;
-    // Moderators can access dashboard, kit-orders, and quick-register tabs
-    return tab === "dashboard" || tab === "kit-orders" || tab === "quick-register";
+    // Moderators can access dashboard, kit-orders, quick-register, and bookings tabs
+    return tab === "dashboard" || tab === "kit-orders" || tab === "quick-register" || tab === "bookings";
   };
 
   return (
@@ -144,7 +145,7 @@ export default function Admin() {
         )}
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className={`w-full mb-4 grid h-auto ${isAdmin ? 'grid-cols-10' : 'grid-cols-3'}`}>
+          <TabsList className={`w-full mb-4 grid h-auto ${isAdmin ? 'grid-cols-11' : 'grid-cols-4'}`}>
             {canAccessTab("dashboard") && (
               <TabsTrigger value="dashboard" className="flex items-center gap-2 py-3">
                 <LayoutDashboard className="h-4 w-4" />
@@ -220,6 +221,14 @@ export default function Admin() {
                 <FileUp className="h-4 w-4" />
                 <span className="hidden md:inline">
                   {language === 'th' ? 'นำเข้า' : 'Import'}
+                </span>
+              </TabsTrigger>
+            )}
+            {canAccessTab("bookings") && (
+              <TabsTrigger value="bookings" className="flex items-center gap-2 py-3">
+                <CalendarDays className="h-4 w-4" />
+                <span className="hidden md:inline">
+                  {language === 'th' ? 'นัดหมาย' : 'Bookings'}
                 </span>
               </TabsTrigger>
             )}
@@ -304,6 +313,14 @@ export default function Admin() {
             <TabsContent value="import" className="mt-0">
               <Suspense fallback={<TabLoader />}>
                 <AdminImportContent />
+              </Suspense>
+            </TabsContent>
+          )}
+
+          {canAccessTab("bookings") && (
+            <TabsContent value="bookings" className="mt-0">
+              <Suspense fallback={<TabLoader />}>
+                <AdminBookingContent userBranch={userBranch} />
               </Suspense>
             </TabsContent>
           )}
