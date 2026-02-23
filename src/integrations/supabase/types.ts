@@ -163,6 +163,42 @@ export type Database = {
           },
         ]
       }
+      appointment_services: {
+        Row: {
+          appointment_id: string
+          created_at: string
+          id: string
+          service_id: string
+        }
+        Insert: {
+          appointment_id: string
+          created_at?: string
+          id?: string
+          service_id: string
+        }
+        Update: {
+          appointment_id?: string
+          created_at?: string
+          id?: string
+          service_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_services_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointment_services_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "booking_services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointments: {
         Row: {
           appointment_date: string
@@ -171,6 +207,7 @@ export type Database = {
           cancellation_reason: string | null
           cancelled_at: string | null
           completed_at: string | null
+          contact_email: string | null
           created_at: string
           id: string
           notes: string | null
@@ -188,6 +225,7 @@ export type Database = {
           cancellation_reason?: string | null
           cancelled_at?: string | null
           completed_at?: string | null
+          contact_email?: string | null
           created_at?: string
           id?: string
           notes?: string | null
@@ -205,6 +243,7 @@ export type Database = {
           cancellation_reason?: string | null
           cancelled_at?: string | null
           completed_at?: string | null
+          contact_email?: string | null
           created_at?: string
           id?: string
           notes?: string | null
@@ -486,6 +525,7 @@ export type Database = {
           id: string
           is_active: boolean
           is_free_global_fund: boolean
+          is_free_pep_thai: boolean
           is_free_thai: boolean
           name_en: string
           name_th: string
@@ -501,6 +541,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_free_global_fund?: boolean
+          is_free_pep_thai?: boolean
           is_free_thai?: boolean
           name_en: string
           name_th: string
@@ -516,6 +557,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_free_global_fund?: boolean
+          is_free_pep_thai?: boolean
           is_free_thai?: boolean
           name_en?: string
           name_th?: string
@@ -1014,6 +1056,41 @@ export type Database = {
           },
         ]
       }
+      notification_logs: {
+        Row: {
+          appointment_id: string | null
+          created_at: string
+          email_masked: string | null
+          id: string
+          notification_type: string
+          status: string
+        }
+        Insert: {
+          appointment_id?: string | null
+          created_at?: string
+          email_masked?: string | null
+          id?: string
+          notification_type: string
+          status?: string
+        }
+        Update: {
+          appointment_id?: string | null
+          created_at?: string
+          email_masked?: string | null
+          id?: string
+          notification_type?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_logs_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_reads: {
         Row: {
           dismissed: boolean | null
@@ -1253,6 +1330,39 @@ export type Database = {
         }
         Relationships: []
       }
+      risk_assessment_questions: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          is_active: boolean
+          options: Json
+          question_en: string
+          question_th: string
+          recommended_services: string[]
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          options?: Json
+          question_en: string
+          question_th: string
+          recommended_services?: string[]
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          options?: Json
+          question_en?: string
+          question_th?: string
+          recommended_services?: string[]
+        }
+        Relationships: []
+      }
       self_care_reminders: {
         Row: {
           created_at: string | null
@@ -1354,6 +1464,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      staff_profiles: {
+        Row: {
+          branch_id: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          name_en: string
+          name_th: string
+          role: string
+          user_id: string | null
+        }
+        Insert: {
+          branch_id?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name_en: string
+          name_th: string
+          role?: string
+          user_id?: string | null
+        }
+        Update: {
+          branch_id?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name_en?: string
+          name_th?: string
+          role?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_profiles_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       survey_answers: {
         Row: {

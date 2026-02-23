@@ -12,7 +12,13 @@ import {
   Calendar, Clock, MapPin, Plus, Loader2, CheckCircle2,
   XCircle, AlertCircle, ChevronDown, ChevronUp, FileText
 } from 'lucide-react';
-import { format, isPast, parseISO } from 'date-fns';
+import { format, parseISO } from 'date-fns';
+
+interface ServiceInfo {
+  name_th: string;
+  name_en: string;
+  icon: string;
+}
 
 interface AppointmentRow {
   id: string;
@@ -47,12 +53,14 @@ export default function MyAppointments() {
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  // Map appointment_id -> all services from join table
+  const [appointmentServicesMap, setAppointmentServicesMap] = useState<Record<string, ServiceInfo[]>>({});
 
   useEffect(() => {
     if (!user) return;
     const load = async () => {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('appointments')
         .select(`
           *,
@@ -63,7 +71,28 @@ export default function MyAppointments() {
         .order('appointment_date', { ascending: false })
         .order('start_time', { ascending: false });
 
-      if (data) setAppointments(data as unknown as AppointmentRow[]);
+      const rows = (data || []) as unknown as AppointmentRow[];
+      setAppointments(rows);
+
+      // Load multi-service info from appointment_services
+      if (rows.length > 0) {
+        const ids = rows.map(r => r.id);
+        const { data: asData } = await supabase
+          .from('appointment_services')
+          .select('appointment_id, service_id, booking_services(name_th, name_en, icon)')
+          .in('appointment_id', ids);
+
+        const map: Record<string, ServiceInfo[]> = {};
+        (asData || []).forEach((row: any) => {
+          const aid = row.appointment_id;
+          if (!map[aid]) map[aid] = [];
+          if (row.booking_services) {
+            map[aid].push(row.booking_services);
+          }
+        });
+        setAppointmentServicesMap(map);
+      }
+
       setLoading(false);
     };
     load();
@@ -85,7 +114,6 @@ export default function MyAppointments() {
 
       if (error) throw error;
 
-      // Log
       await supabase.from('appointment_logs').insert({
         appointment_id: appointmentId,
         action: 'cancelled',
@@ -137,9 +165,10 @@ export default function MyAppointments() {
 
   const renderAppointment = (apt: AppointmentRow) => {
     const status = STATUS_CONFIG[apt.status] || STATUS_CONFIG.booked;
-    const StatusIcon = status.icon;
     const isExpanded = expandedId === apt.id;
     const canCancel = apt.status === 'booked' || apt.status === 'confirmed';
+    const multiServices = appointmentServicesMap[apt.id] || [];
+    const displayServices = multiServices.length > 0 ? multiServices : (apt.booking_services ? [apt.booking_services] : []);
 
     return (
       <Card key={apt.id} className="overflow-hidden">
@@ -149,10 +178,10 @@ export default function MyAppointments() {
         >
           <div className="flex items-center justify-between">
             <div className="flex items-start gap-3 flex-1 min-w-0">
-              <span className="text-2xl">{apt.booking_services?.icon || '🩺'}</span>
+              <span className="text-2xl">{displayServices[0]?.icon || '🩺'}</span>
               <div className="min-w-0">
                 <h3 className="font-bold text-foreground text-sm truncate">
-                  {language === 'th' ? apt.booking_services?.name_th : apt.booking_services?.name_en}
+                  {displayServices.map(s => language === 'th' ? s.name_th : s.name_en).join(', ')}
                 </h3>
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
                   <MapPin className="h-3 w-3 shrink-0" />
@@ -183,6 +212,18 @@ export default function MyAppointments() {
 
         {isExpanded && (
           <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
+            {/* Show all services */}
+            {displayServices.length > 1 && (
+              <div className="text-xs text-muted-foreground">
+                <span className="font-medium">{language === 'th' ? 'บริการ: ' : 'Services: '}</span>
+                {displayServices.map((s, i) => (
+                  <span key={i}>
+                    {s.icon} {language === 'th' ? s.name_th : s.name_en}
+                    {i < displayServices.length - 1 ? ', ' : ''}
+                  </span>
+                ))}
+              </div>
+            )}
             {apt.notes && (
               <div className="text-xs text-muted-foreground">
                 <span className="font-medium">{language === 'th' ? 'หมายเหตุ: ' : 'Notes: '}</span>
@@ -241,7 +282,6 @@ export default function MyAppointments() {
             </Button>
           </div>
 
-          {/* Upcoming */}
           {upcoming.length > 0 && (
             <div className="space-y-3">
               <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider">
@@ -251,7 +291,6 @@ export default function MyAppointments() {
             </div>
           )}
 
-          {/* Past */}
           {past.length > 0 && (
             <div className="space-y-3">
               <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
@@ -277,7 +316,6 @@ export default function MyAppointments() {
             </div>
           )}
 
-          {/* Link to personal info */}
           <Card className="p-4 bg-primary/5 border-primary/20">
             <button onClick={() => navigate('/personal-info')} className="flex items-center gap-3 w-full text-left">
               <FileText className="h-5 w-5 text-primary shrink-0" />
