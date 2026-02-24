@@ -1,123 +1,189 @@
 
 
-# Self Check-in / Check-out Flow for My Appointments
+# Ops Bundle: Staff Profiles, Today Board, No-Show Job, Capacity Lock, Indexes
 
 ## Overview
-Add client-driven check-in and check-out buttons directly on each appointment card in `/my-appointments`. Staff verifies the referral code visually -- the client taps the buttons themselves. No new pages needed.
+This is a large cohesive change set covering 6 areas: staff profile restructuring, branch-scoped RLS, performance indexes, atomic capacity-locked booking, auto no-show cleanup, and a new Branch Today Board admin UI.
 
-## Database Changes (1 migration)
+## Important Finding: Existing Architecture
 
-### New columns on `appointments`
-- `checked_out_at` (timestamptz, nullable)
-- `duration_minutes` (integer, nullable)
-- `rating` (integer 1-5, nullable)
-- `feedback` (text, nullable)
+The project already has:
+- A `staff_profiles` table (id, user_id, branch_id, name_th, name_en, role, is_active, created_at) -- but `role` defaults to `'counselor'`, not the requested role enum
+- A `staff_branch_assignments` table (user_id, branch) used for RLS branch scoping
+- Existing RLS policies on appointments, appointment_services, appointment_logs using `staff_branch_assignments` for branch scoping
+- Several indexes already exist: `idx_appointments_slot_lookup` (branch_id, date, time, status), `idx_appointments_user` (user_id, date), unique referral_code index
+- An `award_xp_to_user` RPC that is **broken** -- it caps XP at 100 and blocks self-awards, yet the booking page calls it with 1000 XP to self. This needs fixing as part of this bundle.
 
-Note: `arrived_at` already exists.
+## Part A: Database Migration -- Staff Profiles + Roles
 
-### Update `update_appointment_status` RPC
-Currently users can only set status to `cancelled`. Expand to allow:
-- `arrived` -- only if owner, status is `booked` or `confirmed`, and within time window (2 hours before to 6 hours after `appointment_date + start_time`)
-- `checked_out` -- only if owner, status is `arrived`, and `arrived_at` is set
+### Changes to `staff_profiles`
+- Add a `staff_role` column: `text NOT NULL DEFAULT 'branch_staff'` with a validation trigger ensuring value is in `('branch_staff', 'branch_admin', 'super_admin')`.
+- Keep the existing `role` column (counselor/medical_reg/admin) for job function; `staff_role` is for access control.
 
-When transitioning to `arrived`: set `arrived_at = now()`.
-When transitioning to `checked_out`: set `checked_out_at = now()`, compute `duration_minutes`.
+### Helper Functions
+1. **`current_staff_profile()`**: Returns staff_profiles row for auth.uid() where is_active=true, or NULL.
+2. **`is_booking_staff(p_branch_id uuid)`**: Returns true if current user's staff_profile is active AND branch_id matches AND staff_role in ('branch_staff','branch_admin','super_admin').
+3. **`is_booking_branch_admin(p_branch_id uuid)`**: True if staff_role='branch_admin' AND branch matches, OR staff_role='super_admin'.
+4. **`is_booking_super_admin()`**: True if staff_role='super_admin'.
 
-### New RPC: `self_checkout_appointment`
-Separate function for check-out that also accepts `p_rating` (int, nullable) and `p_feedback` (text, nullable), and validates referral code confirmation (`p_confirm_code`). This keeps checkout logic clean and secure.
+These complement the existing `has_role()` and `is_branch_staff()` functions which use `user_roles` and `staff_branch_assignments` tables respectively. The new functions use `staff_profiles` directly.
 
-- Validates `p_confirm_code` matches the appointment's `referral_code`
-- Sets status to `checked_out`, `checked_out_at = now()`
-- Computes `duration_minutes = EXTRACT(EPOCH FROM (now() - arrived_at)) / 60`
-- Saves rating/feedback if provided
-- Logs `self_checkout` to `appointment_logs`
+## Part B: RLS Policy Updates
 
-### New RPC: `self_checkin_appointment`
-- Validates ownership (`user_id = auth.uid()`)
-- Validates status is `booked` or `confirmed`
-- Validates time window: appointment datetime is within -2h to +6h of now
-- Sets `status = 'arrived'`, `arrived_at = now()`
-- Logs `self_checkin` to `appointment_logs`
+### Approach
+Rather than replacing existing working policies (which use `staff_branch_assignments`), we add new PERMISSIVE policies that also allow access via `staff_profiles` for the new role model. Existing policies remain for backward compatibility.
 
-## Frontend Changes
+### appointments
+- Keep all existing policies (they work)
+- No changes needed -- existing branch staff + admin + user policies cover the requirements
 
-### 1. Update `FullAppointment` type (`src/lib/appointments.ts`)
-Add fields: `arrived_at`, `checked_out_at`, `duration_minutes`, `rating`, `feedback`.
+### appointment_services
+- Keep existing policies (they work with RESTRICTIVE which is fine since the existing `Users can view own` + `Staff can view branch` + `Admin ALL` cover all needs)
 
-### 2. Update `STATUS_CONFIG` in `MyAppointments.tsx`
-Add new statuses:
-- `arrived` -- "เช็คอินแล้ว" / "Checked In" (amber badge)
-- `checked_out` -- "เสร็จสิ้น" / "Completed" (green badge)
+### appointment_logs
+- Already has correct policies: admin ALL, staff branch view+insert, user view own
 
-### 3. Update appointment grouping
-- "Upcoming" includes: `booked`, `confirmed`, `arrived`
-- "History" includes: everything else
+**Net result**: No RLS changes needed. The existing policy set already correctly implements branch-scoped access.
 
-### 4. Rework `renderAppointment` in `MyAppointments.tsx`
-Based on status, show different action sections:
+## Part C: Performance Indexes
 
-**Status = `booked` or `confirmed`:**
-- Always-visible referral code block (large, prominent)
-- Helper text: "เมื่อมาถึงคลินิก ให้กดเช็คอิน และแสดงรหัสนี้ให้เจ้าหน้าที่"
-- Big green "เช็คอิน (Check-in)" button
-- Cancel button (existing)
-
-**Status = `arrived`:**
-- Badge: "เช็คอินแล้ว - กำลังรอ (Checked in - Waiting)"
-- Small note: "หากมีปัญหา กรุณาติดต่อจุดลงทะเบียน"
-- "เช็คเอาท์ (Check-out)" button that opens a confirmation dialog
-
-**Status = `checked_out`:**
-- Badge: "เสร็จสิ้น (Completed)"
-- Duration display if available
-- Rating stars if submitted
-- No action buttons
-
-### 5. Check-out Confirmation Dialog
-When the user taps "เช็คเอาท์":
-1. Show a dialog/drawer with appointment summary (branch, date/time, services, referral code)
-2. Input field: "กรุณากรอกรหัสนัดหมายเพื่อยืนยัน" -- user types their referral code
-3. Optional: 1-5 star rating with emoji faces
-4. Optional: anonymous feedback textarea
-5. "ยืนยันเช็คเอาท์" button (disabled until code matches)
-6. On success: toast "ขอบคุณที่ใช้บริการ" with purple heart emoji
-
-### 6. Check-in handler
-Call `self_checkin_appointment` RPC, optimistic UI update, toast: "เช็คอินเรียบร้อยแล้ว กรุณารอเจ้าหน้าที่เรียก"
-
-## Technical Details
-
-### Migration SQL (summary)
-
+Add the following (some already exist and will be skipped):
 ```text
--- Add columns
-ALTER TABLE appointments
-  ADD COLUMN IF NOT EXISTS checked_out_at timestamptz,
-  ADD COLUMN IF NOT EXISTS duration_minutes integer,
-  ADD COLUMN IF NOT EXISTS rating integer,
-  ADD COLUMN IF NOT EXISTS feedback text;
+CREATE INDEX IF NOT EXISTS idx_appointments_branch_date_time 
+  ON appointments (branch_id, appointment_date, start_time);
+-- Already covered by idx_appointments_slot_lookup
 
--- Create self_checkin_appointment RPC
--- Validates: auth, ownership, status in (booked/confirmed), time window
--- Sets: status='arrived', arrived_at=now()
--- Logs: self_checkin
+CREATE INDEX IF NOT EXISTS idx_appointments_branch_status 
+  ON appointments (branch_id, status);
 
--- Create self_checkout_appointment RPC
--- Params: p_appointment_id, p_confirm_code, p_rating, p_feedback
--- Validates: auth, ownership, status='arrived', code match
--- Sets: status='checked_out', checked_out_at=now(), duration, rating, feedback
--- Logs: self_checkout
+CREATE INDEX IF NOT EXISTS idx_appointments_user_id 
+  ON appointments (user_id);
+-- Partially covered by idx_appointments_user (user_id, appointment_date)
+
+CREATE INDEX IF NOT EXISTS idx_appointments_branch_arrived 
+  ON appointments (branch_id, arrived_at) WHERE arrived_at IS NOT NULL;
+
+CREATE INDEX IF NOT EXISTS idx_appointments_branch_checked_out 
+  ON appointments (branch_id, checked_out_at) WHERE checked_out_at IS NOT NULL;
 ```
 
-### Files to create/modify
-1. **New migration SQL** -- columns + 2 RPC functions
-2. **`src/lib/appointments.ts`** -- update `FullAppointment` interface, add `selfCheckinRPC()` and `selfCheckoutRPC()` helper functions
-3. **`src/pages/MyAppointments.tsx`** -- main UI changes: new status badges, check-in button, check-out dialog with code confirmation + optional rating
+## Part D: Capacity Lock -- Atomic Booking RPC
 
-### Security
-- Both RPCs use `SECURITY DEFINER` with `auth.uid()` ownership check
-- Check-in is time-windowed to prevent abuse
-- Check-out requires referral code re-entry as a simple verification step
-- RLS on `appointments` already allows users to update their own rows
-- Rating is constrained 1-5 in the RPC
+### New RPC: `create_appointment_atomic`
+Parameters: `p_branch_id uuid, p_appointment_date date, p_start_time time, p_services uuid[], p_contact_email text DEFAULT NULL, p_user_id uuid DEFAULT NULL, p_notes text DEFAULT NULL`
+
+Logic:
+1. Acquire advisory lock: `pg_advisory_xact_lock(hashtext(p_branch_id::text || p_appointment_date::text || p_start_time::text))`
+2. Count existing non-cancelled appointments for this slot
+3. Get branch `counselor_count` as capacity
+4. If count >= capacity, raise exception `'slot_full'`
+5. If `p_user_id` is not null, check for duplicate booking (same user/branch/date/time)
+6. Insert appointment row (referral code generated by trigger)
+7. Insert appointment_services rows
+8. Insert appointment_logs entry
+9. Award XP if user is authenticated (via internal update, not the broken RPC)
+10. Return appointment_id and referral_code as jsonb
+
+### Fix `award_xp_to_user`
+- Remove the 100 XP cap (allow up to 1000)
+- Remove the self-award restriction (booking awards XP to self)
+- OR better: create a new `award_booking_xp(p_user_id uuid, p_amount integer)` SECURITY DEFINER function that the atomic booking RPC calls internally, bypassing the public restrictions.
+
+### Frontend Changes
+- Update `src/pages/Booking.tsx` to call `create_appointment_atomic` instead of direct inserts for logged-in users
+- Keep `create_anonymous_appointment` for guests (update it to also use advisory lock)
+
+## Part E: Auto No-Show Job
+
+### New RPC: `mark_no_show_expired`
+Parameters: `p_branch_id uuid DEFAULT NULL`
+- SECURITY DEFINER
+- Finds appointments where status in ('booked','confirmed'), appointment_datetime < now() - interval '6 hours', arrived_at IS NULL
+- Updates status to 'no_show'
+- Inserts appointment_logs with action='no_show_auto', performed_by=NULL, details='System auto no-show'
+- Returns count of affected rows
+
+### Edge Function: `auto-no-show`
+- Simple edge function that calls `mark_no_show_expired()` via service role
+- Scheduled via pg_cron to run every 15 minutes
+
+### Scheduling (pg_cron)
+```text
+cron.schedule('auto-no-show-cleanup', '*/15 * * * *', ...)
+```
+Calls the edge function endpoint with the anon key.
+
+## Part F: Frontend -- Branch Today Board
+
+### New Component: `src/components/admin/AdminTodayBoard.tsx`
+
+**Access Control:**
+- Check `staff_profiles` for the logged-in user
+- If `staff_role` in ('branch_staff', 'branch_admin'): auto-select their branch, lock selector
+- If `staff_role = 'super_admin'` or user has admin role: show branch dropdown
+
+**Data:**
+- Use a new RPC `get_branch_today_board(p_branch_id uuid, p_date date DEFAULT current_date)` that returns:
+  - `booked_today` count
+  - `arrived_waiting` count (arrived, not checked_out)
+  - `checked_out_today` count
+  - `no_show_today` count
+  - `avg_duration_minutes` (from checked_out today)
+
+**Lists (fetched via existing appointment queries):**
+- Waiting list: status='arrived', ordered by arrived_at asc
+- Upcoming list: status in ('booked','confirmed'), ordered by start_time asc
+- Completed list: status='checked_out', ordered by checked_out_at desc
+
+**UI:**
+- 4 counter cards at top (booked, waiting, completed, no-show)
+- Average duration stat
+- 3 tab lists: Waiting / Upcoming / Completed
+- Each row shows: referral code, time, services, status badge
+- Mobile-friendly card layout
+
+### Integration into Admin Page
+- Add a new "Today" tab in `src/pages/Admin.tsx`
+- Available to moderators (branch staff) and admins
+- Uses a clipboard/today icon
+
+## Files to Create/Modify
+
+### New Files
+1. `supabase/migrations/[timestamp]_ops_bundle.sql` -- all DB changes
+2. `supabase/functions/auto-no-show/index.ts` -- edge function for cron
+3. `src/components/admin/AdminTodayBoard.tsx` -- Today Board component
+
+### Modified Files
+4. `src/pages/Admin.tsx` -- add Today tab
+5. `src/pages/Booking.tsx` -- switch to `create_appointment_atomic` RPC
+6. `src/lib/appointments.ts` -- add helper for atomic booking RPC
+
+## Migration SQL Summary
+
+```text
+-- 1. Add staff_role to staff_profiles
+ALTER TABLE staff_profiles ADD COLUMN IF NOT EXISTS staff_role text NOT NULL DEFAULT 'branch_staff';
+-- Validation trigger for staff_role values
+
+-- 2. Helper functions: current_staff_profile, is_booking_staff, 
+--    is_booking_branch_admin, is_booking_super_admin
+
+-- 3. Performance indexes
+
+-- 4. create_appointment_atomic RPC with advisory locking
+
+-- 5. mark_no_show_expired RPC
+
+-- 6. get_branch_today_board RPC
+
+-- 7. Fix award_xp_to_user (raise cap to 1500, allow self-award)
+```
+
+## Security Considerations
+- All new RPCs use SECURITY DEFINER with auth.uid() checks
+- Advisory lock prevents race-condition double booking
+- No-show job uses service role key (edge function)
+- Staff profiles scoped to branch -- no cross-branch data leaks
+- Existing RLS policies remain intact
 
