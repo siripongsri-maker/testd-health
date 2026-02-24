@@ -18,6 +18,7 @@
     background: #fff;
   }
 
+  /* ... keep existing code (cover, h2, h3, h4, p, li, ul, ol styles - lines 21-74) */
   .cover {
     page-break-after: always;
     display: flex;
@@ -151,6 +152,54 @@
     body { font-size: 10pt; }
     .no-print { display: none; }
   }
+
+  /* ---------- Screenshot placeholders ---------- */
+  .screenshot-box {
+    border: 2px dashed #c4b5fd;
+    border-radius: 12px;
+    background: #f5f3ff;
+    padding: 16px;
+    margin: 14px 0;
+    text-align: center;
+    page-break-inside: avoid;
+  }
+  .screenshot-box img {
+    max-width: 100%;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+  }
+  .screenshot-box .caption {
+    font-size: 9pt;
+    color: #6d28d9;
+    margin-top: 6px;
+    font-style: italic;
+  }
+  .screenshot-box .placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    background: #ede9fe;
+    border-radius: 8px;
+    color: #7c3aed;
+    font-size: 11pt;
+    font-weight: 600;
+  }
+  .screenshot-box.wide .placeholder {
+    min-height: 160px;
+  }
+  .screenshot-instructions {
+    background: #fefce8;
+    border: 1px solid #fbbf24;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 16px 0;
+    font-size: 10pt;
+    page-break-inside: avoid;
+  }
+  .screenshot-instructions strong {
+    color: #92400e;
+  }
 </style>
 </head>
 <body>
@@ -159,24 +208,36 @@
 <div class="cover">
   <div class="badge">เอกสารภายใน — สำหรับเจ้าหน้าที่เท่านั้น</div>
   <h1>📋 ระบบนัดหมาย</h1>
-  <div class="subtitle">คู่มือฝึกอบรมเจ้าหน้าที่</div>
+  <div class="subtitle">คู่มือฝึกอบรมเจ้าหน้าที่<br>(ฉบับภาพประกอบ)</div>
   <p class="meta">
     แพลตฟอร์ม TestD Health<br>
-    เวอร์ชัน 1.0 — กุมภาพันธ์ 2569<br>
+    เวอร์ชัน 1.1 — กุมภาพันธ์ 2569<br>
     <br>
     4 สาขา: สีลม · สะพานควาย · เพชรเกษม · พัทยา
   </p>
+</div>
+
+<!-- ==================== คำแนะนำเรื่อง Screenshot ==================== -->
+<div class="screenshot-instructions no-print">
+  <strong>📸 คำแนะนำสำหรับผู้จัดทำเอกสาร:</strong><br>
+  เอกสารนี้มีกรอบสำหรับใส่ภาพหน้าจอจริงของระบบ วิธีเพิ่มภาพ:
+  <ol style="margin-top:6px; padding-left:20px;">
+    <li>ถ่ายภาพหน้าจอของแต่ละขั้นตอนจากแอปจริง (ใช้มือถือ หรือ Chrome DevTools)</li>
+    <li>บันทึกไฟล์ภาพไว้ในโฟลเดอร์ <code>docs/screenshots/</code></li>
+    <li>แทนที่ <code>&lt;div class="placeholder"&gt;...&lt;/div&gt;</code> ด้วย <code>&lt;img src="screenshots/ชื่อไฟล์.png" alt="คำอธิบาย"&gt;</code></li>
+  </ol>
+  <strong>ชื่อไฟล์ที่แนะนำ:</strong> step1-branch.png, step2-service.png, step3-datetime.png, step4-confirm.png, step5-admin-dashboard.png, step6-timeline.png, step7-walkin.png
 </div>
 
 <!-- ==================== สารบัญ ==================== -->
 <h2>📑 สารบัญ</h2>
 <ol style="font-size:11pt; line-height:2;">
   <li>ภาพรวมระบบ</li>
-  <li>ขั้นตอนการจองสำหรับผู้ใช้บริการ</li>
+  <li>ขั้นตอนการจองสำหรับผู้ใช้บริการ (พร้อมภาพ)</li>
   <li>การจองแบบไม่ต้องสมัครสมาชิก (Guest Booking)</li>
   <li>รหัสอ้างอิง (Referral Code)</li>
-  <li>แดชบอร์ดเจ้าหน้าที่ — งานประจำวัน</li>
-  <li>การจัดการ Walk-in</li>
+  <li>แดชบอร์ดเจ้าหน้าที่ — งานประจำวัน (พร้อมภาพ)</li>
+  <li>การจัดการ Walk-in (พร้อมภาพ)</li>
   <li>สถานะนัดหมาย</li>
   <li>กฎเรื่องค่าบริการ</li>
   <li>ตั้งค่าสาขา</li>
@@ -207,28 +268,33 @@
   <tr><td>พัทยา</td><td><code>pattaya</code></td><td>ชลบุรี</td></tr>
 </table>
 
-<!-- ==================== 2. ขั้นตอนการจอง ==================== -->
+<!-- ==================== 2. ขั้นตอนการจอง (พร้อมภาพ) ==================== -->
 <div class="page-break"></div>
 <h2>2. ขั้นตอนการจองสำหรับผู้ใช้บริการ</h2>
 <p>นี่คือสิ่งที่ผู้ใช้บริการเห็นเมื่อเข้าหน้า <strong>/booking</strong>:</p>
 
-<div class="step-grid">
-  <div class="step-card">
-    <p><span class="num">1</span> <strong>เลือกสาขา</strong></p>
-    <p>เลือกจาก 4 สาขา แต่ละสาขาแสดงรูปภาพ คะแนน Google Maps ที่อยู่ และเวลาเปิดทำการ</p>
-  </div>
-  <div class="step-card">
-    <p><span class="num">2</span> <strong>เลือกบริการ</strong></p>
-    <p>เลือกได้หลายบริการ (ตรวจ HIV, PrEP, PEP, STI ฯลฯ) ระบบแสดงสิทธิ์ค่าบริการอัตโนมัติ</p>
-  </div>
-  <div class="step-card">
-    <p><span class="num">3</span> <strong>เลือกวันและเวลา</strong></p>
-    <p>ปฏิทิน + ช่วงเวลาแสดงความหนาแน่น: 🟢 น้อย, 🟡 ปานกลาง, 🔴 มาก</p>
-  </div>
-  <div class="step-card">
-    <p><span class="num">4</span> <strong>ยืนยันและรับรหัส</strong></p>
-    <p>จองสำเร็จ → แสดงรหัสอ้างอิง ระบบแนะนำให้แคปหน้าจอไว้สำหรับเช็คอิน</p>
-  </div>
+<h3>ขั้นตอนที่ 1: เลือกสาขา</h3>
+<p>ผู้ใช้เลือกจาก 4 สาขา แต่ละสาขาแสดงรูปภาพ คะแนน Google Maps ที่อยู่ และเวลาเปิดทำการ</p>
+<div class="screenshot-box">
+  <!-- แทนที่ด้วย: <img src="screenshots/step1-branch.png" alt="หน้าเลือกสาขา"> -->
+  <div class="placeholder">📱 ภาพหน้าจอ: หน้าเลือกสาขา<br><small>แสดงการ์ดสาขา 4 สาขา พร้อมรูป คะแนน Google และเวลาเปิด</small></div>
+  <div class="caption">หน้าจอเลือกสาขา — ผู้ใช้เห็นการ์ดสาขาพร้อมรายละเอียด</div>
+</div>
+
+<h3>ขั้นตอนที่ 2: เลือกบริการ</h3>
+<p>เลือกได้หลายบริการ (ตรวจ HIV, PrEP, PEP, STI ฯลฯ) ระบบแสดงสิทธิ์ค่าบริการอัตโนมัติ เช่น "ฟรี คนไทย (สปสช.)" หรือ "ฟรี กองทุนโลก (CLVM)"</p>
+<div class="screenshot-box">
+  <!-- แทนที่ด้วย: <img src="screenshots/step2-service.png" alt="หน้าเลือกบริการ"> -->
+  <div class="placeholder">📱 ภาพหน้าจอ: หน้าเลือกบริการ<br><small>แสดงรายการบริการพร้อม checkbox และป้ายสิทธิ์ฟรี</small></div>
+  <div class="caption">หน้าจอเลือกบริการ — ติ๊กเลือกได้หลายรายการ พร้อมแสดงสิทธิ์ค่าบริการ</div>
+</div>
+
+<h3>ขั้นตอนที่ 3: เลือกวันและเวลา</h3>
+<p>ปฏิทิน + ช่วงเวลาแสดงความหนาแน่น: 🟢 ว่างมาก (สีเขียว), 🟡 ปานกลาง (สีเหลือง), 🔴 หนาแน่น (สีแดง)</p>
+<div class="screenshot-box">
+  <!-- แทนที่ด้วย: <img src="screenshots/step3-datetime.png" alt="หน้าเลือกวันและเวลา"> -->
+  <div class="placeholder">📱 ภาพหน้าจอ: หน้าเลือกวันและเวลา<br><small>แสดงปฏิทินเลือกวัน และช่วงเวลา 2 ชั่วโมง พร้อมสี density</small></div>
+  <div class="caption">หน้าจอเลือกวัน/เวลา — แสดงความหนาแน่นแต่ละช่วงเวลาด้วยสี</div>
 </div>
 
 <div class="callout">
@@ -236,7 +302,16 @@
   หากผู้ใช้เลือกช่วงเวลาที่แออัด ระบบจะแนะนำช่วงเวลาอื่นที่ว่างกว่าโดยอัตโนมัติ เพื่อกระจายภาระงานตลอดวัน
 </div>
 
+<h3>ขั้นตอนที่ 4: ยืนยันและรับรหัส</h3>
+<p>จองสำเร็จ → แสดงรหัสอ้างอิง (เช่น <code>SWG-A3K9X2</code>) ระบบแนะนำให้แคปหน้าจอไว้สำหรับเช็คอิน</p>
+<div class="screenshot-box">
+  <!-- แทนที่ด้วย: <img src="screenshots/step4-confirm.png" alt="หน้ายืนยันการจอง"> -->
+  <div class="placeholder">📱 ภาพหน้าจอ: หน้ายืนยันการจอง<br><small>แสดงรหัสอ้างอิง SWG-XXXXXX และสรุปรายละเอียดนัดหมาย</small></div>
+  <div class="caption">หน้าจอยืนยัน — ผู้ใช้ควรแคปหน้าจอนี้เพื่อแสดงที่สาขา</div>
+</div>
+
 <!-- ==================== 3. การจองแบบ Guest ==================== -->
+<div class="page-break"></div>
 <h2>3. การจองแบบไม่ต้องสมัครสมาชิก (Guest Booking)</h2>
 <p>ผู้ใช้บริการ<strong>ไม่จำเป็นต้องสมัครสมาชิก</strong>ก็จองได้ ต้องการแค่<strong>อีเมล</strong>เท่านั้น</p>
 
@@ -282,7 +357,7 @@
   ตรวจสอบให้แน่ใจว่ารหัสอ้างอิงตรงกับผู้ใช้บริการ ขอให้แสดงหน้าจอที่แคปไว้หรืออีเมลยืนยัน
 </div>
 
-<!-- ==================== 5. แดชบอร์ดเจ้าหน้าที่ ==================== -->
+<!-- ==================== 5. แดชบอร์ดเจ้าหน้าที่ (พร้อมภาพ) ==================== -->
 <h2>5. แดชบอร์ดเจ้าหน้าที่</h2>
 <p>เข้าถึงผ่าน: <strong>Admin → แท็บการจอง</strong> (ต้องมีสิทธิ์ admin หรือ staff)</p>
 
@@ -295,7 +370,12 @@
   <tr><td><strong>กลับมาใช้บริการ</strong></td><td>ผู้ใช้ที่เคยมาก่อนหน้านี้</td></tr>
   <tr><td><strong>ยกเลิก</strong></td><td>นัดหมายที่ถูกยกเลิกในวันนี้</td></tr>
 </table>
-<p>แต่ละสาขาจะแสดง<strong>ตัวบ่งชี้ภาระงาน</strong>เพื่อให้เห็นว่าสาขาไหนยุ่งที่สุด</p>
+
+<div class="screenshot-box wide">
+  <!-- แทนที่ด้วย: <img src="screenshots/step5-admin-dashboard.png" alt="Bento Dashboard"> -->
+  <div class="placeholder">🖥️ ภาพหน้าจอ: Admin Bento Dashboard<br><small>แสดงการ์ดสรุป 4 สาขา พร้อมตัวเลขนัดหมายและตัวบ่งชี้ภาระงาน</small></div>
+  <div class="caption">Bento Dashboard — ภาพรวมนัดหมายรายวันของทุกสาขา</div>
+</div>
 
 <h3>5.2 ไทม์ไลน์สาขา</h3>
 <ul>
@@ -303,6 +383,12 @@
   <li>แต่ละนัดหมายแสดงเป็นแถบพร้อม<strong>ป้ายสถานะ</strong>และ<strong>ไอคอนบริการ</strong></li>
   <li>คลิกแถบใดก็ได้ → เปิด<strong>ลิ้นชักรายละเอียดนัดหมาย</strong></li>
 </ul>
+
+<div class="screenshot-box wide">
+  <!-- แทนที่ด้วย: <img src="screenshots/step6-timeline.png" alt="ไทม์ไลน์สาขา"> -->
+  <div class="placeholder">🖥️ ภาพหน้าจอ: ไทม์ไลน์สาขา<br><small>แสดงรายการนัดหมายเรียงตามเวลา พร้อมป้ายสถานะสี และช่องค้นหารหัส</small></div>
+  <div class="caption">ไทม์ไลน์สาขา — แสดงนัดหมายแต่ละรายการพร้อมสถานะ</div>
+</div>
 
 <h3>5.3 ลิ้นชักรายละเอียดนัดหมาย</h3>
 <p>ในลิ้นชักนี้ เจ้าหน้าที่สามารถ:</p>
@@ -320,7 +406,7 @@
   <li><strong>ส่งออก CSV</strong> — ดาวน์โหลดนัดหมายที่เลือกสำหรับรายงาน</li>
 </ul>
 
-<!-- ==================== 6. การจัดการ Walk-in ==================== -->
+<!-- ==================== 6. การจัดการ Walk-in (พร้อมภาพ) ==================== -->
 <div class="page-break"></div>
 <h2>6. การจัดการ Walk-in</h2>
 <p>สำหรับผู้ใช้บริการที่มาโดยไม่ได้จองล่วงหน้า:</p>
@@ -342,6 +428,12 @@
     <p><span class="num">4</span> <strong>ผลต่อเวลารอ</strong></p>
     <p>Walk-in ที่ active จะเพิ่ม<strong>ค่าความกดดัน Walk-in</strong> ทำให้เวลารอโดยประมาณของผู้ใช้รายอื่นเพิ่มขึ้น</p>
   </div>
+</div>
+
+<div class="screenshot-box wide">
+  <!-- แทนที่ด้วย: <img src="screenshots/step7-walkin.png" alt="หน้าจอ Walk-in"> -->
+  <div class="placeholder">🖥️ ภาพหน้าจอ: ขั้นตอน Walk-in ในแดชบอร์ด<br><small>แสดงปุ่ม "Walk-in ใหม่" และ flow การสร้าง → เริ่มบริการ → เสร็จสิ้น</small></div>
+  <div class="caption">Walk-in Management — ขั้นตอนจัดการผู้มาใช้บริการแบบ Walk-in</div>
 </div>
 
 <div class="callout">
@@ -433,7 +525,7 @@
 
 <!-- ==================== ท้ายเอกสาร ==================== -->
 <div class="footer">
-  แพลตฟอร์ม TestD Health — คู่มือระบบนัดหมายสำหรับเจ้าหน้าที่ v1.0 — กุมภาพันธ์ 2569<br>
+  แพลตฟอร์ม TestD Health — คู่มือระบบนัดหมายสำหรับเจ้าหน้าที่ v1.1 — กุมภาพันธ์ 2569<br>
   เอกสารลับ — สำหรับใช้ภายในเท่านั้น
 </div>
 
