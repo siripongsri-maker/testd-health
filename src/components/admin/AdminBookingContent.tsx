@@ -324,6 +324,7 @@ export default function AdminBookingContent({ userBranch }: Props) {
           onDrillBranch={setDrillBranchId}
           onDrillTimeBlock={setTimeBlockRange}
           onClickAppointment={setDrawerApt}
+          onRefresh={handleRefresh}
         />
       )}
 

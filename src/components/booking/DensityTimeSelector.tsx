@@ -3,20 +3,21 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/lib/i18n';
 import {
-  Clock, Activity, ChevronDown, ChevronUp, AlertCircle, Timer,
+  Clock, Activity, ChevronDown, ChevronUp, AlertCircle, Timer, Users,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { estimateWaitTime, getWaitLabel, type WaitEstimate } from '@/lib/waitTimeEstimator';
+import { estimateWaitTime, getWaitLabel, type WaitEstimate, type WalkinPressure } from '@/lib/waitTimeEstimator';
 
 interface Props {
   openTime: string;
   closeTime: string;
   slotDurationMin: number;
   counselorCount: number;
-  bookedSlots: Record<string, number>; // "HH:MM" → booked count
+  bookedSlots: Record<string, number>;
   selectedTime: string | null;
   onSelectTime: (time: string) => void;
   serviceSlugs?: string[];
+  walkinPressure?: WalkinPressure;
 }
 
 interface TimeBlock {
@@ -55,17 +56,18 @@ function generateSlots(openTime: string, closeTime: string, durationMin: number)
 
 export function DensityTimeSelector({
   openTime, closeTime, slotDurationMin, counselorCount,
-  bookedSlots, selectedTime, onSelectTime, serviceSlugs,
+  bookedSlots, selectedTime, onSelectTime, serviceSlugs, walkinPressure,
 }: Props) {
   const { language } = useLanguage();
   const [expandedBlock, setExpandedBlock] = useState<number | null>(null);
+
+  const hasWalkinPressure = walkinPressure && (walkinPressure.activeWalkins > 0 || walkinPressure.recentWalkins90min > 0);
 
   const allSlots = useMemo(
     () => generateSlots(openTime, closeTime, slotDurationMin),
     [openTime, closeTime, slotDurationMin]
   );
 
-  // Group slots into ~2-hour blocks
   const blocks = useMemo(() => {
     const openH = parseInt(openTime.split(':')[0]);
     const closeH = parseInt(closeTime.split(':')[0]);
@@ -78,7 +80,6 @@ export function DensityTimeSelector({
         const sh = parseInt(s.split(':')[0]);
         return sh >= h && sh < endH;
       });
-
       if (blockSlots.length === 0) continue;
 
       const slotInfos: SlotInfo[] = blockSlots.map(time => {
@@ -90,8 +91,7 @@ export function DensityTimeSelector({
       const totalCapacity = blockSlots.length * counselorCount;
       const totalBooked = slotInfos.reduce((sum, s) => sum + s.booked, 0);
       const pct = totalCapacity > 0 ? Math.round((totalBooked / totalCapacity) * 100) : 0;
-
-      const waitEstimate = estimateWaitTime(pct, counselorCount, serviceSlugs);
+      const waitEstimate = estimateWaitTime(pct, counselorCount, serviceSlugs, walkinPressure);
 
       result.push({
         label: `${String(h).padStart(2, '0')}:00 – ${String(endH).padStart(2, '0')}:00`,
@@ -106,7 +106,7 @@ export function DensityTimeSelector({
       });
     }
     return result;
-  }, [allSlots, bookedSlots, counselorCount, openTime, closeTime, serviceSlugs]);
+  }, [allSlots, bookedSlots, counselorCount, openTime, closeTime, serviceSlugs, walkinPressure]);
 
   // Day-level summary
   const totalAvailable = allSlots.length * counselorCount;
@@ -115,8 +115,8 @@ export function DensityTimeSelector({
   const dayPct = totalAvailable > 0 ? Math.round((totalBooked / totalAvailable) * 100) : 0;
   const dayLevel: 'low' | 'medium' | 'high' = dayPct >= 70 ? 'high' : dayPct >= 40 ? 'medium' : 'low';
   const dayWait = useMemo(
-    () => estimateWaitTime(dayPct, counselorCount, serviceSlugs),
-    [dayPct, counselorCount, serviceSlugs]
+    () => estimateWaitTime(dayPct, counselorCount, serviceSlugs, walkinPressure),
+    [dayPct, counselorCount, serviceSlugs, walkinPressure]
   );
   const dayWaitLabel = getWaitLabel(dayWait, language as 'th' | 'en');
 
@@ -193,6 +193,18 @@ export function DensityTimeSelector({
           </p>
         </div>
 
+        {/* Walk-in pressure note */}
+        {hasWalkinPressure && (
+          <div className="mt-2 flex items-center gap-1.5 text-[11px] text-amber-600 dark:text-amber-400">
+            <Users className="h-3 w-3 shrink-0" />
+            <span>
+              {language === 'th'
+                ? `มี walk-in ${walkinPressure!.activeWalkins} คนรออยู่ อาจทำให้เวลารอเพิ่มขึ้น`
+                : `${walkinPressure!.activeWalkins} walk-in${walkinPressure!.activeWalkins !== 1 ? 's' : ''} waiting — may increase wait time`}
+            </span>
+          </div>
+        )}
+
         <p className="text-[11px] text-muted-foreground mt-2">
           {language === 'th'
             ? '💡 เลือกช่วงสีเขียวเพื่อรอคิวน้อยลง'
@@ -200,8 +212,8 @@ export function DensityTimeSelector({
         </p>
         <p className="text-[10px] text-muted-foreground/70 mt-0.5 italic">
           {language === 'th'
-            ? 'เป็นการประมาณการจากข้อมูลคิวที่ผ่านมา เวลารออาจเปลี่ยนแปลงได้'
-            : 'Estimated from recent queue patterns. Actual waiting may vary.'}
+            ? 'เป็นการประมาณการจากข้อมูลคิวและ walk-in เวลารอจริงอาจเปลี่ยนแปลงได้'
+            : 'Estimated from appointment + walk-in queue patterns. Actual waiting may vary.'}
         </p>
       </Card>
 
@@ -220,7 +232,6 @@ export function DensityTimeSelector({
 
           return (
             <div key={block.label} className="space-y-0">
-              {/* Block header */}
               <button
                 onClick={() => setExpandedBlock(isExpanded ? null : idx)}
                 className={cn(
@@ -230,11 +241,8 @@ export function DensityTimeSelector({
                     : "border-transparent bg-card hover:border-primary/20 hover:shadow-sm"
                 )}
               >
-                {/* Density indicator */}
                 <div className={cn("h-10 w-10 rounded-2xl flex items-center justify-center shrink-0", cfg.bgLight)}>
-                  <div className="text-center">
-                    <p className={cn("text-xs font-black leading-none", cfg.text)}>{block.occupancyPct}%</p>
-                  </div>
+                  <p className={cn("text-xs font-black leading-none", cfg.text)}>{block.occupancyPct}%</p>
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -242,7 +250,6 @@ export function DensityTimeSelector({
                   <p className="text-xs text-muted-foreground">
                     {availableInBlock} {language === 'th' ? 'ช่วงว่าง' : 'available'} · {cfg.label}
                   </p>
-                  {/* Wait estimate per block */}
                   <p className={cn("text-[10px] font-medium mt-0.5 flex items-center gap-1", waitLabel.color)}>
                     <Timer className="h-2.5 w-2.5" />
                     {language === 'th'
@@ -251,7 +258,6 @@ export function DensityTimeSelector({
                   </p>
                 </div>
 
-                {/* Occupancy mini bar */}
                 <div className="w-16 shrink-0">
                   <div className="h-1.5 rounded-full bg-muted/60 overflow-hidden">
                     <div
@@ -268,14 +274,12 @@ export function DensityTimeSelector({
                 )}
               </button>
 
-              {/* Expanded: individual time slots */}
               {isExpanded && (
                 <div className="px-2 pt-2 pb-1 animate-slide-up">
                   <div className="grid grid-cols-4 sm:grid-cols-6 gap-1.5">
                     {block.slots.map(slot => {
                       const isSelected = selectedTime === slot.time;
                       const lowAvail = !slot.isFull && slot.available === 1;
-
                       return (
                         <button
                           key={slot.time}
@@ -329,9 +333,7 @@ export function DensityTimeSelector({
               variant="ghost"
               size="sm"
               className="h-7 mt-1 text-xs rounded-full px-3"
-              onClick={() => {
-                setExpandedBlock(blocks.indexOf(quieterBlock));
-              }}
+              onClick={() => setExpandedBlock(blocks.indexOf(quieterBlock))}
             >
               {language === 'th' ? 'ดูช่วงนี้' : 'View this block'}
             </Button>

@@ -16,6 +16,7 @@ import {
   Copy, Camera, UserPlus
 } from 'lucide-react';
 import { DensityTimeSelector } from '@/components/booking/DensityTimeSelector';
+import type { WalkinPressure } from '@/lib/waitTimeEstimator';
 import { format, addDays, startOfDay, getDay } from 'date-fns';
 
 interface Branch {
@@ -76,6 +77,7 @@ export default function Booking() {
   const [notes, setNotes] = useState('');
   const [contactEmail, setContactEmail] = useState('');
   const [bookedSlots, setBookedSlots] = useState<Record<string, number>>({});
+  const [walkinPressure, setWalkinPressure] = useState<WalkinPressure | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [confirmedCode, setConfirmedCode] = useState<string | null>(null);
@@ -114,19 +116,35 @@ export default function Booking() {
     if (!selectedBranch || !selectedDate) return;
     const loadSlots = async () => {
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
-      const { data } = await supabase
-        .from('appointments')
-        .select('start_time')
-        .eq('branch_id', selectedBranch.id)
-        .eq('appointment_date', dateStr)
-        .neq('status', 'cancelled');
+      const [slotsRes, walkinRes] = await Promise.all([
+        supabase
+          .from('appointments')
+          .select('start_time')
+          .eq('branch_id', selectedBranch.id)
+          .eq('appointment_date', dateStr)
+          .neq('status', 'cancelled'),
+        supabase.rpc('get_walkin_pressure', {
+          p_branch_id: selectedBranch.id,
+          p_date: dateStr,
+        }),
+      ]);
 
       const counts: Record<string, number> = {};
-      data?.forEach(row => {
+      slotsRes.data?.forEach(row => {
         const t = (row.start_time as string).slice(0, 5);
         counts[t] = (counts[t] || 0) + 1;
       });
       setBookedSlots(counts);
+
+      if (walkinRes.data) {
+        const wp = walkinRes.data as any;
+        setWalkinPressure({
+          activeWalkins: wp.active_walkins || 0,
+          recentWalkins90min: wp.recent_walkins_90min || 0,
+        });
+      } else {
+        setWalkinPressure(undefined);
+      }
     };
     loadSlots();
   }, [selectedBranch, selectedDate]);
@@ -627,6 +645,7 @@ export default function Booking() {
                     selectedTime={selectedTime}
                     onSelectTime={setSelectedTime}
                     serviceSlugs={selectedServices.map(s => s.slug)}
+                    walkinPressure={walkinPressure}
                   />
                 </div>
               )}
