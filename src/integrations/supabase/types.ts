@@ -479,6 +479,12 @@ export type Database = {
           close_time: string
           counselor_count: number
           created_at: string
+          google_maps_url: string | null
+          google_photo_url: string | null
+          google_place_id: string | null
+          google_rating: number | null
+          google_review_count: number | null
+          hero_image_url: string | null
           id: string
           is_active: boolean
           name_en: string
@@ -496,6 +502,12 @@ export type Database = {
           close_time?: string
           counselor_count?: number
           created_at?: string
+          google_maps_url?: string | null
+          google_photo_url?: string | null
+          google_place_id?: string | null
+          google_rating?: number | null
+          google_review_count?: number | null
+          hero_image_url?: string | null
           id?: string
           is_active?: boolean
           name_en: string
@@ -513,6 +525,12 @@ export type Database = {
           close_time?: string
           counselor_count?: number
           created_at?: string
+          google_maps_url?: string | null
+          google_photo_url?: string | null
+          google_place_id?: string | null
+          google_rating?: number | null
+          google_review_count?: number | null
+          hero_image_url?: string | null
           id?: string
           is_active?: boolean
           name_en?: string
