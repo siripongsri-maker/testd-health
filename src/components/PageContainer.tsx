@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { ReactNode, useState, useEffect } from "react";
 import { ResponsiveViewToggle } from "./ResponsiveViewToggle";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { LanguageToggle } from "./LanguageToggle";
+
 
 type ViewMode = "mobile" | "tablet" | "desktop";
 
@@ -48,15 +48,9 @@ export function PageContainer({ children, className, showNav = true, showViewTog
     <div
       className={cn(
         "min-h-screen gradient-hero relative",
-        showNav && "pb-24",
         className
       )}
     >
-      {/* Global language toggle - fixed top-right */}
-      <div className="fixed top-3 right-3 z-[60]">
-        <LanguageToggle />
-      </div>
-
       {shouldShowToggle && (
         <div className="sticky top-0 z-50 flex justify-center py-2 glass-heavy border-b border-border/30">
           <ResponsiveViewToggle onViewChange={setViewMode} />
