@@ -1,12 +1,17 @@
 /**
  * MVP heuristic wait-time estimator.
- * Estimates waiting time based on occupancy, capacity, and service mix.
+ * Estimates waiting time based on occupancy, capacity, service mix, and walk-in pressure.
  */
 
 export interface WaitEstimate {
   low: number;   // minutes
   high: number;  // minutes
   label: 'short' | 'medium' | 'long';
+}
+
+export interface WalkinPressure {
+  activeWalkins: number;    // currently waiting or in_service
+  recentWalkins90min: number; // arrived in last 90 minutes
 }
 
 /** Baseline minutes per service (rough heuristic weights) */
@@ -27,6 +32,7 @@ export function estimateWaitTime(
   occupancyPercent: number,
   counselorCount: number,
   serviceSlugs?: string[],
+  walkinPressure?: WalkinPressure,
 ): WaitEstimate {
   // Base service duration from service mix
   let avgServiceMin = SERVICE_DURATION_WEIGHTS.default;
@@ -47,7 +53,17 @@ export function estimateWaitTime(
   // Parallelism factor: more counselors = shorter effective wait
   const parallelism = Math.max(1, counselorCount);
 
-  const baseWait = (queueDepth * avgServiceMin) / parallelism;
+  let baseWait = (queueDepth * avgServiceMin) / parallelism;
+
+  // Walk-in pressure adjustment
+  if (walkinPressure) {
+    const { activeWalkins, recentWalkins90min } = walkinPressure;
+    // Each active walk-in adds ~avgServiceMin / parallelism to the queue
+    const walkinQueueDelay = (activeWalkins * avgServiceMin) / parallelism;
+    // Recent arrival rate adds a softer pressure (~3 min per recent walk-in)
+    const recentPressure = Math.max(0, recentWalkins90min - activeWalkins) * 3 / parallelism;
+    baseWait += walkinQueueDelay + recentPressure;
+  }
 
   // Add variance
   const low = Math.max(0, Math.round(baseWait * 0.6));

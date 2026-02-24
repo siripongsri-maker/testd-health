@@ -1,9 +1,13 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/lib/i18n';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import {
   CalendarCheck, UserPlus, RotateCcw, XCircle, Activity, Clock,
-  Building2, AlertTriangle, MessageSquarePlus, ChevronRight,
+  Building2, AlertTriangle, MessageSquarePlus, ChevronRight, Footprints,
+  Play, CheckCircle2, Loader2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getDisplayServices } from '@/lib/appointments';
@@ -18,11 +22,12 @@ interface Props {
   onDrillBranch: (branchId: string) => void;
   onDrillTimeBlock: (timeRange: string) => void;
   onClickAppointment: (apt: EnrichedAppointment) => void;
+  onRefresh: () => void;
 }
 
 export function BentoDashboard({
   appointments, branches, density, selectedDate,
-  onDrillBranch, onDrillTimeBlock, onClickAppointment,
+  onDrillBranch, onDrillTimeBlock, onClickAppointment, onRefresh,
 }: Props) {
   const { language } = useLanguage();
 
@@ -97,6 +102,58 @@ export function BentoDashboard({
   // Quick actions / alerts
   const pendingCount = appointments.filter(a => a.status === 'booked').length;
   const missingNotesCount = appointments.filter(a => a.status === 'completed' && !a.staff_notes).length;
+
+  // Walk-ins today
+  const walkins = useMemo(
+    () => appointments.filter(a => (a as any).source === 'walkin'),
+    [appointments]
+  );
+  const activeWalkins = walkins.filter(a => a.status === 'waiting' || a.status === 'in_progress');
+
+  const [walkinBranch, setWalkinBranch] = useState<string>('');
+  const [creatingWalkin, setCreatingWalkin] = useState(false);
+
+  const handleCreateWalkin = async () => {
+    if (!walkinBranch) return;
+    setCreatingWalkin(true);
+    try {
+      const { data, error } = await supabase.rpc('create_walkin_appointment', {
+        p_branch_id: walkinBranch,
+      });
+      if (error) throw error;
+      const code = (data as any)?.referral_code;
+      toast.success(language === 'th'
+        ? `✅ Walk-in สร้างแล้ว: ${code}`
+        : `✅ Walk-in created: ${code}`);
+      onRefresh();
+    } catch (err: any) {
+      toast.error(err.message || 'Error');
+    } finally {
+      setCreatingWalkin(false);
+    }
+  };
+
+  const handleStartService = async (aptId: string) => {
+    try {
+      const { error } = await supabase.rpc('start_walkin_service', { p_appointment_id: aptId });
+      if (error) throw error;
+      toast.success(language === 'th' ? 'เริ่มให้บริการแล้ว' : 'Service started');
+      onRefresh();
+    } catch (err: any) {
+      toast.error(err.message || 'Error');
+    }
+  };
+
+  const handleCompleteService = async (aptId: string) => {
+    try {
+      const { error } = await supabase.rpc('complete_walkin_service', { p_appointment_id: aptId });
+      if (error) throw error;
+      toast.success(language === 'th' ? 'เสร็จสิ้นแล้ว' : 'Service completed');
+      onRefresh();
+    } catch (err: any) {
+      toast.error(err.message || 'Error');
+    }
+  };
 
   return (
     <div className="space-y-3">
@@ -229,6 +286,88 @@ export function BentoDashboard({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Walk-in Management */}
+      <div>
+        <p className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider flex items-center gap-1">
+          <Footprints className="h-3 w-3" />
+          Walk-in
+          {activeWalkins.length > 0 && (
+            <span className="ml-1 px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 text-[10px] font-bold">
+              {activeWalkins.length}
+            </span>
+          )}
+        </p>
+
+        {/* Quick add walk-in */}
+        <div className="flex gap-2 mb-2">
+          <select
+            value={walkinBranch}
+            onChange={(e) => setWalkinBranch(e.target.value)}
+            className="flex-1 h-8 rounded-md border border-input bg-background px-2 text-xs"
+          >
+            <option value="">{language === 'th' ? 'เลือกสาขา' : 'Select branch'}</option>
+            {branches.map(b => (
+              <option key={b.id} value={b.id}>{language === 'th' ? b.name_th : b.name_en}</option>
+            ))}
+          </select>
+          <Button
+            size="sm"
+            className="h-8 gap-1 text-xs shrink-0"
+            disabled={!walkinBranch || creatingWalkin}
+            onClick={handleCreateWalkin}
+          >
+            {creatingWalkin ? <Loader2 className="h-3 w-3 animate-spin" /> : <Footprints className="h-3 w-3" />}
+            + Walk-in
+          </Button>
+        </div>
+
+        {/* Active walk-ins list */}
+        {activeWalkins.length > 0 && (
+          <div className="space-y-1">
+            {activeWalkins.map(apt => (
+              <Card key={apt.id} className="p-2.5 flex items-center gap-2">
+                <span className="text-xs font-bold text-foreground shrink-0 w-10">
+                  {(apt.start_time as string).slice(0, 5)}
+                </span>
+                <span className={cn(
+                  "text-[10px] px-1.5 py-0.5 rounded-full font-semibold shrink-0",
+                  apt.status === 'waiting'
+                    ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400'
+                    : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                )}>
+                  {apt.status === 'waiting'
+                    ? (language === 'th' ? 'รอคิว' : 'Waiting')
+                    : (language === 'th' ? 'กำลังรับบริการ' : 'In Service')}
+                </span>
+                {apt.referral_code && (
+                  <span className="text-[10px] font-mono font-bold text-primary">{apt.referral_code}</span>
+                )}
+                <span className="flex-1 text-[10px] text-muted-foreground truncate">
+                  {language === 'th' ? apt.booking_branches?.name_th : apt.booking_branches?.name_en}
+                </span>
+                {apt.status === 'waiting' && (
+                  <Button variant="outline" size="sm" className="h-6 text-[10px] px-2 gap-1" onClick={() => handleStartService(apt.id)}>
+                    <Play className="h-2.5 w-2.5" />
+                    {language === 'th' ? 'เริ่ม' : 'Start'}
+                  </Button>
+                )}
+                {apt.status === 'in_progress' && (
+                  <Button variant="outline" size="sm" className="h-6 text-[10px] px-2 gap-1" onClick={() => handleCompleteService(apt.id)}>
+                    <CheckCircle2 className="h-2.5 w-2.5" />
+                    {language === 'th' ? 'เสร็จ' : 'Done'}
+                  </Button>
+                )}
+              </Card>
+            ))}
+          </div>
+        )}
+        {activeWalkins.length === 0 && (
+          <p className="text-[10px] text-muted-foreground text-center py-1">
+            {language === 'th' ? 'ไม่มี walk-in ขณะนี้' : 'No active walk-ins'}
+          </p>
+        )}
       </div>
 
       {/* D) New Cases + E) Returning - side by side */}

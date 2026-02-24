@@ -202,6 +202,7 @@ export type Database = {
       appointments: {
         Row: {
           appointment_date: string
+          arrived_at: string | null
           attended_by: string | null
           branch_id: string
           cancellation_reason: string | null
@@ -213,14 +214,17 @@ export type Database = {
           notes: string | null
           referral_code: string | null
           service_id: string | null
+          source: string
           staff_notes: string | null
           start_time: string
+          started_at: string | null
           status: string
           updated_at: string
           user_id: string | null
         }
         Insert: {
           appointment_date: string
+          arrived_at?: string | null
           attended_by?: string | null
           branch_id: string
           cancellation_reason?: string | null
@@ -232,14 +236,17 @@ export type Database = {
           notes?: string | null
           referral_code?: string | null
           service_id?: string | null
+          source?: string
           staff_notes?: string | null
           start_time: string
+          started_at?: string | null
           status?: string
           updated_at?: string
           user_id?: string | null
         }
         Update: {
           appointment_date?: string
+          arrived_at?: string | null
           attended_by?: string | null
           branch_id?: string
           cancellation_reason?: string | null
@@ -251,8 +258,10 @@ export type Database = {
           notes?: string | null
           referral_code?: string | null
           service_id?: string | null
+          source?: string
           staff_notes?: string | null
           start_time?: string
+          started_at?: string | null
           status?: string
           updated_at?: string
           user_id?: string | null
@@ -2149,6 +2158,10 @@ export type Database = {
         Args: { p_session_id?: string; p_survey_id: string }
         Returns: number
       }
+      complete_walkin_service: {
+        Args: { p_appointment_id: string }
+        Returns: undefined
+      }
       count_booked_slots: {
         Args: { p_branch_id: string; p_date: string; p_time: string }
         Returns: number
@@ -2162,6 +2175,10 @@ export type Database = {
           p_service_ids: string[]
           p_start_time: string
         }
+        Returns: Json
+      }
+      create_walkin_appointment: {
+        Args: { p_branch_id: string; p_notes?: string }
         Returns: Json
       }
       generate_order_code: { Args: never; Returns: string }
@@ -2210,6 +2227,10 @@ export type Database = {
           total_page_views: number
         }[]
       }
+      get_walkin_pressure: {
+        Args: { p_branch_id: string; p_date?: string }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2238,6 +2259,10 @@ export type Database = {
           start_time: string
           status: string
         }[]
+      }
+      start_walkin_service: {
+        Args: { p_appointment_id: string }
+        Returns: undefined
       }
       update_appointment_status: {
         Args: {
