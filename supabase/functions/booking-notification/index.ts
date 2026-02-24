@@ -91,24 +91,22 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Send email using Supabase built-in (auth.admin)
-    // Since we don't have an SMTP provider configured, we log the notification
-    // In production, integrate with Resend/SendGrid/etc.
+    // Email sending is temporarily disabled.
+    // Log the notification as 'skipped' instead.
     const maskedEmailStr = maskEmail(email);
     const branchName = appointment.booking_branches?.name_en || "Branch";
     const dateStr = appointment.appointment_date;
     const timeStr = (appointment.start_time as string).slice(0, 5);
 
-    // Log the notification
     await supabaseAdmin.from("notification_logs").insert({
       appointment_id,
       email_masked: maskedEmailStr,
       notification_type,
-      status: "logged",
+      status: "skipped",
     });
 
     console.log(
-      `[booking-notification] ${notification_type} for appointment ${appointment_id}: ` +
+      `[booking-notification] ${notification_type} SKIPPED (email disabled) for appointment ${appointment_id}: ` +
       `${serviceNames} at ${branchName} on ${dateStr} ${timeStr} -> ${maskedEmailStr}`
     );
 
@@ -117,6 +115,7 @@ Deno.serve(async (req) => {
         success: true,
         notification_type,
         email_masked: maskedEmailStr,
+        status: "skipped",
         details: `${serviceNames} at ${branchName} on ${dateStr} at ${timeStr}`,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }

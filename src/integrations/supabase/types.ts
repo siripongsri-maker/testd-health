@@ -2153,6 +2153,17 @@ export type Database = {
         Args: { p_branch_id: string; p_date: string; p_time: string }
         Returns: number
       }
+      create_anonymous_appointment: {
+        Args: {
+          p_appointment_date: string
+          p_branch_id: string
+          p_contact_email: string
+          p_notes?: string
+          p_service_ids: string[]
+          p_start_time: string
+        }
+        Returns: Json
+      }
       generate_order_code: { Args: never; Returns: string }
       get_article_like_count: {
         Args: { p_article_id: string }
