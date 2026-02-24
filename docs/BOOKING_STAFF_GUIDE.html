@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TestD Booking System — Staff Training Guide</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 16mm;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 11pt;
+    line-height: 1.55;
+    color: #1a1a2e;
+    background: #fff;
+  }
+
+  /* ---------- Cover ---------- */
+  .cover {
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh;
+    text-align: center;
+  }
+  .cover h1 {
+    font-size: 28pt;
+    color: #7c3aed;
+    margin-bottom: 8px;
+  }
+  .cover .subtitle {
+    font-size: 14pt;
+    color: #555;
+    margin-bottom: 32px;
+  }
+  .cover .meta {
+    font-size: 10pt;
+    color: #888;
+  }
+  .cover .badge {
+    display: inline-block;
+    background: #7c3aed;
+    color: #fff;
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 10pt;
+    margin-bottom: 24px;
+  }
+
+  /* ---------- Section ---------- */
+  h2 {
+    font-size: 16pt;
+    color: #7c3aed;
+    border-bottom: 2px solid #7c3aed;
+    padding-bottom: 4px;
+    margin: 28px 0 12px;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 12pt;
+    color: #4c1d95;
+    margin: 18px 0 6px;
+    page-break-after: avoid;
+  }
+  h4 {
+    font-size: 11pt;
+    color: #6d28d9;
+    margin: 12px 0 4px;
+  }
+  p, li { margin-bottom: 4px; }
+  ul, ol { padding-left: 22px; margin-bottom: 8px; }
+
+  /* ---------- Tables ---------- */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 16px;
+    font-size: 10pt;
+    page-break-inside: avoid;
+  }
+  th, td {
+    border: 1px solid #d1d5db;
+    padding: 6px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: #f3f0ff;
+    color: #4c1d95;
+    font-weight: 600;
+  }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  /* ---------- Callout boxes ---------- */
+  .callout {
+    border-left: 4px solid #7c3aed;
+    background: #f5f3ff;
+    padding: 10px 14px;
+    margin: 12px 0;
+    border-radius: 0 6px 6px 0;
+    page-break-inside: avoid;
+  }
+  .callout.warning {
+    border-left-color: #f59e0b;
+    background: #fffbeb;
+  }
+  .callout.success {
+    border-left-color: #10b981;
+    background: #ecfdf5;
+  }
+  .callout strong { display: block; margin-bottom: 2px; }
+
+  /* ---------- Steps ---------- */
+  .step-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 10px 0;
+  }
+  .step-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px;
+    page-break-inside: avoid;
+  }
+  .step-card .num {
+    display: inline-block;
+    background: #7c3aed;
+    color: #fff;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 10pt;
+    line-height: 24px;
+    margin-right: 6px;
+  }
+
+  /* ---------- Footer ---------- */
+  .footer {
+    margin-top: 40px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+    font-size: 9pt;
+    color: #999;
+    text-align: center;
+  }
+
+  /* ---------- Page breaks ---------- */
+  .page-break { page-break-before: always; }
+
+  @media print {
+    body { font-size: 10pt; }
+    .no-print { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== COVER ==================== -->
+<div class="cover">
+  <div class="badge">INTERNAL — STAFF ONLY</div>
+  <h1>📋 Booking System</h1>
+  <div class="subtitle">Staff Training Guide<br>คู่มือระบบนัดหมาย สำหรับเจ้าหน้าที่</div>
+  <p class="meta">
+    TestD Health Platform<br>
+    Version 1.0 — February 2026<br>
+    <br>
+    4 Branches: Silom · Saphan Kwai · Phetkasem · Pattaya
+  </p>
+</div>
+
+<!-- ==================== TABLE OF CONTENTS ==================== -->
+<h2>📑 Table of Contents / สารบัญ</h2>
+<ol style="font-size:11pt; line-height:2;">
+  <li>System Overview / ภาพรวมระบบ</li>
+  <li>User Booking Flow / ขั้นตอนการจองสำหรับผู้ใช้</li>
+  <li>Guest (Anonymous) Booking / การจองแบบไม่ต้องสมัครสมาชิก</li>
+  <li>Referral Codes / รหัสอ้างอิง</li>
+  <li>Staff Dashboard — Daily Operations / แดชบอร์ดเจ้าหน้าที่</li>
+  <li>Walk-in Management / การจัดการผู้มาใช้บริการ Walk-in</li>
+  <li>Appointment Statuses / สถานะนัดหมาย</li>
+  <li>Pricing Rules / กฎเรื่องค่าบริการ</li>
+  <li>Branch Settings / ตั้งค่าสาขา</li>
+  <li>Quick Reference Card / บัตรอ้างอิงด่วน</li>
+</ol>
+
+<!-- ==================== 1. OVERVIEW ==================== -->
+<div class="page-break"></div>
+<h2>1. System Overview / ภาพรวมระบบ</h2>
+<p>The TestD booking system allows clients to schedule appointments at any of the four SWING branches. It supports both <strong>registered users</strong> and <strong>guest users</strong> (no account required).</p>
+
+<h3>Key Features</h3>
+<ul>
+  <li><strong>Multi-service appointments</strong> — Clients can select multiple services per visit</li>
+  <li><strong>Density-aware scheduling</strong> — Time slots show occupancy levels (Low/Medium/High) to distribute load</li>
+  <li><strong>Wait-time estimates</strong> — Considers counselor count, service weights, and walk-in pressure</li>
+  <li><strong>Referral codes</strong> — Every booking gets a unique code (e.g. <code>SWG-A3K9X2</code>) for check-in</li>
+  <li><strong>Real-time updates</strong> — Staff dashboard updates instantly when bookings are made or changed</li>
+  <li><strong>Guest booking</strong> — No account needed; only an email is required</li>
+</ul>
+
+<h3>Branches / สาขา</h3>
+<table>
+  <tr><th>Branch</th><th>Slug</th><th>Location</th></tr>
+  <tr><td>สีลม (Silom)</td><td><code>silom</code></td><td>Central Bangkok</td></tr>
+  <tr><td>สะพานควาย (Saphan Kwai)</td><td><code>saphankwai</code></td><td>North Bangkok</td></tr>
+  <tr><td>เพชรเกษม (Phetkasem)</td><td><code>petchakasem</code></td><td>West Bangkok</td></tr>
+  <tr><td>พัทยา (Pattaya)</td><td><code>pattaya</code></td><td>Chonburi</td></tr>
+</table>
+
+<!-- ==================== 2. USER BOOKING FLOW ==================== -->
+<div class="page-break"></div>
+<h2>2. User Booking Flow / ขั้นตอนการจอง</h2>
+<p>This is what clients see when they visit <strong>/booking</strong>:</p>
+
+<div class="step-grid">
+  <div class="step-card">
+    <p><span class="num">1</span> <strong>Choose Branch / เลือกสาขา</strong></p>
+    <p>Client selects from 4 branches. Each shows a photo, Google Maps rating, address, and open hours.</p>
+  </div>
+  <div class="step-card">
+    <p><span class="num">2</span> <strong>Select Services / เลือกบริการ</strong></p>
+    <p>Multi-select from available services (HIV test, PrEP, PEP, STI, etc.). Pricing eligibility shown automatically.</p>
+  </div>
+  <div class="step-card">
+    <p><span class="num">3</span> <strong>Pick Date & Time / เลือกวันและเวลา</strong></p>
+    <p>Calendar + density-aware time blocks. Slots are color-coded: 🟢 Low, 🟡 Medium, 🔴 High occupancy.</p>
+  </div>
+  <div class="step-card">
+    <p><span class="num">4</span> <strong>Confirm & Get Code / ยืนยันและรับรหัส</strong></p>
+    <p>Booking confirmed → unique referral code displayed. Client instructed to screenshot for check-in.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>💡 Smart Suggestion / คำแนะนำอัจฉริยะ</strong>
+  If a client picks a high-density time block, the system automatically suggests quieter alternatives to balance the load across the day.
+</div>
+
+<!-- ==================== 3. GUEST BOOKING ==================== -->
+<h2>3. Guest (Anonymous) Booking / การจองแบบไม่สมัครสมาชิก</h2>
+<p>Clients do <strong>not</strong> need an account to book. The only requirement is an <strong>email address</strong>.</p>
+
+<h4>How It Works:</h4>
+<ol>
+  <li>Client goes through the same booking flow (branch → services → date/time)</li>
+  <li>Instead of login, they enter a <strong>contact email</strong></li>
+  <li>System creates the appointment securely via a server-side function</li>
+  <li>Client receives a <strong>referral code</strong> on the success screen</li>
+</ol>
+
+<div class="callout success">
+  <strong>✅ Account Linking / เชื่อมบัญชี</strong>
+  After booking, guests are prompted: <em>"อยากจัดการนัดง่ายขึ้นไหม? สมัครสมาชิกเพื่อดู เลื่อน หรือยกเลิกนัดได้ทันที"</em><br>
+  If they register with the same email, the system offers to link the anonymous booking to their new account.
+</div>
+
+<!-- ==================== 4. REFERRAL CODES ==================== -->
+<div class="page-break"></div>
+<h2>4. Referral Codes / รหัสอ้างอิง</h2>
+
+<div class="callout">
+  <strong>📌 Format: <code>SWG-XXXXXX</code></strong><br>
+  Auto-generated by database trigger. Unique per appointment.
+</div>
+
+<h4>For Clients / สำหรับผู้ใช้บริการ:</h4>
+<ul>
+  <li>Displayed prominently on the booking success screen</li>
+  <li>Instruction shown: <strong>"กรุณาแคปหน้าจอนี้และแสดงให้เจ้าหน้าที่ลงทะเบียน"</strong></li>
+  <li>Translation: "Please take a screenshot and show this to Medical Registration"</li>
+</ul>
+
+<h4>For Staff / สำหรับเจ้าหน้าที่:</h4>
+<ul>
+  <li>Go to <strong>Admin → Booking</strong> tab</li>
+  <li>Use the <strong>referral code search box</strong> to find the booking instantly</li>
+  <li>This <strong>bypasses date filters</strong> — works even if you're viewing a different date</li>
+  <li>Verify client identity → update status to <strong>Arrived</strong></li>
+</ul>
+
+<div class="callout warning">
+  <strong>⚠️ Important / สำคัญ</strong>
+  Always verify the referral code matches the person. Ask the client to show their screenshot or email confirmation.
+</div>
+
+<!-- ==================== 5. STAFF DASHBOARD ==================== -->
+<h2>5. Staff Dashboard / แดชบอร์ดเจ้าหน้าที่</h2>
+<p>Access via: <strong>Admin → Booking tab</strong> (requires admin or staff role)</p>
+
+<h3>5.1 Bento Dashboard (Daily Overview)</h3>
+<p>The main view shows today's metrics at a glance:</p>
+<table>
+  <tr><th>Metric</th><th>Description</th></tr>
+  <tr><td><strong>Total</strong></td><td>All appointments for the day</td></tr>
+  <tr><td><strong>New</strong></td><td>First-time clients</td></tr>
+  <tr><td><strong>Returning</strong></td><td>Clients with prior non-cancelled visits</td></tr>
+  <tr><td><strong>Cancelled</strong></td><td>Appointments cancelled for the day</td></tr>
+</table>
+<p>Each branch shows a <strong>load indicator</strong> so you can see which locations are busiest.</p>
+
+<h3>5.2 Branch Timeline</h3>
+<ul>
+  <li>Click a branch card → opens a <strong>vertical timeline</strong> of all appointments</li>
+  <li>Each appointment shows as a pill with <strong>status badge</strong> and <strong>service icons</strong></li>
+  <li>Click any pill → opens the <strong>Appointment Detail Drawer</strong></li>
+</ul>
+
+<h3>5.3 Appointment Detail Drawer</h3>
+<p>From here, staff can:</p>
+<ul>
+  <li>View full appointment details (services, time, client info)</li>
+  <li>Update status (Confirmed → Arrived → In Progress → Completed)</li>
+  <li>Assign a staff member to the appointment</li>
+  <li>Add internal notes (visible to staff only)</li>
+</ul>
+
+<h3>5.4 Batch Actions</h3>
+<ul>
+  <li>Select multiple appointments using checkboxes</li>
+  <li><strong>Bulk status update</strong> — e.g., mark 5 as "Arrived" at once</li>
+  <li><strong>CSV export</strong> — Download selected appointments for reporting</li>
+</ul>
+
+<!-- ==================== 6. WALK-IN MANAGEMENT ==================== -->
+<div class="page-break"></div>
+<h2>6. Walk-in Management / การจัดการ Walk-in</h2>
+<p>For clients who arrive without a booking:</p>
+
+<div class="step-grid">
+  <div class="step-card">
+    <p><span class="num">1</span> <strong>Create Walk-in / สร้าง Walk-in</strong></p>
+    <p>Staff clicks "New Walk-in" in the dashboard. Selects branch and adds optional notes. System creates appointment with <code>source: 'walkin'</code>.</p>
+  </div>
+  <div class="step-card">
+    <p><span class="num">2</span> <strong>Start Service / เริ่มบริการ</strong></p>
+    <p>When counselor is ready, click "Start Service". Records arrival time.</p>
+  </div>
+  <div class="step-card">
+    <p><span class="num">3</span> <strong>Complete Service / เสร็จสิ้นบริการ</strong></p>
+    <p>After consultation, click "Complete". Records completion time.</p>
+  </div>
+  <div class="step-card">
+    <p><span class="num">4</span> <strong>Impact on Estimates</strong></p>
+    <p>Active walk-ins increase the <strong>walk-in pressure</strong> metric, causing wait-time estimates to go up for other clients.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>💡 Quick Register / ลงทะเบียนด่วน</strong>
+  The Admin panel also has a "Quick Register" tab where staff can register walk-in clients manually or via <strong>Thai ID OCR scan</strong> — no client device or internet needed.
+</div>
+
+<!-- ==================== 7. APPOINTMENT STATUSES ==================== -->
+<h2>7. Appointment Statuses / สถานะนัดหมาย</h2>
+<table>
+  <tr><th>Status</th><th>Meaning</th><th>Thai</th></tr>
+  <tr><td><strong>pending</strong></td><td>Just booked, awaiting confirmation</td><td>รอยืนยัน</td></tr>
+  <tr><td><strong>confirmed</strong></td><td>Confirmed by system or staff</td><td>ยืนยันแล้ว</td></tr>
+  <tr><td><strong>arrived</strong></td><td>Client has checked in at the branch</td><td>มาถึงแล้ว</td></tr>
+  <tr><td><strong>in_progress</strong></td><td>Currently being served</td><td>กำลังให้บริการ</td></tr>
+  <tr><td><strong>completed</strong></td><td>Service finished</td><td>เสร็จสิ้น</td></tr>
+  <tr><td><strong>cancelled</strong></td><td>Cancelled (reason logged)</td><td>ยกเลิก</td></tr>
+  <tr><td><strong>no_show</strong></td><td>Client did not appear</td><td>ไม่มา</td></tr>
+</table>
+
+<div class="callout warning">
+  <strong>⚠️ Cancellation Logging</strong>
+  When cancelling an appointment, always enter a <strong>reason</strong>. This is recorded in the audit log and helps with reporting.
+</div>
+
+<!-- ==================== 8. PRICING RULES ==================== -->
+<div class="page-break"></div>
+<h2>8. Pricing Rules / กฎเรื่องค่าบริการ</h2>
+<table>
+  <tr><th>Eligibility</th><th>Core Services (HIV, STI, PrEP)</th><th>PEP</th></tr>
+  <tr><td>Thai National (NHSO)</td><td>✅ Free</td><td>✅ Free</td></tr>
+  <tr><td>CLVM National (Global Fund)</td><td>✅ Free</td><td>❌ Not eligible</td></tr>
+  <tr><td>Other</td><td>💰 Paid (see price list)</td><td>💰 Paid</td></tr>
+</table>
+<p>Pricing flags are configured per service in the database (<code>is_free_thai</code>, <code>is_free_global_fund</code>, <code>is_free_pep_thai</code>). The frontend displays eligibility automatically based on these flags.</p>
+
+<!-- ==================== 9. BRANCH SETTINGS ==================== -->
+<h2>9. Branch Settings / ตั้งค่าสาขา</h2>
+<p>Accessible via: <strong>Admin → Booking → Branch card → ⚙️ Settings</strong></p>
+
+<h4>What Staff Can Configure:</h4>
+<table>
+  <tr><th>Setting</th><th>Description</th></tr>
+  <tr><td>Open/Close Time</td><td>Operating hours for the branch</td></tr>
+  <tr><td>Open Days</td><td>Which days of the week the branch is open</td></tr>
+  <tr><td>Counselor Count</td><td>Number of counselors — affects capacity calculations</td></tr>
+  <tr><td>Slot Duration</td><td>Length of each appointment slot (default: 5 min)</td></tr>
+  <tr><td>Active Status</td><td>Toggle branch on/off for bookings</td></tr>
+  <tr><td>Google Sync</td><td>"Sync Google Info" fetches latest rating/reviews from Google Maps</td></tr>
+  <tr><td>Hero Image</td><td>Branch photo shown to clients on the booking page</td></tr>
+</table>
+
+<!-- ==================== 10. QUICK REFERENCE ==================== -->
+<div class="page-break"></div>
+<h2>10. Quick Reference Card / บัตรอ้างอิงด่วน</h2>
+
+<div class="callout success" style="font-size:11pt;">
+  <strong>🏥 Daily Workflow for Registration Staff / ขั้นตอนประจำวัน</strong>
+  <ol style="margin-top:8px;">
+    <li>Open <strong>Admin → Booking</strong> at the start of each day</li>
+    <li>Check the <strong>Bento Dashboard</strong> for today's total appointments per branch</li>
+    <li>When client arrives → ask for <strong>referral code</strong> or <strong>screenshot</strong></li>
+    <li>Search code in dashboard → verify details → mark as <strong>Arrived</strong></li>
+    <li>If walk-in → click <strong>"New Walk-in"</strong> → Start Service when ready</li>
+    <li>After consultation → mark as <strong>Completed</strong></li>
+    <li>End of day → review any <strong>no-shows</strong> and update status</li>
+  </ol>
+</div>
+
+<div class="callout" style="font-size:11pt;">
+  <strong>🔍 Finding a Booking Quickly</strong>
+  <ul style="margin-top:8px;">
+    <li><strong>By referral code:</strong> Use the search box — bypasses date filter</li>
+    <li><strong>By date:</strong> Use the calendar to navigate to the appointment date</li>
+    <li><strong>By branch:</strong> Click the branch card to see its timeline</li>
+  </ul>
+</div>
+
+<div class="callout warning" style="font-size:11pt;">
+  <strong>❓ Common Issues / ปัญหาที่พบบ่อย</strong>
+  <table style="margin-top:8px;">
+    <tr><th>Problem</th><th>Solution</th></tr>
+    <tr><td>Client lost referral code</td><td>Search by email or check today's appointments for the branch</td></tr>
+    <tr><td>Slot shows "full"</td><td>Check if there are cancelled bookings that freed up space; adjust counselor count if needed</td></tr>
+    <tr><td>Guest wants to manage booking</td><td>Encourage them to register — the system can link their anonymous booking</td></tr>
+    <tr><td>Walk-in during busy period</td><td>Create walk-in entry; system will auto-adjust wait estimates for others</td></tr>
+  </table>
+</div>
+
+<!-- ==================== FOOTER ==================== -->
+<div class="footer">
+  TestD Health Platform — Booking System Staff Guide v1.0 — February 2026<br>
+  Confidential — For Internal Use Only
+</div>
+
+</body>
+</html>
