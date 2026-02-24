@@ -1516,6 +1516,7 @@ export type Database = {
           name_en: string
           name_th: string
           role: string
+          staff_role: string
           user_id: string | null
         }
         Insert: {
@@ -1526,6 +1527,7 @@ export type Database = {
           name_en: string
           name_th: string
           role?: string
+          staff_role?: string
           user_id?: string | null
         }
         Update: {
@@ -1536,6 +1538,7 @@ export type Database = {
           name_en?: string
           name_th?: string
           role?: string
+          staff_role?: string
           user_id?: string | null
         }
         Relationships: [
@@ -2211,9 +2214,41 @@ export type Database = {
         }
         Returns: Json
       }
+      create_appointment_atomic: {
+        Args: {
+          p_appointment_date: string
+          p_branch_id: string
+          p_contact_email?: string
+          p_notes?: string
+          p_services: string[]
+          p_start_time: string
+          p_user_id?: string
+        }
+        Returns: Json
+      }
       create_walkin_appointment: {
         Args: { p_branch_id: string; p_notes?: string }
         Returns: Json
+      }
+      current_staff_profile: {
+        Args: never
+        Returns: {
+          branch_id: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          name_en: string
+          name_th: string
+          role: string
+          staff_role: string
+          user_id: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "staff_profiles"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       generate_order_code: { Args: never; Returns: string }
       get_appointment_density: {
@@ -2230,6 +2265,10 @@ export type Database = {
       get_article_like_count: {
         Args: { p_article_id: string }
         Returns: number
+      }
+      get_branch_today_board: {
+        Args: { p_branch_id: string; p_date?: string }
+        Returns: Json
       }
       get_public_site_stats: {
         Args: never
@@ -2273,6 +2312,12 @@ export type Database = {
         Returns: boolean
       }
       increment_survey_view: { Args: { p_survey_id: string }; Returns: number }
+      is_booking_branch_admin: {
+        Args: { p_branch_id: string }
+        Returns: boolean
+      }
+      is_booking_staff: { Args: { p_branch_id: string }; Returns: boolean }
+      is_booking_super_admin: { Args: never; Returns: boolean }
       is_branch_staff: {
         Args: { _branch: string; _user_id: string }
         Returns: boolean
@@ -2294,6 +2339,7 @@ export type Database = {
           status: string
         }[]
       }
+      mark_no_show_expired: { Args: { p_branch_id?: string }; Returns: number }
       self_checkin_appointment: {
         Args: { p_appointment_id: string }
         Returns: undefined

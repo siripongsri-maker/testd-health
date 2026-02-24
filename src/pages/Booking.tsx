@@ -219,31 +219,8 @@ export default function Booking() {
     try {
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
 
-      // Check for duplicate booking (authenticated users only)
-      if (user) {
-        const { data: existing } = await supabase
-          .from('appointments')
-          .select('id')
-          .eq('user_id', user.id)
-          .eq('branch_id', selectedBranch.id)
-          .eq('appointment_date', dateStr)
-          .eq('start_time', selectedTime + ':00')
-          .neq('status', 'cancelled')
-          .limit(1);
-
-        if (existing && existing.length > 0) {
-          toast.error(language === 'th' ? 'คุณมีนัดหมายในเวลานี้แล้ว' : 'You already have an appointment at this time');
-          setSubmitting(false);
-          return;
-        }
-      }
-
-      const primaryService = selectedServices[0];
-      let appointmentId: string;
-      let referralCode: string;
-
       if (!user) {
-        // Anonymous booking via RPC (bypasses RLS)
+        // Anonymous booking via RPC (already has capacity lock)
         const { data, error } = await supabase.rpc('create_anonymous_appointment', {
           p_branch_id: selectedBranch.id,
           p_service_ids: selectedServices.map(s => s.id),
@@ -254,69 +231,34 @@ export default function Booking() {
         });
 
         if (error) throw error;
-        appointmentId = (data as any).id;
-        referralCode = (data as any).referral_code;
+        setConfirmedCode((data as any).referral_code);
       } else {
-        // Authenticated booking via direct insert
-        const insertPayload: Record<string, unknown> = {
-          branch_id: selectedBranch.id,
-          service_id: primaryService.id,
-          appointment_date: dateStr,
-          start_time: selectedTime + ':00',
-          status: 'booked',
-          notes: notes || null,
-          user_id: user.id,
-          contact_email: user.email || null,
-        };
+        // Authenticated booking via atomic RPC (capacity lock + XP award)
+        const { data, error } = await supabase.rpc('create_appointment_atomic', {
+          p_branch_id: selectedBranch.id,
+          p_appointment_date: dateStr,
+          p_start_time: selectedTime + ':00',
+          p_services: selectedServices.map(s => s.id),
+          p_contact_email: user.email || null,
+          p_user_id: user.id,
+          p_notes: notes || null,
+        });
 
-        const { data, error } = await supabase.from('appointments').insert(insertPayload as any).select('id, referral_code').single();
         if (error) throw error;
-
-        appointmentId = data.id;
-        referralCode = data.referral_code;
-
-        // Insert services into join table
-        const serviceInserts = selectedServices.map(s => ({
-          appointment_id: appointmentId,
-          service_id: s.id,
-        }));
-        await supabase.from('appointment_services').insert(serviceInserts);
-
-        // Log the booking
-        const serviceNames = selectedServices.map(s => s.name_en).join(', ');
-        await supabase.from('appointment_logs').insert({
-          appointment_id: appointmentId,
-          action: 'booked',
-          performed_by: user.id,
-          details: `Booked ${serviceNames} at ${selectedBranch.name_en}`,
-        });
-
-        // Log notification as skipped (email disabled for now)
-        await supabase.from('notification_logs').insert({
-          appointment_id: appointmentId,
-          email_masked: (user.email || '').slice(0, 3) + '***',
-          notification_type: 'booking_created',
-          status: 'skipped',
-        });
-
-        // Award 1000 XP for booking
-        await supabase.rpc('award_xp_to_user', {
-          target_user_id: user.id,
-          xp_amount: 1000,
-        });
+        setConfirmedCode((data as any).referral_code);
       }
 
-      setConfirmedCode(referralCode);
       setStep('success');
       toast.success(language === 'th' ? '🎉 จองสำเร็จ!' : '🎉 Booking confirmed!');
     } catch (err: any) {
       console.error('Booking error:', err);
       const msg = err?.message || '';
-      const code = err?.code || '';
 
-      if (code === '23505' || msg.includes('duplicate') || msg.includes('unique')) {
-        toast.error(language === 'th' ? 'ช่วงเวลานี้ถูกจองแล้ว กรุณาเลือกเวลาอื่น' : 'This time slot is already booked. Please choose another time.');
-      } else if (msg.includes('row-level security') || msg.includes('permission') || code === '42501') {
+      if (msg.includes('slot_full')) {
+        toast.error(language === 'th' ? 'ช่วงเวลานี้เต็มแล้ว กรุณาเลือกเวลาอื่น' : 'This time slot is full. Please choose another time.');
+      } else if (msg.includes('duplicate_booking')) {
+        toast.error(language === 'th' ? 'คุณมีนัดหมายในเวลานี้แล้ว' : 'You already have an appointment at this time');
+      } else if (msg.includes('row-level security') || msg.includes('permission') || err?.code === '42501') {
         toast.error(language === 'th' ? 'ระบบยังไม่อนุญาตการจองนี้ (ERR_BOOKING_RLS)' : 'Booking not permitted (ERR_BOOKING_RLS)');
       } else {
         toast.error(language === 'th' ? `เกิดข้อผิดพลาด (ERR_BOOKING_INSERT)` : `Something went wrong (ERR_BOOKING_INSERT)`);
