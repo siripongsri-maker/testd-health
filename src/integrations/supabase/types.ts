@@ -2130,6 +2130,14 @@ export type Database = {
       }
     }
     Functions: {
+      add_staff_note: {
+        Args: { p_appointment_id: string; p_note: string }
+        Returns: undefined
+      }
+      assign_staff_to_appointment: {
+        Args: { p_appointment_id: string; p_staff_profile_id: string }
+        Returns: undefined
+      }
       award_xp_to_user: {
         Args: { target_user_id: string; xp_amount: number }
         Returns: undefined
@@ -2185,6 +2193,14 @@ export type Database = {
       is_branch_staff_for_request: {
         Args: { _pii_id: string; _user_id: string }
         Returns: boolean
+      }
+      update_appointment_status: {
+        Args: {
+          p_appointment_id: string
+          p_new_status: string
+          p_reason?: string
+        }
+        Returns: undefined
       }
       user_liked_article: { Args: { p_article_id: string }; Returns: boolean }
       validate_thai_id: { Args: { thai_id: string }; Returns: boolean }
