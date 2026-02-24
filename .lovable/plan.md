@@ -1,180 +1,151 @@
 
 
-# Booking System Enhancement Plan
+# Booking System Fix + Enhancements Plan
 
-This is a large-scale enhancement covering 10 areas. Due to the ~5 credit constraint, the plan prioritizes deterministic logic, database-driven rules, and avoids AI features entirely.
+## Critical Bug: RLS Policy Type
 
----
-
-## Phase 1: Database Schema Changes (Single Migration)
-
-### 1.1 Multi-service booking
-- Create `appointment_services` join table: `(id, appointment_id, service_id)`
-- Keep `appointments.service_id` as the "primary" service for backward compatibility, but the join table is the source of truth
-- RLS: users see their own; staff see branch-scoped; admins see all
-
-### 1.2 Staff profiles table
-- Create `staff_profiles` table: `(id uuid PK, user_id uuid, branch_id uuid, name_th text, name_en text, role text CHECK IN ('counselor','medical_registration','admin'), is_active boolean, created_at timestamptz)`
-- Seed 13 counselors across 4 branches
-- RLS: staff can view own profile; admins can manage all; branch staff can view same-branch colleagues
-
-### 1.3 Service pricing rules
-- Add columns to `booking_services`: `is_free_pep_thai boolean DEFAULT false`, `is_free_clvm boolean DEFAULT true`
-- Update PEP service: `is_free_thai = true`, `is_free_pep_thai = true`, `is_free_clvm = false` (PEP is NOT free for non-Thai, even CLVM)
-- Other services keep `is_free_thai = true`, `is_free_global_fund = true` (which covers CLVM)
-
-### 1.4 Notification logs
-- Create `notification_logs` table: `(id, appointment_id, email, notification_type, status, created_at)`
-- RLS: users see own logs; admins see all
-
-### 1.5 Risk assessment questions
-- Create `risk_assessment_questions` table: `(id, question_th, question_en, options jsonb, recommended_services text[], display_order int, is_active boolean)`
-- Seed ~5 deterministic risk questions
-- Public SELECT on active questions
-
-### 1.6 Anonymous booking support
-- Add `contact_email text` column to `appointments` for anonymous email collection
-- Make `appointments.user_id` nullable (for future anonymous flow -- but initially keep requiring auth for simplicity and security)
+All existing RLS policies on `appointments`, `appointment_services`, and related tables are **RESTRICTIVE** (not PERMISSIVE). In PostgreSQL, RESTRICTIVE policies require ALL of them to pass simultaneously, meaning a regular user who matches "Users can view own" would also need to pass "Admins can manage all" and "Branch staff can view" -- which they can't. This likely causes silent data access failures. The migration must **drop and recreate these as PERMISSIVE** policies.
 
 ---
 
-## Phase 2: Staff Account Provisioning
+## Phase 1: Fix Core Issues + Backend
 
-### 2.1 Create staff auth accounts
-- Use the existing `create-branch-staff` edge function pattern
-- Create accounts for all 13 counselors with secure temporary passwords
-- Passwords will be set via the admin password reset flow (already exists)
-- Link each auth account to `staff_profiles` and `staff_branch_assignments`
+### 1A. Database Migration (single SQL file)
 
-### 2.2 Staff permissions
-- Counselors: can view/update appointments for their branch only (already enforced by existing RLS on `appointments` via `staff_branch_assignments`)
-- Medical registration: same as counselor + can access ID card uploads (branch-scoped)
-- Admins: full access (already working)
+**Fix RLS policies** (convert RESTRICTIVE to PERMISSIVE):
+- `appointments`: Drop all 6 policies, recreate as PERMISSIVE
+- `appointment_services`: Drop all 4 policies, recreate as PERMISSIVE
+- `appointment_logs`: Same treatment
 
----
+**Schema additions:**
+- `appointments.referral_code` (text, unique) -- human-friendly booking code
+- `appointments.user_id` changed to NULLABLE (for anonymous bookings)
+- Remove NOT NULL on `appointments.service_id` (join table is source of truth)
+- Add unique constraint on `(user_id, branch_id, appointment_date, start_time)` WHERE status != 'cancelled' to prevent duplicates at DB level
 
-## Phase 3: UI Changes
+**Referral code generation:**
+- Create a Postgres function `generate_referral_code()` that produces `SWG-XXXXXX` (6 uppercase alphanumeric chars)
+- Add a trigger on appointments INSERT to auto-set `referral_code`
 
-### 3.1 Multi-service booking flow (Booking.tsx)
-- Change Step 2 from single-select to multi-select checklist with checkboxes
-- Add "Next" button to proceed (instead of auto-advancing on click)
-- Update state from `selectedService: Service | null` to `selectedServices: Service[]`
-- On confirm, insert 1 appointment row + N rows in `appointment_services`
-- Capacity: 1 appointment = 1 slot regardless of service count
-- Duplicate check: same user + branch + date + time
+**Anonymous booking INSERT policy:**
+- Allow INSERT when `user_id IS NULL AND contact_email IS NOT NULL` (for anonymous)
+- Allow SELECT on own anonymous bookings via a new RPC (lookup by referral_code + contact_email)
 
-### 3.2 Free service display rules
-- Show per-service pricing badges based on `is_free_thai`, `is_free_global_fund`, and new PEP-specific flag
-- Add clear PEP warning: "PEP is free ONLY for Thai nationals" in both TH/EN
-- Link to swingsilompolyclinic.com for pricing info
+### 1B. Fix Service Selection UI (Booking.tsx)
 
-### 3.3 Risk assessment step (optional, before booking)
-- Add optional "Not sure what you need?" button on service selection step
-- Shows 4-5 deterministic yes/no questions (loaded from DB)
-- Rule-based mapping: e.g., "recent unprotected exposure < 72hrs" -> recommend PEP + HIV test
-- Pre-selects recommended services, user can modify
-- Disclaimer: "This is not a diagnosis" in TH/EN
+**Root cause:** The `Checkbox` component's `onCheckedChange` and the parent `Card`'s `onClick` both call `toggleService`, causing a double-toggle (select then immediately deselect). 
 
-### 3.4 Translation button on every page
-- The `LanguageToggle` component already exists
-- Add it to `PageContainer` as a fixed-position button (top-right corner)
-- This ensures it appears on every page without modifying each page individually
-- No AI translation -- this is purely the i18n toggle (TH/EN)
+**Fix:**
+- Remove `onCheckedChange` from Checkbox (let Card onClick handle it)
+- OR use `e.stopPropagation()` on Checkbox click
+- Add clear visual feedback: green border + checkmark icon when selected
 
-### 3.5 My Appointments updates
-- Show multiple services per appointment (from join table)
-- Show staff notes and service details in expanded view
+### 1C. Combine Date + Time into One Step
 
-### 3.6 Admin booking view
-- Show multi-service appointments
-- Filter by branch (already partially working via `userBranch` prop)
+Merge the `date` and `time` steps into a single `datetime` step:
+- Left/top section: scrollable date pills (horizontal)
+- Below: time slot grid for selected date
+- When date changes, time slots reload automatically
+- Softer UI: `rounded-3xl` cards, `rounded-full` time slot pills
 
-### 3.7 Safe data prefill
-- On booking confirm step, offer to prefill from `selftest_pii` if user is authenticated
-- Fetch via authenticated `user_id` only (never localStorage)
-- Show "Clear prefilled data" button
-- Clear all form state on component unmount
+**Updated step flow:** `branch` -> `service` -> `datetime` -> `confirm`
+
+### 1D. Capacity & Duplicate Prevention
+
+- Already implemented in code (checks `bookedSlots` against `counselor_count`)
+- Add DB-level unique constraint as safety net (migration handles this)
 
 ---
 
-## Phase 4: Email Notifications
+## Phase 2: Anonymous Booking + Post-Registration
 
-### 4.1 Edge function: `booking-notification`
-- Triggered after successful booking insert (called from client)
-- Sends confirmation email with appointment details
-- Uses Supabase built-in email or a simple SMTP integration
-- Masks email in `notification_logs` (store only first 3 chars + domain)
-- Handles both authenticated (user email from auth) and contact_email
+### 2A. Allow Booking Without Login
 
-### 4.2 Cancellation notification
-- When user cancels, call the same edge function with type = 'cancelled'
+In `Booking.tsx` confirm step:
+- If not logged in, show `contact_email` input field (required)
+- On submit: insert with `user_id = NULL`, `contact_email = <input>`
+- After success: show confirmation page with referral code + screenshot guidance
 
----
+### 2B. Post-Booking Registration CTA
 
-## Phase 5: Security Hardening
+After anonymous booking confirmation:
+- Show referral code prominently (large, copyable)
+- TH: "กรุณาแคปหน้าจอนี้และแสดงให้เจ้าหน้าที่ลงทะเบียน"
+- EN: "Please take a screenshot and show this to Medical Registration"
+- CTA button: "Create account to manage appointments" (navigates to /auth with return URL)
 
-### 5.1 RLS audit
-- `appointment_services`: users can SELECT/INSERT for own appointments; staff branch-scoped; admin full
-- `staff_profiles`: public SELECT for name/branch (needed for display); admin manages
-- `notification_logs`: user sees own; admin sees all
-- `risk_assessment_questions`: public SELECT on active
+### 2C. Link Anonymous Bookings After Registration
 
-### 5.2 Data isolation
-- All form states reset on mount (already enforced via React state, no localStorage)
-- Booking page uses only `useState` -- no persistence
-- Auth cleanup on logout already removes stale keys
-
-### 5.3 No AI usage
-- Risk assessment: deterministic question-answer mapping
-- Translation: client-side i18n toggle only
-- No AI calls in booking flow
+- After user registers and logs in, check if any appointments match their email
+- If found, offer to link them (update `user_id` on matching appointments)
+- This is a client-side check on first login (not automatic -- requires consent)
 
 ---
 
-## Phase 6: Production Deploy Checklist
+## Phase 3: Referral / Booking Code
 
-After implementation, verify:
-- [ ] `/booking` route loads and shows 4 branches
-- [ ] Multi-service selection works (checkboxes)
-- [ ] Time slots show correct capacity per branch
-- [ ] Duplicate booking prevention works
-- [ ] Cancellation works from `/my-appointments`
-- [ ] RLS: user A cannot see user B's appointments
-- [ ] Staff can only see their branch's appointments
-- [ ] Language toggle appears on all pages
-- [ ] PEP shows "Free for Thai only" warning
-- [ ] Risk assessment pre-selects services correctly
-- [ ] Email notification fires on booking
-- [ ] No localStorage-based data leakage
+### 3A. Auto-Generate Code
+
+- Postgres trigger generates `SWG-XXXXXX` on every INSERT
+- Stored in `appointments.referral_code`
+- Displayed on confirmation page and in `/my-appointments` detail view
+
+### 3B. Staff Lookup
+
+- Add search input to `AdminBookingContent.tsx`
+- Staff can search by referral code (queries `appointments WHERE referral_code ILIKE`)
+- This bypasses date filter when searching by code
 
 ---
 
-## Technical Details
+## Phase 4: Staff Accounts + Access Control
 
-### Files to create:
-1. `supabase/migrations/XXXX_booking_enhancements.sql` -- all schema changes
-2. `supabase/functions/booking-notification/index.ts` -- email notification edge function
-3. `src/components/booking/RiskAssessment.tsx` -- risk questionnaire component
-4. `src/components/booking/ServiceMultiSelect.tsx` -- multi-select service step
+### 4A. Staff Account Provisioning
 
-### Files to modify:
-1. `src/pages/Booking.tsx` -- multi-service flow, risk assessment, pricing badges, prefill
-2. `src/pages/MyAppointments.tsx` -- show multiple services per appointment
-3. `src/components/admin/AdminBookingContent.tsx` -- multi-service display
-4. `src/components/PageContainer.tsx` -- add LanguageToggle to all pages
-5. `src/components/BottomNav.tsx` -- no changes needed (already has logout cleanup)
+The 13 counselors already exist in `staff_profiles` but have `user_id = NULL`. The existing `create-branch-staff` edge function can create auth accounts.
 
-### Migration SQL summary:
-```text
--- appointment_services join table
--- staff_profiles table + seed data
--- notification_logs table
--- risk_assessment_questions table + seed data
--- Add is_free_clvm column to booking_services
--- Update PEP service pricing flags
--- RLS policies for all new tables
-```
+**Update the edge function** to also:
+- Accept a `staff_profile_id` parameter
+- After creating the auth user, update `staff_profiles.user_id` with the new user ID
+- Expand allowed branches to include `saphankwai` and `petchakasem`
 
-### Staff seeding (13 counselors):
-Accounts created via edge function with role='moderator', linked to branch assignments. Passwords managed via existing admin reset flow -- never exposed in code or logs.
+Admin can then provision accounts from the admin panel.
+
+### 4B. Staff Login & Branch-Scoped Views
+
+Already working via existing RLS policies (once fixed to PERMISSIVE). Staff with `staff_branch_assignments` can only see their branch appointments.
+
+---
+
+## UI Style Direction
+
+Apply across all booking screens:
+- Cards: `rounded-3xl`, soft shadow, generous padding
+- Time slots: `rounded-full` pill buttons
+- Step header with progress indicator (already exists, keep)
+- Bilingual labels consistent throughout
+
+---
+
+## Files to Modify
+
+| File | Changes |
+|------|---------|
+| New migration SQL | Fix RLS, add referral_code, nullable user_id, unique constraint, trigger |
+| `src/pages/Booking.tsx` | Fix checkbox double-toggle, merge date+time step, anonymous booking flow, referral code display, softer UI |
+| `src/pages/MyAppointments.tsx` | Show referral code in detail view, link anonymous bookings |
+| `src/components/admin/AdminBookingContent.tsx` | Add referral code search, display codes |
+| `src/lib/appointments.ts` | Update FullAppointment type to include referral_code |
+| `supabase/functions/create-branch-staff/index.ts` | Accept staff_profile_id, support all 4 branches |
+
+---
+
+## Implementation Order
+
+1. **Migration first** -- fix RLS (critical), add columns, add trigger
+2. **Booking.tsx** -- fix click bug, merge date/time, anonymous flow, referral code
+3. **MyAppointments.tsx** -- show referral code, anonymous linking
+4. **AdminBookingContent.tsx** -- referral code search
+5. **Edge function update** -- support all branches + staff_profile linking
+6. **Test end-to-end**
 
