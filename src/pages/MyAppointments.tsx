@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { PageContainer } from '@/components/PageContainer';
 import { BottomNav } from '@/components/BottomNav';
 import { Card } from '@/components/ui/card';
@@ -12,6 +12,7 @@ import {
   XCircle, AlertCircle, ChevronDown, ChevronUp, FileText, Hash, Copy
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
 import {
   type FullAppointment,
   fetchUserAppointments,
@@ -42,6 +43,13 @@ export default function MyAppointments() {
   const load = useCallback(async () => {
     if (!user) return;
     setLoading(true);
+    // Auto-claim any anonymous appointments matching this user's email
+    if (user.email) {
+      await supabase.rpc('claim_anonymous_appointments', {
+        p_user_id: user.id,
+        p_email: user.email,
+      });
+    }
     const data = await fetchUserAppointments(user.id);
     setAppointments(data);
     setLoading(false);
