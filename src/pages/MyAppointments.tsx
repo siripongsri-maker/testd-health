@@ -113,6 +113,10 @@ export default function MyAppointments() {
       setAppointments(prev =>
         prev.map(a => a.id === appointmentId ? { ...a, status: 'arrived', arrived_at: new Date().toISOString() } : a)
       );
+      // Award 500 XP for self check-in
+      if (user) {
+        await supabase.rpc('award_xp_to_user', { target_user_id: user.id, xp_amount: 500 });
+      }
       toast.success(language === 'th' ? 'เช็คอินเรียบร้อยแล้ว ✅ กรุณารอเจ้าหน้าที่เรียก' : 'Checked in ✅ Please wait to be called');
     } catch (err: any) {
       const msg = err?.message || '';
@@ -136,6 +140,14 @@ export default function MyAppointments() {
       setAppointments(prev =>
         prev.map(a => a.id === checkoutApt.id ? { ...a, status: 'checked_out', checked_out_at: new Date().toISOString() } : a)
       );
+      // Award 500 XP for self check-out
+      if (user) {
+        await supabase.rpc('award_xp_to_user', { target_user_id: user.id, xp_amount: 500 });
+        // Award bonus 500 XP if they gave a rating AND wrote feedback
+        if (checkoutRating && checkoutFeedback.trim()) {
+          await supabase.rpc('award_xp_to_user', { target_user_id: user.id, xp_amount: 500 });
+        }
+      }
       toast.success('ขอบคุณที่ใช้บริการ 💜');
       setCheckoutApt(null);
       setCheckoutCode('');

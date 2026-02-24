@@ -298,6 +298,12 @@ export default function Booking() {
           notification_type: 'booking_created',
           status: 'skipped',
         });
+
+        // Award 1000 XP for booking
+        await supabase.rpc('award_xp_to_user', {
+          target_user_id: user.id,
+          xp_amount: 1000,
+        });
       }
 
       setConfirmedCode(referralCode);
