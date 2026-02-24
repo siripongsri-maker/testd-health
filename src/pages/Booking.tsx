@@ -626,6 +626,7 @@ export default function Booking() {
                     bookedSlots={bookedSlots}
                     selectedTime={selectedTime}
                     onSelectTime={setSelectedTime}
+                    serviceSlugs={selectedServices.map(s => s.slug)}
                   />
                 </div>
               )}
