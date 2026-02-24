@@ -4,7 +4,7 @@ import { BottomNav } from '@/components/BottomNav';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/lib/i18n';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,7 +12,8 @@ import { toast } from 'sonner';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   MapPin, Clock, ChevronRight, ChevronLeft, Calendar as CalendarIcon,
-  Check, Loader2, AlertCircle, CreditCard, Globe, Info, HelpCircle, ShieldAlert
+  Check, Loader2, AlertCircle, CreditCard, Globe, Info, HelpCircle, ShieldAlert,
+  Copy, Camera, UserPlus
 } from 'lucide-react';
 import { format, addDays, startOfDay, getDay } from 'date-fns';
 
@@ -51,7 +52,7 @@ interface RiskQuestion {
   display_order: number;
 }
 
-type Step = 'branch' | 'service' | 'date' | 'time' | 'confirm';
+type Step = 'branch' | 'service' | 'datetime' | 'confirm' | 'success';
 
 const DAY_NAMES_TH = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
 const DAY_NAMES_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -85,9 +86,11 @@ export default function Booking() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [notes, setNotes] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
   const [bookedSlots, setBookedSlots] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [confirmedCode, setConfirmedCode] = useState<string | null>(null);
 
   // Risk assessment state
   const [showRiskAssessment, setShowRiskAssessment] = useState(false);
@@ -157,7 +160,6 @@ export default function Booking() {
       const answer = riskAnswers[q.id];
       if (answer && answer !== 'no') {
         q.recommended_services.forEach(s => recommendedSlugs.add(s));
-        // Special handling for Q4 STI question
         if (answer === 'syphilis') recommendedSlugs.delete('hepc-testing');
         if (answer === 'hepc') recommendedSlugs.delete('syphilis-testing');
       }
@@ -199,9 +201,9 @@ export default function Booking() {
   }, [selectedBranch]);
 
   const handleBook = async () => {
-    if (!user) {
-      toast.error(language === 'th' ? 'กรุณาเข้าสู่ระบบก่อน' : 'Please log in first');
-      navigate('/auth');
+    const isAnonymous = !user;
+    if (isAnonymous && !contactEmail.trim()) {
+      toast.error(language === 'th' ? 'กรุณากรอกอีเมล' : 'Please enter your email');
       return;
     }
     if (!selectedBranch || selectedServices.length === 0 || !selectedDate || !selectedTime) return;
@@ -210,39 +212,49 @@ export default function Booking() {
     try {
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
 
-      // Check for duplicate booking (same user + branch + date + time)
-      const { data: existing } = await supabase
-        .from('appointments')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('branch_id', selectedBranch.id)
-        .eq('appointment_date', dateStr)
-        .eq('start_time', selectedTime + ':00')
-        .neq('status', 'cancelled')
-        .limit(1);
+      // Check for duplicate booking
+      if (user) {
+        const { data: existing } = await supabase
+          .from('appointments')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('branch_id', selectedBranch.id)
+          .eq('appointment_date', dateStr)
+          .eq('start_time', selectedTime + ':00')
+          .neq('status', 'cancelled')
+          .limit(1);
 
-      if (existing && existing.length > 0) {
-        toast.error(language === 'th' ? 'คุณมีนัดหมายในเวลานี้แล้ว' : 'You already have an appointment at this time');
-        setSubmitting(false);
-        return;
+        if (existing && existing.length > 0) {
+          toast.error(language === 'th' ? 'คุณมีนัดหมายในเวลานี้แล้ว' : 'You already have an appointment at this time');
+          setSubmitting(false);
+          return;
+        }
       }
 
-      // Use first selected service as primary (backward compat)
       const primaryService = selectedServices[0];
 
-      const { data, error } = await supabase.from('appointments').insert({
-        user_id: user.id,
+      const insertPayload: Record<string, unknown> = {
         branch_id: selectedBranch.id,
         service_id: primaryService.id,
         appointment_date: dateStr,
         start_time: selectedTime + ':00',
         status: 'booked',
         notes: notes || null,
-      }).select().single();
+      };
+
+      if (user) {
+        insertPayload.user_id = user.id;
+        insertPayload.contact_email = user.email || null;
+      } else {
+        insertPayload.user_id = null;
+        insertPayload.contact_email = contactEmail.trim();
+      }
+
+      const { data, error } = await supabase.from('appointments').insert(insertPayload as any).select('id, referral_code').single();
 
       if (error) throw error;
 
-      // Insert all services into appointment_services join table
+      // Insert all services into join table
       const serviceInserts = selectedServices.map(s => ({
         appointment_id: data.id,
         service_id: s.id,
@@ -250,21 +262,31 @@ export default function Booking() {
       await supabase.from('appointment_services').insert(serviceInserts);
 
       // Log the booking
-      const serviceNames = selectedServices.map(s => s.name_en).join(', ');
-      await supabase.from('appointment_logs').insert({
-        appointment_id: data.id,
-        action: 'booked',
-        performed_by: user.id,
-        details: `Booked ${serviceNames} at ${selectedBranch.name_en}`,
-      });
+      if (user) {
+        const serviceNames = selectedServices.map(s => s.name_en).join(', ');
+        await supabase.from('appointment_logs').insert({
+          appointment_id: data.id,
+          action: 'booked',
+          performed_by: user.id,
+          details: `Booked ${serviceNames} at ${selectedBranch.name_en}`,
+        });
+      }
 
+      setConfirmedCode(data.referral_code);
+      setStep('success');
       toast.success(language === 'th' ? '🎉 จองสำเร็จ!' : '🎉 Booking confirmed!');
-      navigate('/my-appointments');
     } catch (err) {
       console.error('Booking error:', err);
       toast.error(language === 'th' ? 'เกิดข้อผิดพลาด' : 'Something went wrong');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const copyCode = () => {
+    if (confirmedCode) {
+      navigator.clipboard.writeText(confirmedCode);
+      toast.success(language === 'th' ? 'คัดลอกแล้ว' : 'Copied!');
     }
   };
 
@@ -274,13 +296,13 @@ export default function Booking() {
   const stepTitles: Record<Step, string> = {
     branch: language === 'th' ? 'เลือกสาขา' : 'Select Branch',
     service: language === 'th' ? 'เลือกบริการ' : 'Select Services',
-    date: language === 'th' ? 'เลือกวันที่' : 'Select Date',
-    time: language === 'th' ? 'เลือกเวลา' : 'Select Time',
+    datetime: language === 'th' ? 'เลือกวันและเวลา' : 'Select Date & Time',
     confirm: language === 'th' ? 'ยืนยันนัดหมาย' : 'Confirm Booking',
+    success: language === 'th' ? 'จองสำเร็จ' : 'Booking Confirmed',
   };
 
-  const stepOrder: Step[] = ['branch', 'service', 'date', 'time', 'confirm'];
-  const currentIdx = stepOrder.indexOf(step);
+  const stepOrder: Step[] = ['branch', 'service', 'datetime', 'confirm'];
+  const currentIdx = step === 'success' ? 4 : stepOrder.indexOf(step);
 
   if (loading) {
     return (
@@ -321,25 +343,29 @@ export default function Booking() {
           </div>
 
           {/* Step indicator */}
-          <div className="flex items-center gap-1 mb-6">
-            {stepOrder.map((s, i) => (
-              <div key={s} className="flex items-center gap-1 flex-1">
-                <div className={`h-1.5 flex-1 rounded-full transition-colors ${
-                  i <= currentIdx ? 'bg-primary' : 'bg-muted'
-                }`} />
-              </div>
-            ))}
-          </div>
+          {step !== 'success' && (
+            <div className="flex items-center gap-1 mb-6">
+              {stepOrder.map((s, i) => (
+                <div key={s} className="flex items-center gap-1 flex-1">
+                  <div className={`h-1.5 flex-1 rounded-full transition-colors ${
+                    i <= currentIdx ? 'bg-primary' : 'bg-muted'
+                  }`} />
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Back button */}
-          {currentIdx > 0 && (
+          {currentIdx > 0 && step !== 'success' && (
             <Button
               variant="ghost"
               size="sm"
               className="mb-4"
               onClick={() => {
                 setShowRiskAssessment(false);
-                setStep(stepOrder[currentIdx - 1]);
+                if (step === 'confirm') setStep('datetime');
+                else if (step === 'datetime') setStep('service');
+                else if (step === 'service') setStep('branch');
               }}
             >
               <ChevronLeft className="h-4 w-4 mr-1" />
@@ -347,7 +373,9 @@ export default function Booking() {
             </Button>
           )}
 
-          <h2 className="text-lg font-semibold mb-4 text-foreground">{stepTitles[step]}</h2>
+          {step !== 'success' && (
+            <h2 className="text-lg font-semibold mb-4 text-foreground">{stepTitles[step]}</h2>
+          )}
 
           {/* STEP: Branch */}
           {step === 'branch' && (
@@ -355,9 +383,7 @@ export default function Booking() {
               {branches.map(branch => (
                 <Card
                   key={branch.id}
-                  className={`p-4 cursor-pointer transition-all hover:shadow-md ${
-                    selectedBranch?.id === branch.id ? 'ring-2 ring-primary' : ''
-                  }`}
+                  className="p-5 cursor-pointer transition-all hover:shadow-lg rounded-3xl border-2 border-transparent hover:border-primary/30"
                   onClick={() => {
                     setSelectedBranch(branch);
                     setSelectedDate(null);
@@ -368,7 +394,7 @@ export default function Booking() {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-start gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center">
                         <MapPin className="h-5 w-5 text-primary" />
                       </div>
                       <div>
@@ -395,14 +421,13 @@ export default function Booking() {
             </div>
           )}
 
-          {/* STEP: Service (Multi-select with checkboxes) */}
+          {/* STEP: Service (Multi-select) */}
           {step === 'service' && !showRiskAssessment && (
             <div className="space-y-3">
-              {/* Risk assessment button */}
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full gap-2 text-muted-foreground"
+                className="w-full gap-2 text-muted-foreground rounded-full"
                 onClick={loadRiskQuestions}
               >
                 <HelpCircle className="h-4 w-4" />
@@ -415,17 +440,21 @@ export default function Booking() {
                 return (
                   <Card
                     key={svc.id}
-                    className={`p-4 cursor-pointer transition-all hover:shadow-md ${
-                      isSelected ? 'ring-2 ring-primary' : ''
+                    className={`p-4 cursor-pointer transition-all rounded-3xl border-2 ${
+                      isSelected
+                        ? 'border-primary bg-primary/5 shadow-md'
+                        : 'border-transparent hover:border-primary/30 hover:shadow-md'
                     }`}
                     onClick={() => toggleService(svc)}
                   >
                     <div className="flex items-start gap-3">
-                      <Checkbox
-                        checked={isSelected}
-                        onCheckedChange={() => toggleService(svc)}
-                        className="mt-1"
-                      />
+                      <div className={`h-6 w-6 rounded-lg border-2 flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                        isSelected
+                          ? 'bg-primary border-primary text-primary-foreground'
+                          : 'border-muted-foreground/30 bg-background'
+                      }`}>
+                        {isSelected && <Check className="h-4 w-4" />}
+                      </div>
                       <span className="text-2xl">{svc.icon}</span>
                       <div className="flex-1">
                         <h3 className="font-bold text-foreground">
@@ -459,7 +488,7 @@ export default function Booking() {
               })}
 
               {/* PEP warning */}
-              <Card className="p-3 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
+              <Card className="p-3 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 rounded-2xl">
                 <div className="flex items-start gap-2 text-amber-700 dark:text-amber-400 text-xs">
                   <ShieldAlert className="h-4 w-4 shrink-0 mt-0.5" />
                   <div>
@@ -478,9 +507,10 @@ export default function Booking() {
               </Card>
 
               <Button
-                onClick={() => setStep('date')}
+                onClick={() => setStep('datetime')}
                 disabled={selectedServices.length === 0}
-                className="w-full gap-2"
+                className="w-full gap-2 rounded-full h-12"
+                size="lg"
               >
                 {language === 'th' ? `ถัดไป (${selectedServices.length} บริการ)` : `Next (${selectedServices.length} service${selectedServices.length !== 1 ? 's' : ''})`}
                 <ChevronRight className="h-4 w-4" />
@@ -491,7 +521,7 @@ export default function Booking() {
           {/* Risk Assessment overlay */}
           {step === 'service' && showRiskAssessment && (
             <div className="space-y-4">
-              <Card className="p-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+              <Card className="p-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 rounded-2xl">
                 <p className="text-xs text-blue-700 dark:text-blue-400">
                   {language === 'th'
                     ? '⚕️ นี่ไม่ใช่การวินิจฉัย ตอบคำถามเพื่อช่วยแนะนำบริการที่เหมาะสม'
@@ -500,7 +530,7 @@ export default function Booking() {
               </Card>
 
               {riskQuestions.map((q, idx) => (
-                <Card key={q.id} className="p-4">
+                <Card key={q.id} className="p-4 rounded-2xl">
                   <p className="text-sm font-medium text-foreground mb-3">
                     {idx + 1}. {language === 'th' ? q.question_th : q.question_en}
                   </p>
@@ -510,6 +540,7 @@ export default function Booking() {
                         key={opt.value}
                         variant={riskAnswers[q.id] === opt.value ? 'default' : 'outline'}
                         size="sm"
+                        className="rounded-full"
                         onClick={() => setRiskAnswers(prev => ({ ...prev, [q.id]: opt.value }))}
                       >
                         {language === 'th' ? opt.label_th : opt.label_en}
@@ -520,13 +551,13 @@ export default function Booking() {
               ))}
 
               <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setShowRiskAssessment(false)} className="flex-1">
+                <Button variant="outline" onClick={() => setShowRiskAssessment(false)} className="flex-1 rounded-full">
                   {language === 'th' ? 'ยกเลิก' : 'Cancel'}
                 </Button>
                 <Button
                   onClick={applyRiskRecommendations}
                   disabled={Object.keys(riskAnswers).length === 0}
-                  className="flex-1"
+                  className="flex-1 rounded-full"
                 >
                   {language === 'th' ? 'ดูบริการแนะนำ' : 'See Recommendations'}
                 </Button>
@@ -534,91 +565,107 @@ export default function Booking() {
             </div>
           )}
 
-          {/* STEP: Date */}
-          {step === 'date' && (
-            <div className="space-y-3">
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                {availableDates.map(date => {
-                  const isSelected = selectedDate && format(date, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
-                  const dayIdx = getDay(date);
-                  return (
-                    <button
-                      key={date.toISOString()}
-                      onClick={() => {
-                        setSelectedDate(date);
-                        setSelectedTime(null);
-                        setStep('time');
-                      }}
-                      className={`p-3 rounded-xl text-center transition-all border ${
-                        isSelected
-                          ? 'bg-primary text-primary-foreground border-primary'
-                          : 'bg-card border-border hover:border-primary/50'
-                      }`}
-                    >
-                      <p className="text-[10px] uppercase font-medium opacity-70">
-                        {dayLabels[dayIdx]}
-                      </p>
-                      <p className="text-lg font-bold">{format(date, 'd')}</p>
-                      <p className="text-[10px] opacity-70">{format(date, 'MMM')}</p>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* STEP: Time */}
-          {step === 'time' && selectedBranch && (
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                {selectedDate && format(selectedDate, 'EEEE, d MMMM yyyy')}
-              </p>
-              <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-                {timeSlots.map(slot => {
-                  const booked = bookedSlots[slot] || 0;
-                  const available = selectedBranch.counselor_count - booked;
-                  const isFull = available <= 0;
-                  const isSelected = selectedTime === slot;
-
-                  return (
-                    <button
-                      key={slot}
-                      disabled={isFull}
-                      onClick={() => {
-                        setSelectedTime(slot);
-                        setStep('confirm');
-                      }}
-                      className={`p-2 rounded-lg text-center text-sm font-medium transition-all border ${
-                        isFull
-                          ? 'bg-muted text-muted-foreground border-muted cursor-not-allowed opacity-50'
-                          : isSelected
-                          ? 'bg-primary text-primary-foreground border-primary'
-                          : 'bg-card border-border hover:border-primary/50'
-                      }`}
-                    >
-                      {slot}
-                      {!isFull && (
-                        <p className="text-[9px] opacity-60 mt-0.5">
-                          {available}/{selectedBranch.counselor_count}
+          {/* STEP: DateTime (combined) */}
+          {step === 'datetime' && selectedBranch && (
+            <div className="space-y-5">
+              {/* Date pills - horizontal scroll */}
+              <div>
+                <p className="text-sm font-medium text-muted-foreground mb-2">
+                  {language === 'th' ? 'เลือกวันที่' : 'Select Date'}
+                </p>
+                <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
+                  {availableDates.map(date => {
+                    const isSelected = selectedDate && format(date, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
+                    const dayIdx = getDay(date);
+                    return (
+                      <button
+                        key={date.toISOString()}
+                        onClick={() => {
+                          setSelectedDate(date);
+                          setSelectedTime(null);
+                        }}
+                        className={`flex-shrink-0 px-4 py-3 rounded-2xl text-center transition-all border-2 min-w-[72px] ${
+                          isSelected
+                            ? 'bg-primary text-primary-foreground border-primary shadow-md'
+                            : 'bg-card border-border hover:border-primary/50'
+                        }`}
+                      >
+                        <p className="text-[10px] uppercase font-medium opacity-70">
+                          {dayLabels[dayIdx]}
                         </p>
-                      )}
-                    </button>
-                  );
-                })}
+                        <p className="text-lg font-bold">{format(date, 'd')}</p>
+                        <p className="text-[10px] opacity-70">{format(date, 'MMM')}</p>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <div className="h-3 w-3 rounded bg-muted opacity-50" />
-                <span>{language === 'th' ? 'เต็ม' : 'Full'}</span>
-                <div className="h-3 w-3 rounded bg-card border border-border" />
-                <span>{language === 'th' ? 'ว่าง' : 'Available'}</span>
-              </div>
+
+              {/* Time slots grid */}
+              {selectedDate && (
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground mb-2">
+                    {format(selectedDate, 'EEEE, d MMMM yyyy')}
+                    {' — '}
+                    {language === 'th' ? 'เลือกเวลา' : 'Select Time'}
+                  </p>
+                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                    {timeSlots.map(slot => {
+                      const booked = bookedSlots[slot] || 0;
+                      const available = selectedBranch.counselor_count - booked;
+                      const isFull = available <= 0;
+                      const isSelected = selectedTime === slot;
+
+                      return (
+                        <button
+                          key={slot}
+                          disabled={isFull}
+                          onClick={() => setSelectedTime(slot)}
+                          className={`p-2.5 rounded-full text-center text-sm font-medium transition-all border-2 ${
+                            isFull
+                              ? 'bg-muted text-muted-foreground border-muted cursor-not-allowed opacity-40'
+                              : isSelected
+                              ? 'bg-primary text-primary-foreground border-primary shadow-md'
+                              : 'bg-card border-border hover:border-primary/50'
+                          }`}
+                        >
+                          {slot}
+                          {!isFull && (
+                            <p className="text-[9px] opacity-60 mt-0.5">
+                              {available}/{selectedBranch.counselor_count}
+                            </p>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground mt-3">
+                    <div className="h-3 w-3 rounded-full bg-muted opacity-50" />
+                    <span>{language === 'th' ? 'เต็ม' : 'Full'}</span>
+                    <div className="h-3 w-3 rounded-full bg-card border border-border" />
+                    <span>{language === 'th' ? 'ว่าง' : 'Available'}</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Next button */}
+              {selectedDate && selectedTime && (
+                <Button
+                  onClick={() => setStep('confirm')}
+                  className="w-full gap-2 rounded-full h-12"
+                  size="lg"
+                >
+                  {language === 'th' ? 'ถัดไป' : 'Next'}
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           )}
 
           {/* STEP: Confirm */}
           {step === 'confirm' && selectedBranch && selectedServices.length > 0 && selectedDate && selectedTime && (
             <div className="space-y-4">
-              <Card className="p-4 space-y-3">
+              <Card className="p-5 space-y-3 rounded-3xl">
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-primary" />
                   <span className="font-semibold">
@@ -626,7 +673,6 @@ export default function Booking() {
                   </span>
                 </div>
 
-                {/* Multiple services */}
                 <div className="space-y-1.5">
                   <p className="text-xs font-medium text-muted-foreground uppercase">
                     {language === 'th' ? 'บริการที่เลือก' : 'Selected Services'}
@@ -650,8 +696,7 @@ export default function Booking() {
                   <span className="font-bold text-lg">{selectedTime}</span>
                 </div>
 
-                {/* Pricing info */}
-                <div className="flex items-start gap-2 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs">
+                <div className="flex items-start gap-2 p-3 rounded-2xl bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs">
                   <CreditCard className="h-4 w-4 mt-0.5 shrink-0" />
                   <span>
                     {language === 'th'
@@ -671,20 +716,37 @@ export default function Booking() {
                   placeholder={language === 'th' ? 'เช่น ต้องการล่ามภาษาอังกฤษ' : 'e.g., Need English interpreter'}
                   maxLength={500}
                   rows={2}
+                  className="rounded-2xl"
                 />
               </div>
 
+              {/* Anonymous booking: collect email */}
               {!user && (
-                <Card className="p-3 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
-                  <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 text-sm">
-                    <AlertCircle className="h-4 w-4 shrink-0" />
-                    <span>
-                      {language === 'th'
-                        ? 'กรุณาเข้าสู่ระบบก่อนจองนัดหมาย'
-                        : 'Please log in before booking'}
-                    </span>
+                <div className="space-y-3">
+                  <Card className="p-3 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 rounded-2xl">
+                    <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 text-sm">
+                      <AlertCircle className="h-4 w-4 shrink-0" />
+                      <span>
+                        {language === 'th'
+                          ? 'จองโดยไม่ต้องสมัครสมาชิก — กรอกอีเมลเพื่อรับรหัสจอง'
+                          : 'Booking without an account — enter your email to receive a booking code'}
+                      </span>
+                    </div>
+                  </Card>
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-foreground">
+                      {language === 'th' ? 'อีเมลติดต่อ *' : 'Contact Email *'}
+                    </label>
+                    <Input
+                      type="email"
+                      value={contactEmail}
+                      onChange={(e) => setContactEmail(e.target.value)}
+                      placeholder="your@email.com"
+                      className="rounded-xl"
+                      required
+                    />
                   </div>
-                </Card>
+                </div>
               )}
 
               <div className="flex items-start gap-2 text-xs text-muted-foreground">
@@ -698,8 +760,8 @@ export default function Booking() {
 
               <Button
                 onClick={handleBook}
-                disabled={submitting || !user}
-                className="w-full gap-2"
+                disabled={submitting || (!user && !contactEmail.trim())}
+                className="w-full gap-2 rounded-full h-12"
                 size="lg"
               >
                 {submitting ? (
@@ -709,6 +771,89 @@ export default function Booking() {
                 )}
                 {language === 'th' ? 'ยืนยันจอง' : 'Confirm Booking'}
               </Button>
+            </div>
+          )}
+
+          {/* STEP: Success */}
+          {step === 'success' && confirmedCode && selectedBranch && selectedDate && selectedTime && (
+            <div className="space-y-6 text-center py-4">
+              <div className="space-y-2">
+                <div className="h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto">
+                  <Check className="h-8 w-8 text-green-600" />
+                </div>
+                <h2 className="text-xl font-bold text-foreground">
+                  {language === 'th' ? '🎉 จองสำเร็จ!' : '🎉 Booking Confirmed!'}
+                </h2>
+              </div>
+
+              {/* Referral code */}
+              <Card className="p-6 rounded-3xl border-2 border-primary/20 bg-primary/5">
+                <p className="text-xs text-muted-foreground uppercase font-medium mb-2">
+                  {language === 'th' ? 'รหัสจอง / Booking Code' : 'Booking Code'}
+                </p>
+                <button
+                  onClick={copyCode}
+                  className="text-3xl font-mono font-black tracking-widest text-primary hover:opacity-80 transition-opacity flex items-center gap-2 mx-auto"
+                >
+                  {confirmedCode}
+                  <Copy className="h-5 w-5" />
+                </button>
+              </Card>
+
+              {/* Summary */}
+              <Card className="p-4 rounded-3xl text-left space-y-2">
+                <div className="flex items-center gap-2 text-sm">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  <span className="font-semibold">{language === 'th' ? selectedBranch.name_th : selectedBranch.name_en}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <CalendarIcon className="h-4 w-4 text-primary" />
+                  <span>{format(selectedDate, 'd MMMM yyyy')}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <Clock className="h-4 w-4 text-primary" />
+                  <span className="font-bold">{selectedTime}</span>
+                </div>
+                <div className="text-xs text-muted-foreground pt-1">
+                  {selectedServices.map(s => `${s.icon} ${language === 'th' ? s.name_th : s.name_en}`).join(', ')}
+                </div>
+              </Card>
+
+              {/* Screenshot guidance */}
+              <Card className="p-4 rounded-3xl bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
+                <div className="flex items-start gap-3">
+                  <Camera className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                  <div className="text-left text-sm">
+                    <p className="font-semibold text-amber-800 dark:text-amber-300">
+                      {language === 'th'
+                        ? 'กรุณาแคปหน้าจอนี้และแสดงให้เจ้าหน้าที่ลงทะเบียน'
+                        : 'Please take a screenshot and show this to Medical Registration'}
+                    </p>
+                    <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                      {language === 'th'
+                        ? 'เจ้าหน้าที่จะค้นหาด้วยรหัสจองของคุณ'
+                        : 'Staff will look up your booking using this code'}
+                    </p>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Actions */}
+              <div className="space-y-2">
+                {user ? (
+                  <Button onClick={() => navigate('/my-appointments')} className="w-full rounded-full h-12" size="lg">
+                    {language === 'th' ? 'ดูนัดหมายของฉัน' : 'View My Appointments'}
+                  </Button>
+                ) : (
+                  <Button onClick={() => navigate('/auth?redirect=/my-appointments')} className="w-full rounded-full h-12 gap-2" size="lg">
+                    <UserPlus className="h-4 w-4" />
+                    {language === 'th' ? 'สมัครสมาชิกเพื่อจัดการนัดหมาย' : 'Create account to manage appointments'}
+                  </Button>
+                )}
+                <Button variant="outline" onClick={() => navigate('/')} className="w-full rounded-full">
+                  {language === 'th' ? 'กลับหน้าหลัก' : 'Back to Home'}
+                </Button>
+              </div>
             </div>
           )}
         </div>

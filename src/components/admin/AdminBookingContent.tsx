@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -6,8 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useLanguage } from '@/lib/i18n';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { Input } from '@/components/ui/input';
 import {
-  Clock, MapPin, Loader2, RefreshCcw, Wifi, WifiOff, MessageSquarePlus
+  Clock, MapPin, Loader2, RefreshCcw, Wifi, WifiOff, MessageSquarePlus, Search, Hash
 } from 'lucide-react';
 import { format } from 'date-fns';
 import {
@@ -17,6 +19,7 @@ import {
   updateAppointmentStatusRPC,
   addStaffNoteRPC,
   subscribeToAppointments,
+  enrichAppointments,
 } from '@/lib/appointments';
 
 interface Props {
@@ -44,15 +47,29 @@ export default function AdminBookingContent({ userBranch }: Props) {
   const [noteInput, setNoteInput] = useState<Record<string, string>>({});
   const [showNoteFor, setShowNoteFor] = useState<string | null>(null);
   const [addingNote, setAddingNote] = useState(false);
+  const [codeSearch, setCodeSearch] = useState('');
+  const [searchMode, setSearchMode] = useState(false);
   const lastUpdateRef = useRef<number>(0);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const data = await fetchStaffAppointments(dateFilter, statusFilter);
-    setAppointments(data);
+    if (searchMode && codeSearch.trim()) {
+      // Search by referral code — bypass date filter
+      const { data } = await supabase
+        .from('appointments')
+        .select('*, booking_branches(name_th, name_en, slug), booking_services(name_th, name_en, icon)')
+        .ilike('referral_code', `%${codeSearch.trim()}%`)
+        .order('created_at', { ascending: false })
+        .limit(20);
+      const enriched = await enrichAppointments(data as any || []);
+      setAppointments(enriched);
+    } else {
+      const data = await fetchStaffAppointments(dateFilter, statusFilter);
+      setAppointments(data);
+    }
     setLoading(false);
     lastUpdateRef.current = Date.now();
-  }, [dateFilter, statusFilter]);
+  }, [dateFilter, statusFilter, searchMode, codeSearch]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -137,33 +154,56 @@ export default function AdminBookingContent({ userBranch }: Props) {
         </div>
       </div>
 
-      {/* Filters + live badge */}
+      {/* Referral code search */}
       <div className="flex gap-2 items-center">
-        <input
-          type="date"
-          value={dateFilter}
-          onChange={(e) => setDateFilter(e.target.value)}
-          className="flex-1 h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
-        />
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-32">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{language === 'th' ? 'ทั้งหมด' : 'All'}</SelectItem>
-            {STATUS_OPTIONS.map(s => (
-              <SelectItem key={s.value} value={s.value}>{language === 'th' ? s.labelTh : s.labelEn}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Button variant="outline" size="icon" onClick={load}>
-          <RefreshCcw className="h-4 w-4" />
-        </Button>
-        <div className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ${isLive ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-muted text-muted-foreground'}`}>
-          {isLive ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
-          {isLive ? 'Live' : 'Offline'}
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            value={codeSearch}
+            onChange={(e) => {
+              setCodeSearch(e.target.value);
+              setSearchMode(e.target.value.trim().length > 0);
+            }}
+            placeholder={language === 'th' ? 'ค้นหารหัสจอง SWG-...' : 'Search booking code SWG-...'}
+            className="pl-9"
+          />
         </div>
+        {searchMode && (
+          <Button variant="ghost" size="sm" onClick={() => { setCodeSearch(''); setSearchMode(false); }}>
+            {language === 'th' ? 'ล้าง' : 'Clear'}
+          </Button>
+        )}
       </div>
+
+      {/* Filters + live badge */}
+      {!searchMode && (
+        <div className="flex gap-2 items-center">
+          <input
+            type="date"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+            className="flex-1 h-10 rounded-md border border-input bg-background px-3 py-2 text-sm"
+          />
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-32">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{language === 'th' ? 'ทั้งหมด' : 'All'}</SelectItem>
+              {STATUS_OPTIONS.map(s => (
+                <SelectItem key={s.value} value={s.value}>{language === 'th' ? s.labelTh : s.labelEn}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button variant="outline" size="icon" onClick={load}>
+            <RefreshCcw className="h-4 w-4" />
+          </Button>
+          <div className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ${isLive ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-muted text-muted-foreground'}`}>
+            {isLive ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
+            {isLive ? 'Live' : 'Offline'}
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex justify-center py-8">
@@ -193,6 +233,12 @@ export default function AdminBookingContent({ userBranch }: Props) {
                         <MapPin className="h-3 w-3" />
                         <span>{language === 'th' ? apt.booking_branches?.name_th : apt.booking_branches?.name_en}</span>
                       </div>
+                      {apt.referral_code && (
+                        <div className="flex items-center gap-1 text-xs mt-0.5">
+                          <Hash className="h-3 w-3 text-primary" />
+                          <span className="font-mono font-bold text-primary">{apt.referral_code}</span>
+                        </div>
+                      )}
                       {apt.staff && (
                         <p className="text-xs text-primary mt-0.5">
                           👤 {language === 'th' ? apt.staff.name_th : apt.staff.name_en}

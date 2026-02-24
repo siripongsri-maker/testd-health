@@ -211,12 +211,13 @@ export type Database = {
           created_at: string
           id: string
           notes: string | null
-          service_id: string
+          referral_code: string | null
+          service_id: string | null
           staff_notes: string | null
           start_time: string
           status: string
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           appointment_date: string
@@ -229,12 +230,13 @@ export type Database = {
           created_at?: string
           id?: string
           notes?: string | null
-          service_id: string
+          referral_code?: string | null
+          service_id?: string | null
           staff_notes?: string | null
           start_time: string
           status?: string
           updated_at?: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           appointment_date?: string
@@ -247,12 +249,13 @@ export type Database = {
           created_at?: string
           id?: string
           notes?: string | null
-          service_id?: string
+          referral_code?: string | null
+          service_id?: string | null
           staff_notes?: string | null
           start_time?: string
           status?: string
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -2193,6 +2196,19 @@ export type Database = {
       is_branch_staff_for_request: {
         Args: { _pii_id: string; _user_id: string }
         Returns: boolean
+      }
+      lookup_appointment_by_code: {
+        Args: { p_contact_email: string; p_referral_code: string }
+        Returns: {
+          appointment_date: string
+          branch_id: string
+          contact_email: string
+          created_at: string
+          id: string
+          referral_code: string
+          start_time: string
+          status: string
+        }[]
       }
       update_appointment_status: {
         Args: {
