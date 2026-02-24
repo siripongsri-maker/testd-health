@@ -207,11 +207,15 @@ export type Database = {
           branch_id: string
           cancellation_reason: string | null
           cancelled_at: string | null
+          checked_out_at: string | null
           completed_at: string | null
           contact_email: string | null
           created_at: string
+          duration_minutes: number | null
+          feedback: string | null
           id: string
           notes: string | null
+          rating: number | null
           referral_code: string | null
           service_id: string | null
           source: string
@@ -229,11 +233,15 @@ export type Database = {
           branch_id: string
           cancellation_reason?: string | null
           cancelled_at?: string | null
+          checked_out_at?: string | null
           completed_at?: string | null
           contact_email?: string | null
           created_at?: string
+          duration_minutes?: number | null
+          feedback?: string | null
           id?: string
           notes?: string | null
+          rating?: number | null
           referral_code?: string | null
           service_id?: string | null
           source?: string
@@ -251,11 +259,15 @@ export type Database = {
           branch_id?: string
           cancellation_reason?: string | null
           cancelled_at?: string | null
+          checked_out_at?: string | null
           completed_at?: string | null
           contact_email?: string | null
           created_at?: string
+          duration_minutes?: number | null
+          feedback?: string | null
           id?: string
           notes?: string | null
+          rating?: number | null
           referral_code?: string | null
           service_id?: string | null
           source?: string
@@ -2281,6 +2293,19 @@ export type Database = {
           start_time: string
           status: string
         }[]
+      }
+      self_checkin_appointment: {
+        Args: { p_appointment_id: string }
+        Returns: undefined
+      }
+      self_checkout_appointment: {
+        Args: {
+          p_appointment_id: string
+          p_confirm_code: string
+          p_feedback?: string
+          p_rating?: number
+        }
+        Returns: undefined
       }
       start_walkin_service: {
         Args: { p_appointment_id: string }
