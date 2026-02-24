@@ -21,7 +21,7 @@ export interface BranchOption {
   counselor_count: number;
 }
 
-export type ViewMode = 'schedule' | 'calendar';
+export type ViewMode = 'bento' | 'calendar';
 export type DateRange = 'today' | 'week' | 'custom';
 
 export const STATUS_OPTIONS = [

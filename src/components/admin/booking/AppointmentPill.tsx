@@ -1,7 +1,7 @@
 import { useLanguage } from '@/lib/i18n';
 import { getDisplayServices } from '@/lib/appointments';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Hash, Clock, MapPin } from 'lucide-react';
+import { Hash } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { EnrichedAppointment } from './types';
 import { getStatusInfo } from './types';
@@ -22,65 +22,45 @@ export function AppointmentPill({ appointment: apt, selected, onToggleSelect, on
   return (
     <div
       className={cn(
-        "group flex items-start gap-2 p-2 rounded-xl border transition-all cursor-pointer hover:shadow-md",
-        selected ? "border-primary bg-primary/5 shadow-sm" : "border-border/40 bg-background hover:border-primary/30",
+        "group flex items-center gap-2 p-2 rounded-xl border transition-all cursor-pointer hover:shadow-sm",
+        selected ? "border-primary bg-primary/5" : "border-border/30 bg-background hover:border-primary/20",
         compact && "p-1.5"
       )}
       onClick={() => onClick(apt)}
     >
-      <div className="pt-0.5" onClick={(e) => { e.stopPropagation(); onToggleSelect(apt.id); }}>
-        <Checkbox checked={selected} className="h-4 w-4" />
+      <div className="shrink-0" onClick={(e) => { e.stopPropagation(); onToggleSelect(apt.id); }}>
+        <Checkbox checked={selected} className="h-3.5 w-3.5" />
       </div>
 
-      <div className="flex-1 min-w-0 space-y-0.5">
-        {/* Time + Services */}
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-xs font-bold text-foreground">{(apt.start_time as string).slice(0, 5)}</span>
-          <span className="text-sm">{services[0]?.icon || '🩺'}</span>
-          <span className="text-xs font-medium truncate">
-            {services.map(s => language === 'th' ? s.name_th : s.name_en).join(', ')}
-          </span>
-          {services.length > 1 && (
-            <span className="text-[10px] text-muted-foreground">+{services.length - 1}</span>
-          )}
-        </div>
+      {/* Time */}
+      <span className="text-xs font-bold text-foreground shrink-0 w-10 font-mono">{(apt.start_time as string).slice(0, 5)}</span>
 
-        {/* Branch + Referral */}
-        {!compact && (
-          <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-            {apt.booking_branches && (
-              <>
-                <MapPin className="h-3 w-3" />
-                <span>{language === 'th' ? apt.booking_branches.name_th : apt.booking_branches.name_en}</span>
-              </>
-            )}
-            {apt.referral_code && (
-              <>
-                <Hash className="h-3 w-3 text-primary" />
-                <span className="font-mono font-bold text-primary text-[10px]">{apt.referral_code}</span>
-              </>
-            )}
-          </div>
-        )}
-      </div>
+      {/* Service icons (1-2) */}
+      <span className="text-sm shrink-0">{services.slice(0, 2).map(s => s.icon).join('')}</span>
 
-      {/* Badges */}
-      <div className="flex flex-col gap-1 items-end shrink-0">
-        {/* Status badge */}
-        <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded-full", statusInfo.color)}>
-          {language === 'th' ? statusInfo.labelTh : statusInfo.labelEn}
+      {/* Referral code */}
+      {apt.referral_code && (
+        <span className="text-[10px] font-mono font-bold text-primary shrink-0 hidden sm:inline">{apt.referral_code}</span>
+      )}
+
+      {/* Branch (compact) */}
+      {!compact && apt.booking_branches && (
+        <span className="text-[10px] text-muted-foreground truncate flex-1">
+          {language === 'th' ? apt.booking_branches.name_th : apt.booking_branches.name_en}
         </span>
-        {/* New/Returning badge */}
+      )}
+      {compact && <span className="flex-1" />}
+
+      {/* Status dot + New/Return badge */}
+      <div className="flex items-center gap-1.5 shrink-0">
+        <div className={cn("h-2 w-2 rounded-full", statusInfo.color.split(' ')[0])} title={language === 'th' ? statusInfo.labelTh : statusInfo.labelEn} />
         <span className={cn(
-          "text-[10px] font-bold px-1.5 py-0.5 rounded-full",
+          "text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none",
           apt.is_returning
             ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
             : "bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400"
         )}>
-          {apt.is_returning
-            ? (language === 'th' ? 'กลับมาอีกครั้ง' : 'Returning')
-            : (language === 'th' ? 'ใหม่' : 'New')
-          }
+          {apt.is_returning ? (language === 'th' ? 'กลับ' : 'Ret') : (language === 'th' ? 'ใหม่' : 'New')}
         </span>
       </div>
     </div>
