@@ -1,38 +1,27 @@
-import { useState, useEffect, useRef } from "react";
-import type { User as SupabaseUser } from "@supabase/supabase-js";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { LanguageToggle } from "@/components/LanguageToggle";
-import { Button } from "@/components/ui/button";
+
 import { HIVTestPopup } from "@/components/HIVTestPopup";
 import { HomeLeaderboard } from "@/components/HomeLeaderboard";
 import { AdminRequestsPopup } from "@/components/AdminRequestsPopup";
-import { NotificationBell } from "@/components/NotificationBell";
 
 import {
   TestTube,
   MessageCircle,
   BookOpen,
-  Settings,
-  ShieldCheck,
   ClipboardList,
   Users,
   Eye,
   Calendar,
-  User,
   Heart,
-  LogOut,
-  LogIn,
-  Trophy,
-  ChevronDown,
-  UserCircle } from
-"lucide-react";
+} from "lucide-react";
 import swingLogo from "@/assets/swing-logo.webp";
 import testdLogo from "@/assets/testd-logo.png";
-import { toast } from "sonner";
+
 
 // Simple menu card component
 interface MenuCardProps {
@@ -73,71 +62,7 @@ function MenuCard({ icon, titleTh, titleEn, onClick, variant = 'default' }: Menu
 
 }
 
-// User dropdown menu component
-function UserDropdownMenu({ language, navigate, user }: {language: string; navigate: (path: string) => void; user: SupabaseUser;}) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, []);
-
-  const userName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'User';
-
-  return (
-    <div ref={ref} className="relative">
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 glass-sm rounded-full px-3 py-1.5 hover:bg-muted/50 transition-colors">
-
-        <User className="h-4 w-4 text-primary" />
-        <span className="text-sm font-medium text-foreground max-w-[100px] truncate">
-          {userName}
-        </span>
-        <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${open ? 'rotate-180' : ''}`} />
-      </button>
-
-      {open &&
-      <div className="absolute top-full left-0 mt-1.5 w-48 glass rounded-xl shadow-lg border border-border/50 py-1 z-50 animate-fade-in">
-          <button
-          onClick={() => {setOpen(false);navigate('/quests');}}
-          className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm hover:bg-muted/50 transition-colors">
-
-            <Trophy className="h-4 w-4 text-amber-500" />
-            <span className="font-medium">{language === 'th' ? 'ภารกิจ' : 'Quests'}</span>
-          </button>
-          <button
-          onClick={() => {setOpen(false);navigate('/personal-info');}}
-          className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm hover:bg-muted/50 transition-colors">
-
-            <UserCircle className="h-4 w-4 text-primary" />
-            <span className="font-medium">{language === 'th' ? 'ข้อมูลส่วนตัว' : 'Personal Info'}</span>
-          </button>
-          <div className="border-t border-border/50 my-1" />
-          <button
-          onClick={async () => {
-            setOpen(false);
-            await supabase.auth.signOut();
-            localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('currentUser');
-            localStorage.removeItem('testd-user-data');
-            toast.success(language === 'th' ? 'ออกจากระบบแล้ว' : 'Logged out successfully');
-            navigate('/auth');
-          }}
-          className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm hover:bg-destructive/10 text-destructive transition-colors">
-
-            <LogOut className="h-4 w-4" />
-            <span className="font-medium">{language === 'th' ? 'ออกจากระบบ' : 'Log out'}</span>
-          </button>
-        </div>
-      }
-    </div>);
-
-}
 
 export default function Home() {
   const navigate = useNavigate();
@@ -248,67 +173,6 @@ export default function Home() {
     <div className="relative">
       {/* Fixed background layer */}
       <div className="fixed inset-0 gradient-hero -z-10" />
-      
-      {/* Header */}
-      <header className="sticky top-0 z-20 glass-heavy safe-top">
-        <div className="flex items-center justify-between px-4 py-2">
-          <div className="flex items-center gap-2">
-            {/* SWING Logo */}
-            
-
-
-
-
-            
-            {/* Login/Account */}
-            {user ?
-            <UserDropdownMenu language={language} navigate={navigate} user={user} /> :
-
-            <Button
-              variant="ghost"
-              size="sm"
-              className="glass-sm rounded-full px-4"
-              onClick={() => navigate('/auth')}>
-
-                <LogIn className="h-4 w-4 mr-2" />
-                {language === 'th' ? 'เข้าสู่ระบบ' : 'Log in'}
-              </Button>
-            }
-          </div>
-          
-          <div className="flex items-center gap-1">
-            <div className="glass-sm rounded-full">
-              <NotificationBell />
-            </div>
-            {isAdmin &&
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative glass-sm rounded-full"
-              onClick={() => setAdminPopupOpen(true)}>
-
-                <ShieldCheck className="h-5 w-5" />
-                {pendingRequests > 0 &&
-              <span className="absolute -top-1 -right-1 h-4 w-4 bg-destructive text-destructive-foreground text-xs rounded-full flex items-center justify-center font-bold">
-                    {pendingRequests > 9 ? '9+' : pendingRequests}
-                  </span>
-              }
-              </Button>
-            }
-            <div className="glass-sm rounded-full">
-              <LanguageToggle />
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="glass-sm rounded-full"
-              onClick={() => navigate("/settings")}>
-
-              <Settings className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-      </header>
 
       <main className="px-4 sm:px-6 py-3 max-w-md mx-auto relative z-10">
         {/* Welcome text */}

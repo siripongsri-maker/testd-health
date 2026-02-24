@@ -12,6 +12,7 @@ import { PageLoader } from "@/components/PageLoader";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { FloatingMedClock } from "@/components/FloatingMedClock";
 import { PWAUpdateBanner } from "@/components/PWAUpdateBanner";
+import { AppLayout } from "@/components/AppLayout";
 
 // Lazy load all pages for code-splitting
 const Home = lazy(() => import("./pages/Home"));
@@ -70,48 +71,50 @@ const App = () => (
       <BrowserRouter>
         <AnalyticsProvider>
           <Suspense fallback={<PageLoader />}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/onboarding" element={<Onboarding />} />
-              <Route path="/consent" element={<Consent />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/setup/prep-daily" element={<SetupPrepDaily />} />
-              <Route path="/setup/prep-ondemand" element={<SetupPrepOnDemand />} />
-              <Route path="/pep" element={<PEPEmergency />} />
-              <Route path="/pep-tracker" element={<PEPTracker />} />
-              <Route path="/progress" element={<Progress />} />
-              <Route path="/info" element={<Info />} />
-              <Route path="/info/:id" element={<InfoArticle />} />
-              <Route path="/info/article/:slug" element={<InfoArticle />} />
-              <Route path="/info/write" element={<WriteArticle />} />
-              <Route path="/swing" element={<Swing />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/community" element={<Community />} />
-              <Route path="/community/chat/:slug" element={<ChatRoom />} />
-              <Route path="/community/interests" element={<Interests />} />
-              <Route path="/self-care" element={<SelfCare />} />
-              <Route path="/hiv-selftest" element={<HIVSelfTest />} />
-              <Route path="/quests" element={<Quests />} />
-              <Route path="/leaderboard" element={<Leaderboard />} />
-              <Route path="/share-achievements" element={<ShareAchievements />} />
-              <Route path="/surveys" element={<Surveys />} />
-              <Route path="/surveys/:id" element={<SurveyTake />} />
-              <Route path="/surveys/:id/builder" element={<SurveyBuilder />} />
-              <Route path="/health-profile" element={<HealthProfile />} />
-              <Route path="/consultation" element={<ConsultationForm />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/track-order" element={<TrackOrder />} />
-              <Route path="/personal-info" element={<PersonalInfo />} />
-              <Route path="/avatar" element={<AvatarCustomization />} />
-              <Route path="/medication-tracker" element={<MedicationTracker />} />
-              <Route path="/booking" element={<Booking />} />
-              <Route path="/my-appointments" element={<MyAppointments />} />
-              <Route path="/install" element={<Install />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <AppLayout>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/onboarding" element={<Onboarding />} />
+                <Route path="/consent" element={<Consent />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/setup/prep-daily" element={<SetupPrepDaily />} />
+                <Route path="/setup/prep-ondemand" element={<SetupPrepOnDemand />} />
+                <Route path="/pep" element={<PEPEmergency />} />
+                <Route path="/pep-tracker" element={<PEPTracker />} />
+                <Route path="/progress" element={<Progress />} />
+                <Route path="/info" element={<Info />} />
+                <Route path="/info/:id" element={<InfoArticle />} />
+                <Route path="/info/article/:slug" element={<InfoArticle />} />
+                <Route path="/info/write" element={<WriteArticle />} />
+                <Route path="/swing" element={<Swing />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/community" element={<Community />} />
+                <Route path="/community/chat/:slug" element={<ChatRoom />} />
+                <Route path="/community/interests" element={<Interests />} />
+                <Route path="/self-care" element={<SelfCare />} />
+                <Route path="/hiv-selftest" element={<HIVSelfTest />} />
+                <Route path="/quests" element={<Quests />} />
+                <Route path="/leaderboard" element={<Leaderboard />} />
+                <Route path="/share-achievements" element={<ShareAchievements />} />
+                <Route path="/surveys" element={<Surveys />} />
+                <Route path="/surveys/:id" element={<SurveyTake />} />
+                <Route path="/surveys/:id/builder" element={<SurveyBuilder />} />
+                <Route path="/health-profile" element={<HealthProfile />} />
+                <Route path="/consultation" element={<ConsultationForm />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/track-order" element={<TrackOrder />} />
+                <Route path="/personal-info" element={<PersonalInfo />} />
+                <Route path="/avatar" element={<AvatarCustomization />} />
+                <Route path="/medication-tracker" element={<MedicationTracker />} />
+                <Route path="/booking" element={<Booking />} />
+                <Route path="/my-appointments" element={<MyAppointments />} />
+                <Route path="/install" element={<Install />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AppLayout>
           </Suspense>
           <FloatingMedClock />
         </AnalyticsProvider>
