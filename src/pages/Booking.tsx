@@ -29,6 +29,8 @@ interface Branch {
   open_time: string;
   close_time: string;
   slot_duration_minutes: number;
+  address_th?: string | null;
+  address_en?: string | null;
   hero_image_url?: string | null;
   google_place_id?: string | null;
   google_maps_url?: string | null;
@@ -459,6 +461,13 @@ export default function Booking() {
                               )}
                             </div>
                           )}
+                          {/* Address */}
+                          {(language === 'th' ? branch.address_th : branch.address_en) && (
+                            <p className="text-xs text-muted-foreground mt-1 flex items-start gap-1">
+                              <MapPin className="h-3 w-3 mt-0.5 shrink-0" />
+                              <span>{language === 'th' ? branch.address_th : branch.address_en}</span>
+                            </p>
+                          )}
                           <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
                             <Clock className="h-3 w-3" />
                             <span>{branch.open_time.slice(0, 5)} - {branch.close_time.slice(0, 5)}</span>
@@ -474,18 +483,29 @@ export default function Booking() {
                       </div>
                       <ChevronRight className="h-5 w-5 text-muted-foreground" />
                     </div>
-                    {/* Google Maps link */}
-                    {branch.google_maps_url && (
-                      <a
-                        href={branch.google_maps_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="mt-2 inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                      >
-                        <ExternalLink className="h-3 w-3" />
-                        {language === 'th' ? 'เปิดใน Google Maps' : 'Open in Google Maps'}
-                      </a>
+                    {/* Mini static map + Google Maps link */}
+                    {(branch.google_place_id || branch.google_maps_url || branch.google_photo_url) && (
+                      <div className="mt-3 flex gap-2 items-end">
+                        {branch.google_photo_url && (
+                          <img
+                            src={branch.google_photo_url}
+                            alt="Location"
+                            className="h-16 w-24 object-cover rounded-lg border shrink-0"
+                          />
+                        )}
+                        {branch.google_maps_url && (
+                          <a
+                            href={branch.google_maps_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                            {language === 'th' ? 'เปิดใน Google Maps' : 'Open in Google Maps'}
+                          </a>
+                        )}
+                      </div>
                     )}
                   </div>
                 </Card>
