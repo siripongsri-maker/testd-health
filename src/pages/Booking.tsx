@@ -212,7 +212,7 @@ export default function Booking() {
     try {
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
 
-      // Check for duplicate booking
+      // Check for duplicate booking (authenticated users only)
       if (user) {
         const { data: existing } = await supabase
           .from('appointments')
@@ -232,52 +232,82 @@ export default function Booking() {
       }
 
       const primaryService = selectedServices[0];
+      let appointmentId: string;
+      let referralCode: string;
 
-      const insertPayload: Record<string, unknown> = {
-        branch_id: selectedBranch.id,
-        service_id: primaryService.id,
-        appointment_date: dateStr,
-        start_time: selectedTime + ':00',
-        status: 'booked',
-        notes: notes || null,
-      };
+      if (!user) {
+        // Anonymous booking via RPC (bypasses RLS)
+        const { data, error } = await supabase.rpc('create_anonymous_appointment', {
+          p_branch_id: selectedBranch.id,
+          p_service_ids: selectedServices.map(s => s.id),
+          p_appointment_date: dateStr,
+          p_start_time: selectedTime + ':00',
+          p_contact_email: contactEmail.trim(),
+          p_notes: notes || null,
+        });
 
-      if (user) {
-        insertPayload.user_id = user.id;
-        insertPayload.contact_email = user.email || null;
+        if (error) throw error;
+        appointmentId = (data as any).id;
+        referralCode = (data as any).referral_code;
       } else {
-        insertPayload.user_id = null;
-        insertPayload.contact_email = contactEmail.trim();
-      }
+        // Authenticated booking via direct insert
+        const insertPayload: Record<string, unknown> = {
+          branch_id: selectedBranch.id,
+          service_id: primaryService.id,
+          appointment_date: dateStr,
+          start_time: selectedTime + ':00',
+          status: 'booked',
+          notes: notes || null,
+          user_id: user.id,
+          contact_email: user.email || null,
+        };
 
-      const { data, error } = await supabase.from('appointments').insert(insertPayload as any).select('id, referral_code').single();
+        const { data, error } = await supabase.from('appointments').insert(insertPayload as any).select('id, referral_code').single();
+        if (error) throw error;
 
-      if (error) throw error;
+        appointmentId = data.id;
+        referralCode = data.referral_code;
 
-      // Insert all services into join table
-      const serviceInserts = selectedServices.map(s => ({
-        appointment_id: data.id,
-        service_id: s.id,
-      }));
-      await supabase.from('appointment_services').insert(serviceInserts);
+        // Insert services into join table
+        const serviceInserts = selectedServices.map(s => ({
+          appointment_id: appointmentId,
+          service_id: s.id,
+        }));
+        await supabase.from('appointment_services').insert(serviceInserts);
 
-      // Log the booking
-      if (user) {
+        // Log the booking
         const serviceNames = selectedServices.map(s => s.name_en).join(', ');
         await supabase.from('appointment_logs').insert({
-          appointment_id: data.id,
+          appointment_id: appointmentId,
           action: 'booked',
           performed_by: user.id,
           details: `Booked ${serviceNames} at ${selectedBranch.name_en}`,
         });
+
+        // Log notification as skipped (email disabled for now)
+        await supabase.from('notification_logs').insert({
+          appointment_id: appointmentId,
+          email_masked: (user.email || '').slice(0, 3) + '***',
+          notification_type: 'booking_created',
+          status: 'skipped',
+        });
       }
 
-      setConfirmedCode(data.referral_code);
+      setConfirmedCode(referralCode);
       setStep('success');
       toast.success(language === 'th' ? '🎉 จองสำเร็จ!' : '🎉 Booking confirmed!');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Booking error:', err);
-      toast.error(language === 'th' ? 'เกิดข้อผิดพลาด' : 'Something went wrong');
+      const msg = err?.message || '';
+      const code = err?.code || '';
+
+      if (code === '23505' || msg.includes('duplicate') || msg.includes('unique')) {
+        toast.error(language === 'th' ? 'ช่วงเวลานี้ถูกจองแล้ว กรุณาเลือกเวลาอื่น' : 'This time slot is already booked. Please choose another time.');
+      } else if (msg.includes('row-level security') || msg.includes('permission') || code === '42501') {
+        toast.error(language === 'th' ? 'ระบบยังไม่อนุญาตการจองนี้ (ERR_BOOKING_RLS)' : 'Booking not permitted (ERR_BOOKING_RLS)');
+      } else {
+        toast.error(language === 'th' ? `เกิดข้อผิดพลาด (ERR_BOOKING_INSERT)` : `Something went wrong (ERR_BOOKING_INSERT)`);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -839,16 +869,35 @@ export default function Booking() {
               </Card>
 
               {/* Actions */}
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {user ? (
                   <Button onClick={() => navigate('/my-appointments')} className="w-full rounded-full h-12" size="lg">
                     {language === 'th' ? 'ดูนัดหมายของฉัน' : 'View My Appointments'}
                   </Button>
                 ) : (
-                  <Button onClick={() => navigate('/auth?redirect=/my-appointments')} className="w-full rounded-full h-12 gap-2" size="lg">
-                    <UserPlus className="h-4 w-4" />
-                    {language === 'th' ? 'สมัครสมาชิกเพื่อจัดการนัดหมาย' : 'Create account to manage appointments'}
-                  </Button>
+                  <>
+                    <Card className="p-4 rounded-3xl border-2 border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20">
+                      <div className="flex items-start gap-3">
+                        <UserPlus className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+                        <div className="text-left">
+                          <p className="text-sm font-semibold text-green-800 dark:text-green-300">
+                            {language === 'th'
+                              ? 'อยากจัดการนัดง่ายขึ้นไหม?'
+                              : 'Want to manage your appointment easily?'}
+                          </p>
+                          <p className="text-xs text-green-600 dark:text-green-400 mt-0.5">
+                            {language === 'th'
+                              ? 'สมัครสมาชิกเพื่อดู เลื่อน หรือยกเลิกนัดได้ทันที'
+                              : 'Register to view, reschedule, or cancel your booking anytime'}
+                          </p>
+                        </div>
+                      </div>
+                    </Card>
+                    <Button onClick={() => navigate('/auth?redirect=/my-appointments')} className="w-full rounded-full h-12 gap-2" size="lg">
+                      <UserPlus className="h-4 w-4" />
+                      {language === 'th' ? 'สมัครสมาชิกเพื่อจัดการนัดหมาย' : 'Register to manage appointments'}
+                    </Button>
+                  </>
                 )}
                 <Button variant="outline" onClick={() => navigate('/')} className="w-full rounded-full">
                   {language === 'th' ? 'กลับหน้าหลัก' : 'Back to Home'}
