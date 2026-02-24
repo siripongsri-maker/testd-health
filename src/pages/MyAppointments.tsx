@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import {
   Calendar, Clock, MapPin, Plus, Loader2, CheckCircle2,
-  XCircle, AlertCircle, ChevronDown, ChevronUp, FileText
+  XCircle, AlertCircle, ChevronDown, ChevronUp, FileText, Hash, Copy
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import {
@@ -168,6 +168,22 @@ export default function MyAppointments() {
 
         {isExpanded && (
           <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
+            {apt.referral_code && (
+              <div className="flex items-center gap-2">
+                <Hash className="h-4 w-4 text-primary" />
+                <span className="font-mono font-bold text-primary text-sm">{apt.referral_code}</span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(apt.referral_code!);
+                    toast.success(language === 'th' ? 'คัดลอกแล้ว' : 'Copied!');
+                  }}
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
             {displayServices.length > 1 && (
               <div className="text-xs text-muted-foreground">
                 <span className="font-medium">{language === 'th' ? 'บริการ: ' : 'Services: '}</span>

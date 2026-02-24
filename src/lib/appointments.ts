@@ -35,8 +35,9 @@ export interface AppointmentLogEntry {
 
 export interface FullAppointment {
   id: string;
-  user_id: string;
+  user_id: string | null;
   branch_id: string;
+  referral_code: string | null;
   appointment_date: string;
   start_time: string;
   status: string;
@@ -117,7 +118,7 @@ export async function fetchAppointmentById(appointmentId: string): Promise<FullA
 /**
  * Enrich appointment rows with multi-service data, staff info, and latest logs.
  */
-async function enrichAppointments(rows: FullAppointment[]): Promise<FullAppointment[]> {
+export async function enrichAppointments(rows: FullAppointment[]): Promise<FullAppointment[]> {
   if (rows.length === 0) return rows;
 
   const ids = rows.map(r => r.id);

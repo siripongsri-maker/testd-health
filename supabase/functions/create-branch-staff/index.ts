@@ -51,37 +51,37 @@
        });
      }
  
-    const { username, password, branch, displayName } = await req.json();
+     const { username, password, branch, displayName, staff_profile_id } = await req.json();
 
-    if (!username || !password || !branch) {
-      return new Response(
-        JSON.stringify({ error: "Missing required fields: username, password, branch" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+     if (!username || !password || !branch) {
+       return new Response(
+         JSON.stringify({ error: "Missing required fields: username, password, branch" }),
+         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+       );
+     }
 
-    // Validate username format and length
-    if (username.length > 50 || !/^[a-zA-Z0-9_-]+$/.test(username)) {
-      return new Response(
-        JSON.stringify({ error: "Invalid username format (max 50 chars, alphanumeric, underscore, dash only)" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+     // Validate username format and length
+     if (username.length > 50 || !/^[a-zA-Z0-9_-]+$/.test(username)) {
+       return new Response(
+         JSON.stringify({ error: "Invalid username format (max 50 chars, alphanumeric, underscore, dash only)" }),
+         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+       );
+     }
 
-    // Validate password length (min 8, max 128 to prevent DoS)
-    if (password.length < 8 || password.length > 128) {
-      return new Response(
-        JSON.stringify({ error: "Password must be 8-128 characters" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+     // Validate password length (min 8, max 128 to prevent DoS)
+     if (password.length < 8 || password.length > 128) {
+       return new Response(
+         JSON.stringify({ error: "Password must be 8-128 characters" }),
+         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+       );
+     }
 
-    if (!["silom", "pattaya"].includes(branch)) {
-      return new Response(
-        JSON.stringify({ error: "Invalid branch. Must be 'silom' or 'pattaya'" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
+     if (!["silom", "pattaya", "saphankwai", "petchakasem"].includes(branch)) {
+       return new Response(
+         JSON.stringify({ error: "Invalid branch. Must be 'silom', 'pattaya', 'saphankwai', or 'petchakasem'" }),
+         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+       );
+     }
  
      // Create the user with username@swingth.local pattern
      const email = `${username}@swingth.local`;
@@ -117,15 +117,27 @@
        .from("staff_branch_assignments")
        .insert({ user_id: userId, branch });
  
-     if (branchError) {
-       console.error("Error assigning branch:", branchError);
-     }
- 
-     // Update profile display name
-     await supabaseAdmin
-       .from("profiles")
-       .update({ display_name: displayName || `${branch.charAt(0).toUpperCase() + branch.slice(1)} Staff` })
-       .eq("id", userId);
+      if (branchError) {
+        console.error("Error assigning branch:", branchError);
+      }
+
+      // Link to staff_profiles if staff_profile_id provided
+      if (staff_profile_id) {
+        const { error: linkError } = await supabaseAdmin
+          .from("staff_profiles")
+          .update({ user_id: userId })
+          .eq("id", staff_profile_id);
+
+        if (linkError) {
+          console.error("Error linking staff profile:", linkError);
+        }
+      }
+
+      // Update profile display name
+      await supabaseAdmin
+        .from("profiles")
+        .update({ display_name: displayName || `${branch.charAt(0).toUpperCase() + branch.slice(1)} Staff` })
+        .eq("id", userId);
  
      return new Response(
        JSON.stringify({
