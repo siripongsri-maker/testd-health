@@ -50,6 +50,11 @@ export interface FullAppointment {
   completed_at: string | null;
   cancellation_reason: string | null;
   attended_by: string | null;
+  arrived_at: string | null;
+  checked_out_at: string | null;
+  duration_minutes: number | null;
+  rating: number | null;
+  feedback: string | null;
   booking_branches: BranchInfo | null;
   booking_services: ServiceInfo | null; // primary/legacy service
   services: ServiceInfo[]; // from join table (source of truth)
@@ -216,6 +221,34 @@ export async function addStaffNoteRPC(appointmentId: string, note: string) {
   const { error } = await supabase.rpc('add_staff_note', {
     p_appointment_id: appointmentId,
     p_note: note,
+  });
+  if (error) throw error;
+}
+
+/**
+ * Self check-in via secure RPC.
+ */
+export async function selfCheckinRPC(appointmentId: string) {
+  const { error } = await supabase.rpc('self_checkin_appointment', {
+    p_appointment_id: appointmentId,
+  });
+  if (error) throw error;
+}
+
+/**
+ * Self check-out via secure RPC.
+ */
+export async function selfCheckoutRPC(
+  appointmentId: string,
+  confirmCode: string,
+  rating?: number | null,
+  feedback?: string | null
+) {
+  const { error } = await supabase.rpc('self_checkout_appointment', {
+    p_appointment_id: appointmentId,
+    p_confirm_code: confirmCode,
+    p_rating: rating ?? null,
+    p_feedback: feedback ?? null,
   });
   if (error) throw error;
 }

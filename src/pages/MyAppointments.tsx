@@ -1,34 +1,46 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { PageContainer } from '@/components/PageContainer';
 import { BottomNav } from '@/components/BottomNav';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { useLanguage } from '@/lib/i18n';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import {
   Calendar, Clock, MapPin, Plus, Loader2, CheckCircle2,
-  XCircle, AlertCircle, ChevronDown, ChevronUp, FileText, Hash, Copy
+  XCircle, AlertCircle, ChevronDown, ChevronUp, FileText, Hash, Copy,
+  LogIn, LogOut, Star, Timer,
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+} from '@/components/ui/dialog';
 import {
   type FullAppointment,
   fetchUserAppointments,
   getDisplayServices,
   updateAppointmentStatusRPC,
   subscribeToAppointments,
+  selfCheckinRPC,
+  selfCheckoutRPC,
 } from '@/lib/appointments';
 
 const STATUS_CONFIG: Record<string, { labelTh: string; labelEn: string; color: string; icon: typeof CheckCircle2 }> = {
   booked: { labelTh: 'จองแล้ว', labelEn: 'Booked', color: 'text-blue-600 bg-blue-100 dark:bg-blue-900/30', icon: Calendar },
   confirmed: { labelTh: 'ยืนยันแล้ว', labelEn: 'Confirmed', color: 'text-green-600 bg-green-100 dark:bg-green-900/30', icon: CheckCircle2 },
+  arrived: { labelTh: 'เช็คอินแล้ว', labelEn: 'Checked In', color: 'text-amber-600 bg-amber-100 dark:bg-amber-900/30', icon: LogIn },
   in_progress: { labelTh: 'กำลังรับบริการ', labelEn: 'In Progress', color: 'text-amber-600 bg-amber-100 dark:bg-amber-900/30', icon: Clock },
   completed: { labelTh: 'เสร็จสิ้น', labelEn: 'Completed', color: 'text-green-700 bg-green-100 dark:bg-green-900/30', icon: CheckCircle2 },
+  checked_out: { labelTh: 'เสร็จสิ้น', labelEn: 'Completed', color: 'text-green-700 bg-green-100 dark:bg-green-900/30', icon: CheckCircle2 },
   cancelled: { labelTh: 'ยกเลิก', labelEn: 'Cancelled', color: 'text-red-600 bg-red-100 dark:bg-red-900/30', icon: XCircle },
   no_show: { labelTh: 'ไม่มาตามนัด', labelEn: 'No Show', color: 'text-gray-600 bg-gray-100 dark:bg-gray-900/30', icon: AlertCircle },
 };
+
+const ACTIVE_STATUSES = new Set(['booked', 'confirmed', 'arrived']);
 
 export default function MyAppointments() {
   const { language } = useLanguage();
@@ -39,11 +51,18 @@ export default function MyAppointments() {
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [checkinLoadingId, setCheckinLoadingId] = useState<string | null>(null);
+
+  // Check-out dialog state
+  const [checkoutApt, setCheckoutApt] = useState<FullAppointment | null>(null);
+  const [checkoutCode, setCheckoutCode] = useState('');
+  const [checkoutRating, setCheckoutRating] = useState<number | null>(null);
+  const [checkoutFeedback, setCheckoutFeedback] = useState('');
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const load = useCallback(async () => {
     if (!user) return;
     setLoading(true);
-    // Auto-claim any anonymous appointments matching this user's email
     if (user.email) {
       await supabase.rpc('claim_anonymous_appointments', {
         p_user_id: user.id,
@@ -57,24 +76,14 @@ export default function MyAppointments() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Realtime: subscribe to own appointments
   useEffect(() => {
     if (!user) return;
-
     const debounceTimer = { current: null as ReturnType<typeof setTimeout> | null };
-
     const handleUpdate = () => {
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
-      debounceTimer.current = setTimeout(() => {
-        load();
-      }, 500);
+      debounceTimer.current = setTimeout(() => load(), 500);
     };
-
-    const unsubscribe = subscribeToAppointments(handleUpdate, {
-      column: 'user_id',
-      value: user.id,
-    });
-
+    const unsubscribe = subscribeToAppointments(handleUpdate, { column: 'user_id', value: user.id });
     return () => {
       unsubscribe();
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
@@ -97,8 +106,55 @@ export default function MyAppointments() {
     }
   };
 
-  const upcoming = appointments.filter(a => a.status === 'booked' || a.status === 'confirmed');
-  const past = appointments.filter(a => a.status !== 'booked' && a.status !== 'confirmed');
+  const handleCheckin = async (appointmentId: string) => {
+    setCheckinLoadingId(appointmentId);
+    try {
+      await selfCheckinRPC(appointmentId);
+      setAppointments(prev =>
+        prev.map(a => a.id === appointmentId ? { ...a, status: 'arrived', arrived_at: new Date().toISOString() } : a)
+      );
+      toast.success(language === 'th' ? 'เช็คอินเรียบร้อยแล้ว ✅ กรุณารอเจ้าหน้าที่เรียก' : 'Checked in ✅ Please wait to be called');
+    } catch (err: any) {
+      const msg = err?.message || '';
+      if (msg.includes('Too early')) {
+        toast.error(language === 'th' ? 'ยังเร็วเกินไป กรุณากลับมาใกล้เวลานัด' : 'Too early to check in');
+      } else if (msg.includes('expired')) {
+        toast.error(language === 'th' ? 'หมดเวลาเช็คอินแล้ว' : 'Check-in window expired');
+      } else {
+        toast.error(language === 'th' ? 'เกิดข้อผิดพลาด' : 'Something went wrong');
+      }
+    } finally {
+      setCheckinLoadingId(null);
+    }
+  };
+
+  const handleCheckout = async () => {
+    if (!checkoutApt) return;
+    setCheckoutLoading(true);
+    try {
+      await selfCheckoutRPC(checkoutApt.id, checkoutCode, checkoutRating, checkoutFeedback || null);
+      setAppointments(prev =>
+        prev.map(a => a.id === checkoutApt.id ? { ...a, status: 'checked_out', checked_out_at: new Date().toISOString() } : a)
+      );
+      toast.success('ขอบคุณที่ใช้บริการ 💜');
+      setCheckoutApt(null);
+      setCheckoutCode('');
+      setCheckoutRating(null);
+      setCheckoutFeedback('');
+    } catch (err: any) {
+      const msg = err?.message || '';
+      if (msg.includes('code does not match')) {
+        toast.error(language === 'th' ? 'รหัสนัดหมายไม่ตรง' : 'Referral code does not match');
+      } else {
+        toast.error(language === 'th' ? 'เกิดข้อผิดพลาด' : 'Something went wrong');
+      }
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
+  const upcoming = appointments.filter(a => ACTIVE_STATUSES.has(a.status));
+  const past = appointments.filter(a => !ACTIVE_STATUSES.has(a.status));
 
   if (authLoading || loading) {
     return (
@@ -132,6 +188,8 @@ export default function MyAppointments() {
     const status = STATUS_CONFIG[apt.status] || STATUS_CONFIG.booked;
     const isExpanded = expandedId === apt.id;
     const canCancel = apt.status === 'booked' || apt.status === 'confirmed';
+    const canCheckin = apt.status === 'booked' || apt.status === 'confirmed';
+    const canCheckout = apt.status === 'arrived';
     const displayServices = getDisplayServices(apt);
 
     return (
@@ -176,22 +234,68 @@ export default function MyAppointments() {
 
         {isExpanded && (
           <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
+            {/* Referral code - always prominent */}
             {apt.referral_code && (
-              <div className="flex items-center gap-2">
-                <Hash className="h-4 w-4 text-primary" />
-                <span className="font-mono font-bold text-primary text-sm">{apt.referral_code}</span>
+              <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 flex items-center gap-3">
+                <Hash className="h-5 w-5 text-primary shrink-0" />
+                <span className="font-mono font-bold text-primary text-lg tracking-wider">{apt.referral_code}</span>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     navigator.clipboard.writeText(apt.referral_code!);
                     toast.success(language === 'th' ? 'คัดลอกแล้ว' : 'Copied!');
                   }}
-                  className="text-muted-foreground hover:text-primary transition-colors"
+                  className="ml-auto text-muted-foreground hover:text-primary transition-colors"
                 >
-                  <Copy className="h-3.5 w-3.5" />
+                  <Copy className="h-4 w-4" />
                 </button>
               </div>
             )}
+
+            {/* Helper text for booked/confirmed */}
+            {canCheckin && (
+              <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-2">
+                เมื่อมาถึงคลินิก ให้กดเช็คอิน และแสดงรหัสนี้ให้เจ้าหน้าที่
+                <br />
+                <span className="text-[10px] opacity-70">(When you arrive, tap Check-in and show this code to staff)</span>
+              </p>
+            )}
+
+            {/* Arrived status helper */}
+            {apt.status === 'arrived' && (
+              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 text-center">
+                <p className="text-sm font-medium text-amber-700 dark:text-amber-300">
+                  ✅ เช็คอินแล้ว • กำลังรอ
+                  <span className="text-xs opacity-70 ml-1">(Checked in • Waiting)</span>
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  หากมีปัญหา กรุณาติดต่อจุดลงทะเบียน
+                </p>
+              </div>
+            )}
+
+            {/* Checked out / completed info */}
+            {apt.status === 'checked_out' && (
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 text-center space-y-1">
+                <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                  💜 ขอบคุณที่ใช้บริการ
+                </p>
+                {apt.duration_minutes != null && (
+                  <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+                    <Timer className="h-3 w-3" />
+                    {language === 'th' ? `ระยะเวลา: ${apt.duration_minutes} นาที` : `Duration: ${apt.duration_minutes} min`}
+                  </p>
+                )}
+                {apt.rating != null && (
+                  <div className="flex items-center justify-center gap-0.5">
+                    {[1, 2, 3, 4, 5].map(s => (
+                      <Star key={s} className={`h-4 w-4 ${s <= apt.rating! ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground/30'}`} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {displayServices.length > 1 && (
               <div className="text-xs text-muted-foreground">
                 <span className="font-medium">{language === 'th' ? 'บริการ: ' : 'Services: '}</span>
@@ -225,28 +329,76 @@ export default function MyAppointments() {
               {language === 'th' ? 'จองเมื่อ: ' : 'Booked: '}
               {format(parseISO(apt.created_at), 'd MMM yyyy HH:mm')}
             </div>
-            {canCancel && (
-              <Button
-                variant="destructive"
-                size="sm"
-                disabled={cancellingId === apt.id}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (confirm(language === 'th' ? 'ยืนยันยกเลิกนัดหมาย?' : 'Cancel this appointment?')) {
-                    handleCancel(apt.id);
-                  }
-                }}
-                className="w-full"
-              >
-                {cancellingId === apt.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4 mr-2" />}
-                {language === 'th' ? 'ยกเลิกนัดหมาย' : 'Cancel Appointment'}
-              </Button>
-            )}
+
+            {/* === ACTION BUTTONS === */}
+            <div className="space-y-2 pt-1">
+              {/* Check-in button */}
+              {canCheckin && (
+                <Button
+                  size="lg"
+                  disabled={checkinLoadingId === apt.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCheckin(apt.id);
+                  }}
+                  className="w-full h-14 text-base font-bold bg-green-600 hover:bg-green-700 text-white gap-2"
+                >
+                  {checkinLoadingId === apt.id ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <LogIn className="h-5 w-5" />
+                  )}
+                  เช็คอิน (Check-in)
+                </Button>
+              )}
+
+              {/* Check-out button */}
+              {canCheckout && (
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCheckoutApt(apt);
+                    setCheckoutCode('');
+                    setCheckoutRating(null);
+                    setCheckoutFeedback('');
+                  }}
+                  className="w-full h-14 text-base font-bold border-primary text-primary gap-2"
+                >
+                  <LogOut className="h-5 w-5" />
+                  เช็คเอาท์ (Check-out)
+                </Button>
+              )}
+
+              {/* Cancel button */}
+              {canCancel && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={cancellingId === apt.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (confirm(language === 'th' ? 'ยืนยันยกเลิกนัดหมาย?' : 'Cancel this appointment?')) {
+                      handleCancel(apt.id);
+                    }
+                  }}
+                  className="w-full text-destructive hover:text-destructive"
+                >
+                  {cancellingId === apt.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4 mr-2" />}
+                  {language === 'th' ? 'ยกเลิกนัดหมาย' : 'Cancel Appointment'}
+                </Button>
+              )}
+            </div>
           </div>
         )}
       </Card>
     );
   };
+
+  const checkoutCodeValid = checkoutApt?.referral_code
+    ? checkoutCode.trim().toUpperCase() === checkoutApt.referral_code.trim().toUpperCase()
+    : false;
 
   return (
     <>
@@ -319,6 +471,103 @@ export default function MyAppointments() {
         </div>
       </PageContainer>
       <BottomNav />
+
+      {/* Check-out Confirmation Dialog */}
+      <Dialog open={!!checkoutApt} onOpenChange={(open) => !open && setCheckoutApt(null)}>
+        <DialogContent className="max-w-sm mx-auto">
+          <DialogHeader>
+            <DialogTitle className="text-center">
+              เช็คเอาท์ <span className="text-sm font-normal opacity-70">(Check-out)</span>
+            </DialogTitle>
+            <DialogDescription className="text-center text-xs">
+              ยืนยันการเช็คเอาท์โดยกรอกรหัสนัดหมาย
+            </DialogDescription>
+          </DialogHeader>
+
+          {checkoutApt && (
+            <div className="space-y-4">
+              {/* Appointment summary */}
+              <div className="bg-muted/50 rounded-lg p-3 space-y-1 text-sm">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span>{language === 'th' ? checkoutApt.booking_branches?.name_th : checkoutApt.booking_branches?.name_en}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span>{format(parseISO(checkoutApt.appointment_date), 'd MMM yyyy')}</span>
+                  <Clock className="h-3.5 w-3.5 text-muted-foreground ml-2" />
+                  <span className="font-bold">{(checkoutApt.start_time as string).slice(0, 5)}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Hash className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="font-mono font-bold text-primary">{checkoutApt.referral_code}</span>
+                </div>
+              </div>
+
+              {/* Code confirmation */}
+              <div>
+                <label className="text-sm font-medium block mb-1.5">
+                  กรุณากรอกรหัสนัดหมายเพื่อยืนยัน
+                  <span className="text-xs opacity-60 ml-1">(Enter referral code)</span>
+                </label>
+                <Input
+                  placeholder="SWG-XXXXXX"
+                  value={checkoutCode}
+                  onChange={(e) => setCheckoutCode(e.target.value.toUpperCase())}
+                  className="font-mono text-center text-lg tracking-wider"
+                  autoComplete="off"
+                />
+              </div>
+
+              {/* Optional rating */}
+              <div>
+                <label className="text-sm font-medium block mb-2">
+                  ให้คะแนนบริการ <span className="text-xs opacity-60">(ไม่บังคับ / Optional)</span>
+                </label>
+                <div className="flex items-center justify-center gap-2">
+                  {[1, 2, 3, 4, 5].map(s => (
+                    <button
+                      key={s}
+                      onClick={() => setCheckoutRating(checkoutRating === s ? null : s)}
+                      className="p-1 transition-transform hover:scale-110"
+                    >
+                      <Star className={`h-8 w-8 ${checkoutRating != null && s <= checkoutRating ? 'text-yellow-500 fill-yellow-500' : 'text-muted-foreground/30'}`} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Optional feedback */}
+              <div>
+                <label className="text-sm font-medium block mb-1.5">
+                  ความคิดเห็น <span className="text-xs opacity-60">(ไม่บังคับ / Optional)</span>
+                </label>
+                <Textarea
+                  placeholder="แสดงความคิดเห็นแบบไม่ระบุตัวตน..."
+                  value={checkoutFeedback}
+                  onChange={(e) => setCheckoutFeedback(e.target.value)}
+                  rows={2}
+                />
+              </div>
+
+              {/* Confirm button */}
+              <Button
+                size="lg"
+                disabled={!checkoutCodeValid || checkoutLoading}
+                onClick={handleCheckout}
+                className="w-full h-14 text-base font-bold gap-2"
+              >
+                {checkoutLoading ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="h-5 w-5" />
+                )}
+                ยืนยันเช็คเอาท์
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
