@@ -13,6 +13,7 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { FloatingMedClock } from "@/components/FloatingMedClock";
 import { PWAUpdateBanner } from "@/components/PWAUpdateBanner";
 import { AppLayout } from "@/components/AppLayout";
+import { ForceUpdateGuard } from "@/components/ForceUpdateGuard";
 
 // Lazy load all pages for code-splitting
 const Home = lazy(() => import("./pages/Home"));
@@ -59,6 +60,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const queryClient = new QueryClient();
 
 const App = () => (
+  <ForceUpdateGuard>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <ThemedBackground />
@@ -121,6 +123,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
+  </ForceUpdateGuard>
 );
 
 export default App;
