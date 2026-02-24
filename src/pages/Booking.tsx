@@ -429,18 +429,19 @@ export default function Booking() {
                     setStep('service');
                   }}
                 >
-                  {/* Hero image */}
-                  {branch.hero_image_url && (
+                  {/* Main image: hero > google_photo > placeholder */}
+                  {(branch.hero_image_url || branch.google_photo_url) ? (
                     <img
-                      src={branch.hero_image_url}
+                      src={branch.hero_image_url || branch.google_photo_url!}
                       alt={language === 'th' ? branch.name_th : branch.name_en}
                       className="w-full h-32 object-cover"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                     />
-                  )}
+                  ) : null}
                   <div className="p-5">
                     <div className="flex items-center justify-between">
                       <div className="flex items-start gap-3">
-                        {!branch.hero_image_url && (
+                        {!branch.hero_image_url && !branch.google_photo_url && (
                           <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center">
                             <MapPin className="h-5 w-5 text-primary" />
                           </div>
@@ -483,14 +484,15 @@ export default function Booking() {
                       </div>
                       <ChevronRight className="h-5 w-5 text-muted-foreground" />
                     </div>
-                    {/* Mini static map + Google Maps link */}
-                    {(branch.google_place_id || branch.google_maps_url || branch.google_photo_url) && (
+                    {/* Google photo thumbnail (only when hero is different) + Maps link */}
+                    {(branch.google_maps_url || (branch.google_photo_url && branch.hero_image_url && branch.hero_image_url !== branch.google_photo_url)) && (
                       <div className="mt-3 flex gap-2 items-end">
-                        {branch.google_photo_url && (
+                        {branch.google_photo_url && branch.hero_image_url && branch.hero_image_url !== branch.google_photo_url && (
                           <img
                             src={branch.google_photo_url}
-                            alt="Location"
-                            className="h-16 w-24 object-cover rounded-lg border shrink-0"
+                            alt="Google"
+                            className="h-12 w-16 object-cover rounded-md border shrink-0"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                           />
                         )}
                         {branch.google_maps_url && (

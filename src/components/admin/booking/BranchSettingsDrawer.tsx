@@ -3,10 +3,12 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from '@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, Star, ExternalLink, X, RefreshCcw, ImageIcon } from 'lucide-react';
+import { Loader2, Star, X, RefreshCcw, ImageIcon, Copy } from 'lucide-react';
 
 interface BranchSettingsDrawerProps {
   branchId: string | null;
@@ -36,6 +38,8 @@ export function BranchSettingsDrawer({ branchId, onClose, onRefresh }: BranchSet
   const [heroUrl, setHeroUrl] = useState('');
   const [placeId, setPlaceId] = useState('');
   const [mapsUrl, setMapsUrl] = useState('');
+  const [photoIndex, setPhotoIndex] = useState(0);
+  const [totalPhotos, setTotalPhotos] = useState(0);
 
   useEffect(() => {
     if (!branchId) return;
@@ -82,13 +86,16 @@ export function BranchSettingsDrawer({ branchId, onClose, onRefresh }: BranchSet
     setSyncing(true);
     try {
       const { data, error } = await supabase.functions.invoke('sync-branch-google-data', {
-        body: { branch_id: branchId },
+        body: { branch_id: branchId, photo_index: photoIndex },
       });
       if (error) throw error;
       if (data?.error) {
         toast.error(data.error);
       } else {
         toast.success(language === 'th' ? 'ซิงค์ Google สำเร็จ' : 'Google sync complete');
+        if (data?.total_google_photos) {
+          setTotalPhotos(data.total_google_photos);
+        }
         // Refresh branch data
         const { data: updated } = await supabase
           .from('booking_branches')
@@ -104,6 +111,13 @@ export function BranchSettingsDrawer({ branchId, onClose, onRefresh }: BranchSet
       toast.error(err.message || 'Sync failed');
     } finally {
       setSyncing(false);
+    }
+  };
+
+  const handleUseGoogleAsHero = () => {
+    if (branch?.google_photo_url) {
+      setHeroUrl(branch.google_photo_url);
+      toast.info(language === 'th' ? 'คัดลอก URL แล้ว — กด "บันทึก" เพื่อยืนยัน' : 'URL copied — press "Save" to confirm');
     }
   };
 
@@ -135,6 +149,9 @@ export function BranchSettingsDrawer({ branchId, onClose, onRefresh }: BranchSet
                   <ImageIcon className="h-3 w-3 inline mr-1" />
                   {language === 'th' ? 'รูปภาพหลัก (URL)' : 'Hero Image URL'}
                 </Label>
+                <p className="text-[10px] text-muted-foreground">
+                  {language === 'th' ? 'รูปหลักที่แสดงบนการ์ดสาขา (แนะนำ: อัปโหลดรูปเอง)' : 'Primary image shown on branch card (recommended: upload your own)'}
+                </p>
                 <Input
                   value={heroUrl}
                   onChange={(e) => setHeroUrl(e.target.value)}
@@ -179,8 +196,8 @@ export function BranchSettingsDrawer({ branchId, onClose, onRefresh }: BranchSet
                 {language === 'th' ? 'บันทึก' : 'Save'}
               </Button>
 
-              {/* Sync Google Info */}
-              <div className="border-t pt-3 space-y-2">
+              {/* Google Sync Section */}
+              <div className="border-t pt-3 space-y-3">
                 <p className="text-xs font-semibold text-muted-foreground">
                   {language === 'th' ? 'ข้อมูล Google' : 'Google Data'}
                 </p>
@@ -195,14 +212,55 @@ export function BranchSettingsDrawer({ branchId, onClose, onRefresh }: BranchSet
                   </div>
                 )}
 
+                {/* Google photo preview */}
                 {branch?.google_photo_url && (
-                  <img
-                    src={branch.google_photo_url}
-                    alt="Google photo"
-                    className="h-20 w-full object-cover rounded-lg border"
-                  />
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] text-muted-foreground font-medium">
+                      {language === 'th' ? 'รูปจาก Google (แคชใน Storage)' : 'Google Photo (cached in Storage)'}
+                    </p>
+                    <img
+                      src={branch.google_photo_url}
+                      alt="Google photo"
+                      className="h-20 w-full object-cover rounded-lg border"
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-[10px] h-6 gap-1 px-2"
+                      onClick={handleUseGoogleAsHero}
+                    >
+                      <Copy className="h-2.5 w-2.5" />
+                      {language === 'th' ? 'ใช้เป็นรูปหลัก' : 'Use as hero image'}
+                    </Button>
+                  </div>
                 )}
 
+                {/* Photo index selector */}
+                <div className="space-y-1">
+                  <Label className="text-[10px] font-medium text-muted-foreground">
+                    {language === 'th' ? 'เลือกรูป Google (ลำดับ)' : 'Google Photo Index'}
+                  </Label>
+                  <Select value={String(photoIndex)} onValueChange={(v) => setPhotoIndex(Number(v))}>
+                    <SelectTrigger className="h-7 text-xs w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => (
+                        <SelectItem key={i} value={String(i)}>
+                          {language === 'th' ? `รูปที่ ${i + 1}` : `Photo ${i + 1}`}
+                          {totalPhotos > 0 && i >= totalPhotos && ` (${language === 'th' ? 'ไม่มี' : 'N/A'})`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {totalPhotos > 0 && (
+                    <p className="text-[10px] text-muted-foreground">
+                      {language === 'th' ? `Google มี ${totalPhotos} รูป` : `${totalPhotos} photos available`}
+                    </p>
+                  )}
+                </div>
+
+                {/* Sync button */}
                 <Button
                   variant="outline"
                   size="sm"
