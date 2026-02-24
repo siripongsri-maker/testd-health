@@ -3,9 +3,10 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/lib/i18n';
 import {
-  Clock, Activity, ChevronDown, ChevronUp, AlertCircle,
+  Clock, Activity, ChevronDown, ChevronUp, AlertCircle, Timer,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { estimateWaitTime, getWaitLabel, type WaitEstimate } from '@/lib/waitTimeEstimator';
 
 interface Props {
   openTime: string;
@@ -15,6 +16,7 @@ interface Props {
   bookedSlots: Record<string, number>; // "HH:MM" → booked count
   selectedTime: string | null;
   onSelectTime: (time: string) => void;
+  serviceSlugs?: string[];
 }
 
 interface TimeBlock {
@@ -26,6 +28,7 @@ interface TimeBlock {
   bookedCount: number;
   occupancyPct: number;
   level: 'low' | 'medium' | 'high';
+  waitEstimate: WaitEstimate;
 }
 
 interface SlotInfo {
@@ -52,7 +55,7 @@ function generateSlots(openTime: string, closeTime: string, durationMin: number)
 
 export function DensityTimeSelector({
   openTime, closeTime, slotDurationMin, counselorCount,
-  bookedSlots, selectedTime, onSelectTime,
+  bookedSlots, selectedTime, onSelectTime, serviceSlugs,
 }: Props) {
   const { language } = useLanguage();
   const [expandedBlock, setExpandedBlock] = useState<number | null>(null);
@@ -66,7 +69,7 @@ export function DensityTimeSelector({
   const blocks = useMemo(() => {
     const openH = parseInt(openTime.split(':')[0]);
     const closeH = parseInt(closeTime.split(':')[0]);
-    const blockSize = 2; // hours per block
+    const blockSize = 2;
     const result: TimeBlock[] = [];
 
     for (let h = openH; h < closeH; h += blockSize) {
@@ -88,6 +91,8 @@ export function DensityTimeSelector({
       const totalBooked = slotInfos.reduce((sum, s) => sum + s.booked, 0);
       const pct = totalCapacity > 0 ? Math.round((totalBooked / totalCapacity) * 100) : 0;
 
+      const waitEstimate = estimateWaitTime(pct, counselorCount, serviceSlugs);
+
       result.push({
         label: `${String(h).padStart(2, '0')}:00 – ${String(endH).padStart(2, '0')}:00`,
         startHour: h,
@@ -97,10 +102,11 @@ export function DensityTimeSelector({
         bookedCount: totalBooked,
         occupancyPct: pct,
         level: pct >= 70 ? 'high' : pct >= 40 ? 'medium' : 'low',
+        waitEstimate,
       });
     }
     return result;
-  }, [allSlots, bookedSlots, counselorCount, openTime, closeTime]);
+  }, [allSlots, bookedSlots, counselorCount, openTime, closeTime, serviceSlugs]);
 
   // Day-level summary
   const totalAvailable = allSlots.length * counselorCount;
@@ -108,6 +114,11 @@ export function DensityTimeSelector({
   const totalFree = Math.max(0, totalAvailable - totalBooked);
   const dayPct = totalAvailable > 0 ? Math.round((totalBooked / totalAvailable) * 100) : 0;
   const dayLevel: 'low' | 'medium' | 'high' = dayPct >= 70 ? 'high' : dayPct >= 40 ? 'medium' : 'low';
+  const dayWait = useMemo(
+    () => estimateWaitTime(dayPct, counselorCount, serviceSlugs),
+    [dayPct, counselorCount, serviceSlugs]
+  );
+  const dayWaitLabel = getWaitLabel(dayWait, language as 'th' | 'en');
 
   const levelConfig = {
     low: {
@@ -162,6 +173,7 @@ export function DensityTimeSelector({
           </div>
           <div className={cn("h-3 w-3 rounded-full animate-pulse", levelConfig[dayLevel].color)} />
         </div>
+
         {/* Capacity bar */}
         <div className="mt-3 h-2 rounded-full bg-muted/60 overflow-hidden">
           <div
@@ -169,10 +181,27 @@ export function DensityTimeSelector({
             style={{ width: `${dayPct}%` }}
           />
         </div>
+
+        {/* Wait time estimate for the day */}
+        <div className="mt-3 flex items-center gap-2">
+          <Timer className={cn("h-3.5 w-3.5", dayWaitLabel.color)} />
+          <p className={cn("text-xs font-semibold", dayWaitLabel.color)}>
+            {language === 'th'
+              ? `เวลารอโดยประมาณวันนี้: ${dayWait.low}–${dayWait.high} นาที`
+              : `Typical wait today: ${dayWait.low}–${dayWait.high} min`}
+            {' · '}{dayWaitLabel.text}
+          </p>
+        </div>
+
         <p className="text-[11px] text-muted-foreground mt-2">
           {language === 'th'
             ? '💡 เลือกช่วงสีเขียวเพื่อรอคิวน้อยลง'
             : '💡 Choose a green time block for shorter wait times'}
+        </p>
+        <p className="text-[10px] text-muted-foreground/70 mt-0.5 italic">
+          {language === 'th'
+            ? 'เป็นการประมาณการจากข้อมูลคิวที่ผ่านมา เวลารออาจเปลี่ยนแปลงได้'
+            : 'Estimated from recent queue patterns. Actual waiting may vary.'}
         </p>
       </Card>
 
@@ -187,6 +216,7 @@ export function DensityTimeSelector({
           const isExpanded = expandedBlock === idx;
           const cfg = levelConfig[block.level];
           const availableInBlock = block.slots.filter(s => !s.isFull).length;
+          const waitLabel = getWaitLabel(block.waitEstimate, language as 'th' | 'en');
 
           return (
             <div key={block.label} className="space-y-0">
@@ -211,6 +241,13 @@ export function DensityTimeSelector({
                   <p className="text-sm font-bold text-foreground">{block.label}</p>
                   <p className="text-xs text-muted-foreground">
                     {availableInBlock} {language === 'th' ? 'ช่วงว่าง' : 'available'} · {cfg.label}
+                  </p>
+                  {/* Wait estimate per block */}
+                  <p className={cn("text-[10px] font-medium mt-0.5 flex items-center gap-1", waitLabel.color)}>
+                    <Timer className="h-2.5 w-2.5" />
+                    {language === 'th'
+                      ? `~${block.waitEstimate.low}–${block.waitEstimate.high} นาที`
+                      : `~${block.waitEstimate.low}–${block.waitEstimate.high} min`}
                   </p>
                 </div>
 
@@ -275,7 +312,7 @@ export function DensityTimeSelector({
         })}
       </div>
 
-      {/* Smart suggestion */}
+      {/* Smart suggestion with wait comparison */}
       {quieterBlock && selectedTime && (
         <Card className={cn(
           "p-3 rounded-2xl flex items-start gap-2",
@@ -285,8 +322,8 @@ export function DensityTimeSelector({
           <div>
             <p className={cn("text-xs font-semibold", levelConfig['low'].text)}>
               {language === 'th'
-                ? `💡 ช่วง ${quieterBlock.label} ว่างกว่า — แนะนำเพื่อรอคิวน้อยลง`
-                : `💡 ${quieterBlock.label} is quieter — recommended for shorter waits`}
+                ? `💡 ช่วง ${quieterBlock.label} ว่างกว่า — รอประมาณ ${quieterBlock.waitEstimate.low}–${quieterBlock.waitEstimate.high} นาที แทน ${selectedBlock!.waitEstimate.low}–${selectedBlock!.waitEstimate.high} นาที`
+                : `💡 ${quieterBlock.label} is quieter — ~${quieterBlock.waitEstimate.low}–${quieterBlock.waitEstimate.high} min wait vs ${selectedBlock!.waitEstimate.low}–${selectedBlock!.waitEstimate.high} min`}
             </p>
             <Button
               variant="ghost"
