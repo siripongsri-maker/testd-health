@@ -35,6 +35,13 @@ const STATUS_OPTIONS = [
   { value: 'cancelled', labelTh: 'ยกเลิก', labelEn: 'Cancelled' },
 ];
 
+interface BranchOption {
+  id: string;
+  slug: string;
+  name_th: string;
+  name_en: string;
+}
+
 export default function AdminBookingContent({ userBranch }: Props) {
   const { language } = useLanguage();
   const { user } = useAuth();
@@ -42,6 +49,8 @@ export default function AdminBookingContent({ userBranch }: Props) {
   const [loading, setLoading] = useState(true);
   const [dateFilter, setDateFilter] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [branchFilter, setBranchFilter] = useState<string>('all');
+  const [branches, setBranches] = useState<BranchOption[]>([]);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [isLive, setIsLive] = useState(false);
   const [noteInput, setNoteInput] = useState<Record<string, string>>({});
@@ -51,25 +60,45 @@ export default function AdminBookingContent({ userBranch }: Props) {
   const [searchMode, setSearchMode] = useState(false);
   const lastUpdateRef = useRef<number>(0);
 
+  // Load branches
+  useEffect(() => {
+    supabase
+      .from('booking_branches')
+      .select('id, slug, name_th, name_en')
+      .eq('is_active', true)
+      .order('name_en')
+      .then(({ data }) => {
+        if (data) setBranches(data);
+        // If moderator, auto-select their branch
+        if (userBranch && data) {
+          const match = data.find(b => b.slug === userBranch);
+          if (match) setBranchFilter(match.id);
+        }
+      });
+  }, [userBranch]);
+
   const load = useCallback(async () => {
     setLoading(true);
     if (searchMode && codeSearch.trim()) {
-      // Search by referral code — bypass date filter
-      const { data } = await supabase
+      let query = supabase
         .from('appointments')
         .select('*, booking_branches(name_th, name_en, slug), booking_services(name_th, name_en, icon)')
         .ilike('referral_code', `%${codeSearch.trim()}%`)
         .order('created_at', { ascending: false })
         .limit(20);
+      if (branchFilter !== 'all') {
+        query = query.eq('branch_id', branchFilter);
+      }
+      const { data } = await query;
       const enriched = await enrichAppointments(data as any || []);
       setAppointments(enriched);
     } else {
-      const data = await fetchStaffAppointments(dateFilter, statusFilter);
+      const data = await fetchStaffAppointments(dateFilter, statusFilter, branchFilter !== 'all' ? branchFilter : undefined);
       setAppointments(data);
     }
     setLoading(false);
     lastUpdateRef.current = Date.now();
-  }, [dateFilter, statusFilter, searchMode, codeSearch]);
+  }, [dateFilter, statusFilter, branchFilter, searchMode, codeSearch]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -140,7 +169,30 @@ export default function AdminBookingContent({ userBranch }: Props) {
 
   return (
     <div className="space-y-4">
-      {/* Live indicator + stats */}
+      {/* Branch tabs */}
+      <div className="flex gap-1 overflow-x-auto pb-1">
+        <Button
+          variant={branchFilter === 'all' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setBranchFilter('all')}
+          className="shrink-0"
+        >
+          {language === 'th' ? 'ทุกสาขา' : 'All'}
+        </Button>
+        {branches.map(b => (
+          <Button
+            key={b.id}
+            variant={branchFilter === b.id ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setBranchFilter(b.id)}
+            className="shrink-0"
+          >
+            {language === 'th' ? b.name_th : b.name_en}
+          </Button>
+        ))}
+      </div>
+
+      {/* Stats */}
       <div className="flex items-center justify-between">
         <div className="grid grid-cols-2 gap-3 flex-1">
           <Card className="p-3 text-center">
@@ -148,7 +200,7 @@ export default function AdminBookingContent({ userBranch }: Props) {
             <p className="text-xs text-muted-foreground">{language === 'th' ? 'นัดหมายวันนี้' : "Today's Appointments"}</p>
           </Card>
           <Card className="p-3 text-center">
-            <p className="text-2xl font-bold text-green-600">{completedCount}</p>
+            <p className="text-2xl font-bold text-primary">{completedCount}</p>
             <p className="text-xs text-muted-foreground">{language === 'th' ? 'เสร็จสิ้น' : 'Completed'}</p>
           </Card>
         </div>

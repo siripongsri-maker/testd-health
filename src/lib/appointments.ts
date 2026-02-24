@@ -83,7 +83,8 @@ export async function fetchUserAppointments(userId: string): Promise<FullAppoint
  */
 export async function fetchStaffAppointments(
   dateFilter: string,
-  statusFilter?: string
+  statusFilter?: string,
+  branchId?: string
 ): Promise<FullAppointment[]> {
   let query = supabase
     .from('appointments')
@@ -93,6 +94,9 @@ export async function fetchStaffAppointments(
 
   if (statusFilter && statusFilter !== 'all') {
     query = query.eq('status', statusFilter);
+  }
+  if (branchId) {
+    query = query.eq('branch_id', branchId);
   }
 
   const { data } = await query;
