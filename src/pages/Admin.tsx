@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { AdminLayout } from "@/components/AdminLayout";
 import { useLanguage } from "@/lib/i18n";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, BarChart3, FileText, Loader2, LayoutDashboard, Bell, Users, Building2, ClipboardList, FileUp, UserPlus, CalendarDays } from "lucide-react";
+import { Package, BarChart3, FileText, Loader2, LayoutDashboard, Bell, Users, Building2, ClipboardList, FileUp, UserPlus, CalendarDays, Clipboard } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -22,6 +22,7 @@ const AdminSurveysContent = lazy(() => import("@/components/admin/AdminSurveysCo
 const AdminImportContent = lazy(() => import("@/components/admin/AdminImportContent"));
 const AdminQuickRegister = lazy(() => import("@/components/admin/AdminQuickRegister"));
 const AdminBookingContent = lazy(() => import("@/components/admin/AdminBookingContent"));
+const AdminTodayBoard = lazy(() => import("@/components/admin/AdminTodayBoard"));
 
 const TabLoader = () => (
   <div className="flex items-center justify-center h-64">
@@ -128,8 +129,8 @@ export default function Admin() {
   // Define which tabs are visible based on role
   const canAccessTab = (tab: string) => {
     if (isAdmin) return true;
-    // Moderators can access dashboard, kit-orders, quick-register, and bookings tabs
-    return tab === "dashboard" || tab === "kit-orders" || tab === "quick-register" || tab === "bookings";
+    // Moderators can access dashboard, kit-orders, quick-register, bookings, and today tabs
+    return tab === "dashboard" || tab === "kit-orders" || tab === "quick-register" || tab === "bookings" || tab === "today";
   };
 
   return (
@@ -145,7 +146,7 @@ export default function Admin() {
         )}
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className={`w-full mb-4 grid h-auto ${isAdmin ? 'grid-cols-11' : 'grid-cols-4'}`}>
+          <TabsList className={`w-full mb-4 grid h-auto ${isAdmin ? 'grid-cols-12' : 'grid-cols-5'}`}>
             {canAccessTab("dashboard") && (
               <TabsTrigger value="dashboard" className="flex items-center gap-2 py-3">
                 <LayoutDashboard className="h-4 w-4" />
@@ -229,6 +230,14 @@ export default function Admin() {
                 <CalendarDays className="h-4 w-4" />
                 <span className="hidden md:inline">
                   {language === 'th' ? 'นัดหมาย' : 'Bookings'}
+                </span>
+              </TabsTrigger>
+            )}
+            {canAccessTab("today") && (
+              <TabsTrigger value="today" className="flex items-center gap-2 py-3">
+                <Clipboard className="h-4 w-4" />
+                <span className="hidden md:inline">
+                  {language === 'th' ? 'วันนี้' : 'Today'}
                 </span>
               </TabsTrigger>
             )}
@@ -321,6 +330,14 @@ export default function Admin() {
             <TabsContent value="bookings" className="mt-0">
               <Suspense fallback={<TabLoader />}>
                 <AdminBookingContent userBranch={userBranch} />
+              </Suspense>
+            </TabsContent>
+          )}
+
+          {canAccessTab("today") && (
+            <TabsContent value="today" className="mt-0">
+              <Suspense fallback={<TabLoader />}>
+                <AdminTodayBoard userBranch={userBranch} />
               </Suspense>
             </TabsContent>
           )}
