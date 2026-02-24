@@ -16,7 +16,7 @@ interface NavItem {
 const mainItems: NavItem[] = [
   { icon: Home, labelTh: "หน้าแรก", labelEn: "Home", path: "/" },
   { icon: TestTube, labelTh: "ตรวจ", labelEn: "Test", path: "/hiv-selftest" },
-  { icon: Calendar, labelTh: "จอง", labelEn: "Book", path: "/booking" },
+  { icon: ClipboardList, labelTh: "นัดหมาย", labelEn: "Bookings", path: "/my-appointments" },
   { icon: BookOpen, labelTh: "ข้อมูล", labelEn: "Learn", path: "/info" },
   { icon: Heart, labelTh: "ดูแล", labelEn: "Care", path: "/self-care" },
 ];
