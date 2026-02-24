@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>คู่มือระบบนัดหมาย TestD — สำหรับเจ้าหน้าที่</title>
+<style>
+  @page {
+    size: A4;
+    margin: 18mm 16mm;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Sarabun', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 11pt;
+    line-height: 1.65;
+    color: #1a1a2e;
+    background: #fff;
+  }
+
+  .cover {
+    page-break-after: always;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh;
+    text-align: center;
+  }
+  .cover h1 {
+    font-size: 28pt;
+    color: #7c3aed;
+    margin-bottom: 8px;
+  }
+  .cover .subtitle {
+    font-size: 14pt;
+    color: #555;
+    margin-bottom: 32px;
+  }
+  .cover .meta {
+    font-size: 10pt;
+    color: #888;
+  }
+  .cover .badge {
+    display: inline-block;
+    background: #7c3aed;
+    color: #fff;
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 10pt;
+    margin-bottom: 24px;
+  }
+
+  h2 {
+    font-size: 16pt;
+    color: #7c3aed;
+    border-bottom: 2px solid #7c3aed;
+    padding-bottom: 4px;
+    margin: 28px 0 12px;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 12pt;
+    color: #4c1d95;
+    margin: 18px 0 6px;
+    page-break-after: avoid;
+  }
+  h4 {
+    font-size: 11pt;
+    color: #6d28d9;
+    margin: 12px 0 4px;
+  }
+  p, li { margin-bottom: 4px; }
+  ul, ol { padding-left: 22px; margin-bottom: 8px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0 16px;
+    font-size: 10pt;
+    page-break-inside: avoid;
+  }
+  th, td {
+    border: 1px solid #d1d5db;
+    padding: 6px 10px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: #f3f0ff;
+    color: #4c1d95;
+    font-weight: 600;
+  }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  .callout {
+    border-left: 4px solid #7c3aed;
+    background: #f5f3ff;
+    padding: 10px 14px;
+    margin: 12px 0;
+    border-radius: 0 6px 6px 0;
+    page-break-inside: avoid;
+  }
+  .callout.warning {
+    border-left-color: #f59e0b;
+    background: #fffbeb;
+  }
+  .callout.success {
+    border-left-color: #10b981;
+    background: #ecfdf5;
+  }
+  .callout strong { display: block; margin-bottom: 2px; }
+
+  .step-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 10px 0;
+  }
+  .step-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px;
+    page-break-inside: avoid;
+  }
+  .step-card .num {
+    display: inline-block;
+    background: #7c3aed;
+    color: #fff;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 10pt;
+    line-height: 24px;
+    margin-right: 6px;
+  }
+
+  .footer {
+    margin-top: 40px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+    font-size: 9pt;
+    color: #999;
+    text-align: center;
+  }
+
+  .page-break { page-break-before: always; }
+
+  @media print {
+    body { font-size: 10pt; }
+    .no-print { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== ปก ==================== -->
+<div class="cover">
+  <div class="badge">เอกสารภายใน — สำหรับเจ้าหน้าที่เท่านั้น</div>
+  <h1>📋 ระบบนัดหมาย</h1>
+  <div class="subtitle">คู่มือฝึกอบรมเจ้าหน้าที่</div>
+  <p class="meta">
+    แพลตฟอร์ม TestD Health<br>
+    เวอร์ชัน 1.0 — กุมภาพันธ์ 2569<br>
+    <br>
+    4 สาขา: สีลม · สะพานควาย · เพชรเกษม · พัทยา
+  </p>
+</div>
+
+<!-- ==================== สารบัญ ==================== -->
+<h2>📑 สารบัญ</h2>
+<ol style="font-size:11pt; line-height:2;">
+  <li>ภาพรวมระบบ</li>
+  <li>ขั้นตอนการจองสำหรับผู้ใช้บริการ</li>
+  <li>การจองแบบไม่ต้องสมัครสมาชิก (Guest Booking)</li>
+  <li>รหัสอ้างอิง (Referral Code)</li>
+  <li>แดชบอร์ดเจ้าหน้าที่ — งานประจำวัน</li>
+  <li>การจัดการ Walk-in</li>
+  <li>สถานะนัดหมาย</li>
+  <li>กฎเรื่องค่าบริการ</li>
+  <li>ตั้งค่าสาขา</li>
+  <li>บัตรอ้างอิงด่วน</li>
+</ol>
+
+<!-- ==================== 1. ภาพรวม ==================== -->
+<div class="page-break"></div>
+<h2>1. ภาพรวมระบบ</h2>
+<p>ระบบนัดหมาย TestD ช่วยให้ผู้ใช้บริการสามารถจองนัดหมายที่สาขาใดก็ได้ใน 4 สาขาของ SWING รองรับทั้ง<strong>ผู้ใช้ที่สมัครสมาชิก</strong>และ<strong>ผู้ใช้ทั่วไป</strong> (ไม่ต้องสมัครสมาชิก)</p>
+
+<h3>ฟีเจอร์หลัก</h3>
+<ul>
+  <li><strong>นัดหมายหลายบริการ</strong> — เลือกหลายบริการได้ในนัดเดียว</li>
+  <li><strong>การจัดตารางตามความหนาแน่น</strong> — ช่วงเวลาแสดงระดับความแออัด (น้อย/ปานกลาง/มาก) เพื่อกระจายภาระงาน</li>
+  <li><strong>ประมาณเวลารอ</strong> — คำนวณจากจำนวนที่ปรึกษา น้ำหนักบริการ และจำนวน Walk-in</li>
+  <li><strong>รหัสอ้างอิง</strong> — ทุกนัดหมายได้รหัสเฉพาะ (เช่น <code>SWG-A3K9X2</code>) สำหรับเช็คอิน</li>
+  <li><strong>อัปเดตแบบเรียลไทม์</strong> — แดชบอร์ดเจ้าหน้าที่อัปเดตทันทีเมื่อมีการจองหรือเปลี่ยนแปลง</li>
+  <li><strong>จองแบบ Guest</strong> — ไม่ต้องสมัครสมาชิก ใช้แค่อีเมล</li>
+</ul>
+
+<h3>สาขา</h3>
+<table>
+  <tr><th>สาขา</th><th>Slug</th><th>ที่ตั้ง</th></tr>
+  <tr><td>สีลม</td><td><code>silom</code></td><td>กรุงเทพฯ กลาง</td></tr>
+  <tr><td>สะพานควาย</td><td><code>saphankwai</code></td><td>กรุงเทพฯ เหนือ</td></tr>
+  <tr><td>เพชรเกษม</td><td><code>petchakasem</code></td><td>กรุงเทพฯ ตะวันตก</td></tr>
+  <tr><td>พัทยา</td><td><code>pattaya</code></td><td>ชลบุรี</td></tr>
+</table>
+
+<!-- ==================== 2. ขั้นตอนการจอง ==================== -->
+<div class="page-break"></div>
+<h2>2. ขั้นตอนการจองสำหรับผู้ใช้บริการ</h2>
+<p>นี่คือสิ่งที่ผู้ใช้บริการเห็นเมื่อเข้าหน้า <strong>/booking</strong>:</p>
+
+<div class="step-grid">
+  <div class="step-card">
+    <p><span class="num">1</span> <strong>เลือกสาขา</strong></p>
+    <p>เลือกจาก 4 สาขา แต่ละสาขาแสดงรูปภาพ คะแนน Google Maps ที่อยู่ และเวลาเปิดทำการ</p>
+  </div>
+  <div class="step-card">
+    <p><span class="num">2</span> <strong>เลือกบริการ</strong></p>
+    <p>เลือกได้หลายบริการ (ตรวจ HIV, PrEP, PEP, STI ฯลฯ) ระบบแสดงสิทธิ์ค่าบริการอัตโนมัติ</p>
+  </div>
+  <div class="step-card">
+    <p><span class="num">3</span> <strong>เลือกวันและเวลา</strong></p>
+    <p>ปฏิทิน + ช่วงเวลาแสดงความหนาแน่น: 🟢 น้อย, 🟡 ปานกลาง, 🔴 มาก</p>
+  </div>
+  <div class="step-card">
+    <p><span class="num">4</span> <strong>ยืนยันและรับรหัส</strong></p>
+    <p>จองสำเร็จ → แสดงรหัสอ้างอิง ระบบแนะนำให้แคปหน้าจอไว้สำหรับเช็คอิน</p>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>💡 คำแนะนำอัจฉริยะ</strong>
+  หากผู้ใช้เลือกช่วงเวลาที่แออัด ระบบจะแนะนำช่วงเวลาอื่นที่ว่างกว่าโดยอัตโนมัติ เพื่อกระจายภาระงานตลอดวัน
+</div>
+
+<!-- ==================== 3. การจองแบบ Guest ==================== -->
+<h2>3. การจองแบบไม่ต้องสมัครสมาชิก (Guest Booking)</h2>
+<p>ผู้ใช้บริการ<strong>ไม่จำเป็นต้องสมัครสมาชิก</strong>ก็จองได้ ต้องการแค่<strong>อีเมล</strong>เท่านั้น</p>
+
+<h4>วิธีการทำงาน:</h4>
+<ol>
+  <li>ผู้ใช้ทำตามขั้นตอนปกติ (เลือกสาขา → บริการ → วัน/เวลา)</li>
+  <li>แทนการล็อกอิน ให้กรอก<strong>อีเมลติดต่อ</strong></li>
+  <li>ระบบสร้างนัดหมายอย่างปลอดภัยผ่านฟังก์ชันฝั่งเซิร์ฟเวอร์</li>
+  <li>ผู้ใช้ได้รับ<strong>รหัสอ้างอิง</strong>ในหน้ายืนยันสำเร็จ</li>
+</ol>
+
+<div class="callout success">
+  <strong>✅ การเชื่อมบัญชี</strong>
+  หลังจองสำเร็จ ระบบจะแสดงข้อความ: <em>"อยากจัดการนัดง่ายขึ้นไหม? สมัครสมาชิกเพื่อดู เลื่อน หรือยกเลิกนัดได้ทันที"</em><br>
+  หากผู้ใช้สมัครด้วยอีเมลเดียวกัน ระบบจะเสนอให้เชื่อมนัดหมายเดิมกับบัญชีใหม่
+</div>
+
+<!-- ==================== 4. รหัสอ้างอิง ==================== -->
+<div class="page-break"></div>
+<h2>4. รหัสอ้างอิง (Referral Code)</h2>
+
+<div class="callout">
+  <strong>📌 รูปแบบ: <code>SWG-XXXXXX</code></strong><br>
+  สร้างอัตโนมัติโดยระบบฐานข้อมูล ไม่ซ้ำกันในแต่ละนัดหมาย
+</div>
+
+<h4>สำหรับผู้ใช้บริการ:</h4>
+<ul>
+  <li>แสดงอย่างชัดเจนในหน้ายืนยันการจอง</li>
+  <li>ข้อความที่แสดง: <strong>"กรุณาแคปหน้าจอนี้และแสดงให้เจ้าหน้าที่ลงทะเบียน"</strong></li>
+</ul>
+
+<h4>สำหรับเจ้าหน้าที่:</h4>
+<ul>
+  <li>เปิดหน้า <strong>Admin → การจอง</strong></li>
+  <li>ใช้<strong>ช่องค้นหารหัสอ้างอิง</strong>เพื่อค้นหานัดหมายทันที</li>
+  <li>การค้นหานี้<strong>ข้ามตัวกรองวันที่</strong>ได้ — ใช้ได้แม้จะกำลังดูวันอื่นอยู่</li>
+  <li>ตรวจสอบตัวตนผู้ใช้ → อัปเดตสถานะเป็น <strong>มาถึงแล้ว</strong></li>
+</ul>
+
+<div class="callout warning">
+  <strong>⚠️ สำคัญ</strong>
+  ตรวจสอบให้แน่ใจว่ารหัสอ้างอิงตรงกับผู้ใช้บริการ ขอให้แสดงหน้าจอที่แคปไว้หรืออีเมลยืนยัน
+</div>
+
+<!-- ==================== 5. แดชบอร์ดเจ้าหน้าที่ ==================== -->
+<h2>5. แดชบอร์ดเจ้าหน้าที่</h2>
+<p>เข้าถึงผ่าน: <strong>Admin → แท็บการจอง</strong> (ต้องมีสิทธิ์ admin หรือ staff)</p>
+
+<h3>5.1 Bento Dashboard (ภาพรวมรายวัน)</h3>
+<p>หน้าหลักแสดงตัวเลขสรุปของวันนี้:</p>
+<table>
+  <tr><th>ตัวชี้วัด</th><th>คำอธิบาย</th></tr>
+  <tr><td><strong>ทั้งหมด</strong></td><td>จำนวนนัดหมายทั้งหมดของวัน</td></tr>
+  <tr><td><strong>ใหม่</strong></td><td>ผู้ใช้บริการครั้งแรก</td></tr>
+  <tr><td><strong>กลับมาใช้บริการ</strong></td><td>ผู้ใช้ที่เคยมาก่อนหน้านี้</td></tr>
+  <tr><td><strong>ยกเลิก</strong></td><td>นัดหมายที่ถูกยกเลิกในวันนี้</td></tr>
+</table>
+<p>แต่ละสาขาจะแสดง<strong>ตัวบ่งชี้ภาระงาน</strong>เพื่อให้เห็นว่าสาขาไหนยุ่งที่สุด</p>
+
+<h3>5.2 ไทม์ไลน์สาขา</h3>
+<ul>
+  <li>คลิกการ์ดสาขา → เปิด<strong>ไทม์ไลน์แนวตั้ง</strong>ของนัดหมายทั้งหมด</li>
+  <li>แต่ละนัดหมายแสดงเป็นแถบพร้อม<strong>ป้ายสถานะ</strong>และ<strong>ไอคอนบริการ</strong></li>
+  <li>คลิกแถบใดก็ได้ → เปิด<strong>ลิ้นชักรายละเอียดนัดหมาย</strong></li>
+</ul>
+
+<h3>5.3 ลิ้นชักรายละเอียดนัดหมาย</h3>
+<p>ในลิ้นชักนี้ เจ้าหน้าที่สามารถ:</p>
+<ul>
+  <li>ดูรายละเอียดนัดหมายทั้งหมด (บริการ เวลา ข้อมูลผู้ใช้)</li>
+  <li>อัปเดตสถานะ (ยืนยัน → มาถึง → กำลังให้บริการ → เสร็จสิ้น)</li>
+  <li>มอบหมายเจ้าหน้าที่ดูแลนัดหมาย</li>
+  <li>เพิ่มบันทึกภายใน (เจ้าหน้าที่เห็นเท่านั้น)</li>
+</ul>
+
+<h3>5.4 การดำเนินการแบบกลุ่ม</h3>
+<ul>
+  <li>เลือกหลายนัดหมายโดยใช้ช่องทำเครื่องหมาย</li>
+  <li><strong>อัปเดตสถานะพร้อมกัน</strong> — เช่น ทำเครื่องหมาย 5 รายการเป็น "มาถึงแล้ว" ในครั้งเดียว</li>
+  <li><strong>ส่งออก CSV</strong> — ดาวน์โหลดนัดหมายที่เลือกสำหรับรายงาน</li>
+</ul>
+
+<!-- ==================== 6. การจัดการ Walk-in ==================== -->
+<div class="page-break"></div>
+<h2>6. การจัดการ Walk-in</h2>
+<p>สำหรับผู้ใช้บริการที่มาโดยไม่ได้จองล่วงหน้า:</p>
+
+<div class="step-grid">
+  <div class="step-card">
+    <p><span class="num">1</span> <strong>สร้าง Walk-in</strong></p>
+    <p>เจ้าหน้าที่กด "Walk-in ใหม่" ในแดชบอร์ด เลือกสาขาและเพิ่มบันทึก (ถ้ามี) ระบบสร้างนัดหมายแบบ <code>source: 'walkin'</code></p>
+  </div>
+  <div class="step-card">
+    <p><span class="num">2</span> <strong>เริ่มบริการ</strong></p>
+    <p>เมื่อที่ปรึกษาพร้อม กด "เริ่มบริการ" ระบบบันทึกเวลามาถึง</p>
+  </div>
+  <div class="step-card">
+    <p><span class="num">3</span> <strong>เสร็จสิ้นบริการ</strong></p>
+    <p>หลังให้คำปรึกษาเสร็จ กด "เสร็จสิ้น" ระบบบันทึกเวลาเสร็จ</p>
+  </div>
+  <div class="step-card">
+    <p><span class="num">4</span> <strong>ผลต่อเวลารอ</strong></p>
+    <p>Walk-in ที่ active จะเพิ่ม<strong>ค่าความกดดัน Walk-in</strong> ทำให้เวลารอโดยประมาณของผู้ใช้รายอื่นเพิ่มขึ้น</p>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>💡 ลงทะเบียนด่วน (Quick Register)</strong>
+  แผง Admin ยังมีแท็บ "ลงทะเบียนด่วน" ที่เจ้าหน้าที่สามารถลงทะเบียนผู้มาใช้บริการ Walk-in ด้วยตนเอง หรือใช้<strong>การสแกน OCR บัตรประชาชน</strong> — ไม่ต้องใช้อุปกรณ์หรืออินเทอร์เน็ตของผู้ใช้บริการ
+</div>
+
+<!-- ==================== 7. สถานะนัดหมาย ==================== -->
+<h2>7. สถานะนัดหมาย</h2>
+<table>
+  <tr><th>สถานะ (อังกฤษ)</th><th>สถานะ (ไทย)</th><th>ความหมาย</th></tr>
+  <tr><td><strong>pending</strong></td><td>รอยืนยัน</td><td>เพิ่งจอง รอการยืนยัน</td></tr>
+  <tr><td><strong>confirmed</strong></td><td>ยืนยันแล้ว</td><td>ยืนยันโดยระบบหรือเจ้าหน้าที่</td></tr>
+  <tr><td><strong>arrived</strong></td><td>มาถึงแล้ว</td><td>ผู้ใช้บริการเช็คอินที่สาขา</td></tr>
+  <tr><td><strong>in_progress</strong></td><td>กำลังให้บริการ</td><td>กำลังได้รับบริการ</td></tr>
+  <tr><td><strong>completed</strong></td><td>เสร็จสิ้น</td><td>ให้บริการเสร็จแล้ว</td></tr>
+  <tr><td><strong>cancelled</strong></td><td>ยกเลิก</td><td>ถูกยกเลิก (บันทึกเหตุผล)</td></tr>
+  <tr><td><strong>no_show</strong></td><td>ไม่มา</td><td>ผู้ใช้บริการไม่มาตามนัด</td></tr>
+</table>
+
+<div class="callout warning">
+  <strong>⚠️ การบันทึกเหตุผลยกเลิก</strong>
+  เมื่อยกเลิกนัดหมาย ให้กรอก<strong>เหตุผล</strong>ทุกครั้ง ข้อมูลนี้จะถูกบันทึกในบันทึกกิจกรรมและใช้ในการทำรายงาน
+</div>
+
+<!-- ==================== 8. กฎเรื่องค่าบริการ ==================== -->
+<div class="page-break"></div>
+<h2>8. กฎเรื่องค่าบริการ</h2>
+<table>
+  <tr><th>สิทธิ์</th><th>บริการหลัก (HIV, STI, PrEP)</th><th>PEP</th></tr>
+  <tr><td>คนไทย (สิทธิ์ NHSO/บัตรทอง)</td><td>✅ ฟรี</td><td>✅ ฟรี</td></tr>
+  <tr><td>ชาว CLVM (กองทุนโลก)</td><td>✅ ฟรี</td><td>❌ ไม่มีสิทธิ์</td></tr>
+  <tr><td>อื่นๆ</td><td>💰 เสียค่าบริการ (ดูรายการราคา)</td><td>💰 เสียค่าบริการ</td></tr>
+</table>
+<p>ธงสิทธิ์ค่าบริการกำหนดไว้ในฐานข้อมูลของแต่ละบริการ (<code>is_free_thai</code>, <code>is_free_global_fund</code>, <code>is_free_pep_thai</code>) ระบบหน้าเว็บแสดงสิทธิ์อัตโนมัติตามธงเหล่านี้</p>
+
+<!-- ==================== 9. ตั้งค่าสาขา ==================== -->
+<h2>9. ตั้งค่าสาขา</h2>
+<p>เข้าถึงผ่าน: <strong>Admin → การจอง → การ์ดสาขา → ⚙️ ตั้งค่า</strong></p>
+
+<h4>สิ่งที่เจ้าหน้าที่ตั้งค่าได้:</h4>
+<table>
+  <tr><th>การตั้งค่า</th><th>คำอธิบาย</th></tr>
+  <tr><td>เวลาเปิด/ปิด</td><td>เวลาทำการของสาขา</td></tr>
+  <tr><td>วันเปิดทำการ</td><td>วันในสัปดาห์ที่สาขาเปิดให้บริการ</td></tr>
+  <tr><td>จำนวนที่ปรึกษา</td><td>จำนวนที่ปรึกษา — มีผลต่อการคำนวณความจุ</td></tr>
+  <tr><td>ระยะเวลาช่วงเวลา</td><td>ความยาวของแต่ละช่วงนัดหมาย (ค่าเริ่มต้น: 5 นาที)</td></tr>
+  <tr><td>สถานะ Active</td><td>เปิด/ปิดสาขาสำหรับการจอง</td></tr>
+  <tr><td>Google Sync</td><td>"ซิงค์ข้อมูล Google" ดึงคะแนน/รีวิวล่าสุดจาก Google Maps</td></tr>
+  <tr><td>รูปภาพสาขา</td><td>รูปภาพสาขาที่แสดงให้ผู้ใช้บริการเห็นในหน้าจอง</td></tr>
+</table>
+
+<!-- ==================== 10. บัตรอ้างอิงด่วน ==================== -->
+<div class="page-break"></div>
+<h2>10. บัตรอ้างอิงด่วน</h2>
+
+<div class="callout success" style="font-size:11pt;">
+  <strong>🏥 ขั้นตอนการทำงานประจำวันสำหรับเจ้าหน้าที่ลงทะเบียน</strong>
+  <ol style="margin-top:8px;">
+    <li>เปิด <strong>Admin → การจอง</strong> ตอนเริ่มงานทุกวัน</li>
+    <li>ตรวจสอบ <strong>Bento Dashboard</strong> ดูจำนวนนัดหมายวันนี้ของแต่ละสาขา</li>
+    <li>เมื่อผู้ใช้บริการมาถึง → ถาม<strong>รหัสอ้างอิง</strong>หรือ<strong>หน้าจอที่แคปไว้</strong></li>
+    <li>ค้นหารหัสในแดชบอร์ด → ตรวจสอบรายละเอียด → ทำเครื่องหมายเป็น <strong>มาถึงแล้ว</strong></li>
+    <li>หากเป็น Walk-in → กด <strong>"Walk-in ใหม่"</strong> → กด "เริ่มบริการ" เมื่อพร้อม</li>
+    <li>หลังให้คำปรึกษา → ทำเครื่องหมายเป็น <strong>เสร็จสิ้น</strong></li>
+    <li>สิ้นสุดวัน → ตรวจสอบรายการ <strong>ไม่มา (No-show)</strong> และอัปเดตสถานะ</li>
+  </ol>
+</div>
+
+<div class="callout" style="font-size:11pt;">
+  <strong>🔍 ค้นหานัดหมายอย่างรวดเร็ว</strong>
+  <ul style="margin-top:8px;">
+    <li><strong>ค้นหาด้วยรหัสอ้างอิง:</strong> ใช้ช่องค้นหา — ข้ามตัวกรองวันที่ได้</li>
+    <li><strong>ค้นหาตามวันที่:</strong> ใช้ปฏิทินไปยังวันที่ของนัดหมาย</li>
+    <li><strong>ค้นหาตามสาขา:</strong> คลิกการ์ดสาขาเพื่อดูไทม์ไลน์</li>
+  </ul>
+</div>
+
+<div class="callout warning" style="font-size:11pt;">
+  <strong>❓ ปัญหาที่พบบ่อย</strong>
+  <table style="margin-top:8px;">
+    <tr><th>ปัญหา</th><th>วิธีแก้</th></tr>
+    <tr><td>ผู้ใช้ทำรหัสอ้างอิงหาย</td><td>ค้นหาด้วยอีเมล หรือตรวจสอบรายการนัดหมายวันนี้ของสาขา</td></tr>
+    <tr><td>ช่วงเวลาแสดง "เต็ม"</td><td>ตรวจสอบว่ามีนัดที่ถูกยกเลิกที่ทำให้ว่างหรือไม่ ปรับจำนวนที่ปรึกษาถ้าจำเป็น</td></tr>
+    <tr><td>Guest ต้องการจัดการนัดหมาย</td><td>แนะนำให้สมัครสมาชิก — ระบบสามารถเชื่อมนัดหมายเดิมได้</td></tr>
+    <tr><td>Walk-in ในช่วงที่ยุ่ง</td><td>สร้างรายการ Walk-in ระบบจะปรับเวลารอโดยประมาณให้ผู้อื่นอัตโนมัติ</td></tr>
+  </table>
+</div>
+
+<!-- ==================== ท้ายเอกสาร ==================== -->
+<div class="footer">
+  แพลตฟอร์ม TestD Health — คู่มือระบบนัดหมายสำหรับเจ้าหน้าที่ v1.0 — กุมภาพันธ์ 2569<br>
+  เอกสารลับ — สำหรับใช้ภายในเท่านั้น
+</div>
+
+</body>
+</html>
