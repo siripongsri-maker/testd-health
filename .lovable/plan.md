@@ -1,39 +1,69 @@
 
 
-# Booking System Fix + Enhancements Plan
+# Branch Photos + Google Maps Integration
 
-## ✅ COMPLETED
+## Overview
+Add hero images, Google ratings/reviews, and Google Maps links to branch cards -- both on the client booking page and admin panel. The Google sync edge function will be built now but only work once a Google API key is provided later.
 
-### Phase 1: Core Issues + Backend
-- [x] RLS policies verified as PERMISSIVE (no fix needed)
-- [x] Added `referral_code` column with auto-generation trigger (SWG-XXXXXX)
-- [x] Made `user_id` nullable for anonymous bookings
-- [x] Made `service_id` nullable (join table is source of truth)
-- [x] Added unique constraint to prevent duplicate bookings
-- [x] Anonymous booking INSERT policy for `anon` role
-- [x] Lookup RPC `lookup_appointment_by_code()`
-- [x] Fixed service selection double-toggle (replaced Checkbox with custom check indicator)
-- [x] Merged date + time into single `datetime` step with horizontal date pills + time slot grid
-- [x] Applied softer UI: `rounded-3xl` cards, `rounded-full` pills
-- [x] Referral code displayed on success page with copy + screenshot guidance
-- [x] Referral code shown in MyAppointments expanded view
-- [x] Referral code search in AdminBookingContent
-- [x] Edge function updated: supports all 4 branches + `staff_profile_id` linking
+## A) Database Migration
 
-### Phase 2: Anonymous Booking
-- [x] Anonymous users can book with `contact_email`
-- [x] Success page shows referral code + CTA to register
+Add 6 new columns to `booking_branches`:
 
-### Phase 3: Referral Code
-- [x] Auto-generated via Postgres trigger
-- [x] Backfilled existing appointments
-- [x] Staff can search by code in admin view
+| Column | Type | Notes |
+|--------|------|-------|
+| `hero_image_url` | text, nullable | Branch hero photo URL (uploaded or external) |
+| `google_place_id` | text, nullable | Google Place ID for API lookups |
+| `google_maps_url` | text, nullable | Direct link to open in Google Maps |
+| `google_rating` | numeric(2,1), nullable | e.g. 4.5 |
+| `google_review_count` | integer, nullable | Total review count |
+| `google_photo_url` | text, nullable | Cached photo URL from Google Places |
 
-### Phase 4: Staff Accounts
-- [x] Edge function supports saphankwai + petchakasem
-- [x] `staff_profile_id` links auth user to staff profile
+## B) Edge Function: `sync-branch-google-data`
 
-## TODO (future)
-- [ ] Link anonymous bookings after user registers (match contact_email)
-- [ ] Email notification delivery (currently logging only)
-- [ ] Staff account provisioning UI in admin panel
+- Input: `{ branch_id }` (POST, admin-only with JWT check)
+- Reads `google_place_id` from the branch row
+- Calls Google Places API (New) `places/{place_id}` for rating, review count, and first photo reference
+- Fetches place photo media URL
+- Updates `booking_branches` with results
+- Requires a `GOOGLE_MAPS_API_KEY` secret (to be added later)
+- Returns success/error JSON
+
+## C) Admin UI: Branch Editor
+
+Add a new section in the admin booking dashboard (or a drawer) for each branch:
+
+- **Hero Image**: Upload button (using existing `blog-images` storage bucket or a new one) + image preview
+- **Google Place ID**: Text input field
+- **Google Maps URL**: Text input field
+- **"Sync Google Info" button**: Calls the edge function, shows loading state, refreshes data on success
+- Display current `google_rating` and `google_review_count` as read-only after sync
+
+This will be implemented as a `BranchSettingsDrawer` component opened from branch cards in the admin Bento dashboard.
+
+## D) Client Booking UI Updates
+
+Update the branch selection step in `/booking`:
+
+- Show `hero_image_url` as a card header image (with fallback to current MapPin icon if missing)
+- Display star rating: ★ 4.5 (320 reviews) -- only when `google_rating` exists
+- Show small Google photo thumbnail if `google_photo_url` exists
+- "Open in Google Maps" button linking to `google_maps_url`
+- All Google fields gracefully hidden when null (no broken UI)
+
+Update the `Branch` interface in `Booking.tsx` to include the new fields, and update the Supabase select query.
+
+## Technical Details
+
+### Files to Create
+- `supabase/functions/sync-branch-google-data/index.ts` -- Edge function
+- `src/components/admin/booking/BranchSettingsDrawer.tsx` -- Admin branch editor
+
+### Files to Modify
+- `supabase/migrations/..._add_branch_google_fields.sql` -- New columns
+- `src/pages/Booking.tsx` -- Branch card UI with photos/ratings
+- `src/components/admin/booking/BentoDashboard.tsx` -- Add settings gear icon to branch cards
+- `src/components/admin/booking/types.ts` -- Update `BranchOption` interface
+
+### Fallback Behavior
+All Google-related fields are nullable. The UI renders branch cards identically to today when these fields are empty -- just the name, hours, and counselor count.
+
