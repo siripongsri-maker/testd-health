@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { PageContainer } from '@/components/PageContainer';
 import { BottomNav } from '@/components/BottomNav';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/lib/i18n';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -13,27 +12,13 @@ import {
   XCircle, AlertCircle, ChevronDown, ChevronUp, FileText
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
-
-interface ServiceInfo {
-  name_th: string;
-  name_en: string;
-  icon: string;
-}
-
-interface AppointmentRow {
-  id: string;
-  appointment_date: string;
-  start_time: string;
-  status: string;
-  notes: string | null;
-  staff_notes: string | null;
-  created_at: string;
-  cancelled_at: string | null;
-  completed_at: string | null;
-  cancellation_reason: string | null;
-  booking_branches: { name_th: string; name_en: string; slug: string } | null;
-  booking_services: { name_th: string; name_en: string; icon: string } | null;
-}
+import {
+  type FullAppointment,
+  fetchUserAppointments,
+  getDisplayServices,
+  updateAppointmentStatusRPC,
+  subscribeToAppointments,
+} from '@/lib/appointments';
 
 const STATUS_CONFIG: Record<string, { labelTh: string; labelEn: string; color: string; icon: typeof CheckCircle2 }> = {
   booked: { labelTh: 'จองแล้ว', labelEn: 'Booked', color: 'text-blue-600 bg-blue-100 dark:bg-blue-900/30', icon: Calendar },
@@ -49,78 +34,50 @@ export default function MyAppointments() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  const [appointments, setAppointments] = useState<AppointmentRow[]>([]);
+  const [appointments, setAppointments] = useState<FullAppointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
-  // Map appointment_id -> all services from join table
-  const [appointmentServicesMap, setAppointmentServicesMap] = useState<Record<string, ServiceInfo[]>>({});
 
+  const load = useCallback(async () => {
+    if (!user) return;
+    setLoading(true);
+    const data = await fetchUserAppointments(user.id);
+    setAppointments(data);
+    setLoading(false);
+  }, [user]);
+
+  useEffect(() => { load(); }, [load]);
+
+  // Realtime: subscribe to own appointments
   useEffect(() => {
     if (!user) return;
-    const load = async () => {
-      setLoading(true);
-      const { data } = await supabase
-        .from('appointments')
-        .select(`
-          *,
-          booking_branches(name_th, name_en, slug),
-          booking_services(name_th, name_en, icon)
-        `)
-        .eq('user_id', user.id)
-        .order('appointment_date', { ascending: false })
-        .order('start_time', { ascending: false });
 
-      const rows = (data || []) as unknown as AppointmentRow[];
-      setAppointments(rows);
+    const debounceTimer = { current: null as ReturnType<typeof setTimeout> | null };
 
-      // Load multi-service info from appointment_services
-      if (rows.length > 0) {
-        const ids = rows.map(r => r.id);
-        const { data: asData } = await supabase
-          .from('appointment_services')
-          .select('appointment_id, service_id, booking_services(name_th, name_en, icon)')
-          .in('appointment_id', ids);
-
-        const map: Record<string, ServiceInfo[]> = {};
-        (asData || []).forEach((row: any) => {
-          const aid = row.appointment_id;
-          if (!map[aid]) map[aid] = [];
-          if (row.booking_services) {
-            map[aid].push(row.booking_services);
-          }
-        });
-        setAppointmentServicesMap(map);
-      }
-
-      setLoading(false);
+    const handleUpdate = () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+      debounceTimer.current = setTimeout(() => {
+        load();
+      }, 500);
     };
-    load();
-  }, [user]);
+
+    const unsubscribe = subscribeToAppointments(handleUpdate, {
+      column: 'user_id',
+      value: user.id,
+    });
+
+    return () => {
+      unsubscribe();
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
+  }, [user, load]);
 
   const handleCancel = async (appointmentId: string) => {
     if (!user) return;
     setCancellingId(appointmentId);
     try {
-      const { error } = await supabase
-        .from('appointments')
-        .update({
-          status: 'cancelled',
-          cancelled_at: new Date().toISOString(),
-          cancellation_reason: 'Cancelled by user',
-        })
-        .eq('id', appointmentId)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-
-      await supabase.from('appointment_logs').insert({
-        appointment_id: appointmentId,
-        action: 'cancelled',
-        performed_by: user.id,
-        details: 'Cancelled by user',
-      });
-
+      await updateAppointmentStatusRPC(appointmentId, 'cancelled', 'Cancelled by user');
       setAppointments(prev =>
         prev.map(a => a.id === appointmentId ? { ...a, status: 'cancelled', cancelled_at: new Date().toISOString() } : a)
       );
@@ -163,12 +120,11 @@ export default function MyAppointments() {
     );
   }
 
-  const renderAppointment = (apt: AppointmentRow) => {
+  const renderAppointment = (apt: FullAppointment) => {
     const status = STATUS_CONFIG[apt.status] || STATUS_CONFIG.booked;
     const isExpanded = expandedId === apt.id;
     const canCancel = apt.status === 'booked' || apt.status === 'confirmed';
-    const multiServices = appointmentServicesMap[apt.id] || [];
-    const displayServices = multiServices.length > 0 ? multiServices : (apt.booking_services ? [apt.booking_services] : []);
+    const displayServices = getDisplayServices(apt);
 
     return (
       <Card key={apt.id} className="overflow-hidden">
@@ -212,7 +168,6 @@ export default function MyAppointments() {
 
         {isExpanded && (
           <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
-            {/* Show all services */}
             {displayServices.length > 1 && (
               <div className="text-xs text-muted-foreground">
                 <span className="font-medium">{language === 'th' ? 'บริการ: ' : 'Services: '}</span>
@@ -222,6 +177,12 @@ export default function MyAppointments() {
                     {i < displayServices.length - 1 ? ', ' : ''}
                   </span>
                 ))}
+              </div>
+            )}
+            {apt.staff && (
+              <div className="text-xs text-primary">
+                <span className="font-medium">{language === 'th' ? 'ผู้ให้บริการ: ' : 'Attended by: '}</span>
+                {language === 'th' ? apt.staff.name_th : apt.staff.name_en}
               </div>
             )}
             {apt.notes && (
