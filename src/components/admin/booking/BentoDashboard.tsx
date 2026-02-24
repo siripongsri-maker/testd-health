@@ -7,12 +7,13 @@ import { toast } from 'sonner';
 import {
   CalendarCheck, UserPlus, RotateCcw, XCircle, Activity, Clock,
   Building2, AlertTriangle, MessageSquarePlus, ChevronRight, Footprints,
-  Play, CheckCircle2, Loader2,
+  Play, CheckCircle2, Loader2, Settings,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getDisplayServices } from '@/lib/appointments';
 import type { EnrichedAppointment, BranchOption, DensityDay } from './types';
 import { getStatusInfo } from './types';
+import { BranchSettingsDrawer } from './BranchSettingsDrawer';
 
 interface Props {
   appointments: EnrichedAppointment[];
@@ -112,6 +113,7 @@ export function BentoDashboard({
 
   const [walkinBranch, setWalkinBranch] = useState<string>('');
   const [creatingWalkin, setCreatingWalkin] = useState(false);
+  const [settingsBranchId, setSettingsBranchId] = useState<string | null>(null);
 
   const handleCreateWalkin = async () => {
     if (!walkinBranch) return;
@@ -191,7 +193,15 @@ export function BentoDashboard({
                     <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
                     <span className="text-xs font-bold">{language === 'th' ? bs.branch.name_th : bs.branch.name_en}</span>
                   </div>
-                  <ChevronRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="flex items-center gap-0.5">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setSettingsBranchId(bs.branch.id); }}
+                      className="p-1 rounded-md hover:bg-muted transition-colors"
+                    >
+                      <Settings className="h-3 w-3 text-muted-foreground" />
+                    </button>
+                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
                 </div>
                 <p className="text-2xl font-bold text-primary mb-1">{bs.total}</p>
                 <div className="flex gap-2 text-[10px] mb-2">
@@ -404,6 +414,12 @@ export function BentoDashboard({
           </div>
         </div>
       </div>
+      {/* Branch Settings Drawer */}
+      <BranchSettingsDrawer
+        branchId={settingsBranchId}
+        onClose={() => setSettingsBranchId(null)}
+        onRefresh={onRefresh}
+      />
     </div>
   );
 }

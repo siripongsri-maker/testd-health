@@ -13,7 +13,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   MapPin, Clock, ChevronRight, ChevronLeft, Calendar as CalendarIcon,
   Check, Loader2, AlertCircle, CreditCard, Globe, Info, HelpCircle, ShieldAlert,
-  Copy, Camera, UserPlus
+  Copy, Camera, UserPlus, Star, ExternalLink,
 } from 'lucide-react';
 import { DensityTimeSelector } from '@/components/booking/DensityTimeSelector';
 import type { WalkinPressure } from '@/lib/waitTimeEstimator';
@@ -29,6 +29,12 @@ interface Branch {
   open_time: string;
   close_time: string;
   slot_duration_minutes: number;
+  hero_image_url?: string | null;
+  google_place_id?: string | null;
+  google_maps_url?: string | null;
+  google_rating?: number | null;
+  google_review_count?: number | null;
+  google_photo_url?: string | null;
 }
 
 interface Service {
@@ -412,7 +418,7 @@ export default function Booking() {
               {branches.map(branch => (
                 <Card
                   key={branch.id}
-                  className="p-5 cursor-pointer transition-all hover:shadow-lg rounded-3xl border-2 border-transparent hover:border-primary/30"
+                  className="overflow-hidden cursor-pointer transition-all hover:shadow-lg rounded-3xl border-2 border-transparent hover:border-primary/30"
                   onClick={() => {
                     setSelectedBranch(branch);
                     setSelectedDate(null);
@@ -421,29 +427,66 @@ export default function Booking() {
                     setStep('service');
                   }}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-start gap-3">
-                      <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-                        <MapPin className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-foreground">
-                          {language === 'th' ? branch.name_th : branch.name_en}
-                        </h3>
-                        <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                          <Clock className="h-3 w-3" />
-                          <span>{branch.open_time.slice(0, 5)} - {branch.close_time.slice(0, 5)}</span>
-                          <span>•</span>
-                          <span>{formatDays(branch.open_days)}</span>
+                  {/* Hero image */}
+                  {branch.hero_image_url && (
+                    <img
+                      src={branch.hero_image_url}
+                      alt={language === 'th' ? branch.name_th : branch.name_en}
+                      className="w-full h-32 object-cover"
+                    />
+                  )}
+                  <div className="p-5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-start gap-3">
+                        {!branch.hero_image_url && (
+                          <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+                            <MapPin className="h-5 w-5 text-primary" />
+                          </div>
+                        )}
+                        <div>
+                          <h3 className="font-bold text-foreground">
+                            {language === 'th' ? branch.name_th : branch.name_en}
+                          </h3>
+                          {/* Google rating */}
+                          {branch.google_rating != null && (
+                            <div className="flex items-center gap-1 mt-0.5">
+                              <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500" />
+                              <span className="text-xs font-bold">{branch.google_rating}</span>
+                              {branch.google_review_count != null && (
+                                <span className="text-xs text-muted-foreground">
+                                  ({branch.google_review_count.toLocaleString()} {language === 'th' ? 'รีวิว' : 'reviews'})
+                                </span>
+                              )}
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                            <Clock className="h-3 w-3" />
+                            <span>{branch.open_time.slice(0, 5)} - {branch.close_time.slice(0, 5)}</span>
+                            <span>•</span>
+                            <span>{formatDays(branch.open_days)}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {language === 'th'
+                              ? `ที่ปรึกษา ${branch.counselor_count} คน`
+                              : `${branch.counselor_count} counselor${branch.counselor_count > 1 ? 's' : ''}`}
+                          </p>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {language === 'th'
-                            ? `ที่ปรึกษา ${branch.counselor_count} คน`
-                            : `${branch.counselor_count} counselor${branch.counselor_count > 1 ? 's' : ''}`}
-                        </p>
                       </div>
+                      <ChevronRight className="h-5 w-5 text-muted-foreground" />
                     </div>
-                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                    {/* Google Maps link */}
+                    {branch.google_maps_url && (
+                      <a
+                        href={branch.google_maps_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="mt-2 inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        {language === 'th' ? 'เปิดใน Google Maps' : 'Open in Google Maps'}
+                      </a>
+                    )}
                   </div>
                 </Card>
               ))}

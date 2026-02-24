@@ -19,6 +19,12 @@ export interface BranchOption {
   name_th: string;
   name_en: string;
   counselor_count: number;
+  hero_image_url?: string | null;
+  google_place_id?: string | null;
+  google_maps_url?: string | null;
+  google_rating?: number | null;
+  google_review_count?: number | null;
+  google_photo_url?: string | null;
 }
 
 export type ViewMode = 'bento' | 'calendar';

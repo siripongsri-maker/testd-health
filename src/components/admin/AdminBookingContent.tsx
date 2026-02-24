@@ -59,7 +59,7 @@ export default function AdminBookingContent({ userBranch }: Props) {
   useEffect(() => {
     supabase
       .from('booking_branches')
-      .select('id, slug, name_th, name_en, counselor_count')
+      .select('id, slug, name_th, name_en, counselor_count, hero_image_url, google_place_id, google_maps_url, google_rating, google_review_count, google_photo_url')
       .eq('is_active', true)
       .order('name_en')
       .then(({ data }) => {

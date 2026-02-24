@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.scan-thai-id]
 verify_jwt = false
+
+[functions.sync-branch-google-data]
+verify_jwt = false
