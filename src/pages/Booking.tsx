@@ -15,6 +15,7 @@ import {
   Check, Loader2, AlertCircle, CreditCard, Globe, Info, HelpCircle, ShieldAlert,
   Copy, Camera, UserPlus
 } from 'lucide-react';
+import { DensityTimeSelector } from '@/components/booking/DensityTimeSelector';
 import { format, addDays, startOfDay, getDay } from 'date-fns';
 
 interface Branch {
@@ -57,20 +58,7 @@ type Step = 'branch' | 'service' | 'datetime' | 'confirm' | 'success';
 const DAY_NAMES_TH = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
 const DAY_NAMES_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-function generateTimeSlots(openTime: string, closeTime: string, durationMin: number): string[] {
-  const slots: string[] = [];
-  const [oh, om] = openTime.split(':').map(Number);
-  const [ch, cm] = closeTime.split(':').map(Number);
-  let current = oh * 60 + om;
-  const end = ch * 60 + cm;
-  while (current < end) {
-    const h = Math.floor(current / 60);
-    const m = current % 60;
-    slots.push(`${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`);
-    current += durationMin;
-  }
-  return slots;
-}
+// Time slot generation now handled by DensityTimeSelector component
 
 export default function Booking() {
   const { language } = useLanguage();
@@ -191,14 +179,7 @@ export default function Booking() {
     return dates;
   }, [selectedBranch]);
 
-  const timeSlots = useMemo(() => {
-    if (!selectedBranch) return [];
-    return generateTimeSlots(
-      selectedBranch.open_time,
-      selectedBranch.close_time,
-      selectedBranch.slot_duration_minutes
-    );
-  }, [selectedBranch]);
+  // timeSlots generation now handled by DensityTimeSelector
 
   const handleBook = async () => {
     const isAnonymous = !user;
@@ -634,47 +615,18 @@ export default function Booking() {
               {/* Time slots grid */}
               {selectedDate && (
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-2">
+                  <p className="text-sm font-medium text-muted-foreground mb-3">
                     {format(selectedDate, 'EEEE, d MMMM yyyy')}
-                    {' — '}
-                    {language === 'th' ? 'เลือกเวลา' : 'Select Time'}
                   </p>
-                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-                    {timeSlots.map(slot => {
-                      const booked = bookedSlots[slot] || 0;
-                      const available = selectedBranch.counselor_count - booked;
-                      const isFull = available <= 0;
-                      const isSelected = selectedTime === slot;
-
-                      return (
-                        <button
-                          key={slot}
-                          disabled={isFull}
-                          onClick={() => setSelectedTime(slot)}
-                          className={`p-2.5 rounded-full text-center text-sm font-medium transition-all border-2 ${
-                            isFull
-                              ? 'bg-muted text-muted-foreground border-muted cursor-not-allowed opacity-40'
-                              : isSelected
-                              ? 'bg-primary text-primary-foreground border-primary shadow-md'
-                              : 'bg-card border-border hover:border-primary/50'
-                          }`}
-                        >
-                          {slot}
-                          {!isFull && (
-                            <p className="text-[9px] opacity-60 mt-0.5">
-                              {available}/{selectedBranch.counselor_count}
-                            </p>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground mt-3">
-                    <div className="h-3 w-3 rounded-full bg-muted opacity-50" />
-                    <span>{language === 'th' ? 'เต็ม' : 'Full'}</span>
-                    <div className="h-3 w-3 rounded-full bg-card border border-border" />
-                    <span>{language === 'th' ? 'ว่าง' : 'Available'}</span>
-                  </div>
+                  <DensityTimeSelector
+                    openTime={selectedBranch.open_time}
+                    closeTime={selectedBranch.close_time}
+                    slotDurationMin={selectedBranch.slot_duration_minutes}
+                    counselorCount={selectedBranch.counselor_count}
+                    bookedSlots={bookedSlots}
+                    selectedTime={selectedTime}
+                    onSelectTime={setSelectedTime}
+                  />
                 </div>
               )}
 
