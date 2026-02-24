@@ -2165,6 +2165,17 @@ export type Database = {
         Returns: Json
       }
       generate_order_code: { Args: never; Returns: string }
+      get_appointment_density: {
+        Args: { p_branch_id?: string; p_end_date: string; p_start_date: string }
+        Returns: {
+          appointment_date: string
+          cancelled_count: number
+          completed_count: number
+          new_count: number
+          returning_count: number
+          total_count: number
+        }[]
+      }
       get_article_like_count: {
         Args: { p_article_id: string }
         Returns: number
@@ -2175,6 +2186,13 @@ export type Database = {
           registered_user_pageviews: number
           total_pageviews: number
           total_sessions: number
+        }[]
+      }
+      get_returning_flags: {
+        Args: { p_appointment_ids: string[] }
+        Returns: {
+          appointment_id: string
+          is_returning: boolean
         }[]
       }
       get_selftest_statistics: {
