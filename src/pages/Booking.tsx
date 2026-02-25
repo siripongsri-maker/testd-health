@@ -16,6 +16,7 @@ import {
   Copy, Camera, UserPlus, Star, ExternalLink, Mail,
 } from 'lucide-react';
 import { DensityTimeSelector } from '@/components/booking/DensityTimeSelector';
+import { cn } from '@/lib/utils';
 import type { WalkinPressure } from '@/lib/waitTimeEstimator';
 import { format, addDays, startOfDay, getDay } from 'date-fns';
 
@@ -88,6 +89,8 @@ export default function Booking() {
   const [blockedSlots, setBlockedSlots] = useState<Record<string, string>>({});
   const [walkinPressure, setWalkinPressure] = useState<WalkinPressure | undefined>(undefined);
   const [dayBlackoutNote, setDayBlackoutNote] = useState<string | null>(null);
+  const [dayBlackoutReason, setDayBlackoutReason] = useState<string | null>(null);
+  const [blackedOutDates, setBlackedOutDates] = useState<Record<string, { title: string; reason: string | null }>>({});
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [confirmedCode, setConfirmedCode] = useState<string | null>(null);
@@ -231,6 +234,54 @@ export default function Booking() {
     }
     return dates;
   }, [selectedBranch]);
+
+  // Pre-fetch blackouts for all available dates when branch is selected
+  useEffect(() => {
+    if (!selectedBranch || availableDates.length === 0) {
+      setBlackedOutDates({});
+      return;
+    }
+    const loadBlackouts = async () => {
+      const minDate = availableDates[0];
+      const maxDate = availableDates[availableDates.length - 1];
+      const { data: blackouts } = await supabase
+        .from('booking_blackouts')
+        .select('title, reason, start_at, end_at, is_all_day, scope, applies_to_branch_ids')
+        .lte('start_at', format(addDays(maxDate, 1), 'yyyy-MM-dd') + 'T00:00:00')
+        .gte('end_at', format(minDate, 'yyyy-MM-dd') + 'T00:00:00');
+
+      if (!blackouts || blackouts.length === 0) {
+        setBlackedOutDates({});
+        return;
+      }
+
+      const blocked: Record<string, { title: string; reason: string | null }> = {};
+      const branchOpenTime = selectedBranch.open_time;
+      const branchCloseTime = selectedBranch.close_time;
+
+      for (const date of availableDates) {
+        const dateStr = format(date, 'yyyy-MM-dd');
+        for (const bo of blackouts) {
+          const appliesToBranch =
+            bo.scope === 'global' ||
+            (bo.scope === 'branch' && bo.applies_to_branch_ids && bo.applies_to_branch_ids.includes(selectedBranch.id));
+          if (!appliesToBranch) continue;
+
+          const boStart = new Date(bo.start_at);
+          const boEnd = new Date(bo.end_at);
+          const dayStart = new Date(`${dateStr}T${branchOpenTime}`);
+          const dayEnd = new Date(`${dateStr}T${branchCloseTime}`);
+
+          if (boStart <= dayStart && boEnd >= dayEnd) {
+            blocked[dateStr] = { title: bo.title, reason: bo.reason };
+            break;
+          }
+        }
+      }
+      setBlackedOutDates(blocked);
+    };
+    loadBlackouts();
+  }, [selectedBranch, availableDates]);
 
   // timeSlots generation now handled by DensityTimeSelector
 
@@ -692,34 +743,78 @@ export default function Booking() {
                 </p>
                 <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
                   {availableDates.map(date => {
-                    const isSelected = selectedDate && format(date, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
+                    const dateStr = format(date, 'yyyy-MM-dd');
+                    const isSelected = selectedDate && format(selectedDate, 'yyyy-MM-dd') === dateStr;
                     const dayIdx = getDay(date);
+                    const blackoutInfo = blackedOutDates[dateStr];
+                    const isBlackedOut = !!blackoutInfo;
                     return (
                       <button
                         key={date.toISOString()}
+                        disabled={isBlackedOut}
                         onClick={() => {
+                          if (isBlackedOut) return;
                           setSelectedDate(date);
                           setSelectedTime(null);
+                          setDayBlackoutReason(null);
                         }}
-                        className={`flex-shrink-0 px-4 py-3 rounded-2xl text-center transition-all border-2 min-w-[72px] ${
-                          isSelected
+                        className={cn(
+                          "flex-shrink-0 px-4 py-3 rounded-2xl text-center transition-all border-2 min-w-[72px] relative",
+                          isBlackedOut
+                            ? 'bg-muted/60 border-destructive/30 cursor-not-allowed opacity-60'
+                            : isSelected
                             ? 'bg-primary text-primary-foreground border-primary shadow-md'
                             : 'bg-card border-border hover:border-primary/50'
-                        }`}
+                        )}
+                        title={isBlackedOut ? blackoutInfo.title : undefined}
                       >
-                        <p className="text-[10px] uppercase font-medium opacity-70">
+                        {isBlackedOut && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-[85%] h-0.5 bg-destructive/50 rotate-[-20deg] rounded-full" />
+                          </div>
+                        )}
+                        <p className={cn("text-[10px] uppercase font-medium", isBlackedOut ? 'text-muted-foreground' : 'opacity-70')}>
                           {dayLabels[dayIdx]}
                         </p>
-                        <p className="text-lg font-bold">{format(date, 'd')}</p>
-                        <p className="text-[10px] opacity-70">{format(date, 'MMM')}</p>
+                        <p className={cn("text-lg font-bold", isBlackedOut && 'text-muted-foreground')}>{format(date, 'd')}</p>
+                        <p className={cn("text-[10px]", isBlackedOut ? 'text-destructive font-semibold' : 'opacity-70')}>
+                          {isBlackedOut ? (language === 'th' ? 'ปิด' : 'Closed') : format(date, 'MMM')}
+                        </p>
                       </button>
                     );
                   })}
                 </div>
               </div>
 
-              {/* Blackout notice */}
-              {selectedDate && dayBlackoutNote && (
+              {/* Blackout notice — full day blocked */}
+              {selectedDate && blackedOutDates[format(selectedDate, 'yyyy-MM-dd')] && (
+                <Card className="p-4 rounded-2xl bg-destructive/5 border-destructive/20">
+                  <div className="flex items-start gap-3">
+                    <div className="h-10 w-10 rounded-2xl bg-destructive/10 flex items-center justify-center shrink-0">
+                      <AlertCircle className="h-5 w-5 text-destructive" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-destructive">
+                        {language === 'th' ? 'ปิดรับนัดทั้งวัน' : 'Fully Closed'}
+                      </p>
+                      <p className="text-sm font-semibold text-foreground mt-0.5">
+                        {blackedOutDates[format(selectedDate, 'yyyy-MM-dd')].title}
+                      </p>
+                      {blackedOutDates[format(selectedDate, 'yyyy-MM-dd')].reason && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {blackedOutDates[format(selectedDate, 'yyyy-MM-dd')].reason}
+                        </p>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {language === 'th' ? 'กรุณาเลือกวันอื่น' : 'Please select another date'}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {/* Partial blackout notice */}
+              {selectedDate && !blackedOutDates[format(selectedDate, 'yyyy-MM-dd')] && dayBlackoutNote && (
                 <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40">
                   <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
                   <p className="text-xs font-medium text-amber-700 dark:text-amber-400">{dayBlackoutNote}</p>
@@ -727,7 +822,7 @@ export default function Booking() {
               )}
 
               {/* Time slots grid */}
-              {selectedDate && (
+              {selectedDate && !blackedOutDates[format(selectedDate, 'yyyy-MM-dd')] && (
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-3">
                     {format(selectedDate, 'EEEE, d MMMM yyyy')}
