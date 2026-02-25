@@ -2371,6 +2371,21 @@ export type Database = {
           status: string
         }[]
       }
+      guest_universal_lookup: {
+        Args: { p_identifier: string }
+        Returns: {
+          appointment_date: string
+          appointment_id: string
+          branch_name_en: string
+          branch_name_th: string
+          branch_slug: string
+          created_at: string
+          referral_code: string
+          services_summary: string
+          start_time: string
+          status: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
