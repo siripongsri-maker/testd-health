@@ -172,9 +172,9 @@ export default function Home() {
   return (
     <div className="relative">
       {/* Fixed background layer */}
-      <div className="fixed inset-0 gradient-hero -z-10" />
+      <div className="fixed inset-0 gradient-hero" style={{ zIndex: -1 }} />
 
-      <main className="px-4 sm:px-6 py-3 max-w-md mx-auto relative z-10">
+      <main className="px-4 sm:px-6 py-3 max-w-md mx-auto relative">
         {/* Welcome text */}
         <div className="text-center mb-4">
           <div className="flex justify-center mb-2">
