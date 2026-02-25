@@ -85,7 +85,9 @@ export default function Booking() {
   const [notes, setNotes] = useState('');
   const [contactEmail, setContactEmail] = useState('');
   const [bookedSlots, setBookedSlots] = useState<Record<string, number>>({});
+  const [blockedSlots, setBlockedSlots] = useState<Record<string, string>>({});
   const [walkinPressure, setWalkinPressure] = useState<WalkinPressure | undefined>(undefined);
+  const [dayBlackoutNote, setDayBlackoutNote] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [confirmedCode, setConfirmedCode] = useState<string | null>(null);
@@ -120,18 +122,16 @@ export default function Booking() {
     load();
   }, [searchParams]);
 
-  // Load booked slots when date changes
+  // Load booked slots when date changes - using get_available_slots RPC
   useEffect(() => {
     if (!selectedBranch || !selectedDate) return;
     const loadSlots = async () => {
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
       const [slotsRes, walkinRes] = await Promise.all([
-        supabase
-          .from('appointments')
-          .select('start_time')
-          .eq('branch_id', selectedBranch.id)
-          .eq('appointment_date', dateStr)
-          .neq('status', 'cancelled'),
+        supabase.rpc('get_available_slots', {
+          p_branch_id: selectedBranch.id,
+          p_date: dateStr,
+        }),
         supabase.rpc('get_walkin_pressure', {
           p_branch_id: selectedBranch.id,
           p_date: dateStr,
@@ -139,11 +139,33 @@ export default function Booking() {
       ]);
 
       const counts: Record<string, number> = {};
-      slotsRes.data?.forEach(row => {
-        const t = (row.start_time as string).slice(0, 5);
-        counts[t] = (counts[t] || 0) + 1;
-      });
+      const blocked: Record<string, string> = {};
+      let hasBlackout = false;
+      let allBlocked = true;
+
+      if (slotsRes.data) {
+        (slotsRes.data as any[]).forEach((row: any) => {
+          const t = (row.slot_time as string).slice(0, 5);
+          counts[t] = row.booked_count || 0;
+          if (row.blackout_title) {
+            blocked[t] = row.blackout_title;
+            hasBlackout = true;
+          } else {
+            allBlocked = false;
+          }
+        });
+      }
       setBookedSlots(counts);
+      setBlockedSlots(blocked);
+
+      // Set day-level blackout note
+      if (hasBlackout && allBlocked) {
+        setDayBlackoutNote(language === 'th' ? 'วันนี้ปิดรับนัดทั้งวัน' : 'This day is fully blocked');
+      } else if (hasBlackout) {
+        setDayBlackoutNote(language === 'th' ? 'วันนี้ปิดรับนัดบางช่วงเวลา' : 'Some time slots are blocked today');
+      } else {
+        setDayBlackoutNote(null);
+      }
 
       if (walkinRes.data) {
         const wp = walkinRes.data as any;
@@ -156,7 +178,7 @@ export default function Booking() {
       }
     };
     loadSlots();
-  }, [selectedBranch, selectedDate]);
+  }, [selectedBranch, selectedDate, language]);
 
   // Load risk questions on demand
   const loadRiskQuestions = async () => {
@@ -301,7 +323,9 @@ export default function Booking() {
       console.error('Booking error:', err);
       const msg = err?.message || '';
 
-      if (msg.includes('slot_full')) {
+      if (msg.includes('slot_blocked')) {
+        toast.error(language === 'th' ? 'ช่วงเวลานี้ปิดรับนัด กรุณาเลือกเวลาอื่น' : 'This time is unavailable. Please choose another slot.');
+      } else if (msg.includes('slot_full')) {
         toast.error(language === 'th' ? 'ช่วงเวลานี้เต็มแล้ว กรุณาเลือกเวลาอื่น' : 'This time slot is full. Please choose another time.');
       } else if (msg.includes('duplicate_booking')) {
         toast.error(language === 'th' ? 'คุณมีนัดหมายในเวลานี้แล้ว' : 'You already have an appointment at this time');
@@ -690,6 +714,14 @@ export default function Booking() {
                 </div>
               </div>
 
+              {/* Blackout notice */}
+              {selectedDate && dayBlackoutNote && (
+                <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40">
+                  <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                  <p className="text-xs font-medium text-amber-700 dark:text-amber-400">{dayBlackoutNote}</p>
+                </div>
+              )}
+
               {/* Time slots grid */}
               {selectedDate && (
                 <div>
@@ -702,8 +734,15 @@ export default function Booking() {
                     slotDurationMin={selectedBranch.slot_duration_minutes}
                     counselorCount={selectedBranch.counselor_count}
                     bookedSlots={bookedSlots}
+                    blockedSlots={blockedSlots}
                     selectedTime={selectedTime}
-                    onSelectTime={setSelectedTime}
+                    onSelectTime={(time) => {
+                      if (blockedSlots[time]) {
+                        toast.error(language === 'th' ? 'ช่วงเวลานี้ปิดรับนัด กรุณาเลือกเวลาอื่น' : 'This time is unavailable. Please choose another slot.');
+                        return;
+                      }
+                      setSelectedTime(time);
+                    }}
                     serviceSlugs={selectedServices.map(s => s.slug)}
                     walkinPressure={walkinPressure}
                   />
