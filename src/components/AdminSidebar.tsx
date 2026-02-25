@@ -12,7 +12,7 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Shield, Home, LogOut } from "lucide-react";
+import { Shield, Home, LogOut, LayoutDashboard, Clock, Package, CalendarDays, Clipboard, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -57,13 +57,38 @@ export function AdminSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
+              {[
+                { to: '/admin?tab=dashboard', icon: LayoutDashboard, labelTh: 'ภาพรวม', labelEn: 'Dashboard' },
+                { to: '/admin?tab=schedule', icon: Clock, labelTh: 'เวลาทำการ & ปิดรับนัด', labelEn: 'Schedule & Blackout' },
+                { to: '/admin?tab=bookings', icon: CalendarDays, labelTh: 'นัดหมาย', labelEn: 'Bookings' },
+                { to: '/admin?tab=today', icon: Clipboard, labelTh: 'วันนี้', labelEn: 'Today' },
+                { to: '/admin?tab=kit-orders', icon: Package, labelTh: 'ชุดตรวจ', labelEn: 'Orders' },
+                { to: '/admin?tab=users', icon: Users, labelTh: 'ผู้ใช้', labelEn: 'Users' },
+              ].map(item => (
+                <SidebarMenuItem key={item.to}>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={collapsed ? (language === 'th' ? item.labelTh : item.labelEn) : undefined}
+                  >
+                    <NavLink
+                      to={item.to}
+                      className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors hover:bg-sidebar-accent"
+                    >
+                      <item.icon className="h-4 w-4 shrink-0" />
+                      {!collapsed && (
+                        <span>{language === 'th' ? item.labelTh : item.labelEn}</span>
+                      )}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
               <SidebarMenuItem>
-                <SidebarMenuButton 
+                <SidebarMenuButton
                   asChild
                   tooltip={collapsed ? (language === 'th' ? 'หน้าหลัก' : 'Home') : undefined}
                 >
-                  <NavLink 
-                    to="/" 
+                  <NavLink
+                    to="/"
                     className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors hover:bg-sidebar-accent"
                   >
                     <Home className="h-4 w-4 shrink-0" />
