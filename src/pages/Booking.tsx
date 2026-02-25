@@ -138,12 +138,16 @@ export default function Booking() {
         }),
       ]);
 
+      if (slotsRes.error) {
+        console.error('get_available_slots error:', slotsRes.error);
+      }
+
       const counts: Record<string, number> = {};
       const blocked: Record<string, string> = {};
       let hasBlackout = false;
       let allBlocked = true;
 
-      if (slotsRes.data) {
+      if (slotsRes.data && Array.isArray(slotsRes.data)) {
         (slotsRes.data as any[]).forEach((row: any) => {
           const t = (row.slot_time as string).slice(0, 5);
           counts[t] = row.booked_count || 0;
