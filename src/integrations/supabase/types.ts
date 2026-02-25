@@ -2399,7 +2399,29 @@ export type Database = {
           blackout_title: string
           booked_count: number
           capacity: number
+          closure_reason: string
+          closure_title: string
+          day_is_closed: boolean
           is_available: boolean
+          matched_blackout_id: string
+          slot_end_ts: string
+          slot_start_ts: string
+          slot_time: string
+        }[]
+      }
+      get_available_slots_dbg: {
+        Args: { p_branch_id: string; p_date: string; p_debug?: boolean }
+        Returns: {
+          blackout_title: string
+          booked_count: number
+          capacity: number
+          closure_reason: string
+          closure_title: string
+          day_is_closed: boolean
+          is_available: boolean
+          matched_blackout_id: string
+          slot_end_ts: string
+          slot_start_ts: string
           slot_time: string
         }[]
       }

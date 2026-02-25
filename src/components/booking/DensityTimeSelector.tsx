@@ -13,6 +13,7 @@ interface Props {
   closeTime: string;
   slotDurationMin: number;
   counselorCount: number;
+  slotTimes?: string[];
   bookedSlots: Record<string, number>;
   blockedSlots?: Record<string, string>;
   selectedTime: string | null;
@@ -56,7 +57,7 @@ function generateSlots(openTime: string, closeTime: string, durationMin: number)
 }
 
 export function DensityTimeSelector({
-  openTime, closeTime, slotDurationMin, counselorCount,
+  openTime, closeTime, slotDurationMin, counselorCount, slotTimes,
   bookedSlots, blockedSlots, selectedTime, onSelectTime, serviceSlugs, walkinPressure,
 }: Props) {
   const { language } = useLanguage();
@@ -65,8 +66,8 @@ export function DensityTimeSelector({
   const hasWalkinPressure = walkinPressure && (walkinPressure.activeWalkins > 0 || walkinPressure.recentWalkins90min > 0);
 
   const allSlots = useMemo(
-    () => generateSlots(openTime, closeTime, slotDurationMin),
-    [openTime, closeTime, slotDurationMin]
+    () => (slotTimes && slotTimes.length > 0 ? slotTimes : generateSlots(openTime, closeTime, slotDurationMin)),
+    [slotTimes, openTime, closeTime, slotDurationMin]
   );
 
   const blocks = useMemo(() => {
