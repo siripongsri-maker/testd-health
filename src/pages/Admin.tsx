@@ -140,7 +140,17 @@ export default function Admin() {
         {isModerator && !isAdmin && userBranch && (
           <div className="mb-4 p-3 bg-primary/10 rounded-lg border border-primary/20">
             <p className="text-sm font-medium text-primary">
-              {language === 'th' ? `สาขา: ${userBranch === 'silom' ? 'SWING Silom' : 'SWING Pattaya'}` : `Branch: ${userBranch === 'silom' ? 'SWING Silom' : 'SWING Pattaya'}`}
+              {language === 'th' ? `สาขา: ${
+                userBranch === 'silom' ? 'SWING สีลม' :
+                userBranch === 'pattaya' ? 'SWING พัทยา' :
+                userBranch === 'saphankwai' ? 'SWING สะพานควาย' :
+                userBranch === 'petchakasem' ? 'SWING เพชรเกษม' : userBranch
+              }` : `Branch: ${
+                userBranch === 'silom' ? 'SWING Silom' :
+                userBranch === 'pattaya' ? 'SWING Pattaya' :
+                userBranch === 'saphankwai' ? 'SWING Saphan Kwai' :
+                userBranch === 'petchakasem' ? 'SWING Phetkasem' : userBranch
+              }`}
             </p>
           </div>
         )}

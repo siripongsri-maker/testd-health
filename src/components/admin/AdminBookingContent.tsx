@@ -181,14 +181,20 @@ export default function AdminBookingContent({ userBranch }: Props) {
       {!inDrillDown && (
         <>
           <div className="flex gap-1 overflow-x-auto pb-1">
-            <Button variant={branchFilter === 'all' ? 'default' : 'outline'} size="sm" onClick={() => setBranchFilter('all')} className="shrink-0">
-              {language === 'th' ? 'ทุกสาขา' : 'All'}
-            </Button>
-            {branches.map(b => (
-              <Button key={b.id} variant={branchFilter === b.id ? 'default' : 'outline'} size="sm" onClick={() => setBranchFilter(b.id)} className="shrink-0">
-                {language === 'th' ? b.name_th : b.name_en}
+            {!userBranch && (
+              <Button variant={branchFilter === 'all' ? 'default' : 'outline'} size="sm" onClick={() => setBranchFilter('all')} className="shrink-0">
+                {language === 'th' ? 'ทุกสาขา' : 'All'}
               </Button>
-            ))}
+            )}
+            {branches.map(b => {
+              // If user has a branch, only show their branch
+              if (userBranch && b.slug !== userBranch) return null;
+              return (
+                <Button key={b.id} variant={branchFilter === b.id ? 'default' : 'outline'} size="sm" onClick={() => setBranchFilter(b.id)} className="shrink-0">
+                  {language === 'th' ? b.name_th : b.name_en}
+                </Button>
+              );
+            })}
           </div>
 
           {/* View toggle + search + filters */}

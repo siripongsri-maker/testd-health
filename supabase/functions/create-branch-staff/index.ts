@@ -1,163 +1,190 @@
- import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
- 
- const corsHeaders = {
-   "Access-Control-Allow-Origin": "*",
-   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
- };
- 
- Deno.serve(async (req) => {
-   if (req.method === "OPTIONS") {
-     return new Response(null, { headers: corsHeaders });
-   }
- 
-   try {
-     const supabaseAdmin = createClient(
-       Deno.env.get("SUPABASE_URL") ?? "",
-       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
-       { auth: { autoRefreshToken: false, persistSession: false } }
-     );
- 
-     // Verify the caller is an admin
-     const authHeader = req.headers.get("Authorization");
-     if (!authHeader) {
-       return new Response(JSON.stringify({ error: "Missing authorization" }), {
-         status: 401,
-         headers: { ...corsHeaders, "Content-Type": "application/json" },
-       });
-     }
- 
-     const token = authHeader.replace("Bearer ", "");
-     const { data: { user: caller }, error: authError } = await supabaseAdmin.auth.getUser(token);
-     
-     if (authError || !caller) {
-       return new Response(JSON.stringify({ error: "Invalid token" }), {
-         status: 401,
-         headers: { ...corsHeaders, "Content-Type": "application/json" },
-       });
-     }
- 
-     // Check if caller is admin
-     const { data: callerRole } = await supabaseAdmin
-       .from("user_roles")
-       .select("role")
-       .eq("user_id", caller.id)
-       .eq("role", "admin")
-       .single();
- 
-     if (!callerRole) {
-       return new Response(JSON.stringify({ error: "Admin access required" }), {
-         status: 403,
-         headers: { ...corsHeaders, "Content-Type": "application/json" },
-       });
-     }
- 
-     const { username, password, branch, displayName, staff_profile_id } = await req.json();
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-     if (!username || !password || !branch) {
-       return new Response(
-         JSON.stringify({ error: "Missing required fields: username, password, branch" }),
-         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-       );
-     }
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
 
-     // Validate username format and length
-     if (username.length > 50 || !/^[a-zA-Z0-9_-]+$/.test(username)) {
-       return new Response(
-         JSON.stringify({ error: "Invalid username format (max 50 chars, alphanumeric, underscore, dash only)" }),
-         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-       );
-     }
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
 
-     // Validate password length (min 8, max 128 to prevent DoS)
-     if (password.length < 8 || password.length > 128) {
-       return new Response(
-         JSON.stringify({ error: "Password must be 8-128 characters" }),
-         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-       );
-     }
+  try {
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
+      { auth: { autoRefreshToken: false, persistSession: false } }
+    );
 
-     if (!["silom", "pattaya", "saphankwai", "petchakasem"].includes(branch)) {
-       return new Response(
-         JSON.stringify({ error: "Invalid branch. Must be 'silom', 'pattaya', 'saphankwai', or 'petchakasem'" }),
-         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-       );
-     }
- 
-     // Create the user with username@swingth.local pattern
-     const email = `${username}@swingth.local`;
-     
-     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-       email,
-       password,
-       email_confirm: true,
-       user_metadata: { display_name: displayName || username },
-     });
- 
-     if (createError) {
-       console.error("Error creating user:", createError);
-       return new Response(
-         JSON.stringify({ error: createError.message }),
-         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-       );
-     }
- 
-     const userId = newUser.user.id;
- 
-     // Add moderator role (branch staff role)
-     const { error: roleError } = await supabaseAdmin
-       .from("user_roles")
-       .insert({ user_id: userId, role: "moderator" });
- 
-     if (roleError) {
-       console.error("Error assigning role:", roleError);
-     }
- 
-     // Assign to branch
-     const { error: branchError } = await supabaseAdmin
-       .from("staff_branch_assignments")
-       .insert({ user_id: userId, branch });
- 
-      if (branchError) {
-        console.error("Error assigning branch:", branchError);
+    // Verify the caller is an admin
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Missing authorization" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: { user: caller }, error: authError } = await supabaseAdmin.auth.getUser(token);
+    
+    if (authError || !caller) {
+      return new Response(JSON.stringify({ error: "Invalid token" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Check if caller is admin
+    const { data: callerRole } = await supabaseAdmin
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", caller.id)
+      .eq("role", "admin")
+      .single();
+
+    if (!callerRole) {
+      return new Response(JSON.stringify({ error: "Admin access required" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { username, password, branch, displayName, staff_profile_id, jobRole } = await req.json();
+
+    if (!username || !password || !branch) {
+      return new Response(
+        JSON.stringify({ error: "Missing required fields: username, password, branch" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate username format and length
+    if (username.length > 50 || !/^[a-zA-Z0-9_-]+$/.test(username)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid username format (max 50 chars, alphanumeric, underscore, dash only)" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate password length (min 8, max 128 to prevent DoS)
+    if (password.length < 8 || password.length > 128) {
+      return new Response(
+        JSON.stringify({ error: "Password must be 8-128 characters" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!["silom", "pattaya", "saphankwai", "petchakasem"].includes(branch)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid branch. Must be 'silom', 'pattaya', 'saphankwai', or 'petchakasem'" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Resolve branch_id from booking_branches
+    const { data: branchRow } = await supabaseAdmin
+      .from("booking_branches")
+      .select("id")
+      .eq("slug", branch)
+      .single();
+
+    // Create the user with username@swingth.local pattern
+    const email = `${username}@swingth.local`;
+    
+    const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: { display_name: displayName || username },
+    });
+
+    if (createError) {
+      console.error("Error creating user:", createError);
+      return new Response(
+        JSON.stringify({ error: createError.message }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const userId = newUser.user.id;
+
+    // Add moderator role (branch staff role)
+    const { error: roleError } = await supabaseAdmin
+      .from("user_roles")
+      .insert({ user_id: userId, role: "moderator" });
+
+    if (roleError) {
+      console.error("Error assigning role:", roleError);
+    }
+
+    // Assign to branch
+    const { error: branchError } = await supabaseAdmin
+      .from("staff_branch_assignments")
+      .insert({ user_id: userId, branch });
+
+    if (branchError) {
+      console.error("Error assigning branch:", branchError);
+    }
+
+    // Create or link staff_profiles row
+    const resolvedJobRole = jobRole || "counselor";
+    if (staff_profile_id) {
+      // Link existing staff profile
+      const { error: linkError } = await supabaseAdmin
+        .from("staff_profiles")
+        .update({ user_id: userId })
+        .eq("id", staff_profile_id);
+
+      if (linkError) {
+        console.error("Error linking staff profile:", linkError);
       }
+    } else if (branchRow) {
+      // Create new staff profile
+      const { error: profileError } = await supabaseAdmin
+        .from("staff_profiles")
+        .insert({
+          user_id: userId,
+          branch_id: branchRow.id,
+          name_th: displayName || username,
+          name_en: displayName || username,
+          role: resolvedJobRole,
+          staff_role: "branch_staff",
+          is_active: true,
+        });
 
-      // Link to staff_profiles if staff_profile_id provided
-      if (staff_profile_id) {
-        const { error: linkError } = await supabaseAdmin
-          .from("staff_profiles")
-          .update({ user_id: userId })
-          .eq("id", staff_profile_id);
-
-        if (linkError) {
-          console.error("Error linking staff profile:", linkError);
-        }
+      if (profileError) {
+        console.error("Error creating staff profile:", profileError);
       }
+    }
 
-      // Update profile display name
-      await supabaseAdmin
-        .from("profiles")
-        .update({ display_name: displayName || `${branch.charAt(0).toUpperCase() + branch.slice(1)} Staff` })
-        .eq("id", userId);
- 
-     return new Response(
-       JSON.stringify({
-         success: true,
-         user: {
-           id: userId,
-           username,
-           email,
-           branch,
-           displayName: displayName || username,
-         },
-       }),
-       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-     );
-   } catch (error) {
-     console.error("Error:", error);
+    // Update profile display name
+    await supabaseAdmin
+      .from("profiles")
+      .update({ display_name: displayName || `${branch.charAt(0).toUpperCase() + branch.slice(1)} Staff` })
+      .eq("id", userId);
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        user: {
+          id: userId,
+          username,
+          email,
+          branch,
+          displayName: displayName || username,
+          jobRole: resolvedJobRole,
+        },
+      }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    console.error("Error:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-     return new Response(
+    return new Response(
       JSON.stringify({ error: errorMessage }),
-       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-     );
-   }
- });
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
