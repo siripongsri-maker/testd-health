@@ -13,7 +13,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   MapPin, Clock, ChevronRight, ChevronLeft, Calendar as CalendarIcon,
   Check, Loader2, AlertCircle, CreditCard, Globe, Info, HelpCircle, ShieldAlert,
-  Copy, Camera, UserPlus, Star, ExternalLink,
+  Copy, Camera, UserPlus, Star, ExternalLink, Mail,
 } from 'lucide-react';
 import { DensityTimeSelector } from '@/components/booking/DensityTimeSelector';
 import type { WalkinPressure } from '@/lib/waitTimeEstimator';
@@ -89,6 +89,7 @@ export default function Booking() {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [confirmedCode, setConfirmedCode] = useState<string | null>(null);
+  const [guestToken, setGuestToken] = useState<string | null>(null);
 
   // Risk assessment state
   const [showRiskAssessment, setShowRiskAssessment] = useState(false);
@@ -231,7 +232,33 @@ export default function Booking() {
         });
 
         if (error) throw error;
-        setConfirmedCode((data as any).referral_code);
+        const result = data as any;
+        setConfirmedCode(result.referral_code);
+
+        // Generate guest access token for magic link
+        let generatedToken: string | null = null;
+        try {
+          const { data: tokenData } = await supabase.rpc('generate_guest_access_token', {
+            p_appointment_id: result.id,
+          });
+          if (tokenData) {
+            generatedToken = tokenData as string;
+            setGuestToken(generatedToken);
+          }
+        } catch (tokenErr) {
+          console.warn('Could not generate guest token:', tokenErr);
+        }
+
+        // Send booking notification
+        try {
+          await supabase.functions.invoke('booking-notification', {
+            body: {
+              appointment_id: result.id,
+              notification_type: 'booking_created',
+              guest_token: generatedToken,
+            },
+          });
+        } catch {}
       } else {
         // Authenticated booking via atomic RPC (capacity lock + XP award)
         const { data, error } = await supabase.rpc('create_appointment_atomic', {
@@ -861,6 +888,35 @@ export default function Booking() {
                   </Button>
                 ) : (
                   <>
+                    {/* Magic link sent notice */}
+                    <Card className="p-4 rounded-3xl border-2 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20">
+                      <div className="flex items-start gap-3">
+                        <Mail className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+                        <div className="text-left">
+                          <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">
+                            {language === 'th'
+                              ? 'เราได้ส่งลิงก์ดูนัดหมายไปที่อีเมลของคุณแล้ว'
+                              : 'We sent an appointment link to your email'}
+                          </p>
+                          <p className="text-xs text-blue-600 dark:text-blue-400 mt-0.5">
+                            {language === 'th'
+                              ? 'ใช้ลิงก์จากอีเมลเพื่อดูนัดหมายได้ทุกเมื่อ'
+                              : 'Use the link from your email to view your appointment anytime'}
+                          </p>
+                        </div>
+                      </div>
+                    </Card>
+
+                    {guestToken && (
+                      <Button
+                        onClick={() => navigate(`/guest-appointments?token=${guestToken}`)}
+                        className="w-full rounded-full h-12 gap-2"
+                        size="lg"
+                      >
+                        {language === 'th' ? 'ดูนัดหมายของฉัน' : 'View My Appointments'}
+                      </Button>
+                    )}
+
                     <Card className="p-4 rounded-3xl border-2 border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20">
                       <div className="flex items-start gap-3">
                         <UserPlus className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
@@ -878,9 +934,9 @@ export default function Booking() {
                         </div>
                       </div>
                     </Card>
-                    <Button onClick={() => navigate('/auth?redirect=/my-appointments')} className="w-full rounded-full h-12 gap-2" size="lg">
+                    <Button onClick={() => navigate('/auth?redirect=/my-appointments')} variant="outline" className="w-full rounded-full h-12 gap-2" size="lg">
                       <UserPlus className="h-4 w-4" />
-                      {language === 'th' ? 'สมัครสมาชิกเพื่อจัดการนัดหมาย' : 'Register to manage appointments'}
+                      {language === 'th' ? 'สมัครสมาชิก' : 'Register'}
                     </Button>
                   </>
                 )}

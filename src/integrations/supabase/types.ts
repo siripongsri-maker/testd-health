@@ -213,6 +213,9 @@ export type Database = {
           created_at: string
           duration_minutes: number | null
           feedback: string | null
+          guest_access_created_at: string | null
+          guest_access_expires_at: string | null
+          guest_access_hash: string | null
           id: string
           notes: string | null
           rating: number | null
@@ -239,6 +242,9 @@ export type Database = {
           created_at?: string
           duration_minutes?: number | null
           feedback?: string | null
+          guest_access_created_at?: string | null
+          guest_access_expires_at?: string | null
+          guest_access_hash?: string | null
           id?: string
           notes?: string | null
           rating?: number | null
@@ -265,6 +271,9 @@ export type Database = {
           created_at?: string
           duration_minutes?: number | null
           feedback?: string | null
+          guest_access_created_at?: string | null
+          guest_access_expires_at?: string | null
+          guest_access_hash?: string | null
           id?: string
           notes?: string | null
           rating?: number | null
@@ -702,6 +711,30 @@ export type Database = {
           questions?: string[] | null
           recent_testing?: Json | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      guest_lookup_attempts: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          ip_hint: string | null
+          referral_code: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          ip_hint?: string | null
+          referral_code?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          ip_hint?: string | null
+          referral_code?: string | null
         }
         Relationships: []
       }
@@ -2250,6 +2283,10 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      generate_guest_access_token: {
+        Args: { p_appointment_id: string }
+        Returns: string
+      }
       generate_order_code: { Args: never; Returns: string }
       get_appointment_density: {
         Args: { p_branch_id?: string; p_end_date: string; p_start_date: string }
@@ -2269,6 +2306,21 @@ export type Database = {
       get_branch_today_board: {
         Args: { p_branch_id: string; p_date?: string }
         Returns: Json
+      }
+      get_guest_appointments_by_token: {
+        Args: { p_token: string }
+        Returns: {
+          appointment_date: string
+          appointment_id: string
+          branch_name_en: string
+          branch_name_th: string
+          branch_slug: string
+          created_at: string
+          referral_code: string
+          services_summary: string
+          start_time: string
+          status: string
+        }[]
       }
       get_public_site_stats: {
         Args: never
@@ -2303,6 +2355,21 @@ export type Database = {
       get_walkin_pressure: {
         Args: { p_branch_id: string; p_date?: string }
         Returns: Json
+      }
+      guest_lookup_appointment: {
+        Args: { p_email: string; p_referral_code: string }
+        Returns: {
+          appointment_date: string
+          appointment_id: string
+          branch_name_en: string
+          branch_name_th: string
+          branch_slug: string
+          created_at: string
+          referral_code: string
+          services_summary: string
+          start_time: string
+          status: string
+        }[]
       }
       has_role: {
         Args: {

@@ -55,6 +55,7 @@ const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Booking = lazy(() => import("./pages/Booking"));
 const MyAppointments = lazy(() => import("./pages/MyAppointments"));
+const GuestAppointments = lazy(() => import("./pages/GuestAppointments"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -111,6 +112,7 @@ const App = () => (
                 <Route path="/medication-tracker" element={<MedicationTracker />} />
                 <Route path="/booking" element={<Booking />} />
                 <Route path="/my-appointments" element={<MyAppointments />} />
+                <Route path="/guest-appointments" element={<GuestAppointments />} />
                 <Route path="/install" element={<Install />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />

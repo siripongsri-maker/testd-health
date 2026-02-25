@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
       { auth: { autoRefreshToken: false, persistSession: false } }
     );
 
-    const { appointment_id, notification_type } = await req.json();
+    const { appointment_id, notification_type, guest_token } = await req.json();
 
     if (!appointment_id || !notification_type) {
       return new Response(
@@ -91,12 +91,15 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Email sending is temporarily disabled.
-    // Log the notification as 'skipped' instead.
     const maskedEmailStr = maskEmail(email);
     const branchName = appointment.booking_branches?.name_en || "Branch";
     const dateStr = appointment.appointment_date;
     const timeStr = (appointment.start_time as string).slice(0, 5);
+    const referralCode = appointment.referral_code || "";
+
+    // Build magic link if token was provided
+    const appUrl = Deno.env.get("APP_URL") || "https://testd-health.lovable.app";
+    const magicLink = guest_token ? `${appUrl}/guest-appointments?token=${guest_token}` : null;
 
     await supabaseAdmin.from("notification_logs").insert({
       appointment_id,
@@ -107,7 +110,9 @@ Deno.serve(async (req) => {
 
     console.log(
       `[booking-notification] ${notification_type} SKIPPED (email disabled) for appointment ${appointment_id}: ` +
-      `${serviceNames} at ${branchName} on ${dateStr} ${timeStr} -> ${maskedEmailStr}`
+      `${serviceNames} at ${branchName} on ${dateStr} ${timeStr} -> ${maskedEmailStr}` +
+      (magicLink ? ` | Magic link: ${magicLink}` : "") +
+      (referralCode ? ` | Referral: ${referralCode}` : "")
     );
 
     return new Response(

@@ -5,6 +5,7 @@ import {
   Trophy, ClipboardList, CalendarDays,
 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
+import { useAuth } from "@/hooks/useAuth";
 
 interface NavItem {
   icon: React.ElementType;
@@ -13,18 +14,19 @@ interface NavItem {
   path: string;
 }
 
-const mainItems: NavItem[] = [
-  { icon: Home, labelTh: "หน้าแรก", labelEn: "Home", path: "/" },
-  { icon: TestTube, labelTh: "ตรวจ", labelEn: "Test", path: "/hiv-selftest" },
-  { icon: ClipboardList, labelTh: "นัดหมาย", labelEn: "Bookings", path: "/my-appointments" },
-  { icon: BookOpen, labelTh: "ข้อมูล", labelEn: "Learn", path: "/info" },
-  { icon: Heart, labelTh: "ดูแล", labelEn: "Care", path: "/self-care" },
-];
-
 export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const { user } = useAuth();
+
+  const mainItems: NavItem[] = [
+    { icon: Home, labelTh: "หน้าแรก", labelEn: "Home", path: "/" },
+    { icon: TestTube, labelTh: "ตรวจ", labelEn: "Test", path: "/hiv-selftest" },
+    { icon: ClipboardList, labelTh: "นัดหมาย", labelEn: "Bookings", path: user ? "/my-appointments" : "/guest-appointments" },
+    { icon: BookOpen, labelTh: "ข้อมูล", labelEn: "Learn", path: "/info" },
+    { icon: Heart, labelTh: "ดูแล", labelEn: "Care", path: "/self-care" },
+  ];
 
   // Hide bottom nav on admin pages
   if (location.pathname.startsWith("/admin")) return null;
@@ -34,7 +36,9 @@ export function BottomNav() {
       <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
         {mainItems.map((item) => {
           const Icon = item.icon;
-          const active = location.pathname === item.path;
+          const active = location.pathname === item.path || 
+            (item.path === '/my-appointments' && location.pathname === '/guest-appointments') ||
+            (item.path === '/guest-appointments' && location.pathname === '/my-appointments');
           return (
             <button
               key={item.path}
