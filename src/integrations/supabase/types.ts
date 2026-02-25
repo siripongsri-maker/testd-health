@@ -493,6 +493,48 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_blackouts: {
+        Row: {
+          applies_to_branch_ids: string[] | null
+          created_at: string
+          created_by: string | null
+          end_at: string
+          id: string
+          is_all_day: boolean
+          reason: string | null
+          scope: string
+          start_at: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          applies_to_branch_ids?: string[] | null
+          created_at?: string
+          created_by?: string | null
+          end_at: string
+          id?: string
+          is_all_day?: boolean
+          reason?: string | null
+          scope?: string
+          start_at: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          applies_to_branch_ids?: string[] | null
+          created_at?: string
+          created_by?: string | null
+          end_at?: string
+          id?: string
+          is_all_day?: boolean
+          reason?: string | null
+          scope?: string
+          start_at?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       booking_branches: {
         Row: {
           address_en: string | null
@@ -615,6 +657,50 @@ export type Database = {
           slug?: string
         }
         Relationships: []
+      }
+      branch_working_hours: {
+        Row: {
+          branch_id: string
+          close_time: string
+          created_at: string
+          day_of_week: number
+          id: string
+          is_open: boolean
+          open_time: string
+          slot_minutes: number
+          updated_at: string
+        }
+        Insert: {
+          branch_id: string
+          close_time?: string
+          created_at?: string
+          day_of_week: number
+          id?: string
+          is_open?: boolean
+          open_time?: string
+          slot_minutes?: number
+          updated_at?: string
+        }
+        Update: {
+          branch_id?: string
+          close_time?: string
+          created_at?: string
+          day_of_week?: number
+          id?: string
+          is_open?: boolean
+          open_time?: string
+          slot_minutes?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "branch_working_hours_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       chat_messages: {
         Row: {
@@ -2220,6 +2306,10 @@ export type Database = {
         Args: { target_user_id: string; xp_amount: number }
         Returns: undefined
       }
+      check_slot_available: {
+        Args: { p_branch_id: string; p_date: string; p_time: string }
+        Returns: boolean
+      }
       claim_anonymous_appointments: {
         Args: { p_email: string; p_user_id: string }
         Returns: number
@@ -2302,6 +2392,16 @@ export type Database = {
       get_article_like_count: {
         Args: { p_article_id: string }
         Returns: number
+      }
+      get_available_slots: {
+        Args: { p_branch_id: string; p_date: string }
+        Returns: {
+          blackout_title: string
+          booked_count: number
+          capacity: number
+          is_available: boolean
+          slot_time: string
+        }[]
       }
       get_branch_today_board: {
         Args: { p_branch_id: string; p_date?: string }

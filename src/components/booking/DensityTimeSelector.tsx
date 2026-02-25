@@ -14,6 +14,7 @@ interface Props {
   slotDurationMin: number;
   counselorCount: number;
   bookedSlots: Record<string, number>;
+  blockedSlots?: Record<string, string>;
   selectedTime: string | null;
   onSelectTime: (time: string) => void;
   serviceSlugs?: string[];
@@ -56,7 +57,7 @@ function generateSlots(openTime: string, closeTime: string, durationMin: number)
 
 export function DensityTimeSelector({
   openTime, closeTime, slotDurationMin, counselorCount,
-  bookedSlots, selectedTime, onSelectTime, serviceSlugs, walkinPressure,
+  bookedSlots, blockedSlots, selectedTime, onSelectTime, serviceSlugs, walkinPressure,
 }: Props) {
   const { language } = useLanguage();
   const [expandedBlock, setExpandedBlock] = useState<number | null>(null);
@@ -84,7 +85,8 @@ export function DensityTimeSelector({
 
       const slotInfos: SlotInfo[] = blockSlots.map(time => {
         const booked = bookedSlots[time] || 0;
-        const available = Math.max(0, counselorCount - booked);
+        const isBlocked = !!(blockedSlots && blockedSlots[time]);
+        const available = isBlocked ? 0 : Math.max(0, counselorCount - booked);
         return { time, booked, available, isFull: available <= 0 };
       });
 
