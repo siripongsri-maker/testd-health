@@ -13,6 +13,7 @@ import {
   CheckCircle2, XCircle, AlertCircle, Share2, Smartphone, Trash2,
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+import { BookingCardImage } from '@/components/BookingCardImage';
 
 interface GuestAppointment {
   appointment_id: string;
@@ -354,38 +355,15 @@ export default function GuestAppointments() {
                         <p className="text-xs text-muted-foreground">{apt.services_summary}</p>
                       )}
 
-                      {/* Action buttons */}
-                      <div className="flex gap-2 pt-1">
-                        {apt.referral_code && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="rounded-full gap-1.5 flex-1"
-                            onClick={() => copyCode(apt.referral_code)}
-                          >
-                            <Copy className="h-3.5 w-3.5" />
-                            {language === 'th' ? 'คัดลอกรหัส' : 'Copy code'}
-                          </Button>
-                        )}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="rounded-full gap-1.5 flex-1"
-                          onClick={shareLink}
-                        >
-                          <Share2 className="h-3.5 w-3.5" />
-                          {language === 'th' ? 'แชร์ลิงก์' : 'Share link'}
-                        </Button>
-                      </div>
-
-                      {/* Clinic hint */}
-                      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3 text-center">
-                        <p className="text-xs font-medium text-amber-700 dark:text-amber-300">
-                          {language === 'th'
-                            ? '📱 แสดงหน้าจอนี้ให้เจ้าหน้าที่ลงทะเบียน'
-                            : '📱 Show this screen to registration staff'}
-                        </p>
-                      </div>
+                      {/* Save / Share as image */}
+                      <BookingCardImage
+                        referralCode={apt.referral_code}
+                        branchName={language === 'th' ? apt.branch_name_th : apt.branch_name_en}
+                        appointmentDate={format(parseISO(apt.appointment_date), 'd MMM yyyy')}
+                        startTime={apt.start_time}
+                        servicesSummary={apt.services_summary}
+                        status={language === 'th' ? status.labelTh : status.labelEn}
+                      />
                     </div>
                   </Card>
                 );
