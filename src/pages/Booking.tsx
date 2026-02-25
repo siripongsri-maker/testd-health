@@ -235,6 +235,26 @@ export default function Booking() {
         const result = data as any;
         setConfirmedCode(result.referral_code);
 
+        // Save to localStorage for guest re-access on same device
+        try {
+          const STORAGE_KEY = 'guest_appointments_v1';
+          const existing: any[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+          const newEntry = {
+            appointment_id: result.id,
+            referral_code: result.referral_code,
+            created_at: new Date().toISOString(),
+            branch_name_th: selectedBranch.name_th,
+            branch_name_en: selectedBranch.name_en,
+            appointment_date: dateStr,
+            start_time: selectedTime,
+          };
+          // Dedupe by appointment_id
+          const filtered = existing.filter((e: any) => e.appointment_id !== result.id && e.referral_code !== result.referral_code);
+          filtered.push(newEntry);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+          toast.success(language === 'th' ? 'บันทึกนัดหมายไว้บนอุปกรณ์นี้แล้ว ✅' : 'Appointment saved to this device ✅');
+        } catch {}
+
         // Generate guest access token for magic link
         let generatedToken: string | null = null;
         try {

@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Calendar, Clock, MapPin, Loader2, Hash, Copy, Search,
-  CheckCircle2, XCircle, AlertCircle, Share2,
+  CheckCircle2, XCircle, AlertCircle, Share2, Smartphone, Trash2,
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 
@@ -27,6 +27,18 @@ interface GuestAppointment {
   created_at: string;
 }
 
+interface SavedGuestAppointment {
+  appointment_id: string;
+  referral_code: string;
+  created_at: string;
+  branch_name_th: string;
+  branch_name_en: string;
+  appointment_date: string;
+  start_time: string;
+}
+
+const STORAGE_KEY = 'guest_appointments_v1';
+
 const STATUS_CONFIG: Record<string, { labelTh: string; labelEn: string; color: string; icon: typeof CheckCircle2 }> = {
   booked: { labelTh: 'จองแล้ว', labelEn: 'Booked', color: 'text-blue-600 bg-blue-100 dark:bg-blue-900/30', icon: Calendar },
   confirmed: { labelTh: 'ยืนยันแล้ว', labelEn: 'Confirmed', color: 'text-green-600 bg-green-100 dark:bg-green-900/30', icon: CheckCircle2 },
@@ -36,6 +48,14 @@ const STATUS_CONFIG: Record<string, { labelTh: string; labelEn: string; color: s
   cancelled: { labelTh: 'ยกเลิก', labelEn: 'Cancelled', color: 'text-red-600 bg-red-100 dark:bg-red-900/30', icon: XCircle },
   no_show: { labelTh: 'ไม่มาตามนัด', labelEn: 'No Show', color: 'text-muted-foreground bg-muted', icon: AlertCircle },
 };
+
+function getSavedAppointments(): SavedGuestAppointment[] {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
 
 export default function GuestAppointments() {
   const { language } = useLanguage();
@@ -48,6 +68,12 @@ export default function GuestAppointments() {
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [savedItems, setSavedItems] = useState<SavedGuestAppointment[]>([]);
+
+  // Load saved appointments from localStorage
+  useEffect(() => {
+    setSavedItems(getSavedAppointments());
+  }, []);
 
   // Auto-load from ?token= on mount
   useEffect(() => {
@@ -95,7 +121,6 @@ export default function GuestAppointments() {
       const results = (data as unknown as GuestAppointment[]) || [];
       setAppointments(results);
 
-      // If token lookup returned empty, it's likely expired
       if (results.length === 0 && searchParams.get('token')) {
         setErrorMsg(language === 'th'
           ? 'ลิงก์นี้หมดอายุแล้ว กรุณาใช้ "อีเมล" หรือ "รหัสนัดหมาย" เพื่อค้นหา'
@@ -123,6 +148,19 @@ export default function GuestAppointments() {
       toast.success(language === 'th' ? 'คัดลอกลิงก์แล้ว' : 'Link copied!');
     }
   };
+
+  const clearSavedItems = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setSavedItems([]);
+    toast.success(language === 'th' ? 'ลบข้อมูลบนอุปกรณ์นี้แล้ว' : 'Device data cleared');
+  };
+
+  const openSavedAppointment = (code: string) => {
+    setIdentifier(code);
+    handleLookup(code);
+  };
+
+  const showSavedSection = savedItems.length > 0 && !searched && appointments.length === 0;
 
   return (
     <>
@@ -177,6 +215,66 @@ export default function GuestAppointments() {
               </div>
             )}
           </Card>
+
+          {/* Saved on device section */}
+          {showSavedSection && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Smartphone className="h-4 w-4 text-primary" />
+                  <p className="text-sm font-semibold text-foreground">
+                    {language === 'th' ? 'นัดหมายบนอุปกรณ์นี้' : 'Appointments on this device'}
+                  </p>
+                </div>
+                <button
+                  onClick={clearSavedItems}
+                  className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
+                >
+                  <Trash2 className="h-3 w-3" />
+                  {language === 'th' ? 'ลบข้อมูล' : 'Clear'}
+                </button>
+              </div>
+
+              {savedItems.map((item) => (
+                <Card key={item.appointment_id || item.referral_code} className="p-4 rounded-2xl border border-primary/10">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1 flex-1">
+                      <p className="font-mono font-bold text-lg text-primary tracking-wider">
+                        {item.referral_code}
+                      </p>
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          {language === 'th' ? item.branch_name_th : item.branch_name_en}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {item.appointment_date}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          {item.start_time?.slice(0, 5)}
+                        </span>
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      className="rounded-full shrink-0"
+                      onClick={() => openSavedAppointment(item.referral_code)}
+                    >
+                      {language === 'th' ? 'เปิด' : 'Open'}
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+
+              <p className="text-[10px] text-muted-foreground text-center">
+                {language === 'th'
+                  ? '⚠️ ข้อมูลนี้บันทึกไว้บนเบราว์เซอร์นี้เท่านั้น หากล้างข้อมูลเว็บไซต์จะหายไป'
+                  : '⚠️ This data is saved in this browser only. Clearing site data will remove it.'}
+              </p>
+            </div>
+          )}
 
           {/* Loading */}
           {loading && (
