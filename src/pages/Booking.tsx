@@ -87,9 +87,10 @@ export default function Booking() {
   const [contactEmail, setContactEmail] = useState('');
   const [bookedSlots, setBookedSlots] = useState<Record<string, number>>({});
   const [blockedSlots, setBlockedSlots] = useState<Record<string, string>>({});
+  const [rpcSlotTimes, setRpcSlotTimes] = useState<string[]>([]);
   const [walkinPressure, setWalkinPressure] = useState<WalkinPressure | undefined>(undefined);
   const [dayBlackoutNote, setDayBlackoutNote] = useState<string | null>(null);
-  const [dayBlackoutReason, setDayBlackoutReason] = useState<string | null>(null);
+  const [dayClosureInfo, setDayClosureInfo] = useState<{ title: string; reason: string | null } | null>(null);
   const [blackedOutDates, setBlackedOutDates] = useState<Record<string, { title: string; reason: string | null }>>({});
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -125,7 +126,7 @@ export default function Booking() {
     load();
   }, [searchParams]);
 
-  // Load booked slots when date changes - using get_available_slots RPC
+  // Load availability for selected date from the single source of truth RPC
   useEffect(() => {
     if (!selectedBranch || !selectedDate) return;
     const loadSlots = async () => {
@@ -145,33 +146,46 @@ export default function Booking() {
         console.error('get_available_slots error:', slotsRes.error);
       }
 
-      const counts: Record<string, number> = {};
-      const blocked: Record<string, string> = {};
-      let hasBlackout = false;
-      let allBlocked = true;
+      const rows = (slotsRes.data as any[] | null) ?? [];
+      const closureRow = rows.find((row) => row.day_is_closed === true);
 
-      if (slotsRes.data && Array.isArray(slotsRes.data)) {
-        (slotsRes.data as any[]).forEach((row: any) => {
-          const t = (row.slot_time as string).slice(0, 5);
+      if (closureRow) {
+        setRpcSlotTimes([]);
+        setBookedSlots({});
+        setBlockedSlots({});
+        setDayBlackoutNote(language === 'th' ? 'วันนี้ปิดรับนัดทั้งวัน' : 'This day is fully closed');
+        setDayClosureInfo({
+          title: closureRow.closure_title || closureRow.blackout_title || (language === 'th' ? 'ปิดรับนัด' : 'Closed'),
+          reason: closureRow.closure_reason || null,
+        });
+        setSelectedTime(null);
+      } else {
+        const slotRows = rows.filter((row) => !!row.slot_time);
+        const slotTimes = slotRows.map((row) => String(row.slot_time).slice(0, 5));
+        const counts: Record<string, number> = {};
+        const blocked: Record<string, string> = {};
+
+        slotRows.forEach((row) => {
+          const t = String(row.slot_time).slice(0, 5);
           counts[t] = row.booked_count || 0;
           if (row.blackout_title) {
             blocked[t] = row.blackout_title;
-            hasBlackout = true;
-          } else {
-            allBlocked = false;
           }
         });
-      }
-      setBookedSlots(counts);
-      setBlockedSlots(blocked);
 
-      // Set day-level blackout note
-      if (hasBlackout && allBlocked) {
-        setDayBlackoutNote(language === 'th' ? 'วันนี้ปิดรับนัดทั้งวัน' : 'This day is fully blocked');
-      } else if (hasBlackout) {
-        setDayBlackoutNote(language === 'th' ? 'วันนี้ปิดรับนัดบางช่วงเวลา' : 'Some time slots are blocked today');
-      } else {
-        setDayBlackoutNote(null);
+        setRpcSlotTimes(slotTimes);
+        setBookedSlots(counts);
+        setBlockedSlots(blocked);
+        setDayClosureInfo(null);
+
+        const hasAnyBlocked = slotRows.some((row) => !!row.blackout_title);
+        setDayBlackoutNote(hasAnyBlocked
+          ? (language === 'th' ? 'วันนี้ปิดรับนัดบางช่วงเวลา' : 'Some time slots are blocked today')
+          : null);
+
+        if (selectedTime && !slotTimes.includes(selectedTime)) {
+          setSelectedTime(null);
+        }
       }
 
       if (walkinRes.data) {
@@ -185,7 +199,7 @@ export default function Booking() {
       }
     };
     loadSlots();
-  }, [selectedBranch, selectedDate, language]);
+  }, [selectedBranch, selectedDate, selectedTime, language]);
 
   // Load risk questions on demand
   const loadRiskQuestions = async () => {
@@ -235,53 +249,42 @@ export default function Booking() {
     return dates;
   }, [selectedBranch]);
 
-  // Pre-fetch blackouts for all available dates when branch is selected
+  // Pre-fetch day-level closures via get_available_slots RPC (single source of truth)
   useEffect(() => {
     if (!selectedBranch || availableDates.length === 0) {
       setBlackedOutDates({});
       return;
     }
-    const loadBlackouts = async () => {
-      const minDate = availableDates[0];
-      const maxDate = availableDates[availableDates.length - 1];
-      const { data: blackouts } = await supabase
-        .from('booking_blackouts')
-        .select('title, reason, start_at, end_at, is_all_day, scope, applies_to_branch_ids')
-        .lte('start_at', format(addDays(maxDate, 1), 'yyyy-MM-dd') + 'T00:00:00')
-        .gte('end_at', format(minDate, 'yyyy-MM-dd') + 'T00:00:00');
 
-      if (!blackouts || blackouts.length === 0) {
-        setBlackedOutDates({});
-        return;
-      }
+    const loadDayClosures = async () => {
+      const responses = await Promise.all(
+        availableDates.map((date) =>
+          supabase.rpc('get_available_slots', {
+            p_branch_id: selectedBranch.id,
+            p_date: format(date, 'yyyy-MM-dd'),
+          })
+        )
+      );
 
-      const blocked: Record<string, { title: string; reason: string | null }> = {};
-      const branchOpenTime = selectedBranch.open_time;
-      const branchCloseTime = selectedBranch.close_time;
+      const nextBlockedDates: Record<string, { title: string; reason: string | null }> = {};
 
-      for (const date of availableDates) {
-        const dateStr = format(date, 'yyyy-MM-dd');
-        for (const bo of blackouts) {
-          const appliesToBranch =
-            bo.scope === 'global' ||
-            (bo.scope === 'branch' && bo.applies_to_branch_ids && bo.applies_to_branch_ids.includes(selectedBranch.id));
-          if (!appliesToBranch) continue;
+      responses.forEach((res, idx) => {
+        if (res.error || !Array.isArray(res.data)) return;
+        const closureRow = (res.data as any[]).find((row) => row.day_is_closed === true);
+        if (!closureRow) return;
 
-          const boStart = new Date(bo.start_at);
-          const boEnd = new Date(bo.end_at);
-          const dayStart = new Date(`${dateStr}T${branchOpenTime}`);
-          const dayEnd = new Date(`${dateStr}T${branchCloseTime}`);
+        const dateStr = format(availableDates[idx], 'yyyy-MM-dd');
+        nextBlockedDates[dateStr] = {
+          title: closureRow.closure_title || closureRow.blackout_title || (language === 'th' ? 'ปิดรับนัด' : 'Closed'),
+          reason: closureRow.closure_reason || null,
+        };
+      });
 
-          if (boStart <= dayStart && boEnd >= dayEnd) {
-            blocked[dateStr] = { title: bo.title, reason: bo.reason };
-            break;
-          }
-        }
-      }
-      setBlackedOutDates(blocked);
+      setBlackedOutDates(nextBlockedDates);
     };
-    loadBlackouts();
-  }, [selectedBranch, availableDates]);
+
+    loadDayClosures();
+  }, [selectedBranch, availableDates, language]);
 
   // timeSlots generation now handled by DensityTimeSelector
 
@@ -751,12 +754,17 @@ export default function Booking() {
                     return (
                       <button
                         key={date.toISOString()}
-                        disabled={isBlackedOut}
                         onClick={() => {
-                          if (isBlackedOut) return;
+                          if (isBlackedOut && blackoutInfo) {
+                            setSelectedDate(date);
+                            setSelectedTime(null);
+                            setDayClosureInfo(blackoutInfo);
+                            toast.error(blackoutInfo.reason ? `${blackoutInfo.title}: ${blackoutInfo.reason}` : blackoutInfo.title);
+                            return;
+                          }
                           setSelectedDate(date);
                           setSelectedTime(null);
-                          setDayBlackoutReason(null);
+                          setDayClosureInfo(null);
                         }}
                         className={cn(
                           "flex-shrink-0 px-4 py-3 rounded-2xl text-center transition-all border-2 min-w-[72px] relative",
@@ -786,8 +794,8 @@ export default function Booking() {
                 </div>
               </div>
 
-              {/* Blackout notice — full day blocked */}
-              {selectedDate && blackedOutDates[format(selectedDate, 'yyyy-MM-dd')] && (
+              {/* Full-day closure notice */}
+              {selectedDate && dayClosureInfo && (
                 <Card className="p-4 rounded-2xl bg-destructive/5 border-destructive/20">
                   <div className="flex items-start gap-3">
                     <div className="h-10 w-10 rounded-2xl bg-destructive/10 flex items-center justify-center shrink-0">
@@ -797,13 +805,9 @@ export default function Booking() {
                       <p className="text-sm font-bold text-destructive">
                         {language === 'th' ? 'ปิดรับนัดทั้งวัน' : 'Fully Closed'}
                       </p>
-                      <p className="text-sm font-semibold text-foreground mt-0.5">
-                        {blackedOutDates[format(selectedDate, 'yyyy-MM-dd')].title}
-                      </p>
-                      {blackedOutDates[format(selectedDate, 'yyyy-MM-dd')].reason && (
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {blackedOutDates[format(selectedDate, 'yyyy-MM-dd')].reason}
-                        </p>
+                      <p className="text-sm font-semibold text-foreground mt-0.5">{dayClosureInfo.title}</p>
+                      {dayClosureInfo.reason && (
+                        <p className="text-xs text-muted-foreground mt-1">{dayClosureInfo.reason}</p>
                       )}
                       <p className="text-xs text-muted-foreground mt-2">
                         {language === 'th' ? 'กรุณาเลือกวันอื่น' : 'Please select another date'}
@@ -814,7 +818,7 @@ export default function Booking() {
               )}
 
               {/* Partial blackout notice */}
-              {selectedDate && !blackedOutDates[format(selectedDate, 'yyyy-MM-dd')] && dayBlackoutNote && (
+              {selectedDate && !dayClosureInfo && dayBlackoutNote && (
                 <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40">
                   <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
                   <p className="text-xs font-medium text-amber-700 dark:text-amber-400">{dayBlackoutNote}</p>
@@ -822,7 +826,7 @@ export default function Booking() {
               )}
 
               {/* Time slots grid */}
-              {selectedDate && !blackedOutDates[format(selectedDate, 'yyyy-MM-dd')] && (
+              {selectedDate && !dayClosureInfo && (
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-3">
                     {format(selectedDate, 'EEEE, d MMMM yyyy')}
@@ -832,6 +836,7 @@ export default function Booking() {
                     closeTime={selectedBranch.close_time}
                     slotDurationMin={selectedBranch.slot_duration_minutes}
                     counselorCount={selectedBranch.counselor_count}
+                    slotTimes={rpcSlotTimes}
                     bookedSlots={bookedSlots}
                     blockedSlots={blockedSlots}
                     selectedTime={selectedTime}
