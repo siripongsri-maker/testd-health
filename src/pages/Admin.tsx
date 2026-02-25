@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { AdminLayout } from "@/components/AdminLayout";
 import { useLanguage } from "@/lib/i18n";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, BarChart3, FileText, Loader2, LayoutDashboard, Bell, Users, Building2, ClipboardList, FileUp, UserPlus, CalendarDays, Clipboard, Clock } from "lucide-react";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -157,110 +157,6 @@ export default function Admin() {
         )}
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className={`w-full mb-4 grid h-auto ${isAdmin ? 'grid-cols-13' : 'grid-cols-6'}`}>
-            {canAccessTab("dashboard") && (
-              <TabsTrigger value="dashboard" className="flex items-center gap-2 py-3">
-                <LayoutDashboard className="h-4 w-4" />
-                <span className="hidden md:inline">
-                  {language === 'th' ? 'ภาพรวม' : 'Dashboard'}
-                </span>
-              </TabsTrigger>
-            )}
-            {canAccessTab("users") && (
-              <TabsTrigger value="users" className="flex items-center gap-2 py-3">
-                <Users className="h-4 w-4" />
-                <span className="hidden md:inline">
-                  {language === 'th' ? 'ผู้ใช้' : 'Users'}
-                </span>
-              </TabsTrigger>
-            )}
-            {canAccessTab("branch-staff") && (
-              <TabsTrigger value="branch-staff" className="flex items-center gap-2 py-3">
-                <Building2 className="h-4 w-4" />
-                <span className="hidden md:inline">
-                  {language === 'th' ? 'สาขา' : 'Branch'}
-                </span>
-              </TabsTrigger>
-            )}
-            <TabsTrigger value="kit-orders" className="flex items-center gap-2 py-3">
-              <Package className="h-4 w-4" />
-              <span className="hidden md:inline">
-                {language === 'th' ? 'ชุดตรวจ' : 'Orders'}
-              </span>
-            </TabsTrigger>
-            {canAccessTab("quick-register") && (
-              <TabsTrigger value="quick-register" className="flex items-center gap-2 py-3">
-                <UserPlus className="h-4 w-4" />
-                <span className="hidden md:inline">
-                  {language === 'th' ? 'ลงทะเบียน' : 'Register'}
-                </span>
-              </TabsTrigger>
-            )}
-            {canAccessTab("notifications") && (
-              <TabsTrigger value="notifications" className="flex items-center gap-2 py-3">
-                <Bell className="h-4 w-4" />
-                <span className="hidden md:inline">
-                  {language === 'th' ? 'แจ้งเตือน' : 'Notify'}
-                </span>
-              </TabsTrigger>
-            )}
-            {canAccessTab("analytics") && (
-              <TabsTrigger value="analytics" className="flex items-center gap-2 py-3">
-                <BarChart3 className="h-4 w-4" />
-                <span className="hidden md:inline">
-                  {language === 'th' ? 'สถิติ' : 'Stats'}
-                </span>
-              </TabsTrigger>
-            )}
-            {canAccessTab("blog") && (
-              <TabsTrigger value="blog" className="flex items-center gap-2 py-3">
-                <FileText className="h-4 w-4" />
-                <span className="hidden md:inline">
-                  {language === 'th' ? 'บทความ' : 'Blog'}
-                </span>
-              </TabsTrigger>
-            )}
-            {canAccessTab("surveys") && (
-              <TabsTrigger value="surveys" className="flex items-center gap-2 py-3">
-                <ClipboardList className="h-4 w-4" />
-                <span className="hidden md:inline">
-                  {language === 'th' ? 'แบบสำรวจ' : 'Surveys'}
-                </span>
-              </TabsTrigger>
-            )}
-            {canAccessTab("import") && (
-              <TabsTrigger value="import" className="flex items-center gap-2 py-3">
-                <FileUp className="h-4 w-4" />
-                <span className="hidden md:inline">
-                  {language === 'th' ? 'นำเข้า' : 'Import'}
-                </span>
-              </TabsTrigger>
-            )}
-            {canAccessTab("bookings") && (
-              <TabsTrigger value="bookings" className="flex items-center gap-2 py-3">
-                <CalendarDays className="h-4 w-4" />
-                <span className="hidden md:inline">
-                  {language === 'th' ? 'นัดหมาย' : 'Bookings'}
-                </span>
-              </TabsTrigger>
-            )}
-            {canAccessTab("today") && (
-              <TabsTrigger value="today" className="flex items-center gap-2 py-3">
-                <Clipboard className="h-4 w-4" />
-                <span className="hidden md:inline">
-                  {language === 'th' ? 'วันนี้' : 'Today'}
-                </span>
-              </TabsTrigger>
-            )}
-            {canAccessTab("schedule") && (
-              <TabsTrigger value="schedule" className="flex items-center gap-2 py-3">
-                <Clock className="h-4 w-4" />
-                <span className="hidden md:inline">
-                  {language === 'th' ? 'ตารางเวลา' : 'Schedule'}
-                </span>
-              </TabsTrigger>
-            )}
-          </TabsList>
 
           {canAccessTab("dashboard") && (
             <TabsContent value="dashboard" className="mt-0">
