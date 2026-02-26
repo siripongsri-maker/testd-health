@@ -196,12 +196,79 @@ export default function MyAppointments() {
     );
   }
 
+  // Bangkok time helper
+  const getBangkokNow = () => {
+    const now = new Date();
+    // Get Bangkok offset: UTC+7
+    const bangkokOffset = 7 * 60; // minutes
+    const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
+    return new Date(utcMs + bangkokOffset * 60000);
+  };
+
+  const getCheckinEligibility = (apt: FullAppointment): { canCheckin: boolean; canCheckout: boolean; helperText?: string; helperTextEn?: string } => {
+    const bangkokNow = getBangkokNow();
+    const todayStr = bangkokNow.toISOString().slice(0, 10);
+    const isToday = apt.appointment_date === todayStr;
+
+    // Check-out: arrived status, today
+    if (apt.status === 'arrived' && isToday) {
+      return { canCheckin: false, canCheckout: true };
+    }
+
+    // Check-in: only booked/confirmed
+    if (apt.status !== 'booked' && apt.status !== 'confirmed') {
+      return { canCheckin: false, canCheckout: false };
+    }
+
+    if (!isToday) {
+      // Future date
+      if (apt.appointment_date > todayStr) {
+        return {
+          canCheckin: false,
+          canCheckout: false,
+          helperText: 'สามารถเช็คอินได้ในวันนัดหมาย ก่อนเวลานัด 1 ชม.',
+          helperTextEn: 'Check-in opens on appointment day, 1 hour before your time',
+        };
+      }
+      return { canCheckin: false, canCheckout: false };
+    }
+
+    // Today - check time window (-60min to +30min)
+    const [h, m] = (apt.start_time as string).split(':').map(Number);
+    const aptTime = new Date(bangkokNow);
+    aptTime.setHours(h, m, 0, 0);
+
+    const windowStart = new Date(aptTime.getTime() - 60 * 60000);
+    const windowEnd = new Date(aptTime.getTime() + 30 * 60000);
+
+    if (bangkokNow < windowStart) {
+      const minsLeft = Math.ceil((windowStart.getTime() - bangkokNow.getTime()) / 60000);
+      return {
+        canCheckin: false,
+        canCheckout: false,
+        helperText: `เช็คอินเปิดอีก ${minsLeft} นาที (ก่อนเวลานัด 1 ชม.)`,
+        helperTextEn: `Check-in opens in ${minsLeft} min (1 hour before appointment)`,
+      };
+    }
+
+    if (bangkokNow > windowEnd) {
+      return {
+        canCheckin: false,
+        canCheckout: false,
+        helperText: 'หมดเวลาเช็คอินแล้ว',
+        helperTextEn: 'Check-in window has expired',
+      };
+    }
+
+    return { canCheckin: true, canCheckout: false };
+  };
+
   const renderAppointment = (apt: FullAppointment) => {
     const status = STATUS_CONFIG[apt.status] || STATUS_CONFIG.booked;
     const isExpanded = expandedId === apt.id;
     const canCancel = apt.status === 'booked' || apt.status === 'confirmed';
-    const canCheckin = apt.status === 'booked' || apt.status === 'confirmed';
-    const canCheckout = apt.status === 'arrived';
+    const eligibility = getCheckinEligibility(apt);
+    const { canCheckin, canCheckout } = eligibility;
     const displayServices = getDisplayServices(apt);
 
     return (
@@ -265,11 +332,27 @@ export default function MyAppointments() {
             )}
 
             {/* Helper text for booked/confirmed */}
-            {canCheckin && (
+            {(apt.status === 'booked' || apt.status === 'confirmed') && (
               <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-2">
-                เมื่อมาถึงคลินิก ให้กดเช็คอิน และแสดงรหัสนี้ให้เจ้าหน้าที่
-                <br />
-                <span className="text-[10px] opacity-70">(When you arrive, tap Check-in and show this code to staff)</span>
+                {canCheckin ? (
+                  <>
+                    เมื่อมาถึงคลินิก ให้กดเช็คอิน และแสดงรหัสนี้ให้เจ้าหน้าที่
+                    <br />
+                    <span className="text-[10px] opacity-70">(When you arrive, tap Check-in and show this code to staff)</span>
+                  </>
+                ) : eligibility.helperText ? (
+                  <>
+                    ⏰ {eligibility.helperText}
+                    <br />
+                    <span className="text-[10px] opacity-70">({eligibility.helperTextEn})</span>
+                  </>
+                ) : (
+                  <>
+                    เมื่อมาถึงคลินิก ให้กดเช็คอิน และแสดงรหัสนี้ให้เจ้าหน้าที่
+                    <br />
+                    <span className="text-[10px] opacity-70">(When you arrive, tap Check-in and show this code to staff)</span>
+                  </>
+                )}
               </p>
             )}
 
