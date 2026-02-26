@@ -91,7 +91,7 @@ const needsReset = (questType: string, lastResetAt: string | null): boolean => {
 export function useQuestProgress() {
   const { user } = useAuth();
 
-  const completeQuest = useCallback(async (trigger: QuestTrigger, language: 'th' | 'en' = 'th') => {
+  const completeQuest = useCallback(async (trigger: QuestTrigger, language: string = 'th') => {
     if (!user) return null;
 
     try {
@@ -217,31 +217,31 @@ export function useQuestProgress() {
   }, [user]);
 
   // Convenience methods for each trigger type
-  const trackMedicationSetup = useCallback((lang: 'th' | 'en' = 'th') => 
+  const trackMedicationSetup = useCallback((lang: string = 'th') => 
     completeQuest('medication_setup', lang), [completeQuest]);
   
-  const trackProfileComplete = useCallback((lang: 'th' | 'en' = 'th') => 
+  const trackProfileComplete = useCallback((lang: string = 'th') => 
     completeQuest('profile_complete', lang), [completeQuest]);
   
-  const trackArticleCreated = useCallback((lang: 'th' | 'en' = 'th') => 
+  const trackArticleCreated = useCallback((lang: string = 'th') => 
     completeQuest('article_created', lang), [completeQuest]);
   
-  const trackArticleRead = useCallback((lang: 'th' | 'en' = 'th') => 
+  const trackArticleRead = useCallback((lang: string = 'th') => 
     completeQuest('article_read', lang), [completeQuest]);
   
-  const trackArticleComment = useCallback((lang: 'th' | 'en' = 'th') => 
+  const trackArticleComment = useCallback((lang: string = 'th') => 
     completeQuest('article_comment', lang), [completeQuest]);
   
-  const trackSurveyComplete = useCallback((lang: 'th' | 'en' = 'th') => 
+  const trackSurveyComplete = useCallback((lang: string = 'th') => 
     completeQuest('survey_complete', lang), [completeQuest]);
   
-  const trackSocialVisit = useCallback((lang: 'th' | 'en' = 'th') => 
+  const trackSocialVisit = useCallback((lang: string = 'th') => 
     completeQuest('social_visit', lang), [completeQuest]);
   
-  const trackClinicBooking = useCallback((lang: 'th' | 'en' = 'th') => 
+  const trackClinicBooking = useCallback((lang: string = 'th') => 
     completeQuest('clinic_booking', lang), [completeQuest]);
   
-  const trackSelftestRequest = useCallback((lang: 'th' | 'en' = 'th') => 
+  const trackSelftestRequest = useCallback((lang: string = 'th') => 
     completeQuest('selftest_request', lang), [completeQuest]);
 
   return {

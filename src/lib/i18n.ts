@@ -1,17 +1,21 @@
 import { create } from 'zustand';
-
-// Badge earned notification key
 import { persist } from 'zustand/middleware';
+import { supabase } from '@/integrations/supabase/client';
 
-type Language = 'th' | 'en';
+// ── Language types ──────────────────────────────────────────────
+export type Language = 'th' | 'en' | 'km' | 'lo' | 'vi' | 'my';
 
-interface LanguageState {
-  language: Language;
-  setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
-}
+export const SUPPORTED_LANGUAGES: { code: Language; label: string; nativeLabel: string }[] = [
+  { code: 'th', label: 'Thai', nativeLabel: 'ไทย' },
+  { code: 'en', label: 'English', nativeLabel: 'EN' },
+  { code: 'km', label: 'Khmer', nativeLabel: 'ខ្មែរ' },
+  { code: 'lo', label: 'Lao', nativeLabel: 'ລາວ' },
+  { code: 'vi', label: 'Vietnamese', nativeLabel: 'Tiếng Việt' },
+  { code: 'my', label: 'Burmese', nativeLabel: 'မြန်မာ' },
+];
 
-const translations: Record<Language, Record<string, string>> = {
+// ── Static dictionaries (th + en only) ──────────────────────────
+const translations: Record<'th' | 'en', Record<string, string>> = {
   th: {
     // Landing
     'app.name': 'testD',
@@ -272,6 +276,9 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.swing': 'SWING',
     'nav.progress': 'ความคืบหน้า',
     'nav.settings': 'ตั้งค่า',
+    'nav.test': 'ตรวจ',
+    'nav.bookings': 'นัดหมาย',
+    'nav.care': 'ดูแล',
 
     // Community
     'community.title': 'ชุมชน',
@@ -361,6 +368,66 @@ const translations: Record<Language, Record<string, string>> = {
     'consultation.copy': 'คัดลอก',
     'consultation.copied': 'คัดลอกแล้ว',
     'consultation.saved': 'บันทึกแบบฟอร์มแล้ว',
+
+    // Booking
+    'booking.title': '📅 จองนัดหมาย',
+    'booking.subtitle': 'บริการฟรีสำหรับทุกคน ไม่ต้องลงทะเบียน',
+    'booking.selectBranch': 'เลือกสาขา',
+    'booking.selectServices': 'เลือกบริการ',
+    'booking.selectDateTime': 'เลือกวันและเวลา',
+    'booking.confirmBooking': 'ยืนยันนัดหมาย',
+    'booking.bookingConfirmed': 'จองสำเร็จ',
+    'booking.slotsAvailable': 'คิวว่าง',
+
+    // Home
+    'home.welcome': 'คนเทสต์ดีอยู่นี่จ้า',
+    'home.chooseService': 'เลือกบริการที่ต้องการ',
+    'home.selfTest': 'ขอชุดตรวจ',
+    'home.bookAppointment': 'จองตรวจ',
+    'home.surveys': 'แบบประเมิน',
+    'home.didYouKnow': 'เรื่องน่ารู้',
+    'home.onlineCounselor': 'ขอคำปรึกษา',
+    'home.selfCare': 'ดูแลตัวเอง',
+    'home.members': 'สมาชิก',
+    'home.totalVisitors': 'ผู้เข้าชมทั้งหมด',
+    'home.poweredBy': 'สนับสนุนโดย',
+    'home.freeConfidential': 'บริการนี้ไม่มีค่าใช้จ่าย • ข้อมูลของคุณเป็นความลับ',
+
+    // My Appointments
+    'appointments.title': 'นัดหมายของฉัน',
+    'appointments.upcoming': 'นัดหมายที่จะถึง',
+    'appointments.past': 'นัดหมายที่ผ่านมา',
+    'appointments.noUpcoming': 'ไม่มีนัดหมายที่กำลังจะถึง',
+    'appointments.bookNew': 'จองนัดหมายใหม่',
+    'appointments.cancel': 'ยกเลิกนัดหมาย',
+    'appointments.checkin': 'เช็คอิน',
+    'appointments.checkout': 'เช็คเอาท์',
+
+    // Admin Sidebar
+    'admin.panel': 'ผู้ดูแลระบบ',
+    'admin.manageSystem': 'จัดการระบบ',
+    'admin.mode': 'โหมดผู้ดูแลระบบ',
+    'admin.main': 'หลัก',
+    'admin.dashboard': 'ภาพรวม',
+    'admin.people': 'ผู้ใช้งาน',
+    'admin.users': 'ผู้ใช้',
+    'admin.branchStaff': 'สาขา',
+    'admin.quickRegister': 'ลงทะเบียน',
+    'admin.appointments': 'นัดหมาย',
+    'admin.bookings': 'นัดหมาย',
+    'admin.today': 'วันนี้',
+    'admin.schedule': 'ตารางเวลา',
+    'admin.content': 'เนื้อหา',
+    'admin.blog': 'บทความ',
+    'admin.surveys': 'แบบสำรวจ',
+    'admin.operations': 'ระบบ',
+    'admin.kitOrders': 'ชุดตรวจ',
+    'admin.notifications': 'แจ้งเตือน',
+    'admin.analytics': 'สถิติ',
+    'admin.import': 'นำเข้า',
+    'admin.translations': 'คำแปล',
+    'admin.backToApp': 'กลับหน้าหลัก',
+    'admin.logout': 'ออกจากระบบ',
 
     // Common
     'common.back': 'กลับ',
@@ -585,15 +652,15 @@ const translations: Record<Language, Record<string, string>> = {
     'settings.dailyPrep': 'Daily PrEP',
     'settings.dailyPrep.desc': 'Daily reminder',
     'settings.ondemandPrep': 'On-demand PrEP',
-    'settings.ondemandPrep.desc': 'Event-based reminders',
+    'settings.ondemandPrep.desc': 'Event-based reminder',
     'settings.pepReminders': 'PEP Reminders',
     'settings.pepReminders.desc': '28-day course reminders',
     'settings.reminderTime': 'Reminder Time',
-    'settings.defaultTime': 'Default notification time',
+    'settings.defaultTime': 'Default reminder time',
     'settings.data': 'Data',
-    'settings.resetAll': 'Reset All Data',
-    'settings.resetWarning': 'This will delete all your progress, settings, and badges',
-    'settings.confirmReset': 'Are you sure? This will reset all your progress.',
+    'settings.resetAll': 'Reset all data',
+    'settings.resetWarning': 'This will delete all your progress, settings, and badges.',
+    'settings.confirmReset': 'Are you sure? This will reset all progress.',
     'settings.theme': 'Theme',
     'settings.account': 'Account',
     'settings.loggedInAs': 'Logged in as',
@@ -603,8 +670,8 @@ const translations: Record<Language, Record<string, string>> = {
     // Auth
     'auth.login': 'Login',
     'auth.signup': 'Sign Up',
-    'auth.loginSubtitle': 'Sign in to sync your progress',
-    'auth.signupSubtitle': 'Create an account to save your progress',
+    'auth.loginSubtitle': 'Login to sync your progress',
+    'auth.signupSubtitle': 'Create an account to save progress',
     'auth.email': 'Email',
     'auth.emailPlaceholder': 'Enter your email',
     'auth.password': 'Password',
@@ -615,14 +682,14 @@ const translations: Record<Language, Record<string, string>> = {
     'auth.signupButton': 'Sign Up',
     'auth.noAccount': "Don't have an account?",
     'auth.hasAccount': 'Already have an account?',
-    'auth.signupLink': 'Sign up',
+    'auth.signupLink': 'Sign Up',
     'auth.loginLink': 'Login',
-    'auth.invalidEmail': 'Invalid email address',
+    'auth.invalidEmail': 'Invalid email',
     'auth.passwordTooShort': 'Password must be at least 6 characters',
     'auth.invalidCredentials': 'Invalid email or password',
-    'auth.userExists': 'This email is already registered',
+    'auth.userExists': 'Email already in use',
     'auth.loginSuccess': 'Login successful!',
-    'auth.signupSuccess': 'Account created successfully!',
+    'auth.signupSuccess': 'Sign up successful!',
     'auth.privacyNote': 'Your data is encrypted and secure',
 
     // Navigation
@@ -631,25 +698,28 @@ const translations: Record<Language, Record<string, string>> = {
     'nav.swing': 'SWING',
     'nav.progress': 'Progress',
     'nav.settings': 'Settings',
+    'nav.test': 'Test',
+    'nav.bookings': 'Bookings',
+    'nav.care': 'Care',
 
     // Community
     'community.title': 'Community',
     'community.subtitle': 'Connect and share safely',
-    'community.anonymousReminder': 'You are anonymous',
-    'community.anonymousDesc': 'No one can see your personal info',
-    'community.manageInterests': 'Manage interests',
+    'community.anonymousReminder': "You're anonymous",
+    'community.anonymousDesc': 'No one can see your personal information',
+    'community.manageInterests': 'Manage Interests',
     'chat.yourNickname': 'Your nickname',
     'chat.guidelines.title': 'Community Guidelines',
-    'chat.guidelines.respectful': 'Be respectful to everyone',
-    'chat.guidelines.noPersonalInfo': 'Don\'t share personal info',
+    'chat.guidelines.respectful': 'Be respectful',
+    'chat.guidelines.noPersonalInfo': "Don't share personal info",
     'chat.guidelines.supportive': 'Be supportive',
-    'chat.guidelines.notMedicalAdvice': 'This is not medical advice',
+    'chat.guidelines.notMedicalAdvice': 'Not medical advice',
     'chat.typeMessage': 'Type a message...',
     'chat.loginRequired': 'Login to send messages',
     'common.dismiss': 'Dismiss',
     'interests.title': 'Your Interests',
-    'interests.subtitle': 'Select topics you care about',
-    'interests.description': 'We\'ll use these to recommend chat rooms and content',
+    'interests.subtitle': 'Choose topics you care about',
+    'interests.description': "We'll use this to recommend chat rooms and content",
     'interests.saved': 'Interests saved',
 
     // Self-Care
@@ -661,7 +731,7 @@ const translations: Record<Language, Record<string, string>> = {
     'selfCare.hivTestReminderDesc': 'Monthly',
     'selfCare.condomReminder': 'Condom Refill Reminder',
     'selfCare.condomReminderDesc': 'When running low',
-    'selfCare.harmReductionReminder': 'Harm Reduction Reminder',
+    'selfCare.harmReductionReminder': 'Harm Reduction Supplies',
     'selfCare.harmReductionReminderDesc': 'Restock supplies',
     'selfCare.reminderEnabled': 'Reminder enabled',
     'selfCare.reminderDisabled': 'Reminder disabled',
@@ -672,21 +742,21 @@ const translations: Record<Language, Record<string, string>> = {
     'quests.journey': 'Journey',
     'quests.campaign': 'Campaign',
     'quests.join': 'Join',
-    'quests.joined': 'Joined quest',
+    'quests.joined': 'Quest joined',
     'quests.completed': 'Completed',
     'quests.days': 'days',
     'quests.daysLeft': 'days left',
     'quests.keepGoing': 'Keep going!',
     'quests.almostThere': 'Almost there!',
-    'quests.claimBadge': 'Claim your badge!',
+    'quests.claimBadge': 'Claim Badge!',
     'quests.loginRequired': 'Login to join',
-    'quests.noJourneyQuests': 'No journey quests available',
+    'quests.noJourneyQuests': 'No journey quests',
     'quests.noCampaignQuests': 'No campaigns right now',
 
     // Share
     'share.title': 'Share Achievements',
     'share.subtitle': 'Celebrate your journey',
-    'share.privacyNote': 'Cards don\'t mention PrEP, PEP, or HIV directly',
+    'share.privacyNote': 'Cards don\'t mention PrEP, PEP or HIV directly',
     'share.shareOn': 'Share on',
 
     // Health Profile
@@ -696,7 +766,7 @@ const translations: Record<Language, Record<string, string>> = {
     'healthProfile.timeline': 'Timeline',
     'healthProfile.noHistory': 'No history yet',
     'healthProfile.sideEffects': 'Side Effects',
-    'healthProfile.sideEffectsDesc': 'Log any side effects you notice',
+    'healthProfile.sideEffectsDesc': 'Record side effects you notice',
     'healthProfile.sideEffectsPlaceholder': 'e.g., headache, nausea...',
     'healthProfile.notes': 'Notes',
     'healthProfile.notesPlaceholder': 'Personal notes...',
@@ -721,6 +791,66 @@ const translations: Record<Language, Record<string, string>> = {
     'consultation.copied': 'Copied to clipboard',
     'consultation.saved': 'Form saved',
 
+    // Booking
+    'booking.title': '📅 Book Appointment',
+    'booking.subtitle': 'Free services for everyone. No registration needed.',
+    'booking.selectBranch': 'Select Branch',
+    'booking.selectServices': 'Select Services',
+    'booking.selectDateTime': 'Select Date & Time',
+    'booking.confirmBooking': 'Confirm Booking',
+    'booking.bookingConfirmed': 'Booking Confirmed',
+    'booking.slotsAvailable': 'slots available',
+
+    // Home
+    'home.welcome': 'Good testers are right here!',
+    'home.chooseService': 'Choose a service',
+    'home.selfTest': 'SELF TEST',
+    'home.bookAppointment': 'BOOK APPOINTMENT',
+    'home.surveys': 'SURVEYS',
+    'home.didYouKnow': 'DID YOU KNOW?',
+    'home.onlineCounselor': 'ONLINE COUNSELOR',
+    'home.selfCare': 'SELF CARE',
+    'home.members': 'Members',
+    'home.totalVisitors': 'Total Visitors',
+    'home.poweredBy': 'Powered by',
+    'home.freeConfidential': 'This service is free • Your information is confidential',
+
+    // My Appointments
+    'appointments.title': 'My Appointments',
+    'appointments.upcoming': 'Upcoming',
+    'appointments.past': 'Past',
+    'appointments.noUpcoming': 'No upcoming appointments',
+    'appointments.bookNew': 'Book New Appointment',
+    'appointments.cancel': 'Cancel Appointment',
+    'appointments.checkin': 'Check In',
+    'appointments.checkout': 'Check Out',
+
+    // Admin Sidebar
+    'admin.panel': 'Admin Panel',
+    'admin.manageSystem': 'Manage system',
+    'admin.mode': 'Admin Mode',
+    'admin.main': 'Main',
+    'admin.dashboard': 'Dashboard',
+    'admin.people': 'People',
+    'admin.users': 'Users',
+    'admin.branchStaff': 'Branch Staff',
+    'admin.quickRegister': 'Quick Register',
+    'admin.appointments': 'Appointments',
+    'admin.bookings': 'Bookings',
+    'admin.today': 'Today',
+    'admin.schedule': 'Schedule',
+    'admin.content': 'Content',
+    'admin.blog': 'Blog',
+    'admin.surveys': 'Surveys',
+    'admin.operations': 'Operations',
+    'admin.kitOrders': 'Kit Orders',
+    'admin.notifications': 'Notifications',
+    'admin.analytics': 'Analytics',
+    'admin.import': 'Import',
+    'admin.translations': 'Translations',
+    'admin.backToApp': 'Back to App',
+    'admin.logout': 'Logout',
+
     // Common
     'common.back': 'Back',
     'common.continue': 'Continue',
@@ -732,18 +862,148 @@ const translations: Record<Language, Record<string, string>> = {
   },
 };
 
+// ── Dynamic translation cache ──────────────────────────────────
+// In-memory + localStorage cache for CLVM translations
+const CACHE_KEY = 'testd-translations-cache';
+type TranslationCache = Record<string, Record<string, string>>; // { km: { key: text }, ... }
+
+let dynamicCache: TranslationCache = {};
+
+function loadCacheFromStorage(): TranslationCache {
+  try {
+    const stored = localStorage.getItem(CACHE_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch {}
+  return {};
+}
+
+function saveCacheToStorage() {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(dynamicCache));
+  } catch {}
+}
+
+// Initialize cache on load
+dynamicCache = loadCacheFromStorage();
+
+// ── Batch translation queue ────────────────────────────────────
+let pendingQueue: { key: string; source_text: string; source_lang: string }[] = [];
+let fetchTimer: ReturnType<typeof setTimeout> | null = null;
+let isFetching = false;
+const fetchListeners = new Set<() => void>();
+
+async function flushTranslationQueue(targetLang: Language) {
+  if (isFetching || pendingQueue.length === 0) return;
+  isFetching = true;
+
+  const items = [...pendingQueue];
+  pendingQueue = [];
+
+  try {
+    const { data, error } = await supabase.functions.invoke('translate-ui', {
+      body: { target_lang: targetLang, items },
+    });
+
+    if (!error && data?.translations) {
+      if (!dynamicCache[targetLang]) dynamicCache[targetLang] = {};
+      Object.assign(dynamicCache[targetLang], data.translations);
+      saveCacheToStorage();
+      // Notify listeners to re-render
+      fetchListeners.forEach(fn => fn());
+    }
+  } catch (err) {
+    console.error('Translation fetch error:', err);
+  } finally {
+    isFetching = false;
+    // If more items queued during fetch, flush again
+    if (pendingQueue.length > 0) {
+      flushTranslationQueue(targetLang);
+    }
+  }
+}
+
+function enqueueTranslation(key: string, sourceText: string, sourceLang: 'th' | 'en', targetLang: Language) {
+  // Don't queue if already cached
+  if (dynamicCache[targetLang]?.[key]) return;
+
+  // Don't queue duplicates
+  if (pendingQueue.some(p => p.key === key)) return;
+
+  pendingQueue.push({ key, source_text: sourceText, source_lang: sourceLang });
+
+  // Debounce: wait 300ms to batch
+  if (fetchTimer) clearTimeout(fetchTimer);
+  fetchTimer = setTimeout(() => flushTranslationQueue(targetLang), 300);
+}
+
+// ── Zustand store ──────────────────────────────────────────────
+interface LanguageState {
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  t: (key: string) => string;
+  _cacheVersion: number; // triggers re-renders when cache updates
+}
+
 export const useLanguage = create<LanguageState>()(
   persist(
     (set, get) => ({
-      language: 'th', // Thai as default
+      language: 'th' as Language,
+      _cacheVersion: 0,
       setLanguage: (lang) => set({ language: lang }),
       t: (key) => {
         const { language } = get();
-        return translations[language][key] || translations['en'][key] || key;
+
+        // For th/en, use static dictionaries directly
+        if (language === 'th' || language === 'en') {
+          return translations[language][key] || translations['en'][key] || key;
+        }
+
+        // For CLVM languages, check dynamic cache first
+        const cached = dynamicCache[language]?.[key];
+        if (cached) return cached;
+
+        // Fallback to en → th → key
+        const enText = translations['en'][key];
+        const thText = translations['th'][key];
+
+        // Enqueue for background translation if we have source text
+        if (enText) {
+          enqueueTranslation(key, enText, 'en', language);
+        } else if (thText) {
+          enqueueTranslation(key, thText, 'th', language);
+        }
+
+        // Return English fallback while loading
+        return enText || thText || key;
       },
     }),
     {
       name: 'testd-language',
+      partialize: (state) => ({ language: state.language }),
     }
   )
 );
+
+// Subscribe to cache updates to trigger re-renders
+fetchListeners.add(() => {
+  useLanguage.setState(s => ({ _cacheVersion: s._cacheVersion + 1 }));
+});
+
+// ── Pre-fetch translations for current language on init ─────────
+export function prefetchTranslations(lang: Language) {
+  if (lang === 'th' || lang === 'en') return;
+
+  // Collect all keys that need translation
+  const allKeys = Object.keys(translations['en']);
+  const missing = allKeys.filter(key => !dynamicCache[lang]?.[key]);
+
+  if (missing.length === 0) return;
+
+  // Batch them
+  for (const key of missing) {
+    const enText = translations['en'][key];
+    if (enText) {
+      enqueueTranslation(key, enText, 'en', lang);
+    }
+  }
+}

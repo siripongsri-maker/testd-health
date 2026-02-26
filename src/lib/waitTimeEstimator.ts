@@ -80,7 +80,7 @@ export function estimateWaitTime(
  */
 export function getWaitLabel(
   estimate: WaitEstimate,
-  language: 'th' | 'en',
+  language: string,
 ): { text: string; color: string } {
   const labels = {
     short: {

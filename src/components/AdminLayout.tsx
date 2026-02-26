@@ -8,7 +8,7 @@ interface AdminLayoutProps {
 }
 
 export function AdminLayout({ children }: AdminLayoutProps) {
-  const { language } = useLanguage();
+  const { t } = useLanguage();
 
   return (
     <SidebarProvider>
@@ -20,7 +20,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-primary" />
               <span className="font-medium text-sm text-muted-foreground">
-                {language === 'th' ? 'โหมดผู้ดูแลระบบ' : 'Admin Mode'}
+                {t('admin.mode')}
               </span>
             </div>
           </header>

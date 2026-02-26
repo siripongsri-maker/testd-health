@@ -15,7 +15,7 @@ interface StorageFile {
 interface ImageGalleryPickerProps {
   onSelect: (url: string) => void;
   trigger?: React.ReactNode;
-  language?: 'th' | 'en';
+  language?: string;
 }
 
 export function ImageGalleryPicker({ onSelect, trigger, language = 'en' }: ImageGalleryPickerProps) {

@@ -9,23 +9,22 @@ import { useAuth } from "@/hooks/useAuth";
 
 interface NavItem {
   icon: React.ElementType;
-  labelTh: string;
-  labelEn: string;
+  labelKey: string;
   path: string;
 }
 
 export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { language } = useLanguage();
+  const { t } = useLanguage();
   const { user } = useAuth();
 
   const mainItems: NavItem[] = [
-    { icon: Home, labelTh: "หน้าแรก", labelEn: "Home", path: "/" },
-    { icon: TestTube, labelTh: "ตรวจ", labelEn: "Test", path: "/hiv-selftest" },
-    { icon: ClipboardList, labelTh: "นัดหมาย", labelEn: "Bookings", path: user ? "/my-appointments" : "/guest-appointments" },
-    { icon: BookOpen, labelTh: "ข้อมูล", labelEn: "Learn", path: "/info" },
-    { icon: Heart, labelTh: "ดูแล", labelEn: "Care", path: "/self-care" },
+    { icon: Home, labelKey: "nav.home", path: "/" },
+    { icon: TestTube, labelKey: "nav.test", path: "/hiv-selftest" },
+    { icon: ClipboardList, labelKey: "nav.bookings", path: user ? "/my-appointments" : "/guest-appointments" },
+    { icon: BookOpen, labelKey: "nav.learn", path: "/info" },
+    { icon: Heart, labelKey: "nav.care", path: "/self-care" },
   ];
 
   // Hide bottom nav on admin pages
@@ -60,7 +59,7 @@ export function BottomNav() {
                 "text-[10px] leading-tight",
                 active ? "font-semibold" : "font-medium"
               )}>
-                {language === "th" ? item.labelTh : item.labelEn}
+                {t(item.labelKey)}
               </span>
             </button>
           );
