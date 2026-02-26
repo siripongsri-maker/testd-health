@@ -22,7 +22,7 @@ import {
   Shield, Home, LogOut, LayoutDashboard, Clock, Package,
   CalendarDays, Clipboard, Users, Building2, UserPlus,
   Bell, BarChart3, FileText, ClipboardList, FileUp,
-  ChevronDown,
+  ChevronDown, Languages,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,58 +33,52 @@ import { cn } from "@/lib/utils";
 interface MenuItemDef {
   tab: string;
   icon: React.ElementType;
-  labelTh: string;
-  labelEn: string;
+  labelKey: string;
 }
 
 interface MenuGroup {
-  labelTh: string;
-  labelEn: string;
+  labelKey: string;
   items: MenuItemDef[];
 }
 
 const menuGroups: MenuGroup[] = [
   {
-    labelTh: "หลัก",
-    labelEn: "Main",
+    labelKey: "admin.main",
     items: [
-      { tab: "dashboard", icon: LayoutDashboard, labelTh: "ภาพรวม", labelEn: "Dashboard" },
+      { tab: "dashboard", icon: LayoutDashboard, labelKey: "admin.dashboard" },
     ],
   },
   {
-    labelTh: "ผู้ใช้งาน",
-    labelEn: "People",
+    labelKey: "admin.people",
     items: [
-      { tab: "users", icon: Users, labelTh: "ผู้ใช้", labelEn: "Users" },
-      { tab: "branch-staff", icon: Building2, labelTh: "สาขา", labelEn: "Branch Staff" },
-      { tab: "quick-register", icon: UserPlus, labelTh: "ลงทะเบียน", labelEn: "Quick Register" },
+      { tab: "users", icon: Users, labelKey: "admin.users" },
+      { tab: "branch-staff", icon: Building2, labelKey: "admin.branchStaff" },
+      { tab: "quick-register", icon: UserPlus, labelKey: "admin.quickRegister" },
     ],
   },
   {
-    labelTh: "นัดหมาย",
-    labelEn: "Appointments",
+    labelKey: "admin.appointments",
     items: [
-      { tab: "bookings", icon: CalendarDays, labelTh: "นัดหมาย", labelEn: "Bookings" },
-      { tab: "today", icon: Clipboard, labelTh: "วันนี้", labelEn: "Today" },
-      { tab: "schedule", icon: Clock, labelTh: "ตารางเวลา", labelEn: "Schedule" },
+      { tab: "bookings", icon: CalendarDays, labelKey: "admin.bookings" },
+      { tab: "today", icon: Clipboard, labelKey: "admin.today" },
+      { tab: "schedule", icon: Clock, labelKey: "admin.schedule" },
     ],
   },
   {
-    labelTh: "เนื้อหา",
-    labelEn: "Content",
+    labelKey: "admin.content",
     items: [
-      { tab: "blog", icon: FileText, labelTh: "บทความ", labelEn: "Blog" },
-      { tab: "surveys", icon: ClipboardList, labelTh: "แบบสำรวจ", labelEn: "Surveys" },
+      { tab: "blog", icon: FileText, labelKey: "admin.blog" },
+      { tab: "surveys", icon: ClipboardList, labelKey: "admin.surveys" },
     ],
   },
   {
-    labelTh: "ระบบ",
-    labelEn: "Operations",
+    labelKey: "admin.operations",
     items: [
-      { tab: "kit-orders", icon: Package, labelTh: "ชุดตรวจ", labelEn: "Kit Orders" },
-      { tab: "notifications", icon: Bell, labelTh: "แจ้งเตือน", labelEn: "Notifications" },
-      { tab: "analytics", icon: BarChart3, labelTh: "สถิติ", labelEn: "Analytics" },
-      { tab: "import", icon: FileUp, labelTh: "นำเข้า", labelEn: "Import" },
+      { tab: "kit-orders", icon: Package, labelKey: "admin.kitOrders" },
+      { tab: "notifications", icon: Bell, labelKey: "admin.notifications" },
+      { tab: "analytics", icon: BarChart3, labelKey: "admin.analytics" },
+      { tab: "import", icon: FileUp, labelKey: "admin.import" },
+      { tab: "translations", icon: Languages, labelKey: "admin.translations" },
     ],
   },
 ];
@@ -93,13 +87,13 @@ export function AdminSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const navigate = useNavigate();
-  const { language } = useLanguage();
+  const { t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "dashboard";
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    toast.success(language === "th" ? "ออกจากระบบแล้ว" : "Logged out");
+    toast.success(t('admin.logout'));
     navigate("/");
   };
 
@@ -120,10 +114,10 @@ export function AdminSidebar() {
           {!collapsed && (
             <div>
               <h2 className="font-semibold text-sidebar-foreground">
-                {language === "th" ? "ผู้ดูแลระบบ" : "Admin Panel"}
+                {t('admin.panel')}
               </h2>
               <p className="text-xs text-sidebar-foreground/60">
-                {language === "th" ? "จัดการระบบ" : "Manage system"}
+                {t('admin.manageSystem')}
               </p>
             </div>
           )}
@@ -135,14 +129,13 @@ export function AdminSidebar() {
           const groupHasActive = group.items.some((i) => i.tab === activeTab);
 
           return collapsed ? (
-            // In collapsed mode, show flat icons without groups
-            <SidebarGroup key={group.labelEn}>
+            <SidebarGroup key={group.labelKey}>
               <SidebarGroupContent>
                 <SidebarMenu>
                   {group.items.map((item) => (
                     <SidebarMenuItem key={item.tab}>
                       <SidebarMenuButton
-                        tooltip={language === "th" ? item.labelTh : item.labelEn}
+                        tooltip={t(item.labelKey)}
                         onClick={() => handleTabClick(item.tab)}
                         isActive={activeTab === item.tab}
                       >
@@ -155,14 +148,14 @@ export function AdminSidebar() {
             </SidebarGroup>
           ) : (
             <Collapsible
-              key={group.labelEn}
-              defaultOpen={groupHasActive || group.labelEn === "Main"}
+              key={group.labelKey}
+              defaultOpen={groupHasActive || group.labelKey === "admin.main"}
               className="group/collapsible"
             >
               <SidebarGroup>
                 <CollapsibleTrigger asChild>
                   <SidebarGroupLabel className="cursor-pointer select-none flex items-center justify-between text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors">
-                    <span>{language === "th" ? group.labelTh : group.labelEn}</span>
+                    <span>{t(group.labelKey)}</span>
                     <ChevronDown className="h-3.5 w-3.5 transition-transform group-data-[state=open]/collapsible:rotate-180" />
                   </SidebarGroupLabel>
                 </CollapsibleTrigger>
@@ -177,7 +170,7 @@ export function AdminSidebar() {
                             className="flex items-center gap-3 px-3 py-2 rounded-lg transition-colors"
                           >
                             <item.icon className="h-4 w-4 shrink-0" />
-                            <span>{language === "th" ? item.labelTh : item.labelEn}</span>
+                            <span>{t(item.labelKey)}</span>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
                       ))}
@@ -196,11 +189,11 @@ export function AdminSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   onClick={() => navigate("/")}
-                  tooltip={collapsed ? (language === "th" ? "หน้าหลัก" : "Home") : undefined}
+                  tooltip={collapsed ? t('admin.backToApp') : undefined}
                 >
                   <Home className="h-4 w-4 shrink-0" />
                   {!collapsed && (
-                    <span>{language === "th" ? "กลับหน้าหลัก" : "Back to App"}</span>
+                    <span>{t('admin.backToApp')}</span>
                   )}
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -220,7 +213,7 @@ export function AdminSidebar() {
         >
           <LogOut className="h-4 w-4 shrink-0" />
           {!collapsed && (
-            <span>{language === "th" ? "ออกจากระบบ" : "Logout"}</span>
+            <span>{t('admin.logout')}</span>
           )}
         </Button>
       </SidebarFooter>

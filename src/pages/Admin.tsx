@@ -24,6 +24,7 @@ const AdminQuickRegister = lazy(() => import("@/components/admin/AdminQuickRegis
 const AdminBookingContent = lazy(() => import("@/components/admin/AdminBookingContent"));
 const AdminTodayBoard = lazy(() => import("@/components/admin/AdminTodayBoard"));
 const AdminScheduleContent = lazy(() => import("@/components/admin/AdminScheduleContent"));
+const AdminTranslationsContent = lazy(() => import("@/components/admin/AdminTranslationsContent").then(m => ({ default: m.AdminTranslationsContent })));
 
 const TabLoader = () => (
   <div className="flex items-center justify-center h-64">
@@ -261,6 +262,14 @@ export default function Admin() {
             <TabsContent value="schedule" className="mt-0">
               <Suspense fallback={<TabLoader />}>
                 <AdminScheduleContent />
+              </Suspense>
+            </TabsContent>
+          )}
+
+          {canAccessTab("translations") && (
+            <TabsContent value="translations" className="mt-0">
+              <Suspense fallback={<TabLoader />}>
+                <AdminTranslationsContent />
               </Suspense>
             </TabsContent>
           )}

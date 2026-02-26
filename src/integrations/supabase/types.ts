@@ -1937,6 +1937,48 @@ export type Database = {
         }
         Relationships: []
       }
+      translation_cache: {
+        Row: {
+          created_at: string
+          hash: string
+          id: string
+          is_locked: boolean
+          key: string
+          namespace: string
+          source_lang: string
+          source_text: string
+          target_lang: string
+          translated_text: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          hash: string
+          id?: string
+          is_locked?: boolean
+          key: string
+          namespace?: string
+          source_lang: string
+          source_text: string
+          target_lang: string
+          translated_text: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          hash?: string
+          id?: string
+          is_locked?: boolean
+          key?: string
+          namespace?: string
+          source_lang?: string
+          source_text?: string
+          target_lang?: string
+          translated_text?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_interests: {
         Row: {
           created_at: string | null

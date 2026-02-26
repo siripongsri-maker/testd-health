@@ -59,14 +59,13 @@ function MenuCard({ icon, titleTh, titleEn, onClick, variant = 'default' }: Menu
         </p>
       </div>
     </button>);
-
 }
 
 
 
 export default function Home() {
   const navigate = useNavigate();
-  const { language } = useLanguage();
+  const { t } = useLanguage();
   const { user, loading } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingRequests, setPendingRequests] = useState(0);
@@ -97,8 +96,6 @@ export default function Home() {
     };
     fetchStats();
   }, []);
-
-  
 
   // Check admin status
   useEffect(() => {
@@ -133,38 +130,32 @@ export default function Home() {
   const menuItems = [
   {
     icon: <TestTube className="h-full w-full" strokeWidth={1.5} />,
-    titleTh: "ขอชุดตรวจ",
-    titleEn: "SELF TEST",
+    titleKey: "home.selfTest",
     path: "/hiv-selftest"
   },
   {
     icon: <Calendar className="h-full w-full" strokeWidth={1.5} />,
-    titleTh: "จองตรวจ",
-    titleEn: "BOOK APPOINTMENT",
+    titleKey: "home.bookAppointment",
     path: "/booking"
   },
   {
     icon: <ClipboardList className="h-full w-full" strokeWidth={1.5} />,
-    titleTh: "แบบประเมิน",
-    titleEn: "SURVEYS",
+    titleKey: "home.surveys",
     path: "/surveys"
   },
   {
     icon: <BookOpen className="h-full w-full" strokeWidth={1.5} />,
-    titleTh: "เรื่องน่ารู้",
-    titleEn: "DID YOU KNOW?",
+    titleKey: "home.didYouKnow",
     path: "/info"
   },
   {
     icon: <MessageCircle className="h-full w-full" strokeWidth={1.5} />,
-    titleTh: "ขอคำปรึกษา",
-    titleEn: "ONLINE COUNSELOR",
+    titleKey: "home.onlineCounselor",
     path: "/community"
   },
   {
     icon: <Heart className="h-full w-full" strokeWidth={1.5} />,
-    titleTh: "ดูแลตัวเอง",
-    titleEn: "SELF CARE",
+    titleKey: "home.selfCare",
     path: "/self-care"
   }];
 
@@ -181,16 +172,12 @@ export default function Home() {
             <img src={testdLogo} alt="testD" className="h-32 w-auto object-contain drop-shadow-[0_4px_24px_rgba(255,100,150,0.4)] animate-scale-in" />
           </div>
           <p className="font-medium text-foreground/80 animate-fade-in text-lg text-center">
-            {language === 'th' ? 'คนเทสต์ดีอยู่นี่จ้า' : 'Good testers are right here!'}
+            {t('home.welcome')}
           </p>
           <p className="text-muted-foreground">
-            {language === 'th' ?
-            'เลือกบริการที่ต้องการ' :
-            'Choose a service'}
+            {t('home.chooseService')}
           </p>
         </div>
-
-        {/* Floating Med Clock handles medication tracking now */}
 
         {/* Leaderboard Widget */}
         <div className="mb-4">
@@ -199,22 +186,27 @@ export default function Home() {
 
         {/* Menu Grid */}
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
-          {menuItems.map((item, index) =>
-          <MenuCard
-            key={index}
-            icon={item.icon}
-            titleTh={item.titleTh}
-            titleEn={item.titleEn}
-            onClick={() => {
-              if ((item as any).external) {
-                window.open(item.path, '_blank', 'noopener,noreferrer');
-              } else {
-                navigate(item.path);
-              }
-            }}
-            variant={index === 0 ? 'featured' : 'default'} />
-
-          )}
+          {menuItems.map((item, index) => {
+            const translated = t(item.titleKey);
+            // For th/en, use the key-based translation
+            // The MenuCard shows both Thai and English labels
+            // For CLVM, show translated + English
+            const { language } = useLanguage.getState();
+            const enText = item.titleKey.startsWith('home.') ? t(item.titleKey) : item.titleKey;
+            
+            return (
+              <MenuCard
+                key={index}
+                icon={item.icon}
+                titleTh={translated}
+                titleEn={language === 'th' ? '' : ''}
+                onClick={() => {
+                  navigate(item.path);
+                }}
+                variant={index === 0 ? 'featured' : 'default'}
+              />
+            );
+          })}
         </div>
 
         {/* Stats: Members and Total Visitors */}
@@ -223,7 +215,7 @@ export default function Home() {
           <div className="flex items-center gap-2 glass-sm rounded-full py-2 px-4">
               <Users className="h-4 w-4 text-primary" />
               <span className="text-sm text-muted-foreground">
-                {language === 'th' ? 'สมาชิก' : 'Members'}:
+                {t('home.members')}:
               </span>
               <span className="font-bold text-primary">{totalMembers.toLocaleString()}</span>
             </div>
@@ -232,7 +224,7 @@ export default function Home() {
           <div className="flex items-center gap-2 glass-sm rounded-full py-2 px-4">
               <Eye className="h-4 w-4 text-primary" />
               <span className="text-sm text-muted-foreground">
-                {language === 'th' ? 'ผู้เข้าชมทั้งหมด' : 'Total Visitors'}:
+                {t('home.totalVisitors')}:
               </span>
               <span className="font-bold text-primary">{totalVisitors.toLocaleString()}</span>
             </div>
@@ -242,19 +234,16 @@ export default function Home() {
         {/* Footer */}
         <footer className="mt-6 text-center space-y-3 pb-20">
           <p className="text-sm leading-relaxed text-muted-foreground px-4">
-            {language === 'th' ?
-            'บริการนี้ไม่มีค่าใช้จ่าย • ข้อมูลของคุณเป็นความลับ' :
-            'This service is free • Your information is confidential'}
+            {t('home.freeConfidential')}
           </p>
           <div className="items-center justify-start flex flex-col gap-0 border-none border-0">
             <span className="text-xs text-muted-foreground/70">
-              {language === 'th' ? 'สนับสนุนโดย' : 'Powered by'}
+              {t('home.poweredBy')}
             </span>
             <img
               src={swingLogo}
               alt="SWING Thailand"
               className="h-24 object-contain opacity-70 -mt-4" />
-
           </div>
         </footer>
       </main>
@@ -266,5 +255,4 @@ export default function Home() {
       <HIVTestPopup />
       <AdminRequestsPopup open={adminPopupOpen} onOpenChange={setAdminPopupOpen} />
     </div>);
-
 }
