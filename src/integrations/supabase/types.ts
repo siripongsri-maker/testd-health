@@ -2493,6 +2493,15 @@ export type Database = {
           status: string
         }[]
       }
+      guest_self_checkin: { Args: { p_referral_code: string }; Returns: Json }
+      guest_self_checkout: {
+        Args: {
+          p_feedback?: string
+          p_rating?: number
+          p_referral_code: string
+        }
+        Returns: Json
+      }
       guest_universal_lookup: {
         Args: { p_identifier: string }
         Returns: {
