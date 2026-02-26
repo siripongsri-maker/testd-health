@@ -56,6 +56,8 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Booking = lazy(() => import("./pages/Booking"));
 const MyAppointments = lazy(() => import("./pages/MyAppointments"));
 const GuestAppointments = lazy(() => import("./pages/GuestAppointments"));
+const DocsViewer = lazy(() => import("./pages/DocsViewer"));
+const DocsIndex = lazy(() => import("./pages/DocsViewer").then(m => ({ default: m.DocsIndex })));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -116,6 +118,8 @@ const App = () => (
                 <Route path="/install" element={<Install />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/docs" element={<DocsIndex />} />
+                <Route path="/docs/:docName" element={<DocsViewer />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>
