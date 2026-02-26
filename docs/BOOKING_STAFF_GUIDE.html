@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TestD Booking System — Staff Training Guide</title>
+<title>TestD Booking System — Staff Training Guide V2</title>
 <style>
   @page {
     size: A4;
@@ -113,6 +113,10 @@
     border-left-color: #10b981;
     background: #ecfdf5;
   }
+  .callout.new {
+    border-left-color: #3b82f6;
+    background: #eff6ff;
+  }
   .callout strong { display: block; margin-bottom: 2px; }
 
   /* ---------- Steps ---------- */
@@ -154,6 +158,19 @@
   /* ---------- Page breaks ---------- */
   .page-break { page-break-before: always; }
 
+  /* ---------- Version badge ---------- */
+  .v2-badge {
+    display: inline-block;
+    background: #3b82f6;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 8pt;
+    font-weight: 700;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+
   @media print {
     body { font-size: 10pt; }
     .no-print { display: none; }
@@ -166,46 +183,89 @@
 <div class="cover">
   <div class="badge">INTERNAL — STAFF ONLY</div>
   <h1>📋 Booking System</h1>
-  <div class="subtitle">Staff Training Guide<br>คู่มือระบบนัดหมาย สำหรับเจ้าหน้าที่</div>
+  <div class="subtitle">Staff Training Guide V2<br>คู่มือระบบนัดหมาย สำหรับเจ้าหน้าที่</div>
   <p class="meta">
     TestD Health Platform<br>
-    Version 1.0 — February 2026<br>
+    Version 2.0 — February 2026<br>
     <br>
     4 Branches: Silom · Saphan Kwai · Phetkasem · Pattaya
   </p>
 </div>
 
+<!-- ==================== WHAT'S NEW IN V2 ==================== -->
+<h2>🆕 What's New in V2 / มีอะไรใหม่ในเวอร์ชัน 2</h2>
+<div class="callout new">
+  <strong>🌐 Multi-Language Support (CLVM)</strong>
+  The entire booking interface now supports <strong>6 languages</strong>: Thai, English, Khmer (ខ្មែរ), Lao (ລາວ), Vietnamese (Tiếng Việt), and Burmese (မြန်မာ). All UI strings are translated automatically via AI-powered translation with local caching.
+</div>
+<div class="callout new">
+  <strong>🛡️ Atomic Booking with Race-Condition Prevention</strong>
+  Bookings now use <code>create_appointment_atomic</code> RPC with <code>pg_advisory_xact_lock</code> to prevent double-booking under concurrent load. Slot capacity is enforced at the database level.
+</div>
+<div class="callout new">
+  <strong>📅 Same-Day (Today) Booking</strong>
+  Clients can now book for <strong>today</strong> — only remaining future time slots are shown. The date picker highlights today with a pulsing dot and "Today" label.
+</div>
+<div class="callout new">
+  <strong>🚫 Blackout / Holiday Management</strong>
+  Admins can create all-day or partial blackouts per branch. Blacked-out dates appear as disabled with a strikethrough in the client date picker. Partial blackouts block specific time slots only.
+</div>
+<div class="callout new">
+  <strong>⏱️ Enhanced Wait-Time Estimator</strong>
+  Wait time now factors in: counselor count, service weight, active walk-in pressure, and real-time booked-slot density. Displayed per-slot to clients.
+</div>
+<div class="callout new">
+  <strong>🔄 Per-Day Working Hours</strong>
+  Each branch can now have <strong>different open/close times per day of week</strong> via the <code>branch_working_hours</code> table. The RPC <code>get_available_slots</code> respects these per-day overrides.
+</div>
+<div class="callout new">
+  <strong>📧 Guest Booking + Token Access</strong>
+  Guest bookings now generate a <strong>secure access token</strong> so guests can view/manage their appointment via a unique link — without registering.
+</div>
+<div class="callout new">
+  <strong>🏗️ Force-Update Guard</strong>
+  All clients auto-refresh when a new app version is deployed. Caches, service workers, and stale localStorage are cleared automatically, preserving auth sessions.
+</div>
+
 <!-- ==================== TABLE OF CONTENTS ==================== -->
-<h2>📑 Table of Contents / สารบัญ</h2>
+<div class="page-break"></div>
+<h2>📑 Table of Contents</h2>
 <ol style="font-size:11pt; line-height:2;">
-  <li>System Overview / ภาพรวมระบบ</li>
-  <li>User Booking Flow / ขั้นตอนการจองสำหรับผู้ใช้</li>
-  <li>Guest (Anonymous) Booking / การจองแบบไม่ต้องสมัครสมาชิก</li>
-  <li>Referral Codes / รหัสอ้างอิง</li>
-  <li>Staff Dashboard — Daily Operations / แดชบอร์ดเจ้าหน้าที่</li>
-  <li>Walk-in Management / การจัดการผู้มาใช้บริการ Walk-in</li>
-  <li>Appointment Statuses / สถานะนัดหมาย</li>
-  <li>Pricing Rules / กฎเรื่องค่าบริการ</li>
-  <li>Branch Settings / ตั้งค่าสาขา</li>
-  <li>Quick Reference Card / บัตรอ้างอิงด่วน</li>
+  <li>System Overview</li>
+  <li>User Booking Flow (4-Step Wizard)</li>
+  <li>Guest (Anonymous) Booking + Token Access</li>
+  <li>Referral Codes</li>
+  <li>Staff Dashboard — Daily Operations</li>
+  <li>Walk-in Management</li>
+  <li>Appointment Statuses <span class="v2-badge">UPDATED</span></li>
+  <li>Pricing Rules</li>
+  <li>Branch Settings + Per-Day Hours <span class="v2-badge">NEW</span></li>
+  <li>Blackout / Holiday Management <span class="v2-badge">NEW</span></li>
+  <li>Multi-Language Support <span class="v2-badge">NEW</span></li>
+  <li>Quick Reference Card</li>
 </ol>
 
 <!-- ==================== 1. OVERVIEW ==================== -->
 <div class="page-break"></div>
-<h2>1. System Overview / ภาพรวมระบบ</h2>
-<p>The TestD booking system allows clients to schedule appointments at any of the four SWING branches. It supports both <strong>registered users</strong> and <strong>guest users</strong> (no account required).</p>
+<h2>1. System Overview</h2>
+<p>The TestD booking system allows clients to schedule appointments at any of the four SWING branches. It supports <strong>registered users</strong>, <strong>guest users</strong> (email only), and <strong>walk-in clients</strong>.</p>
 
 <h3>Key Features</h3>
 <ul>
-  <li><strong>Multi-service appointments</strong> — Clients can select multiple services per visit</li>
-  <li><strong>Density-aware scheduling</strong> — Time slots show occupancy levels (Low/Medium/High) to distribute load</li>
-  <li><strong>Wait-time estimates</strong> — Considers counselor count, service weights, and walk-in pressure</li>
-  <li><strong>Referral codes</strong> — Every booking gets a unique code (e.g. <code>SWG-A3K9X2</code>) for check-in</li>
-  <li><strong>Real-time updates</strong> — Staff dashboard updates instantly when bookings are made or changed</li>
-  <li><strong>Guest booking</strong> — No account needed; only an email is required</li>
+  <li><strong>Multi-service appointments</strong> — Clients select multiple services per visit</li>
+  <li><strong>Density-aware scheduling</strong> — Slots show occupancy (🟢 Low / 🟡 Medium / 🔴 High)</li>
+  <li><strong>Atomic booking</strong> — Database-level locks prevent double-booking <span class="v2-badge">V2</span></li>
+  <li><strong>Same-day booking</strong> — Book for today; only future time slots shown <span class="v2-badge">V2</span></li>
+  <li><strong>Wait-time estimates</strong> — Factors counselor count, service weight, walk-in pressure</li>
+  <li><strong>Referral codes</strong> — Unique code per booking (e.g. <code>SWG-A3K9X2</code>)</li>
+  <li><strong>Real-time updates</strong> — Dashboard auto-refreshes on changes</li>
+  <li><strong>Guest booking</strong> — Email only; generates secure access token <span class="v2-badge">V2</span></li>
+  <li><strong>6-language UI</strong> — TH, EN, KH, LA, VI, MY <span class="v2-badge">V2</span></li>
+  <li><strong>Blackout management</strong> — Block full days or specific time slots <span class="v2-badge">V2</span></li>
+  <li><strong>Risk assessment</strong> — Optional guided questionnaire recommends services</li>
 </ul>
 
-<h3>Branches / สาขา</h3>
+<h3>Branches</h3>
 <table>
   <tr><th>Branch</th><th>Slug</th><th>Location</th></tr>
   <tr><td>สีลม (Silom)</td><td><code>silom</code></td><td>Central Bangkok</td></tr>
@@ -216,232 +276,321 @@
 
 <!-- ==================== 2. USER BOOKING FLOW ==================== -->
 <div class="page-break"></div>
-<h2>2. User Booking Flow / ขั้นตอนการจอง</h2>
-<p>This is what clients see when they visit <strong>/booking</strong>:</p>
+<h2>2. User Booking Flow (4-Step Wizard)</h2>
+<p>Clients access the booking wizard at <strong>/booking</strong>. A progress bar shows 4 steps.</p>
 
 <div class="step-grid">
   <div class="step-card">
-    <p><span class="num">1</span> <strong>Choose Branch / เลือกสาขา</strong></p>
-    <p>Client selects from 4 branches. Each shows a photo, Google Maps rating, address, and open hours.</p>
+    <p><span class="num">1</span> <strong>Choose Branch</strong></p>
+    <p>Card-based selection showing: hero photo, Google Maps rating & review count, address, open days/hours. Direct link to Google Maps.</p>
   </div>
   <div class="step-card">
-    <p><span class="num">2</span> <strong>Select Services / เลือกบริการ</strong></p>
-    <p>Multi-select from available services (HIV test, PrEP, PEP, STI, etc.). Pricing eligibility shown automatically.</p>
+    <p><span class="num">2</span> <strong>Select Services</strong></p>
+    <p>Multi-select with checkboxes. Each service shows: icon, name, description, and pricing eligibility badges (🇹🇭 Free Thai NHSO, 🌍 Free Global Fund, 💰 Paid). Optional <strong>Risk Assessment</strong> quiz auto-recommends services.</p>
   </div>
   <div class="step-card">
-    <p><span class="num">3</span> <strong>Pick Date & Time / เลือกวันและเวลา</strong></p>
-    <p>Calendar + density-aware time blocks. Slots are color-coded: 🟢 Low, 🟡 Medium, 🔴 High occupancy.</p>
+    <p><span class="num">3</span> <strong>Pick Date &amp; Time</strong></p>
+    <p>Horizontal scrollable date chips (30-day range). Only open days shown. Blacked-out dates appear disabled with strikethrough. <strong>Today</strong> has a pulsing dot. <span class="v2-badge">V2</span><br><br>Time slots use the <strong>DensityTimeSelector</strong> component showing 2-hour blocks with color-coded density and estimated wait times.</p>
   </div>
   <div class="step-card">
-    <p><span class="num">4</span> <strong>Confirm & Get Code / ยืนยันและรับรหัส</strong></p>
-    <p>Booking confirmed → unique referral code displayed. Client instructed to screenshot for check-in.</p>
+    <p><span class="num">4</span> <strong>Confirm &amp; Get Code</strong></p>
+    <p>Summary of branch, services, date/time, and optional notes. Guest users enter email here. On submit → referral code displayed with copy button and screenshot prompt.</p>
   </div>
 </div>
 
 <div class="callout">
-  <strong>💡 Smart Suggestion / คำแนะนำอัจฉริยะ</strong>
-  If a client picks a high-density time block, the system automatically suggests quieter alternatives to balance the load across the day.
+  <strong>💡 Smart Suggestion</strong>
+  If a client picks a high-density time block, the system automatically suggests quieter alternatives.
+</div>
+
+<div class="callout new">
+  <strong>🩺 Risk Assessment (Optional) <span class="v2-badge">V2</span></strong>
+  On the services step, clients can tap "ไม่แน่ใจ? ทำแบบประเมินความเสี่ยง" to take a guided questionnaire. The system then auto-selects recommended services based on their answers. Questions are configurable in the <code>risk_assessment_questions</code> table.
 </div>
 
 <!-- ==================== 3. GUEST BOOKING ==================== -->
-<h2>3. Guest (Anonymous) Booking / การจองแบบไม่สมัครสมาชิก</h2>
-<p>Clients do <strong>not</strong> need an account to book. The only requirement is an <strong>email address</strong>.</p>
+<h2>3. Guest (Anonymous) Booking + Token Access</h2>
+<p>Clients do <strong>not</strong> need an account. Only an <strong>email address</strong> is required.</p>
 
 <h4>How It Works:</h4>
 <ol>
-  <li>Client goes through the same booking flow (branch → services → date/time)</li>
-  <li>Instead of login, they enter a <strong>contact email</strong></li>
-  <li>System creates the appointment securely via a server-side function</li>
-  <li>Client receives a <strong>referral code</strong> on the success screen</li>
+  <li>Client completes the 4-step wizard without logging in</li>
+  <li>On the confirm step, they enter a <strong>contact email</strong></li>
+  <li>System calls <code>create_anonymous_appointment</code> RPC (server-side, bypasses RLS)</li>
+  <li>Client receives a <strong>referral code</strong> on screen</li>
+  <li>System generates a <strong>secure guest access token</strong> via <code>generate_guest_access_token</code> RPC <span class="v2-badge">V2</span></li>
+  <li>A confirmation email is sent with the code + a manage-booking link</li>
+  <li>Booking is also saved to <strong>localStorage</strong> for offline reference</li>
 </ol>
 
 <div class="callout success">
-  <strong>✅ Account Linking / เชื่อมบัญชี</strong>
-  After booking, guests are prompted: <em>"อยากจัดการนัดง่ายขึ้นไหม? สมัครสมาชิกเพื่อดู เลื่อน หรือยกเลิกนัดได้ทันที"</em><br>
-  If they register with the same email, the system offers to link the anonymous booking to their new account.
+  <strong>✅ Guest Access Token <span class="v2-badge">V2</span></strong>
+  Guests receive a unique link at <code>/guest-appointments?token=...</code> to view and manage their booking — no account needed. Token expires after a configurable period.
+</div>
+
+<div class="callout success">
+  <strong>✅ Account Linking</strong>
+  After booking, guests see: <em>"Want to manage your appointments more easily? Register to view, reschedule, or cancel instantly."</em> If they register with the same email, the system links the booking.
 </div>
 
 <!-- ==================== 4. REFERRAL CODES ==================== -->
 <div class="page-break"></div>
-<h2>4. Referral Codes / รหัสอ้างอิง</h2>
+<h2>4. Referral Codes</h2>
 
 <div class="callout">
   <strong>📌 Format: <code>SWG-XXXXXX</code></strong><br>
-  Auto-generated by database trigger. Unique per appointment.
+  Auto-generated by database trigger. Unique per appointment. Both registered and guest bookings receive a code.
 </div>
 
-<h4>For Clients / สำหรับผู้ใช้บริการ:</h4>
+<h4>For Clients:</h4>
 <ul>
-  <li>Displayed prominently on the booking success screen</li>
-  <li>Instruction shown: <strong>"กรุณาแคปหน้าจอนี้และแสดงให้เจ้าหน้าที่ลงทะเบียน"</strong></li>
-  <li>Translation: "Please take a screenshot and show this to Medical Registration"</li>
+  <li>Displayed prominently with a <strong>copy button</strong> on the success screen</li>
+  <li>Instruction: <strong>"Please take a screenshot and show this to Medical Registration"</strong></li>
+  <li>Code is also included in the confirmation email</li>
 </ul>
 
-<h4>For Staff / สำหรับเจ้าหน้าที่:</h4>
+<h4>For Staff:</h4>
 <ul>
   <li>Go to <strong>Admin → Booking</strong> tab</li>
-  <li>Use the <strong>referral code search box</strong> to find the booking instantly</li>
-  <li>This <strong>bypasses date filters</strong> — works even if you're viewing a different date</li>
+  <li>Use the <strong>referral code search box</strong> — this <strong>bypasses date filters</strong></li>
   <li>Verify client identity → update status to <strong>Arrived</strong></li>
 </ul>
 
 <div class="callout warning">
-  <strong>⚠️ Important / สำคัญ</strong>
+  <strong>⚠️ Important</strong>
   Always verify the referral code matches the person. Ask the client to show their screenshot or email confirmation.
 </div>
 
 <!-- ==================== 5. STAFF DASHBOARD ==================== -->
-<h2>5. Staff Dashboard / แดชบอร์ดเจ้าหน้าที่</h2>
-<p>Access via: <strong>Admin → Booking tab</strong> (requires admin or staff role)</p>
+<h2>5. Staff Dashboard — Daily Operations</h2>
+<p>Access: <strong>Admin → Booking tab</strong> (requires admin or staff role)</p>
 
 <h3>5.1 Bento Dashboard (Daily Overview)</h3>
-<p>The main view shows today's metrics at a glance:</p>
+<p>Top row shows today's KPIs:</p>
 <table>
   <tr><th>Metric</th><th>Description</th></tr>
   <tr><td><strong>Total</strong></td><td>All appointments for the day</td></tr>
   <tr><td><strong>New</strong></td><td>First-time clients</td></tr>
   <tr><td><strong>Returning</strong></td><td>Clients with prior non-cancelled visits</td></tr>
-  <tr><td><strong>Cancelled</strong></td><td>Appointments cancelled for the day</td></tr>
+  <tr><td><strong>Cancelled</strong></td><td>Cancelled appointments</td></tr>
+  <tr><td><strong>Busy Level</strong></td><td>🟢 Low (&lt;15) / 🟡 Medium (15-30) / 🔴 High (&gt;30)</td></tr>
 </table>
-<p>Each branch shows a <strong>load indicator</strong> so you can see which locations are busiest.</p>
 
-<h3>5.2 Branch Timeline</h3>
+<h3>5.2 Branch Cards</h3>
+<p>Each branch card shows:</p>
 <ul>
-  <li>Click a branch card → opens a <strong>vertical timeline</strong> of all appointments</li>
-  <li>Each appointment shows as a pill with <strong>status badge</strong> and <strong>service icons</strong></li>
-  <li>Click any pill → opens the <strong>Appointment Detail Drawer</strong></li>
+  <li>Total appointment count with <strong>New</strong> and <strong>Returning</strong> badges</li>
+  <li><strong>Capacity meter</strong> — percentage bar (green/amber/red)</li>
+  <li><strong>Peak hour</strong> indicator</li>
+  <li><strong>⚙️ Settings</strong> gear icon to open branch configuration</li>
+  <li>Click card → drill into <strong>Branch Timeline</strong></li>
 </ul>
 
-<h3>5.3 Appointment Detail Drawer</h3>
-<p>From here, staff can:</p>
+<h3>5.3 Peak Hours Panel</h3>
+<p>Right sidebar shows top 3 busiest hours. Click any → drill into that time block's appointments.</p>
+
+<h3>5.4 Alerts Panel</h3>
 <ul>
-  <li>View full appointment details (services, time, client info)</li>
-  <li>Update status (Confirmed → Arrived → In Progress → Completed)</li>
-  <li>Assign a staff member to the appointment</li>
-  <li>Add internal notes (visible to staff only)</li>
+  <li><strong>Pending confirmation</strong> — count of bookings awaiting confirmation</li>
+  <li><strong>Completed without notes</strong> — completed appointments missing staff notes</li>
 </ul>
 
-<h3>5.4 Batch Actions</h3>
+<h3>5.5 Branch Timeline</h3>
 <ul>
-  <li>Select multiple appointments using checkboxes</li>
-  <li><strong>Bulk status update</strong> — e.g., mark 5 as "Arrived" at once</li>
-  <li><strong>CSV export</strong> — Download selected appointments for reporting</li>
+  <li>Vertical list of appointments sorted by time</li>
+  <li>Each row: time, status badge (color-coded), service icons, referral code</li>
+  <li>Click → <strong>Appointment Detail Drawer</strong></li>
+</ul>
+
+<h3>5.6 Appointment Detail Drawer</h3>
+<ul>
+  <li>View full details (services, time, client info, source)</li>
+  <li>Update status (Booked → Confirmed → Arrived → In Progress → Completed)</li>
+  <li>Assign staff member</li>
+  <li>Add internal notes (staff-only)</li>
+</ul>
+
+<h3>5.7 Batch Actions</h3>
+<ul>
+  <li>Select multiple via checkboxes</li>
+  <li><strong>Bulk status update</strong></li>
+  <li><strong>CSV export</strong></li>
 </ul>
 
 <!-- ==================== 6. WALK-IN MANAGEMENT ==================== -->
 <div class="page-break"></div>
-<h2>6. Walk-in Management / การจัดการ Walk-in</h2>
-<p>For clients who arrive without a booking:</p>
+<h2>6. Walk-in Management</h2>
+<p>Built directly into the Bento Dashboard. No separate page needed.</p>
 
 <div class="step-grid">
   <div class="step-card">
-    <p><span class="num">1</span> <strong>Create Walk-in / สร้าง Walk-in</strong></p>
-    <p>Staff clicks "New Walk-in" in the dashboard. Selects branch and adds optional notes. System creates appointment with <code>source: 'walkin'</code>.</p>
+    <p><span class="num">1</span> <strong>Create Walk-in</strong></p>
+    <p>Select branch from dropdown → click <strong>"+ Walk-in"</strong>. System creates appointment with <code>source: 'walkin'</code>, status: <code>waiting</code>, and assigns a referral code.</p>
   </div>
   <div class="step-card">
-    <p><span class="num">2</span> <strong>Start Service / เริ่มบริการ</strong></p>
-    <p>When counselor is ready, click "Start Service". Records arrival time.</p>
+    <p><span class="num">2</span> <strong>Start Service</strong></p>
+    <p>When counselor is ready, click <strong>"Start"</strong> (▶️). Status changes to <code>in_progress</code>. Arrival time is recorded.</p>
   </div>
   <div class="step-card">
-    <p><span class="num">3</span> <strong>Complete Service / เสร็จสิ้นบริการ</strong></p>
-    <p>After consultation, click "Complete". Records completion time.</p>
+    <p><span class="num">3</span> <strong>Complete Service</strong></p>
+    <p>After consultation, click <strong>"Done"</strong> (✅). Status changes to <code>completed</code>. Completion time recorded.</p>
   </div>
   <div class="step-card">
-    <p><span class="num">4</span> <strong>Impact on Estimates</strong></p>
-    <p>Active walk-ins increase the <strong>walk-in pressure</strong> metric, causing wait-time estimates to go up for other clients.</p>
+    <p><span class="num">4</span> <strong>Impact on Wait Times</strong></p>
+    <p>Active walk-ins increase <strong>walk-in pressure</strong>, causing wait-time estimates to go up for clients booking online.</p>
   </div>
 </div>
 
+<p>The dashboard shows an <strong>active walk-ins counter</strong> badge with live status (Waiting / In Service) for each walk-in.</p>
+
 <div class="callout">
-  <strong>💡 Quick Register / ลงทะเบียนด่วน</strong>
-  The Admin panel also has a "Quick Register" tab where staff can register walk-in clients manually or via <strong>Thai ID OCR scan</strong> — no client device or internet needed.
+  <strong>💡 Quick Register</strong>
+  The Admin panel also has a "Quick Register" tab where staff can register walk-in clients via <strong>Thai ID OCR scan</strong> — no client device or internet needed.
 </div>
 
 <!-- ==================== 7. APPOINTMENT STATUSES ==================== -->
-<h2>7. Appointment Statuses / สถานะนัดหมาย</h2>
+<h2>7. Appointment Statuses <span class="v2-badge">UPDATED</span></h2>
 <table>
-  <tr><th>Status</th><th>Meaning</th><th>Thai</th></tr>
-  <tr><td><strong>pending</strong></td><td>Just booked, awaiting confirmation</td><td>รอยืนยัน</td></tr>
-  <tr><td><strong>confirmed</strong></td><td>Confirmed by system or staff</td><td>ยืนยันแล้ว</td></tr>
-  <tr><td><strong>arrived</strong></td><td>Client has checked in at the branch</td><td>มาถึงแล้ว</td></tr>
-  <tr><td><strong>in_progress</strong></td><td>Currently being served</td><td>กำลังให้บริการ</td></tr>
-  <tr><td><strong>completed</strong></td><td>Service finished</td><td>เสร็จสิ้น</td></tr>
-  <tr><td><strong>cancelled</strong></td><td>Cancelled (reason logged)</td><td>ยกเลิก</td></tr>
-  <tr><td><strong>no_show</strong></td><td>Client did not appear</td><td>ไม่มา</td></tr>
+  <tr><th>Status</th><th>Label (TH)</th><th>Label (EN)</th><th>Color</th></tr>
+  <tr><td><strong>booked</strong></td><td>จองแล้ว</td><td>Booked</td><td>🔵 Blue</td></tr>
+  <tr><td><strong>confirmed</strong></td><td>ยืนยันแล้ว</td><td>Confirmed</td><td>🟢 Emerald</td></tr>
+  <tr><td><strong>waiting</strong></td><td>รอคิว (walk-in)</td><td>Waiting (walk-in)</td><td>🟠 Orange</td></tr>
+  <tr><td><strong>in_progress</strong></td><td>กำลังรับบริการ</td><td>In Progress</td><td>🟡 Amber</td></tr>
+  <tr><td><strong>completed</strong></td><td>เสร็จสิ้น</td><td>Completed</td><td>🟢 Green</td></tr>
+  <tr><td><strong>no_show</strong></td><td>ไม่มาตามนัด</td><td>No Show</td><td>🔴 Red</td></tr>
+  <tr><td><strong>cancelled</strong></td><td>ยกเลิก</td><td>Cancelled</td><td>⚪ Muted</td></tr>
 </table>
+
+<div class="callout">
+  <strong>📌 V2 Changes</strong>
+  <ul style="margin-top:4px;">
+    <li><code>pending</code> renamed to <code>booked</code> for clarity</li>
+    <li><code>waiting</code> status added specifically for walk-ins</li>
+    <li><code>arrived</code> status merged into the workflow — staff now move directly from <code>booked/confirmed</code> → <code>in_progress</code></li>
+  </ul>
+</div>
 
 <div class="callout warning">
   <strong>⚠️ Cancellation Logging</strong>
-  When cancelling an appointment, always enter a <strong>reason</strong>. This is recorded in the audit log and helps with reporting.
+  When cancelling, always enter a <strong>reason</strong>. This is recorded in the audit log (<code>appointment_logs</code> table) and used for reporting.
 </div>
 
 <!-- ==================== 8. PRICING RULES ==================== -->
 <div class="page-break"></div>
-<h2>8. Pricing Rules / กฎเรื่องค่าบริการ</h2>
+<h2>8. Pricing Rules</h2>
 <table>
   <tr><th>Eligibility</th><th>Core Services (HIV, STI, PrEP)</th><th>PEP</th></tr>
   <tr><td>Thai National (NHSO)</td><td>✅ Free</td><td>✅ Free</td></tr>
   <tr><td>CLVM National (Global Fund)</td><td>✅ Free</td><td>❌ Not eligible</td></tr>
   <tr><td>Other</td><td>💰 Paid (see price list)</td><td>💰 Paid</td></tr>
 </table>
-<p>Pricing flags are configured per service in the database (<code>is_free_thai</code>, <code>is_free_global_fund</code>, <code>is_free_pep_thai</code>). The frontend displays eligibility automatically based on these flags.</p>
+<p>Pricing flags per service: <code>is_free_thai</code>, <code>is_free_global_fund</code>, <code>is_free_pep_thai</code>. Frontend displays eligibility badges automatically. Services with an <code>external_price_url</code> link to the full price list.</p>
 
 <!-- ==================== 9. BRANCH SETTINGS ==================== -->
-<h2>9. Branch Settings / ตั้งค่าสาขา</h2>
-<p>Accessible via: <strong>Admin → Booking → Branch card → ⚙️ Settings</strong></p>
+<h2>9. Branch Settings + Per-Day Hours <span class="v2-badge">NEW</span></h2>
+<p>Access: <strong>Admin → Booking → Branch card → ⚙️ Settings</strong></p>
 
-<h4>What Staff Can Configure:</h4>
 <table>
   <tr><th>Setting</th><th>Description</th></tr>
-  <tr><td>Open/Close Time</td><td>Operating hours for the branch</td></tr>
-  <tr><td>Open Days</td><td>Which days of the week the branch is open</td></tr>
+  <tr><td>Open/Close Time</td><td>Default operating hours for the branch</td></tr>
+  <tr><td>Open Days</td><td>Days of the week the branch is open</td></tr>
   <tr><td>Counselor Count</td><td>Number of counselors — affects capacity calculations</td></tr>
-  <tr><td>Slot Duration</td><td>Length of each appointment slot (default: 5 min)</td></tr>
+  <tr><td>Slot Duration</td><td>Length of each time slot (default: 5 min)</td></tr>
   <tr><td>Active Status</td><td>Toggle branch on/off for bookings</td></tr>
-  <tr><td>Google Sync</td><td>"Sync Google Info" fetches latest rating/reviews from Google Maps</td></tr>
-  <tr><td>Hero Image</td><td>Branch photo shown to clients on the booking page</td></tr>
+  <tr><td>Google Sync</td><td>Fetch latest rating/reviews from Google Maps</td></tr>
+  <tr><td>Hero Image</td><td>Branch photo shown to clients</td></tr>
 </table>
 
-<!-- ==================== 10. QUICK REFERENCE ==================== -->
+<div class="callout new">
+  <strong>📅 Per-Day Working Hours <span class="v2-badge">V2</span></strong>
+  The <code>branch_working_hours</code> table allows setting <strong>different open/close times and slot durations for each day of the week</strong>. The <code>get_available_slots</code> RPC respects these per-day overrides. If no override exists for a day, the branch's default times are used.
+</div>
+
+<!-- ==================== 10. BLACKOUTS ==================== -->
 <div class="page-break"></div>
-<h2>10. Quick Reference Card / บัตรอ้างอิงด่วน</h2>
+<h2>10. Blackout / Holiday Management <span class="v2-badge">NEW</span></h2>
+<p>Admins can create blackout periods to block bookings for holidays, maintenance, or special events.</p>
+
+<h4>Blackout Types:</h4>
+<table>
+  <tr><th>Type</th><th>Scope</th><th>Effect</th></tr>
+  <tr><td><strong>All-day</strong></td><td>Full day closure</td><td>Date appears disabled in client date picker with strikethrough. No slots available.</td></tr>
+  <tr><td><strong>Partial</strong></td><td>Specific time range</td><td>Only affected time slots are blocked. Other slots remain available.</td></tr>
+  <tr><td><strong>Global</strong></td><td>All branches</td><td>Applies to every branch</td></tr>
+  <tr><td><strong>Branch-specific</strong></td><td>Selected branches only</td><td>Only listed branches are affected</td></tr>
+</table>
+
+<p>Blackouts are stored in the <code>booking_blackouts</code> table. The <code>get_available_slots</code> RPC checks blackouts and returns <code>day_is_closed</code>, <code>blackout_title</code>, and <code>closure_reason</code> for the UI to display.</p>
+
+<div class="callout">
+  <strong>💡 Client Experience</strong>
+  When a date is blacked out, clients see the date as disabled with a tooltip showing the reason (e.g., "Public Holiday — Songkran"). For partial blackouts, affected time slots show a lock icon.
+</div>
+
+<!-- ==================== 11. MULTI-LANGUAGE ==================== -->
+<h2>11. Multi-Language Support <span class="v2-badge">NEW</span></h2>
+<p>The booking interface supports <strong>6 languages</strong>:</p>
+<table>
+  <tr><th>Code</th><th>Language</th><th>Method</th></tr>
+  <tr><td><code>th</code></td><td>ไทย (Thai)</td><td>Built-in dictionary</td></tr>
+  <tr><td><code>en</code></td><td>English</td><td>Built-in dictionary</td></tr>
+  <tr><td><code>km</code></td><td>ខ្មែរ (Khmer)</td><td>AI translation + cache</td></tr>
+  <tr><td><code>lo</code></td><td>ລາວ (Lao)</td><td>AI translation + cache</td></tr>
+  <tr><td><code>vi</code></td><td>Tiếng Việt (Vietnamese)</td><td>AI translation + cache</td></tr>
+  <tr><td><code>my</code></td><td>မြန်မာ (Burmese)</td><td>AI translation + cache</td></tr>
+</table>
+
+<p>CLVM languages are translated on first use via the <code>translate-ui</code> edge function and cached locally. Translations are batched (max 150 items per request) to stay within API limits.</p>
+
+<div class="callout">
+  <strong>💡 For Staff</strong>
+  The admin dashboard always shows in Thai/English based on the staff member's language preference. CLVM translations only apply to the client-facing booking flow.
+</div>
+
+<!-- ==================== 12. QUICK REFERENCE ==================== -->
+<div class="page-break"></div>
+<h2>12. Quick Reference Card</h2>
 
 <div class="callout success" style="font-size:11pt;">
-  <strong>🏥 Daily Workflow for Registration Staff / ขั้นตอนประจำวัน</strong>
+  <strong>🏥 Daily Workflow for Registration Staff</strong>
   <ol style="margin-top:8px;">
     <li>Open <strong>Admin → Booking</strong> at the start of each day</li>
-    <li>Check the <strong>Bento Dashboard</strong> for today's total appointments per branch</li>
+    <li>Check the <strong>Bento Dashboard</strong> — review total appointments, busy level, and branch loads</li>
     <li>When client arrives → ask for <strong>referral code</strong> or <strong>screenshot</strong></li>
-    <li>Search code in dashboard → verify details → mark as <strong>Arrived</strong></li>
-    <li>If walk-in → click <strong>"New Walk-in"</strong> → Start Service when ready</li>
-    <li>After consultation → mark as <strong>Completed</strong></li>
-    <li>End of day → review any <strong>no-shows</strong> and update status</li>
+    <li>Search code in dashboard → verify details → mark as <strong>Confirmed</strong> or <strong>In Progress</strong></li>
+    <li>If walk-in → select branch → click <strong>"+ Walk-in"</strong> → Start when ready</li>
+    <li>After consultation → mark as <strong>Completed</strong> → add staff notes</li>
+    <li>End of day → review <strong>no-shows</strong> (auto-marked by system cron) and update as needed</li>
   </ol>
 </div>
 
 <div class="callout" style="font-size:11pt;">
   <strong>🔍 Finding a Booking Quickly</strong>
   <ul style="margin-top:8px;">
-    <li><strong>By referral code:</strong> Use the search box — bypasses date filter</li>
-    <li><strong>By date:</strong> Use the calendar to navigate to the appointment date</li>
-    <li><strong>By branch:</strong> Click the branch card to see its timeline</li>
+    <li><strong>By referral code:</strong> Search box — bypasses date filter</li>
+    <li><strong>By date:</strong> Calendar navigation</li>
+    <li><strong>By branch:</strong> Click branch card → timeline view</li>
+    <li><strong>By time:</strong> Click peak hour block → filtered view</li>
   </ul>
 </div>
 
 <div class="callout warning" style="font-size:11pt;">
-  <strong>❓ Common Issues / ปัญหาที่พบบ่อย</strong>
+  <strong>❓ Common Issues</strong>
   <table style="margin-top:8px;">
     <tr><th>Problem</th><th>Solution</th></tr>
-    <tr><td>Client lost referral code</td><td>Search by email or check today's appointments for the branch</td></tr>
-    <tr><td>Slot shows "full"</td><td>Check if there are cancelled bookings that freed up space; adjust counselor count if needed</td></tr>
-    <tr><td>Guest wants to manage booking</td><td>Encourage them to register — the system can link their anonymous booking</td></tr>
-    <tr><td>Walk-in during busy period</td><td>Create walk-in entry; system will auto-adjust wait estimates for others</td></tr>
+    <tr><td>Client lost referral code</td><td>Search by email or browse today's appointments for the branch</td></tr>
+    <tr><td>Slot shows "full"</td><td>Check for cancellations; adjust counselor count if needed</td></tr>
+    <tr><td>Guest wants to manage booking</td><td>Share the guest access link from their confirmation email, or encourage registration</td></tr>
+    <tr><td>Walk-in during busy period</td><td>Create walk-in entry; system auto-adjusts wait estimates</td></tr>
+    <tr><td>Date shows as disabled</td><td>Check for blackouts in Admin → Booking → Branch Settings</td></tr>
+    <tr><td>CLVM client can't read Thai</td><td>Help them switch language using the 🌐 button in the top bar</td></tr>
+    <tr><td>Booking shows "duplicate"</td><td>Client already has a booking for the same branch/date. Search by email to find it.</td></tr>
   </table>
 </div>
 
 <!-- ==================== FOOTER ==================== -->
 <div class="footer">
-  TestD Health Platform — Booking System Staff Guide v1.0 — February 2026<br>
+  TestD Health Platform — Booking System Staff Guide V2.0 — February 2026<br>
   Confidential — For Internal Use Only
 </div>
 
