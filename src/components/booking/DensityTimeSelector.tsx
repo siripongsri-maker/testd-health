@@ -251,7 +251,7 @@ export function DensityTimeSelector({
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-foreground">{block.label}</p>
                   <p className="text-xs text-muted-foreground">
-                    {availableInBlock} {language === 'th' ? 'ช่วงว่าง' : 'available'} · {cfg.label}
+                    {availableInBlock} {language === 'th' ? 'คิวว่าง' : 'available'} · {cfg.label}
                   </p>
                   <p className={cn("text-[10px] font-medium mt-0.5 flex items-center gap-1", waitLabel.color)}>
                     <Timer className="h-2.5 w-2.5" />
