@@ -893,11 +893,14 @@ let isFetching = false;
 const fetchListeners = new Set<() => void>();
 
 async function flushTranslationQueue(targetLang: Language) {
-  if (isFetching || pendingQueue.length === 0) return;
-  isFetching = true;
-
-  const items = [...pendingQueue];
+  if (isFetching) return;
+  
+  // Filter to only items with valid key and source_text
+  const items = pendingQueue.filter(p => p.key && p.source_text && p.source_text.length > 0);
   pendingQueue = [];
+  
+  if (items.length === 0) return;
+  isFetching = true;
 
   try {
     const { data, error } = await supabase.functions.invoke('translate-ui', {
