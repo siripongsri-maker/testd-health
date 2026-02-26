@@ -167,7 +167,7 @@ export function DensityTimeSelector({
             </div>
             <div>
               <p className="text-sm font-bold text-foreground">
-                {totalFree} {language === 'th' ? 'ช่องว่าง' : 'slots available'}
+                {totalFree} {language === 'th' ? 'คิวว่าง' : 'slots available'}
               </p>
               <p className={cn("text-xs font-medium", levelConfig[dayLevel].text)}>
                 {levelConfig[dayLevel].label} — {dayPct}% {language === 'th' ? 'ถูกจองแล้ว' : 'booked'}
