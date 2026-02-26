@@ -238,8 +238,11 @@ export default function Booking() {
   const availableDates = useMemo(() => {
     if (!selectedBranch) return [];
     const dates: Date[] = [];
-    const today = startOfDay(new Date());
-    for (let i = 1; i <= 30; i++) {
+    // Use Bangkok time for "today" to avoid timezone mismatch
+    const bangkokNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
+    const today = startOfDay(bangkokNow);
+    // Start from i=0 to include Today
+    for (let i = 0; i <= 30; i++) {
       const d = addDays(today, i);
       const dayOfWeek = getDay(d);
       if (selectedBranch.open_days.includes(dayOfWeek)) {
@@ -749,6 +752,8 @@ export default function Booking() {
                     const dateStr = format(date, 'yyyy-MM-dd');
                     const isSelected = selectedDate && format(selectedDate, 'yyyy-MM-dd') === dateStr;
                     const dayIdx = getDay(date);
+                    const bangkokToday = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
+                    const isToday = format(date, 'yyyy-MM-dd') === format(startOfDay(bangkokToday), 'yyyy-MM-dd');
                     const blackoutInfo = blackedOutDates[dateStr];
                     const isBlackedOut = !!blackoutInfo;
                     return (
@@ -782,12 +787,15 @@ export default function Booking() {
                           </div>
                         )}
                         <p className={cn("text-[10px] uppercase font-medium", isBlackedOut ? 'text-muted-foreground' : 'opacity-70')}>
-                          {dayLabels[dayIdx]}
+                          {isToday ? (language === 'th' ? 'วันนี้' : 'Today') : dayLabels[dayIdx]}
                         </p>
                         <p className={cn("text-lg font-bold", isBlackedOut && 'text-muted-foreground')}>{format(date, 'd')}</p>
                         <p className={cn("text-[10px]", isBlackedOut ? 'text-destructive font-semibold' : 'opacity-70')}>
                           {isBlackedOut ? (language === 'th' ? 'ปิด' : 'Closed') : format(date, 'MMM')}
                         </p>
+                        {isToday && !isBlackedOut && (
+                          <div className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-primary animate-pulse" />
+                        )}
                       </button>
                     );
                   })}
