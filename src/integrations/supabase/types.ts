@@ -2402,10 +2402,10 @@ export type Database = {
           closure_reason: string
           closure_title: string
           day_is_closed: boolean
+          dbg_blackout_id: string
+          dbg_slot_end: string
+          dbg_slot_start: string
           is_available: boolean
-          matched_blackout_id: string
-          slot_end_ts: string
-          slot_start_ts: string
           slot_time: string
         }[]
       }
@@ -2418,10 +2418,10 @@ export type Database = {
           closure_reason: string
           closure_title: string
           day_is_closed: boolean
+          dbg_blackout_id: string
+          dbg_slot_end: string
+          dbg_slot_start: string
           is_available: boolean
-          matched_blackout_id: string
-          slot_end_ts: string
-          slot_start_ts: string
           slot_time: string
         }[]
       }
