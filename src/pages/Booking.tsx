@@ -68,10 +68,8 @@ type Step = 'branch' | 'service' | 'datetime' | 'confirm' | 'success';
 const DAY_NAMES_TH = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
 const DAY_NAMES_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-// Time slot generation now handled by DensityTimeSelector component
-
 export default function Booking() {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -101,6 +99,14 @@ export default function Booking() {
   const [showRiskAssessment, setShowRiskAssessment] = useState(false);
   const [riskQuestions, setRiskQuestions] = useState<RiskQuestion[]>([]);
   const [riskAnswers, setRiskAnswers] = useState<Record<string, string>>({});
+
+  // Helper for bilingual DB fields (branch name, service name, etc.)
+  const loc = (th: string | null | undefined, en: string | null | undefined) => {
+    if (language === 'th') return th || en || '';
+    if (language === 'en') return en || th || '';
+    // CLVM: return en as base (will be translated via t() for UI labels)
+    return en || th || '';
+  };
 
   // Load branches and services
   useEffect(() => {
@@ -153,9 +159,9 @@ export default function Booking() {
         setRpcSlotTimes([]);
         setBookedSlots({});
         setBlockedSlots({});
-        setDayBlackoutNote(language === 'th' ? 'วันนี้ปิดรับนัดทั้งวัน' : 'This day is fully closed');
+        setDayBlackoutNote(t('booking.dayClosed'));
         setDayClosureInfo({
-          title: closureRow.closure_title || closureRow.blackout_title || (language === 'th' ? 'ปิดรับนัด' : 'Closed'),
+          title: closureRow.closure_title || closureRow.blackout_title || t('booking.closedLabel'),
           reason: closureRow.closure_reason || null,
         });
         setSelectedTime(null);
@@ -179,9 +185,7 @@ export default function Booking() {
         setDayClosureInfo(null);
 
         const hasAnyBlocked = slotRows.some((row) => !!row.blackout_title);
-        setDayBlackoutNote(hasAnyBlocked
-          ? (language === 'th' ? 'วันนี้ปิดรับนัดบางช่วงเวลา' : 'Some time slots are blocked today')
-          : null);
+        setDayBlackoutNote(hasAnyBlocked ? t('booking.partialBlackout') : null);
 
         if (selectedTime && !slotTimes.includes(selectedTime)) {
           setSelectedTime(null);
@@ -238,10 +242,8 @@ export default function Booking() {
   const availableDates = useMemo(() => {
     if (!selectedBranch) return [];
     const dates: Date[] = [];
-    // Use Bangkok time for "today" to avoid timezone mismatch
     const bangkokNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
     const today = startOfDay(bangkokNow);
-    // Start from i=0 to include Today
     for (let i = 0; i <= 30; i++) {
       const d = addDays(today, i);
       const dayOfWeek = getDay(d);
@@ -252,7 +254,7 @@ export default function Booking() {
     return dates;
   }, [selectedBranch]);
 
-  // Pre-fetch day-level closures via get_available_slots RPC (single source of truth)
+  // Pre-fetch day-level closures
   useEffect(() => {
     if (!selectedBranch || availableDates.length === 0) {
       setBlackedOutDates({});
@@ -278,7 +280,7 @@ export default function Booking() {
 
         const dateStr = format(availableDates[idx], 'yyyy-MM-dd');
         nextBlockedDates[dateStr] = {
-          title: closureRow.closure_title || closureRow.blackout_title || (language === 'th' ? 'ปิดรับนัด' : 'Closed'),
+          title: closureRow.closure_title || closureRow.blackout_title || t('booking.closedLabel'),
           reason: closureRow.closure_reason || null,
         };
       });
@@ -289,12 +291,10 @@ export default function Booking() {
     loadDayClosures();
   }, [selectedBranch, availableDates, language]);
 
-  // timeSlots generation now handled by DensityTimeSelector
-
   const handleBook = async () => {
     const isAnonymous = !user;
     if (isAnonymous && !contactEmail.trim()) {
-      toast.error(language === 'th' ? 'กรุณากรอกอีเมล' : 'Please enter your email');
+      toast.error(t('booking.enterEmail'));
       return;
     }
     if (!selectedBranch || selectedServices.length === 0 || !selectedDate || !selectedTime) return;
@@ -304,7 +304,6 @@ export default function Booking() {
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
 
       if (!user) {
-        // Anonymous booking via RPC (already has capacity lock)
         const { data, error } = await supabase.rpc('create_anonymous_appointment', {
           p_branch_id: selectedBranch.id,
           p_service_ids: selectedServices.map(s => s.id),
@@ -318,7 +317,6 @@ export default function Booking() {
         const result = data as any;
         setConfirmedCode(result.referral_code);
 
-        // Save to localStorage for guest re-access on same device
         try {
           const STORAGE_KEY = 'guest_appointments_v1';
           const existing: any[] = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
@@ -331,14 +329,12 @@ export default function Booking() {
             appointment_date: dateStr,
             start_time: selectedTime,
           };
-          // Dedupe by appointment_id
           const filtered = existing.filter((e: any) => e.appointment_id !== result.id && e.referral_code !== result.referral_code);
           filtered.push(newEntry);
           localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
-          toast.success(language === 'th' ? 'บันทึกนัดหมายไว้บนอุปกรณ์นี้แล้ว ✅' : 'Appointment saved to this device ✅');
+          toast.success(t('booking.savedToDevice'));
         } catch {}
 
-        // Generate guest access token for magic link
         let generatedToken: string | null = null;
         try {
           const { data: tokenData } = await supabase.rpc('generate_guest_access_token', {
@@ -352,7 +348,6 @@ export default function Booking() {
           console.warn('Could not generate guest token:', tokenErr);
         }
 
-        // Send booking notification
         try {
           await supabase.functions.invoke('booking-notification', {
             body: {
@@ -363,7 +358,6 @@ export default function Booking() {
           });
         } catch {}
       } else {
-        // Authenticated booking via atomic RPC (capacity lock + XP award)
         const { data, error } = await supabase.rpc('create_appointment_atomic', {
           p_branch_id: selectedBranch.id,
           p_appointment_date: dateStr,
@@ -379,17 +373,17 @@ export default function Booking() {
       }
 
       setStep('success');
-      toast.success(language === 'th' ? '🎉 จองสำเร็จ!' : '🎉 Booking confirmed!');
+      toast.success(t('booking.successTitle'));
     } catch (err: any) {
       console.error('Booking error:', err);
       const msg = err?.message || '';
 
       if (msg.includes('slot_blocked')) {
-        toast.error(language === 'th' ? 'ช่วงเวลานี้ปิดรับนัด กรุณาเลือกเวลาอื่น' : 'This time is unavailable. Please choose another slot.');
+        toast.error(t('booking.slotBlocked'));
       } else if (msg.includes('slot_full')) {
-        toast.error(language === 'th' ? 'ช่วงเวลานี้เต็มแล้ว กรุณาเลือกเวลาอื่น' : 'This time slot is full. Please choose another time.');
+        toast.error(t('booking.slotFull'));
       } else if (msg.includes('duplicate_booking')) {
-        toast.error(language === 'th' ? 'คุณมีนัดหมายในเวลานี้แล้ว' : 'You already have an appointment at this time');
+        toast.error(t('booking.duplicateBooking'));
       } else if (msg.includes('row-level security') || msg.includes('permission') || err?.code === '42501') {
         toast.error(language === 'th' ? 'ระบบยังไม่อนุญาตการจองนี้ (ERR_BOOKING_RLS)' : 'Booking not permitted (ERR_BOOKING_RLS)');
       } else {
@@ -411,11 +405,11 @@ export default function Booking() {
   const formatDays = (days: number[]) => days.map(d => dayLabels[d]).join(', ');
 
   const stepTitles: Record<Step, string> = {
-    branch: language === 'th' ? 'เลือกสาขา' : 'Select Branch',
-    service: language === 'th' ? 'เลือกบริการ' : 'Select Services',
-    datetime: language === 'th' ? 'เลือกวันและเวลา' : 'Select Date & Time',
-    confirm: language === 'th' ? 'ยืนยันนัดหมาย' : 'Confirm Booking',
-    success: language === 'th' ? 'จองสำเร็จ' : 'Booking Confirmed',
+    branch: t('booking.selectBranch'),
+    service: t('booking.selectServices'),
+    datetime: t('booking.selectDateTime'),
+    confirm: t('booking.confirmBooking'),
+    success: t('booking.bookingConfirmed'),
   };
 
   const stepOrder: Step[] = ['branch', 'service', 'datetime', 'confirm'];
@@ -441,12 +435,10 @@ export default function Booking() {
           {/* Header */}
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-foreground">
-              {language === 'th' ? '📅 จองนัดหมาย' : '📅 Book Appointment'}
+              {t('booking.title')}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              {language === 'th'
-                ? 'บริการตรวจและปรึกษาฟรีสำหรับคนไทยภายใต้ สปสช. และชาวต่างชาติภายใต้กองทุนโลก (เมียนมา เวียดนาม ลาว กัมพูชา) สำหรับสัญชาติอื่นอาจมีค่าใช้จ่าย'
-                : 'Free for Thai nationals under NHSO Universal Coverage & Global Fund-supported nationals (Myanmar, Vietnam, Laos, Cambodia). Other nationalities may have charges.'}
+              {t('booking.subtitle')}
             </p>
             <a
               href="https://swingsilompolyclinic.com"
@@ -486,7 +478,7 @@ export default function Booking() {
               }}
             >
               <ChevronLeft className="h-4 w-4 mr-1" />
-              {language === 'th' ? 'กลับ' : 'Back'}
+              {t('common.back')}
             </Button>
           )}
 
@@ -509,11 +501,10 @@ export default function Booking() {
                     setStep('service');
                   }}
                 >
-                  {/* Main image: hero > google_photo > placeholder */}
                   {(branch.hero_image_url || branch.google_photo_url) ? (
                     <img
                       src={branch.hero_image_url || branch.google_photo_url!}
-                      alt={language === 'th' ? branch.name_th : branch.name_en}
+                      alt={loc(branch.name_th, branch.name_en)}
                       className="w-full h-32 object-cover"
                       onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                     />
@@ -528,25 +519,23 @@ export default function Booking() {
                         )}
                         <div>
                           <h3 className="font-bold text-foreground">
-                            {language === 'th' ? branch.name_th : branch.name_en}
+                            {loc(branch.name_th, branch.name_en)}
                           </h3>
-                          {/* Google rating */}
                           {branch.google_rating != null && (
                             <div className="flex items-center gap-1 mt-0.5">
                               <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500" />
                               <span className="text-xs font-bold">{branch.google_rating}</span>
                               {branch.google_review_count != null && (
                                 <span className="text-xs text-muted-foreground">
-                                  ({branch.google_review_count.toLocaleString()} {language === 'th' ? 'รีวิว' : 'reviews'})
+                                  ({branch.google_review_count.toLocaleString()} {t('booking.reviews')})
                                 </span>
                               )}
                             </div>
                           )}
-                          {/* Address */}
-                          {(language === 'th' ? branch.address_th : branch.address_en) && (
+                          {loc(branch.address_th, branch.address_en) && (
                             <p className="text-xs text-muted-foreground mt-1 flex items-start gap-1">
                               <MapPin className="h-3 w-3 mt-0.5 shrink-0" />
-                              <span>{language === 'th' ? branch.address_th : branch.address_en}</span>
+                              <span>{loc(branch.address_th, branch.address_en)}</span>
                             </p>
                           )}
                           <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
@@ -564,7 +553,6 @@ export default function Booking() {
                       </div>
                       <ChevronRight className="h-5 w-5 text-muted-foreground" />
                     </div>
-                    {/* Google photo thumbnail (only when hero is different) + Maps link */}
                     {(branch.google_maps_url || (branch.google_photo_url && branch.hero_image_url && branch.hero_image_url !== branch.google_photo_url)) && (
                       <div className="mt-3 flex gap-2 items-end">
                         {branch.google_photo_url && branch.hero_image_url && branch.hero_image_url !== branch.google_photo_url && (
@@ -584,7 +572,7 @@ export default function Booking() {
                             className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
                           >
                             <ExternalLink className="h-3 w-3" />
-                            {language === 'th' ? 'เปิดใน Google Maps' : 'Open in Google Maps'}
+                            {t('booking.openGoogleMaps')}
                           </a>
                         )}
                       </div>
@@ -605,7 +593,7 @@ export default function Booking() {
                 onClick={loadRiskQuestions}
               >
                 <HelpCircle className="h-4 w-4" />
-                {language === 'th' ? 'ไม่แน่ใจว่าต้องการบริการอะไร?' : 'Not sure what you need?'}
+                {t('booking.notSure')}
               </Button>
 
               {services.map(svc => {
@@ -632,26 +620,26 @@ export default function Booking() {
                       <span className="text-2xl">{svc.icon}</span>
                       <div className="flex-1">
                         <h3 className="font-bold text-foreground">
-                          {language === 'th' ? svc.name_th : svc.name_en}
+                          {loc(svc.name_th, svc.name_en)}
                         </h3>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {language === 'th' ? svc.description_th : svc.description_en}
+                          {loc(svc.description_th, svc.description_en)}
                         </p>
                         <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
                           {svc.is_free_thai && (
                             <span className="text-[10px] bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-0.5 rounded-full font-medium">
-                              {language === 'th' ? 'ฟรี คนไทย (สปสช.)' : 'Free (Thai NHSO)'}
+                              {t('booking.freeThaiNHSO')}
                             </span>
                           )}
                           {svc.is_free_global_fund && (
                             <span className="text-[10px] bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded-full font-medium">
-                              {language === 'th' ? 'ฟรี กองทุนโลก (CLVM)' : 'Free (Global Fund: CLVM)'}
+                              {t('booking.freeGlobalFund')}
                             </span>
                           )}
                           {isPEP && (
                             <span className="text-[10px] bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
                               <ShieldAlert className="h-3 w-3" />
-                              {language === 'th' ? 'PEP ฟรีเฉพาะคนไทย' : 'PEP: Free for Thai ONLY'}
+                              {t('booking.pepFreeThaiOnly')}
                             </span>
                           )}
                         </div>
@@ -666,16 +654,8 @@ export default function Booking() {
                 <div className="flex items-start gap-2 text-amber-700 dark:text-amber-400 text-xs">
                   <ShieldAlert className="h-4 w-4 shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold">
-                      {language === 'th'
-                        ? '⚠️ PEP (ยาต้านฉุกเฉิน): ฟรีเฉพาะคนไทยเท่านั้น'
-                        : '⚠️ PEP (Emergency Antiretroviral): Free for Thai nationals ONLY'}
-                    </p>
-                    <p className="mt-0.5">
-                      {language === 'th'
-                        ? 'สัญชาติอื่น (รวมถึง CLVM) อาจมีค่าใช้จ่าย ตรวจสอบราคาที่ swingsilompolyclinic.com'
-                        : 'Other nationalities (including CLVM) may have charges. Check pricing at swingsilompolyclinic.com'}
-                    </p>
+                    <p className="font-semibold">{t('booking.pepWarning')}</p>
+                    <p className="mt-0.5">{t('booking.pepWarningDesc')}</p>
                   </div>
                 </div>
               </Card>
@@ -697,16 +677,14 @@ export default function Booking() {
             <div className="space-y-4">
               <Card className="p-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 rounded-2xl">
                 <p className="text-xs text-blue-700 dark:text-blue-400">
-                  {language === 'th'
-                    ? '⚕️ นี่ไม่ใช่การวินิจฉัย ตอบคำถามเพื่อช่วยแนะนำบริการที่เหมาะสม'
-                    : '⚕️ This is NOT a diagnosis. Answer questions to help recommend suitable services.'}
+                  {t('booking.riskDisclaimer')}
                 </p>
               </Card>
 
               {riskQuestions.map((q, idx) => (
                 <Card key={q.id} className="p-4 rounded-2xl">
                   <p className="text-sm font-medium text-foreground mb-3">
-                    {idx + 1}. {language === 'th' ? q.question_th : q.question_en}
+                    {idx + 1}. {loc(q.question_th, q.question_en)}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {q.options.map(opt => (
@@ -717,7 +695,7 @@ export default function Booking() {
                         className="rounded-full"
                         onClick={() => setRiskAnswers(prev => ({ ...prev, [q.id]: opt.value }))}
                       >
-                        {language === 'th' ? opt.label_th : opt.label_en}
+                        {loc(opt.label_th, opt.label_en)}
                       </Button>
                     ))}
                   </div>
@@ -726,14 +704,14 @@ export default function Booking() {
 
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => setShowRiskAssessment(false)} className="flex-1 rounded-full">
-                  {language === 'th' ? 'ยกเลิก' : 'Cancel'}
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   onClick={applyRiskRecommendations}
                   disabled={Object.keys(riskAnswers).length === 0}
                   className="flex-1 rounded-full"
                 >
-                  {language === 'th' ? 'ดูบริการแนะนำ' : 'See Recommendations'}
+                  {t('booking.seeRecommendations')}
                 </Button>
               </div>
             </div>
@@ -742,10 +720,9 @@ export default function Booking() {
           {/* STEP: DateTime (combined) */}
           {step === 'datetime' && selectedBranch && (
             <div className="space-y-5">
-              {/* Date pills - horizontal scroll */}
               <div>
                 <p className="text-sm font-medium text-muted-foreground mb-2">
-                  {language === 'th' ? 'เลือกวันที่' : 'Select Date'}
+                  {t('booking.selectDate')}
                 </p>
                 <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
                   {availableDates.map(date => {
@@ -787,11 +764,11 @@ export default function Booking() {
                           </div>
                         )}
                         <p className={cn("text-[10px] uppercase font-medium", isBlackedOut ? 'text-muted-foreground' : 'opacity-70')}>
-                          {isToday ? (language === 'th' ? 'วันนี้' : 'Today') : dayLabels[dayIdx]}
+                          {isToday ? t('booking.today') : dayLabels[dayIdx]}
                         </p>
                         <p className={cn("text-lg font-bold", isBlackedOut && 'text-muted-foreground')}>{format(date, 'd')}</p>
                         <p className={cn("text-[10px]", isBlackedOut ? 'text-destructive font-semibold' : 'opacity-70')}>
-                          {isBlackedOut ? (language === 'th' ? 'ปิด' : 'Closed') : format(date, 'MMM')}
+                          {isBlackedOut ? t('booking.closed') : format(date, 'MMM')}
                         </p>
                         {isToday && !isBlackedOut && (
                           <div className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-primary animate-pulse" />
@@ -811,14 +788,14 @@ export default function Booking() {
                     </div>
                     <div>
                       <p className="text-sm font-bold text-destructive">
-                        {language === 'th' ? 'ปิดรับนัดทั้งวัน' : 'Fully Closed'}
+                        {t('booking.fullyClosed')}
                       </p>
                       <p className="text-sm font-semibold text-foreground mt-0.5">{dayClosureInfo.title}</p>
                       {dayClosureInfo.reason && (
                         <p className="text-xs text-muted-foreground mt-1">{dayClosureInfo.reason}</p>
                       )}
                       <p className="text-xs text-muted-foreground mt-2">
-                        {language === 'th' ? 'กรุณาเลือกวันอื่น' : 'Please select another date'}
+                        {t('booking.selectAnotherDate')}
                       </p>
                     </div>
                   </div>
@@ -850,7 +827,7 @@ export default function Booking() {
                     selectedTime={selectedTime}
                     onSelectTime={(time) => {
                       if (blockedSlots[time]) {
-                        toast.error(language === 'th' ? 'ช่วงเวลานี้ปิดรับนัด กรุณาเลือกเวลาอื่น' : 'This time is unavailable. Please choose another slot.');
+                        toast.error(t('booking.slotBlocked'));
                         return;
                       }
                       setSelectedTime(time);
@@ -868,7 +845,7 @@ export default function Booking() {
                   className="w-full gap-2 rounded-full h-12"
                   size="lg"
                 >
-                  {language === 'th' ? 'ถัดไป' : 'Next'}
+                  {t('booking.next')}
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               )}
@@ -882,19 +859,19 @@ export default function Booking() {
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-primary" />
                   <span className="font-semibold">
-                    {language === 'th' ? selectedBranch.name_th : selectedBranch.name_en}
+                    {loc(selectedBranch.name_th, selectedBranch.name_en)}
                   </span>
                 </div>
 
                 <div className="space-y-1.5">
                   <p className="text-xs font-medium text-muted-foreground uppercase">
-                    {language === 'th' ? 'บริการที่เลือก' : 'Selected Services'}
+                    {t('booking.selectedServices')}
                   </p>
                   {selectedServices.map(svc => (
                     <div key={svc.id} className="flex items-center gap-2">
                       <span className="text-lg">{svc.icon}</span>
                       <span className="text-sm font-medium">
-                        {language === 'th' ? svc.name_th : svc.name_en}
+                        {loc(svc.name_th, svc.name_en)}
                       </span>
                     </div>
                   ))}
@@ -911,22 +888,18 @@ export default function Booking() {
 
                 <div className="flex items-start gap-2 p-3 rounded-2xl bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 text-xs">
                   <CreditCard className="h-4 w-4 mt-0.5 shrink-0" />
-                  <span>
-                    {language === 'th'
-                      ? 'ฟรีสำหรับคนไทย (สปสช.) และกองทุนโลก (CLVM) ยกเว้น PEP ที่ฟรีเฉพาะคนไทย'
-                      : 'Free for Thai (NHSO) & Global Fund (CLVM), except PEP which is free for Thai only'}
-                  </span>
+                  <span>{t('booking.freeInfo')}</span>
                 </div>
               </Card>
 
               <div className="space-y-2">
                 <label className="text-sm font-medium text-foreground">
-                  {language === 'th' ? 'หมายเหตุ (ไม่บังคับ)' : 'Notes (optional)'}
+                  {t('booking.notesLabel')}
                 </label>
                 <Textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder={language === 'th' ? 'เช่น ต้องการล่ามภาษาอังกฤษ' : 'e.g., Need English interpreter'}
+                  placeholder={t('booking.notesPlaceholder')}
                   maxLength={500}
                   rows={2}
                   className="rounded-2xl"
@@ -939,16 +912,12 @@ export default function Booking() {
                   <Card className="p-3 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 rounded-2xl">
                     <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400 text-sm">
                       <AlertCircle className="h-4 w-4 shrink-0" />
-                      <span>
-                        {language === 'th'
-                          ? 'จองโดยไม่ต้องสมัครสมาชิก — กรอกอีเมลเพื่อรับรหัสจอง'
-                          : 'Booking without an account — enter your email to receive a booking code'}
-                      </span>
+                      <span>{t('booking.anonNotice')}</span>
                     </div>
                   </Card>
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-foreground">
-                      {language === 'th' ? 'อีเมลติดต่อ *' : 'Contact Email *'}
+                      {t('booking.contactEmail')}
                     </label>
                     <Input
                       type="email"
@@ -964,11 +933,7 @@ export default function Booking() {
 
               <div className="flex items-start gap-2 text-xs text-muted-foreground">
                 <Info className="h-4 w-4 shrink-0 mt-0.5" />
-                <span>
-                  {language === 'th'
-                    ? 'คุณสามารถอัปโหลดบัตรประชาชนล่วงหน้าในหน้า "ข้อมูลส่วนตัว" เพื่อความสะดวกในการลงทะเบียน'
-                    : 'You can upload your ID card in advance via "Personal Info" page for easier registration'}
-                </span>
+                <span>{t('booking.idUploadHint')}</span>
               </div>
 
               <Button
@@ -982,7 +947,7 @@ export default function Booking() {
                 ) : (
                   <Check className="h-4 w-4" />
                 )}
-                {language === 'th' ? 'ยืนยันจอง' : 'Confirm Booking'}
+                {t('booking.confirm')}
               </Button>
             </div>
           )}
@@ -995,14 +960,14 @@ export default function Booking() {
                   <Check className="h-8 w-8 text-green-600" />
                 </div>
                 <h2 className="text-xl font-bold text-foreground">
-                  {language === 'th' ? '🎉 จองสำเร็จ!' : '🎉 Booking Confirmed!'}
+                  {t('booking.successTitle')}
                 </h2>
               </div>
 
               {/* Referral code */}
               <Card className="p-6 rounded-3xl border-2 border-primary/20 bg-primary/5">
                 <p className="text-xs text-muted-foreground uppercase font-medium mb-2">
-                  {language === 'th' ? 'รหัสจอง / Booking Code' : 'Booking Code'}
+                  {t('booking.bookingCode')}
                 </p>
                 <button
                   onClick={copyCode}
@@ -1017,7 +982,7 @@ export default function Booking() {
               <Card className="p-4 rounded-3xl text-left space-y-2">
                 <div className="flex items-center gap-2 text-sm">
                   <MapPin className="h-4 w-4 text-primary" />
-                  <span className="font-semibold">{language === 'th' ? selectedBranch.name_th : selectedBranch.name_en}</span>
+                  <span className="font-semibold">{loc(selectedBranch.name_th, selectedBranch.name_en)}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <CalendarIcon className="h-4 w-4 text-primary" />
@@ -1028,7 +993,7 @@ export default function Booking() {
                   <span className="font-bold">{selectedTime}</span>
                 </div>
                 <div className="text-xs text-muted-foreground pt-1">
-                  {selectedServices.map(s => `${s.icon} ${language === 'th' ? s.name_th : s.name_en}`).join(', ')}
+                  {selectedServices.map(s => `${s.icon} ${loc(s.name_th, s.name_en)}`).join(', ')}
                 </div>
               </Card>
 
@@ -1038,14 +1003,10 @@ export default function Booking() {
                   <Camera className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
                   <div className="text-left text-sm">
                     <p className="font-semibold text-amber-800 dark:text-amber-300">
-                      {language === 'th'
-                        ? 'กรุณาแคปหน้าจอนี้และแสดงให้เจ้าหน้าที่ลงทะเบียน'
-                        : 'Please take a screenshot and show this to Medical Registration'}
+                      {t('booking.screenshotHint')}
                     </p>
                     <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
-                      {language === 'th'
-                        ? 'เจ้าหน้าที่จะค้นหาด้วยรหัสจองของคุณ'
-                        : 'Staff will look up your booking using this code'}
+                      {t('booking.screenshotDesc')}
                     </p>
                   </div>
                 </div>
@@ -1055,24 +1016,19 @@ export default function Booking() {
               <div className="space-y-3">
                 {user ? (
                   <Button onClick={() => navigate('/my-appointments')} className="w-full rounded-full h-12" size="lg">
-                    {language === 'th' ? 'ดูนัดหมายของฉัน' : 'View My Appointments'}
+                    {t('booking.viewMyAppointments')}
                   </Button>
                 ) : (
                   <>
-                    {/* Magic link sent notice */}
                     <Card className="p-4 rounded-3xl border-2 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20">
                       <div className="flex items-start gap-3">
                         <Mail className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
                         <div className="text-left">
                           <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">
-                            {language === 'th'
-                              ? 'เราได้ส่งลิงก์ดูนัดหมายไปที่อีเมลของคุณแล้ว'
-                              : 'We sent an appointment link to your email'}
+                            {t('booking.emailSent')}
                           </p>
                           <p className="text-xs text-blue-600 dark:text-blue-400 mt-0.5">
-                            {language === 'th'
-                              ? 'ใช้ลิงก์จากอีเมลเพื่อดูนัดหมายได้ทุกเมื่อ'
-                              : 'Use the link from your email to view your appointment anytime'}
+                            {t('booking.emailSentDesc')}
                           </p>
                         </div>
                       </div>
@@ -1084,7 +1040,7 @@ export default function Booking() {
                         className="w-full rounded-full h-12 gap-2"
                         size="lg"
                       >
-                        {language === 'th' ? 'ดูนัดหมายของฉัน' : 'View My Appointments'}
+                        {t('booking.viewMyAppointments')}
                       </Button>
                     )}
 
@@ -1093,26 +1049,22 @@ export default function Booking() {
                         <UserPlus className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
                         <div className="text-left">
                           <p className="text-sm font-semibold text-green-800 dark:text-green-300">
-                            {language === 'th'
-                              ? 'อยากจัดการนัดง่ายขึ้นไหม?'
-                              : 'Want to manage your appointment easily?'}
+                            {t('booking.wantEasier')}
                           </p>
                           <p className="text-xs text-green-600 dark:text-green-400 mt-0.5">
-                            {language === 'th'
-                              ? 'สมัครสมาชิกเพื่อดู เลื่อน หรือยกเลิกนัดได้ทันที'
-                              : 'Register to view, reschedule, or cancel your booking anytime'}
+                            {t('booking.registerBenefit')}
                           </p>
                         </div>
                       </div>
                     </Card>
                     <Button onClick={() => navigate('/auth?redirect=/my-appointments')} variant="outline" className="w-full rounded-full h-12 gap-2" size="lg">
                       <UserPlus className="h-4 w-4" />
-                      {language === 'th' ? 'สมัครสมาชิก' : 'Register'}
+                      {t('booking.register')}
                     </Button>
                   </>
                 )}
                 <Button variant="outline" onClick={() => navigate('/')} className="w-full rounded-full">
-                  {language === 'th' ? 'กลับหน้าหลัก' : 'Back to Home'}
+                  {t('booking.backToHome')}
                 </Button>
               </div>
             </div>
