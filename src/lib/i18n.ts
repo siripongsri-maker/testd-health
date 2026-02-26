@@ -895,7 +895,6 @@ const fetchListeners = new Set<() => void>();
 async function flushTranslationQueue(targetLang: Language) {
   if (isFetching) return;
   
-  // Filter to only items with valid key and source_text
   const items = pendingQueue.filter(p => p.key && p.source_text && p.source_text.length > 0);
   pendingQueue = [];
   
@@ -903,22 +902,25 @@ async function flushTranslationQueue(targetLang: Language) {
   isFetching = true;
 
   try {
-    const { data, error } = await supabase.functions.invoke('translate-ui', {
-      body: { target_lang: targetLang, items },
-    });
+    // Chunk into batches of 150 to stay under the 200 limit
+    const CHUNK_SIZE = 150;
+    for (let i = 0; i < items.length; i += CHUNK_SIZE) {
+      const chunk = items.slice(i, i + CHUNK_SIZE);
+      const { data, error } = await supabase.functions.invoke('translate-ui', {
+        body: { target_lang: targetLang, items: chunk },
+      });
 
-    if (!error && data?.translations) {
-      if (!dynamicCache[targetLang]) dynamicCache[targetLang] = {};
-      Object.assign(dynamicCache[targetLang], data.translations);
-      saveCacheToStorage();
-      // Notify listeners to re-render
-      fetchListeners.forEach(fn => fn());
+      if (!error && data?.translations) {
+        if (!dynamicCache[targetLang]) dynamicCache[targetLang] = {};
+        Object.assign(dynamicCache[targetLang], data.translations);
+        saveCacheToStorage();
+        fetchListeners.forEach(fn => fn());
+      }
     }
   } catch (err) {
     console.error('Translation fetch error:', err);
   } finally {
     isFetching = false;
-    // If more items queued during fetch, flush again
     if (pendingQueue.length > 0) {
       flushTranslationQueue(targetLang);
     }
