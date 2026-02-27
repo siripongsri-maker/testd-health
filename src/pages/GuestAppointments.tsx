@@ -99,7 +99,7 @@ export default function GuestAppointments() {
     const todayStr = bangkokNow.toISOString().slice(0, 10);
     const isToday = apt.appointment_date === todayStr;
 
-    if (apt.status === 'arrived' && isToday) {
+    if (['arrived', 'in_progress', 'completed'].includes(apt.status) && isToday) {
       return { canCheckin: false, canCheckout: true, helperText: '', helperTextEn: '' };
     }
 
