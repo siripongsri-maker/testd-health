@@ -25,6 +25,9 @@ interface TodayAppointment {
   status: string;
   arrived_at: string | null;
   checked_out_at: string | null;
+  contact_phone: string | null;
+  contact_email: string | null;
+  contact_line: string | null;
   services: { name_th: string; name_en: string; icon: string }[];
 }
 
@@ -107,7 +110,7 @@ export default function AdminTodayBoard({ userBranch }: { userBranch?: string | 
       const baseQuery = () =>
         supabase
           .from('appointments')
-          .select('id, referral_code, start_time, status, arrived_at, checked_out_at')
+          .select('id, referral_code, start_time, status, arrived_at, checked_out_at, contact_phone, contact_email, contact_line')
           .eq('branch_id', selectedBranchId)
           .eq('appointment_date', today);
 
@@ -185,27 +188,35 @@ export default function AdminTodayBoard({ userBranch }: { userBranch?: string | 
     return <Badge variant={info.variant}>{info.label}</Badge>;
   };
 
-  const renderRow = (apt: TodayAppointment) => (
-    <Card key={apt.id} className="p-3 flex items-center justify-between gap-2">
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-mono text-sm font-bold text-primary">
-            {apt.referral_code || '—'}
-          </span>
-          {statusBadge(apt.status)}
-        </div>
-        <div className="text-xs text-muted-foreground mt-1">
-          <Clock className="h-3 w-3 inline mr-1" />
-          {apt.start_time?.slice(0, 5)}
-          {apt.services.length > 0 && (
-            <span className="ml-2">
-              {apt.services.map(s => s.icon + ' ' + (language === 'th' ? s.name_th : s.name_en)).join(', ')}
+  const renderRow = (apt: TodayAppointment) => {
+    const contactDisplay = apt.contact_phone || apt.contact_line || apt.contact_email;
+    return (
+      <Card key={apt.id} className="p-3 flex items-center justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-mono text-sm font-bold text-primary">
+              {apt.referral_code || '—'}
             </span>
-          )}
+            {contactDisplay && (
+              <span className="text-[10px] text-muted-foreground truncate max-w-[130px]" title={[apt.contact_phone, apt.contact_line, apt.contact_email].filter(Boolean).join(' / ')}>
+                {contactDisplay}
+              </span>
+            )}
+            {statusBadge(apt.status)}
+          </div>
+          <div className="text-xs text-muted-foreground mt-1">
+            <Clock className="h-3 w-3 inline mr-1" />
+            {apt.start_time?.slice(0, 5)}
+            {apt.services.length > 0 && (
+              <span className="ml-2">
+                {apt.services.map(s => s.icon + ' ' + (language === 'th' ? s.name_th : s.name_en)).join(', ')}
+              </span>
+            )}
+          </div>
         </div>
-      </div>
-    </Card>
-  );
+      </Card>
+    );
+  };
 
   if (!selectedBranchId) {
     return (

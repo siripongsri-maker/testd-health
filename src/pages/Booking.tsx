@@ -83,6 +83,7 @@ export default function Booking() {
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [notes, setNotes] = useState('');
   const [contactEmail, setContactEmail] = useState('');
+  const [contactLine, setContactLine] = useState('');
   const [contactPhone, setContactPhone] = useState('');
   const [bookedSlots, setBookedSlots] = useState<Record<string, number>>({});
   const [blockedSlots, setBlockedSlots] = useState<Record<string, string>>({});
@@ -293,9 +294,8 @@ export default function Booking() {
   }, [selectedBranch, availableDates, language]);
 
   const handleBook = async () => {
-    const isAnonymous = !user;
-    if (isAnonymous && !contactEmail.trim()) {
-      toast.error(t('booking.enterEmail'));
+    if (!contactPhone.trim() || !/^[0+]\d{8,13}$/.test(contactPhone.replace(/[-\s]/g, ''))) {
+      toast.error(language === 'th' ? 'กรุณากรอกเบอร์โทรศัพท์' : 'Please enter a valid phone number');
       return;
     }
     if (!contactPhone.trim() || !/^[0+]\d{8,13}$/.test(contactPhone.replace(/[-\s]/g, ''))) {
@@ -314,9 +314,10 @@ export default function Booking() {
           p_service_ids: selectedServices.map(s => s.id),
           p_appointment_date: dateStr,
           p_start_time: selectedTime + ':00',
-          p_contact_email: contactEmail.trim(),
+          p_contact_email: contactEmail.trim() || null,
           p_notes: notes || null,
           p_contact_phone: contactPhone.replace(/[-\s]/g, '').trim(),
+          p_contact_line: contactLine.trim() || null,
         });
 
         if (error) throw error;
@@ -373,6 +374,7 @@ export default function Booking() {
           p_user_id: user.id,
           p_notes: notes || null,
           p_contact_phone: contactPhone.replace(/[-\s]/g, '').trim(),
+          p_contact_line: contactLine.trim() || null,
         });
 
         if (error) throw error;
@@ -942,6 +944,20 @@ export default function Booking() {
                   />
                 </div>
 
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-foreground flex items-center gap-1.5">
+                    💬 LINE ID <span className="text-xs text-muted-foreground font-normal">({language === 'th' ? 'ไม่บังคับ' : 'optional'})</span>
+                  </label>
+                  <Input
+                    type="text"
+                    value={contactLine}
+                    onChange={(e) => setContactLine(e.target.value)}
+                    placeholder="@lineid"
+                    className="rounded-xl"
+                    maxLength={50}
+                  />
+                </div>
+
                 <div className="space-y-1.5 text-[10px] text-muted-foreground leading-relaxed">
                   <p>{language === 'th'
                     ? 'หากไม่ประสงค์ให้ติดต่อทางโทรศัพท์ สามารถระบุ LINE ID หรือแจ้งเจ้าหน้าที่ได้'
@@ -965,8 +981,9 @@ export default function Booking() {
                     </div>
                   </Card>
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-foreground">
-                      {t('booking.contactEmail')}
+                    <label className="text-sm font-medium text-foreground flex items-center gap-1.5">
+                      <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                      {t('booking.contactEmail')} <span className="text-xs text-muted-foreground font-normal">({language === 'th' ? 'ไม่บังคับ' : 'optional'})</span>
                     </label>
                     <Input
                       type="email"
@@ -974,7 +991,6 @@ export default function Booking() {
                       onChange={(e) => setContactEmail(e.target.value)}
                       placeholder="your@email.com"
                       className="rounded-xl"
-                      required
                     />
                   </div>
                 </div>
@@ -987,7 +1003,7 @@ export default function Booking() {
 
               <Button
                 onClick={handleBook}
-                disabled={submitting || (!user && !contactEmail.trim())}
+                disabled={submitting}
                 className="w-full gap-2 rounded-full h-12"
                 size="lg"
               >
