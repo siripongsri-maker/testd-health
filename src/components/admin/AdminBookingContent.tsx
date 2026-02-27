@@ -99,10 +99,12 @@ export default function AdminBookingContent({ userBranch }: Props) {
     let rows: FullAppointment[];
 
     if (searchMode && codeSearch.trim()) {
+      const term = codeSearch.trim();
+      // Search by referral code, email, or phone
       let query = supabase
         .from('appointments')
         .select('*, booking_branches(name_th, name_en, slug), booking_services(name_th, name_en, icon)')
-        .ilike('referral_code', `%${codeSearch.trim()}%`)
+        .or(`referral_code.ilike.%${term}%,contact_email.ilike.%${term}%,contact_phone.ilike.%${term}%`)
         .order('created_at', { ascending: false })
         .limit(20);
       if (branchFilter !== 'all') query = query.eq('branch_id', branchFilter);
@@ -221,7 +223,7 @@ export default function AdminBookingContent({ userBranch }: Props) {
               <Input
                 value={codeSearch}
                 onChange={(e) => { setCodeSearch(e.target.value); setSearchMode(e.target.value.trim().length > 0); }}
-                placeholder={language === 'th' ? 'ค้นหา SWG-...' : 'Search SWG-...'}
+                placeholder={language === 'th' ? 'ค้นหา SWG- / อีเมล / เบอร์โทร' : 'Search SWG- / email / phone'}
                 className="pl-8 h-8 text-xs"
               />
             </div>

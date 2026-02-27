@@ -208,7 +208,7 @@ export default function GuestAppointments() {
   const handleLookup = async (value?: string) => {
     const q = (value ?? identifier).trim();
     if (!q) {
-      setErrorMsg(language === 'th' ? 'กรุณากรอกอีเมลหรือรหัสนัดหมาย' : 'Please enter email or booking code');
+      setErrorMsg(language === 'th' ? 'กรุณากรอกอีเมล, เบอร์โทร หรือรหัสนัดหมาย' : 'Please enter email, phone or booking code');
       return;
     }
 
@@ -229,8 +229,8 @@ export default function GuestAppointments() {
             : 'Too many attempts. Please wait 15 minutes and try again.');
         } else if (msg.includes('expired')) {
           setErrorMsg(language === 'th'
-            ? 'ลิงก์นี้หมดอายุแล้ว กรุณาใช้ "อีเมล" หรือ "รหัสนัดหมาย" เพื่อค้นหา'
-            : 'This link has expired. Please use your email or booking code.');
+            ? 'ลิงก์นี้หมดอายุแล้ว กรุณาใช้ "อีเมล", "เบอร์โทร" หรือ "รหัสนัดหมาย" เพื่อค้นหา'
+            : 'This link has expired. Please use your email, phone or booking code.');
         } else {
           setErrorMsg(language === 'th' ? 'เกิดข้อผิดพลาด กรุณาลองใหม่' : 'Something went wrong. Please try again.');
         }
@@ -243,8 +243,8 @@ export default function GuestAppointments() {
 
       if (results.length === 0 && searchParams.get('token')) {
         setErrorMsg(language === 'th'
-          ? 'ลิงก์นี้หมดอายุแล้ว กรุณาใช้ "อีเมล" หรือ "รหัสนัดหมาย" เพื่อค้นหา'
-          : 'This link has expired. Please use your email or booking code.');
+          ? 'ลิงก์นี้หมดอายุแล้ว กรุณาใช้ "อีเมล", "เบอร์โทร" หรือ "รหัสนัดหมาย" เพื่อค้นหา'
+          : 'This link has expired. Please use your email, phone or booking code.');
       }
     } catch {
       setErrorMsg(language === 'th' ? 'เกิดข้อผิดพลาด' : 'Something went wrong');
@@ -293,15 +293,15 @@ export default function GuestAppointments() {
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
               {language === 'th'
-                ? 'ค้นหาด้วยอีเมลที่ใช้จอง หรือรหัสนัดหมาย'
-                : 'Search with the email you booked with or your booking code'}
+                ? 'ค้นหาด้วยอีเมล, เบอร์โทร หรือรหัสนัดหมาย'
+                : 'Search with email, phone or booking code'}
             </p>
           </div>
 
           {/* Single input lookup */}
           <Card className="p-5 rounded-3xl space-y-3">
             <label className="text-sm font-medium text-foreground">
-              {language === 'th' ? 'กรอกอีเมล หรือ รหัสนัดหมาย' : 'Enter email or booking code'}
+              {language === 'th' ? 'กรอกอีเมล, เบอร์โทร หรือ รหัสนัดหมาย' : 'Enter email, phone or booking code'}
             </label>
             <div className="flex gap-2">
               <Input
@@ -311,7 +311,7 @@ export default function GuestAppointments() {
                   setErrorMsg(null);
                 }}
                 onKeyDown={(e) => e.key === 'Enter' && handleLookup()}
-                placeholder="example@email.com หรือ SWG-AB12CD"
+                placeholder="email / 08X-XXX-XXXX / SWG-AB12CD"
                 className="rounded-xl flex-1"
               />
               <Button
@@ -563,8 +563,8 @@ export default function GuestAppointments() {
               <Calendar className="h-12 w-12 text-muted-foreground mx-auto" />
               <p className="text-sm text-muted-foreground">
                 {language === 'th'
-                  ? 'ยังไม่พบนัดหมาย — ลองใช้อีเมลที่ใช้จอง หรือรหัสนัดหมาย (SWG-...)'
-                  : 'No appointment found — try the email you used to book or your booking code (SWG-...)'}
+                  ? 'ยังไม่พบนัดหมาย — ลองใช้อีเมล, เบอร์โทร หรือรหัสนัดหมาย (SWG-...)'
+                  : 'No appointment found — try your email, phone number or booking code (SWG-...)'}
               </p>
             </div>
           )}

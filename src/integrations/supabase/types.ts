@@ -210,6 +210,7 @@ export type Database = {
           checked_out_at: string | null
           completed_at: string | null
           contact_email: string | null
+          contact_phone: string | null
           created_at: string
           duration_minutes: number | null
           feedback: string | null
@@ -239,6 +240,7 @@ export type Database = {
           checked_out_at?: string | null
           completed_at?: string | null
           contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string
           duration_minutes?: number | null
           feedback?: string | null
@@ -268,6 +270,7 @@ export type Database = {
           checked_out_at?: string | null
           completed_at?: string | null
           contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string
           duration_minutes?: number | null
           feedback?: string | null
@@ -2368,29 +2371,56 @@ export type Database = {
         Args: { p_branch_id: string; p_date: string; p_time: string }
         Returns: number
       }
-      create_anonymous_appointment: {
-        Args: {
-          p_appointment_date: string
-          p_branch_id: string
-          p_contact_email: string
-          p_notes?: string
-          p_service_ids: string[]
-          p_start_time: string
-        }
-        Returns: Json
-      }
-      create_appointment_atomic: {
-        Args: {
-          p_appointment_date: string
-          p_branch_id: string
-          p_contact_email?: string
-          p_notes?: string
-          p_services: string[]
-          p_start_time: string
-          p_user_id?: string
-        }
-        Returns: Json
-      }
+      create_anonymous_appointment:
+        | {
+            Args: {
+              p_appointment_date: string
+              p_branch_id: string
+              p_contact_email: string
+              p_notes?: string
+              p_service_ids: string[]
+              p_start_time: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_appointment_date: string
+              p_branch_id: string
+              p_contact_email: string
+              p_contact_phone?: string
+              p_notes?: string
+              p_service_ids: string[]
+              p_start_time: string
+            }
+            Returns: Json
+          }
+      create_appointment_atomic:
+        | {
+            Args: {
+              p_appointment_date: string
+              p_branch_id: string
+              p_contact_email?: string
+              p_notes?: string
+              p_services: string[]
+              p_start_time: string
+              p_user_id?: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_appointment_date: string
+              p_branch_id: string
+              p_contact_email?: string
+              p_contact_phone?: string
+              p_notes?: string
+              p_services: string[]
+              p_start_time: string
+              p_user_id?: string
+            }
+            Returns: Json
+          }
       create_walkin_appointment: {
         Args: { p_branch_id: string; p_notes?: string }
         Returns: Json
