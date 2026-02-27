@@ -298,6 +298,10 @@ export default function Booking() {
       toast.error(t('booking.enterEmail'));
       return;
     }
+    if (!contactPhone.trim() || !/^[0+]\d{8,13}$/.test(contactPhone.replace(/[-\s]/g, ''))) {
+      toast.error(language === 'th' ? 'กรุณากรอกเบอร์โทรศัพท์' : 'Please enter a valid phone number');
+      return;
+    }
     if (!selectedBranch || selectedServices.length === 0 || !selectedDate || !selectedTime) return;
 
     setSubmitting(true);
@@ -312,7 +316,7 @@ export default function Booking() {
           p_start_time: selectedTime + ':00',
           p_contact_email: contactEmail.trim(),
           p_notes: notes || null,
-          p_contact_phone: contactPhone.trim() || null,
+          p_contact_phone: contactPhone.replace(/[-\s]/g, '').trim(),
         });
 
         if (error) throw error;
@@ -368,7 +372,7 @@ export default function Booking() {
           p_contact_email: user.email || null,
           p_user_id: user.id,
           p_notes: notes || null,
-          p_contact_phone: contactPhone.trim() || null,
+          p_contact_phone: contactPhone.replace(/[-\s]/g, '').trim(),
         });
 
         if (error) throw error;
@@ -909,26 +913,47 @@ export default function Booking() {
                 />
               </div>
 
-              {/* Phone number (optional, for all users) */}
-              <div className="space-y-1">
-                <label className="text-sm font-medium text-foreground flex items-center gap-1.5">
-                  <Phone className="h-3.5 w-3.5 text-primary" />
-                  {language === 'th' ? 'เบอร์โทรศัพท์ (ไม่บังคับ)' : 'Phone number (optional)'}
-                </label>
-                <Input
-                  type="tel"
-                  value={contactPhone}
-                  onChange={(e) => setContactPhone(e.target.value)}
-                  placeholder="08X-XXX-XXXX"
-                  className="rounded-xl"
-                  maxLength={15}
-                />
-                <p className="text-[10px] text-muted-foreground">
-                  {language === 'th'
-                    ? 'เพื่อให้เจ้าหน้าที่ค้นหานัดหมายได้ง่ายขึ้น กรณีไม่มีรหัสนัดหมาย'
-                    : 'Helps staff find your appointment if you don\'t have your booking code'}
-                </p>
-              </div>
+              {/* Contact information – required */}
+              <Card className="p-4 rounded-2xl border-primary/20 bg-primary/5 space-y-3">
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold text-foreground">
+                    {language === 'th' ? 'ช่องทางติดต่อ' : 'Contact Information'}
+                  </p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {language === 'th'
+                      ? 'เพื่อให้คลินิกสามารถแจ้งเลื่อนนัด หรือแจ้งผลตรวจที่สำคัญได้อย่างรวดเร็ว'
+                      : 'So the clinic can quickly notify you of schedule changes or important test results'}
+                  </p>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-foreground flex items-center gap-1.5">
+                    <Phone className="h-3.5 w-3.5 text-primary" />
+                    {language === 'th' ? 'เบอร์โทรศัพท์' : 'Phone number'} <span className="text-destructive">*</span>
+                  </label>
+                  <Input
+                    type="tel"
+                    value={contactPhone}
+                    onChange={(e) => setContactPhone(e.target.value)}
+                    placeholder="08X-XXX-XXXX"
+                    className="rounded-xl"
+                    maxLength={15}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1.5 text-[10px] text-muted-foreground leading-relaxed">
+                  <p>{language === 'th'
+                    ? 'หากไม่ประสงค์ให้ติดต่อทางโทรศัพท์ สามารถระบุ LINE ID หรือแจ้งเจ้าหน้าที่ได้'
+                    : 'If you prefer not to be contacted by phone, you can provide a LINE ID or inform staff on-site'}
+                  </p>
+                  <p className="flex items-center gap-1">
+                    🔒 {language === 'th'
+                      ? 'ข้อมูลของท่านจะถูกใช้เพื่อการดูแลรักษาเท่านั้น และเก็บรักษาอย่างปลอดภัย'
+                      : 'Your information is used solely for your care and stored securely'}
+                  </p>
+                </div>
+              </Card>
 
               {/* Anonymous booking: collect email */}
               {!user && (
