@@ -43,6 +43,13 @@ export function AppointmentPill({ appointment: apt, selected, onToggleSelect, on
         <span className="text-[10px] font-mono font-bold text-primary shrink-0 hidden sm:inline">{apt.referral_code}</span>
       )}
 
+      {/* Contact info */}
+      {(apt.contact_phone || apt.contact_email) && (
+        <span className="text-[10px] text-muted-foreground truncate shrink-0 hidden md:inline max-w-[120px]" title={[apt.contact_phone, apt.contact_email].filter(Boolean).join(' / ')}>
+          {apt.contact_phone || apt.contact_email}
+        </span>
+      )}
+
       {/* Branch (compact) */}
       {!compact && apt.booking_branches && (
         <span className="text-[10px] text-muted-foreground truncate flex-1">
