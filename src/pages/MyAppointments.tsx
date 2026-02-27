@@ -210,8 +210,8 @@ export default function MyAppointments() {
     const todayStr = bangkokNow.toISOString().slice(0, 10);
     const isToday = apt.appointment_date === todayStr;
 
-    // Check-out: arrived status, today
-    if (apt.status === 'arrived' && isToday) {
+    // Check-out: arrived/in_progress/completed status, today
+    if (['arrived', 'in_progress', 'completed'].includes(apt.status) && isToday) {
       return { canCheckin: false, canCheckout: true };
     }
 
