@@ -44,6 +44,7 @@ export interface FullAppointment {
   notes: string | null;
   staff_notes: string | null;
   contact_email: string | null;
+  contact_phone: string | null;
   created_at: string;
   updated_at: string;
   cancelled_at: string | null;
