@@ -117,7 +117,14 @@ export function AppointmentDetailDrawer({ appointment: apt, onClose, onRefresh }
             {apt.contact_email && (
               <div className="flex items-center gap-2">
                 <span className="text-muted-foreground text-xs">
-                  {apt.contact_email.slice(0, 3)}***@{apt.contact_email.split('@')[1]}
+                  📧 {apt.contact_email.slice(0, 3)}***@{apt.contact_email.split('@')[1]}
+                </span>
+              </div>
+            )}
+            {(apt as any).contact_phone && (
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground text-xs">
+                  📱 {(apt as any).contact_phone}
                 </span>
               </div>
             )}

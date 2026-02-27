@@ -13,7 +13,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   MapPin, Clock, ChevronRight, ChevronLeft, Calendar as CalendarIcon,
   Check, Loader2, AlertCircle, CreditCard, Globe, Info, HelpCircle, ShieldAlert,
-  Copy, Camera, UserPlus, Star, ExternalLink, Mail,
+  Copy, Camera, UserPlus, Star, ExternalLink, Mail, Phone,
 } from 'lucide-react';
 import { DensityTimeSelector } from '@/components/booking/DensityTimeSelector';
 import { cn } from '@/lib/utils';
@@ -83,6 +83,7 @@ export default function Booking() {
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [notes, setNotes] = useState('');
   const [contactEmail, setContactEmail] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
   const [bookedSlots, setBookedSlots] = useState<Record<string, number>>({});
   const [blockedSlots, setBlockedSlots] = useState<Record<string, string>>({});
   const [rpcSlotTimes, setRpcSlotTimes] = useState<string[]>([]);
@@ -311,6 +312,7 @@ export default function Booking() {
           p_start_time: selectedTime + ':00',
           p_contact_email: contactEmail.trim(),
           p_notes: notes || null,
+          p_contact_phone: contactPhone.trim() || null,
         });
 
         if (error) throw error;
@@ -366,6 +368,7 @@ export default function Booking() {
           p_contact_email: user.email || null,
           p_user_id: user.id,
           p_notes: notes || null,
+          p_contact_phone: contactPhone.trim() || null,
         });
 
         if (error) throw error;
@@ -904,6 +907,27 @@ export default function Booking() {
                   rows={2}
                   className="rounded-2xl"
                 />
+              </div>
+
+              {/* Phone number (optional, for all users) */}
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-foreground flex items-center gap-1.5">
+                  <Phone className="h-3.5 w-3.5 text-primary" />
+                  {language === 'th' ? 'เบอร์โทรศัพท์ (ไม่บังคับ)' : 'Phone number (optional)'}
+                </label>
+                <Input
+                  type="tel"
+                  value={contactPhone}
+                  onChange={(e) => setContactPhone(e.target.value)}
+                  placeholder="08X-XXX-XXXX"
+                  className="rounded-xl"
+                  maxLength={15}
+                />
+                <p className="text-[10px] text-muted-foreground">
+                  {language === 'th'
+                    ? 'เพื่อให้เจ้าหน้าที่ค้นหานัดหมายได้ง่ายขึ้น กรณีไม่มีรหัสนัดหมาย'
+                    : 'Helps staff find your appointment if you don\'t have your booking code'}
+                </p>
               </div>
 
               {/* Anonymous booking: collect email */}
