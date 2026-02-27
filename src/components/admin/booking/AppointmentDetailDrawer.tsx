@@ -128,6 +128,13 @@ export function AppointmentDetailDrawer({ appointment: apt, onClose, onRefresh }
                 </span>
               </div>
             )}
+            {(apt as any).contact_line && (
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground text-xs">
+                  💬 LINE: {(apt as any).contact_line}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Notes */}
