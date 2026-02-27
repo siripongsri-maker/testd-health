@@ -1,189 +1,42 @@
 
 
-# Ops Bundle: Staff Profiles, Today Board, No-Show Job, Capacity Lock, Indexes
+## Summary
 
-## Overview
-This is a large cohesive change set covering 6 areas: staff profile restructuring, branch-scoped RLS, performance indexes, atomic capacity-locked booking, auto no-show cleanup, and a new Branch Today Board admin UI.
+The user wants:
+1. **Email to be optional** (not required) during booking — even for anonymous users
+2. **Add a LINE ID field** alongside phone in the booking contact section
+3. **Show contact info (phone/LINE/email) after the referral code** in the admin Today Board and Booking overview (AppointmentPill)
+4. Keep data minimal and useful for staff to quickly contact clients
 
-## Important Finding: Existing Architecture
+## Changes
 
-The project already has:
-- A `staff_profiles` table (id, user_id, branch_id, name_th, name_en, role, is_active, created_at) -- but `role` defaults to `'counselor'`, not the requested role enum
-- A `staff_branch_assignments` table (user_id, branch) used for RLS branch scoping
-- Existing RLS policies on appointments, appointment_services, appointment_logs using `staff_branch_assignments` for branch scoping
-- Several indexes already exist: `idx_appointments_slot_lookup` (branch_id, date, time, status), `idx_appointments_user` (user_id, date), unique referral_code index
-- An `award_xp_to_user` RPC that is **broken** -- it caps XP at 100 and blocks self-awards, yet the booking page calls it with 1000 XP to self. This needs fixing as part of this bundle.
+### 1. Database: Add `contact_line` column to `appointments`
+- Migration: `ALTER TABLE appointments ADD COLUMN contact_line text;`
+- Update `create_anonymous_appointment` and `create_appointment_atomic` RPCs to accept `p_contact_line`
+- Update `guest_universal_lookup` to also search by LINE ID
 
-## Part A: Database Migration -- Staff Profiles + Roles
+### 2. Booking page (`src/pages/Booking.tsx`)
+- **Make email optional** for anonymous users: remove the requirement check for `contactEmail`, remove `disabled` condition tied to email, remove `required` attribute
+- **Add LINE ID input** field in the contact card (optional, with placeholder like `@lineid`)
+- Pass `contact_line` to both RPC calls
+- Keep phone as mandatory (already implemented)
 
-### Changes to `staff_profiles`
-- Add a `staff_role` column: `text NOT NULL DEFAULT 'branch_staff'` with a validation trigger ensuring value is in `('branch_staff', 'branch_admin', 'super_admin')`.
-- Keep the existing `role` column (counselor/medical_reg/admin) for job function; `staff_role` is for access control.
+### 3. Admin AppointmentPill (`src/components/admin/booking/AppointmentPill.tsx`)
+- Show contact info (phone > LINE > email) after the referral code — already partially done, add LINE ID support
 
-### Helper Functions
-1. **`current_staff_profile()`**: Returns staff_profiles row for auth.uid() where is_active=true, or NULL.
-2. **`is_booking_staff(p_branch_id uuid)`**: Returns true if current user's staff_profile is active AND branch_id matches AND staff_role in ('branch_staff','branch_admin','super_admin').
-3. **`is_booking_branch_admin(p_branch_id uuid)`**: True if staff_role='branch_admin' AND branch matches, OR staff_role='super_admin'.
-4. **`is_booking_super_admin()`**: True if staff_role='super_admin'.
+### 4. Admin Today Board (`src/components/admin/AdminTodayBoard.tsx`)
+- Fetch `contact_phone, contact_email, contact_line` in the appointment queries
+- Display contact info after the referral code in each appointment row (`renderRow`)
 
-These complement the existing `has_role()` and `is_branch_staff()` functions which use `user_roles` and `staff_branch_assignments` tables respectively. The new functions use `staff_profiles` directly.
+### 5. Admin Detail Drawer (`src/components/admin/booking/AppointmentDetailDrawer.tsx`)
+- Show LINE ID with 💬 icon alongside phone and email
 
-## Part B: RLS Policy Updates
+### 6. Shared types (`src/lib/appointments.ts`)
+- Add `contact_line: string | null` to `FullAppointment` interface
 
-### Approach
-Rather than replacing existing working policies (which use `staff_branch_assignments`), we add new PERMISSIVE policies that also allow access via `staff_profiles` for the new role model. Existing policies remain for backward compatibility.
+## Technical Detail
 
-### appointments
-- Keep all existing policies (they work)
-- No changes needed -- existing branch staff + admin + user policies cover the requirements
-
-### appointment_services
-- Keep existing policies (they work with RESTRICTIVE which is fine since the existing `Users can view own` + `Staff can view branch` + `Admin ALL` cover all needs)
-
-### appointment_logs
-- Already has correct policies: admin ALL, staff branch view+insert, user view own
-
-**Net result**: No RLS changes needed. The existing policy set already correctly implements branch-scoped access.
-
-## Part C: Performance Indexes
-
-Add the following (some already exist and will be skipped):
-```text
-CREATE INDEX IF NOT EXISTS idx_appointments_branch_date_time 
-  ON appointments (branch_id, appointment_date, start_time);
--- Already covered by idx_appointments_slot_lookup
-
-CREATE INDEX IF NOT EXISTS idx_appointments_branch_status 
-  ON appointments (branch_id, status);
-
-CREATE INDEX IF NOT EXISTS idx_appointments_user_id 
-  ON appointments (user_id);
--- Partially covered by idx_appointments_user (user_id, appointment_date)
-
-CREATE INDEX IF NOT EXISTS idx_appointments_branch_arrived 
-  ON appointments (branch_id, arrived_at) WHERE arrived_at IS NOT NULL;
-
-CREATE INDEX IF NOT EXISTS idx_appointments_branch_checked_out 
-  ON appointments (branch_id, checked_out_at) WHERE checked_out_at IS NOT NULL;
-```
-
-## Part D: Capacity Lock -- Atomic Booking RPC
-
-### New RPC: `create_appointment_atomic`
-Parameters: `p_branch_id uuid, p_appointment_date date, p_start_time time, p_services uuid[], p_contact_email text DEFAULT NULL, p_user_id uuid DEFAULT NULL, p_notes text DEFAULT NULL`
-
-Logic:
-1. Acquire advisory lock: `pg_advisory_xact_lock(hashtext(p_branch_id::text || p_appointment_date::text || p_start_time::text))`
-2. Count existing non-cancelled appointments for this slot
-3. Get branch `counselor_count` as capacity
-4. If count >= capacity, raise exception `'slot_full'`
-5. If `p_user_id` is not null, check for duplicate booking (same user/branch/date/time)
-6. Insert appointment row (referral code generated by trigger)
-7. Insert appointment_services rows
-8. Insert appointment_logs entry
-9. Award XP if user is authenticated (via internal update, not the broken RPC)
-10. Return appointment_id and referral_code as jsonb
-
-### Fix `award_xp_to_user`
-- Remove the 100 XP cap (allow up to 1000)
-- Remove the self-award restriction (booking awards XP to self)
-- OR better: create a new `award_booking_xp(p_user_id uuid, p_amount integer)` SECURITY DEFINER function that the atomic booking RPC calls internally, bypassing the public restrictions.
-
-### Frontend Changes
-- Update `src/pages/Booking.tsx` to call `create_appointment_atomic` instead of direct inserts for logged-in users
-- Keep `create_anonymous_appointment` for guests (update it to also use advisory lock)
-
-## Part E: Auto No-Show Job
-
-### New RPC: `mark_no_show_expired`
-Parameters: `p_branch_id uuid DEFAULT NULL`
-- SECURITY DEFINER
-- Finds appointments where status in ('booked','confirmed'), appointment_datetime < now() - interval '6 hours', arrived_at IS NULL
-- Updates status to 'no_show'
-- Inserts appointment_logs with action='no_show_auto', performed_by=NULL, details='System auto no-show'
-- Returns count of affected rows
-
-### Edge Function: `auto-no-show`
-- Simple edge function that calls `mark_no_show_expired()` via service role
-- Scheduled via pg_cron to run every 15 minutes
-
-### Scheduling (pg_cron)
-```text
-cron.schedule('auto-no-show-cleanup', '*/15 * * * *', ...)
-```
-Calls the edge function endpoint with the anon key.
-
-## Part F: Frontend -- Branch Today Board
-
-### New Component: `src/components/admin/AdminTodayBoard.tsx`
-
-**Access Control:**
-- Check `staff_profiles` for the logged-in user
-- If `staff_role` in ('branch_staff', 'branch_admin'): auto-select their branch, lock selector
-- If `staff_role = 'super_admin'` or user has admin role: show branch dropdown
-
-**Data:**
-- Use a new RPC `get_branch_today_board(p_branch_id uuid, p_date date DEFAULT current_date)` that returns:
-  - `booked_today` count
-  - `arrived_waiting` count (arrived, not checked_out)
-  - `checked_out_today` count
-  - `no_show_today` count
-  - `avg_duration_minutes` (from checked_out today)
-
-**Lists (fetched via existing appointment queries):**
-- Waiting list: status='arrived', ordered by arrived_at asc
-- Upcoming list: status in ('booked','confirmed'), ordered by start_time asc
-- Completed list: status='checked_out', ordered by checked_out_at desc
-
-**UI:**
-- 4 counter cards at top (booked, waiting, completed, no-show)
-- Average duration stat
-- 3 tab lists: Waiting / Upcoming / Completed
-- Each row shows: referral code, time, services, status badge
-- Mobile-friendly card layout
-
-### Integration into Admin Page
-- Add a new "Today" tab in `src/pages/Admin.tsx`
-- Available to moderators (branch staff) and admins
-- Uses a clipboard/today icon
-
-## Files to Create/Modify
-
-### New Files
-1. `supabase/migrations/[timestamp]_ops_bundle.sql` -- all DB changes
-2. `supabase/functions/auto-no-show/index.ts` -- edge function for cron
-3. `src/components/admin/AdminTodayBoard.tsx` -- Today Board component
-
-### Modified Files
-4. `src/pages/Admin.tsx` -- add Today tab
-5. `src/pages/Booking.tsx` -- switch to `create_appointment_atomic` RPC
-6. `src/lib/appointments.ts` -- add helper for atomic booking RPC
-
-## Migration SQL Summary
-
-```text
--- 1. Add staff_role to staff_profiles
-ALTER TABLE staff_profiles ADD COLUMN IF NOT EXISTS staff_role text NOT NULL DEFAULT 'branch_staff';
--- Validation trigger for staff_role values
-
--- 2. Helper functions: current_staff_profile, is_booking_staff, 
---    is_booking_branch_admin, is_booking_super_admin
-
--- 3. Performance indexes
-
--- 4. create_appointment_atomic RPC with advisory locking
-
--- 5. mark_no_show_expired RPC
-
--- 6. get_branch_today_board RPC
-
--- 7. Fix award_xp_to_user (raise cap to 1500, allow self-award)
-```
-
-## Security Considerations
-- All new RPCs use SECURITY DEFINER with auth.uid() checks
-- Advisory lock prevents race-condition double booking
-- No-show job uses service role key (edge function)
-- Staff profiles scoped to branch -- no cross-branch data leaks
-- Existing RLS policies remain intact
+- The `contact_line` column is nullable text, no constraints
+- Anonymous booking will now work without email — the RPC `create_anonymous_appointment` INSERT policy requires `contact_email IS NOT NULL`, so the RPC (being SECURITY DEFINER) bypasses this, but we should still pass empty string or null gracefully
+- The `guest_universal_lookup` already handles referral code + phone; LINE ID lookup will follow the same pattern
 
