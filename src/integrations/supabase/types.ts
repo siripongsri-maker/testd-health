@@ -1875,13 +1875,16 @@ export type Database = {
           created_by: string | null
           description_en: string | null
           description_th: string | null
+          ends_at: string | null
           id: string
           is_active: boolean
           is_hot: boolean
           is_native: boolean | null
           is_new: boolean
+          max_responses: number | null
           rejection_feedback: string | null
           require_consent: boolean | null
+          starts_at: string | null
           status: string
           submitted_at: string | null
           title_en: string
@@ -1900,13 +1903,16 @@ export type Database = {
           created_by?: string | null
           description_en?: string | null
           description_th?: string | null
+          ends_at?: string | null
           id?: string
           is_active?: boolean
           is_hot?: boolean
           is_native?: boolean | null
           is_new?: boolean
+          max_responses?: number | null
           rejection_feedback?: string | null
           require_consent?: boolean | null
+          starts_at?: string | null
           status?: string
           submitted_at?: string | null
           title_en: string
@@ -1925,13 +1931,16 @@ export type Database = {
           created_by?: string | null
           description_en?: string | null
           description_th?: string | null
+          ends_at?: string | null
           id?: string
           is_active?: boolean
           is_hot?: boolean
           is_native?: boolean | null
           is_new?: boolean
+          max_responses?: number | null
           rejection_feedback?: string | null
           require_consent?: boolean | null
+          starts_at?: string | null
           status?: string
           submitted_at?: string | null
           title_en?: string
