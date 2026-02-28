@@ -14,6 +14,8 @@ export function LanguageToggle() {
   const handleSelect = (lang: Language) => {
     setLanguage(lang);
     prefetchTranslations(lang);
+    // Sync html lang attribute for WCAG
+    document.documentElement.lang = lang;
   };
 
   const current = SUPPORTED_LANGUAGES.find(l => l.code === language);
@@ -25,6 +27,7 @@ export function LanguageToggle() {
           variant="ghost"
           size="sm"
           className="gap-1.5 text-muted-foreground hover:text-foreground h-8 px-2"
+          aria-label={`Change language, current: ${current?.nativeLabel || 'ไทย'}`}
         >
           <Languages className="h-4 w-4" />
           <span className="text-xs font-medium">{current?.nativeLabel || 'ไทย'}</span>
