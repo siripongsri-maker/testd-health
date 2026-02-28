@@ -19,6 +19,8 @@ import {
   QuestionBuilder, 
   SurveyTaker,
   SurveyAnalytics,
+  SurveyTemplates,
+  type SurveyTemplate,
   type QuestionFormData, 
   type SurveyQuestion,
   type NativeSurvey 
@@ -573,23 +575,42 @@ export default function SurveyBuilder() {
           {/* Builder Tab */}
           <TabsContent value="builder" className="space-y-3 mt-0">
             {questions.length === 0 ? (
-              <Card className="p-10 text-center border-2 border-dashed bg-card/50">
-                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                  <Plus className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="text-base font-semibold text-foreground mb-1">
-                  {language === 'th' ? 'เริ่มสร้างแบบสำรวจ' : 'Start building your survey'}
-                </h3>
-                <p className="text-sm text-muted-foreground mb-5 max-w-[280px] mx-auto">
-                  {language === 'th' 
-                    ? 'เพิ่มคำถามแบบ Multiple Choice, ข้อความ, หรือ Rating' 
-                    : 'Add Multiple Choice, Text, or Rating questions'}
-                </p>
-                <Button onClick={addQuestion} size="lg">
-                  <Plus className="h-5 w-5 mr-2" />
-                  {language === 'th' ? 'เพิ่มคำถามแรก' : 'Add First Question'}
-                </Button>
-              </Card>
+              <div className="space-y-6">
+                <Card className="p-8 text-center border-2 border-dashed bg-card/50">
+                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                    <Plus className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground mb-1">
+                    {language === 'th' ? 'เริ่มสร้างแบบสำรวจ' : 'Start building your survey'}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4 max-w-[280px] mx-auto">
+                    {language === 'th' 
+                      ? 'เพิ่มคำถามทีละข้อ หรือเลือกจากเทมเพลต' 
+                      : 'Add questions one by one, or use a template'}
+                  </p>
+                  <Button onClick={addQuestion} size="lg">
+                    <Plus className="h-5 w-5 mr-2" />
+                    {language === 'th' ? 'เพิ่มคำถามแรก' : 'Add First Question'}
+                  </Button>
+                </Card>
+
+                {/* Templates */}
+                <SurveyTemplates onSelect={(template: SurveyTemplate) => {
+                  setSettings(prev => ({
+                    ...prev,
+                    title_th: template.title_th,
+                    title_en: template.title_en,
+                    description_th: template.description_th,
+                    description_en: template.description_en,
+                  }));
+                  // Re-generate option IDs so they are unique
+                  const clonedQuestions = template.questions.map(q => ({
+                    ...q,
+                    options: q.options.map(opt => ({ ...opt, id: crypto.randomUUID() })),
+                  }));
+                  setQuestions(clonedQuestions);
+                }} />
+              </div>
             ) : (
               <>
                 {questions.map((question, index) => (

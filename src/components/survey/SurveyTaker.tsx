@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { ChevronLeft, ChevronRight, Send, Star, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Send, Loader2, RotateCcw } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
 import type { SurveyQuestion, AnswerData } from "./types";
 import { cn } from "@/lib/utils";
@@ -16,12 +16,45 @@ interface SurveyTakerProps {
   questions: SurveyQuestion[];
   onSubmit: (answers: AnswerData[]) => Promise<void>;
   isSubmitting?: boolean;
+  /** If provided, enables autosave/resume */
+  surveyId?: string;
 }
 
-export function SurveyTaker({ questions, onSubmit, isSubmitting = false }: SurveyTakerProps) {
+const STORAGE_PREFIX = "survey-progress-";
+
+export function SurveyTaker({ questions, onSubmit, isSubmitting = false, surveyId }: SurveyTakerProps) {
   const { language } = useLanguage();
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, AnswerData>>({});
+  const storageKey = surveyId ? `${STORAGE_PREFIX}${surveyId}` : null;
+
+  // Load saved progress
+  const loadSaved = useCallback(() => {
+    if (!storageKey) return { answers: {} as Record<string, AnswerData>, index: 0 };
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed?.answers) return { answers: parsed.answers as Record<string, AnswerData>, index: parsed.currentIndex ?? 0 };
+      }
+    } catch {}
+    return { answers: {} as Record<string, AnswerData>, index: 0 };
+  }, [storageKey]);
+
+  const saved = loadSaved();
+  const [currentIndex, setCurrentIndex] = useState(saved.index);
+  const [answers, setAnswers] = useState<Record<string, AnswerData>>(saved.answers);
+  const [showResumePrompt, setShowResumePrompt] = useState(() => Object.keys(saved.answers).length > 0);
+
+  // Autosave on change
+  useEffect(() => {
+    if (!storageKey || Object.keys(answers).length === 0) return;
+    try {
+      localStorage.setItem(storageKey, JSON.stringify({ answers, currentIndex, savedAt: Date.now() }));
+    } catch {}
+  }, [answers, currentIndex, storageKey]);
+
+  const clearSaved = useCallback(() => {
+    if (storageKey) localStorage.removeItem(storageKey);
+  }, [storageKey]);
 
   const currentQuestion = questions[currentIndex];
   const progress = ((currentIndex + 1) / questions.length) * 100;
@@ -42,10 +75,8 @@ export function SurveyTaker({ questions, onSubmit, isSubmitting = false }: Surve
   const isCurrentAnswerValid = () => {
     if (!currentQuestion.is_required) return true;
     if (!currentAnswer) return false;
-
     switch (currentQuestion.question_type) {
       case 'multiple_choice':
-        return currentAnswer.answer_options && currentAnswer.answer_options.length > 0;
       case 'checkbox':
         return currentAnswer.answer_options && currentAnswer.answer_options.length > 0;
       case 'text_short':
@@ -58,26 +89,57 @@ export function SurveyTaker({ questions, onSubmit, isSubmitting = false }: Surve
     }
   };
 
-  const handleNext = () => {
-    if (currentIndex < questions.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
-    }
-  };
+  const handleNext = () => { if (currentIndex < questions.length - 1) setCurrentIndex(currentIndex + 1); };
+  const handlePrev = () => { if (currentIndex > 0) setCurrentIndex(currentIndex - 1); };
 
   const handleSubmit = async () => {
     const allAnswers = Object.values(answers);
     await onSubmit(allAnswers);
+    clearSaved();
+  };
+
+  const handleStartFresh = () => {
+    setAnswers({});
+    setCurrentIndex(0);
+    setShowResumePrompt(false);
+    clearSaved();
+  };
+
+  const handleResume = () => {
+    setShowResumePrompt(false);
   };
 
   const isLastQuestion = currentIndex === questions.length - 1;
 
   if (!currentQuestion) return null;
+
+  // Resume prompt
+  if (showResumePrompt) {
+    const answeredCount = Object.keys(saved.answers).length;
+    return (
+      <Card className="p-6 text-center space-y-4">
+        <RotateCcw className="h-10 w-10 text-primary mx-auto" />
+        <div>
+          <h3 className="font-semibold text-foreground mb-1">
+            {language === 'th' ? 'มีคำตอบที่บันทึกไว้' : 'Saved Progress Found'}
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            {language === 'th'
+              ? `คุณตอบไปแล้ว ${answeredCount} จาก ${questions.length} ข้อ`
+              : `You answered ${answeredCount} of ${questions.length} questions`}
+          </p>
+        </div>
+        <div className="flex gap-2 justify-center">
+          <Button variant="outline" onClick={handleStartFresh} size="sm">
+            {language === 'th' ? 'เริ่มใหม่' : 'Start Fresh'}
+          </Button>
+          <Button onClick={handleResume} size="sm">
+            {language === 'th' ? 'ทำต่อ' : 'Resume'}
+          </Button>
+        </div>
+      </Card>
+    );
+  }
 
   const questionText = language === 'th' ? currentQuestion.question_text_th : currentQuestion.question_text_en;
 
@@ -100,9 +162,7 @@ export function SurveyTaker({ questions, onSubmit, isSubmitting = false }: Surve
           <div>
             <h2 className="text-lg font-semibold text-foreground mb-1">
               {questionText}
-              {currentQuestion.is_required && (
-                <span className="text-destructive ml-1">*</span>
-              )}
+              {currentQuestion.is_required && <span className="text-destructive ml-1">*</span>}
             </h2>
           </div>
 
@@ -213,42 +273,30 @@ export function SurveyTaker({ questions, onSubmit, isSubmitting = false }: Surve
         </div>
       </Card>
 
+      {/* Autosave indicator */}
+      {storageKey && Object.keys(answers).length > 0 && (
+        <p className="text-[10px] text-center text-muted-foreground/60">
+          {language === 'th' ? '💾 บันทึกอัตโนมัติ — ปิดแล้วกลับมาทำต่อได้' : '💾 Auto-saved — you can close and resume later'}
+        </p>
+      )}
+
       {/* Navigation */}
       <div className="flex items-center justify-between gap-3">
-        <Button
-          variant="outline"
-          onClick={handlePrev}
-          disabled={currentIndex === 0}
-          className="flex-1"
-        >
+        <Button variant="outline" onClick={handlePrev} disabled={currentIndex === 0} className="flex-1">
           <ChevronLeft className="h-4 w-4 mr-2" />
           {language === 'th' ? 'ย้อนกลับ' : 'Previous'}
         </Button>
 
         {isLastQuestion ? (
-          <Button
-            onClick={handleSubmit}
-            disabled={!isCurrentAnswerValid() || isSubmitting}
-            className="flex-1"
-          >
+          <Button onClick={handleSubmit} disabled={!isCurrentAnswerValid() || isSubmitting} className="flex-1">
             {isSubmitting ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                {language === 'th' ? 'กำลังส่ง...' : 'Submitting...'}
-              </>
+              <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{language === 'th' ? 'กำลังส่ง...' : 'Submitting...'}</>
             ) : (
-              <>
-                <Send className="h-4 w-4 mr-2" />
-                {language === 'th' ? 'ส่งคำตอบ' : 'Submit'}
-              </>
+              <><Send className="h-4 w-4 mr-2" />{language === 'th' ? 'ส่งคำตอบ' : 'Submit'}</>
             )}
           </Button>
         ) : (
-          <Button
-            onClick={handleNext}
-            disabled={!isCurrentAnswerValid()}
-            className="flex-1"
-          >
+          <Button onClick={handleNext} disabled={!isCurrentAnswerValid()} className="flex-1">
             {language === 'th' ? 'ถัดไป' : 'Next'}
             <ChevronRight className="h-4 w-4 ml-2" />
           </Button>
