@@ -29,6 +29,9 @@ function looksLikeRealName(name: string): boolean {
   const trimmed = name.trim();
   if (!trimmed) return false;
 
+  // Check if it looks like an email address
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return true;
+
   // Check for multiple words with spaces
   const words = trimmed.split(/\s+/);
   if (words.length < 2) return false;
@@ -63,8 +66,14 @@ function looksLikeRealName(name: string): boolean {
 export function getSafeDisplayName(
   displayName: string | null | undefined,
   userId: string,
-  fallbackLabel: string = 'User'
+  fallbackLabel: string = 'User',
+  currentUserId?: string | null
 ): string {
+  // If this is the current logged-in user, show their real name
+  if (currentUserId && currentUserId === userId && displayName?.trim()) {
+    return displayName.trim();
+  }
+
   if (!displayName || !displayName.trim()) {
     return `Anonymous #${hashToFourDigits(userId)}`;
   }

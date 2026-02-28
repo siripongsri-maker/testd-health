@@ -281,7 +281,7 @@ export default function Leaderboard() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <p className="font-bold text-amber-800 dark:text-amber-200">
-                        {getSafeDisplayName(entry.display_name, entry.user_id, 'Champion')}
+                        {getSafeDisplayName(entry.display_name, entry.user_id, 'Champion', user?.id)}
                       </p>
                       <Badge className="bg-amber-500 text-white text-xs">
                         {language === 'th' ? 'แชมป์ Season 1' : 'Season 1 Champion'}
@@ -433,7 +433,7 @@ export default function Leaderboard() {
                   })()}
                 </div>
                 <p className="text-xs font-medium truncate max-w-[70px] text-center">
-                  {getSafeDisplayName(filteredUsers[1]?.display_name, filteredUsers[1]?.id || '', 'User')}
+                  {getSafeDisplayName(filteredUsers[1]?.display_name, filteredUsers[1]?.id || '', 'User', user?.id)}
                 </p>
                 <p className="text-xs text-muted-foreground">{(filteredUsers[1]?.xp || 0).toLocaleString()} XP</p>
                 <div className="w-16 h-16 bg-slate-300 rounded-t-lg mt-2 flex items-center justify-center">
@@ -452,7 +452,7 @@ export default function Leaderboard() {
                   })()}
                 </div>
                 <p className="text-sm font-bold truncate max-w-[80px] text-center">
-                  {getSafeDisplayName(filteredUsers[0]?.display_name, filteredUsers[0]?.id || '', 'User')}
+                  {getSafeDisplayName(filteredUsers[0]?.display_name, filteredUsers[0]?.id || '', 'User', user?.id)}
                 </p>
                 <p className="text-xs text-amber-600 font-medium">{(filteredUsers[0]?.xp || 0).toLocaleString()} XP</p>
                 <div className="w-20 h-24 bg-amber-400 rounded-t-lg mt-2 flex items-center justify-center">
@@ -470,7 +470,7 @@ export default function Leaderboard() {
                   })()}
                 </div>
                 <p className="text-xs font-medium truncate max-w-[70px] text-center">
-                  {getSafeDisplayName(filteredUsers[2]?.display_name, filteredUsers[2]?.id || '', 'User')}
+                  {getSafeDisplayName(filteredUsers[2]?.display_name, filteredUsers[2]?.id || '', 'User', user?.id)}
                 </p>
                 <p className="text-xs text-muted-foreground">{(filteredUsers[2]?.xp || 0).toLocaleString()} XP</p>
                 <div className="w-16 h-12 bg-orange-400 rounded-t-lg mt-2 flex items-center justify-center">
@@ -506,7 +506,8 @@ export default function Leaderboard() {
               const safeName = getSafeDisplayName(
                 rankedUser.display_name,
                 rankedUser.id || '',
-                language === 'th' ? 'ผู้ใช้' : 'User'
+                language === 'th' ? 'ผู้ใช้' : 'User',
+                user?.id
               );
               
               return (
