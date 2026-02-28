@@ -179,8 +179,8 @@
   }
 
   /* Ensure minimum touch target sizes (44px recommended by Apple) */
+  /* Scoped to interactive controls, not inline text links */
   button, 
-  a, 
   input, 
   select, 
   textarea,
@@ -188,6 +188,23 @@
   .touch-target {
     min-height: 44px;
     min-width: 44px;
+  }
+
+  /* Visible focus indicators for keyboard navigation */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: var(--radius);
+  }
+
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 
   /* Larger text for headings on mobile */

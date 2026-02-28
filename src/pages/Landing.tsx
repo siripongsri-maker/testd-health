@@ -12,8 +12,13 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
+      {/* Skip to main content */}
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg focus:outline-none">
+        {language === 'th' ? 'ข้ามไปเนื้อหาหลัก' : 'Skip to main content'}
+      </a>
+
       {/* Decorative Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl" />
         <div className="absolute top-1/2 -left-40 w-80 h-80 bg-accent/5 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 right-1/4 w-80 h-80 bg-success/5 rounded-full blur-3xl" />
@@ -25,7 +30,7 @@ export default function Landing() {
       </div>
 
       {/* Hero Section */}
-      <div className="flex-1 flex flex-col items-center justify-center px-5 py-6 text-center safe-top relative z-10">
+      <main id="main-content" className="flex-1 flex flex-col items-center justify-center px-5 py-6 text-center safe-top relative z-10">
         {/* Logo & Icon with Animation */}
         <div className="mb-4 animate-fade-in">
           <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-primary via-primary to-accent shadow-xl shadow-primary/25">
@@ -65,7 +70,7 @@ export default function Landing() {
         <div className="animate-fade-in" style={{ animationDelay: '0.35s' }}>
           <QuickTestCTA />
         </div>
-      </div>
+      </main>
 
       {/* Trust indicators */}
       <div className="px-5 pb-5 relative z-10 animate-fade-in" style={{ animationDelay: '0.4s' }}>
