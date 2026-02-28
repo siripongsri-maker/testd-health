@@ -109,7 +109,8 @@ export function HomeLeaderboard() {
           const safeName = getSafeDisplayName(
             u.display_name,
             u.id || '',
-            language === 'th' ? 'ผู้ใช้' : 'User'
+            language === 'th' ? 'ผู้ใช้' : 'User',
+            user?.id
           );
           return (
             <div
@@ -168,7 +169,7 @@ export function HomeLeaderboard() {
               })()}
             </div>
             <span className="flex-1 text-sm font-medium truncate text-primary">
-              {getSafeDisplayName(currentUserData.display_name, currentUserData.id || '', language === 'th' ? 'คุณ' : 'You')}
+              {getSafeDisplayName(currentUserData.display_name, currentUserData.id || '', language === 'th' ? 'คุณ' : 'You', user?.id)}
             </span>
             <div className="flex items-center gap-1 shrink-0">
               <Zap className="h-3 w-3 text-amber-500" />
