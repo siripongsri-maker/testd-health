@@ -14,6 +14,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, ExternalLink, Eye, ClipboardList, Loader2, Plus, Star, Flame, Sparkles, Calendar, Users, Zap, Pencil, Trash2, Clock, CheckCircle, XCircle, AlertTriangle, Send, Timer, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { QuickPoll } from "@/components/survey/QuickPoll";
+import type { SurveyQuestion } from "@/components/survey/types";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuestProgress } from "@/hooks/useQuestProgress";
 import { toast } from "sonner";
@@ -65,6 +67,9 @@ export default function Surveys() {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'all' | 'mine'>('all');
   
+  // Quick poll state
+  const [pollData, setPollData] = useState<{ surveyId: string; question: SurveyQuestion } | null>(null);
+  
   // Edit state
   const [editingSurvey, setEditingSurvey] = useState<Survey | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -92,6 +97,7 @@ export default function Surveys() {
     fetchSurveys();
     fetchMySurveys();
     checkAdminRole();
+    fetchQuickPoll();
   }, [user]);
 
   const checkAdminRole = async () => {
@@ -103,6 +109,45 @@ export default function Surveys() {
       .eq('role', 'admin')
       .maybeSingle();
     setIsAdmin(!!data);
+  };
+
+  // Fetch a single-question native survey to show as inline quick poll
+  const fetchQuickPoll = async () => {
+    try {
+      const { data: nativeSurveys } = await supabase
+        .from('surveys')
+        .select('id, completion_count')
+        .eq('status', 'published')
+        .eq('is_active', true)
+        .eq('is_native', true)
+        .eq('is_hot', true)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (!nativeSurveys || nativeSurveys.length === 0) return;
+
+      for (const s of nativeSurveys) {
+        if (localStorage.getItem(`poll-voted-${s.id}`)) continue;
+        const { data: questions } = await supabase
+          .from('survey_questions')
+          .select('*')
+          .eq('survey_id', s.id);
+
+        if (questions && questions.length === 1 && (questions[0].question_type === 'multiple_choice' || questions[0].question_type === 'checkbox')) {
+          const q = questions[0];
+          setPollData({
+            surveyId: s.id,
+            question: {
+              ...q,
+              options: (q.options as unknown as Array<{ id: string; text_th: string; text_en: string }>) || [],
+            } as SurveyQuestion,
+          });
+          return;
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching quick poll:', err);
+    }
   };
 
   const fetchSurveys = async () => {
@@ -658,6 +703,17 @@ export default function Surveys() {
             </div>
           )}
         </div>
+
+        {/* Quick Poll */}
+        {pollData && (
+          <div className="mb-5">
+            <QuickPoll
+              surveyId={pollData.surveyId}
+              question={pollData.question}
+              totalResponses={0}
+            />
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-3 mb-5">

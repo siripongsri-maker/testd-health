@@ -233,6 +233,7 @@ export default function SurveyTake() {
             questions={questions}
             onSubmit={handleSubmit}
             isSubmitting={isSubmitting}
+            surveyId={id}
           />
         ) : questions.length === 0 ? (
           <Card className="p-8 text-center">
