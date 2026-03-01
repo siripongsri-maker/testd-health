@@ -134,6 +134,7 @@ export default function SurveyBuilder() {
         rating_label_max_th: q.rating_label_max_th || '',
         rating_label_max_en: q.rating_label_max_en || '',
         is_required: q.is_required,
+        skip_condition: (q.skip_condition as unknown as QuestionFormData['skip_condition']) || null,
       }));
 
       setQuestions(parsedQuestions);
@@ -270,6 +271,7 @@ export default function SurveyBuilder() {
         rating_label_max_en: q.rating_label_max_en || null,
         is_required: q.is_required,
         display_order: index,
+        skip_condition: q.skip_condition ? JSON.parse(JSON.stringify(q.skip_condition)) : null,
       }));
 
       const { error: insertError } = await supabase
@@ -385,6 +387,7 @@ export default function SurveyBuilder() {
     rating_label_max_en: q.rating_label_max_en,
     is_required: q.is_required,
     display_order: index,
+    skip_condition: q.skip_condition || null,
     created_at: '',
     updated_at: '',
   }));
@@ -619,6 +622,7 @@ export default function SurveyBuilder() {
                     question={question}
                     index={index}
                     totalQuestions={questions.length}
+                    allQuestions={questions}
                     onChange={(q) => updateQuestion(index, q)}
                     onRemove={() => removeQuestion(index)}
                     onMoveUp={() => moveQuestion(index, 'up')}

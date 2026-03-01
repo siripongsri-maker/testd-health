@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,8 +9,18 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { ChevronLeft, ChevronRight, Send, Loader2, RotateCcw } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
-import type { SurveyQuestion, AnswerData } from "./types";
+import type { SurveyQuestion, AnswerData, SkipCondition } from "./types";
 import { cn } from "@/lib/utils";
+
+function shouldShowQuestion(question: SurveyQuestion, allQuestions: SurveyQuestion[], answers: Record<string, AnswerData>): boolean {
+  const condition = question.skip_condition as SkipCondition | null | undefined;
+  if (!condition) return true;
+  const depQuestion = allQuestions[condition.depends_on_question_index];
+  if (!depQuestion) return true;
+  const depAnswer = answers[depQuestion.id];
+  if (!depAnswer?.answer_options || depAnswer.answer_options.length === 0) return false;
+  return condition.show_if_option_ids.some(id => depAnswer.answer_options!.includes(id));
+}
 
 interface SurveyTakerProps {
   questions: SurveyQuestion[];
@@ -40,24 +50,31 @@ export function SurveyTaker({ questions, onSubmit, isSubmitting = false, surveyI
   }, [storageKey]);
 
   const saved = loadSaved();
-  const [currentIndex, setCurrentIndex] = useState(saved.index);
+  const [currentVisibleIndex, setCurrentVisibleIndex] = useState(saved.index);
   const [answers, setAnswers] = useState<Record<string, AnswerData>>(saved.answers);
   const [showResumePrompt, setShowResumePrompt] = useState(() => Object.keys(saved.answers).length > 0);
+
+  // Filter questions based on skip conditions
+  const visibleQuestions = useMemo(() => {
+    return questions.filter(q => shouldShowQuestion(q, questions, answers));
+  }, [questions, answers]);
+
+  const currentIndex = Math.min(currentVisibleIndex, visibleQuestions.length - 1);
 
   // Autosave on change
   useEffect(() => {
     if (!storageKey || Object.keys(answers).length === 0) return;
     try {
-      localStorage.setItem(storageKey, JSON.stringify({ answers, currentIndex, savedAt: Date.now() }));
+      localStorage.setItem(storageKey, JSON.stringify({ answers, currentIndex: currentVisibleIndex, savedAt: Date.now() }));
     } catch {}
-  }, [answers, currentIndex, storageKey]);
+  }, [answers, currentVisibleIndex, storageKey]);
 
   const clearSaved = useCallback(() => {
     if (storageKey) localStorage.removeItem(storageKey);
   }, [storageKey]);
 
-  const currentQuestion = questions[currentIndex];
-  const progress = ((currentIndex + 1) / questions.length) * 100;
+  const currentQuestion = visibleQuestions[currentIndex];
+  const progress = visibleQuestions.length > 0 ? ((currentIndex + 1) / visibleQuestions.length) * 100 : 0;
 
   const updateAnswer = (data: Partial<AnswerData>) => {
     setAnswers((prev) => ({
@@ -89,18 +106,20 @@ export function SurveyTaker({ questions, onSubmit, isSubmitting = false, surveyI
     }
   };
 
-  const handleNext = () => { if (currentIndex < questions.length - 1) setCurrentIndex(currentIndex + 1); };
-  const handlePrev = () => { if (currentIndex > 0) setCurrentIndex(currentIndex - 1); };
+  const handleNext = () => { if (currentIndex < visibleQuestions.length - 1) setCurrentVisibleIndex(currentIndex + 1); };
+  const handlePrev = () => { if (currentIndex > 0) setCurrentVisibleIndex(currentIndex - 1); };
 
   const handleSubmit = async () => {
-    const allAnswers = Object.values(answers);
+    // Only submit answers for visible questions
+    const visibleIds = new Set(visibleQuestions.map(q => q.id));
+    const allAnswers = Object.values(answers).filter(a => visibleIds.has(a.question_id));
     await onSubmit(allAnswers);
     clearSaved();
   };
 
   const handleStartFresh = () => {
     setAnswers({});
-    setCurrentIndex(0);
+    setCurrentVisibleIndex(0);
     setShowResumePrompt(false);
     clearSaved();
   };
@@ -109,7 +128,7 @@ export function SurveyTaker({ questions, onSubmit, isSubmitting = false, surveyI
     setShowResumePrompt(false);
   };
 
-  const isLastQuestion = currentIndex === questions.length - 1;
+  const isLastQuestion = currentIndex === visibleQuestions.length - 1;
 
   if (!currentQuestion) return null;
 
@@ -125,8 +144,8 @@ export function SurveyTaker({ questions, onSubmit, isSubmitting = false, surveyI
           </h3>
           <p className="text-sm text-muted-foreground">
             {language === 'th'
-              ? `คุณตอบไปแล้ว ${answeredCount} จาก ${questions.length} ข้อ`
-              : `You answered ${answeredCount} of ${questions.length} questions`}
+              ? `คุณตอบไปแล้ว ${answeredCount} จาก ${visibleQuestions.length} ข้อ`
+              : `You answered ${answeredCount} of ${visibleQuestions.length} questions`}
           </p>
         </div>
         <div className="flex gap-2 justify-center">
@@ -149,7 +168,7 @@ export function SurveyTaker({ questions, onSubmit, isSubmitting = false, surveyI
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">
-            {language === 'th' ? `คำถามที่ ${currentIndex + 1} จาก ${questions.length}` : `Question ${currentIndex + 1} of ${questions.length}`}
+            {language === 'th' ? `คำถามที่ ${currentIndex + 1} จาก ${visibleQuestions.length}` : `Question ${currentIndex + 1} of ${visibleQuestions.length}`}
           </span>
           <span className="font-medium text-primary">{Math.round(progress)}%</span>
         </div>

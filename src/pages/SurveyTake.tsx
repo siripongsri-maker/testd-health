@@ -63,7 +63,8 @@ export default function SurveyTake() {
       const parsedQuestions = (questionsData || []).map(q => ({
         ...q,
         options: (q.options as unknown as Array<{ id: string; text_th: string; text_en: string }>) || [],
-      })) as SurveyQuestion[];
+        skip_condition: (q.skip_condition as unknown as SurveyQuestion['skip_condition']) || null,
+      })) as unknown as SurveyQuestion[];
       
       setQuestions(parsedQuestions);
 

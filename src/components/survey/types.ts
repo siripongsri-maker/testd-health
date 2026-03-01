@@ -23,6 +23,7 @@ export interface SurveyQuestion {
   rating_label_max_en: string | null;
   is_required: boolean;
   display_order: number;
+  skip_condition?: SkipCondition | null;
   created_at: string;
   updated_at: string;
 }
@@ -74,6 +75,12 @@ export interface NativeSurvey {
   submitted_at: string | null;
 }
 
+// Conditional logic for skip/branch
+export interface SkipCondition {
+  depends_on_question_index: number;
+  show_if_option_ids: string[];
+}
+
 // For building new questions
 export interface QuestionFormData {
   question_type: QuestionType;
@@ -87,6 +94,7 @@ export interface QuestionFormData {
   rating_label_max_th: string;
   rating_label_max_en: string;
   is_required: boolean;
+  skip_condition?: SkipCondition | null;
 }
 
 // For taking surveys

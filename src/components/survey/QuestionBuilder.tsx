@@ -5,9 +5,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, ListChecks, CheckSquare, Type, AlignLeft, Star, ChevronUp, ChevronDown, Copy, GripVertical } from "lucide-react";
+import { Plus, Trash2, ListChecks, CheckSquare, Type, AlignLeft, Star, ChevronUp, ChevronDown, Copy, GripVertical, GitBranch } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
-import type { QuestionFormData, QuestionType, QuestionOption } from "./types";
+import type { QuestionFormData, QuestionType, QuestionOption, SkipCondition } from "./types";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +15,7 @@ interface QuestionBuilderProps {
   question: QuestionFormData;
   index: number;
   totalQuestions: number;
+  allQuestions?: QuestionFormData[];
   onChange: (question: QuestionFormData) => void;
   onRemove: () => void;
   onMoveUp?: () => void;
@@ -42,6 +43,7 @@ export function QuestionBuilder({
   question,
   index,
   totalQuestions,
+  allQuestions = [],
   onChange,
   onRemove,
   onMoveUp,
@@ -315,6 +317,111 @@ export function QuestionBuilder({
                   className="h-9 text-sm"
                 />
               </div>
+            </div>
+          )}
+
+          {/* Conditional Logic (Skip/Branch) */}
+          {index > 0 && (
+            <div className="space-y-2.5 p-3 bg-muted/20 rounded-xl border border-border/50">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                  <GitBranch className="h-3.5 w-3.5" />
+                  {language === 'th' ? 'เงื่อนไขการแสดง' : 'Show Condition'}
+                </Label>
+                <Switch
+                  checked={!!question.skip_condition}
+                  onCheckedChange={(checked) => {
+                    if (checked) {
+                      // Default: depends on previous question
+                      const prevQ = allQuestions[index - 1];
+                      onChange({
+                        ...question,
+                        skip_condition: {
+                          depends_on_question_index: index - 1,
+                          show_if_option_ids: prevQ?.options?.[0]?.id ? [prevQ.options[0].id] : [],
+                        },
+                      });
+                    } else {
+                      onChange({ ...question, skip_condition: null });
+                    }
+                  }}
+                />
+              </div>
+
+              {question.skip_condition && (() => {
+                const depIndex = question.skip_condition.depends_on_question_index;
+                const depQuestion = allQuestions[depIndex];
+                const hasOptions = depQuestion && (depQuestion.question_type === 'multiple_choice' || depQuestion.question_type === 'checkbox');
+                // Only questions before this one that have options
+                const eligibleQuestions = allQuestions
+                  .map((q, i) => ({ q, i }))
+                  .filter(({ q, i }) => i < index && (q.question_type === 'multiple_choice' || q.question_type === 'checkbox'));
+
+                return (
+                  <div className="space-y-2">
+                    <div className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">
+                        {language === 'th' ? 'แสดงเมื่อคำถามข้อ...' : 'Show when question...'}
+                      </Label>
+                      <Select
+                        value={String(depIndex)}
+                        onValueChange={(val) => onChange({
+                          ...question,
+                          skip_condition: { ...question.skip_condition!, depends_on_question_index: parseInt(val), show_if_option_ids: [] },
+                        })}
+                      >
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {eligibleQuestions.map(({ q, i }) => (
+                            <SelectItem key={i} value={String(i)}>
+                              Q{i + 1}: {(language === 'th' ? q.question_text_th : q.question_text_en) || `Question ${i + 1}`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {hasOptions && (
+                      <div className="space-y-1">
+                        <Label className="text-xs text-muted-foreground">
+                          {language === 'th' ? '...มีคำตอบเป็น' : '...has answer'}
+                        </Label>
+                        <div className="flex flex-wrap gap-1.5">
+                          {depQuestion.options.map((opt) => {
+                            const selected = question.skip_condition!.show_if_option_ids.includes(opt.id);
+                            return (
+                              <button
+                                key={opt.id}
+                                type="button"
+                                onClick={() => {
+                                  const ids = question.skip_condition!.show_if_option_ids;
+                                  onChange({
+                                    ...question,
+                                    skip_condition: {
+                                      ...question.skip_condition!,
+                                      show_if_option_ids: selected ? ids.filter(id => id !== opt.id) : [...ids, opt.id],
+                                    },
+                                  });
+                                }}
+                                className={cn(
+                                  "px-2.5 py-1 rounded-full text-[11px] font-medium border transition-all",
+                                  selected
+                                    ? "bg-primary text-primary-foreground border-primary"
+                                    : "bg-muted text-muted-foreground border-border hover:border-primary/50"
+                                )}
+                              >
+                                {language === 'th' ? opt.text_th : opt.text_en}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           )}
         </div>
