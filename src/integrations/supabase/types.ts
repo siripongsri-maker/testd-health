@@ -1772,6 +1772,7 @@ export type Database = {
           rating_label_min_th: string | null
           rating_max: number | null
           rating_min: number | null
+          skip_condition: Json | null
           survey_id: string
           updated_at: string
         }
@@ -1790,6 +1791,7 @@ export type Database = {
           rating_label_min_th?: string | null
           rating_max?: number | null
           rating_min?: number | null
+          skip_condition?: Json | null
           survey_id: string
           updated_at?: string
         }
@@ -1808,6 +1810,7 @@ export type Database = {
           rating_label_min_th?: string | null
           rating_max?: number | null
           rating_min?: number | null
+          skip_condition?: Json | null
           survey_id?: string
           updated_at?: string
         }

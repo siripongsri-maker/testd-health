@@ -140,7 +140,8 @@ export default function Surveys() {
             question: {
               ...q,
               options: (q.options as unknown as Array<{ id: string; text_th: string; text_en: string }>) || [],
-            } as SurveyQuestion,
+              skip_condition: (q.skip_condition as unknown) || null,
+            } as unknown as SurveyQuestion,
           });
           return;
         }
