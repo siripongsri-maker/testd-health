@@ -15,10 +15,25 @@ import { getUserData, setUserData, resetUserData } from "@/lib/store";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Bell, Pill, Clock, Shield, Trash2, Languages, Palette, User, LogOut, ShieldCheck, Loader2, UserCircle, Building2, Link2, Check } from "lucide-react";
+import { ArrowLeft, Bell, Pill, Clock, Shield, Trash2, Languages, Palette, User, LogOut, ShieldCheck, Loader2, UserCircle, Building2, Link2, Check, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { SocialLoginButtons } from "@/components/SocialLoginButtons";
+import { useVersionCheck } from "@/hooks/useVersionCheck";
+
+function VersionDiagnostics() {
+  const vs = useVersionCheck();
+  return (
+    <>
+      <p>Version: {vs.currentVersion}</p>
+      <p>Build: {vs.buildTime}</p>
+      <p>Latest: {vs.latestVersion || 'checking...'}</p>
+      <p>Update: {vs.updateAvailable ? (vs.isHardUpdate ? '⚠️ Hard update' : '🔄 Soft update') : '✅ Up to date'}</p>
+      <p>SW: {vs.swStatus}</p>
+      <p>Last check: {vs.lastCheckTime ? new Date(vs.lastCheckTime).toLocaleTimeString() : '-'}</p>
+    </>
+  );
+}
 
 // Helper to get linked providers from user identities
 const getLinkedProviders = (user: any): string[] => {
@@ -484,9 +499,17 @@ export default function Settings() {
             {t('settings.resetAll')}
           </Button>
           <p className="mt-3 text-xs text-muted-foreground text-center">{t('settings.resetWarning')}</p>
-          <p className="mt-6 text-[10px] text-muted-foreground/50 text-center font-mono">
-            Build: 2025-02-04-v2
-          </p>
+        </div>
+
+        {/* Diagnostics */}
+        <div className="mb-8">
+          <h2 className="mb-4 text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+            <Shield className="h-4 w-4" />
+            {language === 'th' ? 'ข้อมูลระบบ' : 'Diagnostics'}
+          </h2>
+          <div className="rounded-2xl glass p-5 space-y-2 font-mono text-xs text-muted-foreground">
+            <VersionDiagnostics />
+          </div>
         </div>
       </PageContainer>
       <BottomNav />

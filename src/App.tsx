@@ -11,9 +11,9 @@ import { OfflineBanner } from "@/components/OfflineBanner";
 import { PageLoader } from "@/components/PageLoader";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { FloatingMedClock } from "@/components/FloatingMedClock";
-import { PWAUpdateBanner } from "@/components/PWAUpdateBanner";
 import { AppLayout } from "@/components/AppLayout";
 import { ForceUpdateGuard } from "@/components/ForceUpdateGuard";
+import { VersionChecker } from "@/components/VersionChecker";
 
 // Lazy load all pages for code-splitting
 const Home = lazy(() => import("./pages/Home"));
@@ -69,7 +69,7 @@ const App = () => (
       <ThemedBackground />
       <RainbowSwingBackground />
       <OfflineBanner />
-      <PWAUpdateBanner />
+      <VersionChecker />
       <Toaster />
       <Sonner position="top-center" />
       <ScrollToTop />
