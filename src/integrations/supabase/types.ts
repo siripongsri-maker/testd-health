@@ -204,6 +204,7 @@ export type Database = {
           appointment_date: string
           arrived_at: string | null
           attended_by: string | null
+          auto_checked_out_at: string | null
           branch_id: string
           cancellation_reason: string | null
           cancelled_at: string | null
@@ -235,6 +236,7 @@ export type Database = {
           appointment_date: string
           arrived_at?: string | null
           attended_by?: string | null
+          auto_checked_out_at?: string | null
           branch_id: string
           cancellation_reason?: string | null
           cancelled_at?: string | null
@@ -266,6 +268,7 @@ export type Database = {
           appointment_date?: string
           arrived_at?: string | null
           attended_by?: string | null
+          auto_checked_out_at?: string | null
           branch_id?: string
           cancellation_reason?: string | null
           cancelled_at?: string | null
@@ -612,6 +615,53 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      booking_rate_logs: {
+        Row: {
+          action: string
+          actor_type: string
+          branch_id: string | null
+          contact_phone_hash: string | null
+          created_at: string
+          id: string
+          meta: Json | null
+          reason_code: string | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_type?: string
+          branch_id?: string | null
+          contact_phone_hash?: string | null
+          created_at?: string
+          id?: string
+          meta?: Json | null
+          reason_code?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_type?: string
+          branch_id?: string | null
+          contact_phone_hash?: string | null
+          created_at?: string
+          id?: string
+          meta?: Json | null
+          reason_code?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_rate_logs_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       booking_services: {
         Row: {
@@ -2489,9 +2539,23 @@ export type Database = {
         Args: { p_appointment_id: string; p_staff_profile_id: string }
         Returns: undefined
       }
+      auto_checkout_stale_appointments: {
+        Args: { p_threshold_hours?: number }
+        Returns: number
+      }
       award_xp_to_user: {
         Args: { target_user_id: string; xp_amount: number }
         Returns: undefined
+      }
+      check_booking_rate_limit: {
+        Args: {
+          p_branch_id: string
+          p_contact_phone: string
+          p_is_staff?: boolean
+          p_session_id?: string
+          p_user_id: string
+        }
+        Returns: Json
       }
       check_slot_available: {
         Args: { p_branch_id: string; p_date: string; p_time: string }

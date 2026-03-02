@@ -387,7 +387,19 @@ export default function Booking() {
       console.error('Booking error:', err);
       const msg = err?.message || '';
 
-      if (msg.includes('slot_blocked')) {
+      if (msg.includes('rate_limited_phone')) {
+        toast.error(language === 'th'
+          ? 'มีการจองจากเบอร์นี้เร็วเกินไป กรุณารอสักครู่แล้วลองอีกครั้ง'
+          : 'Too many bookings from this phone number. Please wait a moment and try again.');
+      } else if (msg.includes('rate_limited_user')) {
+        toast.error(language === 'th'
+          ? 'คุณจองถี่เกินไป กรุณารอสักครู่แล้วลองอีกครั้ง'
+          : 'Too many bookings. Please wait a moment and try again.');
+      } else if (msg.includes('duplicate_active')) {
+        toast.error(language === 'th'
+          ? 'คุณมีนัดหมายที่ยังไม่เสร็จสิ้นอยู่แล้วที่สาขานี้'
+          : 'You already have an active appointment at this branch.');
+      } else if (msg.includes('slot_blocked')) {
         toast.error(t('booking.slotBlocked'));
       } else if (msg.includes('slot_full')) {
         toast.error(t('booking.slotFull'));

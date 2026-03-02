@@ -22,7 +22,7 @@ import {
   Shield, Home, LogOut, LayoutDashboard, Clock, Package,
   CalendarDays, Clipboard, Users, Building2, UserPlus,
   Bell, BarChart3, FileText, ClipboardList, FileUp,
-  ChevronDown, Languages,
+  ChevronDown, Languages, ShieldAlert,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -62,6 +62,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "bookings", icon: CalendarDays, labelKey: "admin.bookings" },
       { tab: "today", icon: Clipboard, labelKey: "admin.today" },
       { tab: "schedule", icon: Clock, labelKey: "admin.schedule" },
+      { tab: "abuse-logs", icon: ShieldAlert, labelKey: "admin.abuseLogs" },
     ],
   },
   {

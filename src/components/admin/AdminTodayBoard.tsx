@@ -25,6 +25,7 @@ interface TodayAppointment {
   status: string;
   arrived_at: string | null;
   checked_out_at: string | null;
+  auto_checked_out_at: string | null;
   contact_phone: string | null;
   contact_email: string | null;
   contact_line: string | null;
@@ -110,7 +111,7 @@ export default function AdminTodayBoard({ userBranch }: { userBranch?: string | 
       const baseQuery = () =>
         supabase
           .from('appointments')
-          .select('id, referral_code, start_time, status, arrived_at, checked_out_at, contact_phone, contact_email, contact_line')
+          .select('id, referral_code, start_time, status, arrived_at, checked_out_at, auto_checked_out_at, contact_phone, contact_email, contact_line')
           .eq('branch_id', selectedBranchId)
           .eq('appointment_date', today);
 
@@ -203,6 +204,11 @@ export default function AdminTodayBoard({ userBranch }: { userBranch?: string | 
               </span>
             )}
             {statusBadge(apt.status)}
+            {apt.auto_checked_out_at && (
+              <Badge variant="outline" className="text-[9px] border-amber-500 text-amber-600">
+                {language === 'th' ? '⚡ Auto' : '⚡ Auto'}
+              </Badge>
+            )}
           </div>
           <div className="text-xs text-muted-foreground mt-1">
             <Clock className="h-3 w-3 inline mr-1" />
