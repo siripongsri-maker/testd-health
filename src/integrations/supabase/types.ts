@@ -128,6 +128,45 @@ export type Database = {
         }
         Relationships: []
       }
+      app_release_controls: {
+        Row: {
+          build_time: string | null
+          created_at: string
+          hard_update_min_version: string | null
+          id: string
+          is_hard_update: boolean
+          latest_version: string
+          message_en: string | null
+          message_th: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          build_time?: string | null
+          created_at?: string
+          hard_update_min_version?: string | null
+          id?: string
+          is_hard_update?: boolean
+          latest_version?: string
+          message_en?: string | null
+          message_th?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          build_time?: string | null
+          created_at?: string
+          hard_update_min_version?: string | null
+          id?: string
+          is_hard_update?: boolean
+          latest_version?: string
+          message_en?: string | null
+          message_th?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       appointment_logs: {
         Row: {
           action: string
@@ -1585,6 +1624,33 @@ export type Database = {
           title_en?: string
           title_th?: string
           trigger_type?: string | null
+        }
+        Relationships: []
+      }
+      release_control_audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          new_values: Json | null
+          old_values: Json | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          new_values?: Json | null
+          old_values?: Json | null
+          user_id?: string
         }
         Relationships: []
       }

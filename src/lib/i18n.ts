@@ -470,6 +470,8 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.import': 'นำเข้า',
     'admin.abuseLogs': 'Anti-spam',
     'admin.translations': 'คำแปล',
+    'admin.settings': 'ตั้งค่า',
+    'admin.appUpdates': 'อัปเดตแอป',
     'admin.backToApp': 'กลับหน้าหลัก',
     'admin.logout': 'ออกจากระบบ',
 
@@ -936,6 +938,8 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.import': 'Import',
     'admin.abuseLogs': 'Anti-spam',
     'admin.translations': 'Translations',
+    'admin.settings': 'Settings',
+    'admin.appUpdates': 'App Updates',
     'admin.backToApp': 'Back to App',
     'admin.logout': 'Logout',
 
