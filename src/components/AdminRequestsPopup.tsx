@@ -57,10 +57,11 @@ interface AdminRequestsPopupProps {
 }
 
 const STATUS_OPTIONS = [
-  { value: 'pending', label: { th: 'รอตรวจสอบ', en: 'Pending' }, icon: Clock },
-  { value: 'approved', label: { th: 'อนุมัติแล้ว', en: 'Approved' }, icon: CheckCircle },
-  { value: 'shipped', label: { th: 'จัดส่งแล้ว', en: 'Shipped' }, icon: Truck },
-  { value: 'delivered', label: { th: 'ถึงผู้รับแล้ว', en: 'Delivered' }, icon: Package },
+  { value: 'pending', label: { th: 'รอตรวจสอบ', en: 'Pending' }, icon: Clock, className: '' },
+  { value: 'approved', label: { th: 'อนุมัติแล้ว', en: 'Approved' }, icon: CheckCircle, className: '' },
+  { value: 'rejected', label: { th: 'ปฏิเสธ', en: 'Rejected' }, icon: Clock, className: 'text-destructive font-semibold' },
+  { value: 'shipped', label: { th: 'จัดส่งแล้ว', en: 'Shipped' }, icon: Truck, className: '' },
+  { value: 'delivered', label: { th: 'ถึงผู้รับแล้ว', en: 'Delivered' }, icon: Package, className: '' },
 ];
 
 export function AdminRequestsPopup({ open, onOpenChange }: AdminRequestsPopupProps) {
@@ -170,6 +171,7 @@ export function AdminRequestsPopup({ open, onOpenChange }: AdminRequestsPopupPro
     const config: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
       pending: { label: language === 'th' ? 'รอตรวจสอบ' : 'Pending', variant: 'secondary' },
       approved: { label: language === 'th' ? 'อนุมัติแล้ว' : 'Approved', variant: 'default' },
+      rejected: { label: language === 'th' ? 'ปฏิเสธ' : 'Rejected', variant: 'destructive' },
       shipped: { label: language === 'th' ? 'จัดส่งแล้ว' : 'Shipped', variant: 'default' },
       delivered: { label: language === 'th' ? 'ถึงผู้รับแล้ว' : 'Delivered', variant: 'outline' },
     };
@@ -272,7 +274,7 @@ export function AdminRequestsPopup({ open, onOpenChange }: AdminRequestsPopupPro
                           <SelectContent>
                             {STATUS_OPTIONS.map((option) => (
                               <SelectItem key={option.value} value={option.value}>
-                                <span className="flex items-center gap-2">
+                                <span className={`flex items-center gap-2 ${option.className}`}>
                                   <option.icon className="h-3 w-3" />
                                   {option.label[language as 'th' | 'en']}
                                 </span>
