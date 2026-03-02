@@ -806,6 +806,47 @@ export type Database = {
         }
         Relationships: []
       }
+      export_audit_logs: {
+        Row: {
+          batch_id: string | null
+          export_type: string
+          exported_at: string
+          filters: Json | null
+          id: string
+          is_full_export: boolean
+          row_count: number | null
+          user_id: string
+        }
+        Insert: {
+          batch_id?: string | null
+          export_type: string
+          exported_at?: string
+          filters?: Json | null
+          id?: string
+          is_full_export?: boolean
+          row_count?: number | null
+          user_id: string
+        }
+        Update: {
+          batch_id?: string | null
+          export_type?: string
+          exported_at?: string
+          filters?: Json | null
+          id?: string
+          is_full_export?: boolean
+          row_count?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "export_audit_logs_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "selftest_import_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guest_lookup_attempts: {
         Row: {
           created_at: string
@@ -1556,6 +1597,92 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      selftest_import_batches: {
+        Row: {
+          branch: string
+          duplicate_rows: number
+          error_rows: number
+          filename: string
+          id: string
+          inserted_rows: number
+          is_dry_run: boolean
+          notes: string | null
+          skipped_rows: number
+          source_type: string
+          status: string
+          total_rows: number
+          uploaded_at: string
+          uploaded_by: string
+        }
+        Insert: {
+          branch: string
+          duplicate_rows?: number
+          error_rows?: number
+          filename: string
+          id?: string
+          inserted_rows?: number
+          is_dry_run?: boolean
+          notes?: string | null
+          skipped_rows?: number
+          source_type?: string
+          status?: string
+          total_rows?: number
+          uploaded_at?: string
+          uploaded_by: string
+        }
+        Update: {
+          branch?: string
+          duplicate_rows?: number
+          error_rows?: number
+          filename?: string
+          id?: string
+          inserted_rows?: number
+          is_dry_run?: boolean
+          notes?: string | null
+          skipped_rows?: number
+          source_type?: string
+          status?: string
+          total_rows?: number
+          uploaded_at?: string
+          uploaded_by?: string
+        }
+        Relationships: []
+      }
+      selftest_import_rows: {
+        Row: {
+          batch_id: string
+          error_message: string | null
+          external_ref: string | null
+          id: string
+          outcome: string
+          row_number: number
+        }
+        Insert: {
+          batch_id: string
+          error_message?: string | null
+          external_ref?: string | null
+          id?: string
+          outcome?: string
+          row_number: number
+        }
+        Update: {
+          batch_id?: string
+          error_message?: string | null
+          external_ref?: string | null
+          id?: string
+          outcome?: string
+          row_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "selftest_import_rows_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "selftest_import_batches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       selftest_pii: {
         Row: {
