@@ -1082,7 +1082,12 @@ export type Database = {
       }
       hiv_selftest_requests: {
         Row: {
+          abuse_checked_at: string | null
+          abuse_flag: boolean | null
+          abuse_reason: string | null
+          abuse_score: number | null
           address: string | null
+          address_fp: string | null
           assigned_branch: string | null
           callback_phone: string | null
           created_at: string
@@ -1091,10 +1096,15 @@ export type Database = {
           id: string
           last_risk_date: string | null
           line_id: string | null
+          name_address_fp: string | null
+          name_fp: string | null
           phone: string | null
           pii_id: string | null
           postal_code: string | null
           province: string | null
+          rejected_at: string | null
+          rejected_by: string | null
+          rejection_reason: string | null
           result_photo_url: string | null
           staff_notes: string | null
           status: string
@@ -1106,7 +1116,12 @@ export type Database = {
           wants_callback: boolean | null
         }
         Insert: {
+          abuse_checked_at?: string | null
+          abuse_flag?: boolean | null
+          abuse_reason?: string | null
+          abuse_score?: number | null
           address?: string | null
+          address_fp?: string | null
           assigned_branch?: string | null
           callback_phone?: string | null
           created_at?: string
@@ -1115,10 +1130,15 @@ export type Database = {
           id?: string
           last_risk_date?: string | null
           line_id?: string | null
+          name_address_fp?: string | null
+          name_fp?: string | null
           phone?: string | null
           pii_id?: string | null
           postal_code?: string | null
           province?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
           result_photo_url?: string | null
           staff_notes?: string | null
           status?: string
@@ -1130,7 +1150,12 @@ export type Database = {
           wants_callback?: boolean | null
         }
         Update: {
+          abuse_checked_at?: string | null
+          abuse_flag?: boolean | null
+          abuse_reason?: string | null
+          abuse_score?: number | null
           address?: string | null
+          address_fp?: string | null
           assigned_branch?: string | null
           callback_phone?: string | null
           created_at?: string
@@ -1139,10 +1164,15 @@ export type Database = {
           id?: string
           last_risk_date?: string | null
           line_id?: string | null
+          name_address_fp?: string | null
+          name_fp?: string | null
           phone?: string | null
           pii_id?: string | null
           postal_code?: string | null
           province?: string | null
+          rejected_at?: string | null
+          rejected_by?: string | null
+          rejection_reason?: string | null
           result_photo_url?: string | null
           staff_notes?: string | null
           status?: string
@@ -1713,6 +1743,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      selftest_abuse_logs: {
+        Row: {
+          action: string
+          actor: string
+          created_at: string | null
+          id: string
+          reason: string | null
+          request_id: string
+        }
+        Insert: {
+          action: string
+          actor?: string
+          created_at?: string | null
+          id?: string
+          reason?: string | null
+          request_id: string
+        }
+        Update: {
+          action?: string
+          actor?: string
+          created_at?: string | null
+          id?: string
+          reason?: string | null
+          request_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "selftest_abuse_logs_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "hiv_selftest_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       selftest_import_batches: {
         Row: {
@@ -2780,6 +2845,10 @@ export type Database = {
           is_returning: boolean
         }[]
       }
+      get_selftest_duplicate_counts: {
+        Args: { p_request_id: string }
+        Returns: Json
+      }
       get_selftest_statistics: {
         Args: never
         Returns: {
@@ -2874,6 +2943,7 @@ export type Database = {
         }[]
       }
       mark_no_show_expired: { Args: { p_branch_id?: string }; Returns: number }
+      normalize_text_for_fp: { Args: { input: string }; Returns: string }
       self_checkin_appointment: {
         Args: { p_appointment_id: string }
         Returns: undefined
