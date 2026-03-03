@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
-  Package, Plus, Search, Loader2, Eye, Copy, Truck, Download, FileSpreadsheet, TestTube, Printer, PhoneCall
+  Package, Plus, Search, Loader2, Eye, Copy, Truck, Download, FileSpreadsheet, TestTube, Printer, PhoneCall,
+  XCircle, AlertTriangle, ShieldAlert, CheckCircle
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -34,6 +35,22 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface AdminKitOrdersContentProps {
   userBranch?: string | null;
@@ -92,13 +109,29 @@ interface HIVTestRequest {
   callback_phone: string | null;
   selftest_pii: SelftestPii | null;
   assigned_branch: string | null;
+  rejected_at: string | null;
+  rejected_by: string | null;
+  rejection_reason: string | null;
+  abuse_flag: boolean | null;
+  abuse_reason: string | null;
+  abuse_score: number | null;
 }
 
 const HIV_STATUS_OPTIONS = [
   { value: 'pending', labelTh: 'รอตรวจสอบ', labelEn: 'Pending' },
   { value: 'approved', labelTh: 'อนุมัติแล้ว', labelEn: 'Approved' },
+  { value: 'rejected', labelTh: 'ปฏิเสธ', labelEn: 'Rejected' },
   { value: 'shipped', labelTh: 'จัดส่งแล้ว', labelEn: 'Shipped' },
   { value: 'delivered', labelTh: 'ถึงผู้รับแล้ว', labelEn: 'Delivered' },
+];
+
+const REJECTION_REASONS = [
+  { value: 'out_of_area', labelTh: 'นอกพื้นที่บริการ', labelEn: 'Out of service area' },
+  { value: 'insufficient_stock', labelTh: 'ชุดตรวจหมด', labelEn: 'Insufficient stock' },
+  { value: 'invalid_address', labelTh: 'ที่อยู่ไม่ถูกต้อง', labelEn: 'Invalid address' },
+  { value: 'cannot_contact', labelTh: 'ติดต่อไม่ได้', labelEn: 'Cannot contact' },
+  { value: 'duplicate', labelTh: 'ซ้ำกับคำขอก่อนหน้า', labelEn: 'Duplicate request' },
+  { value: 'other', labelTh: 'อื่นๆ', labelEn: 'Other' },
 ];
 
 interface OrderEvent {
@@ -178,6 +211,13 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const [showPrintDialog, setShowPrintDialog] = useState(false);
   const [selectedForPrint, setSelectedForPrint] = useState<(KitOrder | HIVTestRequest)[]>([]);
 
+  // Reject dialog state
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [rejectingRequest, setRejectingRequest] = useState<HIVTestRequest | null>(null);
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [rejectionReasonCustom, setRejectionReasonCustom] = useState('');
+  const [rejecting, setRejecting] = useState(false);
+
   useEffect(() => {
     fetchOrders();
     fetchHIVRequests();
@@ -224,6 +264,12 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             wants_callback,
             callback_phone,
             assigned_branch,
+            rejected_at,
+            rejected_by,
+            rejection_reason,
+            abuse_flag,
+            abuse_reason,
+            abuse_score,
             selftest_pii (
               id,
               full_name,
@@ -418,6 +464,69 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     }
   };
 
+  // Reject HIV request handler
+  const openRejectDialog = (request: HIVTestRequest) => {
+    setRejectingRequest(request);
+    setRejectionReason('');
+    setRejectionReasonCustom('');
+    setShowRejectDialog(true);
+  };
+
+  const confirmReject = async () => {
+    if (!rejectingRequest || !user) return;
+    setRejecting(true);
+    try {
+      const reason = rejectionReason === 'other' ? rejectionReasonCustom : 
+        REJECTION_REASONS.find(r => r.value === rejectionReason)?.[language === 'th' ? 'labelTh' : 'labelEn'] || rejectionReason;
+
+      const { error } = await supabase
+        .from('hiv_selftest_requests')
+        .update({
+          status: 'rejected',
+          rejected_at: new Date().toISOString(),
+          rejected_by: user.id,
+          rejection_reason: reason || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', rejectingRequest.id);
+
+      if (error) throw error;
+
+      toast.success(language === 'th' ? 'ปฏิเสธคำขอแล้ว' : 'Request rejected');
+      setShowRejectDialog(false);
+      setRejectingRequest(null);
+      fetchHIVRequests();
+    } catch (error: any) {
+      toast.error(error.message || 'Error rejecting request');
+    } finally {
+      setRejecting(false);
+    }
+  };
+
+  // Clear abuse flag
+  const clearAbuseFlag = async (requestId: string) => {
+    try {
+      const { error } = await supabase
+        .from('hiv_selftest_requests')
+        .update({ abuse_flag: false, updated_at: new Date().toISOString() })
+        .eq('id', requestId);
+      if (error) throw error;
+
+      // Log the clearing
+      await supabase.from('selftest_abuse_logs').insert({
+        request_id: requestId,
+        action: 'cleared',
+        reason: 'Manually cleared by admin',
+        actor: user?.id || 'unknown',
+      });
+
+      toast.success(language === 'th' ? 'ล้างแฟล็กแล้ว' : 'Flag cleared');
+      fetchHIVRequests();
+    } catch (error: any) {
+      toast.error(error.message);
+    }
+  };
+
   const copyCode = (code: string) => {
     navigator.clipboard.writeText(code);
     toast.success(language === 'th' ? 'คัดลอกแล้ว' : 'Copied!');
@@ -444,10 +553,11 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     const statusConfig: Record<string, { color: string; labelTh: string; labelEn: string }> = {
       pending: { color: 'bg-yellow-500', labelTh: 'รอตรวจสอบ', labelEn: 'Pending' },
       approved: { color: 'bg-blue-500', labelTh: 'อนุมัติแล้ว', labelEn: 'Approved' },
+      rejected: { color: 'bg-destructive', labelTh: 'ปฏิเสธ', labelEn: 'Rejected' },
       shipped: { color: 'bg-indigo-500', labelTh: 'จัดส่งแล้ว', labelEn: 'Shipped' },
       delivered: { color: 'bg-green-500', labelTh: 'ถึงผู้รับแล้ว', labelEn: 'Delivered' },
     };
-    const config = statusConfig[status] || { color: 'bg-gray-500', labelTh: status, labelEn: status };
+    const config = statusConfig[status] || { color: 'bg-muted', labelTh: status, labelEn: status };
     return (
       <Badge className={`${config.color} text-white`}>
         {language === 'th' ? config.labelTh : config.labelEn}
@@ -471,7 +581,9 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       request.selftest_pii?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       request.selftest_pii?.phone?.includes(searchQuery);
     
-    const matchesTab = activeTab === 'all' || request.status === activeTab;
+    const matchesTab = activeTab === 'all' 
+      || (activeTab === 'flagged' && request.abuse_flag === true)
+      || (activeTab !== 'flagged' && request.status === activeTab);
     
     const matchesBranch = branchFilter === 'all' || request.assigned_branch === branchFilter;
     
@@ -826,12 +938,21 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       ) : (
         <>
           <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setCurrentPage(1); }} className="w-full">
-            <TabsList className="w-full mb-4 grid grid-cols-4 h-auto">
+            <TabsList className="w-full mb-4 grid grid-cols-6 h-auto">
               <TabsTrigger value="all" className="text-xs py-2">
                 {language === 'th' ? 'ทั้งหมด' : 'All'}
               </TabsTrigger>
               <TabsTrigger value="pending" className="text-xs py-2">
                 {language === 'th' ? 'รอ' : 'Pending'}
+              </TabsTrigger>
+              <TabsTrigger value="flagged" className="text-xs py-2 text-yellow-600">
+                ⚠️ {language === 'th' ? 'ตรวจสอบ' : 'Flagged'}
+                {hivRequests.filter(r => r.abuse_flag).length > 0 && (
+                  <Badge variant="destructive" className="ml-1 text-[10px] h-4 px-1">{hivRequests.filter(r => r.abuse_flag).length}</Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="rejected" className="text-xs py-2 text-destructive">
+                {language === 'th' ? 'ปฏิเสธ' : 'Rejected'}
               </TabsTrigger>
               <TabsTrigger value="shipped" className="text-xs py-2">
                 {language === 'th' ? 'ส่งแล้ว' : 'Shipped'}
@@ -875,12 +996,29 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                     filteredHIVRequests
                       .slice((currentPage - 1) * pageSize, currentPage * pageSize)
                       .map((request) => (
-                      <Card key={request.id} className="p-4">
+                      <Card key={request.id} className={`p-4 ${request.status === 'rejected' ? 'border-destructive/50 bg-destructive/5' : ''} ${request.abuse_flag ? 'border-yellow-500/50' : ''}`}>
                         <div className="flex items-start justify-between mb-2">
                           <div>
-                            <p className="font-medium">
-                              {request.selftest_pii?.full_name || (language === 'th' ? 'ไม่ระบุชื่อ' : 'No name')}
-                            </p>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium">
+                                {request.selftest_pii?.full_name || (language === 'th' ? 'ไม่ระบุชื่อ' : 'No name')}
+                              </p>
+                              {request.abuse_flag && (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <Badge variant="outline" className="text-[10px] border-yellow-500 text-yellow-600 gap-1">
+                                        <AlertTriangle className="h-3 w-3" />
+                                        {language === 'th' ? 'ตรวจสอบ' : 'Flagged'}
+                                      </Badge>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p className="text-xs">{request.abuse_reason || 'Potential duplicate/frequency issue'}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              )}
+                            </div>
                             {request.selftest_pii?.phone && (
                               <p className="text-sm text-muted-foreground">{request.selftest_pii.phone}</p>
                             )}
@@ -896,6 +1034,14 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                             {editingHIVRequest !== request.id && getHIVStatusBadge(request.status)}
                           </div>
                         </div>
+
+                        {/* Rejection reason display */}
+                        {request.status === 'rejected' && request.rejection_reason && (
+                          <div className="text-xs text-destructive bg-destructive/10 rounded px-2 py-1 mb-2 flex items-center gap-1">
+                            <XCircle className="h-3 w-3" />
+                            {request.rejection_reason}
+                          </div>
+                        )}
 
                         {request.selftest_pii?.address && (
                           <p className="text-xs text-muted-foreground mb-2">
@@ -984,6 +1130,28 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                                   <Truck className="h-3 w-3" />
                                   {request.tracking_number}
                                 </span>
+                              )}
+                              {request.abuse_flag && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => clearAbuseFlag(request.id)}
+                                  className="h-7 px-2 text-yellow-600"
+                                >
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  {language === 'th' ? 'ล้าง' : 'Clear'}
+                                </Button>
+                              )}
+                              {request.status !== 'rejected' && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => openRejectDialog(request)}
+                                  className="h-7 px-2 text-destructive hover:text-destructive"
+                                >
+                                  <XCircle className="h-3 w-3 mr-1" />
+                                  {language === 'th' ? 'ปฏิเสธ' : 'Reject'}
+                                </Button>
                               )}
                               <Button
                                 size="sm"
@@ -1353,6 +1521,62 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
           }
         }
       `}</style>
+
+      {/* Reject Confirmation Dialog */}
+      <AlertDialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <XCircle className="h-5 w-5" />
+              {language === 'th' ? 'ปฏิเสธคำขอนี้?' : 'Reject this request?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {rejectingRequest?.selftest_pii?.full_name && (
+                <span className="font-medium">{rejectingRequest.selftest_pii.full_name}</span>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-3">
+            <div>
+              <Label className="text-sm">{language === 'th' ? 'เหตุผล' : 'Reason'}</Label>
+              <Select value={rejectionReason} onValueChange={setRejectionReason}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder={language === 'th' ? 'เลือกเหตุผล (ไม่บังคับ)' : 'Select reason (optional)'} />
+                </SelectTrigger>
+                <SelectContent>
+                  {REJECTION_REASONS.map(r => (
+                    <SelectItem key={r.value} value={r.value}>
+                      {language === 'th' ? r.labelTh : r.labelEn}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {rejectionReason === 'other' && (
+              <div>
+                <Label className="text-sm">{language === 'th' ? 'ระบุเหตุผล' : 'Specify reason'}</Label>
+                <Input
+                  className="mt-1"
+                  value={rejectionReasonCustom}
+                  onChange={(e) => setRejectionReasonCustom(e.target.value)}
+                  placeholder={language === 'th' ? 'ระบุเหตุผลเพิ่มเติม' : 'Enter reason'}
+                />
+              </div>
+            )}
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{language === 'th' ? 'ยกเลิก' : 'Cancel'}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmReject}
+              disabled={rejecting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {rejecting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {language === 'th' ? 'ยืนยันปฏิเสธ' : 'Confirm Reject'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
