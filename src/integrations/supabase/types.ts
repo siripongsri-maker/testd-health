@@ -128,6 +128,30 @@ export type Database = {
         }
         Relationships: []
       }
+      app_feature_flags: {
+        Row: {
+          enabled: boolean
+          flag_key: string
+          id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          enabled?: boolean
+          flag_key: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          enabled?: boolean
+          flag_key?: string
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       app_release_controls: {
         Row: {
           build_time: string | null
@@ -1192,6 +1216,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      homepage_rewards: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          is_active: boolean
+          reward_description: string
+          reward_image_url: string | null
+          reward_title: string
+          status_label: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          reward_description?: string
+          reward_image_url?: string | null
+          reward_title: string
+          status_label?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          reward_description?: string
+          reward_image_url?: string | null
+          reward_title?: string
+          status_label?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       kit_order_events: {
         Row: {

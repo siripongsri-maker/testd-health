@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { HIVTestPopup } from "@/components/HIVTestPopup";
 import { HomeLeaderboard } from "@/components/HomeLeaderboard";
 import { AdminRequestsPopup } from "@/components/AdminRequestsPopup";
+import { HomeRewards } from "@/components/HomeRewards";
 
 import {
   TestTube,
@@ -207,6 +208,11 @@ export default function Home() {
               />
             );
           })}
+        </div>
+
+        {/* Health Rewards */}
+        <div className="mt-4">
+          <HomeRewards />
         </div>
 
         {/* Stats: Members and Total Visitors */}

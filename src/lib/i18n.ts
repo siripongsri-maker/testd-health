@@ -433,6 +433,8 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'home.selfCare': 'ดูแลตัวเอง',
     'home.members': 'สมาชิก',
     'home.totalVisitors': 'ผู้เข้าชมทั้งหมด',
+    'home.healthRewards': 'รางวัลสุขภาพสำหรับผู้ใช้งานประจำ',
+    'home.healthRewardsSubtitle': 'รางวัลสำหรับคนที่ดูแลสุขภาพกับ testD',
     'home.poweredBy': 'สนับสนุนโดย',
     'home.freeConfidential': 'บริการนี้ไม่มีค่าใช้จ่าย • ข้อมูลของคุณเป็นความลับ',
 
@@ -472,6 +474,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.translations': 'คำแปล',
     'admin.settings': 'ตั้งค่า',
     'admin.appUpdates': 'อัปเดตแอป',
+    'admin.rewards': 'รางวัล/สิทธิพิเศษ',
     'admin.backToApp': 'กลับหน้าหลัก',
     'admin.logout': 'ออกจากระบบ',
 
@@ -901,6 +904,8 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'home.selfCare': 'SELF CARE',
     'home.members': 'Members',
     'home.totalVisitors': 'Total Visitors',
+    'home.healthRewards': 'Health Rewards for Active Users',
+    'home.healthRewardsSubtitle': 'Rewards for people who take care of their health with testD.',
     'home.poweredBy': 'Powered by',
     'home.freeConfidential': 'This service is free • Your information is confidential',
 
@@ -940,6 +945,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.translations': 'Translations',
     'admin.settings': 'Settings',
     'admin.appUpdates': 'App Updates',
+    'admin.rewards': 'Rewards / Incentives',
     'admin.backToApp': 'Back to App',
     'admin.logout': 'Logout',
 

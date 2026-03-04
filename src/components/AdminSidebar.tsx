@@ -22,7 +22,7 @@ import {
   Shield, Home, LogOut, LayoutDashboard, Clock, Package,
   CalendarDays, Clipboard, Users, Building2, UserPlus,
   Bell, BarChart3, FileText, ClipboardList, FileUp,
-  ChevronDown, Languages, ShieldAlert, RefreshCw, Settings,
+  ChevronDown, Languages, ShieldAlert, RefreshCw, Settings, Gift,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -85,6 +85,7 @@ const menuGroups: MenuGroup[] = [
   {
     labelKey: "admin.settings",
     items: [
+      { tab: "rewards", icon: Gift, labelKey: "admin.rewards" },
       { tab: "app-updates", icon: RefreshCw, labelKey: "admin.appUpdates" },
     ],
   },
