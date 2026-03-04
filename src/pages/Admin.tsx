@@ -27,6 +27,7 @@ const AdminScheduleContent = lazy(() => import("@/components/admin/AdminSchedule
 const AdminTranslationsContent = lazy(() => import("@/components/admin/AdminTranslationsContent").then(m => ({ default: m.AdminTranslationsContent })));
 const AdminAbuseLogsContent = lazy(() => import("@/components/admin/AdminAbuseLogsContent"));
 const AdminAppUpdatesContent = lazy(() => import("@/components/admin/AdminAppUpdatesContent"));
+const AdminRewardsContent = lazy(() => import("@/components/admin/AdminRewardsContent").then(m => ({ default: m.AdminRewardsContent })));
 
 const TabLoader = () => (
   <div className="flex items-center justify-center h-64">
@@ -288,6 +289,14 @@ export default function Admin() {
             <TabsContent value="app-updates" className="mt-0">
               <Suspense fallback={<TabLoader />}>
                 <AdminAppUpdatesContent />
+              </Suspense>
+            </TabsContent>
+          )}
+
+          {canAccessTab("rewards") && (
+            <TabsContent value="rewards" className="mt-0">
+              <Suspense fallback={<TabLoader />}>
+                <AdminRewardsContent />
               </Suspense>
             </TabsContent>
           )}
