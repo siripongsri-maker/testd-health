@@ -70,27 +70,13 @@ const trackSessionEnd = async () => {
 
 // Set up session end tracking
 if (typeof window !== 'undefined') {
-  // Track on page unload
+  // Track on page unload using the Supabase client (authenticated)
   window.addEventListener('beforeunload', () => {
-    // Use sendBeacon for reliable tracking on page close
-    const sessionId = sessionStorage.getItem('analytics_session_id');
-    if (sessionId) {
-      const duration = getSessionDuration();
-      navigator.sendBeacon(
-        `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/analytics_events`,
-        JSON.stringify({
-          event_type: 'session_end',
-          page_path: window.location.pathname,
-          session_id: sessionId,
-          device_type: getDeviceType(),
-          session_duration_seconds: duration,
-          session_ended_at: new Date().toISOString(),
-        })
-      );
-    }
+    // Use visibilitychange handler instead — sendBeacon without auth headers
+    // is unreliable and bypasses RLS. The visibilitychange event below handles this.
   });
 
-  // Also track on visibility change (tab switch/minimize)
+  // Track on visibility change (tab switch/minimize/close)
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') {
       trackSessionEnd();
