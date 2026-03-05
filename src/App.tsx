@@ -56,6 +56,9 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Booking = lazy(() => import("./pages/Booking"));
 const MyAppointments = lazy(() => import("./pages/MyAppointments"));
 const GuestAppointments = lazy(() => import("./pages/GuestAppointments"));
+const InviteCreate = lazy(() => import("./pages/InviteCreate"));
+const InviteLanding = lazy(() => import("./pages/InviteLanding"));
+const InviteSession = lazy(() => import("./pages/InviteSession"));
 const DocsViewer = lazy(() => import("./pages/DocsViewer"));
 const DocsIndex = lazy(() => import("./pages/DocsViewer").then(m => ({ default: m.DocsIndex })));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -115,6 +118,9 @@ const App = () => (
                 <Route path="/booking" element={<Booking />} />
                 <Route path="/my-appointments" element={<MyAppointments />} />
                 <Route path="/guest-appointments" element={<GuestAppointments />} />
+                <Route path="/invite" element={<InviteCreate />} />
+                <Route path="/invite/:code" element={<InviteLanding />} />
+                <Route path="/invite/session/:sessionCode" element={<InviteSession />} />
                 <Route path="/install" element={<Install />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />

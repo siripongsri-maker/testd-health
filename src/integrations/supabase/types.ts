@@ -1543,6 +1543,176 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_invite_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          invite_id: string
+          visitor_session_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          invite_id: string
+          visitor_session_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          invite_id?: string
+          visitor_session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_invite_events_invite_id_fkey"
+            columns: ["invite_id"]
+            isOneToOne: false
+            referencedRelation: "partner_invites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_invite_visits: {
+        Row: {
+          id: string
+          invite_id: string
+          referrer: string | null
+          user_agent: string | null
+          visited_at: string
+          visitor_session_id: string
+        }
+        Insert: {
+          id?: string
+          invite_id: string
+          referrer?: string | null
+          user_agent?: string | null
+          visited_at?: string
+          visitor_session_id: string
+        }
+        Update: {
+          id?: string
+          invite_id?: string
+          referrer?: string | null
+          user_agent?: string | null
+          visited_at?: string
+          visitor_session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_invite_visits_invite_id_fkey"
+            columns: ["invite_id"]
+            isOneToOne: false
+            referencedRelation: "partner_invites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_invites: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string
+          expires_at: string
+          id: string
+          invite_type: string
+          is_active: boolean
+          tone: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by: string
+          expires_at?: string
+          id?: string
+          invite_type?: string
+          is_active?: boolean
+          tone?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string
+          expires_at?: string
+          id?: string
+          invite_type?: string
+          is_active?: boolean
+          tone?: string
+        }
+        Relationships: []
+      }
+      partner_test_session_participants: {
+        Row: {
+          id: string
+          joined_at: string
+          participant_session_id: string
+          session_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          participant_session_id: string
+          session_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          participant_session_id?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_test_session_participants_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "partner_test_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_test_sessions: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          host_invite_id: string
+          id: string
+          max_participants: number
+          session_code: string
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          host_invite_id: string
+          id?: string
+          max_participants?: number
+          session_code: string
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          host_invite_id?: string
+          id?: string
+          max_participants?: number
+          session_code?: string
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_test_sessions_host_invite_id_fkey"
+            columns: ["host_invite_id"]
+            isOneToOne: false
+            referencedRelation: "partner_invites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_image_cache: {
         Row: {
           cached_at: string
@@ -2795,6 +2965,10 @@ export type Database = {
         }
         Returns: Json
       }
+      create_partner_invite: {
+        Args: { p_invite_type: string; p_tone: string }
+        Returns: Json
+      }
       create_walkin_appointment: {
         Args: { p_branch_id: string; p_notes?: string }
         Returns: Json
@@ -2824,6 +2998,22 @@ export type Database = {
         Returns: string
       }
       generate_order_code: { Args: never; Returns: string }
+      get_admin_partner_invite_report: {
+        Args: { p_end_date?: string; p_start_date?: string }
+        Returns: {
+          booking_cta: number
+          created_at: string
+          expires_at: string
+          invite_id: string
+          invite_type: string
+          is_active: boolean
+          kit_cta: number
+          opens: number
+          sessions_joined: number
+          timer_completed: number
+          tone: string
+        }[]
+      }
       get_appointment_density: {
         Args: { p_branch_id?: string; p_end_date: string; p_start_date: string }
         Returns: {
@@ -2890,6 +3080,7 @@ export type Database = {
           status: string
         }[]
       }
+      get_partner_invite_stats: { Args: never; Returns: Json }
       get_public_site_stats: {
         Args: never
         Returns: {
@@ -3004,6 +3195,14 @@ export type Database = {
       }
       mark_no_show_expired: { Args: { p_branch_id?: string }; Returns: number }
       normalize_text_for_fp: { Args: { input: string }; Returns: string }
+      record_partner_invite_event: {
+        Args: {
+          p_code: string
+          p_event_type: string
+          p_visitor_session_id: string
+        }
+        Returns: undefined
+      }
       self_checkin_appointment: {
         Args: { p_appointment_id: string }
         Returns: undefined
