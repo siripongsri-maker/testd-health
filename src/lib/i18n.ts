@@ -431,6 +431,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'home.didYouKnow': 'เรื่องน่ารู้',
     'home.onlineCounselor': 'ขอคำปรึกษา',
     'home.selfCare': 'ดูแลตัวเอง',
+    'home.inviteTest': 'ชวนตรวจ',
     'home.members': 'สมาชิก',
     'home.totalVisitors': 'ผู้เข้าชมทั้งหมด',
     'home.healthRewards': 'รางวัลสุขภาพสำหรับผู้ใช้งานประจำ',
@@ -475,6 +476,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.settings': 'ตั้งค่า',
     'admin.appUpdates': 'อัปเดตแอป',
     'admin.rewards': 'รางวัล/สิทธิพิเศษ',
+    'admin.partnerInvites': 'ชวนตรวจคู่',
     'admin.backToApp': 'กลับหน้าหลัก',
     'admin.logout': 'ออกจากระบบ',
 
@@ -902,6 +904,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'home.didYouKnow': 'DID YOU KNOW?',
     'home.onlineCounselor': 'ONLINE COUNSELOR',
     'home.selfCare': 'SELF CARE',
+    'home.inviteTest': 'INVITE TO TEST',
     'home.members': 'Members',
     'home.totalVisitors': 'Total Visitors',
     'home.healthRewards': 'Health Rewards for Active Users',
@@ -946,6 +949,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.settings': 'Settings',
     'admin.appUpdates': 'App Updates',
     'admin.rewards': 'Rewards / Incentives',
+    'admin.partnerInvites': 'Partner Invites',
     'admin.backToApp': 'Back to App',
     'admin.logout': 'Logout',
 

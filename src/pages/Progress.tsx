@@ -1,5 +1,6 @@
 import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
+import { PartnerInviteImpact } from "@/components/PartnerInviteImpact";
 import { PageHeader } from "@/components/PageHeader";
 import { XPBar } from "@/components/XPBar";
 import { StatCard } from "@/components/StatCard";
@@ -114,6 +115,11 @@ export default function Progress() {
           </Tabs>
         </div>
         
+        {/* Partner Invite Impact */}
+        <div className="mt-6">
+          <PartnerInviteImpact />
+        </div>
+
         <div className="mt-8 rounded-2xl bg-primary/5 border border-primary/20 p-6 text-center">
           <p className="text-lg font-medium text-foreground">
             {userData.streak >= 7 ? t('progress.motivation.streak') : userData.xp >= 100 ? t('progress.motivation.xp') : t('progress.motivation.default')}

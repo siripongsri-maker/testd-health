@@ -1,0 +1,2 @@
+ALTER PUBLICATION supabase_realtime ADD TABLE public.partner_test_sessions;
+ALTER PUBLICATION supabase_realtime ADD TABLE public.partner_test_session_participants;

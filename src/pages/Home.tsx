@@ -158,6 +158,11 @@ export default function Home() {
     icon: <Heart className="h-full w-full" strokeWidth={1.5} />,
     titleKey: "home.selfCare",
     path: "/self-care"
+  },
+  {
+    icon: <Users className="h-full w-full" strokeWidth={1.5} />,
+    titleKey: "home.inviteTest",
+    path: "/invite"
   }];
 
 
