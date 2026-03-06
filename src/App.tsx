@@ -12,8 +12,9 @@ import { PageLoader } from "@/components/PageLoader";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { FloatingMedClock } from "@/components/FloatingMedClock";
 import { AppLayout } from "@/components/AppLayout";
-import { ForceUpdateGuard } from "@/components/ForceUpdateGuard";
-import { VersionChecker } from "@/components/VersionChecker";
+// Update guards temporarily disabled
+// import { ForceUpdateGuard } from "@/components/ForceUpdateGuard";
+// import { VersionChecker } from "@/components/VersionChecker";
 
 // Lazy load all pages for code-splitting
 const Home = lazy(() => import("./pages/Home"));
@@ -66,13 +67,13 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const queryClient = new QueryClient();
 
 const App = () => (
-  <ForceUpdateGuard>
+  <>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <ThemedBackground />
       <RainbowSwingBackground />
       <OfflineBanner />
-      <VersionChecker />
+      {/* <VersionChecker /> */}
       <Toaster />
       <Sonner position="top-center" />
       <ScrollToTop />
@@ -135,7 +136,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-  </ForceUpdateGuard>
+  </>
 );
 
 export default App;
