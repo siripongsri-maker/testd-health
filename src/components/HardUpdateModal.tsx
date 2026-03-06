@@ -9,9 +9,10 @@ interface HardUpdateModalProps {
   onUpdate: () => void;
   onDefer: () => void;
   canDefer: boolean;
+  isUpdating?: boolean;
 }
 
-export function HardUpdateModal({ messageTh, messageEn, hasUnsavedWork, onUpdate, onDefer, canDefer }: HardUpdateModalProps) {
+export function HardUpdateModal({ messageTh, messageEn, hasUnsavedWork, onUpdate, onDefer, canDefer, isUpdating = false }: HardUpdateModalProps) {
   const { language } = useLanguage();
 
   return (
@@ -32,8 +33,8 @@ export function HardUpdateModal({ messageTh, messageEn, hasUnsavedWork, onUpdate
           </div>
 
           {hasUnsavedWork && (
-            <div className="w-full rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-3">
-              <p className="text-xs text-amber-700 dark:text-amber-300">
+            <div className="w-full rounded-lg border border-border bg-muted p-3">
+              <p className="text-xs text-muted-foreground">
                 {language === 'th'
                   ? '⚠️ ระบบจะพยายามบันทึกข้อมูลของคุณก่อนรีเฟรช'
                   : '⚠️ The system will try to save your data before refreshing'}
@@ -42,12 +43,14 @@ export function HardUpdateModal({ messageTh, messageEn, hasUnsavedWork, onUpdate
           )}
 
           <div className="flex flex-col gap-2 w-full pt-2">
-            <Button onClick={onUpdate} className="w-full gap-2">
-              <RefreshCw className="h-4 w-4" />
-              {language === 'th' ? 'อัปเดตตอนนี้' : 'Update Now'}
+            <Button onClick={onUpdate} className="w-full gap-2" disabled={isUpdating}>
+              <RefreshCw className={`h-4 w-4 ${isUpdating ? 'animate-spin' : ''}`} />
+              {isUpdating
+                ? (language === 'th' ? 'กำลังอัปเดต...' : 'Updating...')
+                : (language === 'th' ? 'อัปเดตตอนนี้' : 'Update Now')}
             </Button>
 
-            {canDefer && hasUnsavedWork && (
+            {canDefer && hasUnsavedWork && !isUpdating && (
               <Button variant="ghost" size="sm" onClick={onDefer} className="text-muted-foreground">
                 {language === 'th' ? 'เลื่อนออกไป 60 วินาที' : 'Defer for 60 seconds'}
               </Button>

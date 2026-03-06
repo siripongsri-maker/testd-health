@@ -24,6 +24,7 @@ export interface VersionCheckState {
   lastCheckTime: string | null;
   checking: boolean;
   swStatus: string;
+  updating: boolean;
 }
 
 // Routes where we should NOT auto-reload
@@ -57,12 +58,14 @@ export function useVersionCheck() {
     lastCheckTime: null,
     checking: false,
     swStatus: 'unknown',
+    updating: false,
   });
 
   const [dismissed, setDismissed] = useState(false);
   const [hardDeferred, setHardDeferred] = useState(false);
   const hardDeferTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const bcRef = useRef<BroadcastChannel | null>(null);
+  const isUpdatingRef = useRef(false);
 
   const checkVersion = useCallback(async () => {
     setState(s => ({ ...s, checking: true }));
@@ -108,26 +111,32 @@ export function useVersionCheck() {
     }
   }, []);
 
-  const performUpdate = useCallback(async () => {
+  const performUpdate = useCallback(async (fromBroadcast = false) => {
+    if (isUpdatingRef.current) return;
+
+    isUpdatingRef.current = true;
+    setState(s => ({ ...s, updating: true }));
     console.log('[version] Performing update...');
 
-    // Notify other tabs to reload too
-    bcRef.current?.postMessage({ type: 'DO_UPDATE' });
-
-    // Clear SW caches
-    if ('caches' in window) {
-      const keys = await caches.keys();
-      await Promise.all(keys.map(k => caches.delete(k)));
+    if (!fromBroadcast) {
+      bcRef.current?.postMessage({ type: 'DO_UPDATE' });
     }
 
-    // Unregister service workers
-    if ('serviceWorker' in navigator) {
-      const regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map(r => r.unregister()));
-    }
+    try {
+      if ('caches' in window) {
+        const keys = await caches.keys().catch(() => [] as string[]);
+        await Promise.allSettled(keys.map((k) => caches.delete(k)));
+      }
 
-    // Hard reload
-    window.location.reload();
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations().catch(() => [] as ServiceWorkerRegistration[]);
+        await Promise.allSettled(regs.map((r) => r.unregister()));
+      }
+    } catch (err) {
+      console.warn('[version] Update cleanup error:', err);
+    } finally {
+      window.location.reload();
+    }
   }, []);
 
   const dismissUpdate = useCallback(() => {
@@ -166,7 +175,7 @@ export function useVersionCheck() {
 
       bc.onmessage = (event) => {
         if (event.data?.type === 'DO_UPDATE') {
-          performUpdate();
+          void performUpdate(true);
         } else if (event.data?.type === 'UPDATE_AVAILABLE') {
           setState(s => ({
             ...s,
