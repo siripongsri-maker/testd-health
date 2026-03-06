@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { forwardRef, useState, useEffect, useRef } from "react";
 
 interface AnimatedCounterProps {
   value: number;
@@ -6,7 +6,10 @@ interface AnimatedCounterProps {
   className?: string;
 }
 
-export function AnimatedCounter({ value, duration = 1500, className = "" }: AnimatedCounterProps) {
+export const AnimatedCounter = forwardRef<HTMLSpanElement, AnimatedCounterProps>(function AnimatedCounter(
+  { value, duration = 1500, className = "" },
+  ref,
+) {
   const [displayValue, setDisplayValue] = useState(0);
   const startTimeRef = useRef<number | null>(null);
   const animationRef = useRef<number | null>(null);
@@ -27,7 +30,7 @@ export function AnimatedCounter({ value, duration = 1500, className = "" }: Anim
 
       // Easing function for smooth deceleration
       const easeOutQuart = 1 - Math.pow(1 - progress, 4);
-      
+
       const currentValue = Math.floor(startValue + (endValue - startValue) * easeOutQuart);
       setDisplayValue(currentValue);
 
@@ -48,9 +51,5 @@ export function AnimatedCounter({ value, duration = 1500, className = "" }: Anim
     };
   }, [value, duration]);
 
-  return (
-    <span className={className}>
-      {displayValue.toLocaleString()}
-    </span>
-  );
-}
+  return <span ref={ref} className={className}>{displayValue.toLocaleString()}</span>;
+});
