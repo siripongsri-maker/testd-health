@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -15,7 +15,7 @@ interface Reward {
   display_order: number;
 }
 
-function SeasonCountdown({ language }: { language: string }) {
+const SeasonCountdown = forwardRef<HTMLDivElement, { language: string }>(function SeasonCountdown({ language }, ref) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, ended: false });
 
   useEffect(() => {
@@ -49,7 +49,7 @@ function SeasonCountdown({ language }: { language: string }) {
 
   if (timeLeft.ended) {
     return (
-      <div className="inline-flex items-center gap-1.5 bg-muted/50 rounded-full px-3 py-1">
+      <div ref={ref} className="inline-flex items-center gap-1.5 bg-muted/50 rounded-full px-3 py-1">
         <Clock className="h-3.5 w-3.5 text-muted-foreground" />
         <span className="text-xs font-semibold text-muted-foreground">
           {language === 'th' ? 'ซีซันจบแล้ว' : 'Season Ended'}
@@ -63,7 +63,7 @@ function SeasonCountdown({ language }: { language: string }) {
     : { d: 'Days', h: 'Hours', m: 'Min', s: 'Sec' };
 
   return (
-    <div className="space-y-1.5">
+    <div ref={ref} className="space-y-1.5">
       <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
         {language === 'th' ? 'ซีซันจบใน' : 'Season ends in'}
       </p>
@@ -84,7 +84,7 @@ function SeasonCountdown({ language }: { language: string }) {
       </div>
     </div>
   );
-}
+});
 
 export function HomeRewards() {
   const { t, language } = useLanguage();
