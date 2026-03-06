@@ -8,9 +8,10 @@ interface UpdateBannerProps {
   hasUnsavedWork: boolean;
   onUpdate: () => void;
   onDismiss: () => void;
+  isUpdating?: boolean;
 }
 
-export function UpdateBanner({ messageTh, messageEn, hasUnsavedWork, onUpdate, onDismiss }: UpdateBannerProps) {
+export function UpdateBanner({ messageTh, messageEn, hasUnsavedWork, onUpdate, onDismiss, isUpdating = false }: UpdateBannerProps) {
   const { language } = useLanguage();
 
   return (
@@ -36,7 +37,7 @@ export function UpdateBanner({ messageTh, messageEn, hasUnsavedWork, onUpdate, o
             {language === 'th' ? messageTh : messageEn}
           </p>
           {hasUnsavedWork && (
-            <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               {language === 'th'
                 ? '⚠️ คุณมีข้อมูลที่ยังไม่ได้บันทึก'
                 : '⚠️ You have unsaved work'}
@@ -46,9 +47,10 @@ export function UpdateBanner({ messageTh, messageEn, hasUnsavedWork, onUpdate, o
 
         <button
           onClick={onUpdate}
-          className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors"
+          disabled={isUpdating}
+          className="shrink-0 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          {language === 'th' ? 'อัปเดต' : 'Update'}
+          {isUpdating ? (language === 'th' ? 'กำลังอัปเดต...' : 'Updating...') : (language === 'th' ? 'อัปเดต' : 'Update')}
         </button>
       </div>
     </div>

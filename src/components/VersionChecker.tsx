@@ -10,6 +10,7 @@ export function VersionChecker() {
     messageTh,
     messageEn,
     hardDeferred,
+    updating,
     performUpdate,
     dismissUpdate,
     deferHardUpdate,
@@ -24,6 +25,7 @@ export function VersionChecker() {
           hasUnsavedWork={hasUnsavedWork}
           onUpdate={performUpdate}
           onDismiss={dismissUpdate}
+          isUpdating={updating}
         />
       )}
 
@@ -35,6 +37,7 @@ export function VersionChecker() {
           onUpdate={performUpdate}
           onDefer={deferHardUpdate}
           canDefer={!hardDeferred}
+          isUpdating={updating}
         />
       )}
     </>
