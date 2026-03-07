@@ -64,7 +64,7 @@ export default function Admin() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { language } = useLanguage();
-  const { isAdmin, isModerator, isMeAnalyst, readOnly, userBranch, loading, role } = useAdminRole();
+  const { isAdmin, isModerator, isMeAnalyst, userBranch, loading, role } = useAdminRole();
 
   const defaultTab = isAdmin ? "dashboard" : isMeAnalyst ? "dashboard" : "kit-orders";
   const activeTab = searchParams.get("tab") || defaultTab;
