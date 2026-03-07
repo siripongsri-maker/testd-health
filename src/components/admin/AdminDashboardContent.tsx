@@ -2,306 +2,494 @@ import { useState, useEffect } from "react";
 import { useLanguage } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Package, FileText, Eye, TrendingUp, Activity, Clock, Truck, CheckCircle, PackageCheck, Building2 } from "lucide-react";
-import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, BarChart, Bar } from "recharts";
-import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval, subWeeks, subMonths } from "date-fns";
+import {
+  Users, Package, CalendarDays, Heart, MessageSquare, CreditCard,
+  ShieldAlert, TrendingUp, AlertTriangle, Building2, Eye, Activity,
+  CheckCircle, XCircle, Clock, Link2, UserCheck, Gift,
+} from "lucide-react";
+import { AnimatedCounter } from "@/components/AnimatedCounter";
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, BarChart, Bar, Legend,
+} from "recharts";
+import { format, subDays, eachDayOfInterval, subWeeks, eachWeekOfInterval, startOfWeek, endOfWeek } from "date-fns";
 import { th, enUS } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
-interface DashboardStats {
+interface PlatformStats {
   totalUsers: number;
-  totalOrders: number;
-  pendingOrders: number;
-  totalArticles: number;
-  publishedArticles: number;
-  totalPageviews: number;
-  todayVisitors: number;
+  activeUsers7d: number;
+  totalSelftestRequests: number;
+  totalBookings: number;
+  completedBookings: number;
+  totalInvites: number;
+  inviteConversionRate: number;
+  pairSessions: number;
+  completedPairs: number;
+  smsSent: number;
+  smsSuccessRate: number;
+  totalCreditsIssued: number;
+  totalCreditsPurchased: number;
+  pendingPayments: number;
+  openAbuseFlags: number;
+  activeRewards: number;
+  todayPageviews: number;
 }
 
-interface BranchStats {
-  pending: number;
-  packed: number;
-  shipped: number;
-  outForDelivery: number;
-  delivered: number;
-  confirmed: number;
-  total: number;
-}
-
-interface TrendDataPoint {
-  date: string;
+interface Alert {
   label: string;
-  silomRequests: number;
-  silomShipped: number;
-  silomDelivered: number;
-  pattayaRequests: number;
-  pattayaShipped: number;
-  pattayaDelivered: number;
+  count: number;
+  severity: 'warning' | 'error' | 'info';
+  icon: React.ElementType;
 }
+
+const fetchAllPaginated = async (table: string, select: string, filters?: Record<string, unknown>) => {
+  const PAGE_SIZE = 1000;
+  let allData: any[] = [];
+  let from = 0;
+  let hasMore = true;
+  while (hasMore) {
+    let q = (supabase as any).from(table).select(select).range(from, from + PAGE_SIZE - 1);
+    if (filters) {
+      Object.entries(filters).forEach(([key, val]) => {
+        q = q.eq(key, val);
+      });
+    }
+    const { data, error } = await q;
+    if (error) break;
+    allData.push(...(data || []));
+    hasMore = (data?.length || 0) === PAGE_SIZE;
+    from += PAGE_SIZE;
+  }
+  return allData;
+};
 
 export default function AdminDashboardContent() {
   const { language } = useLanguage();
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [silomStats, setSilomStats] = useState<BranchStats | null>(null);
-  const [pattayaStats, setPattayaStats] = useState<BranchStats | null>(null);
-  const [trendData, setTrendData] = useState<TrendDataPoint[]>([]);
-  const [trendView, setTrendView] = useState<"daily" | "weekly" | "monthly">("daily");
+  const isTh = language === 'th';
+  const [stats, setStats] = useState<PlatformStats | null>(null);
+  const [alerts, setAlerts] = useState<Alert[]>([]);
   const [loading, setLoading] = useState(true);
+  const [trendView, setTrendView] = useState<"7d" | "30d">("7d");
+  const [bookingTrend, setBookingTrend] = useState<any[]>([]);
+  const [inviteFunnel, setInviteFunnel] = useState<any>(null);
 
-  useEffect(() => {
-    fetchStats();
-    fetchBranchStats();
-  }, []);
+  useEffect(() => { fetchPlatformStats(); }, []);
+  useEffect(() => { fetchTrends(); }, [trendView]);
 
-  useEffect(() => {
-    fetchTrendData();
-  }, [trendView]);
-
-  const fetchStats = async () => {
+  const fetchPlatformStats = async () => {
     try {
+      const today = new Date().toISOString().split('T')[0];
+      const sevenDaysAgo = subDays(new Date(), 7).toISOString();
+
       const [
-        profilesResult,
-        kitOrdersResult,
-        pendingOrdersResult,
-        articlesResult,
-        publishedArticlesResult,
-        pageviewsResult,
-        todayVisitorsResult
+        profilesRes,
+        activeUsersRes,
+        selftestRes,
+        bookingsRes,
+        completedBookingsRes,
+        invitesRes,
+        inviteEventsRes,
+        pairSessionsRes,
+        completedPairsRes,
+        relaysRes,
+        relaysSentRes,
+        creditBalancesRes,
+        purchasesRes,
+        pendingPurchasesRes,
+        abuseFlagsRes,
+        rewardsRes,
+        todayPageviewsRes,
       ] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }),
-        supabase.from("kit_orders").select("id", { count: "exact", head: true }),
-        supabase.from("kit_orders").select("id", { count: "exact", head: true }).in("status", ["requested", "packed"]),
-        supabase.from("blog_articles").select("id", { count: "exact", head: true }),
-        supabase.from("blog_articles").select("id", { count: "exact", head: true }).eq("status", "published"),
-        supabase.from("analytics_events").select("id", { count: "exact", head: true }).eq("event_type", "pageview"),
-        supabase.from("analytics_events").select("id", { count: "exact", head: true })
-          .eq("event_type", "pageview")
-          .gte("created_at", new Date().toISOString().split('T')[0])
+        supabase.from("profiles").select("id", { count: "exact", head: true }).gte("updated_at", sevenDaysAgo),
+        supabase.from("hiv_selftest_requests").select("id", { count: "exact", head: true }),
+        supabase.from("appointments").select("id", { count: "exact", head: true }),
+        supabase.from("appointments").select("id", { count: "exact", head: true }).eq("status", "completed"),
+        supabase.from("partner_invites").select("id", { count: "exact", head: true }).eq("is_test_mode", false),
+        supabase.from("partner_invite_events").select("id", { count: "exact", head: true }).eq("event_type", "open").eq("is_test_mode", false),
+        supabase.from("partner_test_sessions").select("id", { count: "exact", head: true }).eq("is_test_mode", false),
+        supabase.from("partner_test_sessions").select("id", { count: "exact", head: true }).eq("status", "completed").eq("is_test_mode", false),
+        (supabase as any).from("partner_invite_relays").select("id", { count: "exact", head: true }),
+        (supabase as any).from("partner_invite_relays").select("id", { count: "exact", head: true }).eq("relay_status", "sent"),
+        (supabase as any).from("sms_credit_balances").select("balance"),
+        (supabase as any).from("sms_credit_purchases").select("id, credits, status"),
+        (supabase as any).from("sms_credit_purchases").select("id", { count: "exact", head: true }).eq("status", "pending"),
+        (supabase as any).from("partner_invite_abuse_flags").select("id", { count: "exact", head: true }).in("status", ["open", "reviewing"]),
+        supabase.from("homepage_rewards").select("id", { count: "exact", head: true }).eq("is_active", true),
+        supabase.from("analytics_events").select("id", { count: "exact", head: true }).eq("event_type", "pageview").gte("created_at", today),
       ]);
 
+      const totalRelays = relaysRes?.count || 0;
+      const sentRelays = relaysSentRes?.count || 0;
+      const balances = creditBalancesRes?.data || [];
+      const totalCreditsIssued = balances.reduce((sum: number, b: any) => sum + (b.balance || 0), 0);
+      const purchases = purchasesRes?.data || [];
+      const totalCreditsPurchased = purchases.filter((p: any) => p.status === 'completed').reduce((sum: number, p: any) => sum + (p.credits || 0), 0);
+      const inviteCount = invitesRes?.count || 0;
+      const openCount = inviteEventsRes?.count || 0;
+      const convRate = inviteCount > 0 ? Math.round((openCount / inviteCount) * 100) : 0;
+
       setStats({
-        totalUsers: profilesResult.count || 0,
-        totalOrders: kitOrdersResult.count || 0,
-        pendingOrders: pendingOrdersResult.count || 0,
-        totalArticles: articlesResult.count || 0,
-        publishedArticles: publishedArticlesResult.count || 0,
-        totalPageviews: pageviewsResult.count || 0,
-        todayVisitors: todayVisitorsResult.count || 0,
+        totalUsers: profilesRes.count || 0,
+        activeUsers7d: activeUsersRes.count || 0,
+        totalSelftestRequests: selftestRes.count || 0,
+        totalBookings: bookingsRes.count || 0,
+        completedBookings: completedBookingsRes.count || 0,
+        totalInvites: inviteCount,
+        inviteConversionRate: convRate,
+        pairSessions: pairSessionsRes.count || 0,
+        completedPairs: completedPairsRes.count || 0,
+        smsSent: sentRelays,
+        smsSuccessRate: totalRelays > 0 ? Math.round((sentRelays / totalRelays) * 100) : 0,
+        totalCreditsIssued,
+        totalCreditsPurchased,
+        pendingPayments: pendingPurchasesRes?.count || 0,
+        openAbuseFlags: abuseFlagsRes?.count || 0,
+        activeRewards: rewardsRes.count || 0,
+        todayPageviews: todayPageviewsRes.count || 0,
       });
+
+      // Build alerts
+      const alertList: Alert[] = [];
+      if ((pendingPurchasesRes?.count || 0) > 0)
+        alertList.push({ label: isTh ? 'การชำระเงินรอตรวจสอบ' : 'Pending payment verification', count: pendingPurchasesRes?.count || 0, severity: 'warning', icon: CreditCard });
+      if ((abuseFlagsRes?.count || 0) > 0)
+        alertList.push({ label: isTh ? 'แฟลกที่ยังไม่ตรวจสอบ' : 'Unresolved abuse flags', count: abuseFlagsRes?.count || 0, severity: 'error', icon: ShieldAlert });
+      
+      // Check for failed SMS in last 24h
+      const { count: failedSms } = await (supabase as any)
+        .from("partner_invite_relays")
+        .select("id", { count: "exact", head: true })
+        .eq("relay_status", "failed")
+        .gte("created_at", subDays(new Date(), 1).toISOString());
+      if ((failedSms || 0) > 0)
+        alertList.push({ label: isTh ? 'SMS ล้มเหลวใน 24 ชม.' : 'Failed SMS in 24h', count: failedSms || 0, severity: 'error', icon: MessageSquare });
+      
+      setAlerts(alertList);
     } catch (error) {
-      console.error("Error fetching stats:", error);
+      console.error("Dashboard stats error:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchAllRows = async (branch: string) => {
-    const PAGE_SIZE = 1000;
-    const allData: { status: string }[] = [];
-    let from = 0;
-    let hasMore = true;
-    while (hasMore) {
-      const { data, error } = await supabase
-        .from("hiv_selftest_requests")
-        .select("status")
-        .eq("assigned_branch", branch)
-        .range(from, from + PAGE_SIZE - 1);
-      if (error) throw error;
-      allData.push(...(data || []));
-      hasMore = (data?.length || 0) === PAGE_SIZE;
-      from += PAGE_SIZE;
-    }
-    return allData;
-  };
-
-  const fetchBranchStats = async () => {
+  const fetchTrends = async () => {
     try {
-      const [silomData, pattayaData] = await Promise.all([
-        fetchAllRows("silom"),
-        fetchAllRows("pattaya"),
-      ]);
+      const days = trendView === "7d" ? 7 : 30;
+      const startDate = subDays(new Date(), days);
+      const intervals = trendView === "7d"
+        ? eachDayOfInterval({ start: startDate, end: new Date() })
+        : eachWeekOfInterval({ start: startDate, end: new Date() });
 
-      const countByStatus = (requests: { status: string }[] | null): BranchStats => {
-        const counts = {
-          pending: 0, packed: 0, shipped: 0, outForDelivery: 0, delivered: 0, confirmed: 0, total: requests?.length || 0
-        };
-        requests?.forEach((req) => {
-          switch (req.status) {
-            case "pending": case "requested": counts.pending++; break;
-            case "packed": counts.packed++; break;
-            case "shipped": counts.shipped++; break;
-            case "out_for_delivery": counts.outForDelivery++; break;
-            case "delivered": case "delivered_unconfirmed": counts.delivered++; break;
-            case "received_confirmed": counts.confirmed++; break;
-          }
-        });
-        return counts;
-      };
+      // Fetch bookings for the trend period
+      const { data: bookings } = await supabase
+        .from("appointments")
+        .select("appointment_date, status")
+        .gte("appointment_date", format(startDate, 'yyyy-MM-dd'));
 
-      setSilomStats(countByStatus(silomData));
-      setPattayaStats(countByStatus(pattayaData));
-    } catch (error) {
-      console.error("Error fetching branch stats:", error);
-    }
-  };
+      // Fetch invites for funnel
+      const { data: invites } = await supabase
+        .from("partner_invites")
+        .select("id")
+        .eq("is_test_mode", false);
 
-  const fetchTrendData = async () => {
-    try {
-      const now = new Date();
-      let startDate: Date;
-      let dateIntervals: Date[];
-      
-      if (trendView === "daily") {
-        startDate = subDays(now, 13);
-        dateIntervals = eachDayOfInterval({ start: startDate, end: now });
-      } else if (trendView === "weekly") {
-        startDate = subWeeks(now, 7);
-        dateIntervals = eachWeekOfInterval({ start: startDate, end: now });
-      } else {
-        startDate = subMonths(now, 11);
-        dateIntervals = eachMonthOfInterval({ start: startDate, end: now });
-      }
+      const { data: inviteResponses } = await (supabase as any)
+        .from("partner_invite_responses")
+        .select("response_state");
 
-      const fetchAllTrendRows = async (branch: string) => {
-        const PAGE_SIZE = 1000;
-        const allData: { created_at: string; status: string }[] = [];
-        let from = 0;
-        let hasMore = true;
-        while (hasMore) {
-          const { data, error } = await supabase
-            .from("hiv_selftest_requests")
-            .select("created_at, status")
-            .eq("assigned_branch", branch)
-            .gte("created_at", startDate.toISOString())
-            .range(from, from + PAGE_SIZE - 1);
-          if (error) throw error;
-          allData.push(...(data || []));
-          hasMore = (data?.length || 0) === PAGE_SIZE;
-          from += PAGE_SIZE;
-        }
-        return allData;
-      };
+      const { data: relayData } = await (supabase as any)
+        .from("partner_invite_relays")
+        .select("relay_status, is_test_mode")
+        .eq("is_test_mode", false);
 
-      const [silomData, pattayaData] = await Promise.all([
-        fetchAllTrendRows("silom"),
-        fetchAllTrendRows("pattaya"),
-      ]);
-      const silomResult = { data: silomData };
-      const pattayaResult = { data: pattayaData };
-
-      const locale = language === 'th' ? th : enUS;
-      
-      const trendPoints: TrendDataPoint[] = dateIntervals.map((date) => {
-        let periodStart: Date, periodEnd: Date, label: string;
-        
-        if (trendView === "daily") {
-          periodStart = new Date(date); periodStart.setHours(0, 0, 0, 0);
-          periodEnd = new Date(date); periodEnd.setHours(23, 59, 59, 999);
-          label = format(date, "d MMM", { locale });
-        } else if (trendView === "weekly") {
-          periodStart = startOfWeek(date, { weekStartsOn: 1 });
-          periodEnd = endOfWeek(date, { weekStartsOn: 1 });
-          label = `${format(periodStart, "d", { locale })}-${format(periodEnd, "d MMM", { locale })}`;
-        } else {
-          periodStart = startOfMonth(date);
-          periodEnd = endOfMonth(date);
-          label = format(date, "MMM yy", { locale });
-        }
-
-        const filterPeriod = (data: { created_at: string; status: string }[] | null) => 
-          data?.filter((req) => {
-            const createdAt = new Date(req.created_at);
-            return createdAt >= periodStart && createdAt <= periodEnd;
-          }) || [];
-
-        const countStats = (requests: { status: string }[]) => ({
-          requests: requests.length,
-          shipped: requests.filter((r) => ["shipped", "out_for_delivery", "delivered", "delivered_unconfirmed", "received_confirmed"].includes(r.status)).length,
-          delivered: requests.filter((r) => ["delivered", "delivered_unconfirmed", "received_confirmed"].includes(r.status)).length,
-        });
-
-        const silomPeriod = countStats(filterPeriod(silomResult.data));
-        const pattayaPeriod = countStats(filterPeriod(pattayaResult.data));
-
+      const locale = isTh ? th : enUS;
+      const trendPoints = intervals.map(date => {
+        const dateStr = format(date, 'yyyy-MM-dd');
+        const dayBookings = bookings?.filter(b => b.appointment_date === dateStr) || [];
         return {
-          date: format(date, "yyyy-MM-dd"),
-          label,
-          silomRequests: silomPeriod.requests,
-          silomShipped: silomPeriod.shipped,
-          silomDelivered: silomPeriod.delivered,
-          pattayaRequests: pattayaPeriod.requests,
-          pattayaShipped: pattayaPeriod.shipped,
-          pattayaDelivered: pattayaPeriod.delivered,
+          label: format(date, trendView === "7d" ? "EEE" : "d MMM", { locale }),
+          booked: dayBookings.length,
+          completed: dayBookings.filter(b => b.status === 'completed').length,
+          cancelled: dayBookings.filter(b => b.status === 'cancelled').length,
         };
       });
+      setBookingTrend(trendPoints);
 
-      setTrendData(trendPoints);
+      // Build invite funnel
+      const totalInvites = invites?.length || 0;
+      const responses = inviteResponses || [];
+      const accepted = responses.filter((r: any) => r.response_state === 'accepted').length;
+      const plans = responses.filter((r: any) => r.response_state === 'plans_to_test').length;
+      const booked = responses.filter((r: any) => r.response_state === 'booked').length;
+      const completed = responses.filter((r: any) => r.response_state === 'completed').length;
+
+      setInviteFunnel({
+        sent: totalInvites,
+        accepted,
+        plans,
+        booked,
+        completed,
+      });
     } catch (error) {
-      console.error("Error fetching trend data:", error);
+      console.error("Trend fetch error:", error);
     }
   };
-
-  const systemStatCards = [
-    { title: language === 'th' ? 'ผู้ใช้ทั้งหมด' : 'Total Users', value: stats?.totalUsers || 0, icon: Users, color: 'text-blue-500', bgColor: 'bg-blue-500/10' },
-    { title: language === 'th' ? 'ออร์เดอร์ทั้งหมด' : 'Total Orders', value: stats?.totalOrders || 0, icon: Package, color: 'text-green-500', bgColor: 'bg-green-500/10' },
-    { title: language === 'th' ? 'รอดำเนินการ' : 'Pending Orders', value: stats?.pendingOrders || 0, icon: Activity, color: 'text-orange-500', bgColor: 'bg-orange-500/10' },
-    { title: language === 'th' ? 'บทความที่เผยแพร่' : 'Published Articles', value: stats?.publishedArticles || 0, subtitle: `/ ${stats?.totalArticles || 0} ${language === 'th' ? 'ทั้งหมด' : 'total'}`, icon: FileText, color: 'text-purple-500', bgColor: 'bg-purple-500/10' },
-    { title: language === 'th' ? 'การเข้าชมทั้งหมด' : 'Total Pageviews', value: stats?.totalPageviews || 0, icon: Eye, color: 'text-pink-500', bgColor: 'bg-pink-500/10' },
-    { title: language === 'th' ? 'ผู้เข้าชมวันนี้' : 'Today Visitors', value: stats?.todayVisitors || 0, icon: TrendingUp, color: 'text-teal-500', bgColor: 'bg-teal-500/10' },
-  ];
-
-  const branchComparisonData = [
-    { name: language === 'th' ? 'รอดำเนินการ' : 'Pending', silom: silomStats?.pending || 0, pattaya: pattayaStats?.pending || 0 },
-    { name: language === 'th' ? 'แพ็คแล้ว' : 'Packed', silom: silomStats?.packed || 0, pattaya: pattayaStats?.packed || 0 },
-    { name: language === 'th' ? 'จัดส่งแล้ว' : 'Shipped', silom: silomStats?.shipped || 0, pattaya: pattayaStats?.shipped || 0 },
-    { name: language === 'th' ? 'กำลังส่ง' : 'Out for Delivery', silom: silomStats?.outForDelivery || 0, pattaya: pattayaStats?.outForDelivery || 0 },
-    { name: language === 'th' ? 'ส่งถึงแล้ว' : 'Delivered', silom: silomStats?.delivered || 0, pattaya: pattayaStats?.delivered || 0 },
-    { name: language === 'th' ? 'ยืนยันรับ' : 'Confirmed', silom: silomStats?.confirmed || 0, pattaya: pattayaStats?.confirmed || 0 },
-  ];
 
   if (loading) {
     return (
       <div className="space-y-6">
-        <div><Skeleton className="h-8 w-48 mb-2" /><Skeleton className="h-4 w-72" /></div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-32 rounded-xl" />)}
+        <Skeleton className="h-8 w-64" />
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          {[...Array(12)].map((_, i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
         </div>
       </div>
     );
   }
 
-  const BranchCard = ({ name, stats, color }: { name: string; stats: BranchStats | null; color: string }) => (
-    <Card className={`border-2 ${color}`}>
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Building2 className="h-5 w-5" />
-          {name}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="text-3xl font-bold mb-4">
-          <AnimatedCounter value={stats?.total || 0} duration={1000} />
-          <span className="text-sm font-normal text-muted-foreground ml-2">
-            {language === 'th' ? 'คำขอทั้งหมด' : 'total requests'}
-          </span>
+  const s = stats!;
+
+  const kpiCards = [
+    { label: isTh ? 'ผู้ใช้ทั้งหมด' : 'Total Users', value: s.totalUsers, icon: Users, color: 'text-blue-600' },
+    { label: isTh ? 'ใช้งาน 7 วัน' : 'Active 7d', value: s.activeUsers7d, icon: Activity, color: 'text-emerald-600' },
+    { label: isTh ? 'คำขอตรวจ HIV' : 'Self-Test Requests', value: s.totalSelftestRequests, icon: Package, color: 'text-purple-600' },
+    { label: isTh ? 'จองทั้งหมด' : 'Total Bookings', value: s.totalBookings, icon: CalendarDays, color: 'text-sky-600' },
+    { label: isTh ? 'จองสำเร็จ' : 'Completed Bookings', value: s.completedBookings, icon: CheckCircle, color: 'text-emerald-600' },
+    { label: isTh ? 'คำชวนส่งแล้ว' : 'Invites Sent', value: s.totalInvites, icon: Heart, color: 'text-pink-600' },
+    { label: isTh ? 'อัตรา Conversion' : 'Invite CVR', value: `${s.inviteConversionRate}%`, icon: TrendingUp, color: 'text-emerald-600', isRate: true },
+    { label: isTh ? 'ตรวจคู่' : 'Pair Sessions', value: s.pairSessions, icon: Link2, color: 'text-indigo-600' },
+    { label: isTh ? 'คู่สำเร็จ' : 'Completed Pairs', value: s.completedPairs, icon: UserCheck, color: 'text-emerald-600' },
+    { label: 'SMS Sent', value: s.smsSent, icon: MessageSquare, color: 'text-sky-600' },
+    { label: isTh ? 'SMS สำเร็จ' : 'SMS Success', value: `${s.smsSuccessRate}%`, icon: CheckCircle, color: s.smsSuccessRate >= 90 ? 'text-emerald-600' : 'text-amber-600', isRate: true },
+    { label: isTh ? 'เครดิตคงเหลือรวม' : 'Total Credits', value: s.totalCreditsIssued, icon: CreditCard, color: 'text-violet-600' },
+    { label: isTh ? 'เครดิตซื้อแล้ว' : 'Purchased Credits', value: s.totalCreditsPurchased, icon: CreditCard, color: 'text-emerald-600' },
+    { label: isTh ? 'จ่ายรอตรวจ' : 'Pending Payments', value: s.pendingPayments, icon: Clock, color: s.pendingPayments > 0 ? 'text-amber-600' : 'text-muted-foreground' },
+    { label: isTh ? 'แฟลกเปิด' : 'Open Flags', value: s.openAbuseFlags, icon: ShieldAlert, color: s.openAbuseFlags > 0 ? 'text-red-600' : 'text-muted-foreground' },
+    { label: isTh ? 'ผู้เข้าชมวันนี้' : 'Today Views', value: s.todayPageviews, icon: Eye, color: 'text-sky-600' },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Title */}
+      <div>
+        <h2 className="text-2xl font-bold text-foreground">{isTh ? 'ศูนย์ปฏิบัติการ testD' : 'testD Operations Center'}</h2>
+        <p className="text-sm text-muted-foreground">{isTh ? 'ภาพรวมแพลตฟอร์มแบบเรียลไทม์' : 'Real-time platform overview'}</p>
+      </div>
+
+      {/* KPI Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-8 gap-3">
+        {kpiCards.map((card, i) => (
+          <Card key={i} className="relative overflow-hidden border border-border/50">
+            <CardContent className="p-3">
+              <div className="flex items-center justify-between mb-1">
+                <card.icon className={cn("h-4 w-4", card.color)} />
+              </div>
+              <div className="text-xl font-bold text-foreground">
+                {card.isRate ? card.value : <AnimatedCounter value={Number(card.value)} duration={800} />}
+              </div>
+              <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{card.label}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Alerts Row */}
+      {alerts.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {alerts.map((alert, i) => (
+            <Card key={i} className={cn(
+              "border-l-4",
+              alert.severity === 'error' ? 'border-l-red-500 bg-red-500/5' :
+              alert.severity === 'warning' ? 'border-l-amber-500 bg-amber-500/5' :
+              'border-l-blue-500 bg-blue-500/5'
+            )}>
+              <CardContent className="p-3 flex items-center gap-3">
+                <alert.icon className={cn("h-5 w-5 shrink-0",
+                  alert.severity === 'error' ? 'text-red-600' :
+                  alert.severity === 'warning' ? 'text-amber-600' : 'text-blue-600'
+                )} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground">{alert.label}</p>
+                </div>
+                <span className={cn("text-lg font-bold",
+                  alert.severity === 'error' ? 'text-red-600' :
+                  alert.severity === 'warning' ? 'text-amber-600' : 'text-blue-600'
+                )}>{alert.count}</span>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Booking Trend Chart */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-base">{isTh ? 'แนวโน้มการจอง' : 'Booking Trend'}</CardTitle>
+          <Tabs value={trendView} onValueChange={(v) => setTrendView(v as "7d" | "30d")}>
+            <TabsList className="h-7">
+              <TabsTrigger value="7d" className="text-xs px-3 h-6">7d</TabsTrigger>
+              <TabsTrigger value="30d" className="text-xs px-3 h-6">30d</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </CardHeader>
+        <CardContent>
+          <div className="h-56 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={bookingTrend} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
+                <XAxis dataKey="label" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
+                <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
+                <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '11px' }} />
+                <Legend wrapperStyle={{ fontSize: '11px' }} />
+                <Bar dataKey="booked" name={isTh ? 'จอง' : 'Booked'} fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="completed" name={isTh ? 'สำเร็จ' : 'Completed'} fill="hsl(142, 76%, 36%)" radius={[3, 3, 0, 0]} />
+                <Bar dataKey="cancelled" name={isTh ? 'ยกเลิก' : 'Cancelled'} fill="hsl(0, 72%, 50%)" radius={[3, 3, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Funnels Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Invite Funnel */}
+        {inviteFunnel && (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Heart className="h-4 w-4 text-pink-600" />
+                {isTh ? 'Funnel ชวนตรวจ' : 'Invite Funnel'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {[
+                  { label: isTh ? 'ส่งคำชวน' : 'Sent', value: inviteFunnel.sent, color: 'bg-primary' },
+                  { label: isTh ? 'ตอบรับ' : 'Accepted', value: inviteFunnel.accepted, color: 'bg-blue-500' },
+                  { label: isTh ? 'วางแผน' : 'Plans to Test', value: inviteFunnel.plans, color: 'bg-amber-500' },
+                  { label: isTh ? 'จองแล้ว' : 'Booked', value: inviteFunnel.booked, color: 'bg-emerald-500' },
+                  { label: isTh ? 'ตรวจแล้ว' : 'Completed', value: inviteFunnel.completed, color: 'bg-emerald-700' },
+                ].map((step, idx) => {
+                  const maxVal = inviteFunnel.sent || 1;
+                  const pct = Math.round((step.value / maxVal) * 100);
+                  return (
+                    <div key={idx} className="flex items-center gap-3">
+                      <span className="text-xs text-muted-foreground w-24 shrink-0 text-right">{step.label}</span>
+                      <div className="flex-1 h-6 bg-muted/30 rounded-md overflow-hidden relative">
+                        <div
+                          className={cn("h-full rounded-md transition-all duration-500", step.color)}
+                          style={{ width: `${Math.max(pct, 2)}%` }}
+                        />
+                        <span className="absolute inset-0 flex items-center justify-center text-[10px] font-medium text-foreground">
+                          {step.value} ({pct}%)
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* SMS Credit Funnel */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2">
+              <CreditCard className="h-4 w-4 text-violet-600" />
+              {isTh ? 'สรุปเครดิต SMS' : 'SMS Credit Summary'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: isTh ? 'คงเหลือรวม' : 'Total Balance', value: s.totalCreditsIssued, color: 'text-violet-600' },
+                { label: isTh ? 'ซื้อแล้ว' : 'Purchased', value: s.totalCreditsPurchased, color: 'text-emerald-600' },
+                { label: isTh ? 'SMS ส่งแล้ว' : 'SMS Sent', value: s.smsSent, color: 'text-sky-600' },
+                { label: isTh ? 'สำเร็จ' : 'Success Rate', value: `${s.smsSuccessRate}%`, color: s.smsSuccessRate >= 90 ? 'text-emerald-600' : 'text-amber-600', isRate: true },
+              ].map((item, idx) => (
+                <div key={idx} className="rounded-xl bg-muted/20 border border-border/30 p-3 text-center">
+                  <p className={cn("text-xl font-bold", item.color)}>
+                    {(item as any).isRate ? item.value : <AnimatedCounter value={Number(item.value)} duration={800} />}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">{item.label}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Self-Test Branch Overview */}
+      <BranchOverviewSection language={language} />
+    </div>
+  );
+}
+
+/** Branch overview section - keeps existing logic */
+function BranchOverviewSection({ language }: { language: string }) {
+  const isTh = language === 'th';
+  const [silomStats, setSilomStats] = useState<any>(null);
+  const [pattayaStats, setPattayaStats] = useState<any>(null);
+
+  useEffect(() => {
+    fetchBranches();
+  }, []);
+
+  const fetchBranches = async () => {
+    const fetchBranch = async (branch: string) => {
+      const PAGE_SIZE = 1000;
+      const allData: { status: string }[] = [];
+      let from = 0;
+      let hasMore = true;
+      while (hasMore) {
+        const { data } = await supabase
+          .from("hiv_selftest_requests")
+          .select("status")
+          .eq("assigned_branch", branch)
+          .range(from, from + PAGE_SIZE - 1);
+        allData.push(...(data || []));
+        hasMore = (data?.length || 0) === PAGE_SIZE;
+        from += PAGE_SIZE;
+      }
+      const counts = { pending: 0, shipped: 0, confirmed: 0, total: allData.length };
+      allData.forEach(r => {
+        if (['pending', 'requested'].includes(r.status)) counts.pending++;
+        else if (['shipped', 'out_for_delivery'].includes(r.status)) counts.shipped++;
+        else if (['received_confirmed', 'delivered', 'delivered_unconfirmed'].includes(r.status)) counts.confirmed++;
+      });
+      return counts;
+    };
+
+    const [s, p] = await Promise.all([fetchBranch("silom"), fetchBranch("pattaya")]);
+    setSilomStats(s);
+    setPattayaStats(p);
+  };
+
+  const BranchMini = ({ name, stats }: { name: string; stats: any }) => (
+    <Card className="border border-border/50">
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <span className="font-semibold text-sm text-foreground">{name}</span>
+          </div>
+          <span className="text-lg font-bold text-foreground">{stats?.total || 0}</span>
         </div>
         <div className="grid grid-cols-3 gap-2 text-center">
-          <div className="p-2 rounded-lg bg-orange-500/10">
-            <Clock className="h-4 w-4 mx-auto text-orange-500 mb-1" />
-            <div className="text-lg font-bold text-orange-500">{stats?.pending || 0}</div>
-            <div className="text-xs text-muted-foreground">{language === 'th' ? 'รอ' : 'Wait'}</div>
+          <div className="rounded-lg bg-amber-500/10 p-2">
+            <p className="text-sm font-bold text-amber-600">{stats?.pending || 0}</p>
+            <p className="text-[10px] text-muted-foreground">{isTh ? 'รอ' : 'Pending'}</p>
           </div>
-          <div className="p-2 rounded-lg bg-purple-500/10">
-            <Truck className="h-4 w-4 mx-auto text-purple-500 mb-1" />
-            <div className="text-lg font-bold text-purple-500">{stats?.shipped || 0}</div>
-            <div className="text-xs text-muted-foreground">{language === 'th' ? 'ส่ง' : 'Ship'}</div>
+          <div className="rounded-lg bg-blue-500/10 p-2">
+            <p className="text-sm font-bold text-blue-600">{stats?.shipped || 0}</p>
+            <p className="text-[10px] text-muted-foreground">{isTh ? 'ส่ง' : 'Shipped'}</p>
           </div>
-          <div className="p-2 rounded-lg bg-green-500/10">
-            <CheckCircle className="h-4 w-4 mx-auto text-green-500 mb-1" />
-            <div className="text-lg font-bold text-green-500">{stats?.confirmed || 0}</div>
-            <div className="text-xs text-muted-foreground">{language === 'th' ? 'รับ' : 'Done'}</div>
+          <div className="rounded-lg bg-emerald-500/10 p-2">
+            <p className="text-sm font-bold text-emerald-600">{stats?.confirmed || 0}</p>
+            <p className="text-[10px] text-muted-foreground">{isTh ? 'รับ' : 'Done'}</p>
           </div>
         </div>
       </CardContent>
@@ -309,143 +497,15 @@ export default function AdminDashboardContent() {
   );
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold">{language === 'th' ? 'ภาพรวมระบบ' : 'System Overview'}</h2>
-        <p className="text-muted-foreground">{language === 'th' ? 'สถิติและข้อมูลสำคัญของระบบ' : 'Key statistics and system metrics'}</p>
+    <div>
+      <h3 className="text-base font-semibold mb-3 flex items-center gap-2 text-foreground">
+        <Building2 className="h-4 w-4" />
+        {isTh ? 'สาขาตรวจ HIV Self-Test' : 'HIV Self-Test by Branch'}
+      </h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <BranchMini name="SWING Silom" stats={silomStats} />
+        <BranchMini name="SWING Pattaya" stats={pattayaStats} />
       </div>
-
-      {/* System Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {systemStatCards.map((card, index) => (
-          <Card key={index} className="relative overflow-hidden">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">{card.title}</CardTitle>
-              <div className={`p-2 rounded-lg ${card.bgColor}`}>
-                <card.icon className={`h-4 w-4 ${card.color}`} />
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold"><AnimatedCounter value={card.value} duration={1000} /></span>
-                {card.subtitle && <span className="text-sm text-muted-foreground">{card.subtitle}</span>}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Branch Overview Section */}
-      <div>
-        <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-          <Building2 className="h-5 w-5" />
-          {language === 'th' ? 'ภาพรวมสาขา HIV Self-Test' : 'HIV Self-Test Branch Overview'}
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <BranchCard name="SWING Silom" stats={silomStats} color="border-blue-500/30" />
-          <BranchCard name="SWING Pattaya" stats={pattayaStats} color="border-cyan-500/30" />
-        </div>
-      </div>
-
-      {/* Branch Comparison Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">
-            {language === 'th' ? 'เปรียบเทียบสถานะระหว่างสาขา' : 'Branch Status Comparison'}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={branchComparisonData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis dataKey="name" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '12px' }}
-                />
-                <Legend wrapperStyle={{ fontSize: '12px' }} />
-                <Bar dataKey="silom" name="Silom" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="pattaya" name="Pattaya" fill="#06b6d4" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Trend Chart - Both Branches */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">{language === 'th' ? 'แนวโน้มการจัดส่งทุกสาขา' : 'All Branches Delivery Trend'}</CardTitle>
-          <Tabs value={trendView} onValueChange={(v) => setTrendView(v as "daily" | "weekly" | "monthly")}>
-            <TabsList className="h-8">
-              <TabsTrigger value="daily" className="text-xs px-3 h-7">{language === 'th' ? 'รายวัน' : 'Daily'}</TabsTrigger>
-              <TabsTrigger value="weekly" className="text-xs px-3 h-7">{language === 'th' ? 'รายสัปดาห์' : 'Weekly'}</TabsTrigger>
-              <TabsTrigger value="monthly" className="text-xs px-3 h-7">{language === 'th' ? 'รายเดือน' : 'Monthly'}</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </CardHeader>
-        <CardContent>
-          <div className="h-72 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorSilom" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="colorPattaya" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis dataKey="label" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
-                <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} allowDecimals={false} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '12px' }}
-                  formatter={(value, name) => {
-                    const labels: Record<string, string> = {
-                      silomRequests: 'Silom - ' + (language === 'th' ? 'คำขอ' : 'Requests'),
-                      silomDelivered: 'Silom - ' + (language === 'th' ? 'ส่งถึง' : 'Delivered'),
-                      pattayaRequests: 'Pattaya - ' + (language === 'th' ? 'คำขอ' : 'Requests'),
-                      pattayaDelivered: 'Pattaya - ' + (language === 'th' ? 'ส่งถึง' : 'Delivered'),
-                    };
-                    return [value, labels[name as string] || name];
-                  }}
-                />
-                <Legend 
-                  wrapperStyle={{ fontSize: '11px' }}
-                  formatter={(value) => {
-                    const labels: Record<string, string> = {
-                      silomRequests: `Silom (${language === 'th' ? 'คำขอ' : 'Req'})`,
-                      silomDelivered: `Silom (${language === 'th' ? 'ส่งถึง' : 'Del'})`,
-                      pattayaRequests: `Pattaya (${language === 'th' ? 'คำขอ' : 'Req'})`,
-                      pattayaDelivered: `Pattaya (${language === 'th' ? 'ส่งถึง' : 'Del'})`,
-                    };
-                    return labels[value] || value;
-                  }}
-                />
-                <Area type="monotone" dataKey="silomRequests" stroke="#3b82f6" fillOpacity={1} fill="url(#colorSilom)" strokeWidth={2} />
-                <Area type="monotone" dataKey="silomDelivered" stroke="#1d4ed8" fillOpacity={0} strokeWidth={2} strokeDasharray="5 5" />
-                <Area type="monotone" dataKey="pattayaRequests" stroke="#06b6d4" fillOpacity={1} fill="url(#colorPattaya)" strokeWidth={2} />
-                <Area type="monotone" dataKey="pattayaDelivered" stroke="#0891b2" fillOpacity={0} strokeWidth={2} strokeDasharray="5 5" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader><CardTitle className="text-lg">{language === 'th' ? 'การดำเนินการด่วน' : 'Quick Actions'}</CardTitle></CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground text-sm">
-            {language === 'th' 
-              ? 'ใช้แท็บด้านบนเพื่อจัดการออร์เดอร์ชุดตรวจ HIV, ดูข้อมูลวิเคราะห์, หรือจัดการบทความ' 
-              : 'Use the tabs above to manage HIV kit orders, view analytics, or manage blog posts.'}
-          </p>
-        </CardContent>
-      </Card>
     </div>
   );
 }

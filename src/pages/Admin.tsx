@@ -6,8 +6,6 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-
-// Tab content components - lazy loaded
 import { Suspense, lazy } from "react";
 
 const AdminDashboardContent = lazy(() => import("@/components/admin/AdminDashboardContent"));
@@ -30,11 +28,25 @@ const AdminAppUpdatesContent = lazy(() => import("@/components/admin/AdminAppUpd
 const AdminRewardsContent = lazy(() => import("@/components/admin/AdminRewardsContent").then(m => ({ default: m.AdminRewardsContent })));
 const AdminPartnerInvitesContent = lazy(() => import("@/components/admin/AdminPartnerInvitesContent"));
 
+// New modules
+const AdminSmsRelayContent = lazy(() => import("@/components/admin/AdminSmsRelayContent"));
+const AdminCreditBalancesContent = lazy(() => import("@/components/admin/AdminCreditBalancesContent"));
+const AdminCreditPurchasesContent = lazy(() => import("@/components/admin/AdminCreditPurchasesContent"));
+const AdminPairSessionsContent = lazy(() => import("@/components/admin/AdminPairSessionsContent"));
+const AdminAnonymousResponsesContent = lazy(() => import("@/components/admin/AdminAnonymousResponsesContent"));
+const AdminActivityLogsContent = lazy(() => import("@/components/admin/AdminActivityLogsContent"));
+const AdminExportCenterContent = lazy(() => import("@/components/admin/AdminExportCenterContent"));
+const AdminDiagnosticsContent = lazy(() => import("@/components/admin/AdminDiagnosticsContent"));
+const AdminSystemHealthContent = lazy(() => import("@/components/admin/AdminSystemHealthContent"));
+
 const TabLoader = () => (
   <div className="flex items-center justify-center h-64">
     <Loader2 className="h-8 w-8 animate-spin text-primary" />
   </div>
 );
+
+// Tabs accessible by moderators (branch staff)
+const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "quick-register", "bookings", "today", "schedule"]);
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -46,72 +58,30 @@ export default function Admin() {
   const [userBranch, setUserBranch] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Get active tab from URL or default based on role
-  const getDefaultTab = () => {
-    if (isAdmin) return "dashboard";
-    if (isModerator) return "kit-orders";
-    return "dashboard";
-  };
-
-  const activeTab = searchParams.get("tab") || getDefaultTab();
-
-  const handleTabChange = (value: string) => {
-    setSearchParams({ tab: value });
-  };
+  const activeTab = searchParams.get("tab") || (isAdmin ? "dashboard" : "kit-orders");
+  const handleTabChange = (value: string) => setSearchParams({ tab: value });
 
   useEffect(() => {
     const checkAdmin = async () => {
-      // Wait for auth to be determined - don't redirect immediately
-      if (authLoading) {
-        return;
-      }
+      if (authLoading) return;
+      if (!user) { navigate('/auth', { state: { from: '/admin' } }); return; }
 
-      if (!user) {
-        navigate('/auth', { state: { from: '/admin' } });
-        return;
-      }
+      const { data: roleData } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' });
+      if (roleData) { setIsAdmin(true); setLoading(false); return; }
 
-      // Check if user has admin role
-      const { data: roleData } = await supabase.rpc('has_role', {
-        _user_id: user.id,
-        _role: 'admin',
-      });
-
-      if (roleData) {
-        setIsAdmin(true);
+      const { data: modData } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'moderator' });
+      if (modData) {
+        setIsModerator(true);
+        const { data: branchData } = await supabase.from('staff_branch_assignments').select('branch').eq('user_id', user.id).maybeSingle();
+        if (branchData) setUserBranch(branchData.branch);
         setLoading(false);
       } else {
-        // Check if user is a moderator (branch staff)
-        const { data: modData } = await supabase.rpc('has_role', {
-          _user_id: user.id,
-          _role: 'moderator',
-        });
-
-        if (modData) {
-          setIsModerator(true);
-          
-          // Get user's branch
-          const { data: branchData } = await supabase
-            .from('staff_branch_assignments')
-            .select('branch')
-            .eq('user_id', user.id)
-            .maybeSingle();
-          
-          if (branchData) {
-            setUserBranch(branchData.branch);
-          }
-          setLoading(false);
-        } else {
-          navigate('/dashboard');
-          return;
-        }
+        navigate('/dashboard');
       }
     };
-
     checkAdmin();
   }, [user, authLoading, navigate]);
 
-  // Set default tab for moderators after loading
   useEffect(() => {
     if (!loading && isModerator && !isAdmin && !searchParams.get("tab")) {
       setSearchParams({ tab: "kit-orders" });
@@ -119,196 +89,76 @@ export default function Admin() {
   }, [loading, isModerator, isAdmin, searchParams, setSearchParams]);
 
   if (loading || authLoading) {
+    return <AdminLayout><div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div></AdminLayout>;
+  }
+
+  if (!isAdmin && !isModerator) return null;
+
+  const canAccess = (tab: string) => isAdmin || MODERATOR_TABS.has(tab);
+
+  const renderTab = (tabKey: string, component: React.ReactNode) => {
+    if (!canAccess(tabKey)) return null;
     return (
-      <AdminLayout>
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </AdminLayout>
+      <TabsContent value={tabKey} className="mt-0">
+        <Suspense fallback={<TabLoader />}>{component}</Suspense>
+      </TabsContent>
     );
-  }
-
-  if (!isAdmin && !isModerator) {
-    return null;
-  }
-
-  // Define which tabs are visible based on role
-  const canAccessTab = (tab: string) => {
-    if (isAdmin) return true;
-    // Moderators can access dashboard, kit-orders, quick-register, bookings, and today tabs
-    return tab === "dashboard" || tab === "kit-orders" || tab === "quick-register" || tab === "bookings" || tab === "today" || tab === "schedule";
   };
 
   return (
     <AdminLayout>
       <div className="p-4 md:p-6">
-        {/* Branch indicator for moderators */}
         {isModerator && !isAdmin && userBranch && (
           <div className="mb-4 p-3 bg-primary/10 rounded-lg border border-primary/20">
             <p className="text-sm font-medium text-primary">
-              {language === 'th' ? `สาขา: ${
-                userBranch === 'silom' ? 'SWING สีลม' :
-                userBranch === 'pattaya' ? 'SWING พัทยา' :
-                userBranch === 'saphankwai' ? 'SWING สะพานควาย' :
-                userBranch === 'petchakasem' ? 'SWING เพชรเกษม' : userBranch
-              }` : `Branch: ${
-                userBranch === 'silom' ? 'SWING Silom' :
-                userBranch === 'pattaya' ? 'SWING Pattaya' :
-                userBranch === 'saphankwai' ? 'SWING Saphan Kwai' :
-                userBranch === 'petchakasem' ? 'SWING Phetkasem' : userBranch
-              }`}
+              {language === 'th' ? `สาขา: ${userBranch}` : `Branch: ${userBranch}`}
             </p>
           </div>
         )}
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+          {/* Main */}
+          {renderTab("dashboard", isAdmin ? <AdminDashboardContent /> : <BranchDashboardContent userBranch={userBranch} />)}
 
-          {canAccessTab("dashboard") && (
-            <TabsContent value="dashboard" className="mt-0">
-              <Suspense fallback={<TabLoader />}>
-                {isAdmin ? (
-                  <AdminDashboardContent />
-                ) : (
-                  <BranchDashboardContent userBranch={userBranch} />
-                )}
-              </Suspense>
-            </TabsContent>
-          )}
+          {/* Operations */}
+          {renderTab("kit-orders", <AdminKitOrdersContent userBranch={userBranch} isModerator={isModerator && !isAdmin} />)}
+          {renderTab("bookings", <AdminBookingContent userBranch={userBranch} />)}
+          {renderTab("today", <AdminTodayBoard userBranch={userBranch} />)}
+          {renderTab("schedule", <AdminScheduleContent />)}
 
-          {canAccessTab("users") && (
-            <TabsContent value="users" className="mt-0">
-              <Suspense fallback={<TabLoader />}>
-                <AdminUsersContent />
-              </Suspense>
-            </TabsContent>
-          )}
+          {/* Partner Network */}
+          {renderTab("partner-invites", <AdminPartnerInvitesContent />)}
+          {renderTab("pair-sessions", <AdminPairSessionsContent />)}
+          {renderTab("anonymous-responses", <AdminAnonymousResponsesContent />)}
 
-          {canAccessTab("branch-staff") && (
-            <TabsContent value="branch-staff" className="mt-0">
-              <Suspense fallback={<TabLoader />}>
-                <AdminBranchStaffContent />
-              </Suspense>
-            </TabsContent>
-          )}
+          {/* SMS & Credits */}
+          {renderTab("sms-relay", <AdminSmsRelayContent />)}
+          {renderTab("credit-balances", <AdminCreditBalancesContent />)}
+          {renderTab("credit-purchases", <AdminCreditPurchasesContent />)}
 
-          <TabsContent value="kit-orders" className="mt-0">
-            <Suspense fallback={<TabLoader />}>
-              <AdminKitOrdersContent userBranch={userBranch} isModerator={isModerator && !isAdmin} />
-            </Suspense>
-          </TabsContent>
+          {/* People */}
+          {renderTab("users", <AdminUsersContent />)}
+          {renderTab("branch-staff", <AdminBranchStaffContent />)}
+          {renderTab("quick-register", <AdminQuickRegister userBranch={userBranch} />)}
+          {renderTab("abuse-logs", <AdminAbuseLogsContent />)}
 
-          {canAccessTab("quick-register") && (
-            <TabsContent value="quick-register" className="mt-0">
-              <Suspense fallback={<TabLoader />}>
-                <AdminQuickRegister userBranch={userBranch} />
-              </Suspense>
-            </TabsContent>
-          )}
+          {/* Content */}
+          {renderTab("blog", <AdminBlogContent />)}
+          {renderTab("surveys", <AdminSurveysContent />)}
+          {renderTab("rewards", <AdminRewardsContent />)}
+          {renderTab("notifications", <AdminNotificationsContent />)}
+          {renderTab("translations", <AdminTranslationsContent />)}
 
+          {/* Reports */}
+          {renderTab("analytics", <AdminAnalyticsContent />)}
+          {renderTab("export-center", <AdminExportCenterContent />)}
+          {renderTab("activity-logs", <AdminActivityLogsContent />)}
 
-          {canAccessTab("notifications") && (
-            <TabsContent value="notifications" className="mt-0">
-              <Suspense fallback={<TabLoader />}>
-                <AdminNotificationsContent />
-              </Suspense>
-            </TabsContent>
-          )}
-
-          {canAccessTab("analytics") && (
-            <TabsContent value="analytics" className="mt-0">
-              <Suspense fallback={<TabLoader />}>
-                <AdminAnalyticsContent />
-              </Suspense>
-            </TabsContent>
-          )}
-
-          {canAccessTab("blog") && (
-            <TabsContent value="blog" className="mt-0">
-              <Suspense fallback={<TabLoader />}>
-                <AdminBlogContent />
-              </Suspense>
-            </TabsContent>
-          )}
-
-          {canAccessTab("surveys") && (
-            <TabsContent value="surveys" className="mt-0">
-              <Suspense fallback={<TabLoader />}>
-                <AdminSurveysContent />
-              </Suspense>
-            </TabsContent>
-          )}
-
-          {canAccessTab("import") && (
-            <TabsContent value="import" className="mt-0">
-              <Suspense fallback={<TabLoader />}>
-                <AdminImportContent />
-              </Suspense>
-            </TabsContent>
-          )}
-
-          {canAccessTab("bookings") && (
-            <TabsContent value="bookings" className="mt-0">
-              <Suspense fallback={<TabLoader />}>
-                <AdminBookingContent userBranch={userBranch} />
-              </Suspense>
-            </TabsContent>
-          )}
-
-          {canAccessTab("today") && (
-            <TabsContent value="today" className="mt-0">
-              <Suspense fallback={<TabLoader />}>
-                <AdminTodayBoard userBranch={userBranch} />
-              </Suspense>
-            </TabsContent>
-          )}
-
-          {canAccessTab("schedule") && (
-            <TabsContent value="schedule" className="mt-0">
-              <Suspense fallback={<TabLoader />}>
-                <AdminScheduleContent />
-              </Suspense>
-            </TabsContent>
-          )}
-
-          {canAccessTab("translations") && (
-            <TabsContent value="translations" className="mt-0">
-              <Suspense fallback={<TabLoader />}>
-                <AdminTranslationsContent />
-              </Suspense>
-            </TabsContent>
-          )}
-
-          {canAccessTab("abuse-logs") && (
-            <TabsContent value="abuse-logs" className="mt-0">
-              <Suspense fallback={<TabLoader />}>
-                <AdminAbuseLogsContent />
-              </Suspense>
-            </TabsContent>
-          )}
-
-          {canAccessTab("app-updates") && (
-            <TabsContent value="app-updates" className="mt-0">
-              <Suspense fallback={<TabLoader />}>
-                <AdminAppUpdatesContent />
-              </Suspense>
-            </TabsContent>
-          )}
-
-          {canAccessTab("rewards") && (
-            <TabsContent value="rewards" className="mt-0">
-              <Suspense fallback={<TabLoader />}>
-                <AdminRewardsContent />
-              </Suspense>
-            </TabsContent>
-          )}
-
-          {canAccessTab("partner-invites") && (
-            <TabsContent value="partner-invites" className="mt-0">
-              <Suspense fallback={<TabLoader />}>
-                <AdminPartnerInvitesContent />
-              </Suspense>
-            </TabsContent>
-          )}
+          {/* Admin Tools */}
+          {renderTab("diagnostics", <AdminDiagnosticsContent />)}
+          {renderTab("import", <AdminImportContent />)}
+          {renderTab("app-updates", <AdminAppUpdatesContent />)}
+          {renderTab("system-health", <AdminSystemHealthContent />)}
         </Tabs>
       </div>
     </AdminLayout>
