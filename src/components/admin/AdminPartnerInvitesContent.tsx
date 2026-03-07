@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Download, Heart, TrendingUp, Users, ShieldAlert, UserCheck, Bug, MessageSquare, CheckCircle2, XCircle, Clock, AlertTriangle } from "lucide-react";
+import { Download, Heart, TrendingUp, Users, ShieldAlert, UserCheck, Bug, MessageSquare, CheckCircle2, XCircle, Clock, AlertTriangle, CreditCard, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -67,12 +67,31 @@ interface RelayRow {
   created_at: string;
 }
 
+interface CreditBalance {
+  user_id: string;
+  balance: number;
+  updated_at: string;
+}
+
+interface CreditTransaction {
+  id: string;
+  user_id: string;
+  relay_id: string | null;
+  transaction_type: string;
+  amount: number;
+  balance_after: number;
+  metadata: any;
+  created_at: string;
+}
+
 export function AdminPartnerInvitesContent() {
   const { language } = useLanguage();
   const isTh = language === 'th';
   const [data, setData] = useState<InviteReport[]>([]);
   const [abuseFlags, setAbuseFlags] = useState<AbuseFlag[]>([]);
   const [relays, setRelays] = useState<RelayRow[]>([]);
+  const [creditBalances, setCreditBalances] = useState<CreditBalance[]>([]);
+  const [creditTransactions, setCreditTransactions] = useState<CreditTransaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState('all');
   const [toneFilter, setToneFilter] = useState('all');
@@ -82,11 +101,14 @@ export function AdminPartnerInvitesContent() {
   const [endDate, setEndDate] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
   const [reviewNote, setReviewNote] = useState('');
+  const [grantUserId, setGrantUserId] = useState('');
+  const [grantAmount, setGrantAmount] = useState('');
+  const [grantReason, setGrantReason] = useState('');
 
   const fetchData = async () => {
     setLoading(true);
     const includeTestMode = testModeFilter !== 'exclude';
-    const [reportRes, flagsRes, relayRes] = await Promise.all([
+    const [reportRes, flagsRes, relayRes, balancesRes, txRes] = await Promise.all([
       supabase.rpc('get_admin_partner_invite_report', {
         p_start_date: startDate || null,
         p_end_date: endDate || null,
@@ -94,6 +116,8 @@ export function AdminPartnerInvitesContent() {
       } as any),
       (supabase as any).from('partner_invite_abuse_flags').select('*').order('created_at', { ascending: false }).limit(100),
       (supabase as any).from('partner_invite_relays').select('*').order('created_at', { ascending: false }).limit(50),
+      (supabase as any).from('sms_credit_balances').select('*').order('updated_at', { ascending: false }),
+      (supabase as any).from('sms_credit_transactions').select('*').order('created_at', { ascending: false }).limit(100),
     ]);
 
     if (!reportRes.error && reportRes.data) {
@@ -114,6 +138,8 @@ export function AdminPartnerInvitesContent() {
     }
     if (!flagsRes.error && flagsRes.data) setAbuseFlags(flagsRes.data as unknown as AbuseFlag[]);
     if (!relayRes.error && relayRes.data) setRelays(relayRes.data as unknown as RelayRow[]);
+    if (!balancesRes.error && balancesRes.data) setCreditBalances(balancesRes.data as unknown as CreditBalance[]);
+    if (!txRes.error && txRes.data) setCreditTransactions(txRes.data as unknown as CreditTransaction[]);
     setLoading(false);
   };
 
