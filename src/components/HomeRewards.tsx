@@ -13,6 +13,7 @@ interface Reward {
   reward_image_url: string | null;
   status_label: string | null;
   display_order: number;
+  season_end_at: string | null;
 }
 
 const SeasonCountdown = forwardRef<HTMLDivElement, { language: string }>(function SeasonCountdown({ language }, ref) {
