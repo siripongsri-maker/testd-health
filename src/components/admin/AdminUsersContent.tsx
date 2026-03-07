@@ -7,10 +7,12 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Users, Search, KeyRound, Shield, RefreshCw } from 'lucide-react';
+import { Users, Search, KeyRound, Shield, RefreshCw, UserCog } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '@/lib/i18n';
 import { AdminPasswordResetDialog } from './AdminPasswordResetDialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 
 interface UserProfile {
   id: string;
@@ -20,7 +22,7 @@ interface UserProfile {
   level: number | null;
   streak: number | null;
   created_at: string | null;
-  isAdmin?: boolean;
+  roles: string[];
 }
 
 export function AdminUsersContent() {
@@ -30,12 +32,15 @@ export function AdminUsersContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [showRoleDialog, setShowRoleDialog] = useState(false);
+  const [roleUser, setRoleUser] = useState<UserProfile | null>(null);
+  const [newRole, setNewRole] = useState('');
+  const [savingRole, setSavingRole] = useState(false);
   const { language } = useLanguage();
 
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      // Fetch all profiles
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, display_name, avatar_url, xp, level, streak, created_at')
@@ -43,19 +48,22 @@ export function AdminUsersContent() {
 
       if (profilesError) throw profilesError;
 
-      // Fetch admin roles
-      const { data: adminRoles, error: rolesError } = await supabase
+      const { data: allRoles, error: rolesError } = await supabase
         .from('user_roles')
-        .select('user_id')
-        .eq('role', 'admin');
+        .select('user_id, role');
 
       if (rolesError) throw rolesError;
 
-      const adminUserIds = new Set(adminRoles?.map(r => r.user_id) || []);
+      const roleMap = new Map<string, string[]>();
+      (allRoles || []).forEach(r => {
+        const existing = roleMap.get(r.user_id) || [];
+        existing.push(r.role);
+        roleMap.set(r.user_id, existing);
+      });
 
       const usersWithRoles = (profiles || []).map(profile => ({
         ...profile,
-        isAdmin: adminUserIds.has(profile.id),
+        roles: roleMap.get(profile.id) || [],
       }));
 
       setUsers(usersWithRoles);
@@ -68,9 +76,7 @@ export function AdminUsersContent() {
     }
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  useEffect(() => { fetchUsers(); }, []);
 
   useEffect(() => {
     if (!searchQuery.trim()) {
@@ -91,18 +97,70 @@ export function AdminUsersContent() {
     setShowPasswordDialog(true);
   };
 
+  const handleRoleChange = (user: UserProfile) => {
+    setRoleUser(user);
+    setNewRole('');
+    setShowRoleDialog(true);
+  };
+
+  const saveRole = async () => {
+    if (!roleUser || !newRole) return;
+    setSavingRole(true);
+    try {
+      if (newRole === 'user') {
+        // Remove all elevated roles
+        const { error } = await supabase
+          .from('user_roles')
+          .delete()
+          .eq('user_id', roleUser.id);
+        if (error) throw error;
+      } else {
+        // Remove existing non-admin roles, then insert new one
+        // Keep admin role if it exists and we're adding me_analyst
+        const { error: delError } = await supabase
+          .from('user_roles')
+          .delete()
+          .eq('user_id', roleUser.id)
+          .neq('role', 'admin');
+        if (delError) throw delError;
+
+        // If setting to admin, also delete any remaining first
+        if (newRole === 'admin') {
+          await supabase.from('user_roles').delete().eq('user_id', roleUser.id);
+        }
+
+        const { error: insertError } = await supabase
+          .from('user_roles')
+          .upsert({ user_id: roleUser.id, role: newRole as any }, { onConflict: 'user_id,role' });
+        if (insertError) throw insertError;
+      }
+      toast.success(language === 'th' ? 'อัปเดตบทบาทแล้ว' : 'Role updated');
+      fetchUsers();
+      setShowRoleDialog(false);
+    } catch (error) {
+      console.error('Error updating role:', error);
+      toast.error(language === 'th' ? 'ไม่สามารถอัปเดตบทบาทได้' : 'Failed to update role');
+    } finally {
+      setSavingRole(false);
+    }
+  };
+
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '-';
     return new Date(dateString).toLocaleDateString('th-TH', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
+      year: 'numeric', month: 'short', day: 'numeric',
     });
+  };
+
+  const roleBadge = (roles: string[]) => {
+    if (roles.includes('admin')) return <Badge variant="secondary" className="text-xs"><Shield className="h-3 w-3 mr-1" />Admin</Badge>;
+    if (roles.includes('me_analyst')) return <Badge variant="outline" className="text-xs border-blue-500/50 text-blue-600">M&E</Badge>;
+    if (roles.includes('moderator')) return <Badge variant="outline" className="text-xs">Mod</Badge>;
+    return null;
   };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
@@ -119,57 +177,17 @@ export function AdminUsersContent() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">{users.length}</div>
-            <p className="text-sm text-muted-foreground">{language === 'th' ? 'ผู้ใช้ทั้งหมด' : 'Total Users'}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">{users.filter(u => u.isAdmin).length}</div>
-            <p className="text-sm text-muted-foreground">{language === 'th' ? 'แอดมิน' : 'Admins'}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">
-              {users.filter(u => {
-                if (!u.created_at) return false;
-                const created = new Date(u.created_at);
-                const now = new Date();
-                const diffDays = (now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24);
-                return diffDays <= 7;
-              }).length}
-            </div>
-            <p className="text-sm text-muted-foreground">{language === 'th' ? 'ใหม่ (7 วัน)' : 'New (7 days)'}</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">
-              {users.filter(u => (u.streak || 0) > 0).length}
-            </div>
-            <p className="text-sm text-muted-foreground">{language === 'th' ? 'สตรีคที่ยังทำอยู่' : 'Active Streaks'}</p>
-          </CardContent>
-        </Card>
+        <Card><CardContent className="pt-6"><div className="text-2xl font-bold">{users.length}</div><p className="text-sm text-muted-foreground">{language === 'th' ? 'ผู้ใช้ทั้งหมด' : 'Total Users'}</p></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="text-2xl font-bold">{users.filter(u => u.roles.includes('admin')).length}</div><p className="text-sm text-muted-foreground">{language === 'th' ? 'แอดมิน' : 'Admins'}</p></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="text-2xl font-bold">{users.filter(u => u.roles.includes('me_analyst')).length}</div><p className="text-sm text-muted-foreground">M&E Analysts</p></CardContent></Card>
+        <Card><CardContent className="pt-6"><div className="text-2xl font-bold">{users.filter(u => (u.streak || 0) > 0).length}</div><p className="text-sm text-muted-foreground">{language === 'th' ? 'สตรีคที่ยังทำอยู่' : 'Active Streaks'}</p></CardContent></Card>
       </div>
 
       {/* Search */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Search className="h-5 w-5" />
-            {language === 'th' ? 'ค้นหาผู้ใช้' : 'Search Users'}
-          </CardTitle>
-        </CardHeader>
+        <CardHeader><CardTitle className="flex items-center gap-2"><Search className="h-5 w-5" />{language === 'th' ? 'ค้นหาผู้ใช้' : 'Search Users'}</CardTitle></CardHeader>
         <CardContent>
-          <Input
-            placeholder={language === 'th' ? 'ค้นหาด้วยชื่อหรือ ID...' : 'Search by name or ID...'}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="max-w-md"
-          />
+          <Input placeholder={language === 'th' ? 'ค้นหาด้วยชื่อหรือ ID...' : 'Search by name or ID...'} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="max-w-md" />
         </CardContent>
       </Card>
 
@@ -181,10 +199,7 @@ export function AdminUsersContent() {
               {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="flex items-center gap-4">
                   <Skeleton className="h-10 w-10 rounded-full" />
-                  <div className="space-y-2 flex-1">
-                    <Skeleton className="h-4 w-48" />
-                    <Skeleton className="h-3 w-32" />
-                  </div>
+                  <div className="space-y-2 flex-1"><Skeleton className="h-4 w-48" /><Skeleton className="h-3 w-32" /></div>
                 </div>
               ))}
             </div>
@@ -212,46 +227,31 @@ export function AdminUsersContent() {
                         <div className="flex items-center gap-3">
                           <Avatar className="h-10 w-10">
                             <AvatarImage src={user.avatar_url || undefined} />
-                            <AvatarFallback>
-                              {user.display_name?.charAt(0)?.toUpperCase() || '?'}
-                            </AvatarFallback>
+                            <AvatarFallback>{user.display_name?.charAt(0)?.toUpperCase() || '?'}</AvatarFallback>
                           </Avatar>
                           <div>
                             <div className="font-medium flex items-center gap-2">
                               {user.display_name || 'Unknown'}
-                              {user.isAdmin && (
-                                <Badge variant="secondary" className="text-xs">
-                                  <Shield className="h-3 w-3 mr-1" />
-                                  Admin
-                                </Badge>
-                              )}
+                              {roleBadge(user.roles)}
                             </div>
-                            <div className="text-xs text-muted-foreground font-mono">
-                              {user.id.slice(0, 8)}...
-                            </div>
+                            <div className="text-xs text-muted-foreground font-mono">{user.id.slice(0, 8)}...</div>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="outline">{user.level || 1}</Badge>
-                      </TableCell>
+                      <TableCell className="text-center"><Badge variant="outline">{user.level || 1}</Badge></TableCell>
                       <TableCell className="text-center">{user.xp || 0}</TableCell>
                       <TableCell className="text-center">
-                        {user.streak ? (
-                          <Badge className="bg-orange-500">{user.streak}🔥</Badge>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
+                        {user.streak ? <Badge className="bg-orange-500">{user.streak}🔥</Badge> : <span className="text-muted-foreground">-</span>}
                       </TableCell>
                       <TableCell>{formatDate(user.created_at)}</TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handlePasswordReset(user)}
-                        >
-                          <KeyRound className="h-4 w-4 mr-2" />
-                          {language === 'th' ? 'รีเซ็ตรหัสผ่าน' : 'Reset Password'}
+                      <TableCell className="text-right space-x-2">
+                        <Button variant="outline" size="sm" onClick={() => handleRoleChange(user)}>
+                          <UserCog className="h-4 w-4 mr-1" />
+                          {language === 'th' ? 'บทบาท' : 'Role'}
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => handlePasswordReset(user)}>
+                          <KeyRound className="h-4 w-4 mr-1" />
+                          {language === 'th' ? 'รีเซ็ต' : 'Reset'}
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -263,12 +263,45 @@ export function AdminUsersContent() {
         </CardContent>
       </Card>
 
-      {/* Password Reset Dialog */}
-      <AdminPasswordResetDialog
-        user={selectedUser}
-        open={showPasswordDialog}
-        onOpenChange={setShowPasswordDialog}
-      />
+      <AdminPasswordResetDialog user={selectedUser} open={showPasswordDialog} onOpenChange={setShowPasswordDialog} />
+
+      {/* Role Assignment Dialog */}
+      <Dialog open={showRoleDialog} onOpenChange={setShowRoleDialog}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>{language === 'th' ? 'เปลี่ยนบทบาท' : 'Change Role'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <p className="text-sm text-muted-foreground">
+              {roleUser?.display_name || 'Unknown'} — {language === 'th' ? 'บทบาทปัจจุบัน:' : 'Current:'}{' '}
+              <span className="font-medium">{roleUser?.roles.length ? roleUser.roles.join(', ') : 'user'}</span>
+            </p>
+            <Select value={newRole} onValueChange={setNewRole}>
+              <SelectTrigger><SelectValue placeholder={language === 'th' ? 'เลือกบทบาท' : 'Select role'} /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="user">User</SelectItem>
+                <SelectItem value="moderator">Moderator (Branch Staff)</SelectItem>
+                <SelectItem value="me_analyst">M&E Analyst</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
+              </SelectContent>
+            </Select>
+            {newRole === 'me_analyst' && (
+              <p className="text-xs text-blue-600 dark:text-blue-400">
+                {language === 'th' ? 'M&E Analyst จะเข้าถึงข้อมูลแบบอ่านอย่างเดียว ไม่สามารถแก้ไขข้อมูลได้' : 'M&E Analyst gets read-only access to all analytics and reporting data.'}
+              </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowRoleDialog(false)}>
+              {language === 'th' ? 'ยกเลิก' : 'Cancel'}
+            </Button>
+            <Button onClick={saveRole} disabled={!newRole || savingRole}>
+              {savingRole ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : null}
+              {language === 'th' ? 'บันทึก' : 'Save'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
