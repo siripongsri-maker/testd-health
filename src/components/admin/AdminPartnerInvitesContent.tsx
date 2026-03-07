@@ -162,6 +162,21 @@ export function AdminPartnerInvitesContent() {
     } catch (err: any) { toast.error(err.message || 'Failed'); }
   };
 
+  const handleGrantCredits = async () => {
+    if (!grantUserId.trim() || !grantAmount.trim()) return;
+    try {
+      const { data: newBalance, error } = await supabase.rpc('admin_grant_sms_credits', {
+        p_user_id: grantUserId.trim(),
+        p_amount: parseInt(grantAmount),
+        p_reason: grantReason || 'admin_grant',
+      });
+      if (error) throw error;
+      toast.success(isTh ? `ให้เครดิตสำเร็จ! ยอดใหม่: ${newBalance}` : `Credits granted! New balance: ${newBalance}`);
+      setGrantUserId(''); setGrantAmount(''); setGrantReason('');
+      fetchData();
+    } catch (err: any) { toast.error(err.message || 'Failed'); }
+  };
+
   const exportCsv = () => {
     const headers = ['Created', 'Type', 'Tone', 'Status', 'Test', 'Trust', 'Opens', 'Accepted', 'Plans', 'Booked', 'Completed', 'SMS Sent', 'SMS Failed', 'Flags'];
     const rows = data.map(r => [
