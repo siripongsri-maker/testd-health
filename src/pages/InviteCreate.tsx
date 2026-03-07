@@ -8,7 +8,7 @@ import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Heart, Link2, QrCode, Users, Copy, Check, ArrowRight, ArrowLeft, Shield, XCircle, Eye, ThumbsUp, CalendarCheck, CheckCircle2, TrendingUp, TestTube, Calendar } from "lucide-react";
+import { Heart, Link2, QrCode, Users, Copy, Check, ArrowRight, ArrowLeft, Shield, XCircle, Eye, ThumbsUp, CalendarCheck, CheckCircle2, TrendingUp, TestTube, Calendar, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Tone = 'routine' | 'risk' | 'urgent';
@@ -24,6 +24,9 @@ interface ImpactStats {
   active_invites: number;
   expired_invites: number;
   conversion_rate: number;
+  pair_completed: number;
+  booking_started_count: number;
+  sessions_joined: number;
 }
 
 const tones: { value: Tone; labelTh: string; labelEn: string; descTh: string; descEn: string; color: string }[] = [
@@ -60,11 +63,9 @@ export default function InviteCreate() {
 
   useEffect(() => {
     if (!user) return;
-    // Load impact stats
     supabase.rpc('get_partner_invite_stats').then(({ data }) => {
       if (data) setImpact(data as unknown as ImpactStats);
     });
-    // Load invites
     supabase
       .from('partner_invites')
       .select('id, code, invite_type, tone, status, created_at, expires_at')
@@ -128,13 +129,14 @@ export default function InviteCreate() {
 
   const activeInvites = myInvites.filter(i => i.status === 'active' && new Date(i.expires_at) > new Date());
 
-  const impactMetrics = impact ? [
-    { icon: Heart, label: isTh ? 'ส่งคำชวน' : 'Sent', value: impact.invites_created },
-    { icon: Eye, label: isTh ? 'เปิดดู' : 'Opened', value: impact.unique_opens },
-    { icon: ThumbsUp, label: isTh ? 'ตอบรับ' : 'Accepted', value: impact.accepted_count },
-    { icon: CalendarCheck, label: isTh ? 'ตั้งใจตรวจ' : 'Plans to test', value: impact.plans_to_test_count },
-    { icon: Calendar, label: isTh ? 'จองแล้ว' : 'Booked', value: impact.booked_count },
-    { icon: CheckCircle2, label: isTh ? 'ตรวจแล้ว' : 'Completed', value: impact.completed_count },
+  // Impact funnel data
+  const funnelSteps = impact ? [
+    { icon: Heart, label: isTh ? 'ส่งคำชวน' : 'Sent', value: impact.invites_created, color: 'text-primary' },
+    { icon: Eye, label: isTh ? 'เปิดดู' : 'Opened', value: impact.unique_opens, color: 'text-blue-500' },
+    { icon: ThumbsUp, label: isTh ? 'ตอบรับ' : 'Accepted', value: impact.accepted_count, color: 'text-violet-500' },
+    { icon: CalendarCheck, label: isTh ? 'ตั้งใจตรวจ' : 'Plans', value: impact.plans_to_test_count, color: 'text-amber-500' },
+    { icon: Calendar, label: isTh ? 'จองแล้ว' : 'Booked', value: impact.booked_count, color: 'text-emerald-500' },
+    { icon: CheckCircle2, label: isTh ? 'ตรวจแล้ว' : 'Done', value: impact.completed_count, color: 'text-emerald-600' },
   ] : [];
 
   return (
@@ -145,7 +147,7 @@ export default function InviteCreate() {
           subtitle={isTh ? 'ส่งคำชวนแบบไม่ระบุตัวตน ปลอดภัย ไม่ตัดสิน' : 'Send an anonymous, safe, non-judgmental invite'}
         />
 
-        {/* Impact Dashboard */}
+        {/* Impact Funnel Dashboard */}
         {impact && impact.invites_created > 0 && (
           <div className="mb-6 rounded-2xl bg-card border border-border p-5 shadow-card">
             <div className="flex items-center justify-between mb-4">
@@ -162,25 +164,36 @@ export default function InviteCreate() {
                 </div>
               )}
             </div>
-            <div className="grid grid-cols-3 gap-2">
-              {impactMetrics.filter(m => m.value > 0).map(m => {
-                const Icon = m.icon;
+            
+            {/* Funnel visualization */}
+            <div className="space-y-1.5">
+              {funnelSteps.map((step, i) => {
+                const maxVal = funnelSteps[0].value || 1;
+                const width = maxVal > 0 ? Math.max(20, (step.value / maxVal) * 100) : 20;
+                const Icon = step.icon;
                 return (
-                  <div key={m.label} className="text-center rounded-lg bg-muted/50 p-2">
-                    <Icon className="h-4 w-4 text-primary mx-auto mb-1" />
-                    <p className="text-lg font-bold text-foreground">{m.value}</p>
-                    <p className="text-[10px] text-muted-foreground">{m.label}</p>
+                  <div key={step.label} className="flex items-center gap-2">
+                    <Icon className={cn("h-3.5 w-3.5 shrink-0", step.color)} />
+                    <div className="flex-1 relative">
+                      <div
+                        className="h-7 rounded-md bg-primary/8 flex items-center px-2 transition-all"
+                        style={{ width: `${width}%` }}
+                      >
+                        <span className="text-xs font-medium text-foreground whitespace-nowrap">{step.value}</span>
+                      </div>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground w-14 text-right shrink-0">{step.label}</span>
                   </div>
                 );
               })}
             </div>
-            <div className="flex gap-4 mt-3 pt-3 border-t border-border">
-              <p className="text-xs text-muted-foreground">
-                {isTh ? `ใช้งาน: ${impact.active_invites}` : `Active: ${impact.active_invites}`}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {isTh ? `หมดอายุ: ${impact.expired_invites}` : `Expired: ${impact.expired_invites}`}
-              </p>
+
+            <div className="flex gap-4 mt-3 pt-3 border-t border-border text-xs text-muted-foreground">
+              <span>{isTh ? `ใช้งาน: ${impact.active_invites}` : `Active: ${impact.active_invites}`}</span>
+              <span>{isTh ? `หมดอายุ: ${impact.expired_invites}` : `Expired: ${impact.expired_invites}`}</span>
+              {(impact.pair_completed || 0) > 0 && (
+                <span>{isTh ? `ตรวจคู่สำเร็จ: ${impact.pair_completed}` : `Pairs done: ${impact.pair_completed}`}</span>
+              )}
             </div>
           </div>
         )}

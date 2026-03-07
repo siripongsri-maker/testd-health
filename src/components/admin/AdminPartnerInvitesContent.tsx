@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Download, Heart, AlertTriangle, TrendingUp, ThumbsUp, CalendarCheck, CheckCircle2 } from "lucide-react";
+import { Download, Heart, AlertTriangle, TrendingUp, ThumbsUp, CalendarCheck, CheckCircle2, Users } from "lucide-react";
 import { format } from "date-fns";
 
 interface InviteReport {
@@ -27,6 +27,8 @@ interface InviteReport {
   plans_to_test_count: number;
   booked_count: number;
   completed_count: number;
+  pair_status: string | null;
+  pair_booking_count: number | null;
 }
 
 interface AbuseFlag {
@@ -45,6 +47,7 @@ export function AdminPartnerInvitesContent() {
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState('all');
   const [toneFilter, setToneFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
@@ -62,6 +65,14 @@ export function AdminPartnerInvitesContent() {
       let filtered = reportRes.data as unknown as InviteReport[];
       if (typeFilter !== 'all') filtered = filtered.filter(r => r.invite_type === typeFilter);
       if (toneFilter !== 'all') filtered = filtered.filter(r => r.tone === toneFilter);
+      if (statusFilter !== 'all') {
+        filtered = filtered.filter(r => {
+          if (statusFilter === 'active') return r.status === 'active' && r.is_active && new Date(r.expires_at) > new Date();
+          if (statusFilter === 'expired') return r.status !== 'active' || !r.is_active || new Date(r.expires_at) <= new Date();
+          if (statusFilter === 'revoked') return r.status === 'revoked';
+          return true;
+        });
+      }
       setData(filtered);
     }
     if (!flagsRes.error && flagsRes.data) {
@@ -70,7 +81,7 @@ export function AdminPartnerInvitesContent() {
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, [startDate, endDate, typeFilter, toneFilter]);
+  useEffect(() => { fetchData(); }, [startDate, endDate, typeFilter, toneFilter, statusFilter]);
 
   const resolveFlag = async (flagId: string) => {
     await (supabase as any).from('partner_invite_abuse_flags').update({ resolved: true }).eq('id', flagId);
@@ -78,14 +89,15 @@ export function AdminPartnerInvitesContent() {
   };
 
   const exportCsv = () => {
-    const headers = ['Created', 'Type', 'Tone', 'Status', 'Expires', 'Opens', 'Kit', 'Booking', 'Sessions', 'Timer Done', 'Bookings Done', 'Selftest', 'Accepted', 'Plans', 'Booked', 'Completed'];
+    const headers = ['Created', 'Type', 'Tone', 'Status', 'Expires', 'Opens', 'Accepted', 'Plans', 'Booked', 'Completed', 'Kit', 'Booking', 'Sessions', 'Timer Done', 'Pair Status', 'Pair Bookings'];
     const rows = data.map(r => [
       format(new Date(r.created_at), 'yyyy-MM-dd HH:mm'),
       r.invite_type, r.tone, r.status,
       format(new Date(r.expires_at), 'yyyy-MM-dd HH:mm'),
-      r.opens, r.kit_cta, r.booking_cta, r.sessions_joined, r.timer_completed,
-      r.bookings_completed, r.selftest_requests,
+      r.opens,
       r.accepted_count || 0, r.plans_to_test_count || 0, r.booked_count || 0, r.completed_count || 0,
+      r.kit_cta, r.booking_cta, r.sessions_joined, r.timer_completed,
+      r.pair_status || '', r.pair_booking_count || 0,
     ]);
     const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -98,20 +110,18 @@ export function AdminPartnerInvitesContent() {
 
   const totals = data.reduce((acc, r) => ({
     opens: acc.opens + r.opens,
-    kit: acc.kit + r.kit_cta,
-    booking: acc.booking + r.booking_cta,
-    sessions: acc.sessions + r.sessions_joined,
-    completed: acc.completed + r.timer_completed,
-    bookingsDone: acc.bookingsDone + (r.bookings_completed || 0),
-    selftestReq: acc.selftestReq + (r.selftest_requests || 0),
     accepted: acc.accepted + (r.accepted_count || 0),
     plansToTest: acc.plansToTest + (r.plans_to_test_count || 0),
     booked: acc.booked + (r.booked_count || 0),
     completedResp: acc.completedResp + (r.completed_count || 0),
-  }), { opens: 0, kit: 0, booking: 0, sessions: 0, completed: 0, bookingsDone: 0, selftestReq: 0, accepted: 0, plansToTest: 0, booked: 0, completedResp: 0 });
+    sessions: acc.sessions + r.sessions_joined,
+    pairBooked: acc.pairBooked + (r.pair_booking_count || 0),
+    pairCompleted: acc.pairCompleted + (r.pair_status === 'completed' ? 1 : 0),
+    bookingsDone: acc.bookingsDone + (r.bookings_completed || 0),
+  }), { opens: 0, accepted: 0, plansToTest: 0, booked: 0, completedResp: 0, sessions: 0, pairBooked: 0, pairCompleted: 0, bookingsDone: 0 });
 
   const conversionRate = totals.opens > 0
-    ? ((totals.bookingsDone + totals.completed + totals.completedResp) / totals.opens * 100).toFixed(1)
+    ? ((totals.booked + totals.completedResp + totals.bookingsDone) / totals.opens * 100).toFixed(1)
     : '0';
 
   return (
@@ -145,14 +155,15 @@ export function AdminPartnerInvitesContent() {
       )}
 
       {/* Summary cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
         {[
-          { label: isTh ? 'คำชวนทั้งหมด' : 'Total Invites', value: data.length },
-          { label: isTh ? 'เปิดดู' : 'Unique Opens', value: totals.opens },
+          { label: isTh ? 'คำชวน' : 'Invites', value: data.length },
+          { label: isTh ? 'เปิดดู' : 'Opens', value: totals.opens },
           { label: isTh ? 'ตอบรับ' : 'Accepted', value: totals.accepted, icon: ThumbsUp },
-          { label: isTh ? 'ตั้งใจตรวจ' : 'Plans to test', value: totals.plansToTest, icon: CalendarCheck },
-          { label: isTh ? 'จองแล้ว/ตรวจแล้ว' : 'Booked/Done', value: totals.booked + totals.completedResp, icon: CheckCircle2 },
-          { label: isTh ? 'อัตราการแปลง' : 'Conversion', value: `${conversionRate}%`, isRate: true },
+          { label: isTh ? 'ตั้งใจตรวจ' : 'Plans', value: totals.plansToTest, icon: CalendarCheck },
+          { label: isTh ? 'จอง' : 'Booked', value: totals.booked + totals.bookingsDone, icon: CheckCircle2 },
+          { label: isTh ? 'ตรวจคู่' : 'Pairs', value: totals.pairCompleted, icon: Users },
+          { label: isTh ? 'อัตราแปลง' : 'CVR', value: `${conversionRate}%`, isRate: true },
         ].map(s => (
           <div key={s.label} className="rounded-xl bg-card border border-border p-4 text-center">
             {'isRate' in s && s.isRate ? (
@@ -190,6 +201,15 @@ export function AdminPartnerInvitesContent() {
             <SelectItem value="urgent">Urgent</SelectItem>
           </SelectContent>
         </Select>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{isTh ? 'ทุกสถานะ' : 'All status'}</SelectItem>
+            <SelectItem value="active">{isTh ? 'ใช้งาน' : 'Active'}</SelectItem>
+            <SelectItem value="expired">{isTh ? 'หมดอายุ' : 'Expired'}</SelectItem>
+            <SelectItem value="revoked">{isTh ? 'ยกเลิก' : 'Revoked'}</SelectItem>
+          </SelectContent>
+        </Select>
         <Button variant="outline" size="sm" onClick={exportCsv} className="gap-2 ml-auto">
           <Download className="h-4 w-4" /> CSV
         </Button>
@@ -209,13 +229,14 @@ export function AdminPartnerInvitesContent() {
               <TableHead className="text-right">{isTh ? 'ตั้งใจ' : 'Plans'}</TableHead>
               <TableHead className="text-right">{isTh ? 'จอง' : 'Book'}</TableHead>
               <TableHead className="text-right">{isTh ? 'เสร็จ' : 'Done'}</TableHead>
+              <TableHead>{isTh ? 'คู่' : 'Pair'}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
-              <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">{isTh ? 'กำลังโหลด...' : 'Loading...'}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={10} className="text-center py-8 text-muted-foreground">{isTh ? 'กำลังโหลด...' : 'Loading...'}</TableCell></TableRow>
             ) : data.length === 0 ? (
-              <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">{isTh ? 'ไม่มีข้อมูล' : 'No data'}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={10} className="text-center py-8 text-muted-foreground">{isTh ? 'ไม่มีข้อมูล' : 'No data'}</TableCell></TableRow>
             ) : data.map(r => (
               <TableRow key={r.invite_id}>
                 <TableCell className="text-sm">{format(new Date(r.created_at), 'dd/MM/yy HH:mm')}</TableCell>
@@ -245,6 +266,15 @@ export function AdminPartnerInvitesContent() {
                 <TableCell className="text-right font-medium">{r.plans_to_test_count || 0}</TableCell>
                 <TableCell className="text-right font-medium">{(r.booked_count || 0) + (r.bookings_completed || 0)}</TableCell>
                 <TableCell className="text-right font-medium">{(r.completed_count || 0) + r.timer_completed}</TableCell>
+                <TableCell>
+                  {r.pair_status && (
+                    <span className={`rounded-full px-2 py-0.5 text-xs ${
+                      r.pair_status === 'completed' ? 'bg-emerald-500/10 text-emerald-600' :
+                      r.pair_status === 'booked' ? 'bg-blue-500/10 text-blue-600' :
+                      'bg-muted text-muted-foreground'
+                    }`}>{r.pair_status}</span>
+                  )}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

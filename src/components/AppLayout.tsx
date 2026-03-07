@@ -21,8 +21,8 @@ export function AppLayout({ children, hideNav }: AppLayoutProps) {
 
   // Admin pages use AdminLayout — don't wrap them
   const isAdminPage = location.pathname.startsWith("/admin");
-  // Public invite landing pages are standalone — no app chrome
-  const isInviteLanding = /^\/invite\/[^/]+$/.test(location.pathname) && location.pathname !== "/invite";
+  // Public invite landing/session pages are standalone — no app chrome
+  const isInviteLanding = /^\/invite\/(?:session\/)?[^/]+$/.test(location.pathname) && location.pathname !== "/invite";
 
   if (hideNav || isAdminPage || isInviteLanding) {
     return <>{children}</>;

@@ -565,6 +565,44 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_attributions: {
+        Row: {
+          attribution_type: string | null
+          booking_id: string | null
+          created_at: string
+          id: string
+          invite_id: string | null
+          session_id: string | null
+          visitor_session_id: string | null
+        }
+        Insert: {
+          attribution_type?: string | null
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          invite_id?: string | null
+          session_id?: string | null
+          visitor_session_id?: string | null
+        }
+        Update: {
+          attribution_type?: string | null
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          invite_id?: string | null
+          session_id?: string | null
+          visitor_session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_attributions_invite_id_fkey"
+            columns: ["invite_id"]
+            isOneToOne: false
+            referencedRelation: "partner_invites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       booking_blackouts: {
         Row: {
           applies_to_branch_ids: string[] | null
@@ -1578,6 +1616,41 @@ export type Database = {
           },
         ]
       }
+      partner_invite_relays: {
+        Row: {
+          created_at: string
+          id: string
+          invite_id: string
+          recipient_hash: string
+          relay_status: string
+          relay_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invite_id: string
+          recipient_hash: string
+          relay_status?: string
+          relay_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invite_id?: string
+          recipient_hash?: string
+          relay_status?: string
+          relay_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_invite_relays_invite_id_fkey"
+            columns: ["invite_id"]
+            isOneToOne: false
+            referencedRelation: "partner_invites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partner_invite_visits: {
         Row: {
           id: string
@@ -1691,6 +1764,7 @@ export type Database = {
           host_invite_id: string
           id: string
           max_participants: number
+          pair_booking_count: number | null
           session_code: string
           started_at: string | null
           status: string
@@ -1701,6 +1775,7 @@ export type Database = {
           host_invite_id: string
           id?: string
           max_participants?: number
+          pair_booking_count?: number | null
           session_code: string
           started_at?: string | null
           status?: string
@@ -1711,6 +1786,7 @@ export type Database = {
           host_invite_id?: string
           id?: string
           max_participants?: number
+          pair_booking_count?: number | null
           session_code?: string
           started_at?: string | null
           status?: string
@@ -3025,6 +3101,8 @@ export type Database = {
           is_active: boolean
           kit_cta: number
           opens: number
+          pair_booking_count: number
+          pair_status: string
           plans_to_test_count: number
           selftest_requests: number
           sessions_joined: number
@@ -3106,6 +3184,7 @@ export type Database = {
           active_invites: number
           booked_count: number
           booking_cta: number
+          booking_started_count: number
           bookings_completed: number
           completed_count: number
           conversion_rate: number
@@ -3113,6 +3192,7 @@ export type Database = {
           invites_created: number
           invites_opened: number
           kit_cta: number
+          pair_completed: number
           plans_to_test_count: number
           selftest_requests: number
           sessions_joined: number
@@ -3218,6 +3298,10 @@ export type Database = {
       is_branch_staff_for_request: {
         Args: { _pii_id: string; _user_id: string }
         Returns: boolean
+      }
+      join_partner_session: {
+        Args: { p_participant_sid: string; p_session_code: string }
+        Returns: Json
       }
       lookup_appointment_by_code: {
         Args: { p_contact_email: string; p_referral_code: string }

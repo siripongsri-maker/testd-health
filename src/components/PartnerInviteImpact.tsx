@@ -21,6 +21,8 @@ interface Stats {
   completed_count: number;
   active_invites: number;
   expired_invites: number;
+  pair_completed: number;
+  booking_started_count: number;
 }
 
 export function PartnerInviteImpact() {
@@ -38,7 +40,7 @@ export function PartnerInviteImpact() {
 
   if (!user || !stats || stats.invites_created === 0) return null;
 
-  const impactScore = (stats.unique_opens || stats.invites_opened) + stats.accepted_count * 2 + stats.plans_to_test_count * 3 + stats.booked_count * 4 + stats.completed_count * 5 + stats.kit_cta * 3 + stats.booking_cta * 3 + stats.timer_completed * 5 + (stats.bookings_completed || 0) * 5;
+  const impactScore = (stats.unique_opens || stats.invites_opened) + stats.accepted_count * 2 + stats.plans_to_test_count * 3 + stats.booked_count * 4 + stats.completed_count * 5 + stats.kit_cta * 3 + stats.booking_cta * 3 + stats.timer_completed * 5 + (stats.bookings_completed || 0) * 5 + (stats.pair_completed || 0) * 10;
 
   const items = [
     { icon: Heart, label: isTh ? 'ส่งคำชวน' : 'Invites sent', value: stats.invites_created },
@@ -48,6 +50,7 @@ export function PartnerInviteImpact() {
     { icon: Calendar, label: isTh ? 'จองแล้ว' : 'Booked', value: stats.booked_count },
     { icon: CheckCircle2, label: isTh ? 'ตรวจแล้ว' : 'Completed', value: stats.completed_count },
     { icon: TestTube, label: isTh ? 'ขอชุดตรวจ' : 'Kit requests', value: stats.kit_cta },
+    { icon: Users, label: isTh ? 'ตรวจคู่สำเร็จ' : 'Pair completed', value: stats.pair_completed || 0 },
     { icon: Timer, label: isTh ? 'จับเวลาเสร็จ' : 'Timer done', value: stats.timer_completed },
   ];
 

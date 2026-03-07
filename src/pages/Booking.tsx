@@ -386,16 +386,16 @@ export default function Booking() {
       try {
         const attr = getInviteAttribution();
         if (attr) {
-          const bookingId = confirmedCode ? undefined : undefined; // we need the appointment id
           await (supabase as any).from('booking_attributions').insert({
-            booking_id: confirmedCode || null, // will be set below
+            booking_id: null,
             invite_id: attr.invite_id || null,
+            session_id: attr.session_id || null,
             visitor_session_id: attr.visitor_session_id,
             attribution_type: attr.attribution_type,
           });
           if (attr.invite_code) {
             try {
-              await (supabase.rpc as any)('record_partner_invite_event', {
+              await supabase.rpc('record_partner_invite_event', {
                 p_code: attr.invite_code,
                 p_visitor_session_id: attr.visitor_session_id,
                 p_event_type: 'booking_completed',
