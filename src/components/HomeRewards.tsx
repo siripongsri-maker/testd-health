@@ -16,20 +16,21 @@ interface Reward {
   season_end_at: string | null;
 }
 
-const SeasonCountdown = forwardRef<HTMLDivElement, { language: string }>(function SeasonCountdown({ language }, ref) {
+const SeasonCountdown = forwardRef<HTMLDivElement, { language: string; seasonEndAt?: string | null }>(function SeasonCountdown({ language, seasonEndAt }, ref) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, ended: false });
 
   useEffect(() => {
-    // Season ends on the last day of the current month
-    const getSeasonEnd = () => {
-      const now = new Date();
-      return new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
-    };
+    if (!seasonEndAt) {
+      setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, ended: true });
+      return;
+    }
+
+    const end = new Date(seasonEndAt);
 
     const update = () => {
-      const now = new Date();
-      const end = getSeasonEnd();
-      const diff = end.getTime() - now.getTime();
+      // Use Asia/Bangkok time for consistency
+      const nowBangkok = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
+      const diff = end.getTime() - nowBangkok.getTime();
 
       if (diff <= 0) {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, ended: true });
@@ -46,7 +47,7 @@ const SeasonCountdown = forwardRef<HTMLDivElement, { language: string }>(functio
     update();
     const interval = setInterval(update, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [seasonEndAt]);
 
   if (timeLeft.ended) {
     return (
