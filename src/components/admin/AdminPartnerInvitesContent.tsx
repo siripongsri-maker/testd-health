@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Download, Heart, TrendingUp, Users, ShieldAlert, UserCheck, Bug, MessageSquare, CheckCircle2, XCircle, Clock, AlertTriangle } from "lucide-react";
+import { Download, Heart, TrendingUp, Users, ShieldAlert, UserCheck, Bug, MessageSquare, CheckCircle2, XCircle, Clock, AlertTriangle, CreditCard, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -67,12 +67,31 @@ interface RelayRow {
   created_at: string;
 }
 
+interface CreditBalance {
+  user_id: string;
+  balance: number;
+  updated_at: string;
+}
+
+interface CreditTransaction {
+  id: string;
+  user_id: string;
+  relay_id: string | null;
+  transaction_type: string;
+  amount: number;
+  balance_after: number;
+  metadata: any;
+  created_at: string;
+}
+
 export function AdminPartnerInvitesContent() {
   const { language } = useLanguage();
   const isTh = language === 'th';
   const [data, setData] = useState<InviteReport[]>([]);
   const [abuseFlags, setAbuseFlags] = useState<AbuseFlag[]>([]);
   const [relays, setRelays] = useState<RelayRow[]>([]);
+  const [creditBalances, setCreditBalances] = useState<CreditBalance[]>([]);
+  const [creditTransactions, setCreditTransactions] = useState<CreditTransaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState('all');
   const [toneFilter, setToneFilter] = useState('all');
@@ -82,11 +101,14 @@ export function AdminPartnerInvitesContent() {
   const [endDate, setEndDate] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
   const [reviewNote, setReviewNote] = useState('');
+  const [grantUserId, setGrantUserId] = useState('');
+  const [grantAmount, setGrantAmount] = useState('');
+  const [grantReason, setGrantReason] = useState('');
 
   const fetchData = async () => {
     setLoading(true);
     const includeTestMode = testModeFilter !== 'exclude';
-    const [reportRes, flagsRes, relayRes] = await Promise.all([
+    const [reportRes, flagsRes, relayRes, balancesRes, txRes] = await Promise.all([
       supabase.rpc('get_admin_partner_invite_report', {
         p_start_date: startDate || null,
         p_end_date: endDate || null,
@@ -94,6 +116,8 @@ export function AdminPartnerInvitesContent() {
       } as any),
       (supabase as any).from('partner_invite_abuse_flags').select('*').order('created_at', { ascending: false }).limit(100),
       (supabase as any).from('partner_invite_relays').select('*').order('created_at', { ascending: false }).limit(50),
+      (supabase as any).from('sms_credit_balances').select('*').order('updated_at', { ascending: false }),
+      (supabase as any).from('sms_credit_transactions').select('*').order('created_at', { ascending: false }).limit(100),
     ]);
 
     if (!reportRes.error && reportRes.data) {
@@ -114,6 +138,8 @@ export function AdminPartnerInvitesContent() {
     }
     if (!flagsRes.error && flagsRes.data) setAbuseFlags(flagsRes.data as unknown as AbuseFlag[]);
     if (!relayRes.error && relayRes.data) setRelays(relayRes.data as unknown as RelayRow[]);
+    if (!balancesRes.error && balancesRes.data) setCreditBalances(balancesRes.data as unknown as CreditBalance[]);
+    if (!txRes.error && txRes.data) setCreditTransactions(txRes.data as unknown as CreditTransaction[]);
     setLoading(false);
   };
 
@@ -132,6 +158,21 @@ export function AdminPartnerInvitesContent() {
     try {
       await supabase.rpc('update_user_trust_tier' as any, { p_user_id: userId, p_trust_tier: tier });
       toast.success(isTh ? 'อัพเดท Trust Tier แล้ว' : 'Trust tier updated');
+      fetchData();
+    } catch (err: any) { toast.error(err.message || 'Failed'); }
+  };
+
+  const handleGrantCredits = async () => {
+    if (!grantUserId.trim() || !grantAmount.trim()) return;
+    try {
+      const { data: newBalance, error } = await supabase.rpc('admin_grant_sms_credits', {
+        p_user_id: grantUserId.trim(),
+        p_amount: parseInt(grantAmount),
+        p_reason: grantReason || 'admin_grant',
+      });
+      if (error) throw error;
+      toast.success(isTh ? `ให้เครดิตสำเร็จ! ยอดใหม่: ${newBalance}` : `Credits granted! New balance: ${newBalance}`);
+      setGrantUserId(''); setGrantAmount(''); setGrantReason('');
       fetchData();
     } catch (err: any) { toast.error(err.message || 'Failed'); }
   };
@@ -207,6 +248,10 @@ export function AdminPartnerInvitesContent() {
           <TabsTrigger value="sms" className="gap-1">
             <MessageSquare className="h-3 w-3" />
             SMS
+          </TabsTrigger>
+          <TabsTrigger value="credits" className="gap-1">
+            <CreditCard className="h-3 w-3" />
+            {isTh ? 'เครดิต' : 'Credits'}
           </TabsTrigger>
           <TabsTrigger value="diagnostics" className="gap-1">
             <Bug className="h-3 w-3" />
@@ -472,6 +517,89 @@ export function AdminPartnerInvitesContent() {
                     <TableCell className="text-sm">{r.provider || '-'}</TableCell>
                     <TableCell className="text-xs text-muted-foreground">{r.block_reason || '-'}</TableCell>
                     <TableCell>{r.is_test_mode && <span className="text-xs text-amber-500">TEST</span>}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </TabsContent>
+
+        {/* ===== CREDITS TAB ===== */}
+        <TabsContent value="credits" className="space-y-4 mt-4">
+          <h3 className="font-semibold text-foreground flex items-center gap-2">
+            <CreditCard className="h-5 w-5 text-primary" />
+            {isTh ? 'SMS Credits' : 'SMS Credits'}
+          </h3>
+
+          {/* Grant credits form */}
+          <div className="rounded-xl border border-border p-4 space-y-3">
+            <h4 className="text-sm font-semibold text-foreground">{isTh ? 'ให้เครดิต' : 'Grant Credits'}</h4>
+            <div className="flex flex-wrap gap-2">
+              <Input placeholder="User ID (uuid)" value={grantUserId} onChange={e => setGrantUserId(e.target.value)} className="flex-1 min-w-[200px]" />
+              <Input type="number" placeholder={isTh ? 'จำนวน' : 'Amount'} value={grantAmount} onChange={e => setGrantAmount(e.target.value)} className="w-24" />
+              <Input placeholder={isTh ? 'เหตุผล' : 'Reason'} value={grantReason} onChange={e => setGrantReason(e.target.value)} className="w-40" />
+              <Button size="sm" onClick={handleGrantCredits} disabled={!grantUserId.trim() || !grantAmount.trim()} className="gap-1">
+                <Plus className="h-3 w-3" /> {isTh ? 'ให้เครดิต' : 'Grant'}
+              </Button>
+            </div>
+          </div>
+
+          {/* Balances */}
+          <div className="rounded-xl border border-border overflow-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>User ID</TableHead>
+                  <TableHead className="text-right">{isTh ? 'ยอดเครดิต' : 'Balance'}</TableHead>
+                  <TableHead>{isTh ? 'อัพเดทล่าสุด' : 'Last Updated'}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {creditBalances.length === 0 ? (
+                  <TableRow><TableCell colSpan={3} className="text-center py-8 text-muted-foreground">{isTh ? 'ไม่มีข้อมูล' : 'No balances'}</TableCell></TableRow>
+                ) : creditBalances.map(b => (
+                  <TableRow key={b.user_id}>
+                    <TableCell className="text-xs font-mono">{b.user_id.slice(0, 8)}...</TableCell>
+                    <TableCell className="text-right font-bold text-foreground">{b.balance}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{format(new Date(b.updated_at), 'dd/MM HH:mm')}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Transaction history */}
+          <h4 className="text-sm font-semibold text-foreground">{isTh ? 'ประวัติธุรกรรม' : 'Transaction History'}</h4>
+          <div className="rounded-xl border border-border overflow-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{isTh ? 'วันที่' : 'Date'}</TableHead>
+                  <TableHead>User</TableHead>
+                  <TableHead>{isTh ? 'ประเภท' : 'Type'}</TableHead>
+                  <TableHead className="text-right">{isTh ? 'จำนวน' : 'Amount'}</TableHead>
+                  <TableHead className="text-right">{isTh ? 'ยอดหลัง' : 'After'}</TableHead>
+                  <TableHead>{isTh ? 'หมายเหตุ' : 'Note'}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {creditTransactions.length === 0 ? (
+                  <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">{isTh ? 'ไม่มีธุรกรรม' : 'No transactions'}</TableCell></TableRow>
+                ) : creditTransactions.map(tx => (
+                  <TableRow key={tx.id}>
+                    <TableCell className="text-sm">{format(new Date(tx.created_at), 'dd/MM HH:mm')}</TableCell>
+                    <TableCell className="text-xs font-mono">{tx.user_id.slice(0, 8)}...</TableCell>
+                    <TableCell>
+                      <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium",
+                        tx.transaction_type === 'grant' ? 'bg-emerald-500/10 text-emerald-600' :
+                        tx.transaction_type === 'deduct' ? 'bg-red-500/10 text-red-600' :
+                        tx.transaction_type === 'refund' ? 'bg-blue-500/10 text-blue-600' :
+                        'bg-muted text-muted-foreground'
+                      )}>{tx.transaction_type}</span>
+                    </TableCell>
+                    <TableCell className={cn("text-right font-medium", tx.amount > 0 ? 'text-emerald-600' : 'text-red-600')}>{tx.amount > 0 ? `+${tx.amount}` : tx.amount}</TableCell>
+                    <TableCell className="text-right text-foreground">{tx.balance_after}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{tx.metadata?.reason || tx.metadata?.granted_by ? `by ${(tx.metadata.granted_by || '').slice(0, 8)}` : '-'}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

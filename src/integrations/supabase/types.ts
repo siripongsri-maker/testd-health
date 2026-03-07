@@ -2364,6 +2364,57 @@ export type Database = {
         }
         Relationships: []
       }
+      sms_credit_balances: {
+        Row: {
+          balance: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sms_credit_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string
+          id: string
+          metadata: Json
+          relay_id: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          created_at?: string
+          id?: string
+          metadata?: Json
+          relay_id?: string | null
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          id?: string
+          metadata?: Json
+          relay_id?: string | null
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       staff_branch_assignments: {
         Row: {
           branch: string
@@ -3111,6 +3162,10 @@ export type Database = {
         Args: { p_appointment_id: string; p_note: string }
         Returns: undefined
       }
+      admin_grant_sms_credits: {
+        Args: { p_amount: number; p_reason?: string; p_user_id: string }
+        Returns: number
+      }
       assign_staff_to_appointment: {
         Args: { p_appointment_id: string; p_staff_profile_id: string }
         Returns: undefined
@@ -3221,6 +3276,10 @@ export type Database = {
           isOneToOne: false
           isSetofReturn: true
         }
+      }
+      deduct_sms_credit: {
+        Args: { p_relay_id?: string; p_user_id: string }
+        Returns: number
       }
       generate_guest_access_token: {
         Args: { p_appointment_id: string }
@@ -3414,6 +3473,7 @@ export type Database = {
           total_page_views: number
         }[]
       }
+      get_sms_credit_balance: { Args: never; Returns: number }
       get_walkin_pressure: {
         Args: { p_branch_id: string; p_date?: string }
         Returns: Json
@@ -3505,6 +3565,10 @@ export type Database = {
           p_visitor_session_id: string
         }
         Returns: undefined
+      }
+      refund_sms_credit: {
+        Args: { p_reason?: string; p_relay_id?: string; p_user_id: string }
+        Returns: number
       }
       revoke_partner_invite: {
         Args: { p_invite_id: string }
