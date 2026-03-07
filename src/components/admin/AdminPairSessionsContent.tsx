@@ -8,6 +8,7 @@ import { Download, Link2, RefreshCw, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { exportToCsv, formatCsvDate, type CsvColumn } from "@/lib/adminCsvExport";
+import AdminDetailDrawer from "./AdminDetailDrawer";
 
 interface PairSession {
   id: string;
@@ -27,8 +28,10 @@ export default function AdminPairSessionsContent() {
   const isTh = language === 'th';
   const [sessions, setSessions] = useState<PairSession[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState<PairSession | null>(null);
+  const [relatedBookings, setRelatedBookings] = useState<any[]>([]);
 
-  const fetch = async () => {
+  const fetchData = async () => {
     setLoading(true);
     const { data } = await supabase
       .from('partner_test_sessions')
@@ -39,7 +42,18 @@ export default function AdminPairSessionsContent() {
     setLoading(false);
   };
 
-  useEffect(() => { fetch(); }, []);
+  useEffect(() => { fetchData(); }, []);
+
+  const openDetail = async (s: PairSession) => {
+    setSelected(s);
+    // Fetch bookings attributed to this session
+    const { data } = await (supabase as any)
+      .from('booking_attributions')
+      .select('*')
+      .eq('session_id', s.id)
+      .order('created_at', { ascending: true });
+    setRelatedBookings(data || []);
+  };
 
   const csvCols: CsvColumn<PairSession>[] = [
     { key: 'session_code', header: 'Session Code' },
@@ -65,7 +79,7 @@ export default function AdminPairSessionsContent() {
           <h2 className="text-xl font-bold text-foreground">{isTh ? 'Pair Sessions' : 'Pair Sessions'}</h2>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={fetch} className="gap-1"><RefreshCw className="h-3.5 w-3.5" /></Button>
+          <Button variant="outline" size="sm" onClick={fetchData} className="gap-1"><RefreshCw className="h-3.5 w-3.5" /></Button>
           <Button variant="outline" size="sm" onClick={() => exportToCsv(sessions, csvCols, 'pair_sessions')} className="gap-1"><Download className="h-3.5 w-3.5" /> CSV</Button>
         </div>
       </div>
@@ -105,7 +119,7 @@ export default function AdminPairSessionsContent() {
                 </TableHeader>
                 <TableBody>
                   {sessions.map(s => (
-                    <TableRow key={s.id} className={s.is_test_mode ? 'bg-amber-500/5' : ''}>
+                    <TableRow key={s.id} className={cn("cursor-pointer hover:bg-accent/50", s.is_test_mode && 'bg-amber-500/5')} onClick={() => openDetail(s)}>
                       <TableCell className="font-mono text-sm">{s.session_code}</TableCell>
                       <TableCell><span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", statusColor(s.status))}>{s.status}</span></TableCell>
                       <TableCell className="text-center">{s.pair_booking_count ?? 0}</TableCell>
@@ -120,6 +134,46 @@ export default function AdminPairSessionsContent() {
           )}
         </CardContent>
       </Card>
+
+      {/* Detail Drawer */}
+      {selected && (
+        <AdminDetailDrawer
+          open={!!selected}
+          onOpenChange={open => !open && setSelected(null)}
+          title={isTh ? 'รายละเอียด Pair Session' : 'Pair Session Detail'}
+          subtitle={`Code: ${selected.session_code}`}
+          fields={[
+            { label: 'Status', value: <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", statusColor(selected.status))}>{selected.status}</span> },
+            { label: 'Test Mode', value: selected.is_test_mode ? 'Yes' : 'No' },
+            { label: 'Max Participants', value: String(selected.max_participants) },
+            { label: 'Bookings', value: String(selected.pair_booking_count ?? 0) },
+            { label: 'Session ID', value: selected.id, mono: true, fullWidth: true },
+            { label: 'Host Invite ID', value: selected.host_invite_id, mono: true, fullWidth: true },
+          ]}
+          timeline={[
+            { label: isTh ? 'สร้าง' : 'Created', time: selected.created_at, status: 'neutral' },
+            { label: isTh ? 'เริ่ม' : 'Started', time: selected.started_at, status: selected.started_at ? 'success' : 'neutral' },
+            { label: isTh ? 'เสร็จสิ้น' : 'Completed', time: selected.completed_at, status: selected.completed_at ? 'success' : 'neutral' },
+          ]}
+        >
+          {relatedBookings.length > 0 && (
+            <div>
+              <p className="text-sm font-semibold text-foreground mb-2">{isTh ? 'การจองที่เกี่ยวข้อง' : 'Related Booking Attributions'}</p>
+              <div className="space-y-2">
+                {relatedBookings.map((b: any) => (
+                  <div key={b.id} className="rounded-md border border-border/50 px-3 py-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">{b.attribution_type}</span>
+                      <span className="text-xs text-muted-foreground">{format(new Date(b.created_at), 'dd/MM HH:mm')}</span>
+                    </div>
+                    {b.booking_id && <p className="text-xs font-mono text-muted-foreground mt-1">Booking: {b.booking_id.slice(0, 12)}...</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </AdminDetailDrawer>
+      )}
     </div>
   );
 }
