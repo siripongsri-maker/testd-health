@@ -3005,6 +3005,7 @@ export type Database = {
         Args: { p_end_date?: string; p_start_date?: string }
         Returns: {
           booking_cta: number
+          bookings_completed: number
           created_at: string
           expires_at: string
           invite_id: string
@@ -3012,7 +3013,9 @@ export type Database = {
           is_active: boolean
           kit_cta: number
           opens: number
+          selftest_requests: number
           sessions_joined: number
+          status: string
           timer_completed: number
           tone: string
         }[]
