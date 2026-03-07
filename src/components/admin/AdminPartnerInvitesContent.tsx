@@ -51,7 +51,7 @@ export function AdminPartnerInvitesContent() {
         p_start_date: startDate || null,
         p_end_date: endDate || null,
       }),
-      supabase.from('partner_invite_abuse_flags').select('*').eq('resolved', false).order('created_at', { ascending: false }).limit(50),
+      (supabase as any).from('partner_invite_abuse_flags').select('*').eq('resolved', false).order('created_at', { ascending: false }).limit(50),
     ]);
 
     if (!reportRes.error && reportRes.data) {
@@ -69,7 +69,7 @@ export function AdminPartnerInvitesContent() {
   useEffect(() => { fetchData(); }, [startDate, endDate, typeFilter, toneFilter]);
 
   const resolveFlag = async (flagId: string) => {
-    await supabase.from('partner_invite_abuse_flags').update({ resolved: true }).eq('id', flagId);
+    await (supabase as any).from('partner_invite_abuse_flags').update({ resolved: true }).eq('id', flagId);
     setAbuseFlags(prev => prev.filter(f => f.id !== flagId));
   };
 

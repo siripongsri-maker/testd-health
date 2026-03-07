@@ -31,7 +31,7 @@ export default function InviteLanding() {
     if (!code) return;
     const load = async () => {
       // Fetch invite - include expired/revoked for messaging
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('partner_invites')
         .select('id, code, invite_type, tone, expires_at, is_active, status')
         .eq('code', code)

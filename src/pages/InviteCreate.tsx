@@ -83,7 +83,7 @@ export default function InviteCreate() {
 
   const handleRevoke = async (inviteId: string) => {
     try {
-      const { error } = await supabase.rpc('revoke_partner_invite', { p_invite_id: inviteId });
+      const { error } = await (supabase.rpc as any)('revoke_partner_invite', { p_invite_id: inviteId });
       if (error) throw error;
       toast.success(isTh ? 'ยกเลิกคำชวนแล้ว' : 'Invite revoked');
       setMyInvites(prev => prev.map(i => i.id === inviteId ? { ...i, status: 'revoked' } : i));
