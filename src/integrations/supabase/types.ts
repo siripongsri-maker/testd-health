@@ -1622,6 +1622,9 @@ export type Database = {
           id: string
           invite_type: string
           is_active: boolean
+          max_opens: number | null
+          revoked_at: string | null
+          status: string | null
           tone: string
         }
         Insert: {
@@ -1632,6 +1635,9 @@ export type Database = {
           id?: string
           invite_type?: string
           is_active?: boolean
+          max_opens?: number | null
+          revoked_at?: string | null
+          status?: string | null
           tone?: string
         }
         Update: {
@@ -1642,6 +1648,9 @@ export type Database = {
           id?: string
           invite_type?: string
           is_active?: boolean
+          max_opens?: number | null
+          revoked_at?: string | null
+          status?: string | null
           tone?: string
         }
         Relationships: []
@@ -3004,8 +3013,11 @@ export type Database = {
       get_admin_partner_invite_report: {
         Args: { p_end_date?: string; p_start_date?: string }
         Returns: {
+          accepted_count: number
+          booked_count: number
           booking_cta: number
           bookings_completed: number
+          completed_count: number
           created_at: string
           expires_at: string
           invite_id: string
@@ -3013,6 +3025,7 @@ export type Database = {
           is_active: boolean
           kit_cta: number
           opens: number
+          plans_to_test_count: number
           selftest_requests: number
           sessions_joined: number
           status: string
@@ -3086,7 +3099,27 @@ export type Database = {
           status: string
         }[]
       }
-      get_partner_invite_stats: { Args: never; Returns: Json }
+      get_partner_invite_stats: {
+        Args: never
+        Returns: {
+          accepted_count: number
+          active_invites: number
+          booked_count: number
+          booking_cta: number
+          bookings_completed: number
+          completed_count: number
+          conversion_rate: number
+          expired_invites: number
+          invites_created: number
+          invites_opened: number
+          kit_cta: number
+          plans_to_test_count: number
+          selftest_requests: number
+          sessions_joined: number
+          timer_completed: number
+          unique_opens: number
+        }[]
+      }
       get_public_site_stats: {
         Args: never
         Returns: {
@@ -3207,6 +3240,10 @@ export type Database = {
           p_event_type: string
           p_visitor_session_id: string
         }
+        Returns: undefined
+      }
+      revoke_partner_invite: {
+        Args: { p_invite_id: string }
         Returns: undefined
       }
       self_checkin_appointment: {

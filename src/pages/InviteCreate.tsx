@@ -8,11 +8,23 @@ import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Heart, Link2, QrCode, Users, Copy, Check, ArrowRight, ArrowLeft, Shield, XCircle } from "lucide-react";
+import { Heart, Link2, QrCode, Users, Copy, Check, ArrowRight, ArrowLeft, Shield, XCircle, Eye, ThumbsUp, CalendarCheck, CheckCircle2, TrendingUp, TestTube, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Tone = 'routine' | 'risk' | 'urgent';
 type Mode = 'link' | 'qr' | 'session';
+
+interface ImpactStats {
+  invites_created: number;
+  unique_opens: number;
+  accepted_count: number;
+  plans_to_test_count: number;
+  booked_count: number;
+  completed_count: number;
+  active_invites: number;
+  expired_invites: number;
+  conversion_rate: number;
+}
 
 const tones: { value: Tone; labelTh: string; labelEn: string; descTh: string; descEn: string; color: string }[] = [
   { value: 'routine', labelTh: 'ตรวจเป็นปกติ', labelEn: 'Routine check', descTh: 'ชวนตรวจสุขภาพเป็นประจำ', descEn: 'Regular health check-up', color: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-400' },
@@ -23,7 +35,7 @@ const tones: { value: Tone; labelTh: string; labelEn: string; descTh: string; de
 const modes: { value: Mode; labelTh: string; labelEn: string; descTh: string; descEn: string; icon: React.ElementType }[] = [
   { value: 'link', labelTh: 'ลิงก์ชวนตรวจ', labelEn: 'Invite Link', descTh: 'แชร์ผ่าน LINE หรือ SMS', descEn: 'Share via LINE or SMS', icon: Link2 },
   { value: 'qr', labelTh: 'QR Code', labelEn: 'QR Card', descTh: 'สแกนเปิดหน้าชวนตรวจ', descEn: 'Scan to open invite', icon: QrCode },
-  { value: 'session', labelTh: 'ตรวจพร้อมกัน', labelEn: 'Test Together', descTh: 'ตั้งเวลาตรวจพร้อมกัน', descEn: 'Sync timer for testing together', icon: Users },
+  { value: 'session', labelTh: 'ไปตรวจด้วยกัน', labelEn: 'Test Together', descTh: 'ชวนไปตรวจด้วยกัน จองหรือตรวจชุดตรวจ', descEn: 'Go together — book or self-test', icon: Users },
 ];
 
 export default function InviteCreate() {
@@ -37,6 +49,7 @@ export default function InviteCreate() {
   const [result, setResult] = useState<{ code: string; session_code?: string; invite_id?: string } | null>(null);
   const [copied, setCopied] = useState(false);
   const [myInvites, setMyInvites] = useState<any[]>([]);
+  const [impact, setImpact] = useState<ImpactStats | null>(null);
 
   const isTh = language === 'th';
 
@@ -45,9 +58,13 @@ export default function InviteCreate() {
     return null;
   }
 
-  // Load user's active invites for revoke management
   useEffect(() => {
     if (!user) return;
+    // Load impact stats
+    supabase.rpc('get_partner_invite_stats').then(({ data }) => {
+      if (data) setImpact(data as unknown as ImpactStats);
+    });
+    // Load invites
     supabase
       .from('partner_invites')
       .select('id, code, invite_type, tone, status, created_at, expires_at')
@@ -111,6 +128,15 @@ export default function InviteCreate() {
 
   const activeInvites = myInvites.filter(i => i.status === 'active' && new Date(i.expires_at) > new Date());
 
+  const impactMetrics = impact ? [
+    { icon: Heart, label: isTh ? 'ส่งคำชวน' : 'Sent', value: impact.invites_created },
+    { icon: Eye, label: isTh ? 'เปิดดู' : 'Opened', value: impact.unique_opens },
+    { icon: ThumbsUp, label: isTh ? 'ตอบรับ' : 'Accepted', value: impact.accepted_count },
+    { icon: CalendarCheck, label: isTh ? 'ตั้งใจตรวจ' : 'Plans to test', value: impact.plans_to_test_count },
+    { icon: Calendar, label: isTh ? 'จองแล้ว' : 'Booked', value: impact.booked_count },
+    { icon: CheckCircle2, label: isTh ? 'ตรวจแล้ว' : 'Completed', value: impact.completed_count },
+  ] : [];
+
   return (
     <>
       <PageContainer>
@@ -118,6 +144,46 @@ export default function InviteCreate() {
           title={isTh ? 'ชวนคนที่คุณห่วงใยมาตรวจ' : 'Invite Someone to Test'}
           subtitle={isTh ? 'ส่งคำชวนแบบไม่ระบุตัวตน ปลอดภัย ไม่ตัดสิน' : 'Send an anonymous, safe, non-judgmental invite'}
         />
+
+        {/* Impact Dashboard */}
+        {impact && impact.invites_created > 0 && (
+          <div className="mb-6 rounded-2xl bg-card border border-border p-5 shadow-card">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Heart className="h-5 w-5 text-primary" />
+                <h3 className="font-semibold text-foreground text-sm">
+                  {isTh ? 'ผลกระทบของคุณ' : 'Your Impact'}
+                </h3>
+              </div>
+              {impact.conversion_rate > 0 && (
+                <div className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-1">
+                  <TrendingUp className="h-3 w-3 text-emerald-600" />
+                  <span className="text-xs font-medium text-emerald-600">{impact.conversion_rate}%</span>
+                </div>
+              )}
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {impactMetrics.filter(m => m.value > 0).map(m => {
+                const Icon = m.icon;
+                return (
+                  <div key={m.label} className="text-center rounded-lg bg-muted/50 p-2">
+                    <Icon className="h-4 w-4 text-primary mx-auto mb-1" />
+                    <p className="text-lg font-bold text-foreground">{m.value}</p>
+                    <p className="text-[10px] text-muted-foreground">{m.label}</p>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex gap-4 mt-3 pt-3 border-t border-border">
+              <p className="text-xs text-muted-foreground">
+                {isTh ? `ใช้งาน: ${impact.active_invites}` : `Active: ${impact.active_invites}`}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {isTh ? `หมดอายุ: ${impact.expired_invites}` : `Expired: ${impact.expired_invites}`}
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Privacy badge */}
         <div className="mb-6 flex items-center gap-2 rounded-xl bg-primary/5 border border-primary/20 px-4 py-3">
@@ -158,7 +224,6 @@ export default function InviteCreate() {
               </button>
             ))}
 
-            {/* Active invites management */}
             {activeInvites.length > 0 && (
               <div className="mt-6 pt-4 border-t border-border">
                 <h4 className="text-sm font-medium text-muted-foreground mb-3">
@@ -242,7 +307,6 @@ export default function InviteCreate() {
               </p>
             </div>
 
-            {/* Link display */}
             <div className="rounded-xl border border-border bg-muted/50 p-4">
               <p className="text-xs text-muted-foreground mb-1">{isTh ? 'ลิงก์ชวนตรวจ' : 'Invite Link'}</p>
               <p className="text-sm font-mono text-foreground break-all">{inviteUrl}</p>
@@ -275,7 +339,7 @@ export default function InviteCreate() {
             {result.session_code && (
               <div className="rounded-xl border border-primary/30 bg-primary/5 p-4">
                 <p className="text-sm font-medium text-foreground mb-1">
-                  {isTh ? 'ลิงก์ตรวจพร้อมกัน' : 'Test Together Link'}
+                  {isTh ? 'ลิงก์ไปตรวจด้วยกัน' : 'Test Together Link'}
                 </p>
                 <p className="text-sm font-mono text-primary break-all">{sessionUrl}</p>
                 <Button variant="outline" size="sm" className="mt-2" onClick={() => handleCopy(sessionUrl)}>

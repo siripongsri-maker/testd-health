@@ -3,11 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
-import { Heart, TestTube, Calendar, Users, Clock, Shield } from "lucide-react";
+import { Heart, TestTube, Calendar, Users, Clock, Shield, Check, ThumbsUp, CalendarCheck, CheckCircle2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { setInviteAttribution } from "@/lib/inviteAttribution";
+import { cn } from "@/lib/utils";
 
-// Get or create anonymous session id
 function getVisitorSessionId(): string {
   let sid = localStorage.getItem('invite_visitor_sid');
   if (!sid) {
@@ -16,6 +16,11 @@ function getVisitorSessionId(): string {
   }
   return sid;
 }
+
+const RESPONSE_STATES = ['accepted', 'plans_to_test', 'booked', 'completed'] as const;
+type ResponseState = typeof RESPONSE_STATES[number];
+
+const RESPONSE_ORDER: Record<ResponseState, number> = { accepted: 1, plans_to_test: 2, booked: 3, completed: 4 };
 
 export default function InviteLanding() {
   const { code } = useParams<{ code: string }>();
@@ -26,11 +31,12 @@ export default function InviteLanding() {
   const [invite, setInvite] = useState<any>(null);
   const [expired, setExpired] = useState(false);
   const [sessionCode, setSessionCode] = useState<string | null>(null);
+  const [currentResponse, setCurrentResponse] = useState<ResponseState | null>(null);
+  const [responding, setResponding] = useState(false);
 
   useEffect(() => {
     if (!code) return;
     const load = async () => {
-      // Fetch invite - include expired/revoked for messaging
       const { data, error } = await (supabase as any)
         .from('partner_invites')
         .select('id, code, invite_type, tone, expires_at, is_active, status')
@@ -43,7 +49,6 @@ export default function InviteLanding() {
         return;
       }
 
-      // Check lifecycle: expired, revoked, or inactive
       const isExpiredOrRevoked = 
         data.status === 'expired' || 
         data.status === 'revoked' || 
@@ -58,7 +63,6 @@ export default function InviteLanding() {
 
       setInvite(data);
 
-      // If session type, fetch session code
       if (data.invite_type === 'session') {
         const { data: sess } = await supabase
           .from('partner_test_sessions')
@@ -68,7 +72,6 @@ export default function InviteLanding() {
         if (sess) setSessionCode(sess.session_code);
       }
 
-      // Set attribution context for booking flow
       setInviteAttribution({
         invite_code: code,
         invite_id: data.id,
@@ -77,7 +80,15 @@ export default function InviteLanding() {
         set_at: Date.now(),
       });
 
-      // Record view event
+      // Load current response state
+      const { data: respData } = await (supabase as any)
+        .from('partner_invite_responses')
+        .select('response_state')
+        .eq('invite_id', data.id)
+        .eq('visitor_session_id', getVisitorSessionId())
+        .maybeSingle();
+      if (respData) setCurrentResponse(respData.response_state);
+
       try {
         await supabase.rpc('record_partner_invite_event', {
           p_code: code,
@@ -100,6 +111,22 @@ export default function InviteLanding() {
         p_event_type: eventType,
       });
     } catch {}
+  };
+
+  const handleResponse = async (state: ResponseState) => {
+    if (!code || responding) return;
+    if (currentResponse && RESPONSE_ORDER[state] <= RESPONSE_ORDER[currentResponse]) return;
+    
+    setResponding(true);
+    try {
+      const { data } = await supabase.rpc('upsert_partner_invite_response' as any, {
+        p_code: code,
+        p_visitor_session_id: getVisitorSessionId(),
+        p_response_state: state,
+      });
+      setCurrentResponse((data as string) as ResponseState);
+    } catch {}
+    setResponding(false);
   };
 
   if (loading) {
@@ -142,6 +169,13 @@ export default function InviteLanding() {
       </div>
     );
   }
+
+  const responseButtons: { state: ResponseState; labelTh: string; labelEn: string; icon: React.ElementType }[] = [
+    { state: 'accepted', labelTh: 'รับคำชวนแล้ว', labelEn: 'Accepted', icon: ThumbsUp },
+    { state: 'plans_to_test', labelTh: 'ตั้งใจจะไปตรวจ', labelEn: 'Planning to test', icon: CalendarCheck },
+    { state: 'booked', labelTh: 'จองแล้ว', labelEn: 'Booked', icon: Calendar },
+    { state: 'completed', labelTh: 'ตรวจแล้ว', labelEn: 'Completed', icon: CheckCircle2 },
+  ];
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-b from-background to-muted/30">
@@ -200,8 +234,47 @@ export default function InviteLanding() {
               size="lg"
             >
               <Users className="h-5 w-5" />
-              {isTh ? 'ตรวจพร้อมกัน' : 'Test together'}
+              {isTh ? 'ไปตรวจด้วยกัน' : 'Test together'}
             </Button>
+          )}
+        </div>
+
+        {/* Anonymous Response Section */}
+        <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+          <p className="text-sm font-medium text-foreground text-center">
+            {isTh ? 'คุณสามารถตอบกลับแบบไม่ระบุตัวตนได้' : 'You can respond anonymously'}
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            {responseButtons.map(rb => {
+              const Icon = rb.icon;
+              const isActive = currentResponse === rb.state;
+              const isPast = currentResponse ? RESPONSE_ORDER[rb.state] < RESPONSE_ORDER[currentResponse] : false;
+              const isFuture = currentResponse ? RESPONSE_ORDER[rb.state] > RESPONSE_ORDER[currentResponse] : false;
+              
+              return (
+                <button
+                  key={rb.state}
+                  onClick={() => handleResponse(rb.state)}
+                  disabled={responding || isActive || isPast}
+                  className={cn(
+                    "flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm transition-all",
+                    isActive
+                      ? "border-primary bg-primary/10 text-primary font-medium"
+                      : isPast
+                      ? "border-border bg-muted/30 text-muted-foreground opacity-60"
+                      : "border-border bg-background text-foreground hover:border-primary/50 hover:bg-primary/5"
+                  )}
+                >
+                  {isActive ? <Check className="h-4 w-4 shrink-0" /> : <Icon className="h-4 w-4 shrink-0" />}
+                  <span className="text-xs">{isTh ? rb.labelTh : rb.labelEn}</span>
+                </button>
+              );
+            })}
+          </div>
+          {currentResponse && (
+            <p className="text-xs text-center text-muted-foreground">
+              {isTh ? 'ส่งคำตอบแล้ว ขอบคุณ!' : 'Response sent. Thank you!'}
+            </p>
           )}
         </div>
 
