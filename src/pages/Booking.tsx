@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { PageContainer } from '@/components/PageContainer';
 import { BottomNav } from '@/components/BottomNav';
 import { Card } from '@/components/ui/card';
@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { getInviteAttribution, clearInviteAttribution } from '@/lib/inviteAttribution';
 import {
   MapPin, Clock, ChevronRight, ChevronLeft, Calendar as CalendarIcon,
   Check, Loader2, AlertCircle, CreditCard, Globe, Info, HelpCircle, ShieldAlert,
@@ -380,6 +381,30 @@ export default function Booking() {
         if (error) throw error;
         setConfirmedCode((data as any).referral_code);
       }
+
+      // Record booking attribution if came from invite
+      try {
+        const attr = getInviteAttribution();
+        if (attr) {
+          const bookingId = confirmedCode ? undefined : undefined; // we need the appointment id
+          await (supabase as any).from('booking_attributions').insert({
+            booking_id: confirmedCode || null, // will be set below
+            invite_id: attr.invite_id || null,
+            visitor_session_id: attr.visitor_session_id,
+            attribution_type: attr.attribution_type,
+          });
+          if (attr.invite_code) {
+            try {
+              await (supabase.rpc as any)('record_partner_invite_event', {
+                p_code: attr.invite_code,
+                p_visitor_session_id: attr.visitor_session_id,
+                p_event_type: 'booking_completed',
+              });
+            } catch {}
+          }
+          clearInviteAttribution();
+        }
+      } catch {}
 
       setStep('success');
       toast.success(t('booking.successTitle'));

@@ -2,15 +2,19 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/lib/i18n";
-import { Heart, Eye, TestTube, Calendar, Users, Timer } from "lucide-react";
+import { Heart, Eye, TestTube, Calendar, Users, Timer, TrendingUp } from "lucide-react";
 
 interface Stats {
   invites_created: number;
   invites_opened: number;
+  unique_opens: number;
   kit_cta: number;
   booking_cta: number;
   sessions_joined: number;
   timer_completed: number;
+  bookings_completed: number;
+  selftest_requests: number;
+  conversion_rate: number;
 }
 
 export function PartnerInviteImpact() {
@@ -28,11 +32,11 @@ export function PartnerInviteImpact() {
 
   if (!user || !stats || stats.invites_created === 0) return null;
 
-  const impactScore = stats.invites_opened + stats.kit_cta * 3 + stats.booking_cta * 3 + stats.timer_completed * 5;
+  const impactScore = (stats.unique_opens || stats.invites_opened) + stats.kit_cta * 3 + stats.booking_cta * 3 + stats.timer_completed * 5 + (stats.bookings_completed || 0) * 5;
 
   const items = [
     { icon: Heart, label: isTh ? 'ส่งคำชวน' : 'Invites sent', value: stats.invites_created },
-    { icon: Eye, label: isTh ? 'เปิดดู' : 'Opened', value: stats.invites_opened },
+    { icon: Eye, label: isTh ? 'เปิดดู' : 'Unique opens', value: stats.unique_opens || stats.invites_opened },
     { icon: TestTube, label: isTh ? 'ขอชุดตรวจ' : 'Kit requests', value: stats.kit_cta },
     { icon: Calendar, label: isTh ? 'จองคลินิก' : 'Bookings', value: stats.booking_cta },
     { icon: Users, label: isTh ? 'เข้าร่วม' : 'Joined', value: stats.sessions_joined },
@@ -45,7 +49,7 @@ export function PartnerInviteImpact() {
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
           <Heart className="h-5 w-5 text-primary" />
         </div>
-        <div>
+        <div className="flex-1">
           <h3 className="font-semibold text-foreground text-sm">
             {isTh ? 'ผลกระทบของคุณ' : 'Your Impact'}
           </h3>
@@ -53,6 +57,12 @@ export function PartnerInviteImpact() {
             {isTh ? `คะแนนผลกระทบ: ${impactScore}` : `Impact score: ${impactScore}`}
           </p>
         </div>
+        {stats.conversion_rate > 0 && (
+          <div className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-1">
+            <TrendingUp className="h-3 w-3 text-emerald-600" />
+            <span className="text-xs font-medium text-emerald-600">{stats.conversion_rate}%</span>
+          </div>
+        )}
       </div>
       <div className="grid grid-cols-3 gap-2">
         {items.filter(i => i.value > 0).map(item => {

@@ -5,13 +5,14 @@ import { useLanguage } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Heart, TestTube, Calendar, Users, Clock, Shield } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { setInviteAttribution } from "@/lib/inviteAttribution";
 
 // Get or create anonymous session id
 function getVisitorSessionId(): string {
-  let sid = sessionStorage.getItem('invite_visitor_sid');
+  let sid = localStorage.getItem('invite_visitor_sid');
   if (!sid) {
     sid = `v-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    sessionStorage.setItem('invite_visitor_sid', sid);
+    localStorage.setItem('invite_visitor_sid', sid);
   }
   return sid;
 }
@@ -29,13 +30,27 @@ export default function InviteLanding() {
   useEffect(() => {
     if (!code) return;
     const load = async () => {
-      const { data, error } = await supabase
+      // Fetch invite - include expired/revoked for messaging
+      const { data, error } = await (supabase as any)
         .from('partner_invites')
-        .select('id, code, invite_type, tone, expires_at, is_active')
+        .select('id, code, invite_type, tone, expires_at, is_active, status')
         .eq('code', code)
         .maybeSingle();
 
-      if (error || !data || !data.is_active || new Date(data.expires_at) < new Date()) {
+      if (error || !data) {
+        setExpired(true);
+        setLoading(false);
+        return;
+      }
+
+      // Check lifecycle: expired, revoked, or inactive
+      const isExpiredOrRevoked = 
+        data.status === 'expired' || 
+        data.status === 'revoked' || 
+        !data.is_active || 
+        new Date(data.expires_at) < new Date();
+
+      if (isExpiredOrRevoked) {
         setExpired(true);
         setLoading(false);
         return;
@@ -52,6 +67,15 @@ export default function InviteLanding() {
           .maybeSingle();
         if (sess) setSessionCode(sess.session_code);
       }
+
+      // Set attribution context for booking flow
+      setInviteAttribution({
+        invite_code: code,
+        invite_id: data.id,
+        attribution_type: data.invite_type === 'qr' ? 'invite_qr' : 'invite_link',
+        visitor_session_id: getVisitorSessionId(),
+        set_at: Date.now(),
+      });
 
       // Record view event
       try {
@@ -99,7 +123,7 @@ export default function InviteLanding() {
             <Clock className="h-8 w-8 text-muted-foreground" />
           </div>
           <h1 className="text-xl font-bold text-foreground">
-            {isTh ? 'ลิงก์นี้หมดอายุแล้ว' : 'This invite has expired'}
+            {isTh ? 'คำเชิญนี้หมดอายุแล้ว' : 'This invite is no longer active'}
           </h1>
           <p className="text-muted-foreground">
             {isTh ? 'คำชวนนี้หมดอายุแล้ว แต่คุณยังสามารถตรวจสุขภาพได้' : 'This invite has expired, but you can still get tested'}
