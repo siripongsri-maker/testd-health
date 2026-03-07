@@ -1226,6 +1226,7 @@ export type Database = {
           reward_description: string
           reward_image_url: string | null
           reward_title: string
+          season_end_at: string | null
           status_label: string | null
           updated_at: string
         }
@@ -1237,6 +1238,7 @@ export type Database = {
           reward_description?: string
           reward_image_url?: string | null
           reward_title: string
+          season_end_at?: string | null
           status_label?: string | null
           updated_at?: string
         }
@@ -1248,6 +1250,7 @@ export type Database = {
           reward_description?: string
           reward_image_url?: string | null
           reward_title?: string
+          season_end_at?: string | null
           status_label?: string | null
           updated_at?: string
         }

@@ -1,0 +1,1 @@
+ALTER TABLE public.homepage_rewards ADD COLUMN season_end_at timestamp with time zone DEFAULT NULL;
