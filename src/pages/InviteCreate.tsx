@@ -400,11 +400,18 @@ export default function InviteCreate() {
                     <p className="font-semibold text-foreground">{isTh ? m.labelTh : m.labelEn}</p>
                     <p className="text-sm text-muted-foreground">{isTh ? m.descTh : m.descEn}</p>
                   </div>
-                  {m.value === 'sms' && (
-                    <span className="text-[10px] rounded-full bg-amber-500/10 text-amber-600 px-2 py-0.5">
-                      {isAdmin ? 'Admin' : 'Trusted'}
-                    </span>
-                  )}
+                   {m.value === 'sms' && (
+                     <div className="text-right">
+                       <span className="text-[10px] rounded-full bg-amber-500/10 text-amber-600 px-2 py-0.5">
+                         {isAdmin ? 'Admin' : 'Trusted'}
+                       </span>
+                       {smsCredits !== null && !isAdmin && (
+                         <p className="text-[10px] text-muted-foreground mt-0.5">
+                           {smsCredits} {isTh ? 'เครดิต' : 'credits'}
+                         </p>
+                       )}
+                     </div>
+                   )}
                 </button>
               );
             })}
@@ -512,6 +519,27 @@ export default function InviteCreate() {
             </div>
 
             <div className="rounded-xl border border-border bg-card p-4 space-y-3">
+              {/* Credit balance */}
+              {(!isAdmin || !testMode) && (
+                <div className={cn(
+                  "rounded-lg border px-3 py-2 flex items-center justify-between",
+                  (smsCredits ?? 0) > 0 ? "border-emerald-500/30 bg-emerald-500/5" : "border-red-500/30 bg-red-500/5"
+                )}>
+                  <span className="text-sm text-foreground">
+                    {isTh ? 'เครดิต SMS' : 'SMS Credits'}
+                  </span>
+                  <span className={cn("text-lg font-bold", (smsCredits ?? 0) > 0 ? "text-emerald-600" : "text-red-600")}>
+                    {smsCredits ?? 0}
+                  </span>
+                </div>
+              )}
+              {(smsCredits ?? 0) < 1 && (!isAdmin || !testMode) && (
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
+                  <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
+                    {isTh ? 'เครดิตไม่พอ กรุณาเติมเครดิตหรือใช้ลิงก์/QR แทน' : 'Not enough credits. Please top up or use link/QR instead'}
+                  </p>
+                </div>
+              )}
               <div>
                 <label className="text-sm font-medium text-foreground mb-1 block">
                   {isTh ? 'เบอร์โทรผู้รับ' : 'Recipient phone number'}
@@ -527,13 +555,13 @@ export default function InviteCreate() {
                   />
                 </div>
                 <p className="text-[10px] text-muted-foreground mt-1">
-                  {isTh ? 'เบอร์จะไม่ถูกเก็บ จะถูกลบหลังส่ง' : 'Phone number is not stored after sending'}
+                  {isTh ? 'ใช้ 1 เครดิตต่อ 1 ข้อความ · เบอร์จะไม่ถูกเก็บ' : 'Uses 1 credit per message · Phone number is not stored'}
                 </p>
               </div>
 
               <Button
                 onClick={handleSendSms}
-                disabled={smsSending || !smsPhone.trim()}
+                disabled={smsSending || !smsPhone.trim() || ((smsCredits ?? 0) < 1 && (!isAdmin || !testMode))}
                 className="w-full"
                 size="lg"
               >
