@@ -22,7 +22,10 @@ import {
   Shield, Home, LogOut, LayoutDashboard, Clock, Package,
   CalendarDays, Clipboard, Users, Building2, UserPlus,
   Bell, BarChart3, FileText, ClipboardList, FileUp,
-  ChevronDown, Languages, ShieldAlert, RefreshCw, Settings, Gift, Heart,
+  ChevronDown, Languages, ShieldAlert, RefreshCw, Gift, Heart,
+  MessageSquare, CreditCard, Wallet, Link2, UserCheck,
+  Activity, Wrench, Monitor, FileDown, PieChart,
+  type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,8 +35,9 @@ import { cn } from "@/lib/utils";
 
 interface MenuItemDef {
   tab: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   labelKey: string;
+  adminOnly?: boolean;
 }
 
 interface MenuGroup {
@@ -49,45 +53,64 @@ const menuGroups: MenuGroup[] = [
     ],
   },
   {
-    labelKey: "admin.people",
+    labelKey: "admin.operations",
     items: [
-      { tab: "users", icon: Users, labelKey: "admin.users" },
-      { tab: "branch-staff", icon: Building2, labelKey: "admin.branchStaff" },
-      { tab: "quick-register", icon: UserPlus, labelKey: "admin.quickRegister" },
-    ],
-  },
-  {
-    labelKey: "admin.appointments",
-    items: [
+      { tab: "kit-orders", icon: Package, labelKey: "admin.kitOrders" },
       { tab: "bookings", icon: CalendarDays, labelKey: "admin.bookings" },
       { tab: "today", icon: Clipboard, labelKey: "admin.today" },
       { tab: "schedule", icon: Clock, labelKey: "admin.schedule" },
-      { tab: "abuse-logs", icon: ShieldAlert, labelKey: "admin.abuseLogs" },
+    ],
+  },
+  {
+    labelKey: "admin.partnerNetwork",
+    items: [
+      { tab: "partner-invites", icon: Heart, labelKey: "admin.partnerInvites", adminOnly: true },
+      { tab: "pair-sessions", icon: Link2, labelKey: "admin.pairSessions", adminOnly: true },
+      { tab: "anonymous-responses", icon: UserCheck, labelKey: "admin.anonymousResponses", adminOnly: true },
+    ],
+  },
+  {
+    labelKey: "admin.smsCredits",
+    items: [
+      { tab: "sms-relay", icon: MessageSquare, labelKey: "admin.smsRelay", adminOnly: true },
+      { tab: "credit-balances", icon: Wallet, labelKey: "admin.creditBalances", adminOnly: true },
+      { tab: "credit-purchases", icon: CreditCard, labelKey: "admin.creditPurchases", adminOnly: true },
+    ],
+  },
+  {
+    labelKey: "admin.people",
+    items: [
+      { tab: "users", icon: Users, labelKey: "admin.users", adminOnly: true },
+      { tab: "branch-staff", icon: Building2, labelKey: "admin.branchStaff", adminOnly: true },
+      { tab: "quick-register", icon: UserPlus, labelKey: "admin.quickRegister" },
+      { tab: "abuse-logs", icon: ShieldAlert, labelKey: "admin.abuseLogs", adminOnly: true },
     ],
   },
   {
     labelKey: "admin.content",
     items: [
-      { tab: "blog", icon: FileText, labelKey: "admin.blog" },
-      { tab: "surveys", icon: ClipboardList, labelKey: "admin.surveys" },
+      { tab: "blog", icon: FileText, labelKey: "admin.blog", adminOnly: true },
+      { tab: "surveys", icon: ClipboardList, labelKey: "admin.surveys", adminOnly: true },
+      { tab: "rewards", icon: Gift, labelKey: "admin.rewards", adminOnly: true },
+      { tab: "notifications", icon: Bell, labelKey: "admin.notifications", adminOnly: true },
+      { tab: "translations", icon: Languages, labelKey: "admin.translations", adminOnly: true },
     ],
   },
   {
-    labelKey: "admin.operations",
+    labelKey: "admin.reports",
     items: [
-      { tab: "kit-orders", icon: Package, labelKey: "admin.kitOrders" },
-      { tab: "notifications", icon: Bell, labelKey: "admin.notifications" },
-      { tab: "analytics", icon: BarChart3, labelKey: "admin.analytics" },
-      { tab: "partner-invites", icon: Heart, labelKey: "admin.partnerInvites" },
-      { tab: "import", icon: FileUp, labelKey: "admin.import" },
-      { tab: "translations", icon: Languages, labelKey: "admin.translations" },
+      { tab: "analytics", icon: BarChart3, labelKey: "admin.analytics", adminOnly: true },
+      { tab: "export-center", icon: FileDown, labelKey: "admin.exportCenter", adminOnly: true },
+      { tab: "activity-logs", icon: Activity, labelKey: "admin.activityLogs", adminOnly: true },
     ],
   },
   {
-    labelKey: "admin.settings",
+    labelKey: "admin.adminTools",
     items: [
-      { tab: "rewards", icon: Gift, labelKey: "admin.rewards" },
-      { tab: "app-updates", icon: RefreshCw, labelKey: "admin.appUpdates" },
+      { tab: "diagnostics", icon: Wrench, labelKey: "admin.diagnostics", adminOnly: true },
+      { tab: "import", icon: FileUp, labelKey: "admin.import", adminOnly: true },
+      { tab: "app-updates", icon: RefreshCw, labelKey: "admin.appUpdates", adminOnly: true },
+      { tab: "system-health", icon: Monitor, labelKey: "admin.systemHealth", adminOnly: true },
     ],
   },
 ];
@@ -122,11 +145,11 @@ export function AdminSidebar() {
           </div>
           {!collapsed && (
             <div>
-              <h2 className="font-semibold text-sidebar-foreground">
-                {t('admin.panel')}
+              <h2 className="font-semibold text-sidebar-foreground text-sm">
+                testD Console
               </h2>
-              <p className="text-xs text-sidebar-foreground/60">
-                {t('admin.manageSystem')}
+              <p className="text-[10px] text-sidebar-foreground/60">
+                Operations Dashboard
               </p>
             </div>
           )}
