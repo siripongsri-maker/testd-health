@@ -524,6 +524,89 @@ export function AdminPartnerInvitesContent() {
           </div>
         </TabsContent>
 
+        {/* ===== CREDITS TAB ===== */}
+        <TabsContent value="credits" className="space-y-4 mt-4">
+          <h3 className="font-semibold text-foreground flex items-center gap-2">
+            <CreditCard className="h-5 w-5 text-primary" />
+            {isTh ? 'SMS Credits' : 'SMS Credits'}
+          </h3>
+
+          {/* Grant credits form */}
+          <div className="rounded-xl border border-border p-4 space-y-3">
+            <h4 className="text-sm font-semibold text-foreground">{isTh ? 'ให้เครดิต' : 'Grant Credits'}</h4>
+            <div className="flex flex-wrap gap-2">
+              <Input placeholder="User ID (uuid)" value={grantUserId} onChange={e => setGrantUserId(e.target.value)} className="flex-1 min-w-[200px]" />
+              <Input type="number" placeholder={isTh ? 'จำนวน' : 'Amount'} value={grantAmount} onChange={e => setGrantAmount(e.target.value)} className="w-24" />
+              <Input placeholder={isTh ? 'เหตุผล' : 'Reason'} value={grantReason} onChange={e => setGrantReason(e.target.value)} className="w-40" />
+              <Button size="sm" onClick={handleGrantCredits} disabled={!grantUserId.trim() || !grantAmount.trim()} className="gap-1">
+                <Plus className="h-3 w-3" /> {isTh ? 'ให้เครดิต' : 'Grant'}
+              </Button>
+            </div>
+          </div>
+
+          {/* Balances */}
+          <div className="rounded-xl border border-border overflow-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>User ID</TableHead>
+                  <TableHead className="text-right">{isTh ? 'ยอดเครดิต' : 'Balance'}</TableHead>
+                  <TableHead>{isTh ? 'อัพเดทล่าสุด' : 'Last Updated'}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {creditBalances.length === 0 ? (
+                  <TableRow><TableCell colSpan={3} className="text-center py-8 text-muted-foreground">{isTh ? 'ไม่มีข้อมูล' : 'No balances'}</TableCell></TableRow>
+                ) : creditBalances.map(b => (
+                  <TableRow key={b.user_id}>
+                    <TableCell className="text-xs font-mono">{b.user_id.slice(0, 8)}...</TableCell>
+                    <TableCell className="text-right font-bold text-foreground">{b.balance}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{format(new Date(b.updated_at), 'dd/MM HH:mm')}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Transaction history */}
+          <h4 className="text-sm font-semibold text-foreground">{isTh ? 'ประวัติธุรกรรม' : 'Transaction History'}</h4>
+          <div className="rounded-xl border border-border overflow-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{isTh ? 'วันที่' : 'Date'}</TableHead>
+                  <TableHead>User</TableHead>
+                  <TableHead>{isTh ? 'ประเภท' : 'Type'}</TableHead>
+                  <TableHead className="text-right">{isTh ? 'จำนวน' : 'Amount'}</TableHead>
+                  <TableHead className="text-right">{isTh ? 'ยอดหลัง' : 'After'}</TableHead>
+                  <TableHead>{isTh ? 'หมายเหตุ' : 'Note'}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {creditTransactions.length === 0 ? (
+                  <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">{isTh ? 'ไม่มีธุรกรรม' : 'No transactions'}</TableCell></TableRow>
+                ) : creditTransactions.map(tx => (
+                  <TableRow key={tx.id}>
+                    <TableCell className="text-sm">{format(new Date(tx.created_at), 'dd/MM HH:mm')}</TableCell>
+                    <TableCell className="text-xs font-mono">{tx.user_id.slice(0, 8)}...</TableCell>
+                    <TableCell>
+                      <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium",
+                        tx.transaction_type === 'grant' ? 'bg-emerald-500/10 text-emerald-600' :
+                        tx.transaction_type === 'deduct' ? 'bg-red-500/10 text-red-600' :
+                        tx.transaction_type === 'refund' ? 'bg-blue-500/10 text-blue-600' :
+                        'bg-muted text-muted-foreground'
+                      )}>{tx.transaction_type}</span>
+                    </TableCell>
+                    <TableCell className={cn("text-right font-medium", tx.amount > 0 ? 'text-emerald-600' : 'text-red-600')}>{tx.amount > 0 ? `+${tx.amount}` : tx.amount}</TableCell>
+                    <TableCell className="text-right text-foreground">{tx.balance_after}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{tx.metadata?.reason || tx.metadata?.granted_by ? `by ${(tx.metadata.granted_by || '').slice(0, 8)}` : '-'}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </TabsContent>
+
         {/* ===== DIAGNOSTICS TAB ===== */}
         <TabsContent value="diagnostics" className="space-y-4 mt-4">
           <h3 className="font-semibold text-foreground flex items-center gap-2">
