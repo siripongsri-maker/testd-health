@@ -393,13 +393,14 @@ export default function Booking() {
             visitor_session_id: attr.visitor_session_id,
             attribution_type: attr.attribution_type,
           });
-          // Record booking_completed event
           if (attr.invite_code) {
-            await supabase.rpc('record_partner_invite_event', {
-              p_code: attr.invite_code,
-              p_visitor_session_id: attr.visitor_session_id,
-              p_event_type: 'booking_completed',
-            }).catch(() => {});
+            try {
+              await (supabase.rpc as any)('record_partner_invite_event', {
+                p_code: attr.invite_code,
+                p_visitor_session_id: attr.visitor_session_id,
+                p_event_type: 'booking_completed',
+              });
+            } catch {}
           }
           clearInviteAttribution();
         }
