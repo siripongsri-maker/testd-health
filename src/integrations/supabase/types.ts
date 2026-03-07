@@ -3182,6 +3182,7 @@ export type Database = {
         Returns: {
           accepted_count: number
           active_invites: number
+          adjusted_impact_score: number
           booked_count: number
           booking_cta: number
           booking_started_count: number
@@ -3194,8 +3195,10 @@ export type Database = {
           kit_cta: number
           pair_completed: number
           plans_to_test_count: number
+          raw_impact_score: number
           selftest_requests: number
           sessions_joined: number
+          suspicious_events_count: number
           timer_completed: number
           unique_opens: number
         }[]

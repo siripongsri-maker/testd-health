@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/lib/i18n";
-import { Heart, Eye, TestTube, Calendar, Users, Timer, TrendingUp, ThumbsUp, CalendarCheck, CheckCircle2 } from "lucide-react";
+import { Heart, Eye, TestTube, Calendar, Users, Timer, TrendingUp, ThumbsUp, CalendarCheck, CheckCircle2, Shield } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Stats {
   invites_created: number;
@@ -23,6 +24,9 @@ interface Stats {
   expired_invites: number;
   pair_completed: number;
   booking_started_count: number;
+  raw_impact_score: number;
+  adjusted_impact_score: number;
+  suspicious_events_count: number;
 }
 
 export function PartnerInviteImpact() {
@@ -40,8 +44,6 @@ export function PartnerInviteImpact() {
 
   if (!user || !stats || stats.invites_created === 0) return null;
 
-  const impactScore = (stats.unique_opens || stats.invites_opened) + stats.accepted_count * 2 + stats.plans_to_test_count * 3 + stats.booked_count * 4 + stats.completed_count * 5 + stats.kit_cta * 3 + stats.booking_cta * 3 + stats.timer_completed * 5 + (stats.bookings_completed || 0) * 5 + (stats.pair_completed || 0) * 10;
-
   const items = [
     { icon: Heart, label: isTh ? 'ส่งคำชวน' : 'Invites sent', value: stats.invites_created },
     { icon: Eye, label: isTh ? 'เปิดดู' : 'Unique opens', value: stats.unique_opens || stats.invites_opened },
@@ -49,10 +51,13 @@ export function PartnerInviteImpact() {
     { icon: CalendarCheck, label: isTh ? 'ตั้งใจตรวจ' : 'Plans to test', value: stats.plans_to_test_count },
     { icon: Calendar, label: isTh ? 'จองแล้ว' : 'Booked', value: stats.booked_count },
     { icon: CheckCircle2, label: isTh ? 'ตรวจแล้ว' : 'Completed', value: stats.completed_count },
-    { icon: TestTube, label: isTh ? 'ขอชุดตรวจ' : 'Kit requests', value: stats.kit_cta },
     { icon: Users, label: isTh ? 'ตรวจคู่สำเร็จ' : 'Pair completed', value: stats.pair_completed || 0 },
     { icon: Timer, label: isTh ? 'จับเวลาเสร็จ' : 'Timer done', value: stats.timer_completed },
   ];
+
+  const qualityRate = stats.invites_created > 0
+    ? Math.round(((stats.booked_count + stats.completed_count + stats.bookings_completed) / stats.invites_created) * 100)
+    : 0;
 
   return (
     <div className="rounded-2xl bg-card border border-border p-5 shadow-card">
@@ -65,15 +70,23 @@ export function PartnerInviteImpact() {
             {isTh ? 'ผลกระทบของคุณ' : 'Your Impact'}
           </h3>
           <p className="text-xs text-muted-foreground">
-            {isTh ? `คะแนนผลกระทบ: ${impactScore}` : `Impact score: ${impactScore}`}
+            {isTh ? `คะแนนผลกระทบ: ${stats.adjusted_impact_score}` : `Impact score: ${stats.adjusted_impact_score}`}
           </p>
         </div>
-        {stats.conversion_rate > 0 && (
-          <div className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-1">
-            <TrendingUp className="h-3 w-3 text-emerald-600" />
-            <span className="text-xs font-medium text-emerald-600">{stats.conversion_rate}%</span>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {qualityRate > 0 && (
+            <div className="flex items-center gap-1 rounded-full bg-blue-500/10 px-2 py-1">
+              <Shield className="h-3 w-3 text-blue-600" />
+              <span className="text-xs font-medium text-blue-600">{qualityRate}%</span>
+            </div>
+          )}
+          {stats.conversion_rate > 0 && (
+            <div className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-1">
+              <TrendingUp className="h-3 w-3 text-emerald-600" />
+              <span className="text-xs font-medium text-emerald-600">{stats.conversion_rate}%</span>
+            </div>
+          )}
+        </div>
       </div>
       <div className="grid grid-cols-3 gap-2">
         {items.filter(i => i.value > 0).map(item => {
@@ -87,6 +100,11 @@ export function PartnerInviteImpact() {
           );
         })}
       </div>
+      {stats.suspicious_events_count > 0 && (
+        <p className="text-[10px] text-muted-foreground text-center mt-3 pt-2 border-t border-border">
+          {isTh ? 'กิจกรรมที่ซ้ำบางรายการอาจไม่ถูกนับ' : 'Some repeated activity may not be counted.'}
+        </p>
+      )}
     </div>
   );
 }

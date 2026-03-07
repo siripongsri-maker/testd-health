@@ -27,6 +27,9 @@ interface ImpactStats {
   pair_completed: number;
   booking_started_count: number;
   sessions_joined: number;
+  raw_impact_score: number;
+  adjusted_impact_score: number;
+  suspicious_events_count: number;
 }
 
 const tones: { value: Tone; labelTh: string; labelEn: string; descTh: string; descEn: string; color: string }[] = [
@@ -188,13 +191,19 @@ export default function InviteCreate() {
               })}
             </div>
 
-            <div className="flex gap-4 mt-3 pt-3 border-t border-border text-xs text-muted-foreground">
+            <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 pt-3 border-t border-border text-xs text-muted-foreground">
               <span>{isTh ? `ใช้งาน: ${impact.active_invites}` : `Active: ${impact.active_invites}`}</span>
               <span>{isTh ? `หมดอายุ: ${impact.expired_invites}` : `Expired: ${impact.expired_invites}`}</span>
               {(impact.pair_completed || 0) > 0 && (
                 <span>{isTh ? `ตรวจคู่สำเร็จ: ${impact.pair_completed}` : `Pairs done: ${impact.pair_completed}`}</span>
               )}
+              <span className="font-medium">{isTh ? `คะแนน: ${impact.adjusted_impact_score}` : `Score: ${impact.adjusted_impact_score}`}</span>
             </div>
+            {impact.suspicious_events_count > 0 && (
+              <p className="text-[10px] text-muted-foreground mt-1">
+                {isTh ? 'กิจกรรมที่ซ้ำบางรายการอาจไม่ถูกนับ' : 'Some repeated activity may not be counted.'}
+              </p>
+            )}
           </div>
         )}
 
