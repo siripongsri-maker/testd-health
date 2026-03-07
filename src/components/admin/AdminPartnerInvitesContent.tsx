@@ -104,7 +104,11 @@ export function AdminPartnerInvitesContent() {
   const [grantUserId, setGrantUserId] = useState('');
   const [grantAmount, setGrantAmount] = useState('');
   const [grantReason, setGrantReason] = useState('');
-
+  const [providerDiag, setProviderDiag] = useState<any>(null);
+  const [diagLoading, setDiagLoading] = useState(false);
+  const [testPhone, setTestPhone] = useState('');
+  const [testSending, setTestSending] = useState(false);
+  const [testResult, setTestResult] = useState<any>(null);
   const fetchData = async () => {
     setLoading(true);
     const includeTestMode = testModeFilter !== 'exclude';
@@ -144,6 +148,42 @@ export function AdminPartnerInvitesContent() {
   };
 
   useEffect(() => { fetchData(); }, [startDate, endDate, typeFilter, toneFilter, statusFilter, testModeFilter]);
+
+  const fetchProviderDiag = async () => {
+    setDiagLoading(true);
+    try {
+      const { data: result, error } = await supabase.functions.invoke('send-partner-sms', {
+        body: { action: 'provider_diagnostics' },
+      });
+      if (error) throw error;
+      setProviderDiag(result);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to fetch diagnostics');
+    }
+    setDiagLoading(false);
+  };
+
+  const handleTestSms = async () => {
+    if (!testPhone.trim()) return;
+    setTestSending(true);
+    setTestResult(null);
+    try {
+      const { data: result, error } = await supabase.functions.invoke('send-partner-sms', {
+        body: { action: 'admin_test_sms', test_phone: testPhone.trim() },
+      });
+      if (error) throw error;
+      setTestResult(result);
+      if (result?.status === 'sent') {
+        toast.success(isTh ? 'ส่ง SMS ทดสอบสำเร็จ' : 'Test SMS sent successfully');
+      } else {
+        toast.error(isTh ? 'ส่งไม่สำเร็จ' : `Send failed: ${result?.error || result?.reason}`);
+      }
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed');
+    }
+    setTestSending(false);
+  };
 
   const updateFlagStatus = async (flagId: string, newStatus: string) => {
     try {
@@ -613,6 +653,121 @@ export function AdminPartnerInvitesContent() {
             <Bug className="h-5 w-5 text-primary" />
             {isTh ? 'QA Diagnostics' : 'QA Diagnostics'}
           </h3>
+
+          {/* Twilio Provider Status */}
+          <div className="rounded-xl border border-border p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-semibold text-foreground">{isTh ? 'สถานะ SMS Provider' : 'SMS Provider Status'}</h4>
+              <Button size="sm" variant="outline" onClick={fetchProviderDiag} disabled={diagLoading} className="gap-1 h-7 text-xs">
+                {diagLoading ? <Clock className="h-3 w-3 animate-spin" /> : <Bug className="h-3 w-3" />}
+                {isTh ? 'ตรวจสอบ' : 'Check'}
+              </Button>
+            </div>
+
+            {providerDiag ? (
+              <div className="space-y-2">
+                <div className={cn(
+                  "flex items-center gap-2 rounded-lg border px-3 py-2",
+                  providerDiag.provider_configured ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-red-500/30 bg-red-500/5'
+                )}>
+                  {providerDiag.provider_configured ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <XCircle className="h-4 w-4 text-red-600" />}
+                  <span className="text-sm font-medium text-foreground">
+                    {providerDiag.provider_configured
+                      ? `${providerDiag.provider_name} — ${isTh ? 'พร้อมใช้งาน' : 'Connected'}`
+                      : (isTh ? 'ยังไม่ได้ตั้งค่า Provider' : 'No provider configured')}
+                  </span>
+                </div>
+
+                {providerDiag.twilio && (
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    {providerDiag.twilio.configured ? (
+                      <>
+                        <div className="rounded-lg bg-muted/50 px-3 py-2">
+                          <span className="text-muted-foreground">{isTh ? 'โหมดยืนยันตัวตน' : 'Auth Mode'}</span>
+                          <p className="font-mono font-medium text-foreground">{providerDiag.twilio.auth_mode}</p>
+                        </div>
+                        <div className="rounded-lg bg-muted/50 px-3 py-2">
+                          <span className="text-muted-foreground">{isTh ? 'โหมดส่ง' : 'Send Mode'}</span>
+                          <p className="font-mono font-medium text-foreground">{providerDiag.twilio.send_mode}</p>
+                        </div>
+                        <div className="rounded-lg bg-muted/50 px-3 py-2">
+                          <span className="text-muted-foreground">Sender</span>
+                          <p className="font-mono font-medium text-foreground">{providerDiag.twilio.sender_id}</p>
+                        </div>
+                        <div className="rounded-lg bg-muted/50 px-3 py-2">
+                          <span className="text-muted-foreground">Account</span>
+                          <p className="font-mono font-medium text-foreground">{providerDiag.twilio.account_sid_prefix}</p>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="col-span-2 rounded-lg bg-red-500/5 border border-red-500/20 px-3 py-2">
+                        <span className="text-red-600 font-medium">{isTh ? 'Secret ที่ขาด' : 'Missing Secrets'}:</span>
+                        <ul className="mt-1 space-y-0.5">
+                          {(providerDiag.twilio.missing_secrets || []).map((s: string) => (
+                            <li key={s} className="font-mono text-red-600">• {s}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {providerDiag.last_relay && (
+                  <div className="rounded-lg bg-muted/50 px-3 py-2 text-xs">
+                    <span className="text-muted-foreground">{isTh ? 'การส่งล่าสุด' : 'Last Relay'}</span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className={cn("rounded-full px-2 py-0.5 font-medium",
+                        providerDiag.last_relay.relay_status === 'sent' ? 'bg-emerald-500/10 text-emerald-600' :
+                        providerDiag.last_relay.relay_status === 'failed' ? 'bg-red-500/10 text-red-600' :
+                        'bg-muted text-muted-foreground'
+                      )}>{providerDiag.last_relay.relay_status}</span>
+                      <span className="text-muted-foreground">{providerDiag.last_relay.provider || '-'}</span>
+                      {providerDiag.last_relay.block_reason && (
+                        <span className="text-red-600">{providerDiag.last_relay.block_reason}</span>
+                      )}
+                      {providerDiag.last_relay.is_test_mode && <span className="text-amber-500">TEST</span>}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">{isTh ? 'กดปุ่ม "ตรวจสอบ" เพื่อดูสถานะ' : 'Click "Check" to fetch provider status'}</p>
+            )}
+          </div>
+
+          {/* Admin Test SMS */}
+          <div className="rounded-xl border border-border p-4 space-y-3">
+            <h4 className="text-sm font-semibold text-foreground">{isTh ? 'ส่ง SMS ทดสอบ' : 'Send Test SMS'}</h4>
+            <p className="text-xs text-muted-foreground">{isTh ? 'ส่ง SMS ทดสอบจริงผ่าน Twilio (จะไม่กระทบข้อมูลจริง)' : 'Send a real test SMS via Twilio (marked as test, no production impact)'}</p>
+            <div className="flex gap-2">
+              <Input
+                placeholder={isTh ? 'เบอร์โทร เช่น 0812345678' : 'Phone e.g. 0812345678'}
+                value={testPhone}
+                onChange={e => setTestPhone(e.target.value)}
+                className="flex-1"
+              />
+              <Button size="sm" onClick={handleTestSms} disabled={testSending || !testPhone.trim()} className="gap-1">
+                {testSending ? <Clock className="h-3 w-3 animate-spin" /> : <MessageSquare className="h-3 w-3" />}
+                {isTh ? 'ส่งทดสอบ' : 'Send Test'}
+              </Button>
+            </div>
+            {testResult && (
+              <div className={cn(
+                "rounded-lg border px-3 py-2 text-xs",
+                testResult.status === 'sent' ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-red-500/30 bg-red-500/5'
+              )}>
+                <p className="font-medium text-foreground">
+                  {testResult.status === 'sent' ? '✅ Sent' : '❌ Failed'}
+                  {testResult.provider && ` via ${testResult.provider}`}
+                </p>
+                {testResult.message_id && <p className="font-mono text-muted-foreground mt-1">SID: {testResult.message_id}</p>}
+                {testResult.error && <p className="text-red-600 mt-1">{testResult.error}</p>}
+                {testResult.reason && <p className="text-red-600 mt-1">{testResult.reason}</p>}
+              </div>
+            )}
+          </div>
+
+          {/* Existing system checks */}
           <p className="text-sm text-muted-foreground">
             {isTh ? 'สถานะของส่วนประกอบระบบ Partner Invite' : 'Status of Partner Invite system components'}
           </p>
