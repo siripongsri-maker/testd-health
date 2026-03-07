@@ -104,7 +104,11 @@ export function AdminPartnerInvitesContent() {
   const [grantUserId, setGrantUserId] = useState('');
   const [grantAmount, setGrantAmount] = useState('');
   const [grantReason, setGrantReason] = useState('');
-
+  const [providerDiag, setProviderDiag] = useState<any>(null);
+  const [diagLoading, setDiagLoading] = useState(false);
+  const [testPhone, setTestPhone] = useState('');
+  const [testSending, setTestSending] = useState(false);
+  const [testResult, setTestResult] = useState<any>(null);
   const fetchData = async () => {
     setLoading(true);
     const includeTestMode = testModeFilter !== 'exclude';
