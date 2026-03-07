@@ -572,6 +572,7 @@ export type Database = {
           created_at: string
           id: string
           invite_id: string | null
+          is_test_mode: boolean
           session_id: string | null
           visitor_session_id: string | null
         }
@@ -581,6 +582,7 @@ export type Database = {
           created_at?: string
           id?: string
           invite_id?: string | null
+          is_test_mode?: boolean
           session_id?: string | null
           visitor_session_id?: string | null
         }
@@ -590,6 +592,7 @@ export type Database = {
           created_at?: string
           id?: string
           invite_id?: string | null
+          is_test_mode?: boolean
           session_id?: string | null
           visitor_session_id?: string | null
         }
@@ -1584,12 +1587,72 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_invite_abuse_flags: {
+        Row: {
+          abuse_type: string
+          admin_note: string | null
+          created_at: string
+          evidence: Json
+          id: string
+          invite_id: string | null
+          phone_hash: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          score: number
+          severity: string
+          status: string
+          user_id: string | null
+          visitor_session_id: string | null
+        }
+        Insert: {
+          abuse_type: string
+          admin_note?: string | null
+          created_at?: string
+          evidence?: Json
+          id?: string
+          invite_id?: string | null
+          phone_hash?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          score?: number
+          severity?: string
+          status?: string
+          user_id?: string | null
+          visitor_session_id?: string | null
+        }
+        Update: {
+          abuse_type?: string
+          admin_note?: string | null
+          created_at?: string
+          evidence?: Json
+          id?: string
+          invite_id?: string | null
+          phone_hash?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          score?: number
+          severity?: string
+          status?: string
+          user_id?: string | null
+          visitor_session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_invite_abuse_flags_invite_id_fkey"
+            columns: ["invite_id"]
+            isOneToOne: false
+            referencedRelation: "partner_invites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partner_invite_events: {
         Row: {
           created_at: string
           event_type: string
           id: string
           invite_id: string
+          is_test_mode: boolean
           visitor_session_id: string
         }
         Insert: {
@@ -1597,6 +1660,7 @@ export type Database = {
           event_type: string
           id?: string
           invite_id: string
+          is_test_mode?: boolean
           visitor_session_id: string
         }
         Update: {
@@ -1604,6 +1668,7 @@ export type Database = {
           event_type?: string
           id?: string
           invite_id?: string
+          is_test_mode?: boolean
           visitor_session_id?: string
         }
         Relationships: [
@@ -1618,32 +1683,85 @@ export type Database = {
       }
       partner_invite_relays: {
         Row: {
+          block_reason: string | null
           created_at: string
           id: string
           invite_id: string
+          is_test_mode: boolean
+          metadata: Json
+          provider: string | null
+          provider_message_id: string | null
           recipient_hash: string
           relay_status: string
           relay_type: string
+          updated_at: string
+        }
+        Insert: {
+          block_reason?: string | null
+          created_at?: string
+          id?: string
+          invite_id: string
+          is_test_mode?: boolean
+          metadata?: Json
+          provider?: string | null
+          provider_message_id?: string | null
+          recipient_hash: string
+          relay_status?: string
+          relay_type: string
+          updated_at?: string
+        }
+        Update: {
+          block_reason?: string | null
+          created_at?: string
+          id?: string
+          invite_id?: string
+          is_test_mode?: boolean
+          metadata?: Json
+          provider?: string | null
+          provider_message_id?: string | null
+          recipient_hash?: string
+          relay_status?: string
+          relay_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_invite_relays_invite_id_fkey"
+            columns: ["invite_id"]
+            isOneToOne: false
+            referencedRelation: "partner_invites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_invite_responses: {
+        Row: {
+          created_at: string
+          id: string
+          invite_id: string
+          response_state: string
+          updated_at: string
+          visitor_session_id: string
         }
         Insert: {
           created_at?: string
           id?: string
           invite_id: string
-          recipient_hash: string
-          relay_status?: string
-          relay_type: string
+          response_state: string
+          updated_at?: string
+          visitor_session_id: string
         }
         Update: {
           created_at?: string
           id?: string
           invite_id?: string
-          recipient_hash?: string
-          relay_status?: string
-          relay_type?: string
+          response_state?: string
+          updated_at?: string
+          visitor_session_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "partner_invite_relays_invite_id_fkey"
+            foreignKeyName: "partner_invite_responses_invite_id_fkey"
             columns: ["invite_id"]
             isOneToOne: false
             referencedRelation: "partner_invites"
@@ -1695,6 +1813,7 @@ export type Database = {
           id: string
           invite_type: string
           is_active: boolean
+          is_test_mode: boolean
           max_opens: number | null
           revoked_at: string | null
           status: string | null
@@ -1708,6 +1827,7 @@ export type Database = {
           id?: string
           invite_type?: string
           is_active?: boolean
+          is_test_mode?: boolean
           max_opens?: number | null
           revoked_at?: string | null
           status?: string | null
@@ -1721,6 +1841,7 @@ export type Database = {
           id?: string
           invite_type?: string
           is_active?: boolean
+          is_test_mode?: boolean
           max_opens?: number | null
           revoked_at?: string | null
           status?: string | null
@@ -1763,6 +1884,7 @@ export type Database = {
           created_at: string
           host_invite_id: string
           id: string
+          is_test_mode: boolean
           max_participants: number
           pair_booking_count: number | null
           session_code: string
@@ -1774,6 +1896,7 @@ export type Database = {
           created_at?: string
           host_invite_id: string
           id?: string
+          is_test_mode?: boolean
           max_participants?: number
           pair_booking_count?: number | null
           session_code: string
@@ -1785,6 +1908,7 @@ export type Database = {
           created_at?: string
           host_invite_id?: string
           id?: string
+          is_test_mode?: boolean
           max_participants?: number
           pair_booking_count?: number | null
           session_code?: string
@@ -1845,6 +1969,7 @@ export type Database = {
           reminder_time: string | null
           streak: number | null
           theme: string | null
+          trust_tier: string
           updated_at: string | null
           xp: number | null
         }
@@ -1864,6 +1989,7 @@ export type Database = {
           reminder_time?: string | null
           streak?: number | null
           theme?: string | null
+          trust_tier?: string
           updated_at?: string | null
           xp?: number | null
         }
@@ -1883,6 +2009,7 @@ export type Database = {
           reminder_time?: string | null
           streak?: number | null
           theme?: string | null
+          trust_tier?: string
           updated_at?: string | null
           xp?: number | null
         }
@@ -3053,9 +3180,23 @@ export type Database = {
         }
         Returns: Json
       }
-      create_partner_invite: {
-        Args: { p_invite_type: string; p_tone: string }
-        Returns: Json
+      create_partner_invite:
+        | { Args: { p_invite_type: string; p_tone: string }; Returns: Json }
+        | {
+            Args: {
+              p_invite_type: string
+              p_is_test_mode?: boolean
+              p_tone: string
+            }
+            Returns: Json
+          }
+      create_partner_sms_relay: {
+        Args: {
+          p_invite_id: string
+          p_is_test_mode?: boolean
+          p_phone_hash: string
+        }
+        Returns: string
       }
       create_walkin_appointment: {
         Args: { p_branch_id: string; p_notes?: string }
@@ -3086,31 +3227,67 @@ export type Database = {
         Returns: string
       }
       generate_order_code: { Args: never; Returns: string }
-      get_admin_partner_invite_report: {
-        Args: { p_end_date?: string; p_start_date?: string }
-        Returns: {
-          accepted_count: number
-          booked_count: number
-          booking_cta: number
-          bookings_completed: number
-          completed_count: number
-          created_at: string
-          expires_at: string
-          invite_id: string
-          invite_type: string
-          is_active: boolean
-          kit_cta: number
-          opens: number
-          pair_booking_count: number
-          pair_status: string
-          plans_to_test_count: number
-          selftest_requests: number
-          sessions_joined: number
-          status: string
-          timer_completed: number
-          tone: string
-        }[]
-      }
+      get_admin_partner_invite_report:
+        | {
+            Args: { p_end_date?: string; p_start_date?: string }
+            Returns: {
+              accepted_count: number
+              booked_count: number
+              booking_cta: number
+              bookings_completed: number
+              completed_count: number
+              created_at: string
+              expires_at: string
+              invite_id: string
+              invite_type: string
+              is_active: boolean
+              kit_cta: number
+              opens: number
+              pair_booking_count: number
+              pair_status: string
+              plans_to_test_count: number
+              selftest_requests: number
+              sessions_joined: number
+              status: string
+              timer_completed: number
+              tone: string
+            }[]
+          }
+        | {
+            Args: {
+              p_end_date?: string
+              p_include_test_mode?: boolean
+              p_start_date?: string
+            }
+            Returns: {
+              abuse_flag_count: number
+              accepted_count: number
+              booked_count: number
+              booking_cta: number
+              bookings_completed: number
+              completed_count: number
+              created_at: string
+              expires_at: string
+              invite_id: string
+              invite_type: string
+              inviter_trust_tier: string
+              is_active: boolean
+              is_test_mode: boolean
+              kit_cta: number
+              opens: number
+              pair_booking_count: number
+              pair_status: string
+              plans_to_test_count: number
+              selftest_requests: number
+              sessions_joined: number
+              sms_blocked: number
+              sms_failed: number
+              sms_sent: number
+              status: string
+              timer_completed: number
+              tone: string
+            }[]
+          }
       get_appointment_density: {
         Args: { p_branch_id?: string; p_end_date: string; p_start_date: string }
         Returns: {
@@ -3350,6 +3527,10 @@ export type Database = {
         Args: { p_appointment_id: string }
         Returns: undefined
       }
+      update_abuse_flag_status: {
+        Args: { p_flag_id: string; p_note?: string; p_status: string }
+        Returns: undefined
+      }
       update_appointment_status: {
         Args: {
           p_appointment_id: string
@@ -3357,6 +3538,18 @@ export type Database = {
           p_reason?: string
         }
         Returns: undefined
+      }
+      update_user_trust_tier: {
+        Args: { p_trust_tier: string; p_user_id: string }
+        Returns: undefined
+      }
+      upsert_partner_invite_response: {
+        Args: {
+          p_code: string
+          p_response_state: string
+          p_visitor_session_id: string
+        }
+        Returns: string
       }
       user_liked_article: { Args: { p_article_id: string }; Returns: boolean }
       validate_thai_id: { Args: { thai_id: string }; Returns: boolean }

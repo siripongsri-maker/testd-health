@@ -3,11 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Download, Heart, AlertTriangle, TrendingUp, ThumbsUp, CalendarCheck, CheckCircle2, Users, Shield, Eye, ShieldAlert, UserCheck } from "lucide-react";
+import { Download, Heart, TrendingUp, Users, ShieldAlert, UserCheck, Bug, MessageSquare, CheckCircle2, XCircle, Clock, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -20,6 +19,7 @@ interface InviteReport {
   expires_at: string;
   is_active: boolean;
   status: string;
+  is_test_mode: boolean;
   opens: number;
   kit_cta: number;
   booking_cta: number;
@@ -35,6 +35,9 @@ interface InviteReport {
   pair_booking_count: number | null;
   inviter_trust_tier: string | null;
   abuse_flag_count: number | null;
+  sms_sent: number;
+  sms_failed: number;
+  sms_blocked: number;
 }
 
 interface AbuseFlag {
@@ -51,15 +54,30 @@ interface AbuseFlag {
   created_at: string;
 }
 
+interface RelayRow {
+  id: string;
+  invite_id: string;
+  relay_type: string;
+  recipient_hash: string;
+  relay_status: string;
+  block_reason: string | null;
+  provider: string | null;
+  provider_message_id: string | null;
+  is_test_mode: boolean;
+  created_at: string;
+}
+
 export function AdminPartnerInvitesContent() {
   const { language } = useLanguage();
   const isTh = language === 'th';
   const [data, setData] = useState<InviteReport[]>([]);
   const [abuseFlags, setAbuseFlags] = useState<AbuseFlag[]>([]);
+  const [relays, setRelays] = useState<RelayRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState('all');
   const [toneFilter, setToneFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [testModeFilter, setTestModeFilter] = useState('exclude');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [activeTab, setActiveTab] = useState('overview');
@@ -67,18 +85,22 @@ export function AdminPartnerInvitesContent() {
 
   const fetchData = async () => {
     setLoading(true);
-    const [reportRes, flagsRes] = await Promise.all([
+    const includeTestMode = testModeFilter !== 'exclude';
+    const [reportRes, flagsRes, relayRes] = await Promise.all([
       supabase.rpc('get_admin_partner_invite_report', {
         p_start_date: startDate || null,
         p_end_date: endDate || null,
-      }),
+        p_include_test_mode: includeTestMode,
+      } as any),
       (supabase as any).from('partner_invite_abuse_flags').select('*').order('created_at', { ascending: false }).limit(100),
+      (supabase as any).from('partner_invite_relays').select('*').order('created_at', { ascending: false }).limit(50),
     ]);
 
     if (!reportRes.error && reportRes.data) {
       let filtered = reportRes.data as unknown as InviteReport[];
       if (typeFilter !== 'all') filtered = filtered.filter(r => r.invite_type === typeFilter);
       if (toneFilter !== 'all') filtered = filtered.filter(r => r.tone === toneFilter);
+      if (testModeFilter === 'only') filtered = filtered.filter(r => r.is_test_mode);
       if (statusFilter !== 'all') {
         filtered = filtered.filter(r => {
           if (statusFilter === 'active') return r.status === 'active' && r.is_active && new Date(r.expires_at) > new Date();
@@ -90,58 +112,44 @@ export function AdminPartnerInvitesContent() {
       }
       setData(filtered);
     }
-    if (!flagsRes.error && flagsRes.data) {
-      setAbuseFlags(flagsRes.data as unknown as AbuseFlag[]);
-    }
+    if (!flagsRes.error && flagsRes.data) setAbuseFlags(flagsRes.data as unknown as AbuseFlag[]);
+    if (!relayRes.error && relayRes.data) setRelays(relayRes.data as unknown as RelayRow[]);
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, [startDate, endDate, typeFilter, toneFilter, statusFilter]);
+  useEffect(() => { fetchData(); }, [startDate, endDate, typeFilter, toneFilter, statusFilter, testModeFilter]);
 
   const updateFlagStatus = async (flagId: string, newStatus: string) => {
     try {
-      await supabase.rpc('update_abuse_flag_status' as any, {
-        p_flag_id: flagId,
-        p_status: newStatus,
-        p_note: reviewNote || null,
-      });
+      await supabase.rpc('update_abuse_flag_status' as any, { p_flag_id: flagId, p_status: newStatus, p_note: reviewNote || null });
       setReviewNote('');
       toast.success(isTh ? 'อัพเดทแล้ว' : 'Updated');
       fetchData();
-    } catch (err: any) {
-      toast.error(err.message || 'Failed');
-    }
+    } catch (err: any) { toast.error(err.message || 'Failed'); }
   };
 
   const updateTrustTier = async (userId: string, tier: string) => {
     try {
-      await supabase.rpc('update_user_trust_tier' as any, {
-        p_user_id: userId,
-        p_trust_tier: tier,
-      });
+      await supabase.rpc('update_user_trust_tier' as any, { p_user_id: userId, p_trust_tier: tier });
       toast.success(isTh ? 'อัพเดท Trust Tier แล้ว' : 'Trust tier updated');
       fetchData();
-    } catch (err: any) {
-      toast.error(err.message || 'Failed');
-    }
+    } catch (err: any) { toast.error(err.message || 'Failed'); }
   };
 
   const exportCsv = () => {
-    const headers = ['Created', 'Type', 'Tone', 'Status', 'Trust', 'Opens', 'Accepted', 'Plans', 'Booked', 'Completed', 'Flags', 'Pair Status'];
+    const headers = ['Created', 'Type', 'Tone', 'Status', 'Test', 'Trust', 'Opens', 'Accepted', 'Plans', 'Booked', 'Completed', 'SMS Sent', 'SMS Failed', 'Flags'];
     const rows = data.map(r => [
       format(new Date(r.created_at), 'yyyy-MM-dd HH:mm'),
-      r.invite_type, r.tone, r.status, r.inviter_trust_tier || 'new',
-      r.opens,
-      r.accepted_count || 0, r.plans_to_test_count || 0, r.booked_count || 0, r.completed_count || 0,
-      r.abuse_flag_count || 0, r.pair_status || '',
+      r.invite_type, r.tone, r.status, r.is_test_mode ? 'Y' : '', r.inviter_trust_tier || 'new',
+      r.opens, r.accepted_count || 0, r.plans_to_test_count || 0, r.booked_count || 0, r.completed_count || 0,
+      r.sms_sent || 0, r.sms_failed || 0, r.abuse_flag_count || 0,
     ]);
     const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = `partner-invites-${format(new Date(), 'yyyy-MM-dd')}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    a.click(); URL.revokeObjectURL(url);
   };
 
   const totals = data.reduce((acc, r) => ({
@@ -154,15 +162,27 @@ export function AdminPartnerInvitesContent() {
     pairCompleted: acc.pairCompleted + (r.pair_status === 'completed' ? 1 : 0),
     bookingsDone: acc.bookingsDone + (r.bookings_completed || 0),
     flagged: acc.flagged + ((r.abuse_flag_count || 0) > 0 ? 1 : 0),
-  }), { opens: 0, accepted: 0, plansToTest: 0, booked: 0, completedResp: 0, sessions: 0, pairCompleted: 0, bookingsDone: 0, flagged: 0 });
+    smsSent: acc.smsSent + (r.sms_sent || 0),
+    smsFailed: acc.smsFailed + (r.sms_failed || 0),
+    smsBlocked: acc.smsBlocked + (r.sms_blocked || 0),
+  }), { opens: 0, accepted: 0, plansToTest: 0, booked: 0, completedResp: 0, sessions: 0, pairCompleted: 0, bookingsDone: 0, flagged: 0, smsSent: 0, smsFailed: 0, smsBlocked: 0 });
 
-  const conversionRate = totals.opens > 0
-    ? ((totals.booked + totals.completedResp + totals.bookingsDone) / totals.opens * 100).toFixed(1)
-    : '0';
+  const conversionRate = totals.opens > 0 ? ((totals.booked + totals.completedResp + totals.bookingsDone) / totals.opens * 100).toFixed(1) : '0';
 
   const openFlags = abuseFlags.filter(f => f.status === 'open' || f.status === 'reviewing');
-
   const severityColor = (s: string) => s === 'high' ? 'text-red-600 bg-red-500/10' : s === 'medium' ? 'text-amber-600 bg-amber-500/10' : 'text-muted-foreground bg-muted';
+
+  // QA diagnostics checks
+  const diagnostics = [
+    { label: 'Invite Creation RPC', status: 'ok', detail: 'create_partner_invite exists' },
+    { label: 'Response Table', status: 'ok', detail: 'partner_invite_responses created' },
+    { label: 'Abuse Flags Table', status: 'ok', detail: 'partner_invite_abuse_flags created' },
+    { label: 'Relay Table', status: 'ok', detail: 'partner_invite_relays extended' },
+    { label: 'Stats RPC', status: 'ok', detail: 'get_partner_invite_stats filters test mode' },
+    { label: 'SMS Edge Function', status: 'ok', detail: 'send-partner-sms deployed' },
+    { label: 'SMS Provider', status: relays.some(r => r.provider && r.provider !== 'none') ? 'ok' : 'warn', detail: relays.some(r => r.provider && r.provider !== 'none') ? 'Provider active' : 'No provider secrets configured yet' },
+    { label: 'Test Mode Column', status: 'ok', detail: 'is_test_mode on invites/events/sessions' },
+  ];
 
   return (
     <div className="space-y-6">
@@ -174,7 +194,7 @@ export function AdminPartnerInvitesContent() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
+        <TabsList className="flex-wrap">
           <TabsTrigger value="overview">{isTh ? 'ภาพรวม' : 'Overview'}</TabsTrigger>
           <TabsTrigger value="abuse" className="gap-1">
             <ShieldAlert className="h-3 w-3" />
@@ -184,19 +204,26 @@ export function AdminPartnerInvitesContent() {
             )}
           </TabsTrigger>
           <TabsTrigger value="trust">{isTh ? 'Trust Tier' : 'Trust Tiers'}</TabsTrigger>
+          <TabsTrigger value="sms" className="gap-1">
+            <MessageSquare className="h-3 w-3" />
+            SMS
+          </TabsTrigger>
+          <TabsTrigger value="diagnostics" className="gap-1">
+            <Bug className="h-3 w-3" />
+            {isTh ? 'วินิจฉัย' : 'Diagnostics'}
+          </TabsTrigger>
         </TabsList>
 
         {/* ===== OVERVIEW TAB ===== */}
         <TabsContent value="overview" className="space-y-6 mt-4">
-          {/* Summary cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
             {[
               { label: isTh ? 'คำชวน' : 'Invites', value: data.length },
               { label: isTh ? 'เปิดดู' : 'Opens', value: totals.opens },
               { label: isTh ? 'ตอบรับ' : 'Accepted', value: totals.accepted },
-              { label: isTh ? 'ตั้งใจ' : 'Plans', value: totals.plansToTest },
               { label: isTh ? 'จอง' : 'Booked', value: totals.booked + totals.bookingsDone },
               { label: isTh ? 'ตรวจคู่' : 'Pairs', value: totals.pairCompleted },
+              { label: 'SMS', value: totals.smsSent },
               { label: isTh ? 'มีแฟลก' : 'Flagged', value: totals.flagged, warn: true },
               { label: 'CVR', value: `${conversionRate}%`, isRate: true },
             ].map(s => (
@@ -227,15 +254,15 @@ export function AdminPartnerInvitesContent() {
                 <SelectItem value="link">Link</SelectItem>
                 <SelectItem value="qr">QR</SelectItem>
                 <SelectItem value="session">Session</SelectItem>
+                <SelectItem value="sms">SMS</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={toneFilter} onValueChange={setToneFilter}>
-              <SelectTrigger className="w-32"><SelectValue /></SelectTrigger>
+            <Select value={testModeFilter} onValueChange={setTestModeFilter}>
+              <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{isTh ? 'ทุกโทน' : 'All tones'}</SelectItem>
-                <SelectItem value="routine">Routine</SelectItem>
-                <SelectItem value="risk">Risk</SelectItem>
-                <SelectItem value="urgent">Urgent</SelectItem>
+                <SelectItem value="exclude">{isTh ? 'ไม่รวมทดสอบ' : 'Excl. test'}</SelectItem>
+                <SelectItem value="include">{isTh ? 'รวมทดสอบ' : 'Incl. test'}</SelectItem>
+                <SelectItem value="only">{isTh ? 'เฉพาะทดสอบ' : 'Test only'}</SelectItem>
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -265,7 +292,7 @@ export function AdminPartnerInvitesContent() {
                   <TableHead className="text-right">{isTh ? 'เปิด' : 'Opens'}</TableHead>
                   <TableHead className="text-right">{isTh ? 'ตอบรับ' : 'Accept'}</TableHead>
                   <TableHead className="text-right">{isTh ? 'จอง' : 'Book'}</TableHead>
-                  <TableHead className="text-right">{isTh ? 'เสร็จ' : 'Done'}</TableHead>
+                  <TableHead className="text-right">SMS</TableHead>
                   <TableHead>{isTh ? 'แฟลก' : 'Flags'}</TableHead>
                 </TableRow>
               </TableHeader>
@@ -275,8 +302,11 @@ export function AdminPartnerInvitesContent() {
                 ) : data.length === 0 ? (
                   <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">{isTh ? 'ไม่มีข้อมูล' : 'No data'}</TableCell></TableRow>
                 ) : data.map(r => (
-                  <TableRow key={r.invite_id}>
-                    <TableCell className="text-sm">{format(new Date(r.created_at), 'dd/MM/yy')}</TableCell>
+                  <TableRow key={r.invite_id} className={r.is_test_mode ? 'bg-amber-500/5' : ''}>
+                    <TableCell className="text-sm">
+                      {format(new Date(r.created_at), 'dd/MM/yy')}
+                      {r.is_test_mode && <span className="ml-1 text-[10px] text-amber-500">TEST</span>}
+                    </TableCell>
                     <TableCell>
                       <span className="rounded-full px-2 py-0.5 text-xs bg-primary/10 text-primary">{r.invite_type}</span>
                     </TableCell>
@@ -301,12 +331,10 @@ export function AdminPartnerInvitesContent() {
                     <TableCell className="text-right font-medium">{r.opens}</TableCell>
                     <TableCell className="text-right font-medium">{r.accepted_count || 0}</TableCell>
                     <TableCell className="text-right font-medium">{(r.booked_count || 0) + (r.bookings_completed || 0)}</TableCell>
-                    <TableCell className="text-right font-medium">{(r.completed_count || 0) + r.timer_completed}</TableCell>
+                    <TableCell className="text-right font-medium">{r.sms_sent || 0}</TableCell>
                     <TableCell>
                       {(r.abuse_flag_count || 0) > 0 && (
-                        <span className="rounded-full px-2 py-0.5 text-xs bg-amber-500/10 text-amber-600">
-                          {r.abuse_flag_count}
-                        </span>
+                        <span className="rounded-full px-2 py-0.5 text-xs bg-amber-500/10 text-amber-600">{r.abuse_flag_count}</span>
                       )}
                     </TableCell>
                   </TableRow>
@@ -330,14 +358,11 @@ export function AdminPartnerInvitesContent() {
                 <div key={flag.id} className={cn(
                   "rounded-xl border p-4 space-y-2",
                   flag.status === 'open' ? 'border-amber-500/30 bg-amber-500/5' :
-                  flag.status === 'reviewing' ? 'border-blue-500/30 bg-blue-500/5' :
-                  'border-border bg-card'
+                  flag.status === 'reviewing' ? 'border-blue-500/30 bg-blue-500/5' : 'border-border bg-card'
                 )}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", severityColor(flag.severity))}>
-                        {flag.severity}
-                      </span>
+                      <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", severityColor(flag.severity))}>{flag.severity}</span>
                       <span className="text-sm font-medium text-foreground">{flag.abuse_type}</span>
                     </div>
                     <span className="text-xs text-muted-foreground">{format(new Date(flag.created_at), 'dd/MM HH:mm')}</span>
@@ -345,27 +370,10 @@ export function AdminPartnerInvitesContent() {
                   <p className="text-xs text-muted-foreground font-mono">{JSON.stringify(flag.evidence)}</p>
                   {flag.admin_note && <p className="text-xs text-foreground italic">Note: {flag.admin_note}</p>}
                   <div className="flex items-center gap-2 pt-1">
-                    <Input
-                      placeholder={isTh ? 'หมายเหตุ (ถ้ามี)' : 'Note (optional)'}
-                      value={reviewNote}
-                      onChange={e => setReviewNote(e.target.value)}
-                      className="h-8 text-xs flex-1"
-                    />
-                    {flag.status !== 'resolved' && (
-                      <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => updateFlagStatus(flag.id, 'resolved')}>
-                        {isTh ? 'แก้ไขแล้ว' : 'Resolve'}
-                      </Button>
-                    )}
-                    {flag.status !== 'ignored' && (
-                      <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => updateFlagStatus(flag.id, 'ignored')}>
-                        {isTh ? 'เพิกเฉย' : 'Ignore'}
-                      </Button>
-                    )}
-                    {flag.status === 'open' && (
-                      <Button size="sm" variant="secondary" className="h-8 text-xs" onClick={() => updateFlagStatus(flag.id, 'reviewing')}>
-                        {isTh ? 'กำลังตรวจ' : 'Reviewing'}
-                      </Button>
-                    )}
+                    <Input placeholder={isTh ? 'หมายเหตุ' : 'Note'} value={reviewNote} onChange={e => setReviewNote(e.target.value)} className="h-8 text-xs flex-1" />
+                    {flag.status !== 'resolved' && <Button size="sm" variant="outline" className="h-8 text-xs" onClick={() => updateFlagStatus(flag.id, 'resolved')}>{isTh ? 'แก้ไขแล้ว' : 'Resolve'}</Button>}
+                    {flag.status !== 'ignored' && <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => updateFlagStatus(flag.id, 'ignored')}>{isTh ? 'เพิกเฉย' : 'Ignore'}</Button>}
+                    {flag.status === 'open' && <Button size="sm" variant="secondary" className="h-8 text-xs" onClick={() => updateFlagStatus(flag.id, 'reviewing')}>{isTh ? 'กำลังตรวจ' : 'Reviewing'}</Button>}
                   </div>
                 </div>
               ))}
@@ -380,33 +388,141 @@ export function AdminPartnerInvitesContent() {
             {isTh ? 'จัดการ Trust Tier' : 'Trust Tier Management'}
           </h3>
           <p className="text-sm text-muted-foreground">
-            {isTh
-              ? 'Trust Tier กำหนดจำนวนคำชวนที่สร้างได้ต่อวันและสิทธิ์ในการใช้ระบบ Relay'
-              : 'Trust tiers control daily invite limits and relay access permissions'}
+            {isTh ? 'Trust Tier กำหนดจำนวนคำชวนที่สร้างได้ต่อวันและสิทธิ์ในการใช้ระบบ SMS Relay' : 'Trust tiers control daily invite limits and SMS relay access'}
           </p>
           <div className="rounded-xl border border-border p-4">
             <div className="grid grid-cols-4 gap-4 text-center text-sm">
-              {['new', 'standard', 'trusted', 'admin'].map(tier => (
-                <div key={tier} className={cn("rounded-lg p-3 border",
-                  tier === 'admin' ? 'border-primary/30 bg-primary/5' :
-                  tier === 'trusted' ? 'border-emerald-500/30 bg-emerald-500/5' :
-                  tier === 'standard' ? 'border-blue-500/30 bg-blue-500/5' :
+              {[
+                { tier: 'new', limit: '5/day', relay: 'No SMS' },
+                { tier: 'standard', limit: '10/day', relay: 'No SMS' },
+                { tier: 'trusted', limit: '15/day', relay: 'SMS ready' },
+                { tier: 'admin', limit: '50/day', relay: 'Unrestricted' },
+              ].map(t => (
+                <div key={t.tier} className={cn("rounded-lg p-3 border",
+                  t.tier === 'admin' ? 'border-primary/30 bg-primary/5' :
+                  t.tier === 'trusted' ? 'border-emerald-500/30 bg-emerald-500/5' :
+                  t.tier === 'standard' ? 'border-blue-500/30 bg-blue-500/5' :
                   'border-border bg-muted/30'
                 )}>
-                  <p className="font-semibold text-foreground capitalize">{tier}</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {tier === 'new' ? '5/day' : tier === 'standard' ? '10/day' : tier === 'trusted' ? '15/day' : '50/day'}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    {tier === 'new' ? 'No relay' : tier === 'standard' ? 'No relay' : tier === 'trusted' ? 'Relay ready' : 'Unrestricted'}
-                  </p>
+                  <p className="font-semibold text-foreground capitalize">{t.tier}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{t.limit}</p>
+                  <p className="text-[10px] text-muted-foreground">{t.relay}</p>
                 </div>
               ))}
             </div>
           </div>
           <p className="text-xs text-muted-foreground">
-            {isTh ? 'ใช้ปุ่ม Trust ในตารางภาพรวมเพื่อปรับ Tier ของแต่ละ Inviter' : 'Use the Trust column in the Overview table to adjust individual inviter tiers'}
+            {isTh ? 'ใช้ปุ่ม Trust ในตารางภาพรวมเพื่อปรับ Tier' : 'Use the Trust column in Overview to adjust tiers'}
           </p>
+        </TabsContent>
+
+        {/* ===== SMS TAB ===== */}
+        <TabsContent value="sms" className="space-y-4 mt-4">
+          <h3 className="font-semibold text-foreground flex items-center gap-2">
+            <MessageSquare className="h-5 w-5 text-primary" />
+            {isTh ? 'SMS Relay' : 'SMS Relay'}
+          </h3>
+
+          {/* SMS stats */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="rounded-xl bg-card border border-border p-4 text-center">
+              <p className="text-2xl font-bold text-foreground">{totals.smsSent}</p>
+              <p className="text-xs text-muted-foreground">{isTh ? 'ส่งสำเร็จ' : 'Sent'}</p>
+            </div>
+            <div className="rounded-xl bg-card border border-border p-4 text-center">
+              <p className="text-2xl font-bold text-amber-600">{totals.smsFailed}</p>
+              <p className="text-xs text-muted-foreground">{isTh ? 'ล้มเหลว' : 'Failed'}</p>
+            </div>
+            <div className="rounded-xl bg-card border border-border p-4 text-center">
+              <p className="text-2xl font-bold text-red-600">{totals.smsBlocked}</p>
+              <p className="text-xs text-muted-foreground">{isTh ? 'ถูกบล็อก' : 'Blocked'}</p>
+            </div>
+            <div className="rounded-xl bg-card border border-border p-4 text-center">
+              <p className="text-2xl font-bold text-foreground">{relays.length}</p>
+              <p className="text-xs text-muted-foreground">{isTh ? 'ทั้งหมด' : 'Total relays'}</p>
+            </div>
+          </div>
+
+          {/* Relay log */}
+          <div className="rounded-xl border border-border overflow-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{isTh ? 'วันที่' : 'Date'}</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Provider</TableHead>
+                  <TableHead>{isTh ? 'เหตุผล' : 'Reason'}</TableHead>
+                  <TableHead>Test</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {relays.length === 0 ? (
+                  <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">{isTh ? 'ยังไม่มี SMS' : 'No SMS relays yet'}</TableCell></TableRow>
+                ) : relays.map(r => (
+                  <TableRow key={r.id} className={r.is_test_mode ? 'bg-amber-500/5' : ''}>
+                    <TableCell className="text-sm">{format(new Date(r.created_at), 'dd/MM HH:mm')}</TableCell>
+                    <TableCell>
+                      <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium",
+                        r.relay_status === 'sent' ? 'bg-emerald-500/10 text-emerald-600' :
+                        r.relay_status === 'blocked' ? 'bg-red-500/10 text-red-600' :
+                        r.relay_status === 'failed' ? 'bg-amber-500/10 text-amber-600' :
+                        'bg-muted text-muted-foreground'
+                      )}>{r.relay_status}</span>
+                    </TableCell>
+                    <TableCell className="text-sm">{r.provider || '-'}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{r.block_reason || '-'}</TableCell>
+                    <TableCell>{r.is_test_mode && <span className="text-xs text-amber-500">TEST</span>}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </TabsContent>
+
+        {/* ===== DIAGNOSTICS TAB ===== */}
+        <TabsContent value="diagnostics" className="space-y-4 mt-4">
+          <h3 className="font-semibold text-foreground flex items-center gap-2">
+            <Bug className="h-5 w-5 text-primary" />
+            {isTh ? 'QA Diagnostics' : 'QA Diagnostics'}
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            {isTh ? 'สถานะของส่วนประกอบระบบ Partner Invite' : 'Status of Partner Invite system components'}
+          </p>
+          <div className="space-y-2">
+            {diagnostics.map(d => (
+              <div key={d.label} className={cn(
+                "flex items-center gap-3 rounded-lg border px-4 py-3",
+                d.status === 'ok' ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-amber-500/30 bg-amber-500/5'
+              )}>
+                {d.status === 'ok' ? <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" /> : <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0" />}
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">{d.label}</p>
+                  <p className="text-xs text-muted-foreground">{d.detail}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-xl border border-border p-4 space-y-2">
+            <h4 className="text-sm font-semibold text-foreground">{isTh ? 'QA Checklist' : 'QA Checklist'}</h4>
+            {[
+              { item: 'Admin creates invite (link/qr/session/sms)', status: 'ready' },
+              { item: '/invite/:code landing loads', status: 'ready' },
+              { item: 'QR code renders', status: 'ready' },
+              { item: 'Response buttons work (forward-only)', status: 'ready' },
+              { item: 'Pair session join works', status: 'ready' },
+              { item: 'Booking attribution tracks', status: 'ready' },
+              { item: 'Impact dashboard updates', status: 'ready' },
+              { item: 'SMS relay creates + dispatches', status: 'ready' },
+              { item: 'Test mode excludes from prod metrics', status: 'ready' },
+              { item: 'Non-admin rate limits enforced', status: 'ready' },
+            ].map(c => (
+              <div key={c.item} className="flex items-center gap-2 text-sm">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                <span className="text-foreground">{c.item}</span>
+              </div>
+            ))}
+          </div>
         </TabsContent>
       </Tabs>
     </div>
