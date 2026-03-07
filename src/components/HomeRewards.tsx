@@ -194,7 +194,7 @@ export function HomeRewards() {
 
         {/* Countdown timer */}
         <div className="p-3 border-t border-border/30 flex items-center justify-between">
-          <SeasonCountdown language={language} />
+          <SeasonCountdown language={language} seasonEndAt={rewards[0]?.season_end_at} />
           <Button
             size="sm"
             variant="outline"
