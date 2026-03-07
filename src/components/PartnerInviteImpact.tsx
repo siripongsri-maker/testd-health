@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/lib/i18n";
-import { Heart, Eye, TestTube, Calendar, Users, Timer, TrendingUp } from "lucide-react";
+import { Heart, Eye, TestTube, Calendar, Users, Timer, TrendingUp, ThumbsUp, CalendarCheck, CheckCircle2 } from "lucide-react";
 
 interface Stats {
   invites_created: number;
@@ -15,6 +15,12 @@ interface Stats {
   bookings_completed: number;
   selftest_requests: number;
   conversion_rate: number;
+  accepted_count: number;
+  plans_to_test_count: number;
+  booked_count: number;
+  completed_count: number;
+  active_invites: number;
+  expired_invites: number;
 }
 
 export function PartnerInviteImpact() {
@@ -32,15 +38,17 @@ export function PartnerInviteImpact() {
 
   if (!user || !stats || stats.invites_created === 0) return null;
 
-  const impactScore = (stats.unique_opens || stats.invites_opened) + stats.kit_cta * 3 + stats.booking_cta * 3 + stats.timer_completed * 5 + (stats.bookings_completed || 0) * 5;
+  const impactScore = (stats.unique_opens || stats.invites_opened) + stats.accepted_count * 2 + stats.plans_to_test_count * 3 + stats.booked_count * 4 + stats.completed_count * 5 + stats.kit_cta * 3 + stats.booking_cta * 3 + stats.timer_completed * 5 + (stats.bookings_completed || 0) * 5;
 
   const items = [
     { icon: Heart, label: isTh ? 'ส่งคำชวน' : 'Invites sent', value: stats.invites_created },
     { icon: Eye, label: isTh ? 'เปิดดู' : 'Unique opens', value: stats.unique_opens || stats.invites_opened },
+    { icon: ThumbsUp, label: isTh ? 'ตอบรับ' : 'Accepted', value: stats.accepted_count },
+    { icon: CalendarCheck, label: isTh ? 'ตั้งใจตรวจ' : 'Plans to test', value: stats.plans_to_test_count },
+    { icon: Calendar, label: isTh ? 'จองแล้ว' : 'Booked', value: stats.booked_count },
+    { icon: CheckCircle2, label: isTh ? 'ตรวจแล้ว' : 'Completed', value: stats.completed_count },
     { icon: TestTube, label: isTh ? 'ขอชุดตรวจ' : 'Kit requests', value: stats.kit_cta },
-    { icon: Calendar, label: isTh ? 'จองคลินิก' : 'Bookings', value: stats.booking_cta },
-    { icon: Users, label: isTh ? 'เข้าร่วม' : 'Joined', value: stats.sessions_joined },
-    { icon: Timer, label: isTh ? 'ตรวจเสร็จ' : 'Completed', value: stats.timer_completed },
+    { icon: Timer, label: isTh ? 'จับเวลาเสร็จ' : 'Timer done', value: stats.timer_completed },
   ];
 
   return (

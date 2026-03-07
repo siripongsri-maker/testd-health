@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Download, Heart, AlertTriangle, TrendingUp } from "lucide-react";
+import { Download, Heart, AlertTriangle, TrendingUp, ThumbsUp, CalendarCheck, CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
 
 interface InviteReport {
@@ -23,6 +23,10 @@ interface InviteReport {
   timer_completed: number;
   bookings_completed: number;
   selftest_requests: number;
+  accepted_count: number;
+  plans_to_test_count: number;
+  booked_count: number;
+  completed_count: number;
 }
 
 interface AbuseFlag {
@@ -74,13 +78,14 @@ export function AdminPartnerInvitesContent() {
   };
 
   const exportCsv = () => {
-    const headers = ['Created', 'Type', 'Tone', 'Status', 'Expires', 'Unique Opens', 'Kit CTA', 'Booking CTA', 'Sessions', 'Completed', 'Bookings Done', 'Selftest Req'];
+    const headers = ['Created', 'Type', 'Tone', 'Status', 'Expires', 'Opens', 'Kit', 'Booking', 'Sessions', 'Timer Done', 'Bookings Done', 'Selftest', 'Accepted', 'Plans', 'Booked', 'Completed'];
     const rows = data.map(r => [
       format(new Date(r.created_at), 'yyyy-MM-dd HH:mm'),
       r.invite_type, r.tone, r.status,
       format(new Date(r.expires_at), 'yyyy-MM-dd HH:mm'),
       r.opens, r.kit_cta, r.booking_cta, r.sessions_joined, r.timer_completed,
       r.bookings_completed, r.selftest_requests,
+      r.accepted_count || 0, r.plans_to_test_count || 0, r.booked_count || 0, r.completed_count || 0,
     ]);
     const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -99,10 +104,14 @@ export function AdminPartnerInvitesContent() {
     completed: acc.completed + r.timer_completed,
     bookingsDone: acc.bookingsDone + (r.bookings_completed || 0),
     selftestReq: acc.selftestReq + (r.selftest_requests || 0),
-  }), { opens: 0, kit: 0, booking: 0, sessions: 0, completed: 0, bookingsDone: 0, selftestReq: 0 });
+    accepted: acc.accepted + (r.accepted_count || 0),
+    plansToTest: acc.plansToTest + (r.plans_to_test_count || 0),
+    booked: acc.booked + (r.booked_count || 0),
+    completedResp: acc.completedResp + (r.completed_count || 0),
+  }), { opens: 0, kit: 0, booking: 0, sessions: 0, completed: 0, bookingsDone: 0, selftestReq: 0, accepted: 0, plansToTest: 0, booked: 0, completedResp: 0 });
 
   const conversionRate = totals.opens > 0
-    ? ((totals.bookingsDone + totals.completed) / totals.opens * 100).toFixed(1)
+    ? ((totals.bookingsDone + totals.completed + totals.completedResp) / totals.opens * 100).toFixed(1)
     : '0';
 
   return (
@@ -114,7 +123,6 @@ export function AdminPartnerInvitesContent() {
         </h2>
       </div>
 
-      {/* Abuse flags alert */}
       {abuseFlags.length > 0 && (
         <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
           <div className="flex items-center gap-2 mb-2">
@@ -137,14 +145,13 @@ export function AdminPartnerInvitesContent() {
       )}
 
       {/* Summary cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
         {[
           { label: isTh ? 'คำชวนทั้งหมด' : 'Total Invites', value: data.length },
-          { label: isTh ? 'เปิดดู (unique)' : 'Unique Opens', value: totals.opens },
-          { label: isTh ? 'ขอชุดตรวจ' : 'Kit CTAs', value: totals.kit },
-          { label: isTh ? 'จองคลินิก' : 'Booking CTAs', value: totals.booking },
-          { label: isTh ? 'จองสำเร็จ' : 'Bookings Done', value: totals.bookingsDone },
-          { label: isTh ? 'ตรวจเสร็จ' : 'Completed', value: totals.completed },
+          { label: isTh ? 'เปิดดู' : 'Unique Opens', value: totals.opens },
+          { label: isTh ? 'ตอบรับ' : 'Accepted', value: totals.accepted, icon: ThumbsUp },
+          { label: isTh ? 'ตั้งใจตรวจ' : 'Plans to test', value: totals.plansToTest, icon: CalendarCheck },
+          { label: isTh ? 'จองแล้ว/ตรวจแล้ว' : 'Booked/Done', value: totals.booked + totals.completedResp, icon: CheckCircle2 },
           { label: isTh ? 'อัตราการแปลง' : 'Conversion', value: `${conversionRate}%`, isRate: true },
         ].map(s => (
           <div key={s.label} className="rounded-xl bg-card border border-border p-4 text-center">
@@ -189,7 +196,7 @@ export function AdminPartnerInvitesContent() {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-border overflow-hidden">
+      <div className="rounded-xl border border-border overflow-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -198,18 +205,17 @@ export function AdminPartnerInvitesContent() {
               <TableHead>{isTh ? 'โทน' : 'Tone'}</TableHead>
               <TableHead>{isTh ? 'สถานะ' : 'Status'}</TableHead>
               <TableHead className="text-right">{isTh ? 'เปิด' : 'Opens'}</TableHead>
-              <TableHead className="text-right">{isTh ? 'ชุดตรวจ' : 'Kit'}</TableHead>
+              <TableHead className="text-right">{isTh ? 'ตอบรับ' : 'Accept'}</TableHead>
+              <TableHead className="text-right">{isTh ? 'ตั้งใจ' : 'Plans'}</TableHead>
               <TableHead className="text-right">{isTh ? 'จอง' : 'Book'}</TableHead>
-              <TableHead className="text-right">{isTh ? 'เซสชัน' : 'Sessions'}</TableHead>
               <TableHead className="text-right">{isTh ? 'เสร็จ' : 'Done'}</TableHead>
-              <TableHead className="text-right">{isTh ? 'จองสำเร็จ' : 'Booked'}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
-              <TableRow><TableCell colSpan={10} className="text-center py-8 text-muted-foreground">{isTh ? 'กำลังโหลด...' : 'Loading...'}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">{isTh ? 'กำลังโหลด...' : 'Loading...'}</TableCell></TableRow>
             ) : data.length === 0 ? (
-              <TableRow><TableCell colSpan={10} className="text-center py-8 text-muted-foreground">{isTh ? 'ไม่มีข้อมูล' : 'No data'}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">{isTh ? 'ไม่มีข้อมูล' : 'No data'}</TableCell></TableRow>
             ) : data.map(r => (
               <TableRow key={r.invite_id}>
                 <TableCell className="text-sm">{format(new Date(r.created_at), 'dd/MM/yy HH:mm')}</TableCell>
@@ -235,11 +241,10 @@ export function AdminPartnerInvitesContent() {
                   </span>
                 </TableCell>
                 <TableCell className="text-right font-medium">{r.opens}</TableCell>
-                <TableCell className="text-right font-medium">{r.kit_cta}</TableCell>
-                <TableCell className="text-right font-medium">{r.booking_cta}</TableCell>
-                <TableCell className="text-right font-medium">{r.sessions_joined}</TableCell>
-                <TableCell className="text-right font-medium">{r.timer_completed}</TableCell>
-                <TableCell className="text-right font-medium">{r.bookings_completed || 0}</TableCell>
+                <TableCell className="text-right font-medium">{r.accepted_count || 0}</TableCell>
+                <TableCell className="text-right font-medium">{r.plans_to_test_count || 0}</TableCell>
+                <TableCell className="text-right font-medium">{(r.booked_count || 0) + (r.bookings_completed || 0)}</TableCell>
+                <TableCell className="text-right font-medium">{(r.completed_count || 0) + r.timer_completed}</TableCell>
               </TableRow>
             ))}
           </TableBody>
