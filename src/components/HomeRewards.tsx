@@ -26,11 +26,13 @@ const SeasonCountdown = forwardRef<HTMLDivElement, { language: string; seasonEnd
     }
 
     const end = new Date(seasonEndAt);
+    if (isNaN(end.getTime())) {
+      setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, ended: true });
+      return;
+    }
 
     const update = () => {
-      // Use Asia/Bangkok time for consistency
-      const nowBangkok = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
-      const diff = end.getTime() - nowBangkok.getTime();
+      const diff = end.getTime() - Date.now();
 
       if (diff <= 0) {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, ended: true });
