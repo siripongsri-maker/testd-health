@@ -2382,6 +2382,101 @@ export type Database = {
         }
         Relationships: []
       }
+      sms_credit_packages: {
+        Row: {
+          created_at: string
+          credits: number
+          description_en: string | null
+          description_th: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          name_en: string
+          name_th: string
+          package_key: string
+          price_thb: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          credits: number
+          description_en?: string | null
+          description_th?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          name_en: string
+          name_th: string
+          package_key: string
+          price_thb: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          credits?: number
+          description_en?: string | null
+          description_th?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          name_en?: string
+          name_th?: string
+          package_key?: string
+          price_thb?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sms_credit_purchases: {
+        Row: {
+          amount_thb: number | null
+          created_at: string
+          credits: number
+          id: string
+          package_id: string | null
+          package_key: string
+          payment_provider: string | null
+          payment_reference: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_thb?: number | null
+          created_at?: string
+          credits: number
+          id?: string
+          package_id?: string | null
+          package_key: string
+          payment_provider?: string | null
+          payment_reference?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_thb?: number | null
+          created_at?: string
+          credits?: number
+          id?: string
+          package_id?: string | null
+          package_key?: string
+          payment_provider?: string | null
+          payment_reference?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_credit_purchases_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "sms_credit_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sms_credit_transactions: {
         Row: {
           amount: number
@@ -3196,6 +3291,10 @@ export type Database = {
         Args: { p_email: string; p_user_id: string }
         Returns: number
       }
+      complete_sms_purchase: {
+        Args: { p_payment_reference?: string; p_purchase_id: string }
+        Returns: Json
+      }
       complete_survey: {
         Args: { p_session_id?: string; p_survey_id: string }
         Returns: number
@@ -3253,6 +3352,7 @@ export type Database = {
         }
         Returns: string
       }
+      create_sms_purchase: { Args: { p_package_key: string }; Returns: Json }
       create_walkin_appointment: {
         Args: { p_branch_id: string; p_notes?: string }
         Returns: Json
