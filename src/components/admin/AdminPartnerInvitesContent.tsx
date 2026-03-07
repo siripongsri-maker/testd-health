@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Download, Heart } from "lucide-react";
+import { Download, Heart, AlertTriangle, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
 
 interface InviteReport {
@@ -15,17 +15,29 @@ interface InviteReport {
   tone: string;
   expires_at: string;
   is_active: boolean;
+  status: string;
   opens: number;
   kit_cta: number;
   booking_cta: number;
   sessions_joined: number;
   timer_completed: number;
+  bookings_completed: number;
+  selftest_requests: number;
+}
+
+interface AbuseFlag {
+  id: string;
+  invite_id: string;
+  reason: string;
+  created_at: string;
+  resolved: boolean;
 }
 
 export function AdminPartnerInvitesContent() {
   const { language } = useLanguage();
   const isTh = language === 'th';
   const [data, setData] = useState<InviteReport[]>([]);
+  const [abuseFlags, setAbuseFlags] = useState<AbuseFlag[]>([]);
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState('all');
   const [toneFilter, setToneFilter] = useState('all');
@@ -34,28 +46,41 @@ export function AdminPartnerInvitesContent() {
 
   const fetchData = async () => {
     setLoading(true);
-    const { data: result, error } = await supabase.rpc('get_admin_partner_invite_report', {
-      p_start_date: startDate || null,
-      p_end_date: endDate || null,
-    });
-    if (!error && result) {
-      let filtered = result as unknown as InviteReport[];
+    const [reportRes, flagsRes] = await Promise.all([
+      supabase.rpc('get_admin_partner_invite_report', {
+        p_start_date: startDate || null,
+        p_end_date: endDate || null,
+      }),
+      supabase.from('partner_invite_abuse_flags').select('*').eq('resolved', false).order('created_at', { ascending: false }).limit(50),
+    ]);
+
+    if (!reportRes.error && reportRes.data) {
+      let filtered = reportRes.data as unknown as InviteReport[];
       if (typeFilter !== 'all') filtered = filtered.filter(r => r.invite_type === typeFilter);
       if (toneFilter !== 'all') filtered = filtered.filter(r => r.tone === toneFilter);
       setData(filtered);
+    }
+    if (!flagsRes.error && flagsRes.data) {
+      setAbuseFlags(flagsRes.data as unknown as AbuseFlag[]);
     }
     setLoading(false);
   };
 
   useEffect(() => { fetchData(); }, [startDate, endDate, typeFilter, toneFilter]);
 
+  const resolveFlag = async (flagId: string) => {
+    await supabase.from('partner_invite_abuse_flags').update({ resolved: true }).eq('id', flagId);
+    setAbuseFlags(prev => prev.filter(f => f.id !== flagId));
+  };
+
   const exportCsv = () => {
-    const headers = ['Created', 'Type', 'Tone', 'Active', 'Expires', 'Opens', 'Kit CTA', 'Booking CTA', 'Sessions', 'Completed'];
+    const headers = ['Created', 'Type', 'Tone', 'Status', 'Expires', 'Unique Opens', 'Kit CTA', 'Booking CTA', 'Sessions', 'Completed', 'Bookings Done', 'Selftest Req'];
     const rows = data.map(r => [
       format(new Date(r.created_at), 'yyyy-MM-dd HH:mm'),
-      r.invite_type, r.tone, r.is_active ? 'Yes' : 'No',
+      r.invite_type, r.tone, r.status,
       format(new Date(r.expires_at), 'yyyy-MM-dd HH:mm'),
       r.opens, r.kit_cta, r.booking_cta, r.sessions_joined, r.timer_completed,
+      r.bookings_completed, r.selftest_requests,
     ]);
     const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
@@ -72,7 +97,13 @@ export function AdminPartnerInvitesContent() {
     booking: acc.booking + r.booking_cta,
     sessions: acc.sessions + r.sessions_joined,
     completed: acc.completed + r.timer_completed,
-  }), { opens: 0, kit: 0, booking: 0, sessions: 0, completed: 0 });
+    bookingsDone: acc.bookingsDone + (r.bookings_completed || 0),
+    selftestReq: acc.selftestReq + (r.selftest_requests || 0),
+  }), { opens: 0, kit: 0, booking: 0, sessions: 0, completed: 0, bookingsDone: 0, selftestReq: 0 });
+
+  const conversionRate = totals.opens > 0
+    ? ((totals.bookingsDone + totals.completed) / totals.opens * 100).toFixed(1)
+    : '0';
 
   return (
     <div className="space-y-6">
@@ -83,17 +114,48 @@ export function AdminPartnerInvitesContent() {
         </h2>
       </div>
 
+      {/* Abuse flags alert */}
+      {abuseFlags.length > 0 && (
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <AlertTriangle className="h-5 w-5 text-amber-600" />
+            <h3 className="font-medium text-foreground">
+              {isTh ? `แจ้งเตือนการใช้งานผิดปกติ (${abuseFlags.length})` : `Abuse Flags (${abuseFlags.length})`}
+            </h3>
+          </div>
+          <div className="space-y-2">
+            {abuseFlags.slice(0, 5).map(flag => (
+              <div key={flag.id} className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">{flag.reason} — {format(new Date(flag.created_at), 'dd/MM HH:mm')}</span>
+                <Button variant="ghost" size="sm" onClick={() => resolveFlag(flag.id)}>
+                  {isTh ? 'ดำเนินการแล้ว' : 'Resolve'}
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Summary cards */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
         {[
           { label: isTh ? 'คำชวนทั้งหมด' : 'Total Invites', value: data.length },
-          { label: isTh ? 'เปิดดู' : 'Opens', value: totals.opens },
+          { label: isTh ? 'เปิดดู (unique)' : 'Unique Opens', value: totals.opens },
           { label: isTh ? 'ขอชุดตรวจ' : 'Kit CTAs', value: totals.kit },
           { label: isTh ? 'จองคลินิก' : 'Booking CTAs', value: totals.booking },
+          { label: isTh ? 'จองสำเร็จ' : 'Bookings Done', value: totals.bookingsDone },
           { label: isTh ? 'ตรวจเสร็จ' : 'Completed', value: totals.completed },
+          { label: isTh ? 'อัตราการแปลง' : 'Conversion', value: `${conversionRate}%`, isRate: true },
         ].map(s => (
           <div key={s.label} className="rounded-xl bg-card border border-border p-4 text-center">
-            <p className="text-2xl font-bold text-foreground">{s.value}</p>
+            {'isRate' in s && s.isRate ? (
+              <div className="flex items-center justify-center gap-1">
+                <TrendingUp className="h-4 w-4 text-emerald-600" />
+                <p className="text-2xl font-bold text-emerald-600">{s.value}</p>
+              </div>
+            ) : (
+              <p className="text-2xl font-bold text-foreground">{s.value}</p>
+            )}
             <p className="text-xs text-muted-foreground">{s.label}</p>
           </div>
         ))}
@@ -140,13 +202,14 @@ export function AdminPartnerInvitesContent() {
               <TableHead className="text-right">{isTh ? 'จอง' : 'Book'}</TableHead>
               <TableHead className="text-right">{isTh ? 'เซสชัน' : 'Sessions'}</TableHead>
               <TableHead className="text-right">{isTh ? 'เสร็จ' : 'Done'}</TableHead>
+              <TableHead className="text-right">{isTh ? 'จองสำเร็จ' : 'Booked'}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
-              <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">{isTh ? 'กำลังโหลด...' : 'Loading...'}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={10} className="text-center py-8 text-muted-foreground">{isTh ? 'กำลังโหลด...' : 'Loading...'}</TableCell></TableRow>
             ) : data.length === 0 ? (
-              <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">{isTh ? 'ไม่มีข้อมูล' : 'No data'}</TableCell></TableRow>
+              <TableRow><TableCell colSpan={10} className="text-center py-8 text-muted-foreground">{isTh ? 'ไม่มีข้อมูล' : 'No data'}</TableCell></TableRow>
             ) : data.map(r => (
               <TableRow key={r.invite_id}>
                 <TableCell className="text-sm">{format(new Date(r.created_at), 'dd/MM/yy HH:mm')}</TableCell>
@@ -161,8 +224,14 @@ export function AdminPartnerInvitesContent() {
                   }`}>{r.tone}</span>
                 </TableCell>
                 <TableCell>
-                  <span className={`text-xs ${r.is_active && new Date(r.expires_at) > new Date() ? 'text-emerald-600' : 'text-muted-foreground'}`}>
-                    {r.is_active && new Date(r.expires_at) > new Date() ? (isTh ? 'ใช้งาน' : 'Active') : (isTh ? 'หมดอายุ' : 'Expired')}
+                  <span className={`text-xs font-medium ${
+                    r.status === 'active' && r.is_active && new Date(r.expires_at) > new Date() ? 'text-emerald-600' :
+                    r.status === 'revoked' ? 'text-red-500' :
+                    'text-muted-foreground'
+                  }`}>
+                    {r.status === 'revoked' ? (isTh ? 'ยกเลิก' : 'Revoked') :
+                     r.status === 'active' && r.is_active && new Date(r.expires_at) > new Date() ? (isTh ? 'ใช้งาน' : 'Active') :
+                     (isTh ? 'หมดอายุ' : 'Expired')}
                   </span>
                 </TableCell>
                 <TableCell className="text-right font-medium">{r.opens}</TableCell>
@@ -170,6 +239,7 @@ export function AdminPartnerInvitesContent() {
                 <TableCell className="text-right font-medium">{r.booking_cta}</TableCell>
                 <TableCell className="text-right font-medium">{r.sessions_joined}</TableCell>
                 <TableCell className="text-right font-medium">{r.timer_completed}</TableCell>
+                <TableCell className="text-right font-medium">{r.bookings_completed || 0}</TableCell>
               </TableRow>
             ))}
           </TableBody>

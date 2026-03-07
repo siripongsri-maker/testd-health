@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
@@ -8,7 +8,7 @@ import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Heart, Link2, QrCode, Users, Copy, Check, ArrowRight, ArrowLeft, Shield } from "lucide-react";
+import { Heart, Link2, QrCode, Users, Copy, Check, ArrowRight, ArrowLeft, Shield, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Tone = 'routine' | 'risk' | 'urgent';
@@ -34,8 +34,9 @@ export default function InviteCreate() {
   const [tone, setTone] = useState<Tone | null>(null);
   const [mode, setMode] = useState<Mode | null>(null);
   const [creating, setCreating] = useState(false);
-  const [result, setResult] = useState<{ code: string; session_code?: string } | null>(null);
+  const [result, setResult] = useState<{ code: string; session_code?: string; invite_id?: string } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [myInvites, setMyInvites] = useState<any[]>([]);
 
   const isTh = language === 'th';
 
@@ -43,6 +44,18 @@ export default function InviteCreate() {
     navigate('/auth', { state: { from: '/invite' } });
     return null;
   }
+
+  // Load user's active invites for revoke management
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from('partner_invites')
+      .select('id, code, invite_type, tone, status, created_at, expires_at')
+      .eq('created_by', user.id)
+      .order('created_at', { ascending: false })
+      .limit(20)
+      .then(({ data }) => { if (data) setMyInvites(data); });
+  }, [user, result]);
 
   const handleCreate = async () => {
     if (!tone || !mode) return;
@@ -52,13 +65,30 @@ export default function InviteCreate() {
         p_invite_type: mode,
         p_tone: tone,
       });
-      if (error) throw error;
+      if (error) {
+        if (error.message?.includes('daily_invite_limit')) {
+          toast.error(isTh ? 'คุณสร้างคำชวนได้สูงสุด 5 ครั้งต่อวัน' : 'You can create up to 5 invites per day');
+          return;
+        }
+        throw error;
+      }
       setResult(data as any);
       setStep(3);
     } catch (err: any) {
       toast.error(err.message || 'Failed to create invite');
     } finally {
       setCreating(false);
+    }
+  };
+
+  const handleRevoke = async (inviteId: string) => {
+    try {
+      const { error } = await supabase.rpc('revoke_partner_invite', { p_invite_id: inviteId });
+      if (error) throw error;
+      toast.success(isTh ? 'ยกเลิกคำชวนแล้ว' : 'Invite revoked');
+      setMyInvites(prev => prev.map(i => i.id === inviteId ? { ...i, status: 'revoked' } : i));
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to revoke');
     }
   };
 
@@ -78,6 +108,8 @@ export default function InviteCreate() {
       : 'Someone who cares about your health invited you to test. Private, convenient, safe.';
     window.open(`https://line.me/R/share?text=${encodeURIComponent(text + '\n' + url)}`, '_blank');
   };
+
+  const activeInvites = myInvites.filter(i => i.status === 'active' && new Date(i.expires_at) > new Date());
 
   return (
     <>
@@ -125,6 +157,34 @@ export default function InviteCreate() {
                 <p className="text-sm opacity-80">{isTh ? t.descTh : t.descEn}</p>
               </button>
             ))}
+
+            {/* Active invites management */}
+            {activeInvites.length > 0 && (
+              <div className="mt-6 pt-4 border-t border-border">
+                <h4 className="text-sm font-medium text-muted-foreground mb-3">
+                  {isTh ? `คำชวนที่ยังใช้งานได้ (${activeInvites.length})` : `Active invites (${activeInvites.length})`}
+                </h4>
+                <div className="space-y-2">
+                  {activeInvites.map(inv => (
+                    <div key={inv.id} className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2">
+                      <div>
+                        <p className="text-xs font-mono text-foreground">{inv.code}</p>
+                        <p className="text-[10px] text-muted-foreground">{inv.invite_type} · {inv.tone}</p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRevoke(inv.id)}
+                        className="h-7 text-xs text-destructive hover:text-destructive"
+                      >
+                        <XCircle className="h-3 w-3 mr-1" />
+                        {isTh ? 'ยกเลิก' : 'Revoke'}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
