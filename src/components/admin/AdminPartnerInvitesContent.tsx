@@ -149,6 +149,42 @@ export function AdminPartnerInvitesContent() {
 
   useEffect(() => { fetchData(); }, [startDate, endDate, typeFilter, toneFilter, statusFilter, testModeFilter]);
 
+  const fetchProviderDiag = async () => {
+    setDiagLoading(true);
+    try {
+      const { data: result, error } = await supabase.functions.invoke('send-partner-sms', {
+        body: { action: 'provider_diagnostics' },
+      });
+      if (error) throw error;
+      setProviderDiag(result);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to fetch diagnostics');
+    }
+    setDiagLoading(false);
+  };
+
+  const handleTestSms = async () => {
+    if (!testPhone.trim()) return;
+    setTestSending(true);
+    setTestResult(null);
+    try {
+      const { data: result, error } = await supabase.functions.invoke('send-partner-sms', {
+        body: { action: 'admin_test_sms', test_phone: testPhone.trim() },
+      });
+      if (error) throw error;
+      setTestResult(result);
+      if (result?.status === 'sent') {
+        toast.success(isTh ? 'ส่ง SMS ทดสอบสำเร็จ' : 'Test SMS sent successfully');
+      } else {
+        toast.error(isTh ? 'ส่งไม่สำเร็จ' : `Send failed: ${result?.error || result?.reason}`);
+      }
+      fetchData();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed');
+    }
+    setTestSending(false);
+  };
+
   const updateFlagStatus = async (flagId: string, newStatus: string) => {
     try {
       await supabase.rpc('update_abuse_flag_status' as any, { p_flag_id: flagId, p_status: newStatus, p_note: reviewNote || null });
