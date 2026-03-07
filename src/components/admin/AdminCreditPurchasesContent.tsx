@@ -9,6 +9,7 @@ import { Download, CreditCard, RefreshCw, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { exportToCsv, formatCsvDate, type CsvColumn } from "@/lib/adminCsvExport";
+import AdminDetailDrawer from "./AdminDetailDrawer";
 
 interface Purchase {
   id: string;
@@ -29,8 +30,10 @@ export default function AdminCreditPurchasesContent() {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [selected, setSelected] = useState<Purchase | null>(null);
+  const [relatedTxs, setRelatedTxs] = useState<any[]>([]);
 
-  const fetch = async () => {
+  const fetchData = async () => {
     setLoading(true);
     let q = (supabase as any).from('sms_credit_purchases').select('*').order('created_at', { ascending: false }).limit(200);
     if (statusFilter !== 'all') q = q.eq('status', statusFilter);
@@ -39,7 +42,20 @@ export default function AdminCreditPurchasesContent() {
     setLoading(false);
   };
 
-  useEffect(() => { fetch(); }, [statusFilter]);
+  useEffect(() => { fetchData(); }, [statusFilter]);
+
+  const openDetail = async (p: Purchase) => {
+    setSelected(p);
+    // Fetch credit transactions for this user around the purchase time
+    const { data } = await (supabase as any)
+      .from('sms_credit_transactions')
+      .select('*')
+      .eq('user_id', p.user_id)
+      .eq('transaction_type', 'purchase')
+      .order('created_at', { ascending: false })
+      .limit(10);
+    setRelatedTxs(data || []);
+  };
 
   const csvCols: CsvColumn<Purchase>[] = [
     { key: 'id', header: 'Purchase ID' },
@@ -70,7 +86,7 @@ export default function AdminCreditPurchasesContent() {
           <h2 className="text-xl font-bold text-foreground">{isTh ? 'ประวัติการซื้อเครดิต' : 'Credit Purchases'}</h2>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={fetch} className="gap-1"><RefreshCw className="h-3.5 w-3.5" /></Button>
+          <Button variant="outline" size="sm" onClick={fetchData} className="gap-1"><RefreshCw className="h-3.5 w-3.5" /></Button>
           <Button variant="outline" size="sm" onClick={() => exportToCsv(purchases, csvCols, 'credit_purchases')} className="gap-1"><Download className="h-3.5 w-3.5" /> CSV</Button>
         </div>
       </div>
@@ -125,7 +141,7 @@ export default function AdminCreditPurchasesContent() {
                 </TableHeader>
                 <TableBody>
                   {purchases.map(p => (
-                    <TableRow key={p.id}>
+                    <TableRow key={p.id} className="cursor-pointer hover:bg-accent/50" onClick={() => openDetail(p)}>
                       <TableCell className="text-sm whitespace-nowrap">{format(new Date(p.created_at), 'dd/MM/yy HH:mm')}</TableCell>
                       <TableCell className="text-xs font-mono">{p.user_id.slice(0, 8)}...</TableCell>
                       <TableCell className="text-sm">{p.package_key}</TableCell>
@@ -141,6 +157,44 @@ export default function AdminCreditPurchasesContent() {
           )}
         </CardContent>
       </Card>
+
+      {/* Detail Drawer */}
+      {selected && (
+        <AdminDetailDrawer
+          open={!!selected}
+          onOpenChange={open => !open && setSelected(null)}
+          title={isTh ? 'รายละเอียดการซื้อ' : 'Purchase Detail'}
+          subtitle={`ID: ${selected.id.slice(0, 12)}...`}
+          fields={[
+            { label: 'Status', value: <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", statusColor(selected.status))}>{selected.status}</span> },
+            { label: isTh ? 'แพ็คเกจ' : 'Package', value: selected.package_key },
+            { label: 'Credits', value: String(selected.credits) },
+            { label: isTh ? 'จำนวนเงิน' : 'Amount', value: selected.amount_thb ? `฿${selected.amount_thb}` : '—' },
+            { label: 'Payment Provider', value: selected.payment_provider || '—' },
+            { label: 'Payment Reference', value: selected.payment_reference || '—', mono: true },
+            { label: 'User ID', value: selected.user_id, mono: true, fullWidth: true },
+            { label: 'Purchase ID', value: selected.id, mono: true, fullWidth: true },
+          ]}
+          timeline={[
+            { label: isTh ? 'สร้าง' : 'Created', time: selected.created_at, status: 'neutral' },
+            { label: isTh ? 'อัพเดทล่าสุด' : 'Last Updated', time: selected.updated_at, status: selected.status === 'completed' ? 'success' : selected.status === 'failed' ? 'error' : 'warning' },
+          ]}
+        >
+          {relatedTxs.length > 0 && (
+            <div>
+              <p className="text-sm font-semibold text-foreground mb-2">{isTh ? 'ธุรกรรมเครดิตที่เกี่ยวข้อง' : 'Related Credit Transactions'}</p>
+              <div className="space-y-2">
+                {relatedTxs.map((tx: any) => (
+                  <div key={tx.id} className="flex items-center justify-between rounded-md border border-border/50 px-3 py-2 text-sm">
+                    <span className="text-xs text-muted-foreground">{format(new Date(tx.created_at), 'dd/MM HH:mm')}</span>
+                    <span className="text-emerald-600 font-medium">+{tx.amount}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </AdminDetailDrawer>
+      )}
     </div>
   );
 }

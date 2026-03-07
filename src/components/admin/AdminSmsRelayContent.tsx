@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -10,6 +10,7 @@ import { Download, MessageSquare, RefreshCw, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { exportToCsv, formatCsvDate, type CsvColumn } from "@/lib/adminCsvExport";
+import AdminDetailDrawer from "./AdminDetailDrawer";
 
 interface RelayRow {
   id: string;
@@ -21,6 +22,7 @@ interface RelayRow {
   provider: string | null;
   provider_message_id: string | null;
   is_test_mode: boolean;
+  metadata: any;
   created_at: string;
   updated_at: string;
 }
@@ -38,6 +40,8 @@ export default function AdminSmsRelayContent() {
   const [dateTo, setDateTo] = useState('');
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [selected, setSelected] = useState<RelayRow | null>(null);
+  const [relatedTx, setRelatedTx] = useState<any[]>([]);
 
   const fetchRelays = async () => {
     setLoading(true);
@@ -61,6 +65,17 @@ export default function AdminSmsRelayContent() {
   };
 
   useEffect(() => { fetchRelays(); }, [statusFilter, testFilter, dateFrom, dateTo, page]);
+
+  const openDetail = async (r: RelayRow) => {
+    setSelected(r);
+    // Fetch related credit transactions for this relay
+    const { data } = await (supabase as any)
+      .from('sms_credit_transactions')
+      .select('*')
+      .eq('relay_id', r.id)
+      .order('created_at', { ascending: true });
+    setRelatedTx(data || []);
+  };
 
   const totals = {
     sent: relays.filter(r => r.relay_status === 'sent').length,
@@ -103,7 +118,6 @@ export default function AdminSmsRelayContent() {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { label: isTh ? 'ส่งสำเร็จ' : 'Sent', value: totals.sent, color: 'text-emerald-600' },
@@ -120,7 +134,6 @@ export default function AdminSmsRelayContent() {
         ))}
       </div>
 
-      {/* Filters */}
       <div className="flex flex-wrap gap-2">
         <Input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(0); }} className="w-36" />
         <Input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(0); }} className="w-36" />
@@ -144,7 +157,6 @@ export default function AdminSmsRelayContent() {
         </Select>
       </div>
 
-      {/* Table */}
       <Card className="border border-border/50">
         <CardContent className="p-0">
           {loading ? (
@@ -166,7 +178,7 @@ export default function AdminSmsRelayContent() {
                 </TableHeader>
                 <TableBody>
                   {relays.map(r => (
-                    <TableRow key={r.id} className={r.is_test_mode ? 'bg-amber-500/5' : ''}>
+                    <TableRow key={r.id} className={cn("cursor-pointer hover:bg-accent/50", r.is_test_mode && 'bg-amber-500/5')} onClick={() => openDetail(r)}>
                       <TableCell className="text-sm whitespace-nowrap">{format(new Date(r.created_at), 'dd/MM/yy HH:mm')}</TableCell>
                       <TableCell>
                         <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", statusColor(r.relay_status))}>{r.relay_status}</span>
@@ -184,7 +196,6 @@ export default function AdminSmsRelayContent() {
         </CardContent>
       </Card>
 
-      {/* Pagination */}
       <div className="flex justify-between items-center">
         <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)}>
           ← {isTh ? 'ก่อนหน้า' : 'Previous'}
@@ -194,6 +205,53 @@ export default function AdminSmsRelayContent() {
           {isTh ? 'ถัดไป' : 'Next'} →
         </Button>
       </div>
+
+      {/* Detail Drawer */}
+      {selected && (
+        <AdminDetailDrawer
+          open={!!selected}
+          onOpenChange={open => !open && setSelected(null)}
+          title={isTh ? 'รายละเอียด SMS Relay' : 'SMS Relay Detail'}
+          subtitle={`ID: ${selected.id.slice(0, 12)}...`}
+          fields={[
+            { label: 'Status', value: <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", statusColor(selected.relay_status))}>{selected.relay_status}</span> },
+            { label: 'Type', value: selected.relay_type },
+            { label: 'Provider', value: selected.provider || '—' },
+            { label: 'Test Mode', value: selected.is_test_mode ? 'Yes' : 'No' },
+            { label: 'Provider Message ID', value: selected.provider_message_id || '—', mono: true, fullWidth: true },
+            { label: 'Recipient Hash', value: selected.recipient_hash, mono: true, fullWidth: true },
+            { label: 'Invite ID', value: selected.invite_id, mono: true, fullWidth: true },
+            { label: 'Block Reason', value: selected.block_reason || '—', fullWidth: true },
+          ]}
+          timeline={[
+            { label: isTh ? 'สร้าง' : 'Created', time: selected.created_at, status: 'neutral' },
+            { label: isTh ? 'อัพเดทล่าสุด' : 'Last Updated', time: selected.updated_at, status: selected.relay_status === 'sent' ? 'success' : selected.relay_status === 'failed' ? 'error' : 'warning' },
+          ]}
+        >
+          {relatedTx.length > 0 && (
+            <div>
+              <p className="text-sm font-semibold text-foreground mb-2">{isTh ? 'ธุรกรรมเครดิตที่เกี่ยวข้อง' : 'Related Credit Transactions'}</p>
+              <div className="space-y-2">
+                {relatedTx.map((tx: any) => (
+                  <div key={tx.id} className="flex items-center justify-between rounded-md border border-border/50 px-3 py-2 text-sm">
+                    <div>
+                      <span className={cn("rounded-full px-1.5 py-0.5 text-xs font-medium mr-2",
+                        tx.transaction_type === 'deduct' ? 'bg-red-500/10 text-red-600' :
+                        tx.transaction_type === 'refund' ? 'bg-blue-500/10 text-blue-600' :
+                        'bg-emerald-500/10 text-emerald-600'
+                      )}>{tx.transaction_type}</span>
+                      <span className="text-muted-foreground">{format(new Date(tx.created_at), 'dd/MM HH:mm')}</span>
+                    </div>
+                    <span className={cn("font-medium", tx.amount > 0 ? 'text-emerald-600' : 'text-red-600')}>
+                      {tx.amount > 0 ? `+${tx.amount}` : tx.amount}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </AdminDetailDrawer>
+      )}
     </div>
   );
 }
