@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   CreditCard, MessageSquare, ArrowUpRight, ArrowDownLeft,
   RotateCcw, Info, Link2, QrCode, ShoppingCart, Loader2,
-  CheckCircle2, Sparkles, Package
+  CheckCircle2, Sparkles, Package, AlertTriangle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
@@ -47,6 +47,7 @@ export default function Credits() {
   const [loadingData, setLoadingData] = useState(true);
   const [purchasing, setPurchasing] = useState<string | null>(null);
   const [purchaseSuccess, setPurchaseSuccess] = useState(false);
+  const [providerReady, setProviderReady] = useState<boolean | null>(null);
 
   const isTh = language === 'th';
 
@@ -90,18 +91,31 @@ export default function Credits() {
       });
       if (error) throw error;
       const res = data as any;
+
+      if (res.status === 'provider_not_configured') {
+        setProviderReady(false);
+        toast.info(isTh
+          ? 'ระบบชำระเงินยังไม่พร้อมใช้งาน — กรุณาติดต่อทีมงานเพื่อรับเครดิตสนับสนุน'
+          : 'Payment system is not ready yet — please contact support for sponsored credits');
+        return;
+      }
+
       if (res.status === 'completed') {
         setBalance(res.balance ?? balance + pkg.credits);
         setPurchaseSuccess(true);
+        setProviderReady(true);
         toast.success(isTh
           ? `เติม ${pkg.credits} เครดิตสำเร็จ!`
           : `${pkg.credits} credits added!`);
         fetchData();
         setTimeout(() => setPurchaseSuccess(false), 3000);
       } else if (res.status === 'pending' && res.checkout_url) {
+        setProviderReady(true);
         window.open(res.checkout_url, '_blank');
-      } else if (res.status === 'pending') {
-        toast.info(isTh ? 'ระบบชำระเงินกำลังดำเนินการ' : 'Payment processing...');
+      } else if (res.status === 'failed') {
+        toast.error(isTh
+          ? `ชำระเงินไม่สำเร็จ: ${res.error || 'กรุณาลองใหม่'}`
+          : `Payment failed: ${res.error || 'Please try again'}`);
       } else {
         toast.error(isTh ? 'เกิดข้อผิดพลาด กรุณาลองใหม่' : 'Something went wrong. Please try again.');
       }
@@ -134,6 +148,8 @@ export default function Credits() {
     };
     return labels[type] ? (isTh ? labels[type].th : labels[type].en) : type;
   };
+
+  const showProviderNotReady = providerReady === false;
 
   return (
     <>
@@ -185,6 +201,35 @@ export default function Credits() {
               : (isTh ? 'เครดิตไม่พอ — เติมเครดิตด้านล่าง' : 'No credits — top up below')}
           </Button>
         </div>
+
+        {/* Provider not ready banner */}
+        {showProviderNotReady && (
+          <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-3 mb-6 animate-fade-in">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium text-foreground">
+                  {isTh ? 'ระบบชำระเงินยังไม่พร้อมใช้งาน' : 'Payment system is not ready yet'}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {isTh
+                    ? 'ตอนนี้คุณสามารถรับเครดิตสนับสนุนจากองค์กรพาร์ทเนอร์ หรือใช้ลิงก์ชวนตรวจ / QR Code แทน'
+                    : 'For now, you can receive sponsored credits from partner organizations, or use invite links / QR codes instead'}
+                </p>
+                <div className="flex gap-2 mt-2">
+                  <Button variant="outline" size="sm" onClick={() => navigate('/invite')} className="gap-1.5 text-xs">
+                    <Link2 className="h-3 w-3" />
+                    {isTh ? 'ใช้ลิงก์' : 'Use link'}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => navigate('/invite')} className="gap-1.5 text-xs">
+                    <QrCode className="h-3 w-3" />
+                    {isTh ? 'ใช้ QR' : 'Use QR'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Top-up packages */}
         <div className="rounded-2xl bg-card border border-border p-5 shadow-card mb-6">
@@ -282,7 +327,7 @@ export default function Credits() {
           </p>
         </div>
 
-        {/* How to get credits (sponsored) */}
+        {/* Sponsored credits */}
         <div className="rounded-2xl bg-card border border-border p-5 shadow-card mb-6">
           <div className="flex items-center gap-2 mb-3">
             <Info className="h-5 w-5 text-primary" />
@@ -306,7 +351,6 @@ export default function Credits() {
             </div>
           </div>
 
-          {/* Alternative CTA */}
           <div className="mt-4 pt-4 border-t border-border">
             <p className="text-xs text-muted-foreground mb-2">
               {isTh ? 'ระหว่างรอเครดิต คุณสามารถ:' : "While waiting for credits, you can:"}
