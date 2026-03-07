@@ -411,17 +411,17 @@ export default function InviteCreate() {
                       <div className="mt-1.5 space-y-1">
                         <p className="text-xs text-amber-600 dark:text-amber-400">
                           {(smsCredits ?? 0) < 1
-                            ? (isTh ? 'เครดิตไม่พอ — เติมเครดิตเพื่อใช้งาน' : 'Not enough credits — top up to use')
+                            ? (isTh ? 'เครดิตไม่พอ — เติมเครดิตเพื่อส่ง SMS' : 'Not enough credits — top up to send SMS')
                             : (isTh ? 'ฟีเจอร์นี้ยังไม่พร้อมใช้งานสำหรับบัญชีของคุณ' : 'This feature is not available for your account yet')}
                         </p>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 mt-1">
                           <button
                             onClick={(e) => { e.stopPropagation(); navigate('/credits'); }}
-                            className="text-[10px] rounded-full bg-primary/10 text-primary px-2 py-0.5 hover:bg-primary/20 transition-colors"
+                            className="text-xs font-medium rounded-full bg-primary text-primary-foreground px-3 py-1 hover:bg-primary/90 transition-colors"
                           >
-                            {isTh ? 'เติมเครดิต' : 'Get credits'}
+                            {isTh ? '🛒 ซื้อเครดิต' : '🛒 Buy credits'}
                           </button>
-                          <span className="text-[10px] text-muted-foreground py-0.5">
+                          <span className="text-[10px] text-muted-foreground py-1">
                             {isTh ? 'หรือใช้ลิงก์ / QR แทน' : 'or use link / QR instead'}
                           </span>
                         </div>
