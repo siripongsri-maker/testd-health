@@ -143,17 +143,25 @@ export default function SurveyTake() {
 
       if (updateError) throw updateError;
 
-      // Award XP if user is logged in
+      // Award XP if user is logged in (only first completion awards XP)
       if (user && survey?.xp_reward && survey.xp_reward > 0) {
-        await supabase.rpc('complete_survey', {
+        const { data: xpAwarded } = await supabase.rpc('complete_survey', {
           p_survey_id: id,
           p_session_id: null,
         });
-        toast.success(
-          language === 'th' 
-            ? `ได้รับ ${survey.xp_reward} XP! 🎉` 
-            : `Earned ${survey.xp_reward} XP! 🎉`
-        );
+        if (xpAwarded && xpAwarded > 0) {
+          toast.success(
+            language === 'th' 
+              ? `ได้รับ ${xpAwarded} XP! 🎉` 
+              : `Earned ${xpAwarded} XP! 🎉`
+          );
+        } else {
+          toast.info(
+            language === 'th'
+              ? 'ขอบคุณที่ตอบแบบสอบถามอีกครั้ง (XP ได้รับแล้วจากครั้งแรก)'
+              : 'Thanks for completing again (XP was already awarded)'
+          );
+        }
       }
 
       setIsCompleted(true);
