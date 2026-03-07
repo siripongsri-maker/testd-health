@@ -382,6 +382,29 @@ export default function Booking() {
         setConfirmedCode((data as any).referral_code);
       }
 
+      // Record booking attribution if came from invite
+      try {
+        const attr = getInviteAttribution();
+        if (attr) {
+          const bookingId = confirmedCode ? undefined : undefined; // we need the appointment id
+          await (supabase as any).from('booking_attributions').insert({
+            booking_id: confirmedCode || null, // will be set below
+            invite_id: attr.invite_id || null,
+            visitor_session_id: attr.visitor_session_id,
+            attribution_type: attr.attribution_type,
+          });
+          // Record booking_completed event
+          if (attr.invite_code) {
+            await supabase.rpc('record_partner_invite_event', {
+              p_code: attr.invite_code,
+              p_visitor_session_id: attr.visitor_session_id,
+              p_event_type: 'booking_completed',
+            }).catch(() => {});
+          }
+          clearInviteAttribution();
+        }
+      } catch {}
+
       setStep('success');
       toast.success(t('booking.successTitle'));
     } catch (err: any) {
