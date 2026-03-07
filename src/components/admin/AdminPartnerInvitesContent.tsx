@@ -249,6 +249,10 @@ export function AdminPartnerInvitesContent() {
             <MessageSquare className="h-3 w-3" />
             SMS
           </TabsTrigger>
+          <TabsTrigger value="credits" className="gap-1">
+            <CreditCard className="h-3 w-3" />
+            {isTh ? 'เครดิต' : 'Credits'}
+          </TabsTrigger>
           <TabsTrigger value="diagnostics" className="gap-1">
             <Bug className="h-3 w-3" />
             {isTh ? 'วินิจฉัย' : 'Diagnostics'}
