@@ -66,7 +66,8 @@ export default function InviteCreate() {
   const [testMode, setTestMode] = useState(false);
   const [smsPhone, setSmsPhone] = useState('');
   const [smsSending, setSmsSending] = useState(false);
-  const [smsResult, setSmsResult] = useState<{ status: string; relay_id?: string; error?: string } | null>(null);
+  const [smsResult, setSmsResult] = useState<{ status: string; relay_id?: string; error?: string; balance?: number; credit_refunded?: boolean } | null>(null);
+  const [smsCredits, setSmsCredits] = useState<number | null>(null);
 
   const isTh = language === 'th';
 
@@ -80,6 +81,10 @@ export default function InviteCreate() {
     // Check admin role
     supabase.from('user_roles').select('role').eq('user_id', user.id).eq('role', 'admin').maybeSingle()
       .then(({ data }) => { if (data) setIsAdmin(true); });
+    // Load SMS credit balance
+    supabase.rpc('get_sms_credit_balance').then(({ data }) => {
+      if (typeof data === 'number') setSmsCredits(data);
+    });
     // Load stats
     supabase.rpc('get_partner_invite_stats').then(({ data }) => {
       if (data) setImpact(data as unknown as ImpactStats);
@@ -140,17 +145,25 @@ export default function InviteCreate() {
         },
       });
       if (error) throw error;
-      setSmsResult(data as any);
-      if (data?.status === 'sent') {
-        toast.success(isTh ? 'ส่ง SMS สำเร็จ!' : 'SMS sent!');
-      } else if (data?.status === 'failed' && data?.reason === 'no_sms_provider_configured') {
-        toast.warning(isTh ? 'ระบบ SMS ยังไม่ได้ตั้งค่า Provider' : 'SMS provider not configured yet');
+      const resData = data as any;
+      setSmsResult(resData);
+      // Update credit balance from response
+      if (typeof resData?.balance === 'number') setSmsCredits(resData.balance);
+      if (resData?.status === 'sent') {
+        toast.success(isTh ? 'ส่ง SMS สำเร็จ! (ใช้ 1 เครดิต)' : 'SMS sent! (1 credit used)');
+      } else if (resData?.credit_refunded) {
+        toast.warning(isTh ? 'ส่งไม่สำเร็จ — เครดิตคืนแล้ว' : 'Send failed — credit refunded');
+      } else if (resData?.status === 'failed' && resData?.reason === 'no_sms_provider_configured') {
+        toast.warning(isTh ? 'ระบบ SMS ยังไม่ได้ตั้งค่า (เครดิตคืนแล้ว)' : 'SMS provider not configured (credit refunded)');
       } else {
         toast.error(isTh ? 'ส่ง SMS ไม่สำเร็จ' : 'SMS send failed');
       }
     } catch (err: any) {
       if (err?.message?.includes('relay_cooldown')) {
         toast.error(isTh ? 'เบอร์นี้ถูกส่งไปแล้วภายใน 24 ชม.' : 'This number was already contacted in the last 24h');
+      } else if (err?.message?.includes('insufficient_credits')) {
+        toast.error(isTh ? 'เครดิตไม่พอ' : 'Not enough credits');
+        setSmsCredits(0);
       } else {
         toast.error(err.message || 'Failed to send SMS');
       }

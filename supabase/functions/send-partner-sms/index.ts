@@ -6,7 +6,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Provider abstraction — currently supports Twilio; easy to add Vonage
+// Provider abstraction
 interface SmsProvider {
   name: string;
   send(to: string, body: string): Promise<{ success: boolean; messageId?: string; error?: string }>;
@@ -17,7 +17,6 @@ function createTwilioProvider(): SmsProvider | null {
   const token = Deno.env.get("TWILIO_AUTH_TOKEN");
   const from = Deno.env.get("TWILIO_FROM_NUMBER");
   if (!sid || !token || !from) return null;
-
   return {
     name: "twilio",
     async send(to: string, body: string) {
@@ -31,9 +30,7 @@ function createTwilioProvider(): SmsProvider | null {
         body: new URLSearchParams({ To: to, From: from, Body: body }),
       });
       const data = await res.json();
-      if (res.ok) {
-        return { success: true, messageId: data.sid };
-      }
+      if (res.ok) return { success: true, messageId: data.sid };
       return { success: false, error: data.message || `HTTP ${res.status}` };
     },
   };
@@ -43,19 +40,13 @@ function getProvider(): SmsProvider | null {
   return createTwilioProvider();
 }
 
-// Normalize Thai phone number to E.164
 function normalizePhone(phone: string): string | null {
   const cleaned = phone.replace(/[\s\-()]/g, "");
-  if (/^0[0-9]{8,9}$/.test(cleaned)) {
-    return "+66" + cleaned.slice(1);
-  }
-  if (/^\+[0-9]{10,14}$/.test(cleaned)) {
-    return cleaned;
-  }
+  if (/^0[0-9]{8,9}$/.test(cleaned)) return "+66" + cleaned.slice(1);
+  if (/^\+[0-9]{10,14}$/.test(cleaned)) return cleaned;
   return null;
 }
 
-// Hash phone for abuse tracking
 async function hashPhone(phone: string): Promise<string> {
   const data = new TextEncoder().encode(phone);
   const hashBuffer = await crypto.subtle.digest("SHA-256", data);
@@ -97,19 +88,11 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { invite_id, phone, language: lang = "th", is_test_mode = false } = body;
 
-    if (!invite_id || !phone) {
-      throw new Error("invite_id and phone are required");
-    }
+    if (!invite_id || !phone) throw new Error("invite_id and phone are required");
+    if (is_test_mode && !isAdmin) throw new Error("Test mode is admin-only");
 
-    if (is_test_mode && !isAdmin) {
-      throw new Error("Test mode is admin-only");
-    }
-
-    // Normalize
     const normalizedPhone = normalizePhone(phone);
-    if (!normalizedPhone) {
-      throw new Error("Invalid phone number format");
-    }
+    if (!normalizedPhone) throw new Error("Invalid phone number format");
 
     const phoneHash = await hashPhone(normalizedPhone);
 
@@ -122,6 +105,24 @@ Deno.serve(async (req) => {
       .maybeSingle();
     if (!invite) throw new Error("Invite not found");
 
+    // === CREDIT CHECK (skip for admin test mode) ===
+    let creditDeducted = false;
+    if (!isAdmin || !is_test_mode) {
+      const { data: balanceData } = await supabase
+        .from("sms_credit_balances")
+        .select("balance")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      const currentBalance = balanceData?.balance ?? 0;
+      if (currentBalance < 1) {
+        return new Response(
+          JSON.stringify({ error: "insufficient_credits", status: "blocked", balance: 0 }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
     // Cooldown check (non-admin only)
     if (!isAdmin) {
       const { data: recent } = await supabase
@@ -130,7 +131,6 @@ Deno.serve(async (req) => {
         .eq("recipient_hash", phoneHash)
         .gt("created_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
       if (recent && recent.length > 0) {
-        // Create blocked relay
         await supabase.from("partner_invite_relays").insert({
           invite_id,
           relay_type: "sms",
@@ -139,11 +139,32 @@ Deno.serve(async (req) => {
           block_reason: "cooldown_24h",
           is_test_mode,
         });
+        // No credit deducted for blocked sends
         return new Response(JSON.stringify({ error: "relay_cooldown", status: "blocked" }), {
           status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
+    }
+
+    // === DEDUCT CREDIT before dispatch (skip for admin test mode) ===
+    let relayId: string;
+    if (!isAdmin || !is_test_mode) {
+      // Deduct credit
+      const { error: deductErr } = await supabase.rpc("deduct_sms_credit", {
+        p_user_id: user.id,
+        p_relay_id: null,
+      });
+      if (deductErr) {
+        if (deductErr.message?.includes("insufficient_sms_credits")) {
+          return new Response(
+            JSON.stringify({ error: "insufficient_credits", status: "blocked", balance: 0 }),
+            { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        throw deductErr;
+      }
+      creditDeducted = true;
     }
 
     // Create relay record
@@ -159,6 +180,19 @@ Deno.serve(async (req) => {
       .select("id")
       .single();
     if (relayErr) throw relayErr;
+    relayId = relay.id;
+
+    // Update the transaction with relay_id if we deducted
+    if (creditDeducted) {
+      await supabase
+        .from("sms_credit_transactions")
+        .update({ relay_id: relayId })
+        .eq("user_id", user.id)
+        .eq("transaction_type", "deduct")
+        .is("relay_id", null)
+        .order("created_at", { ascending: false })
+        .limit(1);
+    }
 
     // Build SMS body
     const inviteUrl = `https://testd-health.lovable.app/invite/${invite.code}`;
@@ -170,7 +204,14 @@ Deno.serve(async (req) => {
     // Attempt SMS dispatch
     const provider = getProvider();
     if (!provider) {
-      // No provider configured — mark as failed with clear reason
+      // No provider — refund credit
+      if (creditDeducted) {
+        await supabase.rpc("refund_sms_credit", {
+          p_user_id: user.id,
+          p_relay_id: relayId,
+          p_reason: "no_provider_configured",
+        });
+      }
       await supabase
         .from("partner_invite_relays")
         .update({
@@ -179,20 +220,38 @@ Deno.serve(async (req) => {
           provider: "none",
           updated_at: new Date().toISOString(),
         })
-        .eq("id", relay.id);
+        .eq("id", relayId);
+
+      // Get updated balance
+      const { data: balData } = await supabase
+        .from("sms_credit_balances")
+        .select("balance")
+        .eq("user_id", user.id)
+        .maybeSingle();
 
       return new Response(
         JSON.stringify({
-          relay_id: relay.id,
+          relay_id: relayId,
           status: "failed",
           reason: "no_sms_provider_configured",
-          message: "SMS provider not yet configured. Add TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER secrets to enable.",
+          message: "SMS provider not yet configured. Credit has been refunded.",
+          credit_refunded: creditDeducted,
+          balance: balData?.balance ?? 0,
         }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const result = await provider.send(normalizedPhone, smsBody);
+
+    // If provider rejected before acceptance, refund
+    if (!result.success && creditDeducted) {
+      await supabase.rpc("refund_sms_credit", {
+        p_user_id: user.id,
+        p_relay_id: relayId,
+        p_reason: "provider_send_failed",
+      });
+    }
 
     await supabase
       .from("partner_invite_relays")
@@ -204,23 +263,33 @@ Deno.serve(async (req) => {
         metadata: { phone_prefix: normalizedPhone.slice(0, 5), lang },
         updated_at: new Date().toISOString(),
       })
-      .eq("id", relay.id);
+      .eq("id", relayId);
 
     // Record event
     await supabase.from("partner_invite_events").insert({
       invite_id,
-      visitor_session_id: `sms-relay-${relay.id}`,
+      visitor_session_id: `sms-relay-${relayId}`,
       event_type: result.success ? "sms_sent" : "sms_failed",
       is_test_mode,
     });
 
+    // Get final balance
+    const { data: finalBal } = await supabase
+      .from("sms_credit_balances")
+      .select("balance")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
     return new Response(
       JSON.stringify({
-        relay_id: relay.id,
+        relay_id: relayId,
         status: result.success ? "sent" : "failed",
         provider: provider.name,
         message_id: result.messageId,
         error: result.error,
+        credit_used: result.success && creditDeducted,
+        credit_refunded: !result.success && creditDeducted,
+        balance: finalBal?.balance ?? 0,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
