@@ -4,8 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, Play, CheckCircle2, Clock, Timer, Calendar, TestTube, Heart, ThumbsUp } from "lucide-react";
+import { Users, Play, CheckCircle2, Clock, Timer, Calendar, TestTube, Heart, ThumbsUp, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { setInviteAttribution } from "@/lib/inviteAttribution";
+import { toast } from "sonner";
 
 function getParticipantSessionId(): string {
   let sid = sessionStorage.getItem('invite_participant_sid');
@@ -20,6 +22,20 @@ const TIMER_SECONDS = 15 * 60;
 
 type PairState = 'waiting' | 'accepted' | 'plans_to_test' | 'booking_started' | 'booked' | 'active' | 'completed';
 
+const STATUS_ORDER: Record<PairState, number> = {
+  waiting: 0, accepted: 1, plans_to_test: 2, booking_started: 3, booked: 4, active: 5, completed: 6
+};
+
+const STATE_LABELS: Record<PairState, { th: string; en: string }> = {
+  waiting: { th: 'รอผู้เข้าร่วม', en: 'Waiting for partner' },
+  accepted: { th: 'มีคนเข้าร่วมแล้ว', en: 'Partner joined' },
+  plans_to_test: { th: 'ตั้งใจจะไปตรวจ', en: 'Planning to test' },
+  booking_started: { th: 'กำลังจอง', en: 'Booking in progress' },
+  booked: { th: 'จองแล้ว', en: 'Booked' },
+  active: { th: 'กำลังตรวจ', en: 'Testing in progress' },
+  completed: { th: 'เสร็จสิ้น', en: 'Completed' },
+};
+
 export default function InviteSession() {
   const { sessionCode } = useParams<{ sessionCode: string }>();
   const navigate = useNavigate();
@@ -33,18 +49,22 @@ export default function InviteSession() {
   const [timerActive, setTimerActive] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval>>();
   const [inviteCode, setInviteCode] = useState<string | null>(null);
+  const [inviteId, setInviteId] = useState<string | null>(null);
 
   const loadSession = useCallback(async () => {
     if (!sessionCode) return;
     const { data: sess } = await supabase
       .from('partner_test_sessions')
-      .select('*, partner_invites!inner(code)')
+      .select('*, partner_invites!inner(code, id)')
       .eq('session_code', sessionCode)
       .maybeSingle();
 
     if (sess) {
       setSession(sess);
-      setInviteCode((sess as any).partner_invites?.code || null);
+      const invite = (sess as any).partner_invites;
+      setInviteCode(invite?.code || null);
+      setInviteId(invite?.id || null);
+
       if (sess.status === 'active' && sess.started_at) {
         const elapsed = Math.floor((Date.now() - new Date(sess.started_at).getTime()) / 1000);
         const remaining = Math.max(0, TIMER_SECONDS - elapsed);
@@ -72,6 +92,7 @@ export default function InviteSession() {
 
   useEffect(() => { loadSession(); }, [loadSession]);
 
+  // Realtime subscription for live pair coordination
   useEffect(() => {
     if (!session?.id) return;
     const channel = supabase
@@ -82,6 +103,7 @@ export default function InviteSession() {
     return () => { supabase.removeChannel(channel); };
   }, [session?.id, loadSession]);
 
+  // Timer
   useEffect(() => {
     if (!timerActive) return;
     intervalRef.current = setInterval(() => {
@@ -104,23 +126,48 @@ export default function InviteSession() {
   }, [timerActive, session?.id, inviteCode]);
 
   const handleJoin = async () => {
-    if (!session?.id) return;
+    if (!sessionCode) return;
     const sid = getParticipantSessionId();
-    await supabase.from('partner_test_session_participants').insert({
-      session_id: session.id,
-      participant_session_id: sid,
-    });
-    setJoined(true);
-    // Update session state to accepted
-    await supabase.from('partner_test_sessions').update({ status: 'accepted' }).eq('id', session.id).eq('status', 'waiting');
-    if (inviteCode) {
-      await supabase.rpc('record_partner_invite_event', { p_code: inviteCode, p_visitor_session_id: sid, p_event_type: 'join_session' });
+    try {
+      const { data, error } = await supabase.rpc('join_partner_session' as any, {
+        p_session_code: sessionCode,
+        p_participant_sid: sid,
+      });
+      if (error) {
+        if (error.message?.includes('session_full')) {
+          toast.error(isTh ? 'เซสชันเต็มแล้ว' : 'Session is full');
+        } else if (error.message?.includes('join_rate_limited')) {
+          toast.error(isTh ? 'คุณเข้าร่วมบ่อยเกินไป กรุณารอสักครู่' : 'Too many joins. Please wait.');
+        } else throw error;
+        return;
+      }
+      setJoined(true);
+      // Set invite attribution for booking flow
+      if (inviteCode && inviteId) {
+        setInviteAttribution({
+          invite_code: inviteCode,
+          invite_id: inviteId,
+          session_code: sessionCode,
+          session_id: session?.id,
+          attribution_type: 'pair_session',
+          visitor_session_id: sid,
+          set_at: Date.now(),
+        });
+      }
+      if (inviteCode) {
+        await supabase.rpc('record_partner_invite_event', { p_code: inviteCode, p_visitor_session_id: sid, p_event_type: 'join_session' });
+      }
+      loadSession();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to join');
     }
-    loadSession();
   };
 
   const handleUpdateState = async (newStatus: PairState) => {
     if (!session?.id) return;
+    const current = session.status as PairState;
+    if (STATUS_ORDER[newStatus] <= STATUS_ORDER[current]) return;
+    
     await supabase.from('partner_test_sessions').update({ status: newStatus }).eq('id', session.id);
     if (inviteCode) {
       await supabase.rpc('record_partner_invite_event', { p_code: inviteCode, p_visitor_session_id: getParticipantSessionId(), p_event_type: `pair_${newStatus}` });
@@ -137,6 +184,13 @@ export default function InviteSession() {
       await supabase.rpc('record_partner_invite_event', { p_code: inviteCode, p_visitor_session_id: getParticipantSessionId(), p_event_type: 'timer_start' });
     }
     loadSession();
+  };
+
+  const handleGoToBooking = () => {
+    if (inviteCode) {
+      supabase.rpc('record_partner_invite_event', { p_code: inviteCode, p_visitor_session_id: getParticipantSessionId(), p_event_type: 'booking_started' }).then();
+    }
+    navigate('/booking');
   };
 
   const formatTime = (s: number) => {
@@ -180,7 +234,8 @@ export default function InviteSession() {
     { status: 'booked', labelTh: 'จองแล้ว', labelEn: 'Booked', icon: Calendar },
   ];
 
-  const statusOrder: Record<string, number> = { waiting: 0, accepted: 1, plans_to_test: 2, booking_started: 3, booked: 4, active: 5, completed: 6 };
+  // Anonymous session state description
+  const sessionStateLabel = STATE_LABELS[status] || STATE_LABELS.waiting;
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-b from-background to-muted/30">
@@ -188,6 +243,21 @@ export default function InviteSession() {
         <h1 className="text-xl font-bold text-foreground">
           {isTh ? 'ไปตรวจด้วยกัน' : 'Test Together'}
         </h1>
+
+        {/* Anonymous session status banner */}
+        <div className={cn(
+          "rounded-xl border px-4 py-3 text-sm font-medium",
+          status === 'completed' ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-400" :
+          status === 'active' ? "bg-primary/10 border-primary/30 text-primary" :
+          "bg-muted/50 border-border text-muted-foreground"
+        )}>
+          <p>{isTh ? sessionStateLabel.th : sessionStateLabel.en}</p>
+          <p className="text-xs mt-1 opacity-70">
+            {participants.length > 0
+              ? (isTh ? `${participants.length} คนเข้าร่วม` : `${participants.length} ${participants.length === 1 ? 'person' : 'people'} joined`)
+              : (isTh ? 'ยังไม่มีผู้เข้าร่วม' : 'No participants yet')}
+          </p>
+        </div>
 
         {/* Pair commitment flow */}
         {isPairPhase && (
@@ -209,8 +279,17 @@ export default function InviteSession() {
                     <span className="text-muted-foreground">
                       {isTh ? `ผู้เข้าร่วม ${i + 1}` : `Participant ${i + 1}`}
                     </span>
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500 ml-auto" />
                   </div>
                 ))}
+                {participants.length < session.max_participants && (
+                  <div className="flex items-center gap-2 text-sm opacity-40">
+                    <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground font-bold">
+                      ?
+                    </div>
+                    <span className="text-muted-foreground">{isTh ? 'รอเข้าร่วม...' : 'Waiting...'}</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -223,9 +302,8 @@ export default function InviteSession() {
                 <div className="space-y-2">
                   {pairSteps.map(step => {
                     const Icon = step.icon;
-                    const isReached = statusOrder[status] >= statusOrder[step.status];
-                    const isCurrent = status === step.status;
-                    const canAdvance = statusOrder[step.status] === statusOrder[status] + 1;
+                    const isReached = STATUS_ORDER[status] >= STATUS_ORDER[step.status];
+                    const canAdvance = STATUS_ORDER[step.status] === STATUS_ORDER[status] + 1;
 
                     return (
                       <button
@@ -248,6 +326,7 @@ export default function InviteSession() {
                         <span className={cn("text-sm font-medium", isReached ? "text-primary" : "text-foreground")}>
                           {isTh ? step.labelTh : step.labelEn}
                         </span>
+                        {canAdvance && <ArrowRight className="h-4 w-4 ml-auto text-primary" />}
                       </button>
                     );
                   })}
@@ -255,7 +334,7 @@ export default function InviteSession() {
               </div>
             )}
 
-            {/* Join / actions */}
+            {/* Join */}
             {!joined && status === 'waiting' && participants.length < session.max_participants && (
               <Button onClick={handleJoin} className="w-full" size="lg">
                 <Users className="h-5 w-5 mr-2" />
@@ -263,12 +342,12 @@ export default function InviteSession() {
               </Button>
             )}
 
-            {/* Action buttons for pair flow */}
+            {/* Action buttons */}
             {joined && (
               <div className="space-y-3 pt-2">
                 <Button
                   variant="outline"
-                  onClick={() => { navigate('/booking'); }}
+                  onClick={handleGoToBooking}
                   className="w-full gap-2"
                   size="lg"
                 >
@@ -277,14 +356,14 @@ export default function InviteSession() {
                 </Button>
                 <Button
                   variant="outline"
-                  onClick={() => { navigate('/hiv-selftest'); }}
+                  onClick={() => navigate('/hiv-selftest')}
                   className="w-full gap-2"
                   size="lg"
                 >
                   <TestTube className="h-5 w-5" />
                   {isTh ? 'ขอชุดตรวจ' : 'Get self-test kit'}
                 </Button>
-                {participants.length >= 1 && statusOrder[status] >= statusOrder['accepted'] && (
+                {participants.length >= 1 && STATUS_ORDER[status] >= STATUS_ORDER['accepted'] && (
                   <Button onClick={handleStartTimer} className="w-full gap-2" size="lg">
                     <Play className="h-5 w-5" />
                     {isTh ? 'ตรวจชุดตรวจพร้อมกัน (15 นาที)' : 'Self-test together (15 min)'}
