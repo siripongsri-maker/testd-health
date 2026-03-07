@@ -129,16 +129,16 @@ export default function Admin() {
 
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           {/* Main */}
-          {renderTab("dashboard", isAdmin || isMeAnalyst ? <AdminDashboardContent readOnly={readOnly} /> : <BranchDashboardContent userBranch={userBranch} />)}
+          {renderTab("dashboard", isAdmin || isMeAnalyst ? <AdminDashboardContent /> : <BranchDashboardContent userBranch={userBranch} />)}
 
           {/* Operations */}
-          {renderTab("kit-orders", <AdminKitOrdersContent userBranch={userBranch} isModerator={(isModerator && !isAdmin) || isMeAnalyst} readOnly={readOnly} />)}
-          {renderTab("bookings", <AdminBookingContent userBranch={userBranch} readOnly={readOnly} />)}
+          {renderTab("kit-orders", <AdminKitOrdersContent userBranch={userBranch} isModerator={(isModerator && !isAdmin) || isMeAnalyst} />)}
+          {renderTab("bookings", <AdminBookingContent userBranch={userBranch} />)}
           {renderTab("today", <AdminTodayBoard userBranch={userBranch} />)}
           {renderTab("schedule", <AdminScheduleContent />)}
 
           {/* Partner Network */}
-          {renderTab("partner-invites", <AdminPartnerInvitesContent readOnly={readOnly} />)}
+          {renderTab("partner-invites", <AdminPartnerInvitesContent />)}
           {renderTab("pair-sessions", <AdminPairSessionsContent />)}
           {renderTab("anonymous-responses", <AdminAnonymousResponsesContent />)}
 
