@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import {
   Heart, Link2, QrCode, Users, Copy, Check, ArrowRight, ArrowLeft,
   Shield, XCircle, Eye, ThumbsUp, CalendarCheck, CheckCircle2,
-  TrendingUp, Calendar, MessageSquare, Phone, Loader2, Bug
+  TrendingUp, Calendar, MessageSquare, Phone, Loader2, Bug, Lock, CreditCard
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -211,10 +211,10 @@ export default function InviteCreate() {
     { icon: CheckCircle2, label: isTh ? 'ตรวจแล้ว' : 'Done', value: impact.completed_count, color: 'text-emerald-600' },
   ] : [];
 
-  const visibleModes = modes.filter(m => {
-    if (m.value === 'sms' && !isAdmin) return false; // SMS visible to admin only during testing phase
-    return true;
-  });
+  // SMS is always visible — but may be in disabled/locked state for non-eligible users
+  const smsAvailable = isAdmin || (smsCredits !== null && smsCredits > 0);
+  const smsLocked = !isAdmin && (smsCredits === null || smsCredits < 1);
+  const visibleModes = modes; // Show all modes including SMS
 
   return (
     <>
@@ -384,34 +384,62 @@ export default function InviteCreate() {
             </h3>
             {visibleModes.map(m => {
               const Icon = m.icon;
+              const isSmsLocked = m.value === 'sms' && smsLocked;
               return (
                 <button
                   key={m.value}
-                  onClick={() => setMode(m.value)}
+                  onClick={() => {
+                    if (isSmsLocked) return; // Don't select if locked
+                    setMode(m.value);
+                  }}
                   className={cn(
-                    "w-full text-left rounded-xl border-2 p-4 transition-all flex items-center gap-4 hover:scale-[1.01]",
-                    mode === m.value ? "border-primary bg-primary/10" : "border-border bg-card"
+                    "w-full text-left rounded-xl border-2 p-4 transition-all flex items-center gap-4",
+                    isSmsLocked ? "opacity-70 cursor-default border-border bg-muted/50" :
+                    mode === m.value ? "border-primary bg-primary/10 hover:scale-[1.01]" : "border-border bg-card hover:scale-[1.01]"
                   )}
                 >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                    <Icon className="h-6 w-6 text-primary" />
+                  <div className={cn(
+                    "flex h-12 w-12 items-center justify-center rounded-full",
+                    isSmsLocked ? "bg-muted" : "bg-primary/10"
+                  )}>
+                    {isSmsLocked ? <Lock className="h-6 w-6 text-muted-foreground" /> : <Icon className="h-6 w-6 text-primary" />}
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-foreground">{isTh ? m.labelTh : m.labelEn}</p>
+                    <p className={cn("font-semibold", isSmsLocked ? "text-muted-foreground" : "text-foreground")}>{isTh ? m.labelTh : m.labelEn}</p>
                     <p className="text-sm text-muted-foreground">{isTh ? m.descTh : m.descEn}</p>
+                    {isSmsLocked && (
+                      <div className="mt-1.5 space-y-1">
+                        <p className="text-xs text-amber-600 dark:text-amber-400">
+                          {(smsCredits ?? 0) < 1
+                            ? (isTh ? 'เครดิตไม่พอ — เติมเครดิตเพื่อใช้งาน' : 'Not enough credits — top up to use')
+                            : (isTh ? 'ฟีเจอร์นี้ยังไม่พร้อมใช้งานสำหรับบัญชีของคุณ' : 'This feature is not available for your account yet')}
+                        </p>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); navigate('/credits'); }}
+                            className="text-[10px] rounded-full bg-primary/10 text-primary px-2 py-0.5 hover:bg-primary/20 transition-colors"
+                          >
+                            {isTh ? 'เติมเครดิต' : 'Get credits'}
+                          </button>
+                          <span className="text-[10px] text-muted-foreground py-0.5">
+                            {isTh ? 'หรือใช้ลิงก์ / QR แทน' : 'or use link / QR instead'}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                   {m.value === 'sms' && (
-                     <div className="text-right">
-                       <span className="text-[10px] rounded-full bg-amber-500/10 text-amber-600 px-2 py-0.5">
-                         {isAdmin ? 'Admin' : 'Trusted'}
-                       </span>
-                       {smsCredits !== null && !isAdmin && (
-                         <p className="text-[10px] text-muted-foreground mt-0.5">
-                           {smsCredits} {isTh ? 'เครดิต' : 'credits'}
-                         </p>
-                       )}
-                     </div>
-                   )}
+                  {m.value === 'sms' && !isSmsLocked && (
+                    <div className="text-right">
+                      {isAdmin && (
+                        <span className="text-[10px] rounded-full bg-amber-500/10 text-amber-600 px-2 py-0.5">Admin</span>
+                      )}
+                      {smsCredits !== null && (
+                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                          {smsCredits} {isTh ? 'เครดิต' : 'credits'}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </button>
               );
             })}

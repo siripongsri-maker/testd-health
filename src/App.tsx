@@ -58,6 +58,7 @@ const Booking = lazy(() => import("./pages/Booking"));
 const MyAppointments = lazy(() => import("./pages/MyAppointments"));
 const GuestAppointments = lazy(() => import("./pages/GuestAppointments"));
 const InviteCreate = lazy(() => import("./pages/InviteCreate"));
+const Credits = lazy(() => import("./pages/Credits"));
 const InviteLanding = lazy(() => import("./pages/InviteLanding"));
 const InviteSession = lazy(() => import("./pages/InviteSession"));
 const DocsViewer = lazy(() => import("./pages/DocsViewer"));
@@ -120,6 +121,7 @@ const App = () => (
                 <Route path="/my-appointments" element={<MyAppointments />} />
                 <Route path="/guest-appointments" element={<GuestAppointments />} />
                 <Route path="/invite" element={<InviteCreate />} />
+                <Route path="/credits" element={<Credits />} />
                 <Route path="/invite/:code" element={<InviteLanding />} />
                 <Route path="/invite/session/:sessionCode" element={<InviteSession />} />
                 <Route path="/install" element={<Install />} />
