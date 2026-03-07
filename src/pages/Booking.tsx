@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { PageContainer } from '@/components/PageContainer';
 import { BottomNav } from '@/components/BottomNav';
 import { Card } from '@/components/ui/card';
@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { getInviteAttribution, clearInviteAttribution } from '@/lib/inviteAttribution';
 import {
   MapPin, Clock, ChevronRight, ChevronLeft, Calendar as CalendarIcon,
   Check, Loader2, AlertCircle, CreditCard, Globe, Info, HelpCircle, ShieldAlert,
