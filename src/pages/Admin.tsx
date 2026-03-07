@@ -4,8 +4,7 @@ import { AdminLayout } from "@/components/AdminLayout";
 import { useLanguage } from "@/lib/i18n";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useAdminRole } from "@/hooks/useAdminRole";
 import { Suspense, lazy } from "react";
 
 const AdminDashboardContent = lazy(() => import("@/components/admin/AdminDashboardContent"));
@@ -27,8 +26,6 @@ const AdminAbuseLogsContent = lazy(() => import("@/components/admin/AdminAbuseLo
 const AdminAppUpdatesContent = lazy(() => import("@/components/admin/AdminAppUpdatesContent"));
 const AdminRewardsContent = lazy(() => import("@/components/admin/AdminRewardsContent").then(m => ({ default: m.AdminRewardsContent })));
 const AdminPartnerInvitesContent = lazy(() => import("@/components/admin/AdminPartnerInvitesContent"));
-
-// New modules
 const AdminSmsRelayContent = lazy(() => import("@/components/admin/AdminSmsRelayContent"));
 const AdminCreditBalancesContent = lazy(() => import("@/components/admin/AdminCreditBalancesContent"));
 const AdminCreditPurchasesContent = lazy(() => import("@/components/admin/AdminCreditPurchasesContent"));
@@ -48,53 +45,59 @@ const TabLoader = () => (
 // Tabs accessible by moderators (branch staff)
 const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "quick-register", "bookings", "today", "schedule"]);
 
+// Tabs accessible by M&E Analyst (read-only analytics/reporting)
+const ME_ANALYST_TABS = new Set([
+  "dashboard",
+  // Operations (read-only)
+  "kit-orders", "bookings", "pair-sessions", "activity-logs",
+  // Partner Network
+  "partner-invites", "anonymous-responses",
+  // SMS & Credits (read-only)
+  "sms-relay", "credit-balances", "credit-purchases",
+  // Reports
+  "analytics", "export-center",
+  // System
+  "system-health",
+]);
+
 export default function Admin() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { language } = useLanguage();
-  const { user, loading: authLoading } = useAuth();
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isModerator, setIsModerator] = useState(false);
-  const [userBranch, setUserBranch] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { isAdmin, isModerator, isMeAnalyst, userBranch, loading, role } = useAdminRole();
 
-  const activeTab = searchParams.get("tab") || (isAdmin ? "dashboard" : "kit-orders");
+  const defaultTab = isAdmin ? "dashboard" : isMeAnalyst ? "dashboard" : "kit-orders";
+  const activeTab = searchParams.get("tab") || defaultTab;
   const handleTabChange = (value: string) => setSearchParams({ tab: value });
 
   useEffect(() => {
-    const checkAdmin = async () => {
-      if (authLoading) return;
-      if (!user) { navigate('/auth', { state: { from: '/admin' } }); return; }
-
-      const { data: roleData } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' });
-      if (roleData) { setIsAdmin(true); setLoading(false); return; }
-
-      const { data: modData } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'moderator' });
-      if (modData) {
-        setIsModerator(true);
-        const { data: branchData } = await supabase.from('staff_branch_assignments').select('branch').eq('user_id', user.id).maybeSingle();
-        if (branchData) setUserBranch(branchData.branch);
-        setLoading(false);
-      } else {
-        navigate('/dashboard');
-      }
-    };
-    checkAdmin();
-  }, [user, authLoading, navigate]);
+    if (loading) return;
+    if (!role) {
+      navigate('/auth', { state: { from: '/admin' } });
+    }
+  }, [loading, role, navigate]);
 
   useEffect(() => {
     if (!loading && isModerator && !isAdmin && !searchParams.get("tab")) {
       setSearchParams({ tab: "kit-orders" });
     }
-  }, [loading, isModerator, isAdmin, searchParams, setSearchParams]);
+    if (!loading && isMeAnalyst && !searchParams.get("tab")) {
+      setSearchParams({ tab: "dashboard" });
+    }
+  }, [loading, isModerator, isMeAnalyst, isAdmin, searchParams, setSearchParams]);
 
-  if (loading || authLoading) {
+  if (loading) {
     return <AdminLayout><div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div></AdminLayout>;
   }
 
-  if (!isAdmin && !isModerator) return null;
+  if (!role) return null;
 
-  const canAccess = (tab: string) => isAdmin || MODERATOR_TABS.has(tab);
+  const canAccess = (tab: string) => {
+    if (isAdmin) return true;
+    if (isMeAnalyst) return ME_ANALYST_TABS.has(tab);
+    if (isModerator) return MODERATOR_TABS.has(tab);
+    return false;
+  };
 
   const renderTab = (tabKey: string, component: React.ReactNode) => {
     if (!canAccess(tabKey)) return null;
@@ -116,12 +119,20 @@ export default function Admin() {
           </div>
         )}
 
+        {isMeAnalyst && (
+          <div className="mb-4 p-3 bg-blue-500/10 rounded-lg border border-blue-500/20">
+            <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
+              {language === 'th' ? '🔍 โหมดดูข้อมูลเท่านั้น — M&E Analyst' : '🔍 Read-only mode — M&E Analyst'}
+            </p>
+          </div>
+        )}
+
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           {/* Main */}
-          {renderTab("dashboard", isAdmin ? <AdminDashboardContent /> : <BranchDashboardContent userBranch={userBranch} />)}
+          {renderTab("dashboard", isAdmin || isMeAnalyst ? <AdminDashboardContent /> : <BranchDashboardContent userBranch={userBranch} />)}
 
           {/* Operations */}
-          {renderTab("kit-orders", <AdminKitOrdersContent userBranch={userBranch} isModerator={isModerator && !isAdmin} />)}
+          {renderTab("kit-orders", <AdminKitOrdersContent userBranch={userBranch} isModerator={(isModerator && !isAdmin) || isMeAnalyst} />)}
           {renderTab("bookings", <AdminBookingContent userBranch={userBranch} />)}
           {renderTab("today", <AdminTodayBoard userBranch={userBranch} />)}
           {renderTab("schedule", <AdminScheduleContent />)}

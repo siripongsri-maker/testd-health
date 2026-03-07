@@ -3719,7 +3719,7 @@ export type Database = {
       validate_thai_id: { Args: { thai_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "me_analyst"
       article_status: "draft" | "pending_review" | "published" | "archived"
       kit_order_status:
         | "requested"
@@ -3855,7 +3855,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "me_analyst"],
       article_status: ["draft", "pending_review", "published", "archived"],
       kit_order_status: [
         "requested",

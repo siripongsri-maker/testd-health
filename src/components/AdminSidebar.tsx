@@ -24,7 +24,7 @@ import {
   Bell, BarChart3, FileText, ClipboardList, FileUp,
   ChevronDown, Languages, ShieldAlert, RefreshCw, Gift, Heart,
   MessageSquare, CreditCard, Wallet, Link2, UserCheck,
-  Activity, Wrench, Monitor, FileDown, PieChart,
+  Activity, Wrench, Monitor, FileDown,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -32,12 +32,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useAdminRole } from "@/hooks/useAdminRole";
 
 interface MenuItemDef {
   tab: string;
   icon: LucideIcon;
   labelKey: string;
+  /** Only visible to super admin */
   adminOnly?: boolean;
+  /** Also visible to me_analyst */
+  meAnalyst?: boolean;
 }
 
 interface MenuGroup {
@@ -49,14 +53,14 @@ const menuGroups: MenuGroup[] = [
   {
     labelKey: "admin.main",
     items: [
-      { tab: "dashboard", icon: LayoutDashboard, labelKey: "admin.dashboard" },
+      { tab: "dashboard", icon: LayoutDashboard, labelKey: "admin.dashboard", meAnalyst: true },
     ],
   },
   {
     labelKey: "admin.operations",
     items: [
-      { tab: "kit-orders", icon: Package, labelKey: "admin.kitOrders" },
-      { tab: "bookings", icon: CalendarDays, labelKey: "admin.bookings" },
+      { tab: "kit-orders", icon: Package, labelKey: "admin.kitOrders", meAnalyst: true },
+      { tab: "bookings", icon: CalendarDays, labelKey: "admin.bookings", meAnalyst: true },
       { tab: "today", icon: Clipboard, labelKey: "admin.today" },
       { tab: "schedule", icon: Clock, labelKey: "admin.schedule" },
     ],
@@ -64,17 +68,17 @@ const menuGroups: MenuGroup[] = [
   {
     labelKey: "admin.partnerNetwork",
     items: [
-      { tab: "partner-invites", icon: Heart, labelKey: "admin.partnerInvites", adminOnly: true },
-      { tab: "pair-sessions", icon: Link2, labelKey: "admin.pairSessions", adminOnly: true },
-      { tab: "anonymous-responses", icon: UserCheck, labelKey: "admin.anonymousResponses", adminOnly: true },
+      { tab: "partner-invites", icon: Heart, labelKey: "admin.partnerInvites", adminOnly: true, meAnalyst: true },
+      { tab: "pair-sessions", icon: Link2, labelKey: "admin.pairSessions", adminOnly: true, meAnalyst: true },
+      { tab: "anonymous-responses", icon: UserCheck, labelKey: "admin.anonymousResponses", adminOnly: true, meAnalyst: true },
     ],
   },
   {
     labelKey: "admin.smsCredits",
     items: [
-      { tab: "sms-relay", icon: MessageSquare, labelKey: "admin.smsRelay", adminOnly: true },
-      { tab: "credit-balances", icon: Wallet, labelKey: "admin.creditBalances", adminOnly: true },
-      { tab: "credit-purchases", icon: CreditCard, labelKey: "admin.creditPurchases", adminOnly: true },
+      { tab: "sms-relay", icon: MessageSquare, labelKey: "admin.smsRelay", adminOnly: true, meAnalyst: true },
+      { tab: "credit-balances", icon: Wallet, labelKey: "admin.creditBalances", adminOnly: true, meAnalyst: true },
+      { tab: "credit-purchases", icon: CreditCard, labelKey: "admin.creditPurchases", adminOnly: true, meAnalyst: true },
     ],
   },
   {
@@ -99,9 +103,9 @@ const menuGroups: MenuGroup[] = [
   {
     labelKey: "admin.reports",
     items: [
-      { tab: "analytics", icon: BarChart3, labelKey: "admin.analytics", adminOnly: true },
-      { tab: "export-center", icon: FileDown, labelKey: "admin.exportCenter", adminOnly: true },
-      { tab: "activity-logs", icon: Activity, labelKey: "admin.activityLogs", adminOnly: true },
+      { tab: "analytics", icon: BarChart3, labelKey: "admin.analytics", adminOnly: true, meAnalyst: true },
+      { tab: "export-center", icon: FileDown, labelKey: "admin.exportCenter", adminOnly: true, meAnalyst: true },
+      { tab: "activity-logs", icon: Activity, labelKey: "admin.activityLogs", adminOnly: true, meAnalyst: true },
     ],
   },
   {
@@ -110,7 +114,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "diagnostics", icon: Wrench, labelKey: "admin.diagnostics", adminOnly: true },
       { tab: "import", icon: FileUp, labelKey: "admin.import", adminOnly: true },
       { tab: "app-updates", icon: RefreshCw, labelKey: "admin.appUpdates", adminOnly: true },
-      { tab: "system-health", icon: Monitor, labelKey: "admin.systemHealth", adminOnly: true },
+      { tab: "system-health", icon: Monitor, labelKey: "admin.systemHealth", adminOnly: true, meAnalyst: true },
     ],
   },
 ];
@@ -122,6 +126,7 @@ export function AdminSidebar() {
   const { t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "dashboard";
+  const { isAdmin, isMeAnalyst } = useAdminRole();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -132,6 +137,20 @@ export function AdminSidebar() {
   const handleTabClick = (tab: string) => {
     setSearchParams({ tab });
   };
+
+  const canSeeItem = (item: MenuItemDef) => {
+    if (isAdmin) return true;
+    if (isMeAnalyst && item.meAnalyst) return true;
+    if (item.adminOnly) return false;
+    return true; // moderator sees non-adminOnly items
+  };
+
+  const filteredGroups = menuGroups
+    .map(group => ({
+      ...group,
+      items: group.items.filter(canSeeItem),
+    }))
+    .filter(group => group.items.length > 0);
 
   return (
     <Sidebar
@@ -149,7 +168,7 @@ export function AdminSidebar() {
                 testD Console
               </h2>
               <p className="text-[10px] text-sidebar-foreground/60">
-                Operations Dashboard
+                {isMeAnalyst ? 'M&E Analytics' : 'Operations Dashboard'}
               </p>
             </div>
           )}
@@ -157,7 +176,7 @@ export function AdminSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        {menuGroups.map((group) => {
+        {filteredGroups.map((group) => {
           const groupHasActive = group.items.some((i) => i.tab === activeTab);
 
           return collapsed ? (
