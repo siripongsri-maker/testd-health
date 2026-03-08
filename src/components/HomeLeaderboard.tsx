@@ -83,7 +83,6 @@ export function HomeLeaderboard() {
 
   if (topUsers.length === 0) return null;
 
-  const [expanded, setExpanded] = useState(false);
   const displayUsers = expanded ? topUsers : topUsers.slice(0, 3);
 
   return (
