@@ -91,24 +91,20 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Bento Grid: Rewards | Milestone + Leaderboard */}
-        <div className="grid grid-cols-1 md:grid-cols-[1.3fr_1fr] gap-4 mb-4">
-          {/* Left column — Reward Campaign (spans 2 rows on desktop) */}
-          <div className="md:row-span-2 flex flex-col">
-            <div className="flex-1">
+        {/* Bento Grid: Top row equal cards, bottom full-width leaderboard */}
+        <div className="space-y-4 mb-4">
+          {/* Top row: Rewards + Milestone (equal height) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="flex flex-col [&>*]:flex-1 [&>section]:flex [&>section]:flex-col">
               <HomeRewards />
+            </div>
+            <div className="flex flex-col [&>*]:flex-1">
+              <CommunityMilestoneCard />
             </div>
           </div>
 
-          {/* Right column top — Community Milestone */}
-          <div>
-            <CommunityMilestoneCard />
-          </div>
-
-          {/* Right column bottom — Leaderboard */}
-          <div>
-            <HomeLeaderboard />
-          </div>
+          {/* Bottom row: Full-width leaderboard */}
+          <HomeLeaderboard />
         </div>
 
         {/* Action Grid */}
