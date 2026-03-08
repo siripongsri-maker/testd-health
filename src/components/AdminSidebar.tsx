@@ -24,7 +24,7 @@ import {
   Bell, BarChart3, FileText, ClipboardList, FileUp,
   ChevronDown, Languages, ShieldAlert, RefreshCw, Gift, Heart,
   MessageSquare, CreditCard, Wallet, Link2, UserCheck,
-  Activity, Wrench, Monitor, FileDown, Target,
+  Activity, Wrench, Monitor, FileDown, Target, Fingerprint,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -116,6 +116,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "import", icon: FileUp, labelKey: "admin.import", adminOnly: true },
       { tab: "app-updates", icon: RefreshCw, labelKey: "admin.appUpdates", adminOnly: true },
       { tab: "system-health", icon: Monitor, labelKey: "admin.systemHealth", adminOnly: true, meAnalyst: true },
+      { tab: "ip-docs", icon: Fingerprint, labelKey: "admin.ipDocs", adminOnly: true },
     ],
   },
 ];
