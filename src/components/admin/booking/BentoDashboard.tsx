@@ -38,6 +38,21 @@ export function BentoDashboard({
   const newCount = todayDensity?.new_count || 0;
   const returningCount = todayDensity?.returning_count || 0;
   const cancelledCount = todayDensity?.cancelled_count || 0;
+  const completedCount = todayDensity?.completed_count || 0;
+
+  // Compute auto and no-show from appointments
+  const completedTotal = useMemo(() => 
+    appointments.filter(a => a.status === 'completed' || a.status === 'checked_out' || (a as any).auto_checked_out_at).length, 
+    [appointments]
+  );
+  const autoCheckoutCount = useMemo(() => 
+    appointments.filter(a => (a as any).auto_checked_out_at).length, 
+    [appointments]
+  );
+  const noShowCount = useMemo(() => 
+    appointments.filter(a => a.status === 'no_show').length, 
+    [appointments]
+  );
 
   // Busy level
   const busyLevel = totalCount > 30 ? 'high' : totalCount > 15 ? 'medium' : 'low';
