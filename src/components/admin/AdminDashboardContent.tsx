@@ -146,6 +146,8 @@ export default function AdminDashboardContent() {
         totalSelftestRequests: selftestRes.count || 0,
         totalBookings: bookingsRes.count || 0,
         completedBookings: completedBookingsRes.count || 0,
+        autoCheckout: autoCheckoutRes.count || 0,
+        noShowTotal: noShowRes.count || 0,
         totalInvites: inviteCount,
         inviteConversionRate: convRate,
         pairSessions: pairSessionsRes.count || 0,
