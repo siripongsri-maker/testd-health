@@ -86,25 +86,25 @@ export function HomeLeaderboard() {
   const displayUsers = expanded ? topUsers : topUsers.slice(0, 3);
 
   return (
-    <div className="glass glass-shine rounded-2xl p-4 transition-all duration-300">
+    <div className="glass glass-shine rounded-2xl p-5 transition-all duration-300">
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
-            <Trophy className="h-4 w-4 text-amber-500" />
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2.5">
+          <div className="h-9 w-9 rounded-xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
+            <Trophy className="h-5 w-5 text-amber-500" />
           </div>
-          <h3 className="font-bold text-foreground text-sm">
+          <h3 className="font-bold text-foreground text-base">
             {language === 'th' ? 'กระดานอันดับ' : 'Leaderboard'}
           </h3>
         </div>
-        <button onClick={() => navigate('/leaderboard')} className="text-xs text-primary hover:underline flex items-center gap-0.5">
+        <button onClick={() => navigate('/leaderboard')} className="text-xs text-primary hover:underline flex items-center gap-0.5 font-medium">
           {language === 'th' ? 'ดูทั้งหมด' : 'View All'}
           <ChevronRight className="h-3.5 w-3.5" />
         </button>
       </div>
 
-      {/* Rankings */}
-      <div className="space-y-1.5">
+      {/* Rankings — horizontal grid on desktop */}
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-2">
         {displayUsers.map((u, i) => {
           const tier = getTierByXP(u.xp || 0);
           const TierIcon = tier.icon;
@@ -118,10 +118,10 @@ export function HomeLeaderboard() {
           return (
             <div
               key={u.id}
-              className={`flex items-center gap-2 rounded-xl px-2.5 py-1.5 transition-colors ${
+              className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 transition-colors ${
                 isCurrentUser
                   ? 'bg-primary/10 ring-1 ring-primary/30'
-                  : i < 3 ? 'bg-muted/30' : ''
+                  : i < 3 ? 'bg-muted/30' : 'bg-muted/20'
               }`}
             >
               <div className="w-5 flex justify-center shrink-0">
@@ -131,22 +131,24 @@ export function HomeLeaderboard() {
                   </span>
                 )}
               </div>
-              <div className={`h-6 w-6 shrink-0 rounded-full ${tier.bgColor} ${tier.borderColor} border flex items-center justify-center`}>
-                <TierIcon className={`h-3 w-3 ${tier.color}`} />
+              <div className={`h-7 w-7 shrink-0 rounded-full ${tier.bgColor} ${tier.borderColor} border flex items-center justify-center`}>
+                <TierIcon className={`h-3.5 w-3.5 ${tier.color}`} />
               </div>
-              <span className={`flex-1 text-xs font-medium truncate ${
-                isCurrentUser ? 'text-primary' : 'text-foreground'
-              }`}>
-                {safeName}
-                {isCurrentUser && (
-                  <span className="ml-1 text-[10px] text-primary/70">
-                    ({language === 'th' ? 'คุณ' : 'You'})
-                  </span>
-                )}
-              </span>
-              <div className="flex items-center gap-0.5 shrink-0">
-                <Zap className="h-3 w-3 text-amber-500" />
-                <span className="text-xs font-bold text-foreground tabular-nums">
+              <div className="flex-1 min-w-0">
+                <span className={`text-sm font-medium truncate block ${
+                  isCurrentUser ? 'text-primary' : 'text-foreground'
+                }`}>
+                  {safeName}
+                  {isCurrentUser && (
+                    <span className="ml-1 text-[10px] text-primary/70">
+                      ({language === 'th' ? 'คุณ' : 'You'})
+                    </span>
+                  )}
+                </span>
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <Zap className="h-3.5 w-3.5 text-amber-500" />
+                <span className="text-sm font-bold text-foreground tabular-nums">
                   {(u.xp || 0).toLocaleString()}
                 </span>
               </div>
@@ -157,48 +159,48 @@ export function HomeLeaderboard() {
 
       {/* Current user rank if not in top list */}
       {currentUserRank && currentUserRank > displayUsers.length && currentUserData && (
-        <div className="mt-1.5 pt-1.5 border-t border-border/50">
-          <div className="flex items-center gap-2 rounded-xl px-2.5 py-1.5 bg-primary/10 ring-1 ring-primary/30">
+        <div className="mt-2 pt-2 border-t border-border/50">
+          <div className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 bg-primary/10 ring-1 ring-primary/30 md:max-w-xs">
             <div className="w-5 flex justify-center shrink-0">
               <span className="text-xs font-bold text-primary">{currentUserRank}</span>
             </div>
-            <div className={`h-6 w-6 shrink-0 rounded-full ${getTierByXP(currentUserData.xp || 0).bgColor} ${getTierByXP(currentUserData.xp || 0).borderColor} border flex items-center justify-center`}>
+            <div className={`h-7 w-7 shrink-0 rounded-full ${getTierByXP(currentUserData.xp || 0).bgColor} ${getTierByXP(currentUserData.xp || 0).borderColor} border flex items-center justify-center`}>
               {(() => {
                 const tier = getTierByXP(currentUserData.xp || 0);
                 const TierIcon = tier.icon;
-                return <TierIcon className={`h-3 w-3 ${tier.color}`} />;
+                return <TierIcon className={`h-3.5 w-3.5 ${tier.color}`} />;
               })()}
             </div>
-            <span className="flex-1 text-xs font-medium truncate text-primary">
+            <span className="flex-1 text-sm font-medium truncate text-primary">
               {getSafeDisplayName(currentUserData.display_name, currentUserData.id || '', language === 'th' ? 'คุณ' : 'You', user?.id)}
             </span>
-            <div className="flex items-center gap-0.5 shrink-0">
-              <Zap className="h-3 w-3 text-amber-500" />
-              <span className="text-xs font-bold tabular-nums">{(currentUserData.xp || 0).toLocaleString()}</span>
+            <div className="flex items-center gap-1 shrink-0">
+              <Zap className="h-3.5 w-3.5 text-amber-500" />
+              <span className="text-sm font-bold tabular-nums">{(currentUserData.xp || 0).toLocaleString()}</span>
             </div>
           </div>
         </div>
       )}
 
-      {/* Expand toggle */}
-      {topUsers.length > 3 && (
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="w-full mt-2 text-xs text-primary hover:underline text-center py-1"
-        >
-          {expanded
-            ? (language === 'th' ? 'แสดงน้อยลง' : 'Show less')
-            : (language === 'th' ? 'ดูเพิ่มเติม' : 'See more')}
-        </button>
-      )}
-
-      {/* Privacy notice */}
-      <p className="text-[10px] text-center text-muted-foreground mt-2">
-        <ShieldAlert className="inline h-3 w-3 mr-0.5 -mt-0.5" />
-        {language === 'th'
-          ? 'แสดงเฉพาะชื่อผู้ใช้หรือชื่อเล่นเท่านั้น'
-          : 'Only usernames or nicknames are displayed.'}
-      </p>
+      {/* Footer: expand + privacy */}
+      <div className="flex items-center justify-between mt-3 pt-2 border-t border-border/30">
+        <p className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+          <ShieldAlert className="inline h-3 w-3" />
+          {language === 'th'
+            ? 'แสดงเฉพาะชื่อเล่นเท่านั้น'
+            : 'Only nicknames shown'}
+        </p>
+        {topUsers.length > 3 && (
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="text-xs text-primary hover:underline font-medium"
+          >
+            {expanded
+              ? (language === 'th' ? 'แสดงน้อยลง' : 'Show less')
+              : (language === 'th' ? 'ดูเพิ่มเติม' : 'See more')}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
