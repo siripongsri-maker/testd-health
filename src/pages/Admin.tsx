@@ -35,6 +35,7 @@ const AdminActivityLogsContent = lazy(() => import("@/components/admin/AdminActi
 const AdminExportCenterContent = lazy(() => import("@/components/admin/AdminExportCenterContent"));
 const AdminDiagnosticsContent = lazy(() => import("@/components/admin/AdminDiagnosticsContent"));
 const AdminSystemHealthContent = lazy(() => import("@/components/admin/AdminSystemHealthContent"));
+const AdminMilestonesContent = lazy(() => import("@/components/admin/AdminMilestonesContent"));
 
 const TabLoader = () => (
   <div className="flex items-center justify-center h-64">
@@ -157,6 +158,7 @@ export default function Admin() {
           {renderTab("blog", <AdminBlogContent />)}
           {renderTab("surveys", <AdminSurveysContent />)}
           {renderTab("rewards", <AdminRewardsContent />)}
+          {renderTab("milestones", <AdminMilestonesContent />)}
           {renderTab("notifications", <AdminNotificationsContent />)}
           {renderTab("translations", <AdminTranslationsContent />)}
 

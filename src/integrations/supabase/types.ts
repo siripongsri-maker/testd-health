@@ -933,6 +933,48 @@ export type Database = {
         }
         Relationships: []
       }
+      community_milestones: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_value: number
+          id: string
+          is_completed: boolean
+          metric_type: string
+          month: string
+          reward_ticket: number
+          reward_xp: number
+          target_value: number
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number
+          id?: string
+          is_completed?: boolean
+          metric_type?: string
+          month: string
+          reward_ticket?: number
+          reward_xp?: number
+          target_value?: number
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_value?: number
+          id?: string
+          is_completed?: boolean
+          metric_type?: string
+          month?: string
+          reward_ticket?: number
+          reward_xp?: number
+          target_value?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       consultation_forms: {
         Row: {
           created_at: string | null
