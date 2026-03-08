@@ -77,7 +77,7 @@ export default function Home() {
       {/* Fixed background layer */}
       <div className="fixed inset-0 gradient-hero" style={{ zIndex: -1 }} />
 
-      <main className="px-4 sm:px-6 py-3 max-w-md mx-auto relative">
+      <main className="px-4 sm:px-6 py-3 max-w-5xl mx-auto relative">
         {/* Welcome text */}
         <div className="text-center mb-4">
           <div className="flex justify-center mb-2">
@@ -91,22 +91,27 @@ export default function Home() {
           </p>
         </div>
 
-        {/* 1. Health Rewards — TOP (primary motivation) */}
-        <div className="mb-4">
-          <HomeRewards />
+        {/* Bento Grid: Rewards | Milestone + Leaderboard */}
+        <div className="grid grid-cols-1 md:grid-cols-[1.3fr_1fr] gap-4 mb-4">
+          {/* Left column — Reward Campaign (spans 2 rows on desktop) */}
+          <div className="md:row-span-2 flex flex-col">
+            <div className="flex-1">
+              <HomeRewards />
+            </div>
+          </div>
+
+          {/* Right column top — Community Milestone */}
+          <div>
+            <CommunityMilestoneCard />
+          </div>
+
+          {/* Right column bottom — Leaderboard */}
+          <div>
+            <HomeLeaderboard />
+          </div>
         </div>
 
-        {/* 2. Community Milestone */}
-        <div className="mb-4">
-          <CommunityMilestoneCard />
-        </div>
-
-        {/* 3. Leaderboard Widget */}
-        <div className="mb-4">
-          <HomeLeaderboard />
-        </div>
-
-        {/* 4. Reorganized Action Grid */}
+        {/* Action Grid */}
         <HomeActionGrid />
 
         {/* Stats: Members and Total Visitors */}
