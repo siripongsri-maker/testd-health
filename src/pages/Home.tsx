@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 import { HIVTestPopup } from "@/components/HIVTestPopup";
 import { HomeLeaderboard } from "@/components/HomeLeaderboard";
+import { CommunityMilestoneCard } from "@/components/CommunityMilestoneCard";
 import { AdminRequestsPopup } from "@/components/AdminRequestsPopup";
 import { HomeRewards } from "@/components/HomeRewards";
 import { HomeActionGrid } from "@/components/home/HomeActionGrid";
@@ -95,12 +96,17 @@ export default function Home() {
           <HomeRewards />
         </div>
 
-        {/* 2. Leaderboard Widget */}
+        {/* 2. Community Milestone */}
+        <div className="mb-4">
+          <CommunityMilestoneCard />
+        </div>
+
+        {/* 3. Leaderboard Widget */}
         <div className="mb-4">
           <HomeLeaderboard />
         </div>
 
-        {/* 3. Reorganized Action Grid */}
+        {/* 4. Reorganized Action Grid */}
         <HomeActionGrid />
 
         {/* Stats: Members and Total Visitors */}

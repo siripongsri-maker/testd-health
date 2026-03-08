@@ -24,7 +24,7 @@ import {
   Bell, BarChart3, FileText, ClipboardList, FileUp,
   ChevronDown, Languages, ShieldAlert, RefreshCw, Gift, Heart,
   MessageSquare, CreditCard, Wallet, Link2, UserCheck,
-  Activity, Wrench, Monitor, FileDown,
+  Activity, Wrench, Monitor, FileDown, Target,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -96,6 +96,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "blog", icon: FileText, labelKey: "admin.blog", adminOnly: true },
       { tab: "surveys", icon: ClipboardList, labelKey: "admin.surveys", adminOnly: true },
       { tab: "rewards", icon: Gift, labelKey: "admin.rewards", adminOnly: true },
+      { tab: "milestones", icon: Target, labelKey: "admin.milestones", adminOnly: true },
       { tab: "notifications", icon: Bell, labelKey: "admin.notifications", adminOnly: true },
       { tab: "translations", icon: Languages, labelKey: "admin.translations", adminOnly: true },
     ],
