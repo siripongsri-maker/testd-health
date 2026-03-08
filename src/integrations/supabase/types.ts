@@ -3495,7 +3495,7 @@ export type Database = {
         }[]
       }
       get_branch_today_board: {
-        Args: { p_branch_id: string; p_date?: string }
+        Args: { p_branch_id: string; p_date: string }
         Returns: Json
       }
       get_guest_appointments_by_token: {

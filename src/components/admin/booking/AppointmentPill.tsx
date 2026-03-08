@@ -1,7 +1,8 @@
 import { useLanguage } from '@/lib/i18n';
 import { getDisplayServices } from '@/lib/appointments';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Hash } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Hash, Bot, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { EnrichedAppointment } from './types';
 import { getStatusInfo } from './types';
@@ -58,9 +59,15 @@ export function AppointmentPill({ appointment: apt, selected, onToggleSelect, on
       )}
       {compact && <span className="flex-1" />}
 
-      {/* Status dot + New/Return badge */}
+      {/* Status dot + New/Return badge + Auto badge */}
       <div className="flex items-center gap-1.5 shrink-0">
         <div className={cn("h-2 w-2 rounded-full", statusInfo.color.split(' ')[0])} title={language === 'th' ? statusInfo.labelTh : statusInfo.labelEn} />
+        {(apt as any).auto_checked_out_at && (
+          <span className="text-[8px] font-bold px-1 py-0.5 rounded-full leading-none bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 flex items-center gap-0.5">
+            <Bot className="h-2 w-2" />
+            Auto
+          </span>
+        )}
         <span className={cn(
           "text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none",
           apt.is_returning

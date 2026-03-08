@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Users, Package, CalendarDays, Heart, MessageSquare, CreditCard,
   ShieldAlert, TrendingUp, AlertTriangle, Building2, Eye, Activity,
-  CheckCircle, XCircle, Clock, Link2, UserCheck, Gift,
+  CheckCircle, XCircle, Clock, Link2, UserCheck, Gift, Bot,
 } from "lucide-react";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import {
@@ -24,6 +24,8 @@ interface PlatformStats {
   totalSelftestRequests: number;
   totalBookings: number;
   completedBookings: number;
+  autoCheckout: number;
+  noShowTotal: number;
   totalInvites: number;
   inviteConversionRate: number;
   pairSessions: number;
@@ -90,6 +92,9 @@ export default function AdminDashboardContent() {
         selftestRes,
         bookingsRes,
         completedBookingsRes,
+        autoCheckoutRes,
+        autoNoShowRes,
+        noShowRes,
         invitesRes,
         inviteEventsRes,
         pairSessionsRes,
@@ -107,7 +112,10 @@ export default function AdminDashboardContent() {
         supabase.from("profiles").select("id", { count: "exact", head: true }).gte("updated_at", sevenDaysAgo),
         supabase.from("hiv_selftest_requests").select("id", { count: "exact", head: true }),
         supabase.from("appointments").select("id", { count: "exact", head: true }),
-        supabase.from("appointments").select("id", { count: "exact", head: true }).eq("status", "completed"),
+        supabase.from("appointments").select("id", { count: "exact", head: true }).in("status", ["completed", "checked_out"]),
+        supabase.from("appointments").select("id", { count: "exact", head: true }).not("auto_checked_out_at", "is", null),
+        supabase.from("appointments").select("id", { count: "exact", head: true }).eq("status", "no_show"),
+        supabase.from("appointments").select("id", { count: "exact", head: true }).eq("status", "no_show"),
         supabase.from("partner_invites").select("id", { count: "exact", head: true }).eq("is_test_mode", false),
         supabase.from("partner_invite_events").select("id", { count: "exact", head: true }).eq("event_type", "open").eq("is_test_mode", false),
         supabase.from("partner_test_sessions").select("id", { count: "exact", head: true }).eq("is_test_mode", false),
@@ -138,6 +146,8 @@ export default function AdminDashboardContent() {
         totalSelftestRequests: selftestRes.count || 0,
         totalBookings: bookingsRes.count || 0,
         completedBookings: completedBookingsRes.count || 0,
+        autoCheckout: autoCheckoutRes.count || 0,
+        noShowTotal: noShowRes.count || 0,
         totalInvites: inviteCount,
         inviteConversionRate: convRate,
         pairSessions: pairSessionsRes.count || 0,
@@ -256,7 +266,9 @@ export default function AdminDashboardContent() {
     { label: isTh ? 'ใช้งาน 7 วัน' : 'Active 7d', value: s.activeUsers7d, icon: Activity, color: 'text-emerald-600' },
     { label: isTh ? 'คำขอตรวจ HIV' : 'Self-Test Requests', value: s.totalSelftestRequests, icon: Package, color: 'text-purple-600' },
     { label: isTh ? 'จองทั้งหมด' : 'Total Bookings', value: s.totalBookings, icon: CalendarDays, color: 'text-sky-600' },
-    { label: isTh ? 'จองสำเร็จ' : 'Completed Bookings', value: s.completedBookings, icon: CheckCircle, color: 'text-emerald-600' },
+    { label: isTh ? 'จองสำเร็จ' : 'Completed', value: s.completedBookings, icon: CheckCircle, color: 'text-emerald-600' },
+    { label: isTh ? 'Auto Check-out' : 'Auto Check-out', value: s.autoCheckout, icon: Bot, color: 'text-amber-600' },
+    { label: isTh ? 'ไม่มาทั้งหมด' : 'No Show', value: s.noShowTotal, icon: XCircle, color: s.noShowTotal > 0 ? 'text-red-600' : 'text-muted-foreground' },
     { label: isTh ? 'คำชวนส่งแล้ว' : 'Invites Sent', value: s.totalInvites, icon: Heart, color: 'text-pink-600' },
     { label: isTh ? 'อัตรา Conversion' : 'Invite CVR', value: `${s.inviteConversionRate}%`, icon: TrendingUp, color: 'text-emerald-600', isRate: true },
     { label: isTh ? 'ตรวจคู่' : 'Pair Sessions', value: s.pairSessions, icon: Link2, color: 'text-indigo-600' },
