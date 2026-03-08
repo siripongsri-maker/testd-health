@@ -491,6 +491,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.adminTools': 'เครื่องมือแอดมิน',
     'admin.diagnostics': 'วินิจฉัยระบบ',
     'admin.systemHealth': 'สุขภาพระบบ',
+    'admin.ipDocs': 'ศูนย์เอกสาร IP',
     'admin.backToApp': 'กลับหน้าหลัก',
     'admin.logout': 'ออกจากระบบ',
 
@@ -978,6 +979,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.adminTools': 'Admin Tools',
     'admin.diagnostics': 'Diagnostics',
     'admin.systemHealth': 'System Health',
+    'admin.ipDocs': 'IP Documentation',
     'admin.backToApp': 'Back to App',
     'admin.logout': 'Logout',
 

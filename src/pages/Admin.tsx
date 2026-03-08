@@ -36,6 +36,7 @@ const AdminExportCenterContent = lazy(() => import("@/components/admin/AdminExpo
 const AdminDiagnosticsContent = lazy(() => import("@/components/admin/AdminDiagnosticsContent"));
 const AdminSystemHealthContent = lazy(() => import("@/components/admin/AdminSystemHealthContent"));
 const AdminMilestonesContent = lazy(() => import("@/components/admin/AdminMilestonesContent"));
+const AdminIPDocsContent = lazy(() => import("@/components/admin/AdminIPDocsContent"));
 
 const TabLoader = () => (
   <div className="flex items-center justify-center h-64">
@@ -172,6 +173,7 @@ export default function Admin() {
           {renderTab("import", <AdminImportContent />)}
           {renderTab("app-updates", <AdminAppUpdatesContent />)}
           {renderTab("system-health", <AdminSystemHealthContent />)}
+          {renderTab("ip-docs", <AdminIPDocsContent />)}
         </Tabs>
       </div>
     </AdminLayout>

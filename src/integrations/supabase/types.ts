@@ -1339,6 +1339,156 @@ export type Database = {
         }
         Relationships: []
       }
+      ip_contributors: {
+        Row: {
+          contribution_type: string | null
+          created_at: string
+          date_end: string | null
+          date_start: string | null
+          full_name: string
+          id: string
+          is_ip_owner: boolean
+          ownership_notes: string | null
+          role: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          contribution_type?: string | null
+          created_at?: string
+          date_end?: string | null
+          date_start?: string | null
+          full_name: string
+          id?: string
+          is_ip_owner?: boolean
+          ownership_notes?: string | null
+          role: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          contribution_type?: string | null
+          created_at?: string
+          date_end?: string | null
+          date_start?: string | null
+          full_name?: string
+          id?: string
+          is_ip_owner?: boolean
+          ownership_notes?: string | null
+          role?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      ip_document_sections: {
+        Row: {
+          content: Json | null
+          id: string
+          section_key: string
+          status: string
+          title_en: string
+          title_th: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content?: Json | null
+          id?: string
+          section_key: string
+          status?: string
+          title_en: string
+          title_th?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content?: Json | null
+          id?: string
+          section_key?: string
+          status?: string
+          title_en?: string
+          title_th?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      ip_evidence: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          document_date: string | null
+          file_url: string | null
+          id: string
+          proof_relevance: string | null
+          related_module: string | null
+          tags: string[] | null
+          title: string
+          updated_by: string | null
+          version: string | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          document_date?: string | null
+          file_url?: string | null
+          id?: string
+          proof_relevance?: string | null
+          related_module?: string | null
+          tags?: string[] | null
+          title: string
+          updated_by?: string | null
+          version?: string | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          document_date?: string | null
+          file_url?: string | null
+          id?: string
+          proof_relevance?: string | null
+          related_module?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_by?: string | null
+          version?: string | null
+        }
+        Relationships: []
+      }
+      ip_export_logs: {
+        Row: {
+          doc_version: string | null
+          export_type: string
+          exported_at: string
+          exported_by: string | null
+          id: string
+          notes: string | null
+          system_version: string | null
+        }
+        Insert: {
+          doc_version?: string | null
+          export_type: string
+          exported_at?: string
+          exported_by?: string | null
+          id?: string
+          notes?: string | null
+          system_version?: string | null
+        }
+        Update: {
+          doc_version?: string | null
+          export_type?: string
+          exported_at?: string
+          exported_by?: string | null
+          id?: string
+          notes?: string | null
+          system_version?: string | null
+        }
+        Relationships: []
+      }
       kit_order_events: {
         Row: {
           created_at: string
