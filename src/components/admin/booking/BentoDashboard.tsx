@@ -175,10 +175,13 @@ export function BentoDashboard({
   return (
     <div className="space-y-3">
       {/* A) Today Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2">
         <SummaryCard icon={CalendarCheck} value={totalCount} label={language === 'th' ? 'ทั้งหมด' : 'Total'} accent="text-primary" />
         <SummaryCard icon={UserPlus} value={newCount} label={language === 'th' ? 'ใหม่' : 'New'} accent="text-sky-600 dark:text-sky-400" />
         <SummaryCard icon={RotateCcw} value={returningCount} label={language === 'th' ? 'กลับมา' : 'Return'} accent="text-purple-600 dark:text-purple-400" />
+        <SummaryCard icon={CheckCircle2} value={completedTotal} label={language === 'th' ? 'เสร็จ' : 'Completed'} accent="text-green-600 dark:text-green-400" />
+        <SummaryCard icon={Activity} value={autoCheckoutCount} label="Auto Check-out" accent="text-amber-600 dark:text-amber-400" />
+        <SummaryCard icon={XCircle} value={noShowCount} label={language === 'th' ? 'ไม่มา' : 'No Show'} accent="text-red-600 dark:text-red-400" />
         <SummaryCard icon={XCircle} value={cancelledCount} label={language === 'th' ? 'ยกเลิก' : 'Cancel'} accent="text-destructive" />
         <Card className="p-3 flex items-center gap-2">
           <div className={cn("h-3 w-3 rounded-full shrink-0", busyConfig[busyLevel].color)} />
