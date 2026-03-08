@@ -1,7 +1,8 @@
 import { useLanguage } from '@/lib/i18n';
 import { getDisplayServices } from '@/lib/appointments';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Hash } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Hash, Bot, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { EnrichedAppointment } from './types';
 import { getStatusInfo } from './types';
