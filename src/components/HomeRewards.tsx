@@ -136,21 +136,21 @@ export function HomeRewards() {
   if (!enabled || rewards.length === 0) return null;
 
   return (
-    <section className="space-y-3">
+    <section className="flex flex-col h-full">
       {/* Section header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center">
-            <Gift className="h-4 w-4 text-primary" />
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2.5">
+          <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Gift className="h-5 w-5 text-primary" />
           </div>
-          <h2 className="font-bold text-foreground text-sm sm:text-base">
+          <h2 className="font-bold text-foreground text-base">
             {t("home.healthRewards")}
           </h2>
         </div>
         <Button
           variant="ghost"
           size="sm"
-          className="text-xs text-primary h-8 px-3"
+          className="text-xs text-primary h-8 px-3 font-medium"
           onClick={() => navigate('/leaderboard')}
         >
           <Trophy className="h-3.5 w-3.5 mr-1" />
@@ -159,9 +159,9 @@ export function HomeRewards() {
       </div>
 
       {/* Featured reward card with countdown */}
-      <div className="glass rounded-2xl overflow-hidden">
+      <div className="glass rounded-2xl overflow-hidden flex-1 flex flex-col">
         {rewards[0]?.reward_image_url ? (
-          <div className="relative h-36 sm:h-44">
+          <div className="relative h-40 sm:h-48">
             <img
               src={rewards[0].reward_image_url}
               alt={rewards[0].reward_title}
@@ -172,10 +172,10 @@ export function HomeRewards() {
             <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-base leading-tight line-clamp-2 drop-shadow">
+                  <h3 className="font-bold text-lg leading-tight drop-shadow">
                     {rewards[0].reward_title}
                   </h3>
-                  <p className="text-xs text-white/80 line-clamp-2 mt-0.5">
+                  <p className="text-sm text-white/80 mt-1 leading-relaxed">
                     {rewards[0].reward_description}
                   </p>
                 </div>
@@ -188,19 +188,19 @@ export function HomeRewards() {
             </div>
           </div>
         ) : (
-          <div className="p-4">
-            <h3 className="font-bold text-sm text-foreground">{rewards[0]?.reward_title}</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">{rewards[0]?.reward_description}</p>
+          <div className="p-5 flex-1">
+            <h3 className="font-bold text-base text-foreground">{rewards[0]?.reward_title}</h3>
+            <p className="text-sm text-muted-foreground mt-1">{rewards[0]?.reward_description}</p>
           </div>
         )}
 
         {/* Countdown timer */}
-        <div className="p-3 border-t border-border/30 flex items-center justify-between">
+        <div className="p-4 border-t border-border/30 flex items-center justify-between mt-auto">
           <SeasonCountdown language={language} seasonEndAt={rewards[0]?.season_end_at} />
           <Button
             size="sm"
             variant="outline"
-            className="h-8 text-xs rounded-xl"
+            className="h-9 text-xs rounded-xl font-medium"
             onClick={() => navigate('/leaderboard')}
           >
             {language === 'th' ? 'ดูรายละเอียด' : 'View Details'}
@@ -210,7 +210,7 @@ export function HomeRewards() {
 
       {/* Additional rewards (horizontal scroll) */}
       {rewards.length > 1 && (
-        <div className="flex gap-2.5 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-hide">
+        <div className="flex gap-2.5 overflow-x-auto pb-1 snap-x snap-mandatory scrollbar-hide mt-3">
           {rewards.slice(1).map((r) => (
             <div
               key={r.id}
