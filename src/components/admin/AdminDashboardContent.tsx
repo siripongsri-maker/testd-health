@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Users, Package, CalendarDays, Heart, MessageSquare, CreditCard,
   ShieldAlert, TrendingUp, AlertTriangle, Building2, Eye, Activity,
-  CheckCircle, XCircle, Clock, Link2, UserCheck, Gift,
+  CheckCircle, XCircle, Clock, Link2, UserCheck, Gift, Bot,
 } from "lucide-react";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import {
@@ -24,6 +24,8 @@ interface PlatformStats {
   totalSelftestRequests: number;
   totalBookings: number;
   completedBookings: number;
+  autoCheckout: number;
+  noShowTotal: number;
   totalInvites: number;
   inviteConversionRate: number;
   pairSessions: number;
