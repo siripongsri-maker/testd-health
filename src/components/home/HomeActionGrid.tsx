@@ -8,6 +8,7 @@ import {
   BookOpen,
   Heart,
   MessageCircle,
+  Headphones,
 } from 'lucide-react';
 import { MedicationTrackerWidget } from './MedicationTrackerWidget';
 
@@ -96,11 +97,16 @@ export function HomeActionGrid() {
     },
   ];
 
-  // Row 3 — Support (counselor + wide medication widget)
+  // Row 3 — Support (counselor + support chat + wide medication widget)
   const row3Counselor = {
     icon: <MessageCircle className="h-full w-full" strokeWidth={1.5} />,
     titleKey: 'home.onlineCounselor',
     path: '/community',
+  };
+  const row3SupportChat = {
+    icon: <Headphones className="h-full w-full" strokeWidth={1.5} />,
+    titleTh: language === 'th' ? 'ติดต่อแอดมิน' : 'Contact Admin',
+    path: '/support-chat',
   };
 
   return (
@@ -142,12 +148,18 @@ export function HomeActionGrid() {
       <RowLabel>
         {language === 'th' ? '💬 สนับสนุน & ยา' : '💬 Support & Medication'}
       </RowLabel>
-      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+      <div className="grid grid-cols-4 gap-2 sm:gap-3">
         <MenuCard
           icon={row3Counselor.icon}
           titleTh={t(row3Counselor.titleKey)}
           titleEn=""
           onClick={() => navigate(row3Counselor.path)}
+        />
+        <MenuCard
+          icon={row3SupportChat.icon}
+          titleTh={row3SupportChat.titleTh}
+          titleEn=""
+          onClick={() => navigate(row3SupportChat.path)}
         />
         {/* Wide medication widget spanning 2 columns */}
         <div className="col-span-2">

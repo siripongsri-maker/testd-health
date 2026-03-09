@@ -1002,6 +1002,106 @@ export type Database = {
         }
         Relationships: []
       }
+      direct_chat_messages: {
+        Row: {
+          created_at: string
+          id: string
+          is_deleted: boolean
+          message_text: string
+          sender_id: string
+          sender_role: string
+          thread_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_deleted?: boolean
+          message_text: string
+          sender_id: string
+          sender_role?: string
+          thread_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_deleted?: boolean
+          message_text?: string
+          sender_id?: string
+          sender_role?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "direct_chat_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "direct_chat_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      direct_chat_read_states: {
+        Row: {
+          id: string
+          last_read_at: string
+          thread_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          last_read_at?: string
+          thread_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          last_read_at?: string
+          thread_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "direct_chat_read_states_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "direct_chat_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      direct_chat_threads: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string | null
+          last_message_preview: string | null
+          status: string
+          subject: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          last_message_preview?: string | null
+          status?: string
+          subject?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          last_message_preview?: string | null
+          status?: string
+          subject?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       export_audit_logs: {
         Row: {
           batch_id: string | null
@@ -3709,6 +3809,10 @@ export type Database = {
         Args: { p_month: string }
         Returns: number
       }
+      get_or_create_chat_thread: {
+        Args: { p_subject?: string; p_user_id: string }
+        Returns: string
+      }
       get_partner_invite_stats: {
         Args: never
         Returns: {
@@ -3882,6 +3986,10 @@ export type Database = {
           p_rating?: number
         }
         Returns: undefined
+      }
+      send_chat_message: {
+        Args: { p_message: string; p_thread_id: string }
+        Returns: string
       }
       start_walkin_service: {
         Args: { p_appointment_id: string }

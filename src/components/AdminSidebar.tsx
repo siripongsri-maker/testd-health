@@ -98,6 +98,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "rewards", icon: Gift, labelKey: "admin.rewards", adminOnly: true },
       { tab: "milestones", icon: Target, labelKey: "admin.milestones", adminOnly: true },
       { tab: "notifications", icon: Bell, labelKey: "admin.notifications", adminOnly: true },
+      { tab: "user-chats", icon: MessageSquare, labelKey: "admin.userChats", adminOnly: true },
       { tab: "translations", icon: Languages, labelKey: "admin.translations", adminOnly: true },
     ],
   },
