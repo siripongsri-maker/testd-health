@@ -2,7 +2,7 @@ import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/lib/i18n";
-import swingLogo from "@/assets/swing-logo.webp";
+import swingLogo from "@/assets/swing-logo.png";
 import { MapPin, Clock, FileText, ExternalLink, Heart } from "lucide-react";
 
 export default function Swing() {

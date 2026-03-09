@@ -12,7 +12,7 @@ import { HomeActionGrid } from "@/components/home/HomeActionGrid";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 
 import { Users, Eye } from "lucide-react";
-import swingLogo from "@/assets/swing-logo.webp";
+import swingLogo from "@/assets/swing-logo.png";
 import testdLogo from "@/assets/testd-logo.png";
 
 export default function Home() {

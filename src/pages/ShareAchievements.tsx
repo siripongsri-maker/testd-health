@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Camera, Upload, Share2, Instagram, Facebook, Twitter, Sparkles, Image, X, Type, Smile, Move, Trash2 } from "lucide-react";
-import swingLogo from "@/assets/swing-logo.webp";
+import swingLogo from "@/assets/swing-logo.png";
 
 const FRAME_STYLES = [
   {

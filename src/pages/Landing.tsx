@@ -2,7 +2,7 @@ import { Shield, Heart, CheckCircle, Star, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/lib/i18n";
-import swingLogo from "@/assets/swing-logo.webp";
+import swingLogo from "@/assets/swing-logo.png";
 import { CommunityStats } from "@/components/landing/CommunityStats";
 import { QuickTestCTA } from "@/components/landing/QuickTestCTA";
 import { CommunityTestimonial } from "@/components/landing/CommunityTestimonial";
