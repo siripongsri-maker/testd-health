@@ -9,6 +9,7 @@ import { CommunityMilestoneCard } from "@/components/CommunityMilestoneCard";
 import { AdminRequestsPopup } from "@/components/AdminRequestsPopup";
 import { HomeRewards } from "@/components/HomeRewards";
 import { HomeActionGrid } from "@/components/home/HomeActionGrid";
+import { SmartPriorityCard } from "@/components/home/SmartPriorityCard";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 
 import { Users, Eye } from "lucide-react";
@@ -16,7 +17,7 @@ import swingLogo from "@/assets/swing-logo.png";
 import testdLogo from "@/assets/testd-logo.png";
 
 export default function Home() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { user, loading } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingRequests, setPendingRequests] = useState(0);
@@ -91,8 +92,25 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Bento Grid: Top row equal cards, bottom full-width leaderboard */}
+        {/* ─── Section A: Today / Next Step ──────────────────── */}
+        <div className="mb-5">
+          <SmartPriorityCard />
+        </div>
+
+        {/* ─── Section B: Care Journey ───────────────────────── */}
+        <div className="mb-5">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold px-1 mb-2">
+            {language === 'th' ? '🩺 บริการสุขภาพ' : '🩺 Health Services'}
+          </p>
+          <HomeActionGrid />
+        </div>
+
+        {/* ─── Section C: Community & Motivation ─────────────── */}
         <div className="space-y-4 mb-4">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold px-1">
+            {language === 'th' ? '🏆 ชุมชน & แรงบันดาลใจ' : '🏆 Community & Motivation'}
+          </p>
+
           {/* Top row: Rewards + Milestone (equal height) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col [&>*]:flex-1 [&>section]:flex [&>section]:flex-col">
@@ -106,9 +124,6 @@ export default function Home() {
           {/* Bottom row: Full-width leaderboard */}
           <HomeLeaderboard />
         </div>
-
-        {/* Action Grid */}
-        <HomeActionGrid />
 
         {/* Stats: Members and Total Visitors */}
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
