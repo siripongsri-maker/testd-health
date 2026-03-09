@@ -132,6 +132,7 @@ const App = () => (
                 <Route path="/docs" element={<DocsIndex />} />
                 <Route path="/docs/:docName" element={<DocsViewer />} />
                 <Route path="/support-chat" element={<SupportChat />} />
+                <Route path="/prevention-match" element={<PreventionMatch />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>

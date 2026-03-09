@@ -96,6 +96,11 @@ export function HomeActionGrid() {
       titleKey: 'home.selfCare',
       path: '/self-care',
     },
+    {
+      icon: <Sparkles className="h-full w-full" strokeWidth={1.5} />,
+      titleKey: 'home.preventionMatch',
+      path: '/prevention-match',
+    },
   ];
 
   // Row 3 — Support (counselor + support chat + wide medication widget)
