@@ -64,6 +64,7 @@ const InviteSession = lazy(() => import("./pages/InviteSession"));
 const DocsViewer = lazy(() => import("./pages/DocsViewer"));
 const DocsIndex = lazy(() => import("./pages/DocsViewer").then(m => ({ default: m.DocsIndex })));
 const SupportChat = lazy(() => import("./pages/SupportChat"));
+const PreventionMatch = lazy(() => import("./pages/PreventionMatch"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -131,6 +132,7 @@ const App = () => (
                 <Route path="/docs" element={<DocsIndex />} />
                 <Route path="/docs/:docName" element={<DocsViewer />} />
                 <Route path="/support-chat" element={<SupportChat />} />
+                <Route path="/prevention-match" element={<PreventionMatch />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>

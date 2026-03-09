@@ -2217,6 +2217,36 @@ export type Database = {
           },
         ]
       }
+      prevention_match_results: {
+        Row: {
+          answers: Json | null
+          avatar_type: string | null
+          created_at: string | null
+          id: string
+          result_type: string
+          score: number | null
+          user_id: string
+        }
+        Insert: {
+          answers?: Json | null
+          avatar_type?: string | null
+          created_at?: string | null
+          id?: string
+          result_type: string
+          score?: number | null
+          user_id: string
+        }
+        Update: {
+          answers?: Json | null
+          avatar_type?: string | null
+          created_at?: string | null
+          id?: string
+          result_type?: string
+          score?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       product_image_cache: {
         Row: {
           cached_at: string

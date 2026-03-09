@@ -9,6 +9,7 @@ import {
   Heart,
   MessageCircle,
   Headphones,
+  Sparkles,
 } from 'lucide-react';
 import { MedicationTrackerWidget } from './MedicationTrackerWidget';
 
@@ -95,6 +96,11 @@ export function HomeActionGrid() {
       titleKey: 'home.selfCare',
       path: '/self-care',
     },
+    {
+      icon: <Sparkles className="h-full w-full" strokeWidth={1.5} />,
+      titleKey: 'home.preventionMatch',
+      path: '/prevention-match',
+    },
   ];
 
   // Row 3 — Support (counselor + support chat + wide medication widget)
@@ -132,7 +138,7 @@ export function HomeActionGrid() {
       <RowLabel>
         {language === 'th' ? '📚 เรียนรู้ & ประเมิน' : '📚 Learn & Assess'}
       </RowLabel>
-      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+      <div className="grid grid-cols-4 gap-2 sm:gap-3">
         {row2.map((item, i) => (
           <MenuCard
             key={i}
