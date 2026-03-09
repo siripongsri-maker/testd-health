@@ -921,6 +921,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'home.didYouKnow': 'DID YOU KNOW?',
     'home.onlineCounselor': 'ONLINE COUNSELOR',
     'home.selfCare': 'SELF CARE',
+    'home.preventionMatch': 'Prevention Match',
     'home.inviteTest': 'INVITE TO TEST',
     'home.members': 'Members',
     'home.totalVisitors': 'Total Visitors',

@@ -138,7 +138,7 @@ export function HomeActionGrid() {
       <RowLabel>
         {language === 'th' ? '📚 เรียนรู้ & ประเมิน' : '📚 Learn & Assess'}
       </RowLabel>
-      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+      <div className="grid grid-cols-4 gap-2 sm:gap-3">
         {row2.map((item, i) => (
           <MenuCard
             key={i}
