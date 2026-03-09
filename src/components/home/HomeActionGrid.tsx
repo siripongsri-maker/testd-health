@@ -8,6 +8,7 @@ import {
   BookOpen,
   Heart,
   MessageCircle,
+  Headphones,
 } from 'lucide-react';
 import { MedicationTrackerWidget } from './MedicationTrackerWidget';
 
