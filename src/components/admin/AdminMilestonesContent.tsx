@@ -16,6 +16,7 @@ interface Milestone {
   metric_type: string;
   target_value: number;
   current_value: number;
+  real_count?: number;
   reward_xp: number;
   reward_ticket: number;
   is_completed: boolean;
@@ -42,7 +43,20 @@ export default function AdminMilestonesContent() {
       .select("*")
       .order("month", { ascending: false })
       .limit(20);
-    setMilestones((data as unknown as Milestone[]) || []);
+    const rows = (data as unknown as Milestone[]) || [];
+
+    // Fetch real counts for each milestone in parallel
+    const enriched = await Promise.all(
+      rows.map(async (m) => {
+        if (m.metric_type === "tests_completed") {
+          const { data: count } = await supabase.rpc("get_milestone_completed_count", { p_month: m.month });
+          return { ...m, real_count: (count as number) || 0 };
+        }
+        return { ...m, real_count: m.current_value };
+      })
+    );
+
+    setMilestones(enriched);
     setLoading(false);
   };
 
@@ -167,8 +181,10 @@ export default function AdminMilestonesContent() {
       ) : (
         <div className="space-y-3">
           {milestones.map((m) => {
-            const pct = Math.min(Math.round((m.current_value / m.target_value) * 100), 100);
+            const displayCount = m.metric_type === "tests_completed" ? (m.real_count ?? m.current_value) : m.current_value;
+            const pct = Math.min(Math.round((displayCount / m.target_value) * 100), 100);
             const label = metricLabels[m.metric_type] || { th: m.metric_type, en: m.metric_type };
+            const isLive = m.metric_type === "tests_completed";
             return (
               <Card key={m.id} className={m.is_completed ? "border-emerald-300 dark:border-emerald-700" : ""}>
                 <CardContent className="p-4 space-y-3">
@@ -178,9 +194,14 @@ export default function AdminMilestonesContent() {
                       <span className="ml-2 text-sm text-muted-foreground">
                         {language === "th" ? label.th : label.en}
                       </span>
+                      {isLive && (
+                        <span className="ml-2 text-[10px] font-medium bg-primary/10 text-primary px-1.5 py-0.5 rounded">
+                          LIVE
+                        </span>
+                      )}
                     </div>
                     <div className="flex items-center gap-1">
-                      {m.is_completed && (
+                      {(m.is_completed || pct >= 100) && (
                         <span className="text-xs font-medium bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full">
                           ✅ {language === "th" ? "สำเร็จ" : "Completed"}
                         </span>
@@ -189,11 +210,18 @@ export default function AdminMilestonesContent() {
                   </div>
                   <div>
                     <div className="flex justify-between text-xs mb-1">
-                      <span>{m.current_value.toLocaleString()} / {m.target_value.toLocaleString()}</span>
+                      <span>{displayCount.toLocaleString()} / {m.target_value.toLocaleString()}</span>
                       <span className="font-bold">{pct}%</span>
                     </div>
                     <Progress value={pct} className="h-2" />
                   </div>
+                  {isLive && (
+                    <p className="text-[10px] text-muted-foreground italic">
+                      {language === "th"
+                        ? "นับจากข้อมูลจริง: การนัดหมายที่เสร็จสิ้น + ชุดตรวจที่ส่งผลแล้ว"
+                        : "Counts real data: completed appointments + submitted self-test results"}
+                    </p>
+                  )}
                   <div className="text-xs text-muted-foreground">
                     Reward: +{m.reward_xp} XP, +{m.reward_ticket} ticket(s)
                   </div>
