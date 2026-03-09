@@ -46,14 +46,21 @@ export function PreventionMatchResult({ result, onRetake, userPhoto }: Props) {
 
         <div className="relative z-10 space-y-6">
           {/* Branding */}
-          <BrandHeader />
+          <BrandHeader size="md" />
+
+          {/* Eyebrow */}
+          <div className={`text-center transition-all duration-500 delay-100 ${revealed ? 'opacity-100' : 'opacity-0'}`}>
+            <span className="inline-block text-[10px] tracking-[0.2em] uppercase font-semibold text-muted-foreground/60 bg-muted/40 px-3 py-1 rounded-full">
+              Your Prevention Style
+            </span>
+          </div>
 
           {/* Avatar + optional photo */}
           <div className={`flex justify-center transition-all duration-700 delay-200 ${revealed ? 'scale-100 opacity-100' : 'scale-75 opacity-0'}`}>
             <div className="relative">
               {userPhoto && (
                 <div className="absolute inset-0 flex items-center justify-center z-20">
-                  <div className="w-16 h-16 rounded-full overflow-hidden ring-2 ring-white/50 shadow-lg">
+                  <div className="w-16 h-16 rounded-full overflow-hidden ring-[3px] ring-white/60 shadow-xl">
                     <img src={userPhoto} alt="" className="w-full h-full object-cover" />
                   </div>
                 </div>
@@ -63,28 +70,39 @@ export function PreventionMatchResult({ result, onRetake, userPhoto }: Props) {
           </div>
 
           {/* Type + description */}
-          <div className={`text-center space-y-2 transition-all duration-500 delay-300 ${revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <p className="text-xs text-muted-foreground tracking-widest uppercase">Your Prevention Style</p>
-            <h1 className="text-2xl font-bold text-foreground">{result.title}</h1>
-            <p className="text-sm text-muted-foreground font-medium">{result.avatarName}</p>
-            <p className="text-sm text-foreground/80 leading-relaxed pt-1">{result.description}</p>
+          <div className={`text-center space-y-3 transition-all duration-500 delay-300 ${revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground leading-tight">
+              {result.title}
+            </h1>
+            <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground/60">
+              {result.avatarName}
+            </p>
+            <p className="text-sm text-foreground/80 leading-relaxed max-w-[280px] mx-auto">
+              {result.description}
+            </p>
           </div>
 
           {/* Tagline */}
           <div className={`text-center transition-all duration-500 delay-[400ms] ${revealed ? 'opacity-100' : 'opacity-0'}`}>
-            <p className="text-xs italic text-muted-foreground">"{result.avatarTagline}"</p>
+            <p className="text-xs italic text-muted-foreground/70 bg-muted/30 inline-block px-4 py-2 rounded-full">
+              "{result.avatarTagline}"
+            </p>
           </div>
 
           {/* Recommendations */}
-          <div className={`space-y-2.5 transition-all duration-500 delay-500 ${revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">คำแนะนำสำหรับคุณ</p>
+          <div className={`space-y-2 transition-all duration-500 delay-500 ${revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+            <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-[0.15em] mb-3">
+              คำแนะนำสำหรับคุณ
+            </p>
             {result.recommendations.map((rec, i) => (
               <div
                 key={i}
-                className="flex items-start gap-2.5 p-3 rounded-xl bg-muted/30 border border-border/50"
+                className="flex items-center gap-3 p-3 rounded-2xl bg-muted/30 border border-border/40"
               >
-                <CheckCircle className="h-4 w-4 text-emerald-500 mt-0.5 shrink-0" />
-                <span className="text-sm text-foreground">{rec}</span>
+                <div className="w-7 h-7 rounded-full bg-emerald-500/15 flex items-center justify-center shrink-0">
+                  <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
+                </div>
+                <span className="text-sm font-medium text-foreground">{rec}</span>
               </div>
             ))}
           </div>
@@ -108,18 +126,11 @@ export function PreventionMatchResult({ result, onRetake, userPhoto }: Props) {
 
       {/* CTAs */}
       <div className={`w-full max-w-md mx-auto space-y-2.5 pt-2 transition-all duration-500 delay-[900ms] ${revealed ? 'opacity-100' : 'opacity-0'}`}>
-        <Button
-          className="w-full rounded-xl h-11"
-          onClick={() => navigate('/hiv-selftest')}
-        >
+        <Button className="w-full rounded-xl h-11" onClick={() => navigate('/hiv-selftest')}>
           <TestTube className="h-4 w-4 mr-2" />
           ดูบริการตรวจ
         </Button>
-        <Button
-          variant="outline"
-          className="w-full rounded-xl h-11"
-          onClick={() => navigate('/info')}
-        >
+        <Button variant="outline" className="w-full rounded-xl h-11" onClick={() => navigate('/info')}>
           <BookOpen className="h-4 w-4 mr-2" />
           เรียนรู้เรื่อง PrEP
         </Button>
@@ -135,11 +146,7 @@ export function PreventionMatchResult({ result, onRetake, userPhoto }: Props) {
             <Share2 className="h-4 w-4 mr-1.5" />
             แชร์ผลลัพธ์
           </Button>
-          <Button
-            variant="ghost"
-            className="rounded-xl h-11"
-            onClick={onRetake}
-          >
+          <Button variant="ghost" className="rounded-xl h-11" onClick={onRetake}>
             <RotateCcw className="h-4 w-4 mr-1.5" />
             ทำใหม่อีกครั้ง
           </Button>
