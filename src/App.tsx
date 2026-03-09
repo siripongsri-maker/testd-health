@@ -130,6 +130,7 @@ const App = () => (
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/docs" element={<DocsIndex />} />
                 <Route path="/docs/:docName" element={<DocsViewer />} />
+                <Route path="/support-chat" element={<SupportChat />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>

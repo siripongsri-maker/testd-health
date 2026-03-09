@@ -161,6 +161,7 @@ export default function Admin() {
           {renderTab("surveys", <AdminSurveysContent />)}
           {renderTab("rewards", <AdminRewardsContent />)}
           {renderTab("milestones", <AdminMilestonesContent />)}
+          {renderTab("user-chats", <AdminUserChatsContent />)}
           {renderTab("notifications", <AdminNotificationsContent />)}
           {renderTab("translations", <AdminTranslationsContent />)}
 
