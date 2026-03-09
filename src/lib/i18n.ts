@@ -966,6 +966,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.appUpdates': 'App Updates',
     'admin.rewards': 'Rewards / Incentives',
     'admin.milestones': 'Community Milestones',
+    'admin.userChats': 'User Chats',
     'admin.partnerInvites': 'Partner Invites',
     'admin.partnerNetwork': 'Partner Network',
     'admin.pairSessions': 'Pair Sessions',

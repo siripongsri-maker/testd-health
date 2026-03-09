@@ -148,12 +148,18 @@ export function HomeActionGrid() {
       <RowLabel>
         {language === 'th' ? '💬 สนับสนุน & ยา' : '💬 Support & Medication'}
       </RowLabel>
-      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+      <div className="grid grid-cols-4 gap-2 sm:gap-3">
         <MenuCard
           icon={row3Counselor.icon}
           titleTh={t(row3Counselor.titleKey)}
           titleEn=""
           onClick={() => navigate(row3Counselor.path)}
+        />
+        <MenuCard
+          icon={row3SupportChat.icon}
+          titleTh={row3SupportChat.titleTh}
+          titleEn=""
+          onClick={() => navigate(row3SupportChat.path)}
         />
         {/* Wide medication widget spanning 2 columns */}
         <div className="col-span-2">
