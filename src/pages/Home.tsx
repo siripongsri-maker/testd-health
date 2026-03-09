@@ -10,6 +10,7 @@ import { AdminRequestsPopup } from "@/components/AdminRequestsPopup";
 import { HomeRewards } from "@/components/HomeRewards";
 import { HomeActionGrid } from "@/components/home/HomeActionGrid";
 import { SmartPriorityCard } from "@/components/home/SmartPriorityCard";
+import { MyPreventionJourneyCard } from "@/components/home/MyPreventionJourneyCard";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 
 import { Users, Eye } from "lucide-react";
@@ -95,6 +96,11 @@ export default function Home() {
         {/* ─── Section A: Today / Next Step ──────────────────── */}
         <div className="mb-5">
           <SmartPriorityCard />
+        </div>
+
+        {/* ─── Section B: My Prevention Journey ──────────────── */}
+        <div className="mb-5">
+          <MyPreventionJourneyCard />
         </div>
 
         {/* ─── Section B: Care Journey ───────────────────────── */}
