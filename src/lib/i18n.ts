@@ -477,6 +477,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.appUpdates': 'อัปเดตแอป',
     'admin.rewards': 'รางวัล/สิทธิพิเศษ',
     'admin.milestones': 'เป้าหมายชุมชน',
+    'admin.userChats': 'แชทกับผู้ใช้',
     'admin.partnerInvites': 'ชวนตรวจคู่',
     'admin.partnerNetwork': 'เครือข่ายคู่',
     'admin.pairSessions': 'ตรวจคู่',
