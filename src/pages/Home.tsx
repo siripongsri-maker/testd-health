@@ -98,6 +98,11 @@ export default function Home() {
           <SmartPriorityCard />
         </div>
 
+        {/* ─── Section B: My Prevention Journey ──────────────── */}
+        <div className="mb-5">
+          <MyPreventionJourneyCard />
+        </div>
+
         {/* ─── Section B: Care Journey ───────────────────────── */}
         <div className="mb-5">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold px-1 mb-2">
