@@ -34,20 +34,29 @@ export function CommunityMilestoneCard() {
   const currentMonth = new Date().toISOString().slice(0, 7); // '2026-03'
 
   const fetchMilestone = useCallback(async () => {
-    const { data } = await supabase
-      .from("community_milestones")
-      .select("*")
-      .eq("month", currentMonth)
-      .limit(1)
-      .maybeSingle();
+    // Fetch milestone config and real completed count in parallel
+    const [milestoneRes, countRes] = await Promise.all([
+      supabase
+        .from("community_milestones")
+        .select("*")
+        .eq("month", currentMonth)
+        .limit(1)
+        .maybeSingle(),
+      supabase.rpc("get_milestone_completed_count", { p_month: currentMonth }),
+    ]);
 
-    if (data) {
-      const m = data as unknown as Milestone;
-      // Detect completion transition
-      if (m.is_completed && !prevCompleted && !loading) {
+    if (milestoneRes.data) {
+      const m = milestoneRes.data as unknown as Milestone;
+      // Override current_value with real DB count
+      const realCount = (countRes.data as number) || 0;
+      m.current_value = realCount;
+      // Auto-detect completion
+      const completed = realCount >= m.target_value;
+      if (completed && !prevCompleted && !loading) {
         setShowCelebration(true);
       }
-      setPrevCompleted(m.is_completed);
+      m.is_completed = completed;
+      setPrevCompleted(completed);
       setMilestone(m);
     }
     setLoading(false);
