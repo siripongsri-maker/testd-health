@@ -10,20 +10,18 @@ import {
   ClipboardCheck,
   Sparkles,
   ArrowRight,
-  Heart,
   Gift,
 } from 'lucide-react';
 
 // ── Priority types ──────────────────────────────────────────────
 type PriorityKey =
-  | 'book_first'
   | 'submit_result'
   | 'upcoming_appointment'
+  | 'book_first'
   | 'prevention_followup'
   | 'explore_engagement';
 
-interface PriorityState {
-  key: PriorityKey;
+interface PriorityConfig {
   titleTh: string;
   titleEn: string;
   descTh: string;
@@ -35,24 +33,11 @@ interface PriorityState {
   secondaryCtaLabelEn?: string;
   secondaryCtaPath?: string;
   icon: React.ReactNode;
-  accentClass: string; // tailwind gradient class
+  accentClass: string;
+  urgent?: boolean;
 }
 
-const PRIORITIES: Record<PriorityKey, Omit<PriorityState, 'key'>> = {
-  book_first: {
-    titleTh: 'เริ่มต้นดูแลสุขภาพของคุณ',
-    titleEn: 'Start Your Health Journey',
-    descTh: 'จองบริการตรวจหรือปรึกษากับเจ้าหน้าที่ได้เลย — ฟรี เป็นความลับ',
-    descEn: 'Book a testing or consultation service — free & confidential.',
-    ctaLabelTh: 'จองบริการ',
-    ctaLabelEn: 'Book Now',
-    ctaPath: '/booking',
-    secondaryCtaLabelTh: 'ขอชุดตรวจฟรี',
-    secondaryCtaLabelEn: 'Request Free Kit',
-    secondaryCtaPath: '/hiv-selftest',
-    icon: <Calendar className="h-7 w-7" />,
-    accentClass: 'from-primary/20 to-primary/5',
-  },
+const PRIORITIES: Record<PriorityKey, PriorityConfig> = {
   submit_result: {
     titleTh: 'ยังไม่ได้ส่งผลตรวจของคุณ',
     titleEn: 'Submit Your Test Result',
@@ -63,37 +48,49 @@ const PRIORITIES: Record<PriorityKey, Omit<PriorityState, 'key'>> = {
     ctaPath: '/hiv-selftest',
     icon: <TestTube className="h-7 w-7" />,
     accentClass: 'from-[hsl(var(--warning))]/20 to-[hsl(var(--warning))]/5',
+    urgent: true,
   },
   upcoming_appointment: {
-    titleTh: 'นัดหมายของคุณกำลังรออยู่',
-    titleEn: 'Your Appointment is Waiting',
-    descTh: 'ดูรายละเอียดนัดหมายหรือเช็คอินเมื่อถึงเวลา',
-    descEn: 'View details or check in when it\'s time.',
+    titleTh: 'คุณมีนัดหมายที่กำลังจะมาถึง',
+    titleEn: 'Your Appointment is Coming Up',
+    descTh: 'ตรวจสอบรายละเอียดนัดหมายของคุณ',
+    descEn: 'Check your appointment details.',
     ctaLabelTh: 'ดูนัดหมาย',
     ctaLabelEn: 'View Appointment',
     ctaPath: '/my-appointments',
     icon: <ClipboardCheck className="h-7 w-7" />,
     accentClass: 'from-[hsl(var(--success))]/20 to-[hsl(var(--success))]/5',
   },
-  prevention_followup: {
-    titleTh: 'พร้อมทำขั้นตอนถัดไปไหม?',
-    titleEn: 'Ready for Your Next Step?',
-    descTh: 'จากผลลัพธ์ Prevention Match — ลองดูบริการที่เหมาะกับคุณ',
-    descEn: 'Based on your Prevention Match — explore services that fit you.',
-    ctaLabelTh: 'จองบริการที่แนะนำ',
-    ctaLabelEn: 'Book Recommended',
+  book_first: {
+    titleTh: 'เริ่มต้นดูแลสุขภาพของคุณ',
+    titleEn: 'Start Your Health Journey',
+    descTh: 'จองบริการตรวจหรือขอชุดตรวจฟรีได้ที่นี่',
+    descEn: 'Book a testing service or request a free test kit.',
+    ctaLabelTh: 'จองบริการ',
+    ctaLabelEn: 'Book Now',
     ctaPath: '/booking',
-    secondaryCtaLabelTh: 'แชร์ผลลัพธ์',
-    secondaryCtaLabelEn: 'Share Result',
-    secondaryCtaPath: '/prevention-match',
+    secondaryCtaLabelTh: 'ขอชุดตรวจฟรี',
+    secondaryCtaLabelEn: 'Request Free Kit',
+    secondaryCtaPath: '/hiv-selftest',
+    icon: <Calendar className="h-7 w-7" />,
+    accentClass: 'from-primary/20 to-primary/5',
+  },
+  prevention_followup: {
+    titleTh: 'ผลลัพธ์ Prevention Match ของคุณพร้อมแล้ว',
+    titleEn: 'Your Prevention Match Result is Ready',
+    descTh: 'ดูคำแนะนำและบริการที่เหมาะกับคุณ',
+    descEn: 'Explore recommendations and services that fit you.',
+    ctaLabelTh: 'ดูคำแนะนำ',
+    ctaLabelEn: 'View Recommendations',
+    ctaPath: '/prevention-match',
     icon: <Sparkles className="h-7 w-7" />,
     accentClass: 'from-[hsl(var(--rainbow-5))]/20 to-[hsl(var(--rainbow-6))]/5',
   },
   explore_engagement: {
-    titleTh: 'คุณดูแลตัวเองดีมาก ✨',
-    titleEn: 'You\'re Doing Great ✨',
-    descTh: 'ไม่มีสิ่งเร่งด่วน — สำรวจรางวัลหรือร่วมเป้าหมายชุมชน',
-    descEn: 'Nothing urgent — check rewards or join the community goal.',
+    titleTh: 'ดูแลสุขภาพอย่างต่อเนื่อง',
+    titleEn: 'Keep Taking Care of Yourself',
+    descTh: 'เข้าร่วมกิจกรรมชุมชนหรือสะสมรางวัล',
+    descEn: 'Join community activities or collect rewards.',
     ctaLabelTh: 'ดูรางวัล',
     ctaLabelEn: 'View Rewards',
     ctaPath: '/progress',
@@ -105,8 +102,95 @@ const PRIORITIES: Record<PriorityKey, Omit<PriorityState, 'key'>> = {
   },
 };
 
-// ── Hook: determine priority ────────────────────────────────────
-function usePriorityState(userId: string | undefined): { priority: PriorityKey; loading: boolean } {
+// ── State helpers ───────────────────────────────────────────────
+interface JourneyState {
+  hasPendingResultSubmission: boolean;
+  hasUpcomingAppointment: boolean;
+  hasEverBooked: boolean;
+  hasRequestedSelfTest: boolean;
+  hasCompletedPreventionMatch: boolean;
+  hasBookedAfterMatch: boolean;
+}
+
+async function evaluateJourney(userId: string): Promise<JourneyState> {
+  const today = new Date().toISOString().split('T')[0];
+  const in48h = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+  const [pendingResultRes, upcomingRes, totalBookingsRes, totalSelftestsRes, matchRes] =
+    await Promise.all([
+      // P1: selftest delivered/received but no result submitted
+      supabase
+        .from('hiv_selftest_requests')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .in('status', ['approved', 'shipped', 'delivered', 'received'])
+        .is('test_result', null),
+
+      // P2: upcoming appointment within 48h
+      supabase
+        .from('appointments')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .in('status', ['booked', 'confirmed'])
+        .gte('appointment_date', today)
+        .lte('appointment_date', in48h),
+
+      // P3: ever booked
+      supabase
+        .from('appointments')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId),
+
+      // P3: ever requested selftest
+      supabase
+        .from('hiv_selftest_requests')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId),
+
+      // P4: prevention match completed
+      supabase
+        .from('prevention_match_results' as any)
+        .select('id, created_at', { count: 'exact', head: false })
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1),
+    ]);
+
+  const hasMatch = (matchRes.data?.length ?? 0) > 0;
+  // Check if user booked AFTER their latest match
+  let hasBookedAfterMatch = false;
+  if (hasMatch && matchRes.data?.[0]) {
+    const matchDate = (matchRes.data[0] as any).created_at;
+    if (matchDate) {
+      const { count } = await supabase
+        .from('appointments')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .gt('created_at', matchDate);
+      hasBookedAfterMatch = (count ?? 0) > 0;
+    }
+  }
+
+  return {
+    hasPendingResultSubmission: (pendingResultRes.count ?? 0) > 0,
+    hasUpcomingAppointment: (upcomingRes.count ?? 0) > 0,
+    hasEverBooked: (totalBookingsRes.count ?? 0) > 0,
+    hasRequestedSelfTest: (totalSelftestsRes.count ?? 0) > 0,
+    hasCompletedPreventionMatch: hasMatch,
+    hasBookedAfterMatch,
+  };
+}
+
+function determinePriority(state: JourneyState): PriorityKey {
+  if (state.hasPendingResultSubmission) return 'submit_result';
+  if (state.hasUpcomingAppointment) return 'upcoming_appointment';
+  if (!state.hasEverBooked && !state.hasRequestedSelfTest) return 'book_first';
+  if (state.hasCompletedPreventionMatch && !state.hasBookedAfterMatch) return 'prevention_followup';
+  return 'explore_engagement';
+}
+
+// ── Hook ────────────────────────────────────────────────────────
+function usePriorityState(userId: string | undefined) {
   const [priority, setPriority] = useState<PriorityKey>('explore_engagement');
   const [loading, setLoading] = useState(true);
 
@@ -119,69 +203,18 @@ function usePriorityState(userId: string | undefined): { priority: PriorityKey; 
 
     let cancelled = false;
 
-    async function determine() {
-      try {
-        // Parallel fetch: appointments, selftest requests
-        const [appointmentsRes, selftestRes] = await Promise.all([
-          supabase
-            .from('appointments')
-            .select('id, status, appointment_date, start_time')
-            .eq('user_id', userId!)
-            .in('status', ['booked', 'confirmed', 'arrived', 'in_progress'])
-            .gte('appointment_date', new Date().toISOString().split('T')[0])
-            .order('appointment_date')
-            .limit(1),
-          supabase
-            .from('hiv_selftest_requests')
-            .select('id, status')
-            .eq('user_id', userId!)
-            .in('status', ['approved', 'shipped', 'delivered', 'received'])
-            .order('created_at', { ascending: false })
-            .limit(1),
-        ]);
-
-        if (cancelled) return;
-
-        const hasUpcoming = (appointmentsRes.data?.length ?? 0) > 0;
-        const hasPendingResult = (selftestRes.data?.length ?? 0) > 0;
-
-        // Check if user has any past appointments or selftest at all
-        if (!hasUpcoming && !hasPendingResult) {
-          // Check if user ever booked anything
-          const { count: totalBookings } = await supabase
-            .from('appointments')
-            .select('id', { count: 'exact', head: true })
-            .eq('user_id', userId!);
-
-          const { count: totalSelftests } = await supabase
-            .from('hiv_selftest_requests')
-            .select('id', { count: 'exact', head: true })
-            .eq('user_id', userId!);
-
-          if (cancelled) return;
-
-          if ((totalBookings ?? 0) === 0 && (totalSelftests ?? 0) === 0) {
-            setPriority('book_first');
-          } else {
-            // User has history but nothing active → engagement
-            setPriority('explore_engagement');
-          }
-        } else if (hasPendingResult) {
-          // Priority 2: has kit but no result submitted
-          setPriority('submit_result');
-        } else if (hasUpcoming) {
-          // Priority 3: upcoming appointment
-          setPriority('upcoming_appointment');
-        }
-      } catch (err) {
+    evaluateJourney(userId)
+      .then((state) => {
+        if (!cancelled) setPriority(determinePriority(state));
+      })
+      .catch((err) => {
         console.error('SmartPriority error:', err);
-        setPriority('book_first');
-      } finally {
+        if (!cancelled) setPriority('book_first');
+      })
+      .finally(() => {
         if (!cancelled) setLoading(false);
-      }
-    }
+      });
 
-    determine();
     return () => { cancelled = true; };
   }, [userId]);
 
@@ -195,10 +228,7 @@ export function SmartPriorityCard() {
   const navigate = useNavigate();
   const { priority, loading } = usePriorityState(user?.id);
 
-  const p = useMemo<PriorityState>(
-    () => ({ key: priority, ...PRIORITIES[priority] }),
-    [priority]
-  );
+  const p = useMemo(() => ({ key: priority, ...PRIORITIES[priority] }), [priority]);
 
   if (loading) {
     return (
@@ -214,9 +244,7 @@ export function SmartPriorityCard() {
   const desc = language === 'th' ? p.descTh : p.descEn;
   const ctaLabel = language === 'th' ? p.ctaLabelTh : p.ctaLabelEn;
   const secondaryLabel = p.secondaryCtaLabelTh
-    ? language === 'th'
-      ? p.secondaryCtaLabelTh
-      : p.secondaryCtaLabelEn
+    ? language === 'th' ? p.secondaryCtaLabelTh : p.secondaryCtaLabelEn
     : null;
 
   return (
@@ -228,6 +256,7 @@ export function SmartPriorityCard() {
         backdrop-blur-xl
         shadow-[var(--shadow-glass)]
         p-5 sm:p-6
+        animate-fade-in
       `}
     >
       {/* Decorative glow */}
@@ -240,7 +269,11 @@ export function SmartPriorityCard() {
 
       <div className="flex items-start gap-4">
         {/* Icon */}
-        <div className="flex-shrink-0 h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+        <div className={`
+          flex-shrink-0 h-12 w-12 rounded-xl bg-primary/10 
+          flex items-center justify-center text-primary
+          ${p.urgent ? 'animate-pulse' : ''}
+        `}>
           {p.icon}
         </div>
 
@@ -258,7 +291,7 @@ export function SmartPriorityCard() {
             <Button
               size="sm"
               onClick={() => navigate(p.ctaPath)}
-              className="gap-1.5 shadow-[var(--shadow-button)]"
+              className={`gap-1.5 shadow-[var(--shadow-button)] ${p.urgent ? 'animate-pulse' : ''}`}
             >
               {ctaLabel}
               <ArrowRight className="h-3.5 w-3.5" />
