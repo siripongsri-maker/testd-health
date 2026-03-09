@@ -10,6 +10,7 @@ import { AdminRequestsPopup } from "@/components/AdminRequestsPopup";
 import { HomeRewards } from "@/components/HomeRewards";
 import { HomeActionGrid } from "@/components/home/HomeActionGrid";
 import { SmartPriorityCard } from "@/components/home/SmartPriorityCard";
+import { MyPreventionJourneyCard } from "@/components/home/MyPreventionJourneyCard";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 
 import { Users, Eye } from "lucide-react";

@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/lib/i18n';
-import { supabase } from '@/integrations/supabase/client';
+import { useJourneyState, JourneyState } from '@/hooks/useJourneyState';
 import { Button } from '@/components/ui/button';
 import {
   Calendar,
@@ -102,85 +102,6 @@ const PRIORITIES: Record<PriorityKey, PriorityConfig> = {
   },
 };
 
-// ── State helpers ───────────────────────────────────────────────
-interface JourneyState {
-  hasPendingResultSubmission: boolean;
-  hasUpcomingAppointment: boolean;
-  hasEverBooked: boolean;
-  hasRequestedSelfTest: boolean;
-  hasCompletedPreventionMatch: boolean;
-  hasBookedAfterMatch: boolean;
-}
-
-async function evaluateJourney(userId: string): Promise<JourneyState> {
-  const today = new Date().toISOString().split('T')[0];
-  const in48h = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString().split('T')[0];
-
-  const [pendingResultRes, upcomingRes, totalBookingsRes, totalSelftestsRes, matchRes] =
-    await Promise.all([
-      // P1: selftest delivered/received but no result submitted
-      supabase
-        .from('hiv_selftest_requests')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .in('status', ['approved', 'shipped', 'delivered', 'received'])
-        .is('test_result', null),
-
-      // P2: upcoming appointment within 48h
-      supabase
-        .from('appointments')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .in('status', ['booked', 'confirmed'])
-        .gte('appointment_date', today)
-        .lte('appointment_date', in48h),
-
-      // P3: ever booked
-      supabase
-        .from('appointments')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', userId),
-
-      // P3: ever requested selftest
-      supabase
-        .from('hiv_selftest_requests')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', userId),
-
-      // P4: prevention match completed
-      supabase
-        .from('prevention_match_results' as any)
-        .select('id, created_at', { count: 'exact', head: false })
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-        .limit(1),
-    ]);
-
-  const hasMatch = (matchRes.data?.length ?? 0) > 0;
-  // Check if user booked AFTER their latest match
-  let hasBookedAfterMatch = false;
-  if (hasMatch && matchRes.data?.[0]) {
-    const matchDate = (matchRes.data[0] as any).created_at;
-    if (matchDate) {
-      const { count } = await supabase
-        .from('appointments')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .gt('created_at', matchDate);
-      hasBookedAfterMatch = (count ?? 0) > 0;
-    }
-  }
-
-  return {
-    hasPendingResultSubmission: (pendingResultRes.count ?? 0) > 0,
-    hasUpcomingAppointment: (upcomingRes.count ?? 0) > 0,
-    hasEverBooked: (totalBookingsRes.count ?? 0) > 0,
-    hasRequestedSelfTest: (totalSelftestsRes.count ?? 0) > 0,
-    hasCompletedPreventionMatch: hasMatch,
-    hasBookedAfterMatch,
-  };
-}
-
 function determinePriority(state: JourneyState): PriorityKey {
   if (state.hasPendingResultSubmission) return 'submit_result';
   if (state.hasUpcomingAppointment) return 'upcoming_appointment';
@@ -189,44 +110,17 @@ function determinePriority(state: JourneyState): PriorityKey {
   return 'explore_engagement';
 }
 
-// ── Hook ────────────────────────────────────────────────────────
-function usePriorityState(userId: string | undefined) {
-  const [priority, setPriority] = useState<PriorityKey>('explore_engagement');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!userId) {
-      setPriority('book_first');
-      setLoading(false);
-      return;
-    }
-
-    let cancelled = false;
-
-    evaluateJourney(userId)
-      .then((state) => {
-        if (!cancelled) setPriority(determinePriority(state));
-      })
-      .catch((err) => {
-        console.error('SmartPriority error:', err);
-        if (!cancelled) setPriority('book_first');
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-
-    return () => { cancelled = true; };
-  }, [userId]);
-
-  return { priority, loading };
-}
-
 // ── Component ───────────────────────────────────────────────────
 export function SmartPriorityCard() {
   const { user } = useAuth();
   const { language } = useLanguage();
   const navigate = useNavigate();
-  const { priority, loading } = usePriorityState(user?.id);
+  const { state, loading } = useJourneyState(user?.id);
+
+  const priority = useMemo<PriorityKey>(() => {
+    if (!state) return user ? 'explore_engagement' : 'book_first';
+    return determinePriority(state);
+  }, [state, user]);
 
   const p = useMemo(() => ({ key: priority, ...PRIORITIES[priority] }), [priority]);
 
@@ -259,16 +153,13 @@ export function SmartPriorityCard() {
         animate-fade-in
       `}
     >
-      {/* Decorative glow */}
       <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-primary/10 blur-2xl pointer-events-none" />
 
-      {/* Section label */}
       <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold mb-3">
         {language === 'th' ? '🎯 สิ่งที่ควรทำต่อวันนี้' : '🎯 Your Next Step Today'}
       </p>
 
       <div className="flex items-start gap-4">
-        {/* Icon */}
         <div className={`
           flex-shrink-0 h-12 w-12 rounded-xl bg-primary/10 
           flex items-center justify-center text-primary
@@ -277,7 +168,6 @@ export function SmartPriorityCard() {
           {p.icon}
         </div>
 
-        {/* Content */}
         <div className="flex-1 min-w-0 space-y-2">
           <h2 className="text-base sm:text-lg font-bold text-foreground leading-snug">
             {title}
@@ -286,7 +176,6 @@ export function SmartPriorityCard() {
             {desc}
           </p>
 
-          {/* CTAs */}
           <div className="flex flex-wrap items-center gap-2 pt-1">
             <Button
               size="sm"
