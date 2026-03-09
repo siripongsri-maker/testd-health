@@ -43,7 +43,20 @@ export default function AdminMilestonesContent() {
       .select("*")
       .order("month", { ascending: false })
       .limit(20);
-    setMilestones((data as unknown as Milestone[]) || []);
+    const rows = (data as unknown as Milestone[]) || [];
+
+    // Fetch real counts for each milestone in parallel
+    const enriched = await Promise.all(
+      rows.map(async (m) => {
+        if (m.metric_type === "tests_completed") {
+          const { data: count } = await supabase.rpc("get_milestone_completed_count", { p_month: m.month });
+          return { ...m, real_count: (count as number) || 0 };
+        }
+        return { ...m, real_count: m.current_value };
+      })
+    );
+
+    setMilestones(enriched);
     setLoading(false);
   };
 
