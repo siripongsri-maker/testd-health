@@ -15,6 +15,10 @@ export interface ResultData {
   avatarTagline: string;
   gradient: string;
   accentColors: string[];
+  datingBehavior: string[];
+  partnerPreference: string[];
+  compatibleType: ResultType;
+  compatibilityReason: string;
 }
 
 export const QUESTIONS: QuizQuestion[] = [
@@ -138,6 +142,18 @@ export const RESULT_DATA: Record<ResultType, ResultData> = {
     avatarTagline: 'Ready, protected, and always one step ahead.',
     gradient: 'from-blue-500 via-purple-500 to-pink-500',
     accentColors: ['hsl(221, 83%, 53%)', 'hsl(271, 91%, 65%)', 'hsl(330, 81%, 60%)'],
+    datingBehavior: [
+      'ชอบความชัดเจน',
+      'วางแผนก่อนเจอ',
+      'ให้ความสำคัญกับความสม่ำเสมอและความไว้ใจ',
+    ],
+    partnerPreference: [
+      'มักชอบคนที่สื่อสารตรงไปตรงมา',
+      'ชอบคนที่รับผิดชอบและดูแลตัวเอง',
+      'เข้ากับคนที่มีเป้าหมายชัดเจน',
+    ],
+    compatibleType: 'social_explorer',
+    compatibilityReason: 'คุณเติมกันได้ดี — คนหนึ่งวางแผนเก่ง อีกคนเติมพลังและความยืดหยุ่น',
   },
   social_explorer: {
     type: 'social_explorer',
@@ -152,6 +168,18 @@ export const RESULT_DATA: Record<ResultType, ResultData> = {
     avatarTagline: 'Confident, connected, and prevention-aware.',
     gradient: 'from-pink-500 via-orange-400 to-purple-500',
     accentColors: ['hsl(330, 81%, 60%)', 'hsl(25, 95%, 53%)', 'hsl(271, 91%, 65%)'],
+    datingBehavior: [
+      'ชอบพบคนใหม่ ๆ',
+      'ยืดหยุ่นและเปิดรับ',
+      'เปิดรับ connection ใหม่ ๆ ที่สนุก',
+    ],
+    partnerPreference: [
+      'ชอบคนที่สนุก คุยง่าย และพลังงานดี',
+      'เข้ากับคนที่เปิดใจและ respect boundaries',
+      'มักเลือกคนที่ทำให้รู้สึกเป็นตัวเองได้',
+    ],
+    compatibleType: 'smart_planner',
+    compatibilityReason: 'คุณเติมกันได้ดี — คนหนึ่งเปิดกว้าง อีกคนเติมความมั่นคงและการวางแผน',
   },
   careful_learner: {
     type: 'careful_learner',
@@ -166,6 +194,18 @@ export const RESULT_DATA: Record<ResultType, ResultData> = {
     avatarTagline: 'Growing your health power, one step at a time.',
     gradient: 'from-emerald-400 via-teal-400 to-violet-400',
     accentColors: ['hsl(160, 84%, 39%)', 'hsl(175, 77%, 26%)', 'hsl(263, 70%, 50%)'],
+    datingBehavior: [
+      'ค่อย ๆ เปิดใจ',
+      'ใช้เวลาศึกษากันก่อน',
+      'ให้ความสำคัญกับความสบายใจและความปลอดภัยทางใจ',
+    ],
+    partnerPreference: [
+      'ชอบคนที่ใจเย็น',
+      'ชอบคนที่ไม่กดดัน',
+      'เข้ากับคนที่ supportive และให้พื้นที่กัน',
+    ],
+    compatibleType: 'chill_adventurer',
+    compatibilityReason: 'คุณเติมกันได้ดี — คนหนึ่งใส่ใจรอบคอบ อีกคนเติมความสบายใจและผ่อนคลาย',
   },
   chill_adventurer: {
     type: 'chill_adventurer',
@@ -180,6 +220,18 @@ export const RESULT_DATA: Record<ResultType, ResultData> = {
     avatarTagline: 'Living freely, while staying smart and safe.',
     gradient: 'from-orange-400 via-rose-500 to-fuchsia-500',
     accentColors: ['hsl(25, 95%, 53%)', 'hsl(350, 89%, 60%)', 'hsl(292, 84%, 61%)'],
+    datingBehavior: [
+      'Spontaneous ตามฟีล',
+      'ชอบ connection ที่ไม่ตึงเกินไป',
+      'ให้ความสำคัญกับความสนุกและ vibe ที่ดี',
+    ],
+    partnerPreference: [
+      'ชอบคนที่ยืดหยุ่น',
+      'เข้ากับคนที่ positive และไม่ judgmental',
+      'ชอบคนที่ balance ความสนุกกับความรับผิดชอบได้',
+    ],
+    compatibleType: 'careful_learner',
+    compatibilityReason: 'คุณเติมกันได้ดี — คนหนึ่งสนุกและยืดหยุ่น อีกคนเติมความใส่ใจและความมั่นคง',
   },
 };
 

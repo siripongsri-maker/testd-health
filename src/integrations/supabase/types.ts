@@ -2221,8 +2221,12 @@ export type Database = {
         Row: {
           answers: Json | null
           avatar_type: string | null
+          compatible_type: string | null
           created_at: string | null
+          dating_behavior: string | null
           id: string
+          partner_preference: string | null
+          photo_url: string | null
           result_type: string
           score: number | null
           user_id: string
@@ -2230,8 +2234,12 @@ export type Database = {
         Insert: {
           answers?: Json | null
           avatar_type?: string | null
+          compatible_type?: string | null
           created_at?: string | null
+          dating_behavior?: string | null
           id?: string
+          partner_preference?: string | null
+          photo_url?: string | null
           result_type: string
           score?: number | null
           user_id: string
@@ -2239,8 +2247,12 @@ export type Database = {
         Update: {
           answers?: Json | null
           avatar_type?: string | null
+          compatible_type?: string | null
           created_at?: string | null
+          dating_behavior?: string | null
           id?: string
+          partner_preference?: string | null
+          photo_url?: string | null
           result_type?: string
           score?: number | null
           user_id?: string
