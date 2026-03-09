@@ -158,7 +158,7 @@ export function PreventionMatchResult({ result, onRetake, userPhoto }: Props) {
         <div className="w-full max-w-md mx-auto space-y-4 animate-fade-in">
           <div className="text-center">
             <p className="text-sm font-semibold text-foreground">Story Preview</p>
-            <p className="text-xs text-muted-foreground">Screenshot เพื่อแชร์ใน IG Story</p>
+            <p className="text-xs text-muted-foreground">บันทึกเป็นรูปภาพเพื่อแชร์ใน IG Story</p>
           </div>
           <ShareStoryCard result={result} userPhoto={userPhoto} />
         </div>
