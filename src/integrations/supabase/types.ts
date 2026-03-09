@@ -3705,6 +3705,10 @@ export type Database = {
           status: string
         }[]
       }
+      get_milestone_completed_count: {
+        Args: { p_month: string }
+        Returns: number
+      }
       get_partner_invite_stats: {
         Args: never
         Returns: {
