@@ -66,7 +66,7 @@ export function CommunityMilestoneCard() {
     fetchMilestone();
   }, []);
 
-  // Realtime subscription
+  // Realtime subscription — listen to milestone config AND completion events
   useEffect(() => {
     const channel = supabase
       .channel("community-milestone")
@@ -78,17 +78,32 @@ export function CommunityMilestoneCard() {
           table: "community_milestones",
           filter: `month=eq.${currentMonth}`,
         },
-        () => {
-          // Re-fetch with real count when milestone config changes
-          fetchMilestone();
-        }
+        () => fetchMilestone()
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "appointments",
+        },
+        () => fetchMilestone()
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "hiv_selftest_requests",
+        },
+        () => fetchMilestone()
       )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [currentMonth, prevCompleted]);
+  }, [currentMonth, fetchMilestone]);
 
   if (loading) {
     return (
