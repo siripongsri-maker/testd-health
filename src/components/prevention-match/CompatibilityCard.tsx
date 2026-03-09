@@ -15,8 +15,10 @@ export function CompatibilityCard({ result }: Props) {
       <div className={`absolute inset-0 bg-gradient-to-br ${compatible.gradient} opacity-[0.04]`} />
       <div className="relative z-10 space-y-4">
         <div className="flex items-center gap-2">
-          <Heart className="h-4 w-4 text-pink-500" />
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+          <div className="w-6 h-6 rounded-full bg-pink-500/10 flex items-center justify-center">
+            <Heart className="h-3 w-3 text-pink-500" />
+          </div>
+          <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-[0.15em]">
             คุณอาจ Match ได้ดีกับ
           </p>
         </div>
@@ -24,17 +26,19 @@ export function CompatibilityCard({ result }: Props) {
         <div className="flex items-center gap-4">
           <PreventionAvatar resultType={result.compatibleType} size="sm" />
           <div className="flex-1 space-y-1">
-            <p className="font-bold text-foreground">{compatible.title}</p>
-            <p className="text-xs text-muted-foreground">{compatible.avatarName}</p>
+            <p className="text-lg font-bold text-foreground">{compatible.title}</p>
+            <p className="text-xs font-semibold tracking-widest uppercase text-muted-foreground/50">
+              {compatible.avatarName}
+            </p>
           </div>
-          <Sparkles className="h-5 w-5 text-primary/50" />
+          <Sparkles className="h-5 w-5 text-primary/40" />
         </div>
 
-        <p className="text-sm text-foreground/80 leading-relaxed">
+        <p className="text-sm text-foreground/75 leading-relaxed">
           {result.compatibilityReason}
         </p>
 
-        <p className="text-xs text-muted-foreground/70 italic text-center pt-1">
+        <p className="text-xs text-muted-foreground/50 italic text-center pt-1 bg-muted/20 rounded-full px-4 py-2">
           "ต่างกันได้ แต่ไปกันได้ ถ้าสื่อสารกันดี"
         </p>
       </div>
