@@ -431,6 +431,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'home.didYouKnow': 'เรื่องน่ารู้',
     'home.onlineCounselor': 'ขอคำปรึกษา',
     'home.selfCare': 'ดูแลตัวเอง',
+    'home.preventionMatch': 'Prevention Match',
     'home.inviteTest': 'ชวนตรวจ',
     'home.members': 'สมาชิก',
     'home.totalVisitors': 'ผู้เข้าชมทั้งหมด',
