@@ -27,7 +27,7 @@ import {
   BedDouble,
   ShieldCheck,
 } from "lucide-react";
-import swingLogo from "@/assets/swing-logo.webp";
+import swingLogo from "@/assets/swing-logo.png";
 
 export default function TownHub() {
   const navigate = useNavigate();

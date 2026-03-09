@@ -1,5 +1,5 @@
 import testdLogo from '@/assets/testd-logo.png';
-import swingLogo from '@/assets/swing-logo.webp';
+import swingLogo from '@/assets/swing-logo.png';
 
 interface Props {
   variant?: 'light' | 'dark';

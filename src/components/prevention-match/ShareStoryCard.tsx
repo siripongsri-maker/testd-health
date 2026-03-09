@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import type { ResultData } from './types';
 import { RESULT_DATA } from './types';
 import testdLogo from '@/assets/testd-logo.png';
-import swingLogo from '@/assets/swing-logo.webp';
+import swingLogo from '@/assets/swing-logo.png';
 
 interface Props {
   result: ResultData;
