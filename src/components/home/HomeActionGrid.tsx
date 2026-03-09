@@ -97,11 +97,16 @@ export function HomeActionGrid() {
     },
   ];
 
-  // Row 3 — Support (counselor + wide medication widget)
+  // Row 3 — Support (counselor + support chat + wide medication widget)
   const row3Counselor = {
     icon: <MessageCircle className="h-full w-full" strokeWidth={1.5} />,
     titleKey: 'home.onlineCounselor',
     path: '/community',
+  };
+  const row3SupportChat = {
+    icon: <Headphones className="h-full w-full" strokeWidth={1.5} />,
+    titleTh: language === 'th' ? 'ติดต่อแอดมิน' : 'Contact Admin',
+    path: '/support-chat',
   };
 
   return (
