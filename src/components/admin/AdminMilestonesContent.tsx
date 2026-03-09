@@ -16,6 +16,7 @@ interface Milestone {
   metric_type: string;
   target_value: number;
   current_value: number;
+  real_count?: number;
   reward_xp: number;
   reward_ticket: number;
   is_completed: boolean;

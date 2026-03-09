@@ -78,15 +78,9 @@ export function CommunityMilestoneCard() {
           table: "community_milestones",
           filter: `month=eq.${currentMonth}`,
         },
-        (payload) => {
-          if (payload.new) {
-            const m = payload.new as unknown as Milestone;
-            if (m.is_completed && !prevCompleted) {
-              setShowCelebration(true);
-            }
-            setPrevCompleted(m.is_completed);
-            setMilestone(m);
-          }
+        () => {
+          // Re-fetch with real count when milestone config changes
+          fetchMilestone();
         }
       )
       .subscribe();
