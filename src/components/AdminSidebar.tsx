@@ -1,7 +1,6 @@
 import { useLanguage } from "@/lib/i18n";
 import { useSearchParams } from "react-router-dom";
 import {
-  ListOrdered,
   Sidebar,
   SidebarContent,
   SidebarGroup,
