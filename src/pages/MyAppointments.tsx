@@ -28,6 +28,7 @@ import {
   selfCheckinRPC,
   selfCheckoutRPC,
 } from '@/lib/appointments';
+import { VisitProgressCard } from '@/components/VisitProgressCard';
 
 const STATUS_CONFIG: Record<string, { labelTh: string; labelEn: string; color: string; icon: typeof CheckCircle2 }> = {
   booked: { labelTh: 'จองแล้ว', labelEn: 'Booked', color: 'text-blue-600 bg-blue-100 dark:bg-blue-900/30', icon: Calendar },
@@ -367,6 +368,15 @@ export default function MyAppointments() {
                   หากมีปัญหา กรุณาติดต่อจุดลงทะเบียน
                 </p>
               </div>
+            )}
+
+            {/* Visit Progress Card — detailed journey for arrived/in_progress */}
+            {user && (apt.status === 'arrived' || apt.status === 'in_progress') && (
+              <VisitProgressCard
+                userId={user.id}
+                appointmentId={apt.id}
+                branchId={apt.branch_id}
+              />
             )}
 
             {/* Checked out / completed info */}
