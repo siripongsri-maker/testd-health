@@ -50,7 +50,8 @@ export default function QueueTV() {
 
   // Fetch queue data
   const fetchQueue = useCallback(async (bid: string) => {
-    const today = new Date().toLocaleDateString('en-CA');
+    // Use Bangkok timezone to match server-side RLS policy
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
 
     // Get today's active visits (not completed/cancelled)
     const { data: todayVisits } = await supabase
