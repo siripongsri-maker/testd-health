@@ -818,6 +818,50 @@ export type Database = {
         }
         Relationships: []
       }
+      branch_queue_settings: {
+        Row: {
+          active_steps: string[]
+          branch_id: string
+          counselor_room_count: number
+          created_at: string
+          id: string
+          payment_enabled: boolean
+          queue_prefix: string
+          tv_display_name: string | null
+          updated_at: string
+        }
+        Insert: {
+          active_steps?: string[]
+          branch_id: string
+          counselor_room_count?: number
+          created_at?: string
+          id?: string
+          payment_enabled?: boolean
+          queue_prefix?: string
+          tv_display_name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active_steps?: string[]
+          branch_id?: string
+          counselor_room_count?: number
+          created_at?: string
+          id?: string
+          payment_enabled?: boolean
+          queue_prefix?: string
+          tv_display_name?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "branch_queue_settings_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: true
+            referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       branch_working_hours: {
         Row: {
           branch_id: string
@@ -932,6 +976,162 @@ export type Database = {
           slug?: string
         }
         Relationships: []
+      }
+      client_visit_flow_steps: {
+        Row: {
+          assigned_staff_id: string | null
+          branch_id: string
+          called_at: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          entered_at: string
+          id: string
+          queue_code: string | null
+          queue_number: number | null
+          room_number: number | null
+          route_note: string | null
+          routed_to_step_code: string | null
+          started_at: string | null
+          step_code: string
+          step_status: string
+          updated_at: string
+          updated_by: string | null
+          visit_id: string
+        }
+        Insert: {
+          assigned_staff_id?: string | null
+          branch_id: string
+          called_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          entered_at?: string
+          id?: string
+          queue_code?: string | null
+          queue_number?: number | null
+          room_number?: number | null
+          route_note?: string | null
+          routed_to_step_code?: string | null
+          started_at?: string | null
+          step_code: string
+          step_status?: string
+          updated_at?: string
+          updated_by?: string | null
+          visit_id: string
+        }
+        Update: {
+          assigned_staff_id?: string | null
+          branch_id?: string
+          called_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          entered_at?: string
+          id?: string
+          queue_code?: string | null
+          queue_number?: number | null
+          room_number?: number | null
+          route_note?: string | null
+          routed_to_step_code?: string | null
+          started_at?: string | null
+          step_code?: string
+          step_status?: string
+          updated_at?: string
+          updated_by?: string | null
+          visit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_visit_flow_steps_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_visit_flow_steps_visit_id_fkey"
+            columns: ["visit_id"]
+            isOneToOne: false
+            referencedRelation: "client_visit_flows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_visit_flows: {
+        Row: {
+          appointment_id: string | null
+          branch_id: string
+          cancel_reason: string | null
+          cancelled_at: string | null
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          current_status: string
+          current_step: string
+          id: string
+          is_cancelled: boolean
+          is_completed: boolean
+          updated_at: string
+          updated_by: string | null
+          visit_code: string
+          visit_date: string
+          visit_number: number
+        }
+        Insert: {
+          appointment_id?: string | null
+          branch_id: string
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_status?: string
+          current_step?: string
+          id?: string
+          is_cancelled?: boolean
+          is_completed?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          visit_code: string
+          visit_date?: string
+          visit_number: number
+        }
+        Update: {
+          appointment_id?: string | null
+          branch_id?: string
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          current_status?: string
+          current_step?: string
+          id?: string
+          is_cancelled?: boolean
+          is_completed?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          visit_code?: string
+          visit_date?: string
+          visit_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_visit_flows_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_visit_flows_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       community_milestones: {
         Row: {
@@ -3577,6 +3777,37 @@ export type Database = {
         }
         Relationships: []
       }
+      queue_tv_display: {
+        Row: {
+          branch_id: string | null
+          called_at: string | null
+          current_status: string | null
+          current_step: string | null
+          queue_code: string | null
+          room_number: number | null
+          step_code: string | null
+          step_id: string | null
+          step_status: string | null
+          visit_code: string | null
+          visit_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_visit_flow_steps_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_visit_flow_steps_visit_id_fkey"
+            columns: ["visit_id"]
+            isOneToOne: false
+            referencedRelation: "client_visit_flows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       selftest_statistics: {
         Row: {
           age_range: string | null
@@ -3720,6 +3951,10 @@ export type Database = {
         Returns: string
       }
       generate_order_code: { Args: never; Returns: string }
+      generate_visit_queue_number: {
+        Args: { p_branch_id: string; p_date?: string }
+        Returns: number
+      }
       get_admin_partner_invite_report:
         | {
             Args: { p_end_date?: string; p_start_date?: string }
@@ -4012,8 +4247,23 @@ export type Database = {
         Args: { p_reason?: string; p_relay_id?: string; p_user_id: string }
         Returns: number
       }
+      register_queue_visit: {
+        Args: { p_appointment_id?: string; p_branch_id: string }
+        Returns: Json
+      }
       revoke_partner_invite: {
         Args: { p_invite_id: string }
+        Returns: undefined
+      }
+      route_visit_step: {
+        Args: {
+          p_action: string
+          p_current_step_id: string
+          p_next_step?: string
+          p_room_number?: number
+          p_route_note?: string
+          p_visit_id: string
+        }
         Returns: undefined
       }
       self_checkin_appointment: {
