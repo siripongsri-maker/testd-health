@@ -24,7 +24,7 @@ import {
   Bell, BarChart3, FileText, ClipboardList, FileUp,
   ChevronDown, Languages, ShieldAlert, RefreshCw, Gift, Heart,
   MessageSquare, CreditCard, Wallet, Link2, UserCheck,
-  Activity, Wrench, Monitor, FileDown, Target, Fingerprint,
+  Activity, Wrench, Monitor, FileDown, Target, Fingerprint, ListOrdered,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
