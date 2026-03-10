@@ -471,6 +471,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.kitOrders': 'ชุดตรวจ',
     'admin.notifications': 'แจ้งเตือน',
     'admin.analytics': 'สถิติ',
+    'admin.analyticsOverview': 'ภาพรวมช่วงเวลา',
     'admin.import': 'นำเข้า',
     'admin.abuseLogs': 'Anti-spam',
     'admin.translations': 'คำแปล',
