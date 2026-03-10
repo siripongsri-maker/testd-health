@@ -1,13 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { toPublicStatus, PUBLIC_STATUS_CONFIG, type PublicStatus } from '@/lib/queuePublicStatus';
+import { toPublicStatus, getTVInstruction, PUBLIC_STATUS_CONFIG, type PublicStatus } from '@/lib/queuePublicStatus';
 
 /**
- * Simplified TV display — shows only 4 public statuses:
- *   ลงทะเบียน / รอรับบริการ / กำลังรับบริการ / เสร็จสิ้น
- *
- * Internal step detail is hidden; detailed journey lives on the user mobile page.
+ * Branch TV display — shows 4 public statuses with a hero "Now Serving" section.
+ * Privacy-safe: queue code + room only.
+ * Realtime: subscribes to visit flow tables filtered by branch.
  */
 
 interface TVItem {
@@ -19,97 +18,148 @@ interface TVItem {
   room_number: number | null;
   called_at: string | null;
   visit_code: string;
+  public_status: PublicStatus;
+  instruction: string;
 }
 
-// We only show these public statuses on the TV (exclude "finished" — no point showing completed queues)
-const DISPLAY_STATUSES: PublicStatus[] = ['registered', 'waiting', 'in_service'];
+const COLUMN_STATUSES: PublicStatus[] = ['registered', 'waiting', 'in_service'];
 
 export default function QueueTV() {
   const { branchSlug } = useParams<{ branchSlug: string }>();
   const [branchName, setBranchName] = useState('');
+  const [branchId, setBranchId] = useState<string | null>(null);
   const [items, setItems] = useState<TVItem[]>([]);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
-  const fetchBranch = useCallback(async () => {
-    if (!branchSlug) return null;
-    const { data } = await supabase
+  // Fetch branch info once
+  useEffect(() => {
+    if (!branchSlug) return;
+    supabase
       .from('booking_branches')
       .select('id, name_th, name_en')
       .eq('slug', branchSlug)
-      .single();
-    if (data) {
-      setBranchName((data as any).name_th);
-      return (data as any).id;
-    }
-    return null;
+      .single()
+      .then(({ data }) => {
+        if (data) {
+          setBranchName((data as any).name_th);
+          setBranchId((data as any).id);
+        }
+      });
   }, [branchSlug]);
 
-  const fetchQueue = useCallback(async (branchId: string) => {
+  // Fetch queue data
+  const fetchQueue = useCallback(async (bid: string) => {
     const today = new Date().toLocaleDateString('en-CA');
 
-    // Get today's active visits
+    // Get today's active visits (not completed/cancelled)
     const { data: todayVisits } = await supabase
       .from('client_visit_flows')
-      .select('id, visit_code')
-      .eq('branch_id', branchId)
-      .eq('visit_date', today)
-      .eq('is_completed', false)
-      .eq('is_cancelled', false);
+      .select('id, visit_code, is_completed, is_cancelled')
+      .eq('branch_id', bid)
+      .eq('visit_date', today);
 
     if (!todayVisits?.length) {
       setItems([]);
       return;
     }
 
-    const visitMap = Object.fromEntries((todayVisits as any[]).map(v => [v.id, v.visit_code]));
+    const visitMap = Object.fromEntries(
+      (todayVisits as any[]).map(v => [v.id, { code: v.visit_code, done: v.is_completed || v.is_cancelled }])
+    );
     const visitIds = Object.keys(visitMap);
 
-    // Get active steps for these visits (not completed/cancelled steps)
+    // Get ALL steps for today's visits (including completed for finished display)
     const { data: stepData } = await supabase
       .from('client_visit_flow_steps')
       .select('id, visit_id, step_code, step_status, queue_code, room_number, called_at')
-      .eq('branch_id', branchId)
+      .eq('branch_id', bid)
       .in('visit_id', visitIds)
-      .in('step_status', ['waiting', 'called', 'in_service'])
-      .order('called_at', { ascending: false });
+      .order('entered_at', { ascending: false });
 
-    const mapped: TVItem[] = ((stepData || []) as any[]).map(s => ({
-      step_id: s.id,
-      visit_id: s.visit_id,
-      step_code: s.step_code,
-      step_status: s.step_status,
-      queue_code: s.queue_code,
-      room_number: s.room_number,
-      called_at: s.called_at,
-      visit_code: visitMap[s.visit_id] || s.queue_code || '—',
-    }));
+    if (!stepData?.length) {
+      setItems([]);
+      return;
+    }
+
+    // For each visit, pick the most recent (latest) step as the representative
+    const latestStepByVisit = new Map<string, any>();
+    for (const s of stepData as any[]) {
+      if (!latestStepByVisit.has(s.visit_id)) {
+        latestStepByVisit.set(s.visit_id, s);
+      }
+    }
+
+    const mapped: TVItem[] = [];
+    for (const [visitId, step] of latestStepByVisit) {
+      const visitInfo = visitMap[visitId];
+      if (!visitInfo) continue;
+
+      // For completed/cancelled visits, override
+      const effectiveStepCode = visitInfo.done
+        ? (step.step_status === 'cancelled' ? 'cancelled' : 'completed')
+        : step.step_code;
+      const effectiveStatus = visitInfo.done
+        ? (step.step_status === 'cancelled' ? 'cancelled' : 'completed')
+        : step.step_status;
+
+      const ps = toPublicStatus(effectiveStepCode, effectiveStatus);
+      const instruction = getTVInstruction(step.step_code, step.step_status, step.room_number);
+
+      mapped.push({
+        step_id: step.id,
+        visit_id: visitId,
+        step_code: step.step_code,
+        step_status: step.step_status,
+        queue_code: step.queue_code,
+        room_number: step.room_number,
+        called_at: step.called_at,
+        visit_code: visitInfo.code || step.queue_code || '—',
+        public_status: ps,
+        instruction,
+      });
+    }
 
     setItems(mapped);
   }, []);
 
+  // Fetch data when branchId is ready
   useEffect(() => {
-    fetchBranch().then(id => { if (id) fetchQueue(id); });
-  }, [fetchBranch, fetchQueue]);
+    if (branchId) fetchQueue(branchId);
+  }, [branchId, fetchQueue]);
 
-  // Realtime
+  // Realtime subscription — properly managed
   useEffect(() => {
-    if (!branchSlug) return;
-    let branchId: string | null = null;
-    fetchBranch().then(id => {
-      branchId = id;
-      if (!id) return;
-      const channel = supabase
-        .channel(`tv-${branchSlug}`)
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'client_visit_flow_steps' }, () => {
-          if (branchId) fetchQueue(branchId);
-        })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'client_visit_flows' }, () => {
-          if (branchId) fetchQueue(branchId);
-        })
-        .subscribe();
-      return () => { supabase.removeChannel(channel); };
-    });
-  }, [branchSlug, fetchBranch, fetchQueue]);
+    if (!branchId) return;
+
+    // Clean up any previous channel
+    if (channelRef.current) {
+      supabase.removeChannel(channelRef.current);
+    }
+
+    const channel = supabase
+      .channel(`tv-realtime-${branchId}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'client_visit_flows',
+        filter: `branch_id=eq.${branchId}`,
+      }, () => fetchQueue(branchId))
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'client_visit_flow_steps',
+        filter: `branch_id=eq.${branchId}`,
+      }, () => fetchQueue(branchId))
+      .subscribe();
+
+    channelRef.current = channel;
+
+    return () => {
+      supabase.removeChannel(channel);
+      channelRef.current = null;
+    };
+  }, [branchId, fetchQueue]);
 
   // Clock
   useEffect(() => {
@@ -127,16 +177,17 @@ export default function QueueTV() {
     in_service: [],
     finished: [],
   };
-
   items.forEach(item => {
-    const ps = toPublicStatus(item.step_code, item.step_status);
-    if (grouped[ps]) grouped[ps].push(item);
+    grouped[item.public_status].push(item);
   });
+
+  // Hero items: currently called (step_status = 'called')
+  const calledNow = items.filter(i => i.step_status === 'called');
 
   return (
     <div className="min-h-screen bg-[hsl(220,20%,8%)] text-white p-6 md:p-10 flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight">🏥 {branchName || branchSlug}</h1>
           <p className="text-white/50 text-lg mt-1">ระบบเรียกคิว — Queue Display</p>
@@ -149,24 +200,50 @@ export default function QueueTV() {
         </div>
       </div>
 
-      {/* 3-column layout for the 3 active statuses */}
+      {/* Hero: Now Serving */}
+      {calledNow.length > 0 && (
+        <div className="mb-6">
+          <h2 className="text-xl font-bold text-amber-400 mb-3 flex items-center gap-2">
+            <span className="text-2xl">📢</span> เรียกคิว — Now Serving
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {calledNow.map(item => (
+              <div
+                key={item.step_id}
+                className="bg-amber-500/20 border-2 border-amber-500/60 rounded-2xl px-6 py-5 animate-pulse"
+              >
+                <div className="text-5xl md:text-6xl font-black font-mono text-amber-400 leading-none text-center">
+                  {item.queue_code || item.visit_code}
+                </div>
+                {item.room_number && (
+                  <p className="text-center text-2xl text-amber-300 font-bold mt-2">
+                    🚪 ห้อง {item.room_number}
+                  </p>
+                )}
+                <p className="text-center text-amber-300/80 text-sm mt-2">
+                  {item.instruction}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 3-column status groups */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1">
-        {DISPLAY_STATUSES.map(status => {
+        {COLUMN_STATUSES.map(status => {
           const config = PUBLIC_STATUS_CONFIG[status];
           const statusItems = grouped[status];
-          // For "waiting" status, highlight items that are "called"
-          const calledItems = statusItems.filter(i => i.step_status === 'called');
-          const otherItems = statusItems.filter(i => i.step_status !== 'called');
 
           return (
             <div
               key={status}
-              className={`rounded-2xl p-6 flex flex-col border-2 ${config.color} ${config.borderColor}`}
+              className={`rounded-2xl p-5 flex flex-col border-2 ${config.color} ${config.borderColor}`}
             >
               {/* Status header */}
-              <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/10">
-                <span className="text-3xl">{config.icon}</span>
-                <h2 className={`text-2xl md:text-3xl font-bold ${config.textColor}`}>
+              <div className="flex items-center gap-3 mb-4 pb-3 border-b border-white/10">
+                <span className="text-2xl">{config.icon}</span>
+                <h2 className={`text-xl md:text-2xl font-bold ${config.textColor}`}>
                   {config.labelTh}
                 </h2>
                 {statusItems.length > 0 && (
@@ -177,45 +254,35 @@ export default function QueueTV() {
               </div>
 
               {/* Queue items */}
-              <div className="flex-1 space-y-3 overflow-y-auto">
-                {/* Called items first — with highlight animation */}
-                {calledItems.map(item => (
+              <div className="flex-1 space-y-2 overflow-y-auto max-h-[60vh]">
+                {statusItems.map(item => (
                   <div
                     key={item.step_id}
-                    className="bg-amber-500/20 border border-amber-500/40 rounded-xl px-4 py-3 animate-pulse"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-4xl md:text-5xl font-black font-mono text-amber-400 leading-none">
-                        {item.queue_code || item.visit_code}
-                      </span>
-                      {item.room_number && (
-                        <span className="text-lg text-amber-300/80 font-medium">
-                          ห้อง {item.room_number}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm text-amber-300/70 mt-1">กรุณาเข้ารับบริการ</p>
-                  </div>
-                ))}
-
-                {/* Other items (waiting / in_service) */}
-                {otherItems.map(item => (
-                  <div
-                    key={item.step_id}
-                    className="bg-white/5 border border-white/10 rounded-xl px-4 py-3"
+                    className={`rounded-xl px-4 py-3 ${
+                      item.step_status === 'called'
+                        ? 'bg-amber-500/20 border border-amber-500/40'
+                        : item.step_status === 'in_service'
+                        ? 'bg-green-500/15 border border-green-500/30'
+                        : 'bg-white/5 border border-white/10'
+                    }`}
                   >
                     <div className="flex items-center justify-between">
                       <span className={`text-2xl md:text-3xl font-bold font-mono ${
-                        status === 'in_service' ? 'text-green-300' : 'text-white/80'
+                        status === 'in_service' ? 'text-green-300' :
+                        status === 'registered' ? 'text-sky-300' :
+                        'text-white/80'
                       }`}>
                         {item.queue_code || item.visit_code}
                       </span>
                       {item.room_number && (
-                        <span className="text-sm text-white/50">
-                          ห้อง {item.room_number}
+                        <span className="text-sm text-white/60 font-medium">
+                          🚪 ห้อง {item.room_number}
                         </span>
                       )}
                     </div>
+                    {item.instruction && (
+                      <p className="text-xs text-white/40 mt-1">{item.instruction}</p>
+                    )}
                   </div>
                 ))}
 

@@ -51,14 +51,14 @@ export const PUBLIC_STATUS_CONFIG: Record<PublicStatus, {
  * Derive the public-facing status from the internal step_code + step_status.
  *
  * Mapping rules:
- *   register (any status)                       → registered
- *   any step with step_status = 'waiting'       → waiting (รอรับบริการ)
- *   any step with step_status = 'called'        → waiting (กำลังถูกเรียก, publicly "waiting")
- *   any step with step_status = 'in_service'    → in_service
- *   step_status = 'completed'                   → finished
- *   step_status = 'cancelled'                   → finished
- *   step_code = 'completed' or 'cancelled'      → finished
- *   step_code = 'notification_later' completed  → finished (done for today)
+ *   register (any non-completed status)             → registered
+ *   any step with step_status = 'waiting'           → waiting (รอรับบริการ)
+ *   any step with step_status = 'called'            → in_service (กำลังรับบริการ — publicly "please proceed")
+ *   any step with step_status = 'in_service'        → in_service
+ *   step_status = 'completed'                       → finished
+ *   step_status = 'cancelled'                       → finished
+ *   step_code = 'completed' or 'cancelled'          → finished
+ *   step_code = 'notification_later' completed      → finished (done for today)
  */
 export function toPublicStatus(stepCode: string, stepStatus: string): PublicStatus {
   // Terminal step codes
@@ -70,14 +70,36 @@ export function toPublicStatus(stepCode: string, stepStatus: string): PublicStat
   // Registration
   if (stepCode === 'register') return 'registered';
 
-  // Called = publicly show as "waiting" (the queue code will appear under รอรับบริการ)
-  if (stepStatus === 'called') return 'waiting';
+  // Called = publicly show as "in_service" (กำลังรับบริการ — please proceed now)
+  if (stepStatus === 'called') return 'in_service';
 
   // Currently being served
   if (stepStatus === 'in_service') return 'in_service';
 
   // Default: waiting
   return 'waiting';
+}
+
+/**
+ * Get a short public-safe instruction for TV display based on step + status.
+ * Returns Thai text only (TV is Thai-first).
+ */
+export function getTVInstruction(stepCode: string, stepStatus: string, roomNumber?: number | null): string {
+  if (stepStatus === 'called') {
+    if (roomNumber) return `กรุณาเข้าห้อง ${roomNumber}`;
+    const instructionMap: Record<string, string> = {
+      counselor: 'กรุณาไปห้องให้คำปรึกษา',
+      blood_collecting: 'กรุณาไปจุดเจาะเลือด',
+      specimen_collecting: 'กรุณาไปจุดเก็บตัวอย่าง',
+      medicine: 'กรุณาไปจุดรับยา',
+      treatment: 'กรุณาไปจุดรักษา',
+      payment: 'กรุณาไปจุดชำระเงิน',
+    };
+    return instructionMap[stepCode] || 'กรุณาเข้ารับบริการ';
+  }
+  if (stepStatus === 'in_service') return 'กำลังรับบริการ';
+  if (stepStatus === 'waiting') return 'กรุณารอเรียก';
+  return '';
 }
 
 /**
@@ -143,7 +165,7 @@ export function getDetailedStepLabel(stepCode: string, stepStatus: string, roomN
       completed: { th: 'ชำระเงินเรียบร้อย', en: 'Payment completed' },
     },
     completed: {
-      _default: { th: 'เสร็จสิ้นแล้ว', en: 'Visit completed' },
+      _default: { th: 'เสร็จสิ้นแล้ว — สามารถกลับบ้านได้', en: 'Visit completed — you may go home' },
     },
     cancelled: {
       _default: { th: 'ยกเลิกแล้ว', en: 'Visit cancelled' },
@@ -153,4 +175,65 @@ export function getDetailedStepLabel(stepCode: string, stepStatus: string, roomN
   const stepMap = map[stepCode];
   if (!stepMap) return { th: stepCode, en: stepCode };
   return stepMap[stepStatus] || stepMap['_default'] || { th: stepCode, en: stepCode };
+}
+
+/**
+ * Derive user-facing "next route" instruction based on the active step and routed_to.
+ */
+export function getNextRouteInstruction(
+  currentStepCode: string,
+  currentStepStatus: string,
+  routedToStepCode: string | null,
+  roomNumber?: number | null,
+): { th: string; en: string } | null {
+  // If step is completed and has a routed_to, show where to go next
+  if (currentStepStatus === 'completed' && routedToStepCode) {
+    return getNextStepInstruction(routedToStepCode);
+  }
+
+  // If called, tell user to proceed
+  if (currentStepStatus === 'called') {
+    if (roomNumber) {
+      return { th: `กรุณาเข้าห้อง ${roomNumber}`, en: `Please proceed to Room ${roomNumber}` };
+    }
+    return getNextStepInstruction(currentStepCode);
+  }
+
+  // If waiting, tell them to wait
+  if (currentStepStatus === 'waiting') {
+    return { th: 'กรุณารอเรียกคิว', en: 'Please wait for your queue to be called' };
+  }
+
+  // If in_service, tell them to stay
+  if (currentStepStatus === 'in_service') {
+    return { th: 'กรุณาอยู่ ณ จุดบริการ', en: 'Please remain at the service point' };
+  }
+
+  // notification_later
+  if (currentStepCode === 'notification_later') {
+    return { th: 'ไม่ต้องรอที่สาขา เจ้าหน้าที่จะแจ้งผลภายหลัง', en: 'No need to wait. Staff will notify you later.' };
+  }
+
+  // completed
+  if (currentStepCode === 'completed') {
+    return { th: 'เสร็จสิ้น สามารถกลับบ้านได้', en: 'Completed. You may go home.' };
+  }
+
+  return null;
+}
+
+function getNextStepInstruction(stepCode: string): { th: string; en: string } {
+  const map: Record<string, { th: string; en: string }> = {
+    counselor: { th: 'กรุณาไปห้องให้คำปรึกษา', en: 'Please go to counselor room' },
+    blood_collecting: { th: 'กรุณาไปจุดเจาะเลือด', en: 'Please go to blood collection' },
+    specimen_collecting: { th: 'กรุณาไปจุดเก็บตัวอย่าง', en: 'Please go to specimen collection' },
+    waiting_result: { th: 'กรุณารอผลตรวจ', en: 'Please wait for test results' },
+    notification_later: { th: 'ไม่ต้องรอที่สาขา เจ้าหน้าที่จะแจ้งผลภายหลัง', en: 'No need to wait. Staff will notify you later.' },
+    medicine: { th: 'กรุณาไปจุดรับยา', en: 'Please go to medicine counter' },
+    treatment: { th: 'กรุณาไปจุดรักษา', en: 'Please go to treatment area' },
+    payment: { th: 'กรุณาไปจุดชำระเงิน', en: 'Please go to payment counter' },
+    completed: { th: 'เสร็จสิ้น สามารถกลับบ้านได้', en: 'Completed. You may go home.' },
+    cancelled: { th: 'ยกเลิกแล้ว', en: 'Visit cancelled' },
+  };
+  return map[stepCode] || { th: 'กรุณารอเรียก', en: 'Please wait' };
 }
