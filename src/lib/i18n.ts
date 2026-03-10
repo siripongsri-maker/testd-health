@@ -464,6 +464,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.bookings': 'นัดหมาย',
     'admin.today': 'วันนี้',
     'admin.schedule': 'ตารางเวลา',
+    'admin.queueBoard': 'ระบบคิว',
     'admin.content': 'เนื้อหา',
     'admin.blog': 'บทความ',
     'admin.surveys': 'แบบสำรวจ',
