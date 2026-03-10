@@ -39,6 +39,7 @@ const AdminMilestonesContent = lazy(() => import("@/components/admin/AdminMilest
 const AdminUserChatsContent = lazy(() => import("@/components/admin/AdminUserChatsContent"));
 const AdminIPDocsContent = lazy(() => import("@/components/admin/AdminIPDocsContent"));
 const AdminAnalyticsOverview = lazy(() => import("@/components/admin/AdminAnalyticsOverview"));
+const AdminQueueBoardContent = lazy(() => import("@/components/admin/AdminQueueBoardContent"));
 
 const TabLoader = () => (
   <div className="flex items-center justify-center h-64">
