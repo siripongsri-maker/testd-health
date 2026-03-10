@@ -141,6 +141,7 @@ export default function Admin() {
           {renderTab("bookings", <AdminBookingContent userBranch={userBranch} />)}
           {renderTab("today", <AdminTodayBoard userBranch={userBranch} />)}
           {renderTab("schedule", <AdminScheduleContent />)}
+          {renderTab("queue-board", <AdminQueueBoardContent userBranch={userBranch} />)}
 
           {/* Partner Network */}
           {renderTab("partner-invites", <AdminPartnerInvitesContent />)}
