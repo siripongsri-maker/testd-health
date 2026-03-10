@@ -962,6 +962,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.kitOrders': 'Kit Orders',
     'admin.notifications': 'Notifications',
     'admin.analytics': 'Analytics',
+    'admin.analyticsOverview': 'Period Overview',
     'admin.import': 'Import',
     'admin.abuseLogs': 'Anti-spam',
     'admin.translations': 'Translations',
