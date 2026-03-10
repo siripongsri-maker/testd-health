@@ -168,6 +168,7 @@ export default function Admin() {
 
           {/* Reports */}
           {renderTab("analytics", <AdminAnalyticsContent />)}
+          {renderTab("analytics-overview", <AdminAnalyticsOverview />)}
           {renderTab("export-center", <AdminExportCenterContent />)}
           {renderTab("activity-logs", <AdminActivityLogsContent />)}
 
