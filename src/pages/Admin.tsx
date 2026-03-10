@@ -59,7 +59,7 @@ const ME_ANALYST_TABS = new Set([
   // SMS & Credits (read-only)
   "sms-relay", "credit-balances", "credit-purchases",
   // Reports
-  "analytics", "export-center",
+  "analytics", "analytics-overview", "export-center",
   // System
   "system-health",
 ]);
