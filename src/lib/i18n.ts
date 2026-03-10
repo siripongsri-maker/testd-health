@@ -956,6 +956,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.bookings': 'Bookings',
     'admin.today': 'Today',
     'admin.schedule': 'Schedule',
+    'admin.queueBoard': 'Queue Board',
     'admin.content': 'Content',
     'admin.blog': 'Blog',
     'admin.surveys': 'Surveys',
