@@ -38,6 +38,7 @@ const AdminSystemHealthContent = lazy(() => import("@/components/admin/AdminSyst
 const AdminMilestonesContent = lazy(() => import("@/components/admin/AdminMilestonesContent"));
 const AdminUserChatsContent = lazy(() => import("@/components/admin/AdminUserChatsContent"));
 const AdminIPDocsContent = lazy(() => import("@/components/admin/AdminIPDocsContent"));
+const AdminAnalyticsOverview = lazy(() => import("@/components/admin/AdminAnalyticsOverview"));
 
 const TabLoader = () => (
   <div className="flex items-center justify-center h-64">
@@ -58,7 +59,7 @@ const ME_ANALYST_TABS = new Set([
   // SMS & Credits (read-only)
   "sms-relay", "credit-balances", "credit-purchases",
   // Reports
-  "analytics", "export-center",
+  "analytics", "analytics-overview", "export-center",
   // System
   "system-health",
 ]);
@@ -167,6 +168,7 @@ export default function Admin() {
 
           {/* Reports */}
           {renderTab("analytics", <AdminAnalyticsContent />)}
+          {renderTab("analytics-overview", <AdminAnalyticsOverview />)}
           {renderTab("export-center", <AdminExportCenterContent />)}
           {renderTab("activity-logs", <AdminActivityLogsContent />)}
 
