@@ -1,10 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/lib/i18n';
-import { getDetailedStepLabel, toPublicStatus, PUBLIC_STATUS_CONFIG } from '@/lib/queuePublicStatus';
-import { getStepLabel, QUEUE_STEPS, STEP_MAP } from '@/lib/queueSteps';
+import { getDetailedStepLabel, toPublicStatus, PUBLIC_STATUS_CONFIG, getNextRouteInstruction } from '@/lib/queuePublicStatus';
 import { Card } from '@/components/ui/card';
-import { CheckCircle2, Clock, Loader2, ArrowRight, Bell, MapPin } from 'lucide-react';
+import { CheckCircle2, Clock, Loader2, ArrowRight, Bell, MapPin, Navigation } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 
 interface VisitStep {
@@ -36,22 +35,17 @@ interface Props {
   branchId?: string;
 }
 
-/**
- * Shows the detailed visit journey on the user's mobile appointment page.
- * Fetches the user's active visit for today at the given branch and
- * renders a step-by-step progress view.
- */
 export function VisitProgressCard({ userId, appointmentId, branchId }: Props) {
   const { language } = useLanguage();
   const [visit, setVisit] = useState<Visit | null>(null);
   const [steps, setSteps] = useState<VisitStep[]>([]);
   const [loading, setLoading] = useState(true);
   const [branchName, setBranchName] = useState('');
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   const fetchVisit = useCallback(async () => {
     const today = new Date().toLocaleDateString('en-CA');
 
-    // Try to find visit by appointment_id first, fallback to branch_id + today
     let query = supabase
       .from('client_visit_flows')
       .select('id, visit_code, current_step, current_status, is_completed, is_cancelled, branch_id')
@@ -95,15 +89,36 @@ export function VisitProgressCard({ userId, appointmentId, branchId }: Props) {
 
   useEffect(() => { fetchVisit(); }, [fetchVisit]);
 
-  // Realtime updates
+  // Realtime updates — properly managed
   useEffect(() => {
     if (!visit) return;
+
+    if (channelRef.current) {
+      supabase.removeChannel(channelRef.current);
+    }
+
     const channel = supabase
       .channel(`visit-progress-${visit.id}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'client_visit_flow_steps', filter: `visit_id=eq.${visit.id}` }, () => fetchVisit())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'client_visit_flows', filter: `id=eq.${visit.id}` }, () => fetchVisit())
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'client_visit_flow_steps',
+        filter: `visit_id=eq.${visit.id}`,
+      }, () => fetchVisit())
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'client_visit_flows',
+        filter: `id=eq.${visit.id}`,
+      }, () => fetchVisit())
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+
+    channelRef.current = channel;
+
+    return () => {
+      supabase.removeChannel(channel);
+      channelRef.current = null;
+    };
   }, [visit?.id, fetchVisit]);
 
   if (loading) {
@@ -130,6 +145,16 @@ export function VisitProgressCard({ userId, appointmentId, branchId }: Props) {
   // Find the active step (most recent non-completed step)
   const activeStep = [...steps].reverse().find(s => s.step_status !== 'completed' && s.step_status !== 'cancelled');
 
+  // Derive next route instruction
+  const nextRoute = activeStep
+    ? getNextRouteInstruction(activeStep.step_code, activeStep.step_status, activeStep.routed_to_step_code, activeStep.room_number)
+    : isFinished
+    ? { th: 'เสร็จสิ้น สามารถกลับบ้านได้', en: 'Completed. You may go home.' }
+    : null;
+
+  // Find queue code from active step or visit
+  const displayQueueCode = activeStep?.queue_code || visit.visit_code;
+
   return (
     <Card className="overflow-hidden border-primary/20">
       {/* Header with public status */}
@@ -141,7 +166,7 @@ export function VisitProgressCard({ userId, appointmentId, branchId }: Props) {
               {language === 'th' ? publicConfig.labelTh : publicConfig.labelEn}
             </span>
           </div>
-          <span className="text-sm font-mono font-bold text-primary">{visit.visit_code}</span>
+          <span className="text-lg font-mono font-black text-primary">{displayQueueCode}</span>
         </div>
         {branchName && (
           <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
@@ -152,32 +177,47 @@ export function VisitProgressCard({ userId, appointmentId, branchId }: Props) {
       </div>
 
       <div className="p-4 space-y-4">
-        {/* Current status - prominent */}
+        {/* Queue code + current status — prominent */}
         {!isFinished && (
-          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-center">
-            <p className="text-lg font-bold text-foreground">
+          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-center space-y-2">
+            {/* Large queue code */}
+            <p className="text-3xl font-black font-mono text-primary">{displayQueueCode}</p>
+            {/* Current step */}
+            <p className="text-base font-bold text-foreground">
               {language === 'th' ? currentDetail.th : currentDetail.en}
             </p>
             {activeStep?.room_number && (
-              <p className="text-primary font-medium mt-1">
+              <p className="text-primary font-medium">
                 🚪 {language === 'th' ? `ห้อง ${activeStep.room_number}` : `Room ${activeStep.room_number}`}
               </p>
             )}
-            {activeStep?.queue_code && (
-              <p className="text-2xl font-black font-mono text-primary mt-2">{activeStep.queue_code}</p>
-            )}
+          </div>
+        )}
+
+        {/* Next route instruction — directional guidance */}
+        {!isFinished && nextRoute && (
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3 flex items-start gap-3">
+            <Navigation className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
+            <div>
+              <p className="text-xs font-medium text-blue-600/70 dark:text-blue-400/70 uppercase tracking-wider">
+                {language === 'th' ? 'ขั้นตอนถัดไป' : 'Next'}
+              </p>
+              <p className="text-sm font-bold text-blue-700 dark:text-blue-300 mt-0.5">
+                {language === 'th' ? nextRoute.th : nextRoute.en}
+              </p>
+            </div>
           </div>
         )}
 
         {/* Notification later banner */}
         {isNotificationLater && !isFinished && (
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3 flex items-start gap-3">
-            <Bell className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-3 flex items-start gap-3">
+            <Bell className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
+              <p className="text-sm font-medium text-amber-700 dark:text-amber-300">
                 {language === 'th' ? 'ไม่ต้องรอที่คลินิก' : 'No need to wait at the clinic'}
               </p>
-              <p className="text-xs text-blue-600/70 dark:text-blue-400/70 mt-0.5">
+              <p className="text-xs text-amber-600/70 dark:text-amber-400/70 mt-0.5">
                 {language === 'th'
                   ? 'เจ้าหน้าที่จะติดต่อแจ้งผลภายหลัง กรุณาตรวจสอบนัดหมายถัดไปด้านล่าง'
                   : 'Staff will notify you of results later. Check your next appointment below.'}
@@ -235,11 +275,12 @@ export function VisitProgressCard({ userId, appointmentId, branchId }: Props) {
                       {format(parseISO(step.completed_at), 'HH:mm')}
                     </p>
                   )}
-                  {/* Show routing arrow for completed steps */}
                   {step.routed_to_step_code && isCompleted && (
                     <div className="flex items-center gap-1 text-[10px] text-muted-foreground/50 mt-0.5">
                       <ArrowRight className="h-2.5 w-2.5" />
-                      {getStepLabel(step.routed_to_step_code, language === 'th' ? 'th' : 'en')}
+                      {language === 'th'
+                        ? getDetailedStepLabel(step.routed_to_step_code, 'waiting').th
+                        : getDetailedStepLabel(step.routed_to_step_code, 'waiting').en}
                     </div>
                   )}
                 </div>
@@ -260,7 +301,7 @@ export function VisitProgressCard({ userId, appointmentId, branchId }: Props) {
             }`}>
               {visit.is_cancelled
                 ? (language === 'th' ? '❌ การเข้ารับบริการถูกยกเลิก' : '❌ Visit cancelled')
-                : (language === 'th' ? '✅ เสร็จสิ้นแล้ว ขอบคุณที่ใช้บริการ' : '✅ Visit completed. Thank you!')}
+                : (language === 'th' ? '✅ เสร็จสิ้นแล้ว — สามารถกลับบ้านได้' : '✅ Visit completed. You may go home!')}
             </p>
           </div>
         )}
