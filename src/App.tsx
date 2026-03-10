@@ -65,6 +65,7 @@ const DocsViewer = lazy(() => import("./pages/DocsViewer"));
 const DocsIndex = lazy(() => import("./pages/DocsViewer").then(m => ({ default: m.DocsIndex })));
 const SupportChat = lazy(() => import("./pages/SupportChat"));
 const PreventionMatch = lazy(() => import("./pages/PreventionMatch"));
+const QueueTV = lazy(() => import("./pages/QueueTV"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
