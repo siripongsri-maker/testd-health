@@ -370,6 +370,15 @@ export default function MyAppointments() {
               </div>
             )}
 
+            {/* Visit Progress Card — detailed journey for arrived/in_progress */}
+            {user && (apt.status === 'arrived' || apt.status === 'in_progress') && (
+              <VisitProgressCard
+                userId={user.id}
+                appointmentId={apt.id}
+                branchId={apt.branch_id}
+              />
+            )}
+
             {/* Checked out / completed info */}
             {apt.status === 'checked_out' && (
               <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 text-center space-y-1">
