@@ -24,7 +24,7 @@ import {
   Bell, BarChart3, FileText, ClipboardList, FileUp,
   ChevronDown, Languages, ShieldAlert, RefreshCw, Gift, Heart,
   MessageSquare, CreditCard, Wallet, Link2, UserCheck,
-  Activity, Wrench, Monitor, FileDown, Target, Fingerprint,
+  Activity, Wrench, Monitor, FileDown, Target, Fingerprint, ListOrdered,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -63,6 +63,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "bookings", icon: CalendarDays, labelKey: "admin.bookings", meAnalyst: true },
       { tab: "today", icon: Clipboard, labelKey: "admin.today" },
       { tab: "schedule", icon: Clock, labelKey: "admin.schedule" },
+      { tab: "queue-board", icon: ListOrdered, labelKey: "admin.queueBoard" },
     ],
   },
   {

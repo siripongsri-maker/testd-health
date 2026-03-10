@@ -39,6 +39,7 @@ const AdminMilestonesContent = lazy(() => import("@/components/admin/AdminMilest
 const AdminUserChatsContent = lazy(() => import("@/components/admin/AdminUserChatsContent"));
 const AdminIPDocsContent = lazy(() => import("@/components/admin/AdminIPDocsContent"));
 const AdminAnalyticsOverview = lazy(() => import("@/components/admin/AdminAnalyticsOverview"));
+const AdminQueueBoardContent = lazy(() => import("@/components/admin/AdminQueueBoardContent"));
 
 const TabLoader = () => (
   <div className="flex items-center justify-center h-64">
@@ -47,7 +48,7 @@ const TabLoader = () => (
 );
 
 // Tabs accessible by moderators (branch staff)
-const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "quick-register", "bookings", "today", "schedule"]);
+const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "quick-register", "bookings", "today", "schedule", "queue-board"]);
 
 // Tabs accessible by M&E Analyst (read-only analytics/reporting)
 const ME_ANALYST_TABS = new Set([
@@ -140,6 +141,7 @@ export default function Admin() {
           {renderTab("bookings", <AdminBookingContent userBranch={userBranch} />)}
           {renderTab("today", <AdminTodayBoard userBranch={userBranch} />)}
           {renderTab("schedule", <AdminScheduleContent />)}
+          {renderTab("queue-board", <AdminQueueBoardContent userBranch={userBranch} />)}
 
           {/* Partner Network */}
           {renderTab("partner-invites", <AdminPartnerInvitesContent />)}
