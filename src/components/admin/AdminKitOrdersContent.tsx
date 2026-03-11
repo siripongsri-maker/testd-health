@@ -682,6 +682,14 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     return matchesSearch && matchesTab && matchesBranch;
   });
 
+  const paginatedHIVRequests = filteredHIVRequests.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const selectAllVisible = useCallback(() => {
+    const paginated = filteredHIVRequests.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+    setSelectedIds(new Set(paginated.map(r => r.id)));
+  }, [filteredHIVRequests, currentPage, pageSize]);
+
+
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US', {
       year: 'numeric',
