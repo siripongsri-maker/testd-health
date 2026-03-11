@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
@@ -56,13 +56,42 @@ export default function Leaderboard() {
     checkAdminRole();
   }, [user]);
 
+  // Carousel slide tracking & auto-rotate
+  const autoplayRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const resumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const startAutoplay = useCallback(() => {
+    if (!carouselApi || hallOfFame.length <= 1) return;
+    stopAutoplay();
+    autoplayRef.current = setInterval(() => {
+      carouselApi.scrollNext();
+    }, 5000);
+  }, [carouselApi, hallOfFame.length]);
+
+  const stopAutoplay = useCallback(() => {
+    if (autoplayRef.current) { clearInterval(autoplayRef.current); autoplayRef.current = null; }
+    if (resumeTimeoutRef.current) { clearTimeout(resumeTimeoutRef.current); resumeTimeoutRef.current = null; }
+  }, []);
+
+  const pauseAndResume = useCallback(() => {
+    stopAutoplay();
+    resumeTimeoutRef.current = setTimeout(() => startAutoplay(), 8000);
+  }, [stopAutoplay, startAutoplay]);
+
   useEffect(() => {
     if (!carouselApi) return;
     const onSelect = () => setCurrentSlide(carouselApi.selectedScrollSnap());
+    const onPointerDown = () => pauseAndResume();
     carouselApi.on('select', onSelect);
+    carouselApi.on('pointerDown', onPointerDown);
     onSelect();
-    return () => { carouselApi.off('select', onSelect); };
-  }, [carouselApi]);
+    startAutoplay();
+    return () => {
+      carouselApi.off('select', onSelect);
+      carouselApi.off('pointerDown', onPointerDown);
+      stopAutoplay();
+    };
+  }, [carouselApi, startAutoplay, stopAutoplay, pauseAndResume]);
 
   const checkAdminRole = async () => {
     if (!user) { setIsAdmin(false); return; }
@@ -281,13 +310,13 @@ export default function Leaderboard() {
               {hallOfFame.length > 1 && (
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => carouselApi?.scrollPrev()}
+                    onClick={() => { carouselApi?.scrollPrev(); pauseAndResume(); }}
                     className="h-7 w-7 rounded-full bg-amber-200/60 dark:bg-amber-800/40 flex items-center justify-center hover:bg-amber-300/80 dark:hover:bg-amber-700/60 transition-colors"
                   >
                     <ChevronLeft className="h-4 w-4 text-amber-700 dark:text-amber-300" />
                   </button>
                   <button
-                    onClick={() => carouselApi?.scrollNext()}
+                    onClick={() => { carouselApi?.scrollNext(); pauseAndResume(); }}
                     className="h-7 w-7 rounded-full bg-amber-200/60 dark:bg-amber-800/40 flex items-center justify-center hover:bg-amber-300/80 dark:hover:bg-amber-700/60 transition-colors"
                   >
                     <ChevronRight className="h-4 w-4 text-amber-700 dark:text-amber-300" />
@@ -344,7 +373,7 @@ export default function Leaderboard() {
                 {hallOfFame.map((_, idx) => (
                   <button
                     key={idx}
-                    onClick={() => carouselApi?.scrollTo(idx)}
+                    onClick={() => { carouselApi?.scrollTo(idx); pauseAndResume(); }}
                     className={`h-1.5 rounded-full transition-all ${
                       idx === currentSlide
                         ? 'w-5 bg-amber-600 dark:bg-amber-400'
