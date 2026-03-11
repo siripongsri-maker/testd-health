@@ -310,13 +310,13 @@ export default function Leaderboard() {
               {hallOfFame.length > 1 && (
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => carouselApi?.scrollPrev()}
+                    onClick={() => { carouselApi?.scrollPrev(); pauseAndResume(); }}
                     className="h-7 w-7 rounded-full bg-amber-200/60 dark:bg-amber-800/40 flex items-center justify-center hover:bg-amber-300/80 dark:hover:bg-amber-700/60 transition-colors"
                   >
                     <ChevronLeft className="h-4 w-4 text-amber-700 dark:text-amber-300" />
                   </button>
                   <button
-                    onClick={() => carouselApi?.scrollNext()}
+                    onClick={() => { carouselApi?.scrollNext(); pauseAndResume(); }}
                     className="h-7 w-7 rounded-full bg-amber-200/60 dark:bg-amber-800/40 flex items-center justify-center hover:bg-amber-300/80 dark:hover:bg-amber-700/60 transition-colors"
                   >
                     <ChevronRight className="h-4 w-4 text-amber-700 dark:text-amber-300" />
