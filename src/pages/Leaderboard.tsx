@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TIERS, getTierByXP } from "@/components/RankingBoard";
 import { getSafeDisplayName } from "@/lib/safeDisplayName";
-import { Crown, Trophy, Medal, TrendingUp, Users, Sparkles, Zap, Award, RotateCcw, Loader2, ShieldAlert, RefreshCw } from "lucide-react";
+import { Crown, Trophy, Medal, TrendingUp, Users, Sparkles, Zap, Award, RotateCcw, Loader2, ShieldAlert, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
+import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
 import { toast } from "sonner";
 
 interface RankedUser {
@@ -46,12 +47,22 @@ export default function Leaderboard() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [recalculating, setRecalculating] = useState(false);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     fetchAllRankings();
     fetchHallOfFame();
     checkAdminRole();
   }, [user]);
+
+  useEffect(() => {
+    if (!carouselApi) return;
+    const onSelect = () => setCurrentSlide(carouselApi.selectedScrollSnap());
+    carouselApi.on('select', onSelect);
+    onSelect();
+    return () => { carouselApi.off('select', onSelect); };
+  }, [carouselApi]);
 
   const checkAdminRole = async () => {
     if (!user) { setIsAdmin(false); return; }
@@ -259,41 +270,90 @@ export default function Leaderboard() {
 
         {/* Hall of Fame */}
         {hallOfFame.length > 0 && (
-          <Card className="p-4 bg-gradient-to-br from-amber-100 to-yellow-50 dark:from-amber-900/40 dark:to-yellow-900/30 border-amber-300 dark:border-amber-700">
-            <div className="flex items-center gap-2 mb-3">
-              <Award className="h-5 w-5 text-amber-600" />
-              <h3 className="font-bold text-amber-800 dark:text-amber-200">
-                {language === 'th' ? 'หอเกียรติยศ' : 'Hall of Fame'}
-              </h3>
-            </div>
-            {hallOfFame.map((entry) => (
-              <div key={entry.id} className="bg-white/60 dark:bg-black/20 rounded-lg p-3">
-                <p className="text-xs text-amber-700 dark:text-amber-300 mb-2">
-                  {entry.season_label}
-                </p>
-                <p className="text-xs text-muted-foreground mb-2">
-                  {language === 'th' ? 'คะแนนสุขภาพสูงสุดประจำเซิร์ฟเวอร์' : 'Top Health Score of the Server'}
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center ring-2 ring-amber-500">
-                    <Crown className="h-6 w-6 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="font-bold text-amber-800 dark:text-amber-200">
-                        {getSafeDisplayName(entry.display_name, entry.user_id, 'Champion', user?.id)}
-                      </p>
-                      <Badge className="bg-amber-500 text-white text-xs">
-                        {language === 'th' ? 'แชมป์ Season 1' : 'Season 1 Champion'}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-amber-700 dark:text-amber-300">
-                      {entry.score.toLocaleString()} XP
-                    </p>
-                  </div>
-                </div>
+          <Card className="p-4 bg-gradient-to-br from-amber-100 to-yellow-50 dark:from-amber-900/40 dark:to-yellow-900/30 border-amber-300 dark:border-amber-700 overflow-hidden">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Award className="h-5 w-5 text-amber-600" />
+                <h3 className="font-bold text-amber-800 dark:text-amber-200">
+                  {language === 'th' ? 'หอเกียรติยศ' : 'Hall of Fame'}
+                </h3>
               </div>
-            ))}
+              {hallOfFame.length > 1 && (
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => carouselApi?.scrollPrev()}
+                    className="h-7 w-7 rounded-full bg-amber-200/60 dark:bg-amber-800/40 flex items-center justify-center hover:bg-amber-300/80 dark:hover:bg-amber-700/60 transition-colors"
+                  >
+                    <ChevronLeft className="h-4 w-4 text-amber-700 dark:text-amber-300" />
+                  </button>
+                  <button
+                    onClick={() => carouselApi?.scrollNext()}
+                    className="h-7 w-7 rounded-full bg-amber-200/60 dark:bg-amber-800/40 flex items-center justify-center hover:bg-amber-300/80 dark:hover:bg-amber-700/60 transition-colors"
+                  >
+                    <ChevronRight className="h-4 w-4 text-amber-700 dark:text-amber-300" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <Carousel
+              opts={{ loop: hallOfFame.length > 1, align: 'start' }}
+              setApi={setCarouselApi}
+              className="w-full"
+            >
+              <CarouselContent className="-ml-0">
+                {hallOfFame.map((entry, idx) => {
+                  const seasonNum = entry.season_key.match(/S(\d+)/)?.[1] || String(idx + 1);
+                  return (
+                    <CarouselItem key={entry.id} className="pl-0 basis-full">
+                      <div className="bg-white/60 dark:bg-black/20 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <p className="text-xs font-semibold text-amber-700 dark:text-amber-300">
+                            {entry.season_label}
+                          </p>
+                          <Badge className="bg-amber-500 text-white text-[10px]">
+                            {language === 'th' ? `แชมป์ Season ${seasonNum}` : `Season ${seasonNum} Champion`}
+                          </Badge>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground mb-3">
+                          {language === 'th' ? 'คะแนนสุขภาพสูงสุดประจำเซิร์ฟเวอร์' : 'Top Health Score of the Server'}
+                        </p>
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center ring-2 ring-amber-500 shrink-0">
+                            <Crown className="h-6 w-6 text-white" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-amber-800 dark:text-amber-200 truncate">
+                              {getSafeDisplayName(entry.display_name, entry.user_id, 'Champion', user?.id)}
+                            </p>
+                            <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+                              {entry.score.toLocaleString()} XP
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
+            </Carousel>
+
+            {/* Pagination dots */}
+            {hallOfFame.length > 1 && (
+              <div className="flex justify-center gap-1.5 mt-3">
+                {hallOfFame.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => carouselApi?.scrollTo(idx)}
+                    className={`h-1.5 rounded-full transition-all ${
+                      idx === currentSlide
+                        ? 'w-5 bg-amber-600 dark:bg-amber-400'
+                        : 'w-1.5 bg-amber-300 dark:bg-amber-700'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
           </Card>
         )}
 
