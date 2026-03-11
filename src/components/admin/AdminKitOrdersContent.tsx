@@ -546,7 +546,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     toast.success(language === 'th' ? 'คัดลอกแล้ว' : 'Copied!');
   };
 
-  // Batch selection helpers (paginatedHIVRequests defined after filteredHIVRequests below)
+  // Batch selection helpers defined after filteredHIVRequests below
 
   const toggleSelect = useCallback((id: string) => {
     setSelectedIds(prev => {
@@ -556,12 +556,6 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       return next;
     });
   }, []);
-
-  const selectAllVisible = useCallback(() => {
-    // will be called after filteredHIVRequests is available via closure
-    const paginated = filteredHIVRequests.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-    setSelectedIds(new Set(paginated.map(r => r.id)));
-  }, [filteredHIVRequests, currentPage, pageSize]);
 
   const deselectAll = useCallback(() => {
     setSelectedIds(new Set());
