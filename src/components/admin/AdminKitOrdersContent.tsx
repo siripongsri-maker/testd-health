@@ -546,8 +546,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     toast.success(language === 'th' ? 'คัดลอกแล้ว' : 'Copied!');
   };
 
-  // Batch selection helpers
-  const paginatedHIVRequests = filteredHIVRequests.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  // Batch selection helpers (paginatedHIVRequests defined after filteredHIVRequests below)
 
   const toggleSelect = useCallback((id: string) => {
     setSelectedIds(prev => {
