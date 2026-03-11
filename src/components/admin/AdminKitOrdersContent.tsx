@@ -536,9 +536,97 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     }
   };
 
+  const copyField = useCallback((value: string, fieldLabel: string) => {
+    navigator.clipboard.writeText(value);
+    toast.success(fieldLabel);
+  }, []);
+
   const copyCode = (code: string) => {
     navigator.clipboard.writeText(code);
     toast.success(language === 'th' ? 'คัดลอกแล้ว' : 'Copied!');
+  };
+
+  // Batch selection helpers
+  const paginatedHIVRequests = filteredHIVRequests.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const selectAllVisible = useCallback(() => {
+    setSelectedIds(new Set(paginatedHIVRequests.map(r => r.id)));
+  }, [paginatedHIVRequests]);
+
+  const deselectAll = useCallback(() => {
+    setSelectedIds(new Set());
+  }, []);
+
+  // Reset selection on filter/tab/search change
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [activeTab, searchQuery, branchFilter, dataSource, currentPage]);
+
+  // Batch edit handler
+  const executeBatchEdit = async () => {
+    if (selectedIds.size === 0) return;
+    setSavingBatch(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    try {
+      const ids = Array.from(selectedIds);
+      const updateData: Record<string, any> = { updated_at: new Date().toISOString() };
+
+      if (batchEditField === 'status' && batchEditValue) {
+        updateData.status = batchEditValue;
+      }
+      if (batchEditField === 'tracking' && batchEditTracking) {
+        updateData.tracking_number = batchEditTracking;
+      }
+      if (batchEditField === 'status_and_tracking') {
+        if (batchEditValue) updateData.status = batchEditValue;
+        if (batchEditTracking) updateData.tracking_number = batchEditTracking;
+      }
+
+      if (Object.keys(updateData).length <= 1) {
+        toast.error(language === 'th' ? 'กรุณาเลือกค่าที่ต้องการแก้ไข' : 'Please select values to update');
+        setSavingBatch(false);
+        return;
+      }
+
+      const { error } = await supabase
+        .from('hiv_selftest_requests')
+        .update(updateData)
+        .in('id', ids);
+
+      if (error) throw error;
+      successCount = ids.length;
+
+      toast.success(
+        language === 'th'
+          ? `อัปเดตสำเร็จ ${successCount} รายการ`
+          : `Updated ${successCount} records successfully`
+      );
+      setShowBatchEditDialog(false);
+      setSelectedIds(new Set());
+      setBatchEditValue('');
+      setBatchEditTracking('');
+      fetchHIVRequests();
+    } catch (error: any) {
+      console.error('Batch edit error:', error);
+      toast.error(
+        language === 'th'
+          ? `เกิดข้อผิดพลาด: ${error.message}`
+          : `Error: ${error.message}`
+      );
+    } finally {
+      setSavingBatch(false);
+    }
   };
 
   const getStatusBadge = (status: OrderStatus) => {
