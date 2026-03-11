@@ -56,6 +56,14 @@ export default function Leaderboard() {
     checkAdminRole();
   }, [user]);
 
+  useEffect(() => {
+    if (!carouselApi) return;
+    const onSelect = () => setCurrentSlide(carouselApi.selectedScrollSnap());
+    carouselApi.on('select', onSelect);
+    onSelect();
+    return () => { carouselApi.off('select', onSelect); };
+  }, [carouselApi]);
+
   const checkAdminRole = async () => {
     if (!user) { setIsAdmin(false); return; }
     const { data } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' });
