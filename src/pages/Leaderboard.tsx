@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,8 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TIERS, getTierByXP } from "@/components/RankingBoard";
 import { getSafeDisplayName } from "@/lib/safeDisplayName";
-import { Crown, Trophy, Medal, TrendingUp, Users, Sparkles, Zap, Award, RotateCcw, Loader2, ShieldAlert, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
-import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
+import { Crown, Trophy, Medal, TrendingUp, Users, Sparkles, Zap, Award, RotateCcw, Loader2, ShieldAlert, RefreshCw, ChevronDown, Star } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "sonner";
 
 interface RankedUser {
@@ -47,8 +47,6 @@ export default function Leaderboard() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [recalculating, setRecalculating] = useState(false);
-  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
-  const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     fetchAllRankings();
@@ -56,42 +54,6 @@ export default function Leaderboard() {
     checkAdminRole();
   }, [user]);
 
-  // Carousel slide tracking & auto-rotate
-  const autoplayRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const resumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const startAutoplay = useCallback(() => {
-    if (!carouselApi || hallOfFame.length <= 1) return;
-    stopAutoplay();
-    autoplayRef.current = setInterval(() => {
-      carouselApi.scrollNext();
-    }, 5000);
-  }, [carouselApi, hallOfFame.length]);
-
-  const stopAutoplay = useCallback(() => {
-    if (autoplayRef.current) { clearInterval(autoplayRef.current); autoplayRef.current = null; }
-    if (resumeTimeoutRef.current) { clearTimeout(resumeTimeoutRef.current); resumeTimeoutRef.current = null; }
-  }, []);
-
-  const pauseAndResume = useCallback(() => {
-    stopAutoplay();
-    resumeTimeoutRef.current = setTimeout(() => startAutoplay(), 8000);
-  }, [stopAutoplay, startAutoplay]);
-
-  useEffect(() => {
-    if (!carouselApi) return;
-    const onSelect = () => setCurrentSlide(carouselApi.selectedScrollSnap());
-    const onPointerDown = () => pauseAndResume();
-    carouselApi.on('select', onSelect);
-    carouselApi.on('pointerDown', onPointerDown);
-    onSelect();
-    startAutoplay();
-    return () => {
-      carouselApi.off('select', onSelect);
-      carouselApi.off('pointerDown', onPointerDown);
-      stopAutoplay();
-    };
-  }, [carouselApi, startAutoplay, stopAutoplay, pauseAndResume]);
 
   const checkAdminRole = async () => {
     if (!user) { setIsAdmin(false); return; }
@@ -297,91 +259,140 @@ export default function Leaderboard() {
           </p>
         </div>
 
-        {/* Hall of Fame */}
+        {/* Hall of Fame — Champion Archive */}
         {hallOfFame.length > 0 && (
           <Card className="p-4 bg-gradient-to-br from-amber-100 to-yellow-50 dark:from-amber-900/40 dark:to-yellow-900/30 border-amber-300 dark:border-amber-700 overflow-hidden">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Award className="h-5 w-5 text-amber-600" />
+            {/* Header */}
+            <div className="flex items-center gap-2 mb-4">
+              <div className="relative">
+                <Award className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+                <Star className="h-3 w-3 text-amber-500 absolute -top-1 -right-1 animate-pulse" />
+              </div>
+              <div>
                 <h3 className="font-bold text-amber-800 dark:text-amber-200">
                   {language === 'th' ? 'หอเกียรติยศ' : 'Hall of Fame'}
                 </h3>
+                <p className="text-[10px] text-amber-600/70 dark:text-amber-400/70">
+                  {language === 'th' ? 'แชมเปี้ยนประจำแต่ละซีซัน' : 'Season Champions Archive'}
+                </p>
               </div>
-              {hallOfFame.length > 1 && (
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => { carouselApi?.scrollPrev(); pauseAndResume(); }}
-                    className="h-7 w-7 rounded-full bg-amber-200/60 dark:bg-amber-800/40 flex items-center justify-center hover:bg-amber-300/80 dark:hover:bg-amber-700/60 transition-colors"
-                  >
-                    <ChevronLeft className="h-4 w-4 text-amber-700 dark:text-amber-300" />
-                  </button>
-                  <button
-                    onClick={() => { carouselApi?.scrollNext(); pauseAndResume(); }}
-                    className="h-7 w-7 rounded-full bg-amber-200/60 dark:bg-amber-800/40 flex items-center justify-center hover:bg-amber-300/80 dark:hover:bg-amber-700/60 transition-colors"
-                  >
-                    <ChevronRight className="h-4 w-4 text-amber-700 dark:text-amber-300" />
-                  </button>
-                </div>
-              )}
+              <Badge className="ml-auto bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-400/30 text-[10px]">
+                {hallOfFame.length} {language === 'th' ? 'ซีซัน' : 'seasons'}
+              </Badge>
             </div>
 
-            <Carousel
-              opts={{ loop: hallOfFame.length > 1, align: 'start' }}
-              setApi={setCarouselApi}
-              className="w-full"
-            >
-              <CarouselContent className="-ml-0">
-                {hallOfFame.map((entry, idx) => {
-                  const seasonNum = entry.season_key.match(/S(\d+)/)?.[1] || String(idx + 1);
-                  return (
-                    <CarouselItem key={entry.id} className="pl-0 basis-full">
-                      <div className="bg-white/60 dark:bg-black/20 rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <p className="text-xs font-semibold text-amber-700 dark:text-amber-300">
-                            {entry.season_label}
-                          </p>
-                          <Badge className="bg-amber-500 text-white text-[10px]">
-                            {language === 'th' ? `แชมป์ Season ${seasonNum}` : `Season ${seasonNum} Champion`}
-                          </Badge>
-                        </div>
-                        <p className="text-[10px] text-muted-foreground mb-3">
-                          {language === 'th' ? 'คะแนนสุขภาพสูงสุดประจำเซิร์ฟเวอร์' : 'Top Health Score of the Server'}
+            {/* Featured Latest Champion */}
+            {(() => {
+              const latest = hallOfFame[0];
+              const seasonNum = latest.season_key.match(/S(\d+)/)?.[1] || '1';
+              const safeName = getSafeDisplayName(latest.display_name, latest.user_id, 'Champion', user?.id);
+              return (
+                <div className="relative bg-gradient-to-br from-amber-200/80 via-yellow-100/60 to-amber-100/80 dark:from-amber-800/50 dark:via-yellow-900/30 dark:to-amber-900/40 rounded-xl p-4 mb-3 border border-amber-300/50 dark:border-amber-600/30">
+                  {/* Shimmer overlay */}
+                  <div className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none">
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_3s_ease-in-out_infinite] -translate-x-full" 
+                      style={{ animation: 'shimmer 3s ease-in-out infinite' }} />
+                  </div>
+                  
+                  <div className="flex items-center gap-2 mb-3">
+                    <Badge className="bg-amber-500 text-white text-[10px] shadow-sm">
+                      <Crown className="h-3 w-3 mr-1" />
+                      {language === 'th' ? `แชมป์ Season ${seasonNum}` : `Season ${seasonNum} Champion`}
+                    </Badge>
+                  </div>
+                  <p className="text-[10px] text-amber-700/70 dark:text-amber-300/70 mb-2">
+                    {latest.season_label}
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center ring-2 ring-amber-400/60 shadow-lg shrink-0">
+                      <Crown className="h-7 w-7 text-white drop-shadow" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-lg text-amber-900 dark:text-amber-100 truncate">
+                        {safeName}
+                      </p>
+                      <div className="flex items-center gap-1.5">
+                        <Zap className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                        <p className="text-sm font-bold text-amber-700 dark:text-amber-300">
+                          {latest.score.toLocaleString()} XP
                         </p>
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center ring-2 ring-amber-500 shrink-0">
-                            <Crown className="h-6 w-6 text-white" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-bold text-amber-800 dark:text-amber-200 truncate">
-                              {getSafeDisplayName(entry.display_name, entry.user_id, 'Champion', user?.id)}
-                            </p>
-                            <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">
-                              {entry.score.toLocaleString()} XP
-                            </p>
-                          </div>
-                        </div>
                       </div>
-                    </CarouselItem>
-                  );
-                })}
-              </CarouselContent>
-            </Carousel>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
 
-            {/* Pagination dots */}
+            {/* Past Seasons Accordion */}
             {hallOfFame.length > 1 && (
-              <div className="flex justify-center gap-1.5 mt-3">
-                {hallOfFame.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => { carouselApi?.scrollTo(idx); pauseAndResume(); }}
-                    className={`h-1.5 rounded-full transition-all ${
-                      idx === currentSlide
-                        ? 'w-5 bg-amber-600 dark:bg-amber-400'
-                        : 'w-1.5 bg-amber-300 dark:bg-amber-700'
-                    }`}
-                  />
-                ))}
+              <div>
+                <p className="text-[11px] font-medium text-amber-700/60 dark:text-amber-400/50 mb-2 uppercase tracking-wider">
+                  {language === 'th' ? 'ซีซันก่อนหน้า' : 'Previous Seasons'}
+                </p>
+                <Accordion type="single" collapsible className="space-y-1.5">
+                  {hallOfFame.slice(1).map((entry, idx) => {
+                    const seasonNum = entry.season_key.match(/S(\d+)/)?.[1] || String(idx + 2);
+                    const safeName = getSafeDisplayName(entry.display_name, entry.user_id, 'Champion', user?.id);
+                    const capturedDate = new Date(entry.captured_at);
+                    return (
+                      <AccordionItem
+                        key={entry.id}
+                        value={entry.id}
+                        className="border-amber-200/50 dark:border-amber-700/30 bg-white/40 dark:bg-black/10 rounded-lg px-3 overflow-hidden"
+                      >
+                        <AccordionTrigger className="py-2.5 hover:no-underline gap-2">
+                          <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                            <div className="w-8 h-8 rounded-full bg-amber-200/60 dark:bg-amber-800/40 flex items-center justify-center shrink-0">
+                              <Trophy className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                            </div>
+                            <div className="flex-1 min-w-0 text-left">
+                              <p className="text-sm font-semibold text-amber-800 dark:text-amber-200 truncate">
+                                Season {seasonNum}
+                              </p>
+                              <p className="text-[10px] text-amber-600/60 dark:text-amber-400/50">
+                                {capturedDate.toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US', { month: 'short', year: 'numeric' })}
+                              </p>
+                            </div>
+                            <p className="text-xs font-medium text-amber-700/70 dark:text-amber-300/70 shrink-0 mr-1">
+                              {safeName}
+                            </p>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="pb-2 pt-0.5">
+                            <div className="flex items-center gap-3 bg-amber-100/50 dark:bg-amber-900/20 rounded-lg p-3">
+                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center ring-2 ring-amber-400/40 shrink-0">
+                                <Crown className="h-5 w-5 text-white" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-bold text-amber-800 dark:text-amber-200 truncate">
+                                  {safeName}
+                                </p>
+                                <p className="text-[10px] text-amber-600/60 dark:text-amber-400/50">
+                                  {entry.season_label}
+                                </p>
+                              </div>
+                              <div className="text-right shrink-0">
+                                <p className="font-bold text-amber-700 dark:text-amber-300">
+                                  {entry.score.toLocaleString()}
+                                </p>
+                                <p className="text-[10px] text-amber-600/50 dark:text-amber-400/40">XP</p>
+                              </div>
+                            </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    );
+                  })}
+                </Accordion>
               </div>
+            )}
+
+            {/* Empty fallback for single season with no data */}
+            {hallOfFame.length === 1 && !hallOfFame[0].display_name && (
+              <p className="text-xs text-center text-amber-600/50 dark:text-amber-400/40 mt-2">
+                {language === 'th' ? 'ยังไม่มีผู้ชนะประจำซีซันนี้' : 'No champion yet'}
+              </p>
             )}
           </Card>
         )}
