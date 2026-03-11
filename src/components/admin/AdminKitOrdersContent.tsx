@@ -1739,6 +1739,60 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Batch Edit Dialog */}
+      <Dialog open={showBatchEditDialog} onOpenChange={setShowBatchEditDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pencil className="h-5 w-5" />
+              {language === 'th' ? 'แก้ไขหลายรายการ' : 'Batch Edit'}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="p-3 bg-muted rounded-lg text-sm">
+              {language === 'th'
+                ? `จะแก้ไข ${selectedIds.size} รายการที่เลือก`
+                : `Will update ${selectedIds.size} selected records`}
+            </div>
+
+            <div>
+              <Label>{language === 'th' ? 'เปลี่ยนสถานะ' : 'Change Status'}</Label>
+              <Select value={batchEditValue} onValueChange={setBatchEditValue}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder={language === 'th' ? 'เลือกสถานะ (ไม่บังคับ)' : 'Select status (optional)'} />
+                </SelectTrigger>
+                <SelectContent>
+                  {HIV_STATUS_OPTIONS.map(opt => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {language === 'th' ? opt.labelTh : opt.labelEn}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>{language === 'th' ? 'เลขพัสดุ' : 'Tracking Number'}</Label>
+              <Input
+                className="mt-1"
+                value={batchEditTracking}
+                onChange={(e) => setBatchEditTracking(e.target.value)}
+                placeholder={language === 'th' ? 'ใส่เลขพัสดุ (ไม่บังคับ)' : 'Tracking # (optional)'}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowBatchEditDialog(false)}>
+              {language === 'th' ? 'ยกเลิก' : 'Cancel'}
+            </Button>
+            <Button onClick={executeBatchEdit} disabled={savingBatch || (!batchEditValue && !batchEditTracking)}>
+              {savingBatch && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {language === 'th' ? `ยืนยันแก้ไข ${selectedIds.size} รายการ` : `Update ${selectedIds.size} Records`}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
