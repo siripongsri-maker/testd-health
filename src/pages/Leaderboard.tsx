@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,8 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TIERS, getTierByXP } from "@/components/RankingBoard";
 import { getSafeDisplayName } from "@/lib/safeDisplayName";
-import { Crown, Trophy, Medal, TrendingUp, Users, Sparkles, Zap, Award, RotateCcw, Loader2, ShieldAlert, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
-import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
+import { Crown, Trophy, Medal, TrendingUp, Users, Sparkles, Zap, Award, RotateCcw, Loader2, ShieldAlert, RefreshCw, ChevronDown, Star } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { toast } from "sonner";
 
 interface RankedUser {
