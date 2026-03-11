@@ -47,6 +47,8 @@ export default function Leaderboard() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [recalculating, setRecalculating] = useState(false);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
     fetchAllRankings();
