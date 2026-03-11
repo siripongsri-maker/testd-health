@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TIERS, getTierByXP } from "@/components/RankingBoard";
 import { getSafeDisplayName } from "@/lib/safeDisplayName";
-import { Crown, Trophy, Medal, TrendingUp, Users, Sparkles, Zap, Award, RotateCcw, Loader2, ShieldAlert, RefreshCw } from "lucide-react";
+import { Crown, Trophy, Medal, TrendingUp, Users, Sparkles, Zap, Award, RotateCcw, Loader2, ShieldAlert, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
+import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
 import { toast } from "sonner";
 
 interface RankedUser {
