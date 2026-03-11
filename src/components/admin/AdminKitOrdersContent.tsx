@@ -1083,6 +1083,37 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                 </div>
               </div>
 
+              {/* Batch Action Bar */}
+              {selectedIds.size > 0 && (
+                <div className="flex items-center gap-2 p-3 bg-primary/10 border border-primary/20 rounded-lg mb-3">
+                  <CheckSquare className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium">
+                    {language === 'th' ? `เลือกแล้ว ${selectedIds.size} รายการ` : `${selectedIds.size} selected`}
+                  </span>
+                  <div className="flex-1" />
+                  <Button size="sm" variant="outline" onClick={selectAllVisible} className="h-7 text-xs">
+                    {language === 'th' ? 'เลือกทั้งหมด' : 'Select All'}
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={deselectAll} className="h-7 text-xs">
+                    {language === 'th' ? 'ยกเลิกทั้งหมด' : 'Deselect All'}
+                  </Button>
+                  <Button size="sm" onClick={() => { setBatchEditField('status_and_tracking'); setBatchEditValue(''); setBatchEditTracking(''); setShowBatchEditDialog(true); }} className="h-7 text-xs gap-1">
+                    <Pencil className="h-3 w-3" />
+                    {language === 'th' ? 'แก้ไขหลายรายการ' : 'Batch Edit'}
+                  </Button>
+                </div>
+              )}
+
+              {/* Select All / Deselect All when nothing selected */}
+              {selectedIds.size === 0 && filteredHIVRequests.length > 0 && (
+                <div className="flex items-center gap-2 mb-3">
+                  <Button size="sm" variant="ghost" onClick={selectAllVisible} className="h-7 text-xs gap-1 text-muted-foreground">
+                    <Square className="h-3 w-3" />
+                    {language === 'th' ? 'เลือกทั้งหมด' : 'Select All'}
+                  </Button>
+                </div>
+              )}
+
               <ScrollArea className="h-[55vh]">
                 <div className="space-y-3">
                   {filteredHIVRequests.length === 0 ? (
@@ -1093,35 +1124,50 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                       </p>
                     </Card>
                   ) : (
-                    filteredHIVRequests
-                      .slice((currentPage - 1) * pageSize, currentPage * pageSize)
-                      .map((request) => (
-                      <Card key={request.id} className={`p-4 ${request.status === 'rejected' ? 'border-destructive/50 bg-destructive/5' : ''} ${request.abuse_flag ? 'border-yellow-500/50' : ''}`}>
+                    paginatedHIVRequests.map((request) => (
+                      <Card key={request.id} className={`p-4 ${request.status === 'rejected' ? 'border-destructive/50 bg-destructive/5' : ''} ${request.abuse_flag ? 'border-yellow-500/50' : ''} ${selectedIds.has(request.id) ? 'ring-2 ring-primary/50' : ''}`}>
                         <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <p className="font-medium">
-                                {request.selftest_pii?.full_name || (language === 'th' ? 'ไม่ระบุชื่อ' : 'No name')}
-                              </p>
-                              {request.abuse_flag && (
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger>
-                                      <Badge variant="outline" className="text-[10px] border-yellow-500 text-yellow-600 gap-1">
-                                        <AlertTriangle className="h-3 w-3" />
-                                        {language === 'th' ? 'ตรวจสอบ' : 'Flagged'}
-                                      </Badge>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p className="text-xs">{request.abuse_reason || 'Potential duplicate/frequency issue'}</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
+                          <div className="flex items-start gap-2">
+                            <Checkbox
+                              checked={selectedIds.has(request.id)}
+                              onCheckedChange={() => toggleSelect(request.id)}
+                              className="mt-1"
+                            />
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium">
+                                  {request.selftest_pii?.full_name || (language === 'th' ? 'ไม่ระบุชื่อ' : 'No name')}
+                                </p>
+                                {request.selftest_pii?.full_name && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-5 w-5 p-0 text-muted-foreground hover:text-foreground"
+                                    onClick={() => copyField(request.selftest_pii?.full_name || '', language === 'th' ? 'คัดลอกชื่อแล้ว' : 'Name copied')}
+                                  >
+                                    <Copy className="h-3 w-3" />
+                                  </Button>
+                                )}
+                                {request.abuse_flag && (
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger>
+                                        <Badge variant="outline" className="text-[10px] border-yellow-500 text-yellow-600 gap-1">
+                                          <AlertTriangle className="h-3 w-3" />
+                                          {language === 'th' ? 'ตรวจสอบ' : 'Flagged'}
+                                        </Badge>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p className="text-xs">{request.abuse_reason || 'Potential duplicate/frequency issue'}</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                )}
+                              </div>
+                              {request.selftest_pii?.phone && (
+                                <p className="text-sm text-muted-foreground">{request.selftest_pii.phone}</p>
                               )}
                             </div>
-                            {request.selftest_pii?.phone && (
-                              <p className="text-sm text-muted-foreground">{request.selftest_pii.phone}</p>
-                            )}
                           </div>
                           <div className="flex items-center gap-2">
                             {request.assigned_branch && (
@@ -1137,35 +1183,51 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
 
                         {/* Rejection reason display */}
                         {request.status === 'rejected' && request.rejection_reason && (
-                          <div className="text-xs text-destructive bg-destructive/10 rounded px-2 py-1 mb-2 flex items-center gap-1">
+                          <div className="text-xs text-destructive bg-destructive/10 rounded px-2 py-1 mb-2 flex items-center gap-1 ml-6">
                             <XCircle className="h-3 w-3" />
                             {request.rejection_reason}
                           </div>
                         )}
 
                         {request.selftest_pii?.address && (
-                          <p className="text-xs text-muted-foreground mb-2">
-                            {request.selftest_pii.address}
-                            {request.selftest_pii.subdistrict && `, ${request.selftest_pii.subdistrict}`}
-                            {request.selftest_pii.district && `, ${request.selftest_pii.district}`}
-                            {request.selftest_pii.province && `, ${request.selftest_pii.province}`}
-                            {request.selftest_pii.postal_code && ` ${request.selftest_pii.postal_code}`}
-                          </p>
+                          <div className="flex items-start gap-1 mb-2 ml-6">
+                            <p className="text-xs text-muted-foreground flex-1">
+                              {request.selftest_pii.address}
+                              {request.selftest_pii.subdistrict && `, ${request.selftest_pii.subdistrict}`}
+                              {request.selftest_pii.district && `, ${request.selftest_pii.district}`}
+                              {request.selftest_pii.province && `, ${request.selftest_pii.province}`}
+                              {request.selftest_pii.postal_code && ` ${request.selftest_pii.postal_code}`}
+                            </p>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-5 w-5 p-0 shrink-0 text-muted-foreground hover:text-foreground"
+                              onClick={() => {
+                                const addr = [
+                                  request.selftest_pii?.address,
+                                  request.selftest_pii?.subdistrict,
+                                  request.selftest_pii?.district,
+                                  request.selftest_pii?.province,
+                                  request.selftest_pii?.postal_code,
+                                ].filter(Boolean).join(' ');
+                                copyField(addr, language === 'th' ? 'คัดลอกที่อยู่แล้ว' : 'Address copied');
+                              }}
+                            >
+                              <Copy className="h-3 w-3" />
+                            </Button>
+                          </div>
                         )}
 
                         {request.selftest_pii?.thai_id && (
-                          <div className="flex items-center gap-2 mb-2">
+                          <div className="flex items-center gap-2 mb-2 ml-6">
                             <Badge variant="outline" className="font-mono text-xs">
                               {request.selftest_pii.thai_id}
                             </Badge>
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="h-6 w-6 p-0"
-                              onClick={() => {
-                                navigator.clipboard.writeText(request.selftest_pii?.thai_id || '');
-                                toast.success(language === 'th' ? 'คัดลอกแล้ว' : 'Copied');
-                              }}
+                              className="h-5 w-5 p-0 text-muted-foreground hover:text-foreground"
+                              onClick={() => copyField(request.selftest_pii?.thai_id || '', language === 'th' ? 'คัดลอกเลขบัตรแล้ว' : 'ID copied')}
                             >
                               <Copy className="h-3 w-3" />
                             </Button>
