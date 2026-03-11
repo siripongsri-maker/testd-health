@@ -56,13 +56,42 @@ export default function Leaderboard() {
     checkAdminRole();
   }, [user]);
 
+  // Carousel slide tracking & auto-rotate
+  const autoplayRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const resumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const startAutoplay = useCallback(() => {
+    if (!carouselApi || hallOfFame.length <= 1) return;
+    stopAutoplay();
+    autoplayRef.current = setInterval(() => {
+      carouselApi.scrollNext();
+    }, 5000);
+  }, [carouselApi, hallOfFame.length]);
+
+  const stopAutoplay = useCallback(() => {
+    if (autoplayRef.current) { clearInterval(autoplayRef.current); autoplayRef.current = null; }
+    if (resumeTimeoutRef.current) { clearTimeout(resumeTimeoutRef.current); resumeTimeoutRef.current = null; }
+  }, []);
+
+  const pauseAndResume = useCallback(() => {
+    stopAutoplay();
+    resumeTimeoutRef.current = setTimeout(() => startAutoplay(), 8000);
+  }, [stopAutoplay, startAutoplay]);
+
   useEffect(() => {
     if (!carouselApi) return;
     const onSelect = () => setCurrentSlide(carouselApi.selectedScrollSnap());
+    const onPointerDown = () => pauseAndResume();
     carouselApi.on('select', onSelect);
+    carouselApi.on('pointerDown', onPointerDown);
     onSelect();
-    return () => { carouselApi.off('select', onSelect); };
-  }, [carouselApi]);
+    startAutoplay();
+    return () => {
+      carouselApi.off('select', onSelect);
+      carouselApi.off('pointerDown', onPointerDown);
+      stopAutoplay();
+    };
+  }, [carouselApi, startAutoplay, stopAutoplay, pauseAndResume]);
 
   const checkAdminRole = async () => {
     if (!user) { setIsAdmin(false); return; }
