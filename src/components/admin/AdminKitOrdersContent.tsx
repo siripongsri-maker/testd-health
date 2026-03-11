@@ -219,6 +219,14 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const [rejectionReasonCustom, setRejectionReasonCustom] = useState('');
   const [rejecting, setRejecting] = useState(false);
 
+  // Batch selection state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showBatchEditDialog, setShowBatchEditDialog] = useState(false);
+  const [batchEditField, setBatchEditField] = useState<string>('status');
+  const [batchEditValue, setBatchEditValue] = useState('');
+  const [batchEditTracking, setBatchEditTracking] = useState('');
+  const [savingBatch, setSavingBatch] = useState(false);
+
   useEffect(() => {
     fetchOrders();
     fetchHIVRequests();
