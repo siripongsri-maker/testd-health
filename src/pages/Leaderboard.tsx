@@ -373,7 +373,7 @@ export default function Leaderboard() {
                 {hallOfFame.map((_, idx) => (
                   <button
                     key={idx}
-                    onClick={() => carouselApi?.scrollTo(idx)}
+                    onClick={() => { carouselApi?.scrollTo(idx); pauseAndResume(); }}
                     className={`h-1.5 rounded-full transition-all ${
                       idx === currentSlide
                         ? 'w-5 bg-amber-600 dark:bg-amber-400'
