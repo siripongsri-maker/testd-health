@@ -19,7 +19,7 @@ export function MedicationWidget({ onStatusChange }: MedicationWidgetProps) {
   const [reminderTime, setReminderTime] = useState(() => {
     return localStorage.getItem('medReminderTime') || '20:00';
   });
-  const reminderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const reminderTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
   const [countdown, setCountdown] = useState<string>('');
   const [isLate, setIsLate] = useState(false);
