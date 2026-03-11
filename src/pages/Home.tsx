@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+// Force rebuild — stale module cache fix
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
