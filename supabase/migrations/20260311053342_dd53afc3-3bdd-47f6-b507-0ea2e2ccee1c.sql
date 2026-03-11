@@ -1,0 +1,1 @@
+UPDATE hall_of_fame SET season_key = 'S3_2026_01', season_label = 'Season 3 — January 2026 (มกราคม 2569)' WHERE id = '28404db9-5e92-49e1-a6da-d78d8818d447';
