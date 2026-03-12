@@ -18,6 +18,7 @@ import {
 
 interface Props {
   userId?: string;
+  onNavigateSupport?: () => void;
 }
 
 interface ScreeningData {
