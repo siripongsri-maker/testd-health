@@ -9,7 +9,7 @@ import { AdminStatCard } from "@/components/admin/analytics/AdminStatCard";
 import {
   Users, ClipboardCheck, HeartHandshake, Shield, Eye,
   AlertTriangle, Sparkles, Timer, Bell, MessageCircle,
-  Check, X,
+  Check, X, Smile,
 } from "lucide-react";
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend,
