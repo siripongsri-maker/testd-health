@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertTriangle, Droplets, Heart, Shield, Pill, Zap,
   CheckCircle2, XCircle, HelpCircle, ChevronRight,
-  TestTube, MessageCircle, Package,
+  TestTube, MessageCircle, Package, ClipboardCheck,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { trackEvent } from "@/hooks/useAnalytics";
