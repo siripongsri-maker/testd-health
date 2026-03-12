@@ -792,7 +792,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     toast.success(language === 'th' ? 'ดาวน์โหลด CSV สำเร็จ' : 'CSV downloaded successfully');
   };
 
-  const exportToGoogleSheets = () => {
+  const exportToGoogleSheets = async () => {
     let data: string[][] = [];
     
     if (dataSource === "kit_orders") {
