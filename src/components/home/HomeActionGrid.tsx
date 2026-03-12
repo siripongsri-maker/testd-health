@@ -102,14 +102,14 @@ export function HomeActionGrid() {
       titleKey: 'home.preventionMatch',
       path: '/prevention-match',
     },
+    {
+      icon: <ShieldHalf className="h-full w-full" strokeWidth={1.5} />,
+      titleTh: language === 'th' ? 'Harm Reduction' : 'Harm Reduction',
+      path: '/harm-reduction',
+    },
   ];
 
-  // Row 3 — Support (harm reduction + counselor + support chat + wide medication widget)
-  const row3HarmReduction = {
-    icon: <ShieldHalf className="h-full w-full" strokeWidth={1.5} />,
-    titleTh: language === 'th' ? 'Harm Reduction' : 'Harm Reduction',
-    path: '/harm-reduction',
-  };
+  // Row 3 — Support (counselor + support chat + wide medication widget)
   const row3Counselor = {
     icon: <MessageCircle className="h-full w-full" strokeWidth={1.5} />,
     titleKey: 'home.onlineCounselor',
