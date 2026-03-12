@@ -117,11 +117,12 @@ export { LANDING_PAGES };
 export type { LandingPageConfig };
 
 export default function SEOLandingPage() {
-  const { slug } = useParams<{ slug: string }>();
+  const location = useLocation();
   const navigate = useNavigate();
   const { language } = useLanguage();
   const isEn = language === "en";
 
+  const slug = location.pathname.replace(/^\//, "");
   const page = LANDING_PAGES.find(p => p.slug === slug);
 
   useEffect(() => {
