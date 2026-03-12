@@ -3,8 +3,12 @@ import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertTriangle, Grid3X3, Info, ArrowLeftRight, RotateCcw, Sparkles, Clock } from "lucide-react";
+import {
+  Grid3X3, Info, ArrowLeftRight, RotateCcw, Sparkles, Clock,
+  Shield, AlertTriangle, ShieldAlert, ShieldCheck, HelpCircle, ChevronRight,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { trackEvent } from "@/hooks/useAnalytics";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -22,41 +26,54 @@ interface Props {
   onNavigate: (tab: string) => void;
 }
 
-const riskColors: Record<string, string> = {
-  critical: "bg-red-700 text-white",
-  high: "bg-destructive text-destructive-foreground",
-  moderate: "bg-amber-400 text-amber-900",
-  low: "bg-emerald-400 text-emerald-900",
-  unknown: "bg-muted text-muted-foreground",
+/* ── Premium risk badge system ── */
+const riskMeta: Record<string, {
+  labelEn: string; labelTh: string;
+  badge: string; cell: string;
+  Icon: React.ElementType; dot: string;
+}> = {
+  critical: {
+    labelEn: "Critical risk", labelTh: "ความเสี่ยงวิกฤต",
+    badge: "bg-rose-900/90 text-rose-50 dark:bg-rose-900 dark:text-rose-100",
+    cell: "bg-rose-800/80 hover:bg-rose-800/95",
+    Icon: ShieldAlert, dot: "bg-rose-600",
+  },
+  high: {
+    labelEn: "High risk", labelTh: "ความเสี่ยงสูง",
+    badge: "bg-red-600/85 text-red-50 dark:bg-red-700/90 dark:text-red-100",
+    cell: "bg-red-500/70 hover:bg-red-500/90",
+    Icon: AlertTriangle, dot: "bg-red-500",
+  },
+  moderate: {
+    labelEn: "Caution", labelTh: "ควรระวัง",
+    badge: "bg-amber-500/80 text-amber-950 dark:bg-amber-600/70 dark:text-amber-100",
+    cell: "bg-amber-400/60 hover:bg-amber-400/80",
+    Icon: Shield, dot: "bg-amber-500",
+  },
+  low: {
+    labelEn: "Lower relative risk", labelTh: "ความเสี่ยงต่ำกว่าเมื่อเทียบกัน",
+    badge: "bg-emerald-600/20 text-emerald-800 dark:bg-emerald-800/40 dark:text-emerald-200",
+    cell: "bg-emerald-400/50 hover:bg-emerald-400/70",
+    Icon: ShieldCheck, dot: "bg-emerald-500",
+  },
+  unknown: {
+    labelEn: "Limited evidence", labelTh: "ข้อมูลยังจำกัด",
+    badge: "bg-muted text-muted-foreground",
+    cell: "bg-muted/30 hover:bg-muted/50",
+    Icon: HelpCircle, dot: "bg-muted-foreground/50",
+  },
 };
 
-const riskCellColors: Record<string, string> = {
-  critical: "bg-red-700/90 hover:bg-red-700",
-  high: "bg-destructive/80 hover:bg-destructive",
-  moderate: "bg-amber-400/70 hover:bg-amber-400",
-  low: "bg-emerald-400/60 hover:bg-emerald-400",
-};
-
-const riskIcons: Record<string, string> = {
-  critical: "☠️",
-  high: "🔴",
-  moderate: "🟡",
-  low: "🟢",
-};
+const getRisk = (level: string) => riskMeta[level] || riskMeta.unknown;
 
 const RECENT_KEY = "hr_recent_combos";
 const MAX_RECENT = 5;
 
-interface RecentCombo {
-  a: string;
-  b: string;
-  ts: number;
-}
+interface RecentCombo { a: string; b: string; ts: number; }
 
 function getRecentCombos(): RecentCombo[] {
-  try {
-    return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]");
-  } catch { return []; }
+  try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); }
+  catch { return []; }
 }
 
 function saveRecentCombo(a: string, b: string) {
@@ -65,7 +82,6 @@ function saveRecentCombo(a: string, b: string) {
   localStorage.setItem(RECENT_KEY, JSON.stringify(recent.slice(0, MAX_RECENT)));
 }
 
-// Suggested popular combinations (substance slugs)
 const SUGGESTED_COMBOS = [
   { slugA: "ghb", slugB: "alcohol", labelEn: "GHB + Alcohol", labelTh: "GHB + แอลกอฮอล์" },
   { slugA: "poppers", slugB: "sildenafil", labelEn: "Poppers + Viagra", labelTh: "Poppers + ไวอากร้า" },
@@ -75,6 +91,23 @@ const SUGGESTED_COMBOS = [
   { slugA: "methamphetamine", slugB: "sildenafil", labelEn: "Meth + Viagra", labelTh: "ยาไอซ์ + ไวอากร้า" },
 ];
 
+/* ── Risk badge pill component ── */
+function RiskBadgePill({ level, size = "sm" }: { level: string; size?: "sm" | "md" }) {
+  const r = getRisk(level);
+  const RIcon = r.Icon;
+  const sizeClasses = size === "md"
+    ? "text-xs px-2.5 py-1 gap-1.5"
+    : "text-[10px] px-2 py-0.5 gap-1";
+  return (
+    <Badge className={`${r.badge} ${sizeClasses} font-medium rounded-full border-0 inline-flex items-center`}>
+      <RIcon className={size === "md" ? "h-3.5 w-3.5" : "h-3 w-3"} />
+      <span>{size === "md" ? (r.labelEn.length > 12 ? r.labelEn : r.labelEn) : r.labelEn}</span>
+    </Badge>
+  );
+}
+
+export { RiskBadgePill };
+
 export function InteractionMatrix({ onNavigate }: Props) {
   const { language } = useLanguage();
   const isEn = language === "en";
@@ -83,8 +116,8 @@ export function InteractionMatrix({ onNavigate }: Props) {
   const [substances, setSubstances] = useState<Substance[]>([]);
   const [interactions, setInteractions] = useState<InteractionDetail[]>([]);
   const [loading, setLoading] = useState(true);
-  const [subA, setSubA] = useState<string>("");
-  const [subB, setSubB] = useState<string>("");
+  const [subA, setSubA] = useState("");
+  const [subB, setSubB] = useState("");
   const [selectedInteraction, setSelectedInteraction] = useState<InteractionDetail | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showMatrix, setShowMatrix] = useState(false);
@@ -121,7 +154,6 @@ export function InteractionMatrix({ onNavigate }: Props) {
     return findInteraction(subA, subB);
   }, [subA, subB, findInteraction]);
 
-  // Track and save recent when both selected
   useEffect(() => {
     if (subA && subB && subA !== subB) {
       saveRecentCombo(subA, subB);
@@ -134,29 +166,13 @@ export function InteractionMatrix({ onNavigate }: Props) {
     }
   }, [subA, subB]);
 
-  const handleSwap = () => {
-    const tmp = subA;
-    setSubA(subB);
-    setSubB(tmp);
-  };
-
-  const handleReset = () => {
-    setSubA("");
-    setSubB("");
-  };
+  const handleSwap = () => { setSubA(subB); setSubB(subA); };
+  const handleReset = () => { setSubA(""); setSubB(""); };
 
   const handleSuggestion = (slugA: string, slugB: string) => {
     const a = substances.find(s => s.slug === slugA);
     const b = substances.find(s => s.slug === slugB);
-    if (a && b) {
-      setSubA(a.id);
-      setSubB(b.id);
-    }
-  };
-
-  const handleRecent = (combo: RecentCombo) => {
-    setSubA(combo.a);
-    setSubB(combo.b);
+    if (a && b) { setSubA(a.id); setSubB(b.id); }
   };
 
   const openDetail = (int: InteractionDetail) => {
@@ -168,60 +184,65 @@ export function InteractionMatrix({ onNavigate }: Props) {
     });
   };
 
+  /* ── Loading skeleton ── */
   if (loading) {
     return (
-      <div className="space-y-3">
-        {[1, 2, 3].map(i => (
-          <Card key={i} className="border border-border/30 animate-pulse">
-            <CardContent className="p-4 h-16" />
-          </Card>
-        ))}
+      <div className="space-y-4">
+        <Skeleton className="h-14 w-full rounded-2xl" />
+        <Skeleton className="h-40 w-full rounded-2xl" />
+        <div className="flex gap-2">
+          {[1, 2, 3].map(i => <Skeleton key={i} className="h-8 w-24 rounded-full" />)}
+        </div>
+        <Skeleton className="h-20 w-full rounded-2xl" />
+        <Skeleton className="h-20 w-full rounded-2xl" />
       </div>
     );
   }
 
-  return (
-    <div className="space-y-4">
-      {/* Disclaimer */}
-      <Card className="border border-amber-200 dark:border-amber-900/40 bg-amber-50/50 dark:bg-amber-950/20">
-        <CardContent className="p-3 flex gap-2">
-          <Info className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-          <p className="text-[11px] text-muted-foreground leading-relaxed">
-            {isEn
-              ? "This information is provided for harm reduction and health education. Lower relative risk does not mean no risk."
-              : "ข้อมูลนี้จัดทำเพื่อการลดอันตรายและการดูแลสุขภาพ ความเสี่ยงที่ต่ำกว่าไม่ได้หมายความว่าไม่มีความเสี่ยง"}
-          </p>
-        </CardContent>
-      </Card>
+  const hasSelection = subA || subB;
+  const hasBoth = subA && subB && subA !== subB;
 
-      {/* Legend */}
-      <div className="flex flex-wrap gap-1.5">
-        {[
-          { key: "critical", labelEn: "Critical", labelTh: "วิกฤต" },
-          { key: "high", labelEn: "High", labelTh: "สูง" },
-          { key: "moderate", labelEn: "Caution", labelTh: "ระวัง" },
-          { key: "low", labelEn: "Lower", labelTh: "ต่ำกว่า" },
-        ].map(l => (
-          <Badge key={l.key} className={`text-[9px] px-1.5 py-0 ${riskColors[l.key]}`}>
-            {riskIcons[l.key]} {isEn ? l.labelEn : l.labelTh}
-          </Badge>
-        ))}
+  return (
+    <div className="space-y-5">
+      {/* ── Disclaimer ── */}
+      <div className="flex gap-3 items-start px-1">
+        <div className="w-8 h-8 rounded-xl bg-muted/60 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <Info className="h-4 w-4 text-muted-foreground" />
+        </div>
+        <p className="text-[11px] text-muted-foreground/80 leading-relaxed">
+          {isEn
+            ? "This information is provided for harm reduction and health education. Lower relative risk does not mean no risk."
+            : "ข้อมูลนี้จัดทำเพื่อการลดอันตรายและการดูแลสุขภาพ ความเสี่ยงที่ต่ำกว่าไม่ได้หมายความว่าไม่มีความเสี่ยง"}
+        </p>
       </div>
 
-      {/* Substance Checker */}
-      <Card className="border border-border/40">
-        <CardContent className="p-4 space-y-3">
+      {/* ── Risk legend ── */}
+      <div className="flex flex-wrap gap-1.5 px-1">
+        {(["critical", "high", "moderate", "low"] as const).map(key => {
+          const r = riskMeta[key];
+          return (
+            <div key={key} className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+              <span className={`w-2 h-2 rounded-full ${r.dot}`} />
+              {isEn ? r.labelEn : r.labelTh}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ── Substance checker card ── */}
+      <Card className="border border-border/30 shadow-sm">
+        <CardContent className="p-5 space-y-4">
           <h3 className="text-sm font-semibold text-foreground">
-            {isEn ? "Check a Combination" : "เช็กความเสี่ยงเมื่อใช้สารร่วมกัน"}
+            {isEn ? "Check a combination" : "เช็กความเสี่ยงเมื่อใช้สารร่วมกัน"}
           </h3>
 
           <div className="grid grid-cols-[1fr_auto_1fr] gap-2 items-end">
-            <div>
-              <label className="text-[10px] text-muted-foreground mb-1 block">
-                {isEn ? "Substance 1" : "เลือกสารตัวที่ 1"}
+            <div className="space-y-1.5">
+              <label className="text-[10px] text-muted-foreground font-medium">
+                {isEn ? "Substance 1" : "สารตัวที่ 1"}
               </label>
               <Select value={subA} onValueChange={setSubA}>
-                <SelectTrigger className="h-9 text-xs rounded-xl">
+                <SelectTrigger className="h-11 text-xs rounded-xl border-border/50">
                   <SelectValue placeholder={isEn ? "Select..." : "เลือก..."} />
                 </SelectTrigger>
                 <SelectContent>
@@ -236,20 +257,21 @@ export function InteractionMatrix({ onNavigate }: Props) {
 
             <Button
               variant="ghost"
-              size="sm"
-              className="h-9 w-9 p-0 rounded-full"
+              size="icon"
+              className="h-11 w-11 rounded-full text-muted-foreground hover:text-foreground"
               onClick={handleSwap}
               disabled={!subA && !subB}
+              aria-label="Swap substances"
             >
-              <ArrowLeftRight className="h-3.5 w-3.5 text-muted-foreground" />
+              <ArrowLeftRight className="h-4 w-4" />
             </Button>
 
-            <div>
-              <label className="text-[10px] text-muted-foreground mb-1 block">
-                {isEn ? "Substance 2" : "เลือกสารตัวที่ 2"}
+            <div className="space-y-1.5">
+              <label className="text-[10px] text-muted-foreground font-medium">
+                {isEn ? "Substance 2" : "สารตัวที่ 2"}
               </label>
               <Select value={subB} onValueChange={setSubB}>
-                <SelectTrigger className="h-9 text-xs rounded-xl">
+                <SelectTrigger className="h-11 text-xs rounded-xl border-border/50">
                   <SelectValue placeholder={isEn ? "Select..." : "เลือก..."} />
                 </SelectTrigger>
                 <SelectContent>
@@ -263,12 +285,11 @@ export function InteractionMatrix({ onNavigate }: Props) {
             </div>
           </div>
 
-          {/* Reset button */}
-          {(subA || subB) && (
+          {hasSelection && (
             <Button
               variant="ghost"
               size="sm"
-              className="text-[10px] h-6 px-2 text-muted-foreground"
+              className="text-[10px] h-7 px-3 text-muted-foreground rounded-full"
               onClick={handleReset}
             >
               <RotateCcw className="h-3 w-3 mr-1" />
@@ -276,40 +297,91 @@ export function InteractionMatrix({ onNavigate }: Props) {
             </Button>
           )}
 
-          {/* Result */}
-          {subA && subB && subA !== subB && (
-            <div className="mt-2">
+          {/* ── Single selection hint ── */}
+          {subA && !subB && (
+            <p className="text-[11px] text-muted-foreground/70 text-center py-2">
+              {isEn ? "Select one more substance to see the result" : "เลือกสารอีก 1 ตัวเพื่อดูผลลัพธ์"}
+            </p>
+          )}
+          {!subA && subB && (
+            <p className="text-[11px] text-muted-foreground/70 text-center py-2">
+              {isEn ? "Select one more substance to see the result" : "เลือกสารอีก 1 ตัวเพื่อดูผลลัพธ์"}
+            </p>
+          )}
+
+          {/* ── Result card ── */}
+          {hasBoth && (
+            <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-300">
               {checkerResult ? (
                 <Card
-                  className="border border-border/30 cursor-pointer hover:shadow-md transition-shadow"
+                  className="border border-border/20 cursor-pointer hover:shadow-lg transition-all duration-200 active:scale-[0.98] overflow-hidden"
                   onClick={() => openDetail(checkerResult)}
                 >
-                  <CardContent className="p-3 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">{getIcon(subA)}</span>
-                      <span className="text-muted-foreground">+</span>
-                      <span className="text-lg">{getIcon(subB)}</span>
-                      <Badge className={`text-[10px] px-1.5 py-0 ml-auto ${riskColors[checkerResult.risk_level] || riskColors.unknown}`}>
-                        {riskIcons[checkerResult.risk_level] || "❓"}{" "}
-                        {checkerResult.risk_level}
-                      </Badge>
+                  <CardContent className="p-4 space-y-3">
+                    {/* Top: icons + name + badge */}
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-xl">{getIcon(subA)}</span>
+                        <span className="text-muted-foreground/40 text-sm">+</span>
+                        <span className="text-xl">{getIcon(subB)}</span>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-foreground truncate">
+                            {getName(subA)} + {getName(subB)}
+                          </p>
+                        </div>
+                      </div>
+                      <RiskBadgePill level={checkerResult.risk_level} size="md" />
                     </div>
-                    <p className="text-xs text-muted-foreground">
+
+                    {/* Summary */}
+                    <p className="text-xs text-muted-foreground leading-relaxed">
                       {isEn ? checkerResult.summary_en || checkerResult.description_en : checkerResult.summary_th || checkerResult.description_th}
                     </p>
-                    <p className="text-[10px] text-primary font-medium">
-                      {isEn ? "Tap for full details →" : "แตะเพื่อดูรายละเอียด →"}
-                    </p>
+
+                    {/* Warning signs preview (top 3) */}
+                    {(() => {
+                      const signs = isEn ? checkerResult.warning_signs_en : checkerResult.warning_signs_th;
+                      if (!signs || signs.length === 0) return null;
+                      return (
+                        <div className="flex flex-wrap gap-1.5">
+                          {signs.slice(0, 3).map((s, i) => (
+                            <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground">
+                              {s}
+                            </span>
+                          ))}
+                          {signs.length > 3 && (
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted/40 text-muted-foreground/60">
+                              +{signs.length - 3}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })()}
+
+                    {/* Tap hint */}
+                    <div className="flex items-center gap-1 text-[10px] text-primary/70 font-medium pt-1">
+                      <span>{isEn ? "View full details" : "ดูรายละเอียดทั้งหมด"}</span>
+                      <ChevronRight className="h-3 w-3" />
+                    </div>
                   </CardContent>
                 </Card>
               ) : (
-                <Card className="border border-border/30">
-                  <CardContent className="p-3">
-                    <p className="text-xs text-muted-foreground text-center">
-                      {isEn
-                        ? "No specific interaction data available for this combination. This does not mean it is safe — always exercise caution."
-                        : "ไม่มีข้อมูลปฏิกิริยาเฉพาะสำหรับการผสมนี้ ไม่ได้หมายความว่าปลอดภัย — ควรระมัดระวังเสมอ"}
-                    </p>
+                /* ── No data fallback ── */
+                <Card className="border border-border/20">
+                  <CardContent className="p-5 text-center space-y-3">
+                    <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center mx-auto">
+                      <HelpCircle className="h-5 w-5 text-muted-foreground/60" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs font-medium text-foreground">
+                        {isEn ? "No data available yet" : "ยังไม่มีข้อมูลเพียงพอสำหรับคู่นี้"}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground/70 leading-relaxed max-w-xs mx-auto">
+                        {isEn
+                          ? "This does not mean there is no risk. Always exercise caution and consider talking to support."
+                          : "ไม่ได้แปลว่าไม่มีความเสี่ยง ควรระมัดระวังเสมอ และสามารถปรึกษาผู้เชี่ยวชาญได้"}
+                      </p>
+                    </div>
                   </CardContent>
                 </Card>
               )}
@@ -318,81 +390,98 @@ export function InteractionMatrix({ onNavigate }: Props) {
         </CardContent>
       </Card>
 
-      {/* Suggested common combinations */}
-      {!subA && !subB && (
-        <div className="space-y-2">
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <Sparkles className="h-3 w-3" />
-            {isEn ? "Common Checks" : "การตรวจสอบที่พบบ่อย"}
-          </h4>
-          <div className="flex flex-wrap gap-1.5">
-            {SUGGESTED_COMBOS.map((sc, i) => {
-              const intForSuggestion = substances.length > 0 ? (() => {
-                const a = substances.find(s => s.slug === sc.slugA);
-                const b = substances.find(s => s.slug === sc.slugB);
-                return a && b ? findInteraction(a.id, b.id) : null;
-              })() : null;
-              return (
-                <button
-                  key={i}
-                  className="text-[10px] px-2.5 py-1.5 rounded-full border border-border/50 bg-background hover:bg-muted/50 transition-colors flex items-center gap-1"
-                  onClick={() => handleSuggestion(sc.slugA, sc.slugB)}
-                >
-                  {intForSuggestion && (
-                    <span className="text-[8px]">{riskIcons[intForSuggestion.risk_level] || "❓"}</span>
-                  )}
-                  {isEn ? sc.labelEn : sc.labelTh}
-                </button>
-              );
-            })}
+      {/* ── Empty state: suggested + recent (only when no selection) ── */}
+      {!hasSelection && (
+        <div className="space-y-5 animate-in fade-in-0 duration-300">
+          {/* ── Suggested common checks ── */}
+          <div className="space-y-2.5">
+            <h4 className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider flex items-center gap-1.5 px-1">
+              <Sparkles className="h-3 w-3" />
+              {isEn ? "Common checks" : "การตรวจสอบที่พบบ่อย"}
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {SUGGESTED_COMBOS.map((sc, i) => {
+                const intForSuggestion = substances.length > 0 ? (() => {
+                  const a = substances.find(s => s.slug === sc.slugA);
+                  const b = substances.find(s => s.slug === sc.slugB);
+                  return a && b ? findInteraction(a.id, b.id) : null;
+                })() : null;
+                const r = intForSuggestion ? getRisk(intForSuggestion.risk_level) : null;
+                return (
+                  <button
+                    key={i}
+                    className="text-[11px] px-3 py-2 rounded-xl border border-border/30 bg-card hover:bg-muted/40 transition-all duration-150 active:scale-[0.97] flex items-center gap-2 shadow-sm"
+                    onClick={() => handleSuggestion(sc.slugA, sc.slugB)}
+                  >
+                    {r && <span className={`w-2 h-2 rounded-full flex-shrink-0 ${r.dot}`} />}
+                    <span className="text-foreground/80">{isEn ? sc.labelEn : sc.labelTh}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ── Recently checked ── */}
+          {recentCombos.length > 0 && (
+            <div className="space-y-2.5">
+              <h4 className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider flex items-center gap-1.5 px-1">
+                <Clock className="h-3 w-3" />
+                {isEn ? "Recently checked" : "ตรวจสอบล่าสุด"}
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {recentCombos.map((rc, i) => {
+                  const nameA = getName(rc.a);
+                  const nameB = getName(rc.b);
+                  if (nameA === "?" || nameB === "?") return null;
+                  const int = findInteraction(rc.a, rc.b);
+                  const r = int ? getRisk(int.risk_level) : null;
+                  return (
+                    <button
+                      key={i}
+                      className="text-[11px] px-3 py-2 rounded-xl border border-border/30 bg-card hover:bg-muted/40 transition-all duration-150 active:scale-[0.97] flex items-center gap-2 shadow-sm"
+                      onClick={() => { setSubA(rc.a); setSubB(rc.b); }}
+                    >
+                      {r && <span className={`w-2 h-2 rounded-full flex-shrink-0 ${r.dot}`} />}
+                      <span className="text-foreground/80">{getIcon(rc.a)} {nameA} + {getIcon(rc.b)} {nameB}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ── Helper text ── */}
+          <div className="text-center py-3 space-y-1.5">
+            <p className="text-xs text-muted-foreground/60">
+              {isEn
+                ? "Choose 2 substances above to view combination risks and warning signs."
+                : "เลือกสาร 2 ตัวเพื่อดูความเสี่ยงเมื่อใช้ร่วมกัน"}
+            </p>
+            <p className="text-[10px] text-muted-foreground/40">
+              {isEn
+                ? "This tool helps you notice warning signs and take better care of yourself."
+                : "ข้อมูลนี้ช่วยให้คุณสังเกตสัญญาณเตือนและดูแลตัวเองได้ดีขึ้น"}
+            </p>
           </div>
         </div>
       )}
 
-      {/* Recent combinations */}
-      {!subA && !subB && recentCombos.length > 0 && (
-        <div className="space-y-2">
-          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <Clock className="h-3 w-3" />
-            {isEn ? "Recently Checked" : "ตรวจสอบล่าสุด"}
-          </h4>
-          <div className="flex flex-wrap gap-1.5">
-            {recentCombos.map((rc, i) => {
-              const nameA = getName(rc.a);
-              const nameB = getName(rc.b);
-              if (nameA === "?" || nameB === "?") return null;
-              const int = findInteraction(rc.a, rc.b);
-              return (
-                <button
-                  key={i}
-                  className="text-[10px] px-2.5 py-1.5 rounded-full border border-border/50 bg-background hover:bg-muted/50 transition-colors flex items-center gap-1"
-                  onClick={() => handleRecent(rc)}
-                >
-                  {int && <span className="text-[8px]">{riskIcons[int.risk_level] || "❓"}</span>}
-                  {getIcon(rc.a)} + {getIcon(rc.b)}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Toggle matrix view */}
+      {/* ── Toggle matrix ── */}
       <Button
-        variant="outline"
+        variant="ghost"
         size="sm"
-        className="w-full text-xs h-8 rounded-xl"
+        className="w-full text-[11px] h-9 rounded-xl text-muted-foreground hover:text-foreground"
         onClick={() => setShowMatrix(!showMatrix)}
       >
         <Grid3X3 className="h-3.5 w-3.5 mr-1.5" />
         {showMatrix
-          ? (isEn ? "Hide Full Matrix" : "ซ่อนตารางเต็ม")
-          : (isEn ? "Show Full Matrix" : "แสดงตารางเต็ม")}
+          ? (isEn ? "Hide full matrix" : "ซ่อนตารางเต็ม")
+          : (isEn ? "Show full matrix" : "แสดงตารางเต็ม")}
       </Button>
 
-      {/* Matrix grid */}
+      {/* ── Matrix grid ── */}
       {showMatrix && (
-        <div className="overflow-x-auto -mx-4 px-4">
+        <div className="overflow-x-auto -mx-4 px-4 animate-in fade-in-0 slide-in-from-top-2 duration-200">
           <div className="min-w-[600px]">
             <table className="w-full border-collapse">
               <thead>
@@ -416,19 +505,20 @@ export function InteractionMatrix({ onNavigate }: Props) {
                     </td>
                     {substances.map((col, ci) => {
                       if (ri === ci) {
-                        return <td key={col.id} className="p-0.5"><div className="w-7 h-7 bg-muted/30 rounded-sm" /></td>;
+                        return <td key={col.id} className="p-0.5"><div className="w-7 h-7 bg-muted/20 rounded" /></td>;
                       }
                       const int = findInteraction(row.id, col.id);
+                      const r = int ? getRisk(int.risk_level) : null;
                       return (
                         <td key={col.id} className="p-0.5">
                           <button
-                            className={`w-7 h-7 rounded-sm text-[9px] flex items-center justify-center transition-colors ${
-                              int ? riskCellColors[int.risk_level] || "bg-muted/30" : "bg-muted/20 hover:bg-muted/40"
+                            className={`w-7 h-7 rounded flex items-center justify-center transition-colors ${
+                              r ? r.cell : "bg-muted/10 hover:bg-muted/30"
                             }`}
                             onClick={() => int && openDetail(int)}
-                            title={int ? `${getName(row.id)} + ${getName(col.id)}: ${int.risk_level}` : ""}
+                            aria-label={int ? `${getName(row.id)} + ${getName(col.id)}: ${int.risk_level}` : undefined}
                           >
-                            {int ? riskIcons[int.risk_level] || "?" : "·"}
+                            {r ? <span className={`w-2.5 h-2.5 rounded-full ${r.dot}`} /> : <span className="text-muted-foreground/20 text-[8px]">·</span>}
                           </button>
                         </td>
                       );
@@ -441,47 +531,47 @@ export function InteractionMatrix({ onNavigate }: Props) {
         </div>
       )}
 
-      {/* Priority combos list */}
-      <div className="space-y-2">
-        <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider flex items-center gap-1.5">
-          <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
-          {isEn ? "Priority Warnings" : "คำเตือนสำคัญ"}
+      {/* ── Priority warnings ── */}
+      <div className="space-y-3">
+        <h3 className="text-[11px] font-semibold text-muted-foreground/70 uppercase tracking-wider flex items-center gap-1.5 px-1">
+          <ShieldAlert className="h-3.5 w-3.5 text-rose-500/70" />
+          {isEn ? "Priority warnings" : "คำเตือนสำคัญ"}
         </h3>
-        {interactions
-          .filter(i => i.is_priority)
-          .sort((a, b) => {
-            const order: Record<string, number> = { critical: 0, high: 1, moderate: 2, low: 3 };
-            return (order[a.risk_level] ?? 4) - (order[b.risk_level] ?? 4);
-          })
-          .map(int => (
-            <Card
-              key={int.id}
-              className="border border-border/30 cursor-pointer hover:shadow-md transition-shadow active:scale-[0.98]"
-              onClick={() => openDetail(int)}
-            >
-              <CardContent className="p-3 flex items-center gap-3">
-                <div className="flex items-center gap-1 flex-shrink-0">
-                  <span className="text-base">{getIcon(int.substance_a_id)}</span>
-                  <span className="text-muted-foreground text-xs">+</span>
-                  <span className="text-base">{getIcon(int.substance_b_id)}</span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-foreground truncate">
-                    {getName(int.substance_a_id)} + {getName(int.substance_b_id)}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground truncate">
-                    {isEn ? int.summary_en || int.description_en : int.summary_th || int.description_th}
-                  </p>
-                </div>
-                <Badge className={`text-[9px] px-1.5 py-0 flex-shrink-0 ${riskColors[int.risk_level] || riskColors.unknown}`}>
-                  {int.risk_level}
-                </Badge>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="space-y-2">
+          {interactions
+            .filter(i => i.is_priority)
+            .sort((a, b) => {
+              const order: Record<string, number> = { critical: 0, high: 1, moderate: 2, low: 3 };
+              return (order[a.risk_level] ?? 4) - (order[b.risk_level] ?? 4);
+            })
+            .map(int => (
+              <Card
+                key={int.id}
+                className="border border-border/20 cursor-pointer hover:shadow-md transition-all duration-200 active:scale-[0.98]"
+                onClick={() => openDetail(int)}
+              >
+                <CardContent className="p-3.5 flex items-center gap-3">
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <span className="text-lg">{getIcon(int.substance_a_id)}</span>
+                    <span className="text-muted-foreground/30 text-xs">+</span>
+                    <span className="text-lg">{getIcon(int.substance_b_id)}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-foreground truncate">
+                      {getName(int.substance_a_id)} + {getName(int.substance_b_id)}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground/70 truncate mt-0.5">
+                      {isEn ? int.summary_en || int.description_en : int.summary_th || int.description_th}
+                    </p>
+                  </div>
+                  <RiskBadgePill level={int.risk_level} />
+                </CardContent>
+              </Card>
+            ))}
+        </div>
       </div>
 
-      {/* Detail drawer */}
+      {/* ── Detail drawer ── */}
       <InteractionDetailDrawer
         interaction={selectedInteraction}
         nameA={selectedInteraction ? getName(selectedInteraction.substance_a_id) : ""}
