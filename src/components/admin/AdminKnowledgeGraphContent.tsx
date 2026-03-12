@@ -232,7 +232,7 @@ function EntityDialog({ open, onClose, onSave, initial, isEn }: {
 /* ── Relations Tab ── */
 function RelationsTab({ isEn }: { isEn: boolean }) {
   const [relations, setRelations] = useState<(KGRelation & { from_name?: string; to_name?: string })[]>([]);
-  const [entities, setEntities] = useState<KGEntity[]>([]);
+  const [entities, setEntities] = useState<{ id: string; name_en: string; name_th: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
 
