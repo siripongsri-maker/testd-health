@@ -43,6 +43,7 @@ const AdminQueueBoardContent = lazy(() => import("@/components/admin/AdminQueueB
 const AdminHarmReductionContent = lazy(() => import("@/components/admin/AdminHarmReductionContent").then(m => ({ default: m.AdminHarmReductionContent })));
 const AdminKnowledgeGraphContent = lazy(() => import("@/components/admin/AdminKnowledgeGraphContent"));
 const AdminContentGeneratorContent = lazy(() => import("@/components/admin/AdminContentGeneratorContent"));
+const AdminOutreachContent = lazy(() => import("@/components/admin/AdminOutreachContent"));
 
 const TabLoader = () => (
   <div className="flex items-center justify-center h-64">
@@ -186,6 +187,7 @@ export default function Admin() {
           {renderTab("harm-reduction", <AdminHarmReductionContent />)}
           {renderTab("knowledge-graph", <AdminKnowledgeGraphContent />)}
           {renderTab("content-generator", <AdminContentGeneratorContent />)}
+          {renderTab("outreach", <AdminOutreachContent />)}
         </Tabs>
       </div>
     </AdminLayout>
