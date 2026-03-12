@@ -57,22 +57,33 @@ export function HarmReductionHub({ onNavigate }: Props) {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const isEn = language === "en";
-  const [hubTab, setHubTab] = useState<string>("before");
+  const [hubTab, setHubTab] = useState<string>("substances");
 
   return (
     <div className="space-y-6">
-      {/* Section header */}
-      <div>
-        <h2 className="text-lg font-bold text-foreground">
-          {isEn ? "Safety Knowledge" : "ความรู้เพื่อความปลอดภัย"}
-        </h2>
-        <p className="text-xs text-muted-foreground mt-1">
-          {isEn ? "Tips and information for each phase" : "เคล็ดลับและข้อมูลสำหรับแต่ละช่วง"}
-        </p>
-      </div>
+      {/* Top-level Learn tabs: Substance Library | Safety Tips | Myth vs Fact */}
+      <Tabs value={hubTab} onValueChange={(v) => { setHubTab(v); trackEvent("hr_learn_tab", { tab: v }); }}>
+        <TabsList className="grid grid-cols-3 h-auto gap-1 bg-muted/40 p-1 rounded-xl">
+          <TabsTrigger value="substances" className="text-[10px] sm:text-xs py-1.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <BookOpen className="h-3 w-3 mr-1 hidden sm:inline" />
+            {isEn ? "Substances" : "ความรู้สาร"}
+          </TabsTrigger>
+          <TabsTrigger value="tips" className="text-[10px] sm:text-xs py-1.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            {isEn ? "Safety Tips" : "เคล็ดลับ"}
+          </TabsTrigger>
+          <TabsTrigger value="myths" className="text-[10px] sm:text-xs py-1.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            {isEn ? "Myth vs Fact" : "ความเชื่อ"}
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Category tabs */}
-      <Tabs value={hubTab} onValueChange={setHubTab}>
+        {/* Substance Library */}
+        <TabsContent value="substances" className="mt-3">
+          <SubstanceLibrary onNavigate={onNavigate} />
+        </TabsContent>
+
+        {/* Safety Tips - existing content */}
+        <TabsContent value="tips" className="mt-3 space-y-4">
+          <Tabs defaultValue="before">
         <TabsList className="grid grid-cols-4 h-auto gap-1 bg-muted/40 p-1 rounded-xl">
           {(Object.keys(categoryMeta) as Array<keyof typeof categoryMeta>).map(cat => (
             <TabsTrigger key={cat} value={cat} className="text-[10px] sm:text-xs py-1.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
