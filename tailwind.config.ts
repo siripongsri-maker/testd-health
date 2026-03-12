@@ -97,7 +97,19 @@ export default {
   			level: 'hsl(var(--level))',
   			success: 'hsl(var(--success))',
   			warning: 'hsl(var(--warning))',
-  			urgent: 'hsl(var(--urgent))'
+  			urgent: 'hsl(var(--urgent))',
+  			hr: {
+  				teal: 'hsl(var(--hr-teal))',
+  				blue: 'hsl(var(--hr-blue))',
+  				surface: 'hsl(var(--hr-surface))',
+  				divider: 'hsl(var(--hr-divider))',
+  				'risk-low': 'hsl(var(--hr-risk-low))',
+  				'risk-caution': 'hsl(var(--hr-risk-caution))',
+  				'risk-high-caution': 'hsl(var(--hr-risk-high-caution))',
+  				'risk-high': 'hsl(var(--hr-risk-high))',
+  				'risk-critical': 'hsl(var(--hr-risk-critical))',
+  				'risk-unknown': 'hsl(var(--hr-risk-unknown))',
+  			}
   		},
   		borderRadius: {
   			lg: 'var(--radius)',
