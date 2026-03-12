@@ -2,16 +2,17 @@ import { useState, useEffect } from "react";
 import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminStatCard } from "@/components/admin/analytics/AdminStatCard";
 import {
-  Users, ClipboardCheck, HeartHandshake, Shield, BarChart3,
-  Eye, TrendingUp, AlertTriangle,
+  Users, ClipboardCheck, HeartHandshake, Shield, Eye,
+  AlertTriangle, Sparkles, Timer, Bell, MessageCircle,
+  Check, X,
 } from "lucide-react";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, Legend,
+  PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
 
 export function AdminHarmReductionContent() {
@@ -19,29 +20,29 @@ export function AdminHarmReductionContent() {
   const isEn = language === "en";
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
-    totalScreenings: 0,
-    lowRisk: 0,
-    moderateRisk: 0,
-    highRisk: 0,
-    totalReferrals: 0,
-    pendingReferrals: 0,
-    totalPlans: 0,
-    totalKnowledgeViews: 0,
+    totalScreenings: 0, lowRisk: 0, moderateRisk: 0, highRisk: 0,
+    totalReferrals: 0, pendingReferrals: 0, totalPlans: 0, totalKnowledgeViews: 0,
+    aiConversations: 0, doseLogs: 0, nudgeEvents: 0, distressAlerts: 0,
+    pendingPosts: 0,
   });
   const [referrals, setReferrals] = useState<any[]>([]);
+  const [pendingPosts, setPendingPosts] = useState<any[]>([]);
 
-  useEffect(() => {
-    loadStats();
-  }, []);
+  useEffect(() => { loadStats(); }, []);
 
   const loadStats = async () => {
     setLoading(true);
     try {
-      const [screeningsRes, referralsRes, plansRes, knowledgeRes] = await Promise.all([
+      const [screeningsRes, referralsRes, plansRes, knowledgeRes, aiRes, doseRes, nudgeRes, distressRes, postsRes] = await Promise.all([
         supabase.from("hr_screenings").select("risk_level", { count: "exact" }),
         supabase.from("hr_referrals").select("*").order("created_at", { ascending: false }).limit(50),
         supabase.from("hr_safer_plans").select("id", { count: "exact" }),
         supabase.from("hr_knowledge_progress").select("id", { count: "exact" }),
+        supabase.from("hr_ai_conversations").select("id", { count: "exact" }),
+        supabase.from("hr_dose_logs").select("id", { count: "exact" }),
+        supabase.from("hr_nudge_events").select("id", { count: "exact" }),
+        supabase.from("hr_distress_alerts").select("id", { count: "exact" }),
+        supabase.from("hr_peer_posts").select("*").eq("is_approved", false).eq("is_flagged", false).order("created_at", { ascending: false }).limit(50),
       ]);
 
       const screenings = screeningsRes.data || [];
@@ -56,8 +57,14 @@ export function AdminHarmReductionContent() {
         pendingReferrals: refs.filter(r => r.status === "requested" || r.status === "contacted").length,
         totalPlans: plansRes.count || 0,
         totalKnowledgeViews: knowledgeRes.count || 0,
+        aiConversations: aiRes.count || 0,
+        doseLogs: doseRes.count || 0,
+        nudgeEvents: nudgeRes.count || 0,
+        distressAlerts: distressRes.count || 0,
+        pendingPosts: (postsRes.data || []).length,
       });
       setReferrals(refs);
+      setPendingPosts(postsRes.data || []);
     } catch (err) {
       console.error("Failed to load HR stats:", err);
     } finally {
@@ -85,29 +92,46 @@ export function AdminHarmReductionContent() {
     loadStats();
   };
 
+  const moderatePost = async (id: string, approve: boolean) => {
+    await supabase.from("hr_peer_posts").update(
+      approve ? { is_approved: true } : { is_flagged: true }
+    ).eq("id", id);
+    setPendingPosts(prev => prev.filter(p => p.id !== id));
+    setStats(prev => ({ ...prev, pendingPosts: prev.pendingPosts - 1 }));
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-bold text-foreground">
         {isEn ? "Harm Reduction M&E" : "ติดตามผล Harm Reduction"}
       </h2>
 
-      {/* KPI cards */}
+      {/* KPI cards — 2 rows */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <AdminStatCard label={isEn ? "Screenings" : "การประเมิน"} value={stats.totalScreenings} icon={ClipboardCheck} loading={loading} />
         <AdminStatCard label={isEn ? "Referrals" : "ส่งต่อ"} value={stats.totalReferrals} icon={HeartHandshake} loading={loading} />
         <AdminStatCard label={isEn ? "Safety Plans" : "แผนความปลอดภัย"} value={stats.totalPlans} icon={Shield} loading={loading} />
         <AdminStatCard label={isEn ? "Hub Views" : "เข้าชม Hub"} value={stats.totalKnowledgeViews} icon={Eye} loading={loading} />
+        <AdminStatCard label={isEn ? "AI Chats" : "AI สนทนา"} value={stats.aiConversations} icon={Sparkles} loading={loading} />
+        <AdminStatCard label={isEn ? "Dose Logs" : "บันทึกโดส"} value={stats.doseLogs} icon={Timer} loading={loading} />
+        <AdminStatCard label={isEn ? "Nudges" : "การแจ้งเตือน"} value={stats.nudgeEvents} icon={Bell} loading={loading} />
+        <AdminStatCard label={isEn ? "Distress Alerts" : "แจ้งเตือนวิกฤต"} value={stats.distressAlerts} icon={AlertTriangle} loading={loading} />
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid grid-cols-2 w-full max-w-sm">
+        <TabsList className="grid grid-cols-3 w-full max-w-md">
           <TabsTrigger value="overview">{isEn ? "Overview" : "ภาพรวม"}</TabsTrigger>
           <TabsTrigger value="referrals">{isEn ? "Referrals" : "ส่งต่อ"}</TabsTrigger>
+          <TabsTrigger value="moderation">
+            {isEn ? "Moderation" : "ตรวจสอบ"}
+            {stats.pendingPosts > 0 && (
+              <Badge variant="destructive" className="ml-1 text-[10px] h-4 px-1">{stats.pendingPosts}</Badge>
+            )}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-4">
           <div className="grid md:grid-cols-2 gap-4">
-            {/* Risk distribution */}
             <Card className="border border-border/40">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm">{isEn ? "Risk Level Distribution" : "การกระจายระดับความเสี่ยง"}</CardTitle>
@@ -131,7 +155,6 @@ export function AdminHarmReductionContent() {
               </CardContent>
             </Card>
 
-            {/* Pending alerts */}
             <Card className="border border-border/40">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm flex items-center gap-2">
@@ -148,6 +171,10 @@ export function AdminHarmReductionContent() {
                   <div className="flex items-center justify-between p-3 rounded-xl bg-destructive/5">
                     <span className="text-sm">{isEn ? "High risk screenings" : "ประเมินความเสี่ยงสูง"}</span>
                     <Badge variant="destructive">{stats.highRisk}</Badge>
+                  </div>
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-violet-50/50 dark:bg-violet-900/10">
+                    <span className="text-sm">{isEn ? "Posts pending review" : "โพสต์รอตรวจสอบ"}</span>
+                    <Badge variant="secondary">{stats.pendingPosts}</Badge>
                   </div>
                 </div>
               </CardContent>
@@ -185,6 +212,45 @@ export function AdminHarmReductionContent() {
                             <option value="completed">{isEn ? "Completed" : "เสร็จ"}</option>
                           </select>
                         )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="moderation" className="mt-4">
+          <Card className="border border-border/40">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <MessageCircle className="h-4 w-4 text-primary" />
+                {isEn ? "Peer Posts Pending Review" : "โพสต์เพื่อนรอตรวจสอบ"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4">
+              {pendingPosts.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">{isEn ? "No posts pending review" : "ไม่มีโพสต์รอตรวจสอบ"}</p>
+              ) : (
+                <div className="space-y-3">
+                  {pendingPosts.map(post => (
+                    <div key={post.id} className="p-3 rounded-xl border border-border/30 space-y-2">
+                      <p className="text-sm text-foreground whitespace-pre-wrap">{post.content}</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] text-muted-foreground">
+                          {new Date(post.created_at).toLocaleString()}
+                        </span>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={() => moderatePost(post.id, true)}>
+                            <Check className="h-3 w-3" />
+                            {isEn ? "Approve" : "อนุมัติ"}
+                          </Button>
+                          <Button size="sm" variant="destructive" className="h-7 text-xs gap-1" onClick={() => moderatePost(post.id, false)}>
+                            <X className="h-3 w-3" />
+                            {isEn ? "Reject" : "ปฏิเสธ"}
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ))}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { PageContainer } from "@/components/PageContainer";
@@ -8,18 +8,22 @@ import { SaferUsePlanner } from "@/components/harm-reduction/SaferUsePlanner";
 import { CounselingReferral } from "@/components/harm-reduction/CounselingReferral";
 import { AgeGate } from "@/components/harm-reduction/AgeGate";
 import { YouthSafePage } from "@/components/harm-reduction/YouthSafePage";
+import { PeerSupport } from "@/components/harm-reduction/PeerSupport";
+import { AICompanion } from "@/components/harm-reduction/AICompanion";
+import { NudgeCard } from "@/components/harm-reduction/NudgeCard";
+import { getActiveNudges, type Nudge } from "@/lib/SafetyNudges";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   BookOpen, ClipboardCheck, Shield, HeartHandshake,
-  ArrowLeft, Lock, Phone, RotateCcw,
+  ArrowLeft, Lock, Phone, RotateCcw, Users, Sparkles,
 } from "lucide-react";
 import { trackEvent } from "@/hooks/useAnalytics";
 
 const AGE_STORAGE_KEY = "hr_age_confirmed";
 
 type AgeState = "pending" | "adult" | "minor";
-type Section = "landing" | "learn" | "check" | "plan" | "support";
+type Section = "landing" | "learn" | "check" | "plan" | "support" | "peers";
 
 export default function HarmReduction() {
   const { language } = useLanguage();
@@ -34,6 +38,7 @@ export default function HarmReduction() {
   });
 
   const [section, setSection] = useState<Section>("landing");
+  const [nudges, setNudges] = useState<Nudge[]>(() => getActiveNudges());
 
   const handleAgeConfirm = (isAdult: boolean) => {
     const state = isAdult ? "adult" : "minor";
@@ -45,6 +50,10 @@ export default function HarmReduction() {
   const resetAge = () => {
     localStorage.removeItem(AGE_STORAGE_KEY);
     setAgeState("pending");
+  };
+
+  const dismissNudge = (id: string) => {
+    setNudges((prev) => prev.filter((n) => n.id !== id));
   };
 
   // Age gate
@@ -80,9 +89,12 @@ export default function HarmReduction() {
         </Button>
 
         {section === "learn" && <HarmReductionHub onNavigate={(tab) => setSection(tab as Section)} />}
-        {section === "check" && <RiskScreening userId={user?.id} />}
+        {section === "check" && <RiskScreening userId={user?.id} onNavigateSupport={() => setSection("support")} />}
         {section === "plan" && <SaferUsePlanner userId={user?.id} />}
         {section === "support" && <CounselingReferral userId={user?.id} />}
+        {section === "peers" && <PeerSupport />}
+
+        <AICompanion />
       </PageContainer>
     );
   }
@@ -138,6 +150,16 @@ export default function HarmReduction() {
       color: "border-rose-200/60 dark:border-rose-800/30",
       iconBg: "bg-rose-100 text-rose-600 dark:bg-rose-900/40 dark:text-rose-400",
     },
+    {
+      id: "peers",
+      icon: Users,
+      titleTh: "เพื่อนช่วยเพื่อน",
+      titleEn: "Peers",
+      descTh: "พื้นที่แชร์ประสบการณ์แบบไม่ระบุตัวตน",
+      descEn: "Anonymous peer support space",
+      color: "border-violet-200/60 dark:border-violet-800/30",
+      iconBg: "bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-400",
+    },
   ];
 
   return (
@@ -154,20 +176,30 @@ export default function HarmReduction() {
         </p>
       </div>
 
-      {/* 4 Main Cards */}
+      {/* Safety Nudges */}
+      {nudges.length > 0 && (
+        <div className="space-y-2 mb-4">
+          {nudges.map((nudge) => (
+            <NudgeCard key={nudge.id} nudge={nudge} onDismiss={() => dismissNudge(nudge.id)} />
+          ))}
+        </div>
+      )}
+
+      {/* Main Cards — 2-col grid, last card spans full if odd */}
       <div className="grid grid-cols-2 gap-3 mb-6">
-        {mainCards.map((card) => {
+        {mainCards.map((card, idx) => {
           const Icon = card.icon;
+          const isLast = idx === mainCards.length - 1 && mainCards.length % 2 !== 0;
           return (
             <Card
               key={card.id}
-              className={`border ${card.color} cursor-pointer hover:shadow-lg transition-all active:scale-[0.98]`}
+              className={`border ${card.color} cursor-pointer hover:shadow-lg transition-all active:scale-[0.98] ${isLast ? "col-span-2" : ""}`}
               onClick={() => {
                 setSection(card.id);
                 trackEvent("hr_section_enter", { section: card.id });
               }}
             >
-              <CardContent className="p-4 flex flex-col items-start gap-3 min-h-[120px]">
+              <CardContent className={`p-4 flex ${isLast ? "flex-row items-center" : "flex-col items-start"} gap-3 ${isLast ? "" : "min-h-[120px]"}`}>
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${card.iconBg}`}>
                   <Icon className="h-5 w-5" />
                 </div>
@@ -224,6 +256,9 @@ export default function HarmReduction() {
           {isEn ? "Change age selection" : "เปลี่ยนช่วงอายุ"}
         </Button>
       </div>
+
+      {/* Floating AI Companion */}
+      <AICompanion />
     </PageContainer>
   );
 }

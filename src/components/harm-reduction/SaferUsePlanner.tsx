@@ -13,6 +13,7 @@ import {
   Shield, Plus, Bell, Check, Droplets, Pill, Car, Heart,
   Clock, Trash2, Save,
 } from "lucide-react";
+import { DoseTimer } from "@/components/harm-reduction/DoseTimer";
 
 interface Props {
   userId?: string;

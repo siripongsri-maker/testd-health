@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.chat-ai-reply]
 verify_jwt = false
+
+[functions.hr-ai-companion]
+verify_jwt = false

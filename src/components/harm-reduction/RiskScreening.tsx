@@ -15,6 +15,7 @@ import {
   Pill, Heart, AlertTriangle, Brain, ChevronRight, ChevronLeft,
   ShieldCheck, ShieldAlert, Shield, CheckCircle2,
 } from "lucide-react";
+import { DistressCard } from "@/components/harm-reduction/DistressCard";
 
 interface Props {
   userId?: string;
