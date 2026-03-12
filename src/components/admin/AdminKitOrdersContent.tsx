@@ -703,7 +703,30 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   };
 
   // Export functions
-  const exportToCSV = () => {
+  const getSignedImageUrls = async (requests: HIVTestRequest[]): Promise<Record<string, string>> => {
+    const urlMap: Record<string, string> = {};
+    const photoPaths = requests
+      .filter(r => r.result_photo_url)
+      .map(r => r.result_photo_url as string);
+    
+    if (photoPaths.length === 0) return urlMap;
+
+    // Batch sign URLs (7 days expiry)
+    const { data, error } = await supabase.storage
+      .from('selftest-results')
+      .createSignedUrls(photoPaths, 60 * 60 * 24 * 7);
+
+    if (!error && data) {
+      data.forEach((item) => {
+        if (item.signedUrl && item.path) {
+          urlMap[item.path] = item.signedUrl;
+        }
+      });
+    }
+    return urlMap;
+  };
+
+  const exportToCSV = async () => {
     let csvContent = "";
     
     if (dataSource === "kit_orders") {
@@ -723,12 +746,13 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         csvContent += row + "\n";
       });
     } else {
+      const signedUrls = await getSignedImageUrls(filteredHIVRequests);
       // CSV headers include gender field sourced from selftest_pii.gender
       csvContent = "Request ID,Branch,Thai ID,Name,Gender,Date of Birth,Phone,Line ID,Address,Subdistrict,District,Province,Postal Code,Status,Tracking Number,Test Result,Result Image URL,Result Image Filename,Wants Callback,Callback Phone,Staff Notes,Created At,Updated At\n";
       filteredHIVRequests.forEach(request => {
         const pii = request.selftest_pii;
         const resultImageUrl = request.result_photo_url
-          ? supabase.storage.from('selftest-results').getPublicUrl(request.result_photo_url).data.publicUrl
+          ? (signedUrls[request.result_photo_url] || '')
           : '';
         const resultImageFilename = request.result_photo_url || '';
         const row = [
