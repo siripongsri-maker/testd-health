@@ -142,7 +142,7 @@ export default function HIVSelfTest() {
   // Contact consent state for positive results
   const [wantsCallback, setWantsCallback] = useState(false);
   const [callbackPhone, setCallbackPhone] = useState("");
-  const [analysisResult, setAnalysisResult] = useState<'positive' | 'negative' | 'invalid' | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<'positive' | 'negative' | 'invalid' | 'inconclusive' | null>(null);
   const [analysisDetails, setAnalysisDetails] = useState<{
     confidence?: string;
     artifact_risk?: string;
@@ -601,6 +601,8 @@ export default function HIVSelfTest() {
         setAnalysisResult('negative');
       } else if (result === 'positive') {
         setAnalysisResult('positive');
+      } else if (result === 'inconclusive') {
+        setAnalysisResult('inconclusive');
       } else {
         setAnalysisResult('invalid');
       }
@@ -1230,7 +1232,7 @@ export default function HIVSelfTest() {
                     : 'bg-amber-500/10 border-amber-500/30'
               }`}>
                 <div className="text-center">
-                  {analysisResult === 'negative' && (
+                  {analysisResult === 'negative' && analysisDetails?.confidence === 'high' && (
                     <>
                       <CheckCircle2 className="h-12 w-12 text-success mx-auto mb-2" />
                       <h4 className="text-xl font-bold text-success mb-1">
@@ -1244,21 +1246,55 @@ export default function HIVSelfTest() {
                       </p>
                     </>
                   )}
+                  {analysisResult === 'negative' && analysisDetails?.confidence !== 'high' && (
+                    <>
+                      <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto mb-2" />
+                      <h4 className="text-xl font-bold text-amber-500 mb-1">
+                        {language === 'th' ? 'อ่านผลไม่ชัดเจน' : 'Inconclusive'}
+                      </h4>
+                      <p className="text-sm text-amber-500/80">
+                        {language === 'th' 
+                          ? 'ระบบอ่านผลว่าไม่พบเชื้อ แต่ความมั่นใจต่ำ กรุณาส่งให้เจ้าหน้าที่ตรวจสอบ'
+                          : 'System reads negative but confidence is low. Please submit for staff review.'
+                        }
+                      </p>
+                    </>
+                  )}
+                  {analysisResult === 'inconclusive' && (
+                    <>
+                      <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto mb-2" />
+                      <h4 className="text-xl font-bold text-amber-500 mb-1">
+                        {language === 'th' ? 'อ่านผลไม่ชัดเจน' : 'Inconclusive'}
+                      </h4>
+                      <p className="text-sm text-amber-500/80">
+                        {language === 'th' 
+                          ? 'ระบบไม่สามารถอ่านผลได้ชัดเจน กรุณาถ่ายรูปใหม่หรือส่งให้เจ้าหน้าที่ตรวจสอบ'
+                          : 'System could not read the result clearly. Please retake photo or submit for staff review.'
+                        }
+                      </p>
+                    </>
+                  )}
                   {analysisResult === 'positive' && (
                     <>
                       <AlertTriangle className="h-12 w-12 text-destructive mx-auto mb-2" />
                       <h4 className="text-xl font-bold text-destructive mb-1">
-                        {language === 'th' ? 'พบสัญญาณบวก (Reactive)' : 'Reactive'}
+                        {language === 'th' ? 'ผลเป็นบวกเบื้องต้น (Reactive)' : 'Reactive'}
                       </h4>
                       {analysisDetails?.verified && analysisDetails?.passes_agreed && (
                         <p className="text-xs text-destructive/70 mb-2">
                           {language === 'th' ? '✓ ยืนยันโดย AI 2 รอบ' : '✓ Verified by 2-pass AI'}
                         </p>
                       )}
-                      <p className="text-sm text-destructive/80 mb-3">
+                      <p className="text-sm text-destructive/80 mb-1">
                         {language === 'th' 
-                          ? 'กรุณาติดต่อคลินิกเพื่อตรวจยืนยัน'
-                          : 'Please contact a clinic for confirmatory testing'
+                          ? 'ผลนี้อาจเข้าข่าย reactive (มี 2 ขีด) ควรตรวจยืนยันกับเจ้าหน้าที่หรือสถานพยาบาลโดยเร็ว'
+                          : 'This result may be reactive (2 lines visible). Please confirm with staff or a healthcare facility as soon as possible.'
+                        }
+                      </p>
+                      <p className="text-xs text-destructive/60 mb-3">
+                        {language === 'th' 
+                          ? 'ผลจากชุดตรวจเบื้องต้นไม่ถือเป็นการวินิจฉัย — ต้องตรวจยืนยันในห้องปฏิบัติการเสมอ'
+                          : 'A self-test result is not a diagnosis — lab confirmation is always required.'
                         }
                       </p>
                       <a
@@ -1330,12 +1366,12 @@ export default function HIVSelfTest() {
                     <>
                       <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto mb-2" />
                       <h4 className="text-xl font-bold text-amber-500 mb-1">
-                        {language === 'th' ? 'ผลไม่ชัดเจน' : 'Invalid Result'}
+                        {language === 'th' ? 'ผลตรวจไม่สมบูรณ์' : 'Invalid Result'}
                       </h4>
                       <p className="text-sm text-amber-500/80">
                         {language === 'th' 
-                          ? 'กรุณาถ่ายรูปใหม่หรือติดต่อเจ้าหน้าที่'
-                          : 'Please retake photo or contact staff'
+                          ? 'ชุดตรวจอาจไม่ทำงานถูกต้อง กรุณาใช้ชุดตรวจใหม่หรือติดต่อเจ้าหน้าที่'
+                          : 'Test kit may not have worked correctly. Please use a new kit or contact staff.'
                         }
                       </p>
                     </>
