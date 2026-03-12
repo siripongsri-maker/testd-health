@@ -3,7 +3,9 @@ import { Card } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
-import testReadingGuide from "@/assets/test-reading-guide.png";
+import testRefReactive from "@/assets/test-ref-reactive.png";
+import testRefNegative from "@/assets/test-ref-negative.png";
+import testRefInvalid from "@/assets/test-ref-invalid.png";
 
 interface SelfTestResultExplanationProps {
   result: 'positive' | 'negative' | 'invalid' | 'inconclusive';
@@ -95,6 +97,48 @@ export function SelfTestResultExplanation({ result, confidence, language }: Self
   const guidance = guidanceMap[result];
   const GuidanceIcon = guidance.icon;
 
+  const referenceCards = [
+    {
+      image: testRefReactive,
+      label: isTh ? 'เกิดปฏิกิริยา (Reactive)' : 'Reactive (2 lines)',
+      description: isTh
+        ? 'พบ 2 ขีด บริเวณตัวอักษร C และ T\nแม้เส้น T จะจาง ก็ถือว่าเป็นผล reactive'
+        : 'Two lines visible at C and T positions.\nEven a faint T line is considered reactive.',
+      meaning: isTh
+        ? 'ผลเป็นบวกเบื้องต้น ควรไปตรวจยืนยันที่สถานพยาบาลโดยเร็วที่สุด'
+        : 'Preliminary positive — visit a clinic for confirmatory testing as soon as possible.',
+      accent: 'border-destructive/30',
+      labelColor: 'text-destructive',
+    },
+    {
+      image: testRefNegative,
+      label: isTh ? 'ไม่เกิดปฏิกิริยา (Non-reactive)' : 'Non-reactive (1 line)',
+      description: isTh
+        ? 'พบ 1 ขีด ที่ตำแหน่ง C และไม่พบขีดที่ตำแหน่ง T'
+        : 'One line visible at C position only. No line at T.',
+      meaning: isTh
+        ? 'ไม่พบการติดเชื้อเอชไอวีจากการตรวจครั้งนี้'
+        : 'No HIV infection detected from this test.',
+      extra: isTh
+        ? 'หากมีความเสี่ยงภายใน 90 วันที่ผ่านมา ควรตรวจซ้ำหลังพ้นระยะ window period'
+        : 'If you had risk exposure within the past 90 days, retest after the window period.',
+      accent: 'border-success/30',
+      labelColor: 'text-success',
+    },
+    {
+      image: testRefInvalid,
+      label: isTh ? 'ไม่สามารถแปลผลได้ (Invalid)' : 'Invalid result',
+      description: isTh
+        ? 'ไม่พบขีดที่ตำแหน่ง C\nหรือชุดตรวจทำงานไม่สมบูรณ์'
+        : 'No line at C position, or the test kit did not function properly.',
+      meaning: isTh
+        ? 'ควรตรวจใหม่ด้วยชุดตรวจใหม่'
+        : 'Please retest with a new test kit.',
+      accent: 'border-amber-500/30',
+      labelColor: 'text-amber-600',
+    },
+  ];
+
   return (
     <div className="space-y-4 mt-4">
       {/* ── Confidence Section ── */}
@@ -177,27 +221,49 @@ export function SelfTestResultExplanation({ result, confidence, language }: Self
         </ul>
       </Card>
 
-      {/* ── Visual Reference: Official Reading Guide ── */}
+      {/* ── Step 4: Read Result — Visual Reference Cards ── */}
       <Card className="p-4">
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-center gap-2 mb-4">
           <Info className="h-5 w-5 text-primary" />
           <h4 className="font-bold text-foreground text-sm">
-            {isTh ? 'ขั้นตอนที่ 4: อ่านผล — แผนผังการดูแลต่อเนื่อง' : 'Step 4: Reading Results — Linkage to Care Flowchart'}
+            {isTh ? 'ขั้นตอนที่ 4: อ่านผล' : 'Step 4: Read the Result'}
           </h4>
         </div>
-        <div className="rounded-xl overflow-hidden border border-border bg-background">
-          <img
-            src={testReadingGuide}
-            alt={isTh ? 'แผนผังการอ่านผลและการดูแลต่อเนื่อง' : 'Test reading and linkage to care flowchart'}
-            className="w-full h-auto"
-            loading="lazy"
-          />
+
+        <div className="space-y-3">
+          {referenceCards.map((card, i) => (
+            <div
+              key={i}
+              className={cn(
+                "flex gap-3 rounded-xl border p-3 bg-card",
+                card.accent
+              )}
+            >
+              <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-muted/30 flex items-center justify-center">
+                <img
+                  src={card.image}
+                  alt={card.label}
+                  className="w-full h-full object-contain"
+                  loading="lazy"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className={cn("text-sm font-bold mb-1", card.labelColor)}>{card.label}</p>
+                <p className="text-xs text-muted-foreground whitespace-pre-line leading-relaxed">
+                  {card.description}
+                </p>
+                <p className="text-xs text-foreground font-medium mt-1.5">
+                  {card.meaning}
+                </p>
+                {card.extra && (
+                  <p className="text-[11px] text-muted-foreground mt-1 italic">
+                    {card.extra}
+                  </p>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
-        <p className="text-xs text-muted-foreground mt-2 text-center">
-          {isTh
-            ? 'อ้างอิง: แผนผังการอ่านผลชุดตรวจ HIV และขั้นตอนการดูแลต่อเนื่อง'
-            : 'Reference: HIV self-test reading guide and linkage to care pathway'}
-        </p>
       </Card>
     </div>
   );
