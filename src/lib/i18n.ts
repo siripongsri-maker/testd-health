@@ -987,6 +987,8 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.exportCenter': 'Export Center',
     'admin.activityLogs': 'Activity Logs',
     'admin.adminTools': 'Admin Tools',
+    'admin.harmReduction': 'Harm Reduction',
+    'admin.harmReductionDashboard': 'HR Dashboard',
     'admin.diagnostics': 'Diagnostics',
     'admin.systemHealth': 'System Health',
     'admin.ipDocs': 'IP Documentation',
