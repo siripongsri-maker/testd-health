@@ -105,27 +105,92 @@ export function SubstanceProfile({ substance: s, interactions, allSubstances, on
     return sub ? (isEn ? sub.name_en : sub.name_th) : "?";
   };
 
+  // Build FAQ from substance data
+  const substanceFaqs: FAQItem[] = [
+    ...(s.short_effects_en?.length ? [{
+      questionEn: `What are the short-term effects of ${s.name_en}?`,
+      questionTh: `ผลกระทบระยะสั้นของ${s.name_th}มีอะไรบ้าง?`,
+      answerEn: s.short_effects_en.join(", ") + ".",
+      answerTh: s.short_effects_th.join(", ") + "",
+    }] : []),
+    ...(s.withdrawal_en?.length ? [{
+      questionEn: `What are the withdrawal symptoms of ${s.name_en}?`,
+      questionTh: `อาการถอน${s.name_th}เป็นอย่างไร?`,
+      answerEn: s.withdrawal_en.join(", ") + ".",
+      answerTh: s.withdrawal_th.join(", ") + "",
+    }] : []),
+    ...(s.emergency_signs_en?.length ? [{
+      questionEn: `When should you seek emergency help after using ${s.name_en}?`,
+      questionTh: `ควรไปพบแพทย์ฉุกเฉินเมื่อไหร่หลังใช้${s.name_th}?`,
+      answerEn: `Seek emergency help if you experience: ${s.emergency_signs_en.join(", ")}. Call 1669 immediately.`,
+      answerTh: `ควรขอความช่วยเหลือฉุกเฉินหากมีอาการ: ${s.emergency_signs_th.join(", ")} โทร 1669 ทันที`,
+    }] : []),
+  ];
+
+  const maxRisk = Math.max(s.addiction_risk, s.heart_risk, s.mental_health_risk);
+  const riskLevelEn = maxRisk >= 4 ? "High risk" : maxRisk >= 3 ? "Moderate" : "Lower relative risk";
+  const riskLevelTh = maxRisk >= 4 ? "ความเสี่ยงสูง" : maxRisk >= 3 ? "ปานกลาง" : "ความเสี่ยงต่ำกว่า";
+
+  const quickFacts = [
+    { labelEn: "Substance", labelTh: "สาร", valueEn: s.name_en, valueTh: s.name_th },
+    { labelEn: "Category", labelTh: "หมวดหมู่", valueEn: s.category_en, valueTh: s.category_th },
+    { labelEn: "Overall risk", labelTh: "ความเสี่ยงโดยรวม", valueEn: riskLevelEn, valueTh: riskLevelTh },
+    ...(s.emergency_signs_en?.length ? [{
+      labelEn: "Key emergency signs",
+      labelTh: "สัญญาณฉุกเฉินสำคัญ",
+      valueEn: s.emergency_signs_en.slice(0, 3).join(", "),
+      valueTh: s.emergency_signs_th.slice(0, 3).join(", "),
+    }] : []),
+  ];
+
+  const jsonLd = [
+    buildMedicalPageJsonLd({
+      name: `${s.name_en} — Harm Reduction Information`,
+      description: s.overview_en || `Harm reduction information about ${s.name_en}`,
+      url: `https://testd-health.lovable.app/substance/${s.slug}`,
+    }),
+    ...(substanceFaqs.length ? [buildFaqJsonLd(
+      substanceFaqs.map(f => ({ question: f.questionEn, answer: f.answerEn }))
+    )] : []),
+  ];
+
   return (
-    <div className="space-y-3">
+    <article className="space-y-4" itemScope itemType="https://schema.org/MedicalWebPage">
+      <SEOHead
+        title={`${isEn ? s.name_en : s.name_th} — Harm Reduction | testD`}
+        description={isEn
+          ? (s.overview_en?.slice(0, 155) || `Harm reduction information about ${s.name_en}`)
+          : (s.overview_th?.slice(0, 155) || `ข้อมูลลดอันตรายเกี่ยวกับ${s.name_th}`)
+        }
+        canonicalPath={`/substance/${s.slug}`}
+        lang={language}
+        alternateLanguages={[
+          { lang: "th", path: `/substance/${s.slug}` },
+          { lang: "en", path: `/substance/${s.slug}` },
+        ]}
+        jsonLd={jsonLd}
+      />
+
       {/* Header */}
-      <div className="flex items-center gap-3 mb-1">
+      <header className="flex items-center gap-3 mb-1">
         <span className="text-3xl">{s.icon}</span>
         <div>
-          <h2 className="text-xl font-bold text-foreground">{isEn ? s.name_en : s.name_th}</h2>
+          <h1 className="text-xl font-bold text-foreground" itemProp="name">{isEn ? s.name_en : s.name_th}</h1>
           <p className="text-xs text-muted-foreground">{isEn ? s.category_en : s.category_th}</p>
         </div>
-      </div>
+      </header>
 
-      {/* Overview */}
+      {/* AI Summary */}
       {(s.overview_th || s.overview_en) && (
-        <Card className="border border-border/30">
-          <CardContent className="p-3.5">
-            <p className="text-sm text-foreground leading-relaxed">
-              {isEn ? s.overview_en : s.overview_th}
-            </p>
-          </CardContent>
-        </Card>
+        <AISummaryBlock
+          summaryEn={s.overview_en || ""}
+          summaryTh={s.overview_th || ""}
+          isEn={isEn}
+        />
       )}
+
+      {/* Quick Facts */}
+      <QuickFactsCard facts={quickFacts} isEn={isEn} />
 
       {/* Risk Indicator Bento */}
       <Card className="border border-border/30">
