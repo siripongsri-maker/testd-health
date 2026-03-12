@@ -10,6 +10,7 @@ import {
   MessageCircle,
   Headphones,
   Sparkles,
+  ShieldHalf,
 } from 'lucide-react';
 import { MedicationTrackerWidget } from './MedicationTrackerWidget';
 
@@ -103,7 +104,12 @@ export function HomeActionGrid() {
     },
   ];
 
-  // Row 3 — Support (counselor + support chat + wide medication widget)
+  // Row 3 — Support (harm reduction + counselor + support chat + wide medication widget)
+  const row3HarmReduction = {
+    icon: <ShieldHalf className="h-full w-full" strokeWidth={1.5} />,
+    titleTh: language === 'th' ? 'Harm Reduction' : 'Harm Reduction',
+    path: '/harm-reduction',
+  };
   const row3Counselor = {
     icon: <MessageCircle className="h-full w-full" strokeWidth={1.5} />,
     titleKey: 'home.onlineCounselor',
@@ -154,7 +160,13 @@ export function HomeActionGrid() {
       <RowLabel>
         {language === 'th' ? '💬 สนับสนุน & ยา' : '💬 Support & Medication'}
       </RowLabel>
-      <div className="grid grid-cols-4 gap-2 sm:gap-3">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        <MenuCard
+          icon={row3HarmReduction.icon}
+          titleTh={row3HarmReduction.titleTh}
+          titleEn=""
+          onClick={() => navigate(row3HarmReduction.path)}
+        />
         <MenuCard
           icon={row3Counselor.icon}
           titleTh={t(row3Counselor.titleKey)}
@@ -167,11 +179,13 @@ export function HomeActionGrid() {
           titleEn=""
           onClick={() => navigate(row3SupportChat.path)}
         />
-        {/* Wide medication widget spanning 2 columns */}
-        <div className="col-span-2">
-          <MedicationTrackerWidget />
-        </div>
       </div>
+
+      {/* Row 4 — Medication */}
+      <RowLabel>
+        {language === 'th' ? '💊 ยาของฉัน' : '💊 My Medication'}
+      </RowLabel>
+      <MedicationTrackerWidget />
     </div>
   );
 }
