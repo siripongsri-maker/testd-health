@@ -118,6 +118,7 @@ const menuGroups: MenuGroup[] = [
     items: [
       { tab: "harm-reduction", icon: Heart, labelKey: "admin.harmReductionDashboard", adminOnly: true, meAnalyst: true },
       { tab: "knowledge-graph", icon: Network, labelKey: "admin.knowledgeGraph", adminOnly: true },
+      { tab: "content-generator", icon: Sparkles, labelKey: "admin.contentGenerator", adminOnly: true },
     ],
   },
   {
