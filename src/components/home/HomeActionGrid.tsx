@@ -144,12 +144,12 @@ export function HomeActionGrid() {
       <RowLabel>
         {language === 'th' ? '📚 เรียนรู้ & ประเมิน' : '📚 Learn & Assess'}
       </RowLabel>
-      <div className="grid grid-cols-4 gap-2 sm:gap-3">
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3">
         {row2.map((item, i) => (
           <MenuCard
             key={i}
             icon={item.icon}
-            titleTh={t(item.titleKey)}
+            titleTh={'titleKey' in item ? t(item.titleKey) : item.titleTh}
             titleEn=""
             onClick={() => navigate(item.path)}
           />
@@ -160,13 +160,7 @@ export function HomeActionGrid() {
       <RowLabel>
         {language === 'th' ? '💬 สนับสนุน & ยา' : '💬 Support & Medication'}
       </RowLabel>
-      <div className="grid grid-cols-3 gap-2 sm:gap-3">
-        <MenuCard
-          icon={row3HarmReduction.icon}
-          titleTh={row3HarmReduction.titleTh}
-          titleEn=""
-          onClick={() => navigate(row3HarmReduction.path)}
-        />
+      <div className="grid grid-cols-4 gap-2 sm:gap-3">
         <MenuCard
           icon={row3Counselor.icon}
           titleTh={t(row3Counselor.titleKey)}
@@ -179,13 +173,11 @@ export function HomeActionGrid() {
           titleEn=""
           onClick={() => navigate(row3SupportChat.path)}
         />
+        {/* Wide medication widget spanning 2 columns */}
+        <div className="col-span-2">
+          <MedicationTrackerWidget />
+        </div>
       </div>
-
-      {/* Row 4 — Medication */}
-      <RowLabel>
-        {language === 'th' ? '💊 ยาของฉัน' : '💊 My Medication'}
-      </RowLabel>
-      <MedicationTrackerWidget />
     </div>
   );
 }
