@@ -116,6 +116,7 @@ interface HIVTestRequest {
   abuse_flag: boolean | null;
   abuse_reason: string | null;
   abuse_score: number | null;
+  result_photo_url: string | null;
 }
 
 const HIV_STATUS_OPTIONS = [
