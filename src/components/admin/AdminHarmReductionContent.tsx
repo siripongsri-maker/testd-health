@@ -118,6 +118,7 @@ export function AdminHarmReductionContent() {
         <AdminStatCard label={isEn ? "Dose Logs" : "บันทึกโดส"} value={stats.doseLogs} icon={Timer} loading={loading} />
         <AdminStatCard label={isEn ? "Nudges" : "การแจ้งเตือน"} value={stats.nudgeEvents} icon={Bell} loading={loading} />
         <AdminStatCard label={isEn ? "Distress Alerts" : "แจ้งเตือนวิกฤต"} value={stats.distressAlerts} icon={AlertTriangle} loading={loading} />
+        <AdminStatCard label={isEn ? "Daily Check-ins" : "เช็คอินรายวัน"} value={stats.dailyCheckins} icon={Smile} loading={loading} />
       </div>
 
       <Tabs defaultValue="overview" className="w-full">
