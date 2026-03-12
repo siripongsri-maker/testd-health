@@ -144,6 +144,7 @@ const App = () => (
                 <Route path="/ghb-overdose" element={<SEOLanding />} />
                 <Route path="/meth-harm-reduction" element={<SEOLanding />} />
                 <Route path="/hiv-self-test-guide" element={<SEOLanding />} />
+                <Route path="/interaction/:slug" element={<InteractionPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>

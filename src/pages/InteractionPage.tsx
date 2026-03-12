@@ -85,7 +85,8 @@ function DetailSection({ icon: Icon, title, items, iconBg, variant = "list" }: {
 export default function InteractionPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { isEn } = useLanguage();
+  const { language } = useLanguage();
+  const isEn = language === "en";
   const [loading, setLoading] = useState(true);
   const [interaction, setInteraction] = useState<InteractionRow | null>(null);
   const [substanceA, setSubstanceA] = useState<SubstanceRow | null>(null);
