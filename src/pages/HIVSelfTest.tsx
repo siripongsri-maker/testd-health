@@ -142,7 +142,7 @@ export default function HIVSelfTest() {
   // Contact consent state for positive results
   const [wantsCallback, setWantsCallback] = useState(false);
   const [callbackPhone, setCallbackPhone] = useState("");
-  const [analysisResult, setAnalysisResult] = useState<'positive' | 'negative' | 'invalid' | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<'positive' | 'negative' | 'invalid' | 'inconclusive' | null>(null);
   const [analysisDetails, setAnalysisDetails] = useState<{
     confidence?: string;
     artifact_risk?: string;
