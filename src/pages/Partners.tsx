@@ -67,7 +67,7 @@ export default function PartnersPage() {
             description: "Collaboration and partnership page for testD harm reduction platform",
             publisher: { "@type": "Organization", name: "SWING Foundation", url: "https://testd-health.lovable.app" },
           },
-          buildFaqJsonLd(faqs),
+          buildFaqJsonLd(faqs.map(f => ({ question: isEn ? f.questionEn : f.questionTh, answer: isEn ? f.answerEn : f.answerTh }))),
         ]}
       />
 
