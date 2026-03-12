@@ -41,6 +41,7 @@ import {
   NHSOFormData,
   TESTING_STEPS
 } from "@/components/hiv-selftest";
+import { SelfTestResultExplanation } from "@/components/hiv-selftest/SelfTestResultExplanation";
 import { useFormAutosave } from "@/hooks/useFormAutosave";
 
 export default function HIVSelfTest() {
