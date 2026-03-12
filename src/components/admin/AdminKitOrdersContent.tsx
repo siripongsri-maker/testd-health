@@ -786,9 +786,12 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       ];
     } else {
       data = [
-        ["Request ID", "Branch", "Thai ID", "Name", "Date of Birth", "Phone", "Line ID", "Address", "Subdistrict", "District", "Province", "Postal Code", "Status", "Tracking Number", "Test Result", "Wants Callback", "Callback Phone", "Staff Notes", "Created At", "Updated At"],
+        ["Request ID", "Branch", "Thai ID", "Name", "Date of Birth", "Phone", "Line ID", "Address", "Subdistrict", "District", "Province", "Postal Code", "Status", "Tracking Number", "Test Result", "Result Image URL", "Result Image Filename", "Wants Callback", "Callback Phone", "Staff Notes", "Created At", "Updated At"],
         ...filteredHIVRequests.map(request => {
           const pii = request.selftest_pii;
+          const resultImageUrl = request.result_photo_url
+            ? supabase.storage.from('selftest-results').getPublicUrl(request.result_photo_url).data.publicUrl
+            : '';
           return [
             request.id,
             request.assigned_branch || 'silom',
@@ -805,6 +808,8 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             request.status,
             request.tracking_number || '',
             request.test_result || '',
+            resultImageUrl,
+            request.result_photo_url || '',
             request.wants_callback ? 'Yes' : 'No',
             request.callback_phone || '',
             request.staff_notes || '',
