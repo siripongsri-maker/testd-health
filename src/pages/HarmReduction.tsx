@@ -21,6 +21,7 @@ import {
   ArrowLeft, Lock, Phone, RotateCcw, Users, Sparkles,
 } from "lucide-react";
 import { trackEvent } from "@/hooks/useAnalytics";
+import { SEOHead, buildMedicalPageJsonLd } from "@/components/seo";
 
 const AGE_STORAGE_KEY = "hr_age_confirmed";
 
@@ -166,6 +167,25 @@ export default function HarmReduction() {
 
   return (
     <PageContainer className="pb-24">
+      <SEOHead
+        title={isEn ? "Harm Reduction — Chemsex Safety & Drug Interaction Guide" : "Harm Reduction — คู่มือลดอันตรายและความปลอดภัย Chemsex"}
+        description={isEn
+          ? "Harm reduction tools for chemsex safety. Drug interaction checker, substance knowledge library, risk screening, and counseling support."
+          : "เครื่องมือลดอันตรายจาก chemsex ตรวจสอบปฏิกิริยาระหว่างสาร คลังความรู้ ประเมินความเสี่ยง และปรึกษาผู้เชี่ยวชาญ"}
+        canonicalPath="/harm-reduction"
+        lang={language}
+        alternateLanguages={[
+          { lang: "th", path: "/harm-reduction" },
+          { lang: "en", path: "/harm-reduction" },
+        ]}
+        jsonLd={buildMedicalPageJsonLd({
+          name: "Harm Reduction — Chemsex Safety & Drug Interaction Guide",
+          description: "Comprehensive harm reduction tools for chemsex safety including drug interaction checker, substance knowledge library, and counseling support.",
+          url: "https://testd-health.lovable.app/harm-reduction",
+          about: "Harm reduction, chemsex safety, drug interactions, substance education",
+        })}
+      />
+
       {/* Hero */}
       <div className="mb-6 space-y-2">
         <h1 className="text-2xl font-bold text-foreground">
