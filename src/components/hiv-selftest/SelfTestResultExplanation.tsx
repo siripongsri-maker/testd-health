@@ -1,22 +1,19 @@
-import { Info, CheckCircle2, AlertTriangle, XCircle, Shield, ArrowRight, HelpCircle } from "lucide-react";
+import { Info, AlertTriangle, XCircle, Shield, ArrowRight, HelpCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
-import testRefNegative from "@/assets/test-ref-negative.png";
-import testRefReactive from "@/assets/test-ref-reactive.png";
-import testRefInvalid from "@/assets/test-ref-invalid.png";
+import testReadingGuide from "@/assets/test-reading-guide.png";
 
 interface SelfTestResultExplanationProps {
   result: 'positive' | 'negative' | 'invalid' | 'inconclusive';
-  confidence?: string; // 'high' | 'medium' | 'low'
+  confidence?: string;
   language: string;
 }
 
 export function SelfTestResultExplanation({ result, confidence, language }: SelfTestResultExplanationProps) {
   const isTh = language === 'th';
 
-  // ── Section 1: Confidence Explanation ──
   const confidenceConfig = {
     high: {
       label: isTh ? 'สูง' : 'High',
@@ -46,7 +43,6 @@ export function SelfTestResultExplanation({ result, confidence, language }: Self
 
   const conf = confidenceConfig[(confidence as keyof typeof confidenceConfig) || 'low'];
 
-  // ── Section 2: Next Step Guidance ──
   const guidanceMap = {
     negative: {
       title: isTh ? 'คำแนะนำถัดไป' : 'Next Steps',
@@ -99,41 +95,6 @@ export function SelfTestResultExplanation({ result, confidence, language }: Self
   const guidance = guidanceMap[result];
   const GuidanceIcon = guidance.icon;
 
-  // ── Section 3: Visual Reference ──
-  const referenceCards = [
-    {
-      image: testRefNegative,
-      label: isTh ? '1 ขีด (Negative)' : '1 Line (Negative)',
-      description: isTh
-        ? 'พบเฉพาะเส้นควบคุม (C line)\nไม่พบเส้นทดสอบ (T line)'
-        : 'Only control line (C) visible.\nNo test line (T) detected.',
-      meaning: isTh ? 'ไม่พบเชื้อ HIV' : 'No HIV detected',
-      border: 'border-success/40',
-    },
-    {
-      image: testRefReactive,
-      label: isTh ? '2 ขีด (Reactive)' : '2 Lines (Reactive)',
-      description: isTh
-        ? 'พบเส้นควบคุม (C) และเส้นทดสอบ (T)\nแม้เส้น T จะจางก็ถือว่า reactive'
-        : 'Control (C) and test (T) lines visible.\nEven a faint T line counts as reactive.',
-      meaning: isTh
-        ? 'ผลเป็นบวกเบื้องต้น ควรตรวจยืนยันที่สถานพยาบาล'
-        : 'Preliminary positive — needs lab confirmation.',
-      border: 'border-destructive/40',
-    },
-    {
-      image: testRefInvalid,
-      label: isTh ? 'Invalid' : 'Invalid',
-      description: isTh
-        ? 'ไม่พบเส้นควบคุม (C line)\nหรือชุดตรวจอ่านผลไม่ได้'
-        : 'No control line (C) visible\nor test is unreadable.',
-      meaning: isTh
-        ? 'ผลตรวจไม่สมบูรณ์ ต้องใช้ชุดตรวจใหม่'
-        : 'Invalid result — use a new test kit.',
-      border: 'border-amber-500/40',
-    },
-  ];
-
   return (
     <div className="space-y-4 mt-4">
       {/* ── Confidence Section ── */}
@@ -160,7 +121,6 @@ export function SelfTestResultExplanation({ result, confidence, language }: Self
           </TooltipProvider>
         </div>
 
-        {/* Confidence indicator */}
         <div className={cn("flex items-center gap-3 rounded-xl border p-3", conf.color)}>
           <div className={cn("h-3 w-3 rounded-full flex-shrink-0", conf.dotColor)} />
           <div className="flex-1 min-w-0">
@@ -169,7 +129,6 @@ export function SelfTestResultExplanation({ result, confidence, language }: Self
           </div>
         </div>
 
-        {/* All 3 levels reference */}
         <div className="mt-3 grid grid-cols-3 gap-2">
           {(['high', 'medium', 'low'] as const).map((level) => {
             const c = confidenceConfig[level];
@@ -189,7 +148,6 @@ export function SelfTestResultExplanation({ result, confidence, language }: Self
           })}
         </div>
 
-        {/* Low confidence warning */}
         {(confidence === 'low' || !confidence) && result === 'negative' && (
           <div className="mt-3 p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg">
             <p className="text-xs text-amber-600 font-medium">
@@ -219,37 +177,27 @@ export function SelfTestResultExplanation({ result, confidence, language }: Self
         </ul>
       </Card>
 
-      {/* ── Visual Reference ── */}
+      {/* ── Visual Reference: Official Reading Guide ── */}
       <Card className="p-4">
         <div className="flex items-center gap-2 mb-3">
           <Info className="h-5 w-5 text-primary" />
           <h4 className="font-bold text-foreground text-sm">
-            {isTh ? 'ตัวอย่างการอ่านผลชุดตรวจ' : 'Test Strip Reading Guide'}
+            {isTh ? 'ขั้นตอนที่ 4: อ่านผล — แผนผังการดูแลต่อเนื่อง' : 'Step 4: Reading Results — Linkage to Care Flowchart'}
           </h4>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {referenceCards.map((card, i) => (
-            <div key={i} className={cn("rounded-xl border-2 overflow-hidden", card.border)}>
-              <div className="bg-muted/30 p-2 flex items-center justify-center">
-                <img
-                  src={card.image}
-                  alt={card.label}
-                  className="h-24 w-auto object-contain"
-                  loading="lazy"
-                />
-              </div>
-              <div className="p-3 space-y-1.5">
-                <p className="text-sm font-bold text-foreground">{card.label}</p>
-                <p className="text-xs text-muted-foreground whitespace-pre-line leading-relaxed">
-                  {card.description}
-                </p>
-                <p className="text-xs font-medium text-foreground/80 pt-1 border-t border-border/30">
-                  {card.meaning}
-                </p>
-              </div>
-            </div>
-          ))}
+        <div className="rounded-xl overflow-hidden border border-border bg-background">
+          <img
+            src={testReadingGuide}
+            alt={isTh ? 'แผนผังการอ่านผลและการดูแลต่อเนื่อง' : 'Test reading and linkage to care flowchart'}
+            className="w-full h-auto"
+            loading="lazy"
+          />
         </div>
+        <p className="text-xs text-muted-foreground mt-2 text-center">
+          {isTh
+            ? 'อ้างอิง: แผนผังการอ่านผลชุดตรวจ HIV และขั้นตอนการดูแลต่อเนื่อง'
+            : 'Reference: HIV self-test reading guide and linkage to care pathway'}
+        </p>
       </Card>
     </div>
   );
