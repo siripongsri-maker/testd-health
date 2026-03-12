@@ -376,6 +376,9 @@ export function SubstanceProfile({ substance: s, interactions, allSubstances, on
         <FAQSection faqs={substanceFaqs} isEn={isEn} />
       )}
 
+      {/* Knowledge Graph Related */}
+      <RelatedKnowledge entitySlug={substance.slug} titleEn="Related Knowledge" titleTh="ความรู้ที่เกี่ยวข้อง" />
+
       {/* Sources */}
       <SourcesCard isEn={isEn} />
 

@@ -415,6 +415,9 @@ export default function InteractionPage() {
             </div>
           </nav>
 
+          {/* Knowledge Graph Related */}
+          {slug && <RelatedKnowledge entitySlug={slug} titleEn="Related Knowledge" titleTh="ความรู้ที่เกี่ยวข้อง" />}
+
           {/* Sources */}
           <SourcesCard isEn={isEn} />
 
