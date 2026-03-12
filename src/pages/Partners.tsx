@@ -179,10 +179,10 @@ export default function PartnersPage() {
         {/* Sources */}
         <SourcesCard
           sources={[
-            { nameEn: "World Health Organization (WHO)", nameTh: "องค์การอนามัยโลก (WHO)", url: "https://www.who.int/health-topics/drugs-psychoactive-substances" },
-            { nameEn: "UNODC Drug Safety", nameTh: "UNODC ความปลอดภัยยาเสพติด", url: "https://www.unodc.org" },
-            { nameEn: "EMCDDA", nameTh: "EMCDDA", url: "https://www.emcdda.europa.eu" },
-            { nameEn: "NIDA (NIH)", nameTh: "NIDA (NIH)", url: "https://nida.nih.gov" },
+            { name: "World Health Organization (WHO)", url: "https://www.who.int/health-topics/drugs-psychoactive-substances" },
+            { name: "UNODC Drug Safety", url: "https://www.unodc.org" },
+            { name: "EMCDDA", url: "https://www.emcdda.europa.eu" },
+            { name: "NIDA (NIH)", url: "https://nida.nih.gov" },
           ]}
           isEn={isEn}
         />
