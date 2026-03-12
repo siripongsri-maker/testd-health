@@ -1,15 +1,13 @@
-import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { useLanguage } from "@/lib/i18n";
 import { PageContainer } from "@/components/PageContainer";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Shield, MessageCircle, TestTube, BookOpen } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Shield, MessageCircle, TestTube, BookOpen } from "lucide-react";
 import {
   SEOHead, buildMedicalPageJsonLd, buildFaqJsonLd,
   AISummaryBlock, QuickFactsCard, FAQSection, SourcesCard,
-  RelatedContentLinks, buildHarmReductionLinks,
+  RelatedContentLinks,
 } from "@/components/seo";
 import type { FAQItem } from "@/components/seo";
 import { trackEvent } from "@/hooks/useAnalytics";
