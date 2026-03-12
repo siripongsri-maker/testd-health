@@ -328,6 +328,9 @@ export function InteractionDetailDrawer({ interaction: int, nameA, nameB, open, 
               </Button>
             </div>
           )}
+
+          {/* ── Sources ── */}
+          <SourcesCard isEn={isEn} />
         </div>
       </SheetContent>
     </Sheet>

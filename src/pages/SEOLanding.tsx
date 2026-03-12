@@ -1,9 +1,9 @@
-import { lazy } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import { useLanguage } from "@/lib/i18n";
-import { supabase } from "@/integrations/supabase/client";
 import { PageContainer } from "@/components/PageContainer";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, Shield, MessageCircle, TestTube, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Shield, MessageCircle, TestTube, BookOpen } from "lucide-react";
 import {
