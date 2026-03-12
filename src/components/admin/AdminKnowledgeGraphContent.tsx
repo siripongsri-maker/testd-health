@@ -316,7 +316,7 @@ function RelationsTab({ isEn }: { isEn: boolean }) {
 function RelationDialog({ open, onClose, onSave, entities, isEn }: {
   open: boolean; onClose: () => void;
   onSave: (from: string, to: string, type: string, strength: number) => void;
-  entities: KGEntity[]; isEn: boolean;
+  entities: { id: string; name_en: string; name_th: string }[]; isEn: boolean;
 }) {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
