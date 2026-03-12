@@ -601,6 +601,8 @@ export default function HIVSelfTest() {
         setAnalysisResult('negative');
       } else if (result === 'positive') {
         setAnalysisResult('positive');
+      } else if (result === 'inconclusive') {
+        setAnalysisResult('inconclusive');
       } else {
         setAnalysisResult('invalid');
       }
