@@ -2311,6 +2311,51 @@ export type Database = {
           },
         ]
       }
+      hr_substance_interactions: {
+        Row: {
+          created_at: string
+          description_en: string | null
+          description_th: string | null
+          id: string
+          risk_level: string
+          substance_a_id: string
+          substance_b_id: string
+        }
+        Insert: {
+          created_at?: string
+          description_en?: string | null
+          description_th?: string | null
+          id?: string
+          risk_level?: string
+          substance_a_id: string
+          substance_b_id: string
+        }
+        Update: {
+          created_at?: string
+          description_en?: string | null
+          description_th?: string | null
+          id?: string
+          risk_level?: string
+          substance_a_id?: string
+          substance_b_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_substance_interactions_substance_a_id_fkey"
+            columns: ["substance_a_id"]
+            isOneToOne: false
+            referencedRelation: "hr_substances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_substance_interactions_substance_b_id_fkey"
+            columns: ["substance_b_id"]
+            isOneToOne: false
+            referencedRelation: "hr_substances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hr_substance_use: {
         Row: {
           created_at: string | null
@@ -2354,6 +2399,105 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      hr_substances: {
+        Row: {
+          addiction_risk: number
+          category_en: string
+          category_th: string
+          created_at: string
+          display_order: number
+          duration_timeline: Json | null
+          emergency_signs_en: string[] | null
+          emergency_signs_th: string[] | null
+          harm_reduction_tips_en: string[] | null
+          harm_reduction_tips_th: string[] | null
+          heart_risk: number
+          icon: string
+          id: string
+          is_active: boolean
+          long_effects_en: string[] | null
+          long_effects_th: string[] | null
+          mental_health_risk: number
+          mid_effects_en: string[] | null
+          mid_effects_th: string[] | null
+          name_en: string
+          name_th: string
+          overview_en: string | null
+          overview_th: string | null
+          routes_of_use: Json | null
+          short_effects_en: string[] | null
+          short_effects_th: string[] | null
+          slug: string
+          updated_at: string
+          withdrawal_en: string[] | null
+          withdrawal_th: string[] | null
+        }
+        Insert: {
+          addiction_risk?: number
+          category_en?: string
+          category_th?: string
+          created_at?: string
+          display_order?: number
+          duration_timeline?: Json | null
+          emergency_signs_en?: string[] | null
+          emergency_signs_th?: string[] | null
+          harm_reduction_tips_en?: string[] | null
+          harm_reduction_tips_th?: string[] | null
+          heart_risk?: number
+          icon?: string
+          id?: string
+          is_active?: boolean
+          long_effects_en?: string[] | null
+          long_effects_th?: string[] | null
+          mental_health_risk?: number
+          mid_effects_en?: string[] | null
+          mid_effects_th?: string[] | null
+          name_en: string
+          name_th: string
+          overview_en?: string | null
+          overview_th?: string | null
+          routes_of_use?: Json | null
+          short_effects_en?: string[] | null
+          short_effects_th?: string[] | null
+          slug: string
+          updated_at?: string
+          withdrawal_en?: string[] | null
+          withdrawal_th?: string[] | null
+        }
+        Update: {
+          addiction_risk?: number
+          category_en?: string
+          category_th?: string
+          created_at?: string
+          display_order?: number
+          duration_timeline?: Json | null
+          emergency_signs_en?: string[] | null
+          emergency_signs_th?: string[] | null
+          harm_reduction_tips_en?: string[] | null
+          harm_reduction_tips_th?: string[] | null
+          heart_risk?: number
+          icon?: string
+          id?: string
+          is_active?: boolean
+          long_effects_en?: string[] | null
+          long_effects_th?: string[] | null
+          mental_health_risk?: number
+          mid_effects_en?: string[] | null
+          mid_effects_th?: string[] | null
+          name_en?: string
+          name_th?: string
+          overview_en?: string | null
+          overview_th?: string | null
+          routes_of_use?: Json | null
+          short_effects_en?: string[] | null
+          short_effects_th?: string[] | null
+          slug?: string
+          updated_at?: string
+          withdrawal_en?: string[] | null
+          withdrawal_th?: string[] | null
+        }
+        Relationships: []
       }
       hr_user_profiles: {
         Row: {
