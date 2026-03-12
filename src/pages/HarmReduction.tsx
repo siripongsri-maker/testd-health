@@ -11,6 +11,8 @@ import { YouthSafePage } from "@/components/harm-reduction/YouthSafePage";
 import { PeerSupport } from "@/components/harm-reduction/PeerSupport";
 import { AICompanion } from "@/components/harm-reduction/AICompanion";
 import { NudgeCard } from "@/components/harm-reduction/NudgeCard";
+import { DailyCheckin } from "@/components/harm-reduction/DailyCheckin";
+import { HealthProgressTracker } from "@/components/harm-reduction/HealthProgressTracker";
 import { getActiveNudges, type Nudge } from "@/lib/SafetyNudges";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -185,8 +187,13 @@ export default function HarmReduction() {
         </div>
       )}
 
+      {/* Daily Check-in */}
+      <div className="mb-4">
+        <DailyCheckin />
+      </div>
+
       {/* Main Cards — 2-col grid, last card spans full if odd */}
-      <div className="grid grid-cols-2 gap-3 mb-6">
+      <div className="grid grid-cols-2 gap-3 mb-4">
         {mainCards.map((card, idx) => {
           const Icon = card.icon;
           const isLast = idx === mainCards.length - 1 && mainCards.length % 2 !== 0;
@@ -215,6 +222,11 @@ export default function HarmReduction() {
             </Card>
           );
         })}
+      </div>
+
+      {/* Health Progress */}
+      <div className="mb-4">
+        <HealthProgressTracker userId={user?.id} />
       </div>
 
       {/* Emergency shortcut */}

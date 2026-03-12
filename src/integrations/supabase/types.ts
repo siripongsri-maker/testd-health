@@ -1746,6 +1746,39 @@ export type Database = {
         }
         Relationships: []
       }
+      hr_checkins: {
+        Row: {
+          anonymous_token: string | null
+          checkin_date: string
+          created_at: string
+          id: string
+          mood: number
+          sleep: number
+          stress: number
+          user_id: string | null
+        }
+        Insert: {
+          anonymous_token?: string | null
+          checkin_date?: string
+          created_at?: string
+          id?: string
+          mood: number
+          sleep: number
+          stress: number
+          user_id?: string | null
+        }
+        Update: {
+          anonymous_token?: string | null
+          checkin_date?: string
+          created_at?: string
+          id?: string
+          mood?: number
+          sleep?: number
+          stress?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       hr_distress_alerts: {
         Row: {
           action_taken: string | null
