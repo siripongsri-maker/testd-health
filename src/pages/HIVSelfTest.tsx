@@ -1278,7 +1278,7 @@ export default function HIVSelfTest() {
                     <>
                       <AlertTriangle className="h-12 w-12 text-destructive mx-auto mb-2" />
                       <h4 className="text-xl font-bold text-destructive mb-1">
-                        {language === 'th' ? 'พบสัญญาณบวก (Reactive)' : 'Reactive'}
+                        {language === 'th' ? 'ผลเป็นบวกเบื้องต้น (Reactive)' : 'Reactive'}
                       </h4>
                       {analysisDetails?.verified && analysisDetails?.passes_agreed && (
                         <p className="text-xs text-destructive/70 mb-2">
