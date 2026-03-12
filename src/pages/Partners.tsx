@@ -10,18 +10,11 @@ import {
   Globe, ExternalLink, CheckCircle2
 } from "lucide-react";
 
-const PARTNERS_FAQ_EN: FAQItem[] = [
-  { question: "What is testD?", answer: "testD is a digital health platform focused on HIV prevention, chemsex harm reduction, and sexual health education. Built by SWING Foundation Thailand." },
-  { question: "Can I link to testD resources?", answer: "Yes. All public knowledge pages are free to link to and cite. We encourage NGOs, educators, and health organizations to share our resources." },
-  { question: "How can I partner with testD?", answer: "Contact us at partnerships@swingth.org with your organization details and proposed collaboration. We welcome co-branded guides, resource inclusions, and expert reviews." },
-  { question: "Is testD content evidence-based?", answer: "Yes. Our content follows WHO, UNODC, and EMCDDA guidelines. All harm reduction content is reviewed for medical accuracy and uses non-stigmatizing language." },
-];
-
-const PARTNERS_FAQ_TH: FAQItem[] = [
-  { question: "testD คืออะไร?", answer: "testD เป็นแพลตฟอร์มสุขภาพดิจิทัลที่มุ่งเน้นการป้องกัน HIV การลดอันตรายจากเคมเซ็กส์ และการให้ความรู้ด้านสุขภาพทางเพศ สร้างโดยมูลนิธิสวิง ประเทศไทย" },
-  { question: "ฉันสามารถลิงก์ไปยังแหล่งข้อมูล testD ได้หรือไม่?", answer: "ได้ หน้าความรู้สาธารณะทั้งหมดสามารถลิงก์และอ้างอิงได้ฟรี" },
-  { question: "จะร่วมงานกับ testD ได้อย่างไร?", answer: "ติดต่อเราที่ partnerships@swingth.org พร้อมรายละเอียดองค์กรและข้อเสนอความร่วมมือ" },
-  { question: "เนื้อหา testD อิงหลักฐานหรือไม่?", answer: "ใช่ เนื้อหาของเราเป็นไปตามแนวทาง WHO, UNODC และ EMCDDA" },
+const PARTNERS_FAQ: FAQItem[] = [
+  { questionEn: "What is testD?", questionTh: "testD คืออะไร?", answerEn: "testD is a digital health platform focused on HIV prevention, chemsex harm reduction, and sexual health education. Built by SWING Foundation Thailand.", answerTh: "testD เป็นแพลตฟอร์มสุขภาพดิจิทัลที่มุ่งเน้นการป้องกัน HIV การลดอันตรายจากเคมเซ็กส์ และการให้ความรู้ด้านสุขภาพทางเพศ สร้างโดยมูลนิธิสวิง ประเทศไทย" },
+  { questionEn: "Can I link to testD resources?", questionTh: "ฉันสามารถลิงก์ไปยังแหล่งข้อมูล testD ได้หรือไม่?", answerEn: "Yes. All public knowledge pages are free to link to and cite. We encourage NGOs, educators, and health organizations to share our resources.", answerTh: "ได้ หน้าความรู้สาธารณะทั้งหมดสามารถลิงก์และอ้างอิงได้ฟรี" },
+  { questionEn: "How can I partner with testD?", questionTh: "จะร่วมงานกับ testD ได้อย่างไร?", answerEn: "Contact us at partnerships@swingth.org with your organization details and proposed collaboration. We welcome co-branded guides, resource inclusions, and expert reviews.", answerTh: "ติดต่อเราที่ partnerships@swingth.org พร้อมรายละเอียดองค์กรและข้อเสนอความร่วมมือ" },
+  { questionEn: "Is testD content evidence-based?", questionTh: "เนื้อหา testD อิงหลักฐานหรือไม่?", answerEn: "Yes. Our content follows WHO, UNODC, and EMCDDA guidelines. All harm reduction content is reviewed for medical accuracy and uses non-stigmatizing language.", answerTh: "ใช่ เนื้อหาของเราเป็นไปตามแนวทาง WHO, UNODC และ EMCDDA" },
 ];
 
 export default function PartnersPage() {
