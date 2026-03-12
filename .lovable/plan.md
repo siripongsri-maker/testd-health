@@ -1,59 +1,114 @@
 
 
-# Plan: Expand Substance Knowledge Library to 18 Profiles
+# Plan: Drug Combination Risk Map (Interaction Matrix)
 
-## Current State
-- Database tables `hr_substances` and `hr_substance_interactions` already exist with correct schema
-- UI components (`SubstanceLibrary`, `SubstanceProfile`, `HarmReductionHub`) are fully built and functional
-- 6 substances currently seeded: Methamphetamine, GHB, Ketamine, MDMA, Poppers, Alcohol
-- 7 interaction warnings exist
+## Summary
 
-## What Needs to Be Done
+Build a visual interaction checker and matrix that lets users explore substance combination risks. The feature integrates into the existing Learn section as a new tab and uses the existing `hr_substance_interactions` table (extended with new columns).
 
-**This is purely a data expansion task.** No UI or schema changes are needed — the existing components will automatically display new substances once inserted.
+## Database Changes
 
-### 12 New Substances to Add
+**Alter `hr_substance_interactions`** — add columns for richer detail:
 
-| # | Substance | Category | Slug |
-|---|-----------|----------|------|
-| 1 | GBL | Depressants | `gbl` |
-| 2 | Cocaine | Stimulants | `cocaine` |
-| 3 | Crack Cocaine | Stimulants | `crack-cocaine` |
-| 4 | Mephedrone (4-MMC) | Stimulants | `mephedrone` |
-| 5 | Amphetamine / Speed | Stimulants | `amphetamine` |
-| 6 | Cannabis | Cannabinoids | `cannabis` |
-| 7 | LSD | Psychedelics | `lsd` |
-| 8 | Psilocybin Mushrooms | Psychedelics | `psilocybin` |
-| 9 | Benzodiazepines | Depressants | `benzodiazepines` |
-| 10 | Sildenafil / Viagra | Sexual Enhancement | `sildenafil` |
-| 11 | Tadalafil / Cialis | Sexual Enhancement | `tadalafil` |
-| 12 | Synthetic Cathinones | Stimulants | `synthetic-cathinones` |
+| Column | Type | Purpose |
+|--------|------|---------|
+| `interaction_type` | `text` | e.g. "stimulant_depressant", "respiratory_depression" |
+| `summary_th` | `text` | Short TH explanation |
+| `summary_en` | `text` | Short EN explanation |
+| `why_risky_th` | `text` | Why this combo is dangerous (TH) |
+| `why_risky_en` | `text` | Why this combo is dangerous (EN) |
+| `possible_effects_th` | `text[]` | Effect list TH |
+| `possible_effects_en` | `text[]` | Effect list EN |
+| `warning_signs_th` | `text[]` | Warning signs TH |
+| `warning_signs_en` | `text[]` | Warning signs EN |
+| `harm_reduction_tips_th` | `text[]` | HR tips TH |
+| `harm_reduction_tips_en` | `text[]` | HR tips EN |
+| `emergency_signs_th` | `text[]` | Emergency signs TH |
+| `emergency_signs_en` | `text[]` | Emergency signs EN |
+| `is_priority` | `boolean default false` | Highlight critical combos |
+| `updated_at` | `timestamptz default now()` | Track updates |
 
-Each substance will include complete bilingual (TH/EN) data for all profile fields: overview, routes of use, duration timeline, short/mid/long-term effects, withdrawal symptoms, harm reduction tips, and emergency signs, plus risk scores (addiction, heart, mental health on 1-5 scale).
+Then **UPDATE all 23 existing rows** with the new field data, and **INSERT ~15 additional combinations** to reach ~38 total pairs covering the priority list.
 
-### New Interaction Warnings (~15-20 additional)
+## New Components
 
-Key combinations to document:
-- GHB + Alcohol → critical (respiratory depression)
-- GHB + Benzodiazepines → critical
-- Cocaine + Alcohol → high (cocaethylene formation)
-- Cocaine + Sildenafil/Viagra → high (cardiovascular strain)
-- MDMA + Amphetamine → high (serotonin syndrome risk)
-- Meth + Sildenafil → high (cardiac stress)
-- LSD + Cannabis → moderate (amplified anxiety)
-- Benzodiazepines + Alcohol → critical
-- GBL + Alcohol → critical
-- Poppers + Sildenafil/Tadalafil → critical (severe hypotension)
-- And more relevant chemsex combinations
+### 1. `InteractionMatrix.tsx`
+Main component with two modes:
 
-### Implementation
+**Mobile-first Checker (default on mobile):**
+- Two dropdown selectors: "Select substance 1" + "Select substance 2"
+- Instant result card below showing risk level, details
+- "View full matrix" toggle
 
-Single database migration containing INSERT statements for all 12 substances and ~18 new interactions. No code changes required — the existing `SubstanceLibrary` component fetches all active substances dynamically.
+**Matrix Grid (default on desktop, optional on mobile):**
+- Scrollable grid with substance names on axes
+- Color-coded cells (green → yellow → orange → red → dark red → gray)
+- Tap cell → opens detail drawer
 
-### No UI Changes Needed
+### 2. `InteractionDetailDrawer.tsx`
+Sheet/drawer that opens when tapping a combination:
+- Combination name with substance icons
+- Risk level badge (color-coded)
+- Interaction type tag
+- "Why is this risky?" section
+- Possible effects list
+- Warning signs list
+- Harm reduction tips
+- Emergency signs
+- CTA buttons: Talk to counselor, Mental health support, Emergency help, Learn about each substance
 
-The existing components handle everything:
-- `SubstanceLibrary.tsx` — grid with search, category grouping, risk badges
-- `SubstanceProfile.tsx` — collapsible sections, risk bars, interaction warnings, CTA cards
-- `HarmReductionHub.tsx` — tab navigation with substance library tab
+### Integration Points
+
+**HarmReductionHub.tsx** — Add 4th tab "Interactions" (ปฏิกิริยาสาร) to the existing 3-tab layout (Substances | Safety Tips | Myth vs Fact → becomes 4 tabs).
+
+**SubstanceProfile.tsx** — Add a "View full Interaction Matrix" link button below the existing interaction warnings section.
+
+**HarmReduction.tsx landing page** — No changes needed (matrix lives inside Learn section).
+
+**AdminHarmReductionContent.tsx** — Add "Matrix Views" stat card by querying `hr_nudge_events` where `nudge_type = 'matrix_view'`. Track top combos viewed.
+
+## Data Seeding
+
+Update existing 23 interactions with full bilingual content (summary, why_risky, effects, warning signs, HR tips, emergency signs, interaction_type, is_priority).
+
+Insert ~15 new combinations to cover the full priority list:
+- Cannabis + Alcohol (moderate)
+- Cannabis + Ketamine (moderate)
+- Psilocybin + Cannabis (moderate)
+- MDMA + Alcohol (high)
+- Amphetamine + Sildenafil (high)
+- Meth + Cocaine (critical)
+- Ketamine + Benzodiazepines (critical)
+- GBL + Ketamine (high)
+- GHB + Ketamine (already exists)
+- Synthetic Cathinones + Meth (high)
+- And others from the priority list not yet covered
+
+## Analytics Tracking
+
+Use existing `trackEvent` to log:
+- `hr_matrix_view` — when matrix/checker is opened
+- `hr_combo_view` — when a specific combination detail is opened (with combo data)
+- `hr_combo_support_click` — when CTA is clicked from a combo detail
+
+## UI Design
+
+- Calm medical palette matching existing HR module
+- Risk level colors: `emerald` (lower) → `amber` (caution) → `orange` (high caution) → `destructive` (high) → `destructive dark` (critical) → `muted` (unknown)
+- Mobile-first substance picker with instant results
+- Disclaimer banner at top: bilingual "Lower relative risk does not mean no risk"
+- Bento card layout for detail sections
+
+## Files
+
+| Action | File |
+|--------|------|
+| Create | `src/components/harm-reduction/InteractionMatrix.tsx` |
+| Create | `src/components/harm-reduction/InteractionDetailDrawer.tsx` |
+| Modify | `src/components/harm-reduction/HarmReductionHub.tsx` — add 4th tab |
+| Modify | `src/components/harm-reduction/SubstanceProfile.tsx` — add matrix link |
+| Modify | `src/components/harm-reduction/SubstanceLibrary.tsx` — export interactions for matrix |
+| Modify | `src/components/admin/AdminHarmReductionContent.tsx` — add matrix analytics |
+| Migration | Alter `hr_substance_interactions` with new columns |
+| Data | Update 23 existing + insert ~15 new interaction rows |
 
