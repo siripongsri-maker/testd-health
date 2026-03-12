@@ -138,6 +138,11 @@ const App = () => (
                 <Route path="/prevention-match" element={<PreventionMatch />} />
                 <Route path="/queue-tv/:branchSlug" element={<QueueTV />} />
                 <Route path="/harm-reduction" element={<HarmReduction />} />
+                <Route path="/chemsex-safety" element={<SEOLanding />} />
+                <Route path="/drug-combination-risk" element={<SEOLanding />} />
+                <Route path="/ghb-overdose" element={<SEOLanding />} />
+                <Route path="/meth-harm-reduction" element={<SEOLanding />} />
+                <Route path="/hiv-self-test-guide" element={<SEOLanding />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>
