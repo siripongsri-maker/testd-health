@@ -87,7 +87,7 @@ function EntitiesTab({ isEn }: { isEn: boolean }) {
   const load = useCallback(async () => {
     setLoading(true);
     let q = supabase.from("hr_knowledge_entities").select("*").order("created_at", { ascending: false }).limit(200);
-    if (filterType !== "all") q = q.eq("entity_type", filterType);
+    if (filterType !== "all") q = q.eq("entity_type", filterType as any);
     if (search) q = q.or(`name_en.ilike.%${search}%,name_th.ilike.%${search}%`);
     const { data } = await q;
     setEntities(data || []);
