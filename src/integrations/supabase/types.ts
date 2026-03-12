@@ -1725,6 +1725,475 @@ export type Database = {
         }
         Relationships: []
       }
+      hr_followups: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          due_at: string | null
+          followup_type: string
+          id: string
+          notes: string | null
+          referral_id: string | null
+          screening_id: string | null
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          due_at?: string | null
+          followup_type: string
+          id?: string
+          notes?: string | null
+          referral_id?: string | null
+          screening_id?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          due_at?: string | null
+          followup_type?: string
+          id?: string
+          notes?: string | null
+          referral_id?: string | null
+          screening_id?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_followups_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "hr_referrals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_followups_screening_id_fkey"
+            columns: ["screening_id"]
+            isOneToOne: false
+            referencedRelation: "hr_screenings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_harm_history: {
+        Row: {
+          blackout: boolean | null
+          crash: boolean | null
+          created_at: string | null
+          id: string
+          injury: boolean | null
+          notes: string | null
+          overdose: boolean | null
+          panic: boolean | null
+          screening_id: string
+        }
+        Insert: {
+          blackout?: boolean | null
+          crash?: boolean | null
+          created_at?: string | null
+          id?: string
+          injury?: boolean | null
+          notes?: string | null
+          overdose?: boolean | null
+          panic?: boolean | null
+          screening_id: string
+        }
+        Update: {
+          blackout?: boolean | null
+          crash?: boolean | null
+          created_at?: string | null
+          id?: string
+          injury?: boolean | null
+          notes?: string | null
+          overdose?: boolean | null
+          panic?: boolean | null
+          screening_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_harm_history_screening_id_fkey"
+            columns: ["screening_id"]
+            isOneToOne: false
+            referencedRelation: "hr_screenings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_knowledge_progress: {
+        Row: {
+          anonymous_token: string | null
+          completed: boolean | null
+          content_id: string
+          content_type: string
+          created_at: string | null
+          id: string
+          score: number | null
+          user_id: string | null
+        }
+        Insert: {
+          anonymous_token?: string | null
+          completed?: boolean | null
+          content_id: string
+          content_type: string
+          created_at?: string | null
+          id?: string
+          score?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          anonymous_token?: string | null
+          completed?: boolean | null
+          content_id?: string
+          content_type?: string
+          created_at?: string | null
+          id?: string
+          score?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      hr_mental_health: {
+        Row: {
+          anxiety_level: number | null
+          created_at: string | null
+          depression_level: number | null
+          id: string
+          loneliness_level: number | null
+          notes: string | null
+          screening_id: string
+          sleep_issues_level: number | null
+        }
+        Insert: {
+          anxiety_level?: number | null
+          created_at?: string | null
+          depression_level?: number | null
+          id?: string
+          loneliness_level?: number | null
+          notes?: string | null
+          screening_id: string
+          sleep_issues_level?: number | null
+        }
+        Update: {
+          anxiety_level?: number | null
+          created_at?: string | null
+          depression_level?: number | null
+          id?: string
+          loneliness_level?: number | null
+          notes?: string | null
+          screening_id?: string
+          sleep_issues_level?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_mental_health_screening_id_fkey"
+            columns: ["screening_id"]
+            isOneToOne: false
+            referencedRelation: "hr_screenings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_referrals: {
+        Row: {
+          anonymous_token: string | null
+          assigned_to: string | null
+          completed_at: string | null
+          contact_method: string | null
+          contact_value: string | null
+          created_at: string | null
+          id: string
+          notes: string | null
+          priority: string | null
+          referral_type: string
+          scheduled_at: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          anonymous_token?: string | null
+          assigned_to?: string | null
+          completed_at?: string | null
+          contact_method?: string | null
+          contact_value?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          priority?: string | null
+          referral_type: string
+          scheduled_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          anonymous_token?: string | null
+          assigned_to?: string | null
+          completed_at?: string | null
+          contact_method?: string | null
+          contact_value?: string | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          priority?: string | null
+          referral_type?: string
+          scheduled_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      hr_reminders: {
+        Row: {
+          anonymous_token: string | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          is_completed: boolean | null
+          is_recurring: boolean | null
+          plan_id: string | null
+          recurrence_interval: string | null
+          reminder_type: string
+          scheduled_at: string
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          anonymous_token?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          is_completed?: boolean | null
+          is_recurring?: boolean | null
+          plan_id?: string | null
+          recurrence_interval?: string | null
+          reminder_type: string
+          scheduled_at: string
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          anonymous_token?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          is_completed?: boolean | null
+          is_recurring?: boolean | null
+          plan_id?: string | null
+          recurrence_interval?: string | null
+          reminder_type?: string
+          scheduled_at?: string
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_reminders_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "hr_safer_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_safer_plans: {
+        Row: {
+          anonymous_token: string | null
+          checklist: Json | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          notes: string | null
+          plan_date: string | null
+          plan_name: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          anonymous_token?: string | null
+          checklist?: Json | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          notes?: string | null
+          plan_date?: string | null
+          plan_name?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          anonymous_token?: string | null
+          checklist?: Json | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          notes?: string | null
+          plan_date?: string | null
+          plan_name?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      hr_screenings: {
+        Row: {
+          anonymous_token: string | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          recommendations: Json | null
+          risk_level: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          anonymous_token?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          recommendations?: Json | null
+          risk_level?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          anonymous_token?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          recommendations?: Json | null
+          risk_level?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      hr_sexual_health: {
+        Row: {
+          condom_use: string | null
+          created_at: string | null
+          id: string
+          last_hiv_test: string | null
+          notes: string | null
+          prep_use: string | null
+          screening_id: string
+          sti_history: boolean | null
+        }
+        Insert: {
+          condom_use?: string | null
+          created_at?: string | null
+          id?: string
+          last_hiv_test?: string | null
+          notes?: string | null
+          prep_use?: string | null
+          screening_id: string
+          sti_history?: boolean | null
+        }
+        Update: {
+          condom_use?: string | null
+          created_at?: string | null
+          id?: string
+          last_hiv_test?: string | null
+          notes?: string | null
+          prep_use?: string | null
+          screening_id?: string
+          sti_history?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_sexual_health_screening_id_fkey"
+            columns: ["screening_id"]
+            isOneToOne: false
+            referencedRelation: "hr_screenings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_substance_use: {
+        Row: {
+          created_at: string | null
+          frequency: string | null
+          id: string
+          injection_use: boolean | null
+          mixing: boolean | null
+          notes: string | null
+          screening_id: string
+          slam_use: boolean | null
+          substances: string[] | null
+        }
+        Insert: {
+          created_at?: string | null
+          frequency?: string | null
+          id?: string
+          injection_use?: boolean | null
+          mixing?: boolean | null
+          notes?: string | null
+          screening_id: string
+          slam_use?: boolean | null
+          substances?: string[] | null
+        }
+        Update: {
+          created_at?: string | null
+          frequency?: string | null
+          id?: string
+          injection_use?: boolean | null
+          mixing?: boolean | null
+          notes?: string | null
+          screening_id?: string
+          slam_use?: boolean | null
+          substances?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_substance_use_screening_id_fkey"
+            columns: ["screening_id"]
+            isOneToOne: false
+            referencedRelation: "hr_screenings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_user_profiles: {
+        Row: {
+          anonymous_token: string | null
+          consent_given: boolean | null
+          consent_given_at: string | null
+          created_at: string | null
+          id: string
+          nickname: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          anonymous_token?: string | null
+          consent_given?: boolean | null
+          consent_given_at?: string | null
+          created_at?: string | null
+          id?: string
+          nickname?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          anonymous_token?: string | null
+          consent_given?: boolean | null
+          consent_given_at?: string | null
+          created_at?: string | null
+          id?: string
+          nickname?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       ip_contributors: {
         Row: {
           contribution_type: string | null

@@ -113,6 +113,12 @@ const menuGroups: MenuGroup[] = [
     ],
   },
   {
+    labelKey: "admin.harmReduction",
+    items: [
+      { tab: "harm-reduction", icon: Heart, labelKey: "admin.harmReductionDashboard", adminOnly: true, meAnalyst: true },
+    ],
+  },
+  {
     labelKey: "admin.adminTools",
     items: [
       { tab: "diagnostics", icon: Wrench, labelKey: "admin.diagnostics", adminOnly: true },
