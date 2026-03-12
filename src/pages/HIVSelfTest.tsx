@@ -1420,18 +1420,25 @@ export default function HIVSelfTest() {
             )}
 
             {analysisResult && (
-              <Button 
-                className="w-full gap-2" 
-                size="lg"
-                onClick={handleSubmitResult}
-                disabled={uploading}
-              >
-                <Upload className="h-4 w-4" />
-                {uploading 
-                  ? (language === 'th' ? 'กำลังส่ง...' : 'Submitting...')
-                  : (language === 'th' ? 'ส่งผลให้เจ้าหน้าที่ยืนยัน' : 'Submit for Staff Verification')
-                }
-              </Button>
+              <>
+                <SelfTestResultExplanation
+                  result={analysisResult}
+                  confidence={analysisDetails?.confidence}
+                  language={language}
+                />
+                <Button 
+                  className="w-full gap-2" 
+                  size="lg"
+                  onClick={handleSubmitResult}
+                  disabled={uploading}
+                >
+                  <Upload className="h-4 w-4" />
+                  {uploading 
+                    ? (language === 'th' ? 'กำลังส่ง...' : 'Submitting...')
+                    : (language === 'th' ? 'ส่งผลให้เจ้าหน้าที่ยืนยัน' : 'Submit for Staff Verification')
+                  }
+                </Button>
+              </>
             )}
           </div>
         )}
