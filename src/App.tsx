@@ -69,6 +69,7 @@ const QueueTV = lazy(() => import("./pages/QueueTV"));
 const HarmReduction = lazy(() => import("./pages/HarmReduction"));
 const SEOLanding = lazy(() => import("./pages/SEOLanding"));
 const InteractionPage = lazy(() => import("./pages/InteractionPage"));
+const Partners = lazy(() => import("./pages/Partners"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
