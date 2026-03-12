@@ -15,9 +15,11 @@ import {
   Pill, Heart, AlertTriangle, Brain, ChevronRight, ChevronLeft,
   ShieldCheck, ShieldAlert, Shield, CheckCircle2,
 } from "lucide-react";
+import { DistressCard } from "@/components/harm-reduction/DistressCard";
 
 interface Props {
   userId?: string;
+  onNavigateSupport?: () => void;
 }
 
 interface ScreeningData {
@@ -96,7 +98,7 @@ function computeRisk(data: ScreeningData): { level: string; score: number; recom
   return { level, score, recommendations: [...new Set(recs)] };
 }
 
-export function RiskScreening({ userId }: Props) {
+export function RiskScreening({ userId, onNavigateSupport }: Props) {
   const { language } = useLanguage();
   const isEn = language === "en";
   const [step, setStep] = useState(0);
@@ -402,6 +404,11 @@ export function RiskScreening({ userId }: Props) {
                     );
                   })}
                 </div>
+              )}
+
+              {/* Distress detection */}
+              {(data.anxiety + data.depression) >= 8 && (
+                <DistressCard userId={userId} onNavigateSupport={onNavigateSupport} />
               )}
 
               <p className="text-xs text-muted-foreground leading-relaxed mt-3">

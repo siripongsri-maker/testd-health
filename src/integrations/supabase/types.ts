@@ -1725,6 +1725,75 @@ export type Database = {
         }
         Relationships: []
       }
+      hr_ai_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          message_count: number
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_count?: number
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_count?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      hr_distress_alerts: {
+        Row: {
+          action_taken: string | null
+          created_at: string
+          id: string
+          trigger_type: string
+          user_id: string | null
+        }
+        Insert: {
+          action_taken?: string | null
+          created_at?: string
+          id?: string
+          trigger_type: string
+          user_id?: string | null
+        }
+        Update: {
+          action_taken?: string | null
+          created_at?: string
+          id?: string
+          trigger_type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      hr_dose_logs: {
+        Row: {
+          created_at: string
+          dose_time: string
+          id: string
+          substance: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          dose_time: string
+          id?: string
+          substance: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          dose_time?: string
+          id?: string
+          substance?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       hr_followups: {
         Row: {
           completed_at: string | null
@@ -1893,6 +1962,98 @@ export type Database = {
             columns: ["screening_id"]
             isOneToOne: false
             referencedRelation: "hr_screenings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_nudge_events: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          nudge_type: string
+          user_id: string | null
+        }
+        Insert: {
+          action?: string
+          created_at?: string
+          id?: string
+          nudge_type: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          nudge_type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      hr_peer_posts: {
+        Row: {
+          admin_note: string | null
+          anonymous_token: string
+          content: string
+          created_at: string
+          id: string
+          is_approved: boolean
+          is_flagged: boolean
+        }
+        Insert: {
+          admin_note?: string | null
+          anonymous_token: string
+          content: string
+          created_at?: string
+          id?: string
+          is_approved?: boolean
+          is_flagged?: boolean
+        }
+        Update: {
+          admin_note?: string | null
+          anonymous_token?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_approved?: boolean
+          is_flagged?: boolean
+        }
+        Relationships: []
+      }
+      hr_peer_replies: {
+        Row: {
+          anonymous_token: string
+          content: string
+          created_at: string
+          id: string
+          is_approved: boolean
+          is_flagged: boolean
+          post_id: string
+        }
+        Insert: {
+          anonymous_token: string
+          content: string
+          created_at?: string
+          id?: string
+          is_approved?: boolean
+          is_flagged?: boolean
+          post_id: string
+        }
+        Update: {
+          anonymous_token?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_approved?: boolean
+          is_flagged?: boolean
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_peer_replies_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "hr_peer_posts"
             referencedColumns: ["id"]
           },
         ]

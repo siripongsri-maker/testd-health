@@ -13,6 +13,7 @@ import {
   Shield, Plus, Bell, Check, Droplets, Pill, Car, Heart,
   Clock, Trash2, Save,
 } from "lucide-react";
+import { DoseTimer } from "@/components/harm-reduction/DoseTimer";
 
 interface Props {
   userId?: string;
@@ -221,6 +222,9 @@ export function SaferUsePlanner({ userId }: Props) {
           )}
         </CardContent>
       </Card>
+
+      {/* Dose Timer */}
+      <DoseTimer />
 
       {/* Save button */}
       <Button onClick={handleSavePlan} className="w-full rounded-2xl" disabled={saving}>
