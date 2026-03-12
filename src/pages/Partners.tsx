@@ -21,7 +21,7 @@ export default function PartnersPage() {
   const { language } = useLanguage();
   const navigate = useNavigate();
   const isEn = language === "en";
-  const faqs = isEn ? PARTNERS_FAQ_EN : PARTNERS_FAQ_TH;
+  const faqs = PARTNERS_FAQ;
 
   const linkableAssets = [
     { icon: Shield, titleEn: "Drug Combination Risk Checker", titleTh: "เครื่องมือตรวจสอบความเสี่ยงยาผสม", descEn: "Interactive tool checking risks of 50+ drug combinations with harm reduction advice.", descTh: "เครื่องมือตรวจสอบความเสี่ยงยาผสมกว่า 50 รายการพร้อมคำแนะนำลดอันตราย", path: "/harm-reduction" },
