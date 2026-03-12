@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.auto-checkout]
 verify_jwt = false
+
+[functions.chat-ai-reply]
+verify_jwt = false
