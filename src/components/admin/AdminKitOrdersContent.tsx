@@ -722,15 +722,19 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       });
     } else {
       // CSV headers include gender field sourced from selftest_pii.gender
-      csvContent = "Request ID,Branch,Thai ID,Name,Gender,Date of Birth,Phone,Line ID,Address,Subdistrict,District,Province,Postal Code,Status,Tracking Number,Test Result,Wants Callback,Callback Phone,Staff Notes,Created At,Updated At\n";
+      csvContent = "Request ID,Branch,Thai ID,Name,Gender,Date of Birth,Phone,Line ID,Address,Subdistrict,District,Province,Postal Code,Status,Tracking Number,Test Result,Result Image URL,Result Image Filename,Wants Callback,Callback Phone,Staff Notes,Created At,Updated At\n";
       filteredHIVRequests.forEach(request => {
         const pii = request.selftest_pii;
+        const resultImageUrl = request.result_photo_url
+          ? supabase.storage.from('selftest-results').getPublicUrl(request.result_photo_url).data.publicUrl
+          : '';
+        const resultImageFilename = request.result_photo_url || '';
         const row = [
           request.id,
           request.assigned_branch || 'silom',
           pii?.thai_id || '',
           pii?.full_name || '',
-          pii?.gender || '', // Gender field from selftest_pii table
+          pii?.gender || '',
           pii?.date_of_birth || '',
           pii?.phone || '',
           pii?.line_id || '',
@@ -742,6 +746,8 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
           request.status,
           request.tracking_number || '',
           request.test_result || '',
+          resultImageUrl,
+          resultImageFilename,
           request.wants_callback ? 'Yes' : 'No',
           request.callback_phone || '',
           `"${(request.staff_notes || '').replace(/"/g, '""')}"`,
