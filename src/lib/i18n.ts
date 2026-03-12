@@ -493,6 +493,8 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.exportCenter': 'ส่งออกข้อมูล',
     'admin.activityLogs': 'บันทึกกิจกรรม',
     'admin.adminTools': 'เครื่องมือแอดมิน',
+    'admin.harmReduction': 'Harm Reduction',
+    'admin.harmReductionDashboard': 'ติดตามผล HR',
     'admin.diagnostics': 'วินิจฉัยระบบ',
     'admin.systemHealth': 'สุขภาพระบบ',
     'admin.ipDocs': 'ศูนย์เอกสาร IP',
