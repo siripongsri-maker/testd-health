@@ -14,6 +14,7 @@ import {
   AISummaryBlock, QuickFactsCard, FAQSection, SourcesCard,
 } from "@/components/seo";
 import type { FAQItem } from "@/components/seo";
+import { RelatedKnowledge } from "@/components/harm-reduction/RelatedKnowledge";
 
 interface Props {
   substance: Substance;
@@ -374,6 +375,9 @@ export function SubstanceProfile({ substance: s, interactions, allSubstances, on
       {substanceFaqs.length > 0 && (
         <FAQSection faqs={substanceFaqs} isEn={isEn} />
       )}
+
+      {/* Knowledge Graph Related */}
+      <RelatedKnowledge entitySlug={s.slug} titleEn="Related Knowledge" titleTh="ความรู้ที่เกี่ยวข้อง" />
 
       {/* Sources */}
       <SourcesCard isEn={isEn} />

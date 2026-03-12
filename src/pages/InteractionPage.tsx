@@ -15,6 +15,7 @@ import {
   AISummaryBlock, QuickFactsCard, FAQSection, SourcesCard,
   RelatedContentLinks,
 } from "@/components/seo";
+import { RelatedKnowledge } from "@/components/harm-reduction/RelatedKnowledge";
 import type { FAQItem } from "@/components/seo";
 import { trackEvent } from "@/hooks/useAnalytics";
 
@@ -413,6 +414,9 @@ export default function InteractionPage() {
               ))}
             </div>
           </nav>
+
+          {/* Knowledge Graph Related */}
+          {slug && <RelatedKnowledge entitySlug={slug} titleEn="Related Knowledge" titleTh="ความรู้ที่เกี่ยวข้อง" />}
 
           {/* Sources */}
           <SourcesCard isEn={isEn} />
