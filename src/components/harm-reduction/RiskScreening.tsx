@@ -97,7 +97,7 @@ function computeRisk(data: ScreeningData): { level: string; score: number; recom
   return { level, score, recommendations: [...new Set(recs)] };
 }
 
-export function RiskScreening({ userId }: Props) {
+export function RiskScreening({ userId, onNavigateSupport }: Props) {
   const { language } = useLanguage();
   const isEn = language === "en";
   const [step, setStep] = useState(0);
