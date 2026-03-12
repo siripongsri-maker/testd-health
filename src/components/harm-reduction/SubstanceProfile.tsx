@@ -9,6 +9,11 @@ import {
   HeartHandshake, MessageCircle, Phone,
 } from "lucide-react";
 import type { Substance, SubstanceInteraction } from "./SubstanceLibrary";
+import {
+  SEOHead, buildMedicalPageJsonLd, buildFaqJsonLd,
+  AISummaryBlock, QuickFactsCard, FAQSection, SourcesCard,
+} from "@/components/seo";
+import type { FAQItem } from "@/components/seo";
 
 interface Props {
   substance: Substance;
