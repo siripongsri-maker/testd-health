@@ -109,8 +109,8 @@ function EntitiesTab({ isEn }: { isEn: boolean }) {
       await supabase.from("hr_knowledge_entities").insert({
         name_en: form.name_en!, name_th: form.name_th!,
         summary_en: form.summary_en, summary_th: form.summary_th,
-        entity_type: form.entity_type as any, slug: form.slug!, status: form.status || "draft",
-      });
+        entity_type: form.entity_type, slug: form.slug!, status: form.status || "draft",
+      } as any);
       toast.success("Entity created");
     }
     setDialogOpen(false);
