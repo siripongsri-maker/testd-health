@@ -169,6 +169,19 @@
     --shadow-lg: 0 8px 24px -6px hsl(0 0% 0% / 0.25);
     --shadow-xl: 0 12px 40px -8px hsl(0 0% 0% / 0.3);
     --shadow-2xl: 0 20px 60px -12px hsl(0 0% 0% / 0.4);
+
+    /* HR dark mode overrides */
+    --hr-teal: 174 56% 55%;
+    --hr-blue: 223 92% 70%;
+    --hr-risk-low: 139 35% 50%;
+    --hr-risk-caution: 44 87% 55%;
+    --hr-risk-high-caution: 27 87% 55%;
+    --hr-risk-high: 0 78% 55%;
+    --hr-risk-critical: 6 65% 55%;
+    --hr-risk-unknown: 210 12% 50%;
+    --hr-surface: 220 12% 14%;
+    --hr-divider: 220 10% 20%;
+    --hr-card-shadow: 0 6px 18px hsl(0 0% 0% / 0.2);
   }
 }
 
