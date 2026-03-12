@@ -3341,6 +3341,81 @@ export type Database = {
         }
         Relationships: []
       }
+      outreach_contacts: {
+        Row: {
+          backlink_status: string | null
+          backlink_url: string | null
+          campaign_type: string | null
+          contact_email: string | null
+          contact_name: string | null
+          contact_role: string | null
+          country: string | null
+          created_at: string
+          created_by: string | null
+          date_contacted: string | null
+          date_link_live: string | null
+          date_responded: string | null
+          id: string
+          notes: string | null
+          organization_name: string
+          organization_type: string
+          outreach_status: string
+          priority: string | null
+          region: string | null
+          target_asset: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          backlink_status?: string | null
+          backlink_url?: string | null
+          campaign_type?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_role?: string | null
+          country?: string | null
+          created_at?: string
+          created_by?: string | null
+          date_contacted?: string | null
+          date_link_live?: string | null
+          date_responded?: string | null
+          id?: string
+          notes?: string | null
+          organization_name: string
+          organization_type?: string
+          outreach_status?: string
+          priority?: string | null
+          region?: string | null
+          target_asset?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          backlink_status?: string | null
+          backlink_url?: string | null
+          campaign_type?: string | null
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_role?: string | null
+          country?: string | null
+          created_at?: string
+          created_by?: string | null
+          date_contacted?: string | null
+          date_link_live?: string | null
+          date_responded?: string | null
+          id?: string
+          notes?: string | null
+          organization_name?: string
+          organization_type?: string
+          outreach_status?: string
+          priority?: string | null
+          region?: string | null
+          target_asset?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       partner_invite_abuse_flags: {
         Row: {
           abuse_type: string
