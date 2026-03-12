@@ -187,12 +187,17 @@ export function InteractionDetailDrawer({ interaction: int, nameA, nameB, open, 
             )}
           </div>
 
-          {/* ── Summary ── */}
+          {/* ── AI Summary ── */}
           {(int.summary_th || int.summary_en) && (
-            <p className="text-[15px] text-foreground/85 leading-relaxed">
-              {isEn ? int.summary_en : int.summary_th}
-            </p>
+            <AISummaryBlock
+              summaryEn={int.summary_en || ""}
+              summaryTh={int.summary_th || ""}
+              isEn={isEn}
+            />
           )}
+
+          {/* ── Quick Facts ── */}
+          <QuickFactsCard facts={quickFacts} isEn={isEn} />
 
           {/* ── Divider ── */}
           <div className="h-px bg-hr-divider" />
