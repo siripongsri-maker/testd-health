@@ -9,6 +9,7 @@ import {
   Phone,
 } from "lucide-react";
 import { trackEvent } from "@/hooks/useAnalytics";
+import { AISummaryBlock, QuickFactsCard, SourcesCard } from "@/components/seo";
 
 export interface InteractionDetail {
   id: string;
