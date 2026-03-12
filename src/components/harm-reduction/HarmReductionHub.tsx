@@ -6,11 +6,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertTriangle, Droplets, Heart, Shield, Pill, Zap,
   CheckCircle2, XCircle, TestTube, MessageCircle, Package,
-  ClipboardCheck, BookOpen,
+  ClipboardCheck, BookOpen, Grid3X3,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { trackEvent } from "@/hooks/useAnalytics";
 import { SubstanceLibrary } from "./SubstanceLibrary";
+import { InteractionMatrix } from "./InteractionMatrix";
 
 interface Props {
   onNavigate: (tab: string) => void;
