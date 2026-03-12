@@ -370,6 +370,14 @@ export function SubstanceProfile({ substance: s, interactions, allSubstances, on
         </CardContent>
       </Card>
 
+      {/* FAQ Section */}
+      {substanceFaqs.length > 0 && (
+        <FAQSection faqs={substanceFaqs} isEn={isEn} />
+      )}
+
+      {/* Sources */}
+      <SourcesCard isEn={isEn} />
+
       {/* Disclaimer */}
       <div className="rounded-2xl bg-muted/40 p-3.5">
         <p className="text-[11px] text-muted-foreground leading-relaxed">
@@ -378,6 +386,6 @@ export function SubstanceProfile({ substance: s, interactions, allSubstances, on
             : "⚕️ ข้อมูลนี้จัดทำเพื่อการลดอันตรายและสุขศึกษา ไม่ได้ส่งเสริมหรือสนับสนุนการใช้สาร ควรปรึกษาแพทย์เสมอ"}
         </p>
       </div>
-    </div>
+    </article>
   );
 }
