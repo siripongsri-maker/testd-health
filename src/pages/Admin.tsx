@@ -183,6 +183,7 @@ export default function Admin() {
           {renderTab("system-health", <AdminSystemHealthContent />)}
           {renderTab("ip-docs", <AdminIPDocsContent />)}
           {renderTab("harm-reduction", <AdminHarmReductionContent />)}
+          {renderTab("knowledge-graph", <AdminKnowledgeGraphContent />)}
         </Tabs>
       </div>
     </AdminLayout>
