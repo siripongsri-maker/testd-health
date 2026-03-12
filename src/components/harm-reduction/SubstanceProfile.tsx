@@ -14,6 +14,7 @@ import {
   AISummaryBlock, QuickFactsCard, FAQSection, SourcesCard,
 } from "@/components/seo";
 import type { FAQItem } from "@/components/seo";
+import { RelatedKnowledge } from "@/components/harm-reduction/RelatedKnowledge";
 
 interface Props {
   substance: Substance;
