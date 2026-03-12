@@ -1232,7 +1232,7 @@ export default function HIVSelfTest() {
                     : 'bg-amber-500/10 border-amber-500/30'
               }`}>
                 <div className="text-center">
-                  {analysisResult === 'negative' && (
+                  {analysisResult === 'negative' && analysisDetails?.confidence === 'high' && (
                     <>
                       <CheckCircle2 className="h-12 w-12 text-success mx-auto mb-2" />
                       <h4 className="text-xl font-bold text-success mb-1">
@@ -1242,6 +1242,34 @@ export default function HIVSelfTest() {
                         {language === 'th' 
                           ? 'ผลเบื้องต้นไม่พบการติดเชื้อ HIV'
                           : 'Preliminary result shows no HIV infection'
+                        }
+                      </p>
+                    </>
+                  )}
+                  {analysisResult === 'negative' && analysisDetails?.confidence !== 'high' && (
+                    <>
+                      <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto mb-2" />
+                      <h4 className="text-xl font-bold text-amber-500 mb-1">
+                        {language === 'th' ? 'อ่านผลไม่ชัดเจน' : 'Inconclusive'}
+                      </h4>
+                      <p className="text-sm text-amber-500/80">
+                        {language === 'th' 
+                          ? 'ระบบอ่านผลว่าไม่พบเชื้อ แต่ความมั่นใจต่ำ กรุณาส่งให้เจ้าหน้าที่ตรวจสอบ'
+                          : 'System reads negative but confidence is low. Please submit for staff review.'
+                        }
+                      </p>
+                    </>
+                  )}
+                  {analysisResult === 'inconclusive' && (
+                    <>
+                      <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto mb-2" />
+                      <h4 className="text-xl font-bold text-amber-500 mb-1">
+                        {language === 'th' ? 'อ่านผลไม่ชัดเจน' : 'Inconclusive'}
+                      </h4>
+                      <p className="text-sm text-amber-500/80">
+                        {language === 'th' 
+                          ? 'ระบบไม่สามารถอ่านผลได้ชัดเจน กรุณาถ่ายรูปใหม่หรือส่งให้เจ้าหน้าที่ตรวจสอบ'
+                          : 'System could not read the result clearly. Please retake photo or submit for staff review.'
                         }
                       </p>
                     </>
