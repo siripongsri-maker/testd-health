@@ -96,8 +96,8 @@ export default function AdminContentGeneratorContent() {
   }, []);
 
   const loadSubstances = async () => {
-    const { data } = await supabase.from("hr_substances").select("id,slug,name_en,name_th,category").order("name_en");
-    if (data) setSubstances(data);
+    const { data } = await supabase.from("hr_substances").select("id,slug,name_en,name_th").order("name_en");
+    if (data) setSubstances(data.map(d => ({ ...d, category: '' })));
   };
 
   const loadDrafts = async () => {
