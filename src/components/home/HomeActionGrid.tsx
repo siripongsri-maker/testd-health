@@ -104,7 +104,12 @@ export function HomeActionGrid() {
     },
   ];
 
-  // Row 3 — Support (counselor + support chat + wide medication widget)
+  // Row 3 — Support (harm reduction + counselor + support chat + wide medication widget)
+  const row3HarmReduction = {
+    icon: <ShieldHalf className="h-full w-full" strokeWidth={1.5} />,
+    titleTh: language === 'th' ? 'Harm Reduction' : 'Harm Reduction',
+    path: '/harm-reduction',
+  };
   const row3Counselor = {
     icon: <MessageCircle className="h-full w-full" strokeWidth={1.5} />,
     titleKey: 'home.onlineCounselor',
