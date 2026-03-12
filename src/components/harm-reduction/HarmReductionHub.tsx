@@ -120,67 +120,51 @@ export function HarmReductionHub({ onNavigate }: Props) {
             </div>
           </TabsContent>
         ))}
+          </Tabs>
+
+          {/* Single CTA row */}
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" variant="outline" className="h-8 text-xs rounded-full" onClick={() => { trackEvent("hr_cta_click", { action: "screening" }); onNavigate("check"); }}>
+              <ClipboardCheck className="h-3.5 w-3.5 mr-1.5" />
+              {isEn ? "Start Risk Check" : "ตรวจความเสี่ยง"}
+            </Button>
+            <Button size="sm" variant="outline" className="h-8 text-xs rounded-full" onClick={() => { trackEvent("hr_cta_click", { action: "kit" }); navigate("/hiv-selftest"); }}>
+              <Package className="h-3.5 w-3.5 mr-1.5" />
+              {isEn ? "HIV Test Kit" : "ชุดตรวจ HIV"}
+            </Button>
+            <Button size="sm" variant="outline" className="h-8 text-xs rounded-full" onClick={() => { trackEvent("hr_cta_click", { action: "counselor" }); onNavigate("support"); }}>
+              <MessageCircle className="h-3.5 w-3.5 mr-1.5" />
+              {isEn ? "Talk to Counselor" : "ปรึกษา"}
+            </Button>
+          </div>
+        </TabsContent>
+
+        {/* Myth vs Fact */}
+        <TabsContent value="myths" className="mt-3">
+          <div className="grid gap-3">
+            {MYTHS.map(myth => (
+              <Card key={myth.id} className="border border-border/30 overflow-hidden">
+                <CardContent className="p-0">
+                  <div className="flex items-start gap-3 p-3.5 bg-destructive/5">
+                    <XCircle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-[10px] font-medium text-destructive uppercase tracking-wide">{isEn ? "Myth" : "ความเชื่อผิดๆ"}</p>
+                      <p className="text-sm text-foreground mt-0.5">{isEn ? myth.mythEn : myth.mythTh}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-3.5 bg-emerald-50/50 dark:bg-emerald-900/10">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-[10px] font-medium text-emerald-600 uppercase tracking-wide">{isEn ? "Fact" : "ความจริง"}</p>
+                      <p className="text-sm text-foreground mt-0.5">{isEn ? myth.factEn : myth.factTh}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
       </Tabs>
-
-      {/* Single CTA row — replaces per-card buttons */}
-      <div className="flex flex-wrap gap-2">
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-8 text-xs rounded-full"
-          onClick={() => { trackEvent("hr_cta_click", { action: "screening" }); onNavigate("check"); }}
-        >
-          <ClipboardCheck className="h-3.5 w-3.5 mr-1.5" />
-          {isEn ? "Start Risk Check" : "ตรวจความเสี่ยง"}
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-8 text-xs rounded-full"
-          onClick={() => { trackEvent("hr_cta_click", { action: "kit" }); navigate("/hiv-selftest"); }}
-        >
-          <Package className="h-3.5 w-3.5 mr-1.5" />
-          {isEn ? "HIV Test Kit" : "ชุดตรวจ HIV"}
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-8 text-xs rounded-full"
-          onClick={() => { trackEvent("hr_cta_click", { action: "counselor" }); onNavigate("support"); }}
-        >
-          <MessageCircle className="h-3.5 w-3.5 mr-1.5" />
-          {isEn ? "Talk to Counselor" : "ปรึกษา"}
-        </Button>
-      </div>
-
-      {/* Myth vs Fact */}
-      <div>
-        <h2 className="text-lg font-bold text-foreground mb-3">
-          {isEn ? "🧠 Myth vs Fact" : "🧠 ความเชื่อ vs ความจริง"}
-        </h2>
-        <div className="grid gap-3">
-          {MYTHS.map(myth => (
-            <Card key={myth.id} className="border border-border/30 overflow-hidden">
-              <CardContent className="p-0">
-                <div className="flex items-start gap-3 p-3.5 bg-destructive/5">
-                  <XCircle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-[10px] font-medium text-destructive uppercase tracking-wide">{isEn ? "Myth" : "ความเชื่อผิดๆ"}</p>
-                    <p className="text-sm text-foreground mt-0.5">{isEn ? myth.mythEn : myth.mythTh}</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-3.5 bg-emerald-50/50 dark:bg-emerald-900/10">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-[10px] font-medium text-emerald-600 uppercase tracking-wide">{isEn ? "Fact" : "ความจริง"}</p>
-                    <p className="text-sm text-foreground mt-0.5">{isEn ? myth.factEn : myth.factTh}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
