@@ -11,6 +11,8 @@ import { YouthSafePage } from "@/components/harm-reduction/YouthSafePage";
 import { PeerSupport } from "@/components/harm-reduction/PeerSupport";
 import { AICompanion } from "@/components/harm-reduction/AICompanion";
 import { NudgeCard } from "@/components/harm-reduction/NudgeCard";
+import { DailyCheckin } from "@/components/harm-reduction/DailyCheckin";
+import { HealthProgressTracker } from "@/components/harm-reduction/HealthProgressTracker";
 import { getActiveNudges, type Nudge } from "@/lib/SafetyNudges";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
