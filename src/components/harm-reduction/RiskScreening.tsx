@@ -405,6 +405,11 @@ export function RiskScreening({ userId, onNavigateSupport }: Props) {
                 </div>
               )}
 
+              {/* Distress detection */}
+              {(data.anxiety + data.depression) >= 8 && (
+                <DistressCard userId={userId} onNavigateSupport={onNavigateSupport} />
+              )}
+
               <p className="text-xs text-muted-foreground leading-relaxed mt-3">
                 {isEn
                   ? "This screening is not a diagnosis. It's a tool to help you understand your situation better. Please consult a healthcare provider for professional advice."
