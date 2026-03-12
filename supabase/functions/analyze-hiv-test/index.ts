@@ -13,74 +13,63 @@ DEVICE DESCRIPTION:
 - Inside the window there are TWO labeled positions printed on the strip: "C" (Control) near one end and "T" (Test) near the other end.
 - After use, colored lines (pink/red) may appear at these positions.
 
-CRITICAL: HOW TO COUNT LINES ACCURATELY
-- A "line" is a distinct colored band (pink, red, or dark red) that appears AT the marked C or T position on the strip.
-- Shadows, edges of the plastic window, reflections, dirt, dried blood smears, or the printed letters themselves are NOT lines.
-- The background of the strip is white/light. A true line is a colored band contrasting against this background.
-- If you see color ONLY at the C position and the T area is completely blank/white, that is ONE line = NEGATIVE.
-- Only report a T line if you see a genuine colored band at the T position that is clearly distinguishable from the white background.
+CRITICAL SAFETY RULE — BIAS TOWARD DETECTION:
+- Your PRIMARY goal is patient safety. Missing a positive result (false negative) is FAR more dangerous than a false positive.
+- If there is ANY visible coloration at the T position — even very faint, partial, or uneven — you MUST report it as "positive".
+- Only report "negative" when the T area is COMPLETELY blank/white with absolutely NO coloration whatsoever.
+- When in doubt, ALWAYS err on the side of "positive" or "inconclusive", NEVER "negative".
 
-COMMON FALSE-POSITIVE TRAPS (be careful!):
-- Evaporation lines: very faint grey/colorless marks that appear after the reading window (15-20 min). These are NOT positive.
-- Shadow/lighting artifacts: uneven lighting can create the illusion of a second line. Look for actual pigment, not shadows.
-- Plastic housing edges: the edges of the result window can look like lines. Ignore anything outside the strip itself.
-- Dried blood residue: blood that seeped into the window can look like a faint line. A true T line is uniform across the strip width, not a smear.
-- Smudges or fingerprints on the cassette window.
-- Indentation marks from manufacturing on the strip (no color, just texture).
+HOW TO COUNT LINES:
+- A "line" is a distinct colored band (pink, red, or dark red) at the marked C or T position.
+- A faint line IS still a line. Even a barely visible pink tint at the T position counts as a T line.
+- Shadows, edges of plastic, reflections are not lines — but actual pigment/coloration IS a line regardless of intensity.
 
 INTERPRETATION RULES:
-1. NEGATIVE: ONLY the C line is visible. The T area is blank/white with no colored band. One line = NEGATIVE. This is the MOST COMMON result (~95% of tests).
-2. POSITIVE: BOTH C line AND T line show genuine colored bands. The T line can be faint but must be a REAL colored band (pink/red pigment), not a shadow or artifact. Two distinct colored lines = POSITIVE.
-3. INVALID: No C line visible (regardless of T line). The test did not work properly.
+1. POSITIVE: If you see ANY coloration (pink/red, even very faint) at the T position AND a C line is present → result is "positive". A faint T line is STILL POSITIVE. This is the most safety-critical classification.
+2. NEGATIVE: ONLY when the C line is clearly present AND the T area is COMPLETELY white/blank with ZERO coloration. You must be highly confident there is no T line at all.
+3. INVALID: No C line visible (regardless of T line).
+4. INCONCLUSIVE: Use this when:
+   - Image quality is poor (blurry, dark, bad angle)
+   - Blood obscures the reading area
+   - You cannot clearly distinguish whether coloration at T is a real line or artifact
+   - Lighting makes it impossible to determine with confidence
+   - The test strip appears damaged or improperly used
 
-DECISION PROCESS (follow step by step):
+DECISION PROCESS:
 Step 1: Locate the result window on the cassette.
-Step 2: Is there a colored line at the C position? If NO → result is "invalid".
-Step 3: Is there a colored line at the T position? Examine carefully:
-  - Is it a genuine pink/red band with actual pigment?
-  - Is it uniform across the strip width (not a smear)?
-  - Does it have color (pink/red/dark red) — not grey, not colorless?
-  - Could it be a shadow, reflection, evaporation mark, dried blood, or edge artifact?
-Step 4: If the T area has NO genuine colored band → result is "negative". If there IS a genuine colored band at T → result is "positive".
+Step 2: Is there a colored line at the C position? If NO → "invalid".
+Step 3: Look at the T position carefully. Is there ANY pink/red coloration?
+  - YES, clear colored band → "positive" with high confidence
+  - YES, faint but visible coloration → "positive" with medium confidence  
+  - Cannot tell due to image quality/lighting/blood → "inconclusive"
+  - NO, completely white/blank → "negative"
 
 Respond with ONLY valid JSON (no markdown, no explanation):
 {"result":"negative","confidence":"high","control_line":true,"test_line":false,"test_line_strength":"none","artifact_risk":"low","reasoning":"brief 1-sentence explanation"}
 
 Field definitions:
-- result: "positive", "negative", or "invalid"
+- result: "positive", "negative", "invalid", or "inconclusive"
 - confidence: "high", "medium", or "low"
-- control_line: true/false — whether C line is visible
-- test_line: true/false — whether a genuine T line is visible
+- control_line: true/false
+- test_line: true/false — whether ANY coloration is visible at T position
 - test_line_strength: "none", "faint", "moderate", "strong"
-- artifact_risk: "low", "medium", "high" — risk that what looks like a T line is actually an artifact
-- reasoning: brief explanation of what you observed`;
+- artifact_risk: "low", "medium", "high"
+- reasoning: brief explanation`;
 
-const VERIFICATION_PROMPT = `You are a SECOND-OPINION medical image analyst reviewing an HIV Self-Test result that a first analyst flagged as POTENTIALLY POSITIVE.
+const VERIFICATION_PROMPT = `You are a SECOND-OPINION medical image analyst reviewing an HIV Self-Test result.
 
-Your job is to be SKEPTICAL and CONSERVATIVE. You must independently verify whether there is truly a genuine T line.
+CRITICAL SAFETY RULE: Your job is to CONFIRM detection, not to dismiss it. Missing a positive (false negative) is far more dangerous than a false positive. A self-test positive only means the user should get a confirmatory lab test — it does NOT mean they are diagnosed.
 
-IMPORTANT CONTEXT: The vast majority (~95%) of HIV self-tests are NEGATIVE. A positive result has serious implications, so false positives must be avoided.
+The first analyst flagged this result. Your task:
+1. Independently check: Is there ANY coloration at the T position?
+2. If you see ANY pink/red coloration at T (even faint), confirm "positive".
+3. Only override to "negative" if you are HIGHLY CERTAIN the T area is completely blank white with zero coloration.
+4. If image quality makes it hard to tell, report "inconclusive", NOT "negative".
 
-RE-EXAMINE the T line area critically:
-1. Is the supposed T line a genuine COLORED band (pink/red pigment)?
-2. Or could it be ANY of these artifacts:
-   - Evaporation line (grey/colorless, appears after reading window)
-   - Shadow from uneven lighting
-   - Edge of the plastic housing
-   - Dried blood residue or smear
-   - Fingerprint or smudge
-   - Manufacturing indentation (texture without color)
-3. Is the T line uniform across the strip width?
-4. Does it have similar character (color type) to the C line, just potentially fainter?
-
-A TRUE positive T line should:
-- Have pink/red/dark red pigment (same color family as C line)
-- Be uniform across the strip width
-- Be clearly distinguishable from the white background even if faint
-- NOT be explainable by any artifact
+A faint T line is still a REAL positive result. Do not dismiss faint lines as artifacts unless you have overwhelming evidence they are not real pigment.
 
 Respond with ONLY valid JSON:
-{"result":"negative","confidence":"high","test_line":false,"artifact_risk":"high","reasoning":"brief 1-sentence explanation of your independent assessment"}`;
+{"result":"positive","confidence":"high","test_line":true,"artifact_risk":"low","reasoning":"brief 1-sentence explanation"}`;
 
 async function callAI(apiKey: string, prompt: string, imageBase64: string, model: string) {
   const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -118,7 +107,6 @@ async function callAI(apiKey: string, prompt: string, imageBase64: string, model
 }
 
 function parseAIResponse(raw: string): any {
-  // Try to extract JSON from the response
   const jsonMatch = raw.match(/\{[\s\S]*\}/);
   if (jsonMatch) {
     try {
@@ -126,14 +114,12 @@ function parseAIResponse(raw: string): any {
     } catch {}
   }
   
-  // Fallback: parse single-word legacy response
   const lower = raw.toLowerCase().trim();
   if (lower === "negative") return { result: "negative", confidence: "medium" };
   if (lower === "positive") return { result: "positive", confidence: "medium" };
   if (lower === "invalid") return { result: "invalid", confidence: "medium" };
   
-  // Strict matching to avoid "not positive" being parsed as positive
-  return { result: "invalid", confidence: "low", reasoning: "Could not parse AI response" };
+  return { result: "inconclusive", confidence: "low", reasoning: "Could not parse AI response" };
 }
 
 serve(async (req) => {
@@ -187,7 +173,7 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // === PASS 1: Primary analysis with gemini-2.5-pro ===
+    // === PASS 1: Primary analysis ===
     console.log("Pass 1: Primary analysis with gemini-2.5-pro");
     const rawResponse1 = await callAI(LOVABLE_API_KEY, ANALYSIS_PROMPT, imageBase64, "google/gemini-2.5-pro");
     const pass1 = parseAIResponse(rawResponse1);
@@ -195,54 +181,96 @@ serve(async (req) => {
 
     let finalResult = pass1;
 
-    // === PASS 2: Verification for positive results ===
-    if (pass1.result === "positive") {
-      console.log("Pass 2: Verifying positive result with second opinion");
+    // === PASS 2: Verification — only for positive OR low-confidence negative ===
+    const needsVerification = 
+      pass1.result === "positive" || 
+      (pass1.result === "negative" && pass1.confidence !== "high") ||
+      pass1.result === "inconclusive";
+
+    if (needsVerification) {
+      console.log(`Pass 2: Verifying ${pass1.result} result (confidence: ${pass1.confidence})`);
       try {
         const rawResponse2 = await callAI(LOVABLE_API_KEY, VERIFICATION_PROMPT, imageBase64, "google/gemini-2.5-pro");
         const pass2 = parseAIResponse(rawResponse2);
         console.log("Pass 2 result:", JSON.stringify(pass2));
 
-        if (pass2.result === "negative") {
-          // Second opinion disagrees — downgrade to negative with low confidence
-          console.log("OVERRIDE: Second opinion says negative — overriding to negative");
+        // Safety-first resolution logic:
+        // If EITHER pass says positive → final is positive
+        if (pass1.result === "positive" || pass2.result === "positive") {
           finalResult = {
-            result: "negative",
-            confidence: "low",
-            control_line: pass1.control_line,
-            test_line: false,
-            test_line_strength: "none",
-            artifact_risk: "high",
-            reasoning: `First pass flagged positive but verification pass determined it was an artifact. Pass1: ${pass1.reasoning || 'N/A'}. Pass2: ${pass2.reasoning || 'N/A'}`,
+            result: "positive",
+            confidence: (pass1.result === "positive" && pass2.result === "positive") ? "high" : "medium",
+            control_line: pass1.control_line ?? pass2.control_line ?? true,
+            test_line: true,
+            test_line_strength: pass1.test_line_strength || pass2.test_line_strength || "faint",
+            artifact_risk: (pass1.result === "positive" && pass2.result === "positive") ? "low" : "medium",
+            reasoning: `Pass1: ${pass1.result} (${pass1.reasoning || 'N/A'}). Pass2: ${pass2.result} (${pass2.reasoning || 'N/A'})`,
             verified: true,
-            passes_agreed: false,
+            passes_agreed: pass1.result === pass2.result,
           };
-        } else {
-          // Both agree it's positive
+        }
+        // Both say negative with confidence
+        else if (pass1.result === "negative" && pass2.result === "negative") {
           finalResult = {
             ...pass1,
             confidence: pass1.confidence === "high" && pass2.confidence === "high" ? "high" : "medium",
             verified: true,
             passes_agreed: true,
-            reasoning: `Confirmed by two independent analyses. Pass1: ${pass1.reasoning || 'N/A'}. Pass2: ${pass2.reasoning || 'N/A'}`,
+            reasoning: `Both passes confirm negative. Pass1: ${pass1.reasoning || 'N/A'}. Pass2: ${pass2.reasoning || 'N/A'}`,
+          };
+        }
+        // Disagreement or inconclusive — route to inconclusive
+        else {
+          finalResult = {
+            result: "inconclusive",
+            confidence: "low",
+            control_line: pass1.control_line,
+            test_line: pass1.test_line || pass2.test_line,
+            test_line_strength: pass1.test_line_strength || "unknown",
+            artifact_risk: "high",
+            reasoning: `Passes disagreed or inconclusive. Pass1: ${pass1.result} (${pass1.reasoning || 'N/A'}). Pass2: ${pass2.result} (${pass2.reasoning || 'N/A'})`,
+            verified: true,
+            passes_agreed: false,
           };
         }
       } catch (verifyError) {
-        console.error("Verification pass failed, using pass 1 result with reduced confidence:", verifyError);
-        finalResult = {
-          ...pass1,
-          confidence: "low",
-          verified: false,
-          reasoning: `Single-pass result (verification failed). ${pass1.reasoning || ''}`,
-        };
+        console.error("Verification pass failed:", verifyError);
+        // If pass 1 was positive, keep it even without verification
+        if (pass1.result === "positive") {
+          finalResult = {
+            ...pass1,
+            confidence: "medium",
+            verified: false,
+            reasoning: `Single-pass positive (verification failed). ${pass1.reasoning || ''}`,
+          };
+        } else {
+          // Low-confidence negative without verification → inconclusive
+          finalResult = {
+            result: "inconclusive",
+            confidence: "low",
+            control_line: pass1.control_line,
+            test_line: pass1.test_line,
+            test_line_strength: pass1.test_line_strength || "unknown",
+            artifact_risk: "high",
+            verified: false,
+            reasoning: `Could not verify ${pass1.result} result (verification failed). ${pass1.reasoning || ''}`,
+          };
+        }
       }
     }
 
-    // Normalize result to strict enum
-    const validResults = ["positive", "negative", "invalid"];
+    // Normalize result
+    const validResults = ["positive", "negative", "invalid", "inconclusive"];
     if (!validResults.includes(finalResult.result)) {
-      finalResult.result = "invalid";
+      finalResult.result = "inconclusive";
       finalResult.confidence = "low";
+    }
+
+    // SAFETY NET: Never return "negative" with low confidence
+    if (finalResult.result === "negative" && finalResult.confidence === "low") {
+      console.log("SAFETY NET: Upgrading low-confidence negative to inconclusive");
+      finalResult.result = "inconclusive";
+      finalResult.reasoning = `Low-confidence negative upgraded to inconclusive for safety. ${finalResult.reasoning || ''}`;
     }
 
     console.log(`Final result for user ${user.id}: ${finalResult.result} (confidence: ${finalResult.confidence})`);

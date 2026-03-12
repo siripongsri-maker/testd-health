@@ -1360,12 +1360,12 @@ export default function HIVSelfTest() {
                     <>
                       <AlertTriangle className="h-12 w-12 text-amber-500 mx-auto mb-2" />
                       <h4 className="text-xl font-bold text-amber-500 mb-1">
-                        {language === 'th' ? 'ผลไม่ชัดเจน' : 'Invalid Result'}
+                        {language === 'th' ? 'ผลตรวจไม่สมบูรณ์' : 'Invalid Result'}
                       </h4>
                       <p className="text-sm text-amber-500/80">
                         {language === 'th' 
-                          ? 'กรุณาถ่ายรูปใหม่หรือติดต่อเจ้าหน้าที่'
-                          : 'Please retake photo or contact staff'
+                          ? 'ชุดตรวจอาจไม่ทำงานถูกต้อง กรุณาใช้ชุดตรวจใหม่หรือติดต่อเจ้าหน้าที่'
+                          : 'Test kit may not have worked correctly. Please use a new kit or contact staff.'
                         }
                       </p>
                     </>
