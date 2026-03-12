@@ -21,6 +21,7 @@ import {
   ArrowLeft, Lock, Phone, RotateCcw, Users, Sparkles,
 } from "lucide-react";
 import { trackEvent } from "@/hooks/useAnalytics";
+import { SEOHead, buildMedicalPageJsonLd } from "@/components/seo";
 
 const AGE_STORAGE_KEY = "hr_age_confirmed";
 
