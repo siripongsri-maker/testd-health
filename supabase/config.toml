@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.hr-ai-companion]
 verify_jwt = false
+
+[functions.generate-hr-content]
+verify_jwt = false

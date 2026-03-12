@@ -1779,6 +1779,174 @@ export type Database = {
         }
         Relationships: []
       }
+      hr_content_drafts: {
+        Row: {
+          ai_summary_en: string | null
+          ai_summary_th: string | null
+          approved_at: string | null
+          approved_by: string | null
+          authority_confidence_score: number | null
+          citation_placeholders: Json | null
+          content_type: string
+          created_at: string
+          emergency_signs_en: Json | null
+          emergency_signs_th: Json | null
+          faq_items_en: Json | null
+          faq_items_th: Json | null
+          generated_at: string
+          generated_by: string | null
+          harm_reduction_tips_en: Json | null
+          harm_reduction_tips_th: Json | null
+          id: string
+          interaction_id: string | null
+          meta_description_en: string | null
+          meta_description_th: string | null
+          possible_effects_en: Json | null
+          possible_effects_th: Json | null
+          previous_version_id: string | null
+          published_at: string | null
+          quality_flags: Json | null
+          quick_facts_en: Json | null
+          quick_facts_th: Json | null
+          recommended_source_types: Json | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          revision_note: string | null
+          seo_title_en: string | null
+          seo_title_th: string | null
+          slug: string
+          status: string
+          substance_a_slug: string
+          substance_b_slug: string
+          summary_en: string | null
+          summary_th: string | null
+          title_en: string | null
+          title_th: string | null
+          updated_at: string
+          validation_passed: boolean | null
+          version: number
+          warning_signs_en: Json | null
+          warning_signs_th: Json | null
+          why_risky_en: string | null
+          why_risky_th: string | null
+        }
+        Insert: {
+          ai_summary_en?: string | null
+          ai_summary_th?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          authority_confidence_score?: number | null
+          citation_placeholders?: Json | null
+          content_type?: string
+          created_at?: string
+          emergency_signs_en?: Json | null
+          emergency_signs_th?: Json | null
+          faq_items_en?: Json | null
+          faq_items_th?: Json | null
+          generated_at?: string
+          generated_by?: string | null
+          harm_reduction_tips_en?: Json | null
+          harm_reduction_tips_th?: Json | null
+          id?: string
+          interaction_id?: string | null
+          meta_description_en?: string | null
+          meta_description_th?: string | null
+          possible_effects_en?: Json | null
+          possible_effects_th?: Json | null
+          previous_version_id?: string | null
+          published_at?: string | null
+          quality_flags?: Json | null
+          quick_facts_en?: Json | null
+          quick_facts_th?: Json | null
+          recommended_source_types?: Json | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          revision_note?: string | null
+          seo_title_en?: string | null
+          seo_title_th?: string | null
+          slug: string
+          status?: string
+          substance_a_slug: string
+          substance_b_slug: string
+          summary_en?: string | null
+          summary_th?: string | null
+          title_en?: string | null
+          title_th?: string | null
+          updated_at?: string
+          validation_passed?: boolean | null
+          version?: number
+          warning_signs_en?: Json | null
+          warning_signs_th?: Json | null
+          why_risky_en?: string | null
+          why_risky_th?: string | null
+        }
+        Update: {
+          ai_summary_en?: string | null
+          ai_summary_th?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          authority_confidence_score?: number | null
+          citation_placeholders?: Json | null
+          content_type?: string
+          created_at?: string
+          emergency_signs_en?: Json | null
+          emergency_signs_th?: Json | null
+          faq_items_en?: Json | null
+          faq_items_th?: Json | null
+          generated_at?: string
+          generated_by?: string | null
+          harm_reduction_tips_en?: Json | null
+          harm_reduction_tips_th?: Json | null
+          id?: string
+          interaction_id?: string | null
+          meta_description_en?: string | null
+          meta_description_th?: string | null
+          possible_effects_en?: Json | null
+          possible_effects_th?: Json | null
+          previous_version_id?: string | null
+          published_at?: string | null
+          quality_flags?: Json | null
+          quick_facts_en?: Json | null
+          quick_facts_th?: Json | null
+          recommended_source_types?: Json | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          revision_note?: string | null
+          seo_title_en?: string | null
+          seo_title_th?: string | null
+          slug?: string
+          status?: string
+          substance_a_slug?: string
+          substance_b_slug?: string
+          summary_en?: string | null
+          summary_th?: string | null
+          title_en?: string | null
+          title_th?: string | null
+          updated_at?: string
+          validation_passed?: boolean | null
+          version?: number
+          warning_signs_en?: Json | null
+          warning_signs_th?: Json | null
+          why_risky_en?: string | null
+          why_risky_th?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_content_drafts_interaction_id_fkey"
+            columns: ["interaction_id"]
+            isOneToOne: false
+            referencedRelation: "hr_substance_interactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_content_drafts_previous_version_id_fkey"
+            columns: ["previous_version_id"]
+            isOneToOne: false
+            referencedRelation: "hr_content_drafts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hr_distress_alerts: {
         Row: {
           action_taken: string | null

@@ -25,7 +25,7 @@ import {
   ChevronDown, Languages, ShieldAlert, RefreshCw, Gift, Heart,
   MessageSquare, CreditCard, Wallet, Link2, UserCheck,
   Activity, Wrench, Monitor, FileDown, Target, Fingerprint, ListOrdered,
-  Network,
+  Network, Sparkles,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -118,6 +118,7 @@ const menuGroups: MenuGroup[] = [
     items: [
       { tab: "harm-reduction", icon: Heart, labelKey: "admin.harmReductionDashboard", adminOnly: true, meAnalyst: true },
       { tab: "knowledge-graph", icon: Network, labelKey: "admin.knowledgeGraph", adminOnly: true },
+      { tab: "content-generator", icon: Sparkles, labelKey: "admin.contentGenerator", adminOnly: true },
     ],
   },
   {
