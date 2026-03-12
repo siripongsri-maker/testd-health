@@ -181,6 +181,7 @@ export default function Admin() {
           {renderTab("app-updates", <AdminAppUpdatesContent />)}
           {renderTab("system-health", <AdminSystemHealthContent />)}
           {renderTab("ip-docs", <AdminIPDocsContent />)}
+          {renderTab("harm-reduction", <AdminHarmReductionContent />)}
         </Tabs>
       </div>
     </AdminLayout>
