@@ -63,10 +63,14 @@ export function HarmReductionHub({ onNavigate }: Props) {
     <div className="space-y-6">
       {/* Top-level Learn tabs: Substance Library | Safety Tips | Myth vs Fact */}
       <Tabs value={hubTab} onValueChange={(v) => { setHubTab(v); trackEvent("hr_learn_tab", { tab: v }); }}>
-        <TabsList className="grid grid-cols-3 h-auto gap-1 bg-muted/40 p-1 rounded-xl">
+        <TabsList className="grid grid-cols-4 h-auto gap-1 bg-muted/40 p-1 rounded-xl">
           <TabsTrigger value="substances" className="text-[10px] sm:text-xs py-1.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
             <BookOpen className="h-3 w-3 mr-1 hidden sm:inline" />
             {isEn ? "Substances" : "ความรู้สาร"}
+          </TabsTrigger>
+          <TabsTrigger value="interactions" className="text-[10px] sm:text-xs py-1.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
+            <Grid3X3 className="h-3 w-3 mr-1 hidden sm:inline" />
+            {isEn ? "Mix Risk" : "ปฏิกิริยา"}
           </TabsTrigger>
           <TabsTrigger value="tips" className="text-[10px] sm:text-xs py-1.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-sm">
             {isEn ? "Safety Tips" : "เคล็ดลับ"}
@@ -79,6 +83,11 @@ export function HarmReductionHub({ onNavigate }: Props) {
         {/* Substance Library */}
         <TabsContent value="substances" className="mt-3">
           <SubstanceLibrary onNavigate={onNavigate} />
+        </TabsContent>
+
+        {/* Interaction Matrix */}
+        <TabsContent value="interactions" className="mt-3">
+          <InteractionMatrix onNavigate={onNavigate} />
         </TabsContent>
 
         {/* Safety Tips - existing content */}
