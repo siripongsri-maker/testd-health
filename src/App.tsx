@@ -67,6 +67,7 @@ const SupportChat = lazy(() => import("./pages/SupportChat"));
 const PreventionMatch = lazy(() => import("./pages/PreventionMatch"));
 const QueueTV = lazy(() => import("./pages/QueueTV"));
 const HarmReduction = lazy(() => import("./pages/HarmReduction"));
+const SEOLanding = lazy(() => import("./pages/SEOLanding"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
