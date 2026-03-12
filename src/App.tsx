@@ -68,6 +68,7 @@ const PreventionMatch = lazy(() => import("./pages/PreventionMatch"));
 const QueueTV = lazy(() => import("./pages/QueueTV"));
 const HarmReduction = lazy(() => import("./pages/HarmReduction"));
 const SEOLanding = lazy(() => import("./pages/SEOLanding"));
+const InteractionPage = lazy(() => import("./pages/InteractionPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -143,6 +144,7 @@ const App = () => (
                 <Route path="/ghb-overdose" element={<SEOLanding />} />
                 <Route path="/meth-harm-reduction" element={<SEOLanding />} />
                 <Route path="/hiv-self-test-guide" element={<SEOLanding />} />
+                <Route path="/interaction/:slug" element={<InteractionPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </AppLayout>
