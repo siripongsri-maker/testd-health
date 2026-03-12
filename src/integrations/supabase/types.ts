@@ -906,6 +906,77 @@ export type Database = {
           },
         ]
       }
+      chat_canned_responses: {
+        Row: {
+          category: string
+          content_en: string
+          content_th: string
+          created_at: string
+          display_order: number
+          id: string
+          is_active: boolean
+          title_en: string
+          title_th: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          content_en: string
+          content_th: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          title_en: string
+          title_th: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          content_en?: string
+          content_th?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          title_en?: string
+          title_th?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      chat_internal_notes: {
+        Row: {
+          author_id: string
+          created_at: string
+          id: string
+          note_text: string
+          thread_id: string
+        }
+        Insert: {
+          author_id: string
+          created_at?: string
+          id?: string
+          note_text: string
+          thread_id: string
+        }
+        Update: {
+          author_id?: string
+          created_at?: string
+          id?: string
+          note_text?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_internal_notes_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "direct_chat_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_messages: {
         Row: {
           content: string
@@ -1271,30 +1342,45 @@ export type Database = {
       }
       direct_chat_threads: {
         Row: {
+          assigned_to: string | null
           created_at: string
+          first_response_at: string | null
           id: string
           last_message_at: string | null
           last_message_preview: string | null
+          last_user_message_at: string | null
+          priority: string
+          sla_deadline_at: string | null
           status: string
           subject: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          assigned_to?: string | null
           created_at?: string
+          first_response_at?: string | null
           id?: string
           last_message_at?: string | null
           last_message_preview?: string | null
+          last_user_message_at?: string | null
+          priority?: string
+          sla_deadline_at?: string | null
           status?: string
           subject?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          assigned_to?: string | null
           created_at?: string
+          first_response_at?: string | null
           id?: string
           last_message_at?: string | null
           last_message_preview?: string | null
+          last_user_message_at?: string | null
+          priority?: string
+          sla_deadline_at?: string | null
           status?: string
           subject?: string | null
           updated_at?: string
