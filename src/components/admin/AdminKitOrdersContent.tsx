@@ -811,12 +811,13 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         ])
       ];
     } else {
+      const signedUrls = await getSignedImageUrls(filteredHIVRequests);
       data = [
         ["Request ID", "Branch", "Thai ID", "Name", "Date of Birth", "Phone", "Line ID", "Address", "Subdistrict", "District", "Province", "Postal Code", "Status", "Tracking Number", "Test Result", "Result Image URL", "Result Image Filename", "Wants Callback", "Callback Phone", "Staff Notes", "Created At", "Updated At"],
         ...filteredHIVRequests.map(request => {
           const pii = request.selftest_pii;
           const resultImageUrl = request.result_photo_url
-            ? supabase.storage.from('selftest-results').getPublicUrl(request.result_photo_url).data.publicUrl
+            ? (signedUrls[request.result_photo_url] || '')
             : '';
           return [
             request.id,
