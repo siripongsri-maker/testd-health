@@ -23,7 +23,7 @@ export function AdminHarmReductionContent() {
     totalScreenings: 0, lowRisk: 0, moderateRisk: 0, highRisk: 0,
     totalReferrals: 0, pendingReferrals: 0, totalPlans: 0, totalKnowledgeViews: 0,
     aiConversations: 0, doseLogs: 0, nudgeEvents: 0, distressAlerts: 0,
-    pendingPosts: 0,
+    pendingPosts: 0, dailyCheckins: 0,
   });
   const [referrals, setReferrals] = useState<any[]>([]);
   const [pendingPosts, setPendingPosts] = useState<any[]>([]);
