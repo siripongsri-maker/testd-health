@@ -2316,28 +2316,73 @@ export type Database = {
           created_at: string
           description_en: string | null
           description_th: string | null
+          emergency_signs_en: string[] | null
+          emergency_signs_th: string[] | null
+          harm_reduction_tips_en: string[] | null
+          harm_reduction_tips_th: string[] | null
           id: string
+          interaction_type: string | null
+          is_priority: boolean | null
+          possible_effects_en: string[] | null
+          possible_effects_th: string[] | null
           risk_level: string
           substance_a_id: string
           substance_b_id: string
+          summary_en: string | null
+          summary_th: string | null
+          updated_at: string | null
+          warning_signs_en: string[] | null
+          warning_signs_th: string[] | null
+          why_risky_en: string | null
+          why_risky_th: string | null
         }
         Insert: {
           created_at?: string
           description_en?: string | null
           description_th?: string | null
+          emergency_signs_en?: string[] | null
+          emergency_signs_th?: string[] | null
+          harm_reduction_tips_en?: string[] | null
+          harm_reduction_tips_th?: string[] | null
           id?: string
+          interaction_type?: string | null
+          is_priority?: boolean | null
+          possible_effects_en?: string[] | null
+          possible_effects_th?: string[] | null
           risk_level?: string
           substance_a_id: string
           substance_b_id: string
+          summary_en?: string | null
+          summary_th?: string | null
+          updated_at?: string | null
+          warning_signs_en?: string[] | null
+          warning_signs_th?: string[] | null
+          why_risky_en?: string | null
+          why_risky_th?: string | null
         }
         Update: {
           created_at?: string
           description_en?: string | null
           description_th?: string | null
+          emergency_signs_en?: string[] | null
+          emergency_signs_th?: string[] | null
+          harm_reduction_tips_en?: string[] | null
+          harm_reduction_tips_th?: string[] | null
           id?: string
+          interaction_type?: string | null
+          is_priority?: boolean | null
+          possible_effects_en?: string[] | null
+          possible_effects_th?: string[] | null
           risk_level?: string
           substance_a_id?: string
           substance_b_id?: string
+          summary_en?: string | null
+          summary_th?: string | null
+          updated_at?: string | null
+          warning_signs_en?: string[] | null
+          warning_signs_th?: string[] | null
+          why_risky_en?: string | null
+          why_risky_th?: string | null
         }
         Relationships: [
           {

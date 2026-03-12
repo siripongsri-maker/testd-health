@@ -260,6 +260,19 @@ export function SubstanceProfile({ substance: s, interactions, allSubstances, on
         </Card>
       )}
 
+      {/* Link to Interaction Matrix */}
+      {interactions.length > 0 && (
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full text-xs h-8 rounded-xl"
+          onClick={() => onNavigate("learn")}
+        >
+          <AlertTriangle className="h-3.5 w-3.5 mr-1.5" />
+          {isEn ? "View Full Interaction Matrix" : "ดูตารางปฏิกิริยาสารทั้งหมด"}
+        </Button>
+      )}
+
       {/* CTA */}
       <Card className="border border-primary/20 bg-primary/5">
         <CardContent className="p-4 text-center space-y-3">
