@@ -496,6 +496,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.harmReduction': 'Harm Reduction',
     'admin.harmReductionDashboard': 'ติดตามผล HR',
     'admin.knowledgeGraph': 'กราฟความรู้',
+    'admin.contentGenerator': 'สร้างเนื้อหา AI',
     'admin.diagnostics': 'วินิจฉัยระบบ',
     'admin.systemHealth': 'สุขภาพระบบ',
     'admin.ipDocs': 'ศูนย์เอกสาร IP',
