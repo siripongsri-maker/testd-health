@@ -147,9 +147,26 @@ export function InteractionDetailDrawer({ interaction: int, nameA, nameB, open, 
     : null;
   const isCritical = int.risk_level === "critical";
 
+  // Build quick facts for this interaction
+  const quickFacts = [
+    { labelEn: "Combination", labelTh: "คู่สาร", valueEn: `${nameA} + ${nameB}`, valueTh: `${nameA} + ${nameB}` },
+    { labelEn: "Risk level", labelTh: "ระดับความเสี่ยง", valueEn: risk.labelEn, valueTh: risk.labelTh },
+    ...(typeLabel ? [{ labelEn: "Primary concern", labelTh: "ความเสี่ยงหลัก", valueEn: typeLabel.en, valueTh: typeLabel.th }] : []),
+    ...((int.emergency_signs_en?.length) ? [{
+      labelEn: "Emergency signs",
+      labelTh: "สัญญาณฉุกเฉิน",
+      valueEn: int.emergency_signs_en.slice(0, 3).join(", "),
+      valueTh: int.emergency_signs_th.slice(0, 3).join(", "),
+    }] : []),
+  ];
+
   return (
     <Sheet open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
-      <SheetContent side="bottom" className="max-h-[92vh] overflow-y-auto rounded-t-[20px] px-6 pb-12 pt-8 bg-background">
+      <SheetContent
+        side="bottom"
+        className="max-h-[92vh] overflow-y-auto rounded-t-[20px] px-6 pb-12 pt-8 bg-background"
+        aria-label={`${nameA} + ${nameB} interaction details`}
+      >
         <SheetHeader className="pb-2">
           <SheetTitle className="text-lg font-bold text-foreground text-left leading-snug">
             {nameA} + {nameB}
