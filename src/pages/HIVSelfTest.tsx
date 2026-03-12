@@ -1285,10 +1285,16 @@ export default function HIVSelfTest() {
                           {language === 'th' ? '✓ ยืนยันโดย AI 2 รอบ' : '✓ Verified by 2-pass AI'}
                         </p>
                       )}
-                      <p className="text-sm text-destructive/80 mb-3">
+                      <p className="text-sm text-destructive/80 mb-1">
                         {language === 'th' 
-                          ? 'กรุณาติดต่อคลินิกเพื่อตรวจยืนยัน'
-                          : 'Please contact a clinic for confirmatory testing'
+                          ? 'ผลนี้อาจเข้าข่าย reactive (มี 2 ขีด) ควรตรวจยืนยันกับเจ้าหน้าที่หรือสถานพยาบาลโดยเร็ว'
+                          : 'This result may be reactive (2 lines visible). Please confirm with staff or a healthcare facility as soon as possible.'
+                        }
+                      </p>
+                      <p className="text-xs text-destructive/60 mb-3">
+                        {language === 'th' 
+                          ? 'ผลจากชุดตรวจเบื้องต้นไม่ถือเป็นการวินิจฉัย — ต้องตรวจยืนยันในห้องปฏิบัติการเสมอ'
+                          : 'A self-test result is not a diagnosis — lab confirmation is always required.'
                         }
                       </p>
                       <a
