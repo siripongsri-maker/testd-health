@@ -101,6 +101,19 @@
     --shadow-2xl: 0 20px 60px -12px hsl(0 0% 0% / 0.18);
     --tracking-normal: 0em;
     --spacing: 0.25rem;
+
+    /* Harm Reduction calm health palette */
+    --hr-teal: 174 56% 41%;
+    --hr-blue: 223 92% 60%;
+    --hr-risk-low: 139 35% 65%;
+    --hr-risk-caution: 44 87% 62%;
+    --hr-risk-high-caution: 27 87% 62%;
+    --hr-risk-high: 0 78% 63%;
+    --hr-risk-critical: 6 65% 46%;
+    --hr-risk-unknown: 210 12% 72%;
+    --hr-surface: 200 20% 96%;
+    --hr-divider: 205 18% 90%;
+    --hr-card-shadow: 0 6px 18px hsl(0 0% 0% / 0.06);
   }
 
   .dark {
