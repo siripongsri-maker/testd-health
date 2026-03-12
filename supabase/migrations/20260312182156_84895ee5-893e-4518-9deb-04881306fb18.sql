@@ -1,0 +1,16 @@
+ALTER TABLE public.hr_substance_interactions
+  ADD COLUMN IF NOT EXISTS interaction_type text,
+  ADD COLUMN IF NOT EXISTS summary_th text,
+  ADD COLUMN IF NOT EXISTS summary_en text,
+  ADD COLUMN IF NOT EXISTS why_risky_th text,
+  ADD COLUMN IF NOT EXISTS why_risky_en text,
+  ADD COLUMN IF NOT EXISTS possible_effects_th text[] DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS possible_effects_en text[] DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS warning_signs_th text[] DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS warning_signs_en text[] DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS harm_reduction_tips_th text[] DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS harm_reduction_tips_en text[] DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS emergency_signs_th text[] DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS emergency_signs_en text[] DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS is_priority boolean DEFAULT false,
+  ADD COLUMN IF NOT EXISTS updated_at timestamptz DEFAULT now();
