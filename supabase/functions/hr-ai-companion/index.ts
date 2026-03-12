@@ -54,11 +54,9 @@ Deno.serve(async (req) => {
     }
 
     // Call Lovable AI Gateway
-    const gatewayUrl = Deno.env.get("LOVABLE_AI_GATEWAY_URL");
-    const gatewayKey = Deno.env.get("LOVABLE_AI_GATEWAY_KEY");
-
-    if (!gatewayUrl || !gatewayKey) {
-      throw new Error("AI gateway not configured");
+    const apiKey = Deno.env.get("LOVABLE_API_KEY");
+    if (!apiKey) {
+      throw new Error("LOVABLE_API_KEY not configured");
     }
 
     const aiMessages = [
@@ -69,11 +67,11 @@ Deno.serve(async (req) => {
       })),
     ];
 
-    const aiRes = await fetch(`${gatewayUrl}/chat/completions`, {
+    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${gatewayKey}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
