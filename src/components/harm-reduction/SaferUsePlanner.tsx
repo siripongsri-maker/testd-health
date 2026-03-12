@@ -222,6 +222,9 @@ export function SaferUsePlanner({ userId }: Props) {
         </CardContent>
       </Card>
 
+      {/* Dose Timer */}
+      <DoseTimer />
+
       {/* Save button */}
       <Button onClick={handleSavePlan} className="w-full rounded-2xl" disabled={saving}>
         <Save className="h-4 w-4 mr-2" />
