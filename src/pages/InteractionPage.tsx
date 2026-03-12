@@ -15,6 +15,7 @@ import {
   AISummaryBlock, QuickFactsCard, FAQSection, SourcesCard,
   RelatedContentLinks,
 } from "@/components/seo";
+import { RelatedKnowledge } from "@/components/harm-reduction/RelatedKnowledge";
 import type { FAQItem } from "@/components/seo";
 import { trackEvent } from "@/hooks/useAnalytics";
 
