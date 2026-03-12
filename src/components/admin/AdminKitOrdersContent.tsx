@@ -280,6 +280,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             abuse_flag,
             abuse_reason,
             abuse_score,
+            result_photo_url,
             selftest_pii (
               id,
               full_name,
