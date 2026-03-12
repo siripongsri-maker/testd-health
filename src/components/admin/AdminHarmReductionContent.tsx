@@ -33,7 +33,7 @@ export function AdminHarmReductionContent() {
   const loadStats = async () => {
     setLoading(true);
     try {
-      const [screeningsRes, referralsRes, plansRes, knowledgeRes, aiRes, doseRes, nudgeRes, distressRes, postsRes] = await Promise.all([
+      const [screeningsRes, referralsRes, plansRes, knowledgeRes, aiRes, doseRes, nudgeRes, distressRes, postsRes, checkinsRes] = await Promise.all([
         supabase.from("hr_screenings").select("risk_level", { count: "exact" }),
         supabase.from("hr_referrals").select("*").order("created_at", { ascending: false }).limit(50),
         supabase.from("hr_safer_plans").select("id", { count: "exact" }),
@@ -43,6 +43,7 @@ export function AdminHarmReductionContent() {
         supabase.from("hr_nudge_events").select("id", { count: "exact" }),
         supabase.from("hr_distress_alerts").select("id", { count: "exact" }),
         supabase.from("hr_peer_posts").select("*").eq("is_approved", false).eq("is_flagged", false).order("created_at", { ascending: false }).limit(50),
+        supabase.from("hr_checkins").select("id", { count: "exact" }),
       ]);
 
       const screenings = screeningsRes.data || [];
@@ -62,6 +63,7 @@ export function AdminHarmReductionContent() {
         nudgeEvents: nudgeRes.count || 0,
         distressAlerts: distressRes.count || 0,
         pendingPosts: (postsRes.data || []).length,
+        dailyCheckins: checkinsRes.count || 0,
       });
       setReferrals(refs);
       setPendingPosts(postsRes.data || []);
