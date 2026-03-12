@@ -10,6 +10,7 @@ import {
   MessageCircle,
   Headphones,
   Sparkles,
+  ShieldHalf,
 } from 'lucide-react';
 import { MedicationTrackerWidget } from './MedicationTrackerWidget';
 
