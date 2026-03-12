@@ -1827,6 +1827,42 @@ export type Database = {
         }
         Relationships: []
       }
+      hr_entity_source_links: {
+        Row: {
+          citation_note: string | null
+          entity_id: string
+          id: string
+          source_id: string
+        }
+        Insert: {
+          citation_note?: string | null
+          entity_id: string
+          id?: string
+          source_id: string
+        }
+        Update: {
+          citation_note?: string | null
+          entity_id?: string
+          id?: string
+          source_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_entity_source_links_entity_id_fkey"
+            columns: ["entity_id"]
+            isOneToOne: false
+            referencedRelation: "hr_knowledge_entities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_entity_source_links_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "hr_knowledge_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hr_followups: {
         Row: {
           completed_at: string | null
@@ -1925,6 +1961,51 @@ export type Database = {
           },
         ]
       }
+      hr_knowledge_entities: {
+        Row: {
+          created_at: string
+          entity_type: Database["public"]["Enums"]["kg_entity_type"]
+          id: string
+          name_en: string
+          name_th: string
+          slug: string
+          source_id: string | null
+          source_table: string | null
+          status: string
+          summary_en: string | null
+          summary_th: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          entity_type: Database["public"]["Enums"]["kg_entity_type"]
+          id?: string
+          name_en: string
+          name_th: string
+          slug: string
+          source_id?: string | null
+          source_table?: string | null
+          status?: string
+          summary_en?: string | null
+          summary_th?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          entity_type?: Database["public"]["Enums"]["kg_entity_type"]
+          id?: string
+          name_en?: string
+          name_th?: string
+          slug?: string
+          source_id?: string | null
+          source_table?: string | null
+          status?: string
+          summary_en?: string | null
+          summary_th?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       hr_knowledge_progress: {
         Row: {
           anonymous_token: string | null
@@ -1955,6 +2036,81 @@ export type Database = {
           id?: string
           score?: number | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      hr_knowledge_relations: {
+        Row: {
+          created_at: string
+          from_entity_id: string
+          id: string
+          notes: string | null
+          relation_type: Database["public"]["Enums"]["kg_relation_type"]
+          strength: number | null
+          to_entity_id: string
+        }
+        Insert: {
+          created_at?: string
+          from_entity_id: string
+          id?: string
+          notes?: string | null
+          relation_type: Database["public"]["Enums"]["kg_relation_type"]
+          strength?: number | null
+          to_entity_id: string
+        }
+        Update: {
+          created_at?: string
+          from_entity_id?: string
+          id?: string
+          notes?: string | null
+          relation_type?: Database["public"]["Enums"]["kg_relation_type"]
+          strength?: number | null
+          to_entity_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_knowledge_relations_from_entity_id_fkey"
+            columns: ["from_entity_id"]
+            isOneToOne: false
+            referencedRelation: "hr_knowledge_entities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_knowledge_relations_to_entity_id_fkey"
+            columns: ["to_entity_id"]
+            isOneToOne: false
+            referencedRelation: "hr_knowledge_entities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_knowledge_sources: {
+        Row: {
+          authority_score: number | null
+          created_at: string
+          id: string
+          publisher: string | null
+          source_type: string | null
+          title: string
+          url: string | null
+        }
+        Insert: {
+          authority_score?: number | null
+          created_at?: string
+          id?: string
+          publisher?: string | null
+          source_type?: string | null
+          title: string
+          url?: string | null
+        }
+        Update: {
+          authority_score?: number | null
+          created_at?: string
+          id?: string
+          publisher?: string | null
+          source_type?: string | null
+          title?: string
+          url?: string | null
         }
         Relationships: []
       }
@@ -5255,6 +5411,35 @@ export type Database = {
     Enums: {
       app_role: "admin" | "moderator" | "user" | "me_analyst"
       article_status: "draft" | "pending_review" | "published" | "archived"
+      kg_entity_type:
+        | "substance"
+        | "substance_category"
+        | "interaction_pair"
+        | "risk"
+        | "symptom"
+        | "withdrawal_symptom"
+        | "short_term_effect"
+        | "long_term_effect"
+        | "mental_health_effect"
+        | "sexual_health_concern"
+        | "prevention_action"
+        | "emergency_sign"
+        | "support_service"
+        | "educational_topic"
+        | "faq"
+      kg_relation_type:
+        | "causes"
+        | "increases_risk_of"
+        | "interacts_with"
+        | "may_lead_to"
+        | "linked_to"
+        | "supports"
+        | "treated_by"
+        | "prevented_by"
+        | "related_to"
+        | "contraindicated_with"
+        | "category_of"
+        | "has_symptom"
       kit_order_status:
         | "requested"
         | "packed"
@@ -5391,6 +5576,37 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "moderator", "user", "me_analyst"],
       article_status: ["draft", "pending_review", "published", "archived"],
+      kg_entity_type: [
+        "substance",
+        "substance_category",
+        "interaction_pair",
+        "risk",
+        "symptom",
+        "withdrawal_symptom",
+        "short_term_effect",
+        "long_term_effect",
+        "mental_health_effect",
+        "sexual_health_concern",
+        "prevention_action",
+        "emergency_sign",
+        "support_service",
+        "educational_topic",
+        "faq",
+      ],
+      kg_relation_type: [
+        "causes",
+        "increases_risk_of",
+        "interacts_with",
+        "may_lead_to",
+        "linked_to",
+        "supports",
+        "treated_by",
+        "prevented_by",
+        "related_to",
+        "contraindicated_with",
+        "category_of",
+        "has_symptom",
+      ],
       kit_order_status: [
         "requested",
         "packed",
