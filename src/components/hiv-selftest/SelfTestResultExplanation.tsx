@@ -3,9 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
-import testRefNegative from "@/assets/test-ref-negative.png";
-import testRefReactive from "@/assets/test-ref-reactive.png";
-import testRefInvalid from "@/assets/test-ref-invalid.png";
+import testReadingGuide from "@/assets/test-reading-guide.png";
 
 interface SelfTestResultExplanationProps {
   result: 'positive' | 'negative' | 'invalid' | 'inconclusive';
