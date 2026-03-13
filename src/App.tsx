@@ -146,6 +146,7 @@ function AppShell() {
               <Route path="/interaction/:slug" element={<InteractionPage />} />
               <Route path="/partners" element={<Partners />} />
               <Route path="/whats-new" element={<WhatsNew />} />
+              <Route path="/admin/docs/harm-reduction-guide" element={<HarmReductionGuide />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AppLayout>
