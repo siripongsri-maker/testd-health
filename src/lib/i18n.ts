@@ -1012,6 +1012,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.outreach': 'Outreach & Backlinks',
     'admin.references': 'References',
     'admin.demographics': 'Demographics',
+    'admin.languageDictionary': 'Language Safety Dictionary',
     'admin.mel': 'MEL',
     'admin.melServices': 'Service Ledger',
     'admin.melIndicators': 'Indicators',
