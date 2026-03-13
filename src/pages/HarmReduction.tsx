@@ -36,6 +36,7 @@ export default function HarmReduction() {
   const { language } = useLanguage();
   const { user } = useAuth();
   const isEn = language === "en";
+  const { profile, hasProfile, saveProfile, isMSM, isMSW, isYouth, ageRange } = useHrProfile(user?.id);
 
   const [ageState, setAgeState] = useState<AgeState>(() => {
     const stored = localStorage.getItem(AGE_STORAGE_KEY);
@@ -46,6 +47,12 @@ export default function HarmReduction() {
 
   const [section, setSection] = useState<Section>("landing");
   const [nudges, setNudges] = useState<Nudge[]>(() => getActiveNudges());
+  const [demoDismissed, setDemoDismissed] = useState(() => localStorage.getItem(DEMO_DISMISSED_KEY) === "true");
+
+  const handleDemoDismiss = () => {
+    setDemoDismissed(true);
+    localStorage.setItem(DEMO_DISMISSED_KEY, "true");
+  };
 
   const handleAgeConfirm = (isAdult: boolean) => {
     const state = isAdult ? "adult" : "minor";
