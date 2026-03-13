@@ -1241,8 +1241,8 @@ export default function HIVSelfTest() {
                       </h4>
                       <p className="text-sm text-success/80">
                         {language === 'th' 
-                          ? 'ผลเบื้องต้นไม่พบการติดเชื้อ HIV'
-                          : 'Preliminary result shows no HIV infection'
+                          ? 'ผลเบื้องต้นไม่พบเชื้อ HIV'
+                          : 'Preliminary result: HIV not detected'
                         }
                       </p>
                     </>

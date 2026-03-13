@@ -235,7 +235,7 @@ export function InteractionMatrix({ onNavigate }: Props) {
       {/* ── Substance checker ── */}
       <div className="rounded-2xl bg-card p-5 space-y-5" style={{ boxShadow: "var(--hr-card-shadow)" }}>
         <h3 className="text-[15px] font-semibold text-foreground">
-          {isEn ? "Check a combination" : "เช็กความเสี่ยงเมื่อใช้สารร่วมกัน"}
+          {isEn ? "Check a combination" : "ตรวจสอบปฏิกิริยาเมื่อใช้สารร่วมกัน"}
         </h3>
 
         <div className="grid grid-cols-[1fr_auto_1fr] gap-3 items-end">

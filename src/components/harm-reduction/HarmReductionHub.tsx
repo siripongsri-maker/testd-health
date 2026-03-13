@@ -42,7 +42,7 @@ const TIPS: TipCard[] = [
 ];
 
 const MYTHS = [
-  { id: "m1", mythTh: "ใช้สารแล้วไม่ต้องใช้ถุงยาง", mythEn: "You don't need condoms when using substances", factTh: "สารเสพติดไม่ได้ป้องกัน STI/HIV ต้องใช้ถุงยางทุกครั้ง", factEn: "Substances don't prevent STIs/HIV. Always use condoms" },
+  { id: "m1", mythTh: "ใช้สารแล้วไม่ต้องใช้ถุงยาง", mythEn: "You don't need condoms when using substances", factTh: "สารออกฤทธิ์ไม่ได้ป้องกัน STI/HIV ต้องใช้ถุงยางทุกครั้ง", factEn: "Substances don't prevent STIs/HIV. Always use condoms" },
   { id: "m2", mythTh: "Chemsex ไม่อันตราย", mythEn: "Chemsex is not dangerous", factTh: "Chemsex เพิ่มความเสี่ยงต่อ HIV/STI, overdose และปัญหาสุขภาพจิต", factEn: "Chemsex increases risk of HIV/STIs, overdose, and mental health issues" },
   { id: "m3", mythTh: "PrEP ป้องกันทุกอย่าง", mythEn: "PrEP protects against everything", factTh: "PrEP ป้องกัน HIV เท่านั้น ยังต้องใช้ถุงยางป้องกัน STI อื่นๆ", factEn: "PrEP only prevents HIV. You still need condoms for other STIs" },
 ];

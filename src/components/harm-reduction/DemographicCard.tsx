@@ -31,7 +31,7 @@ const GENDER_OPTIONS = [
 
 const BEHAVIOR_OPTIONS = [
   { value: "msm", labelTh: "MSM", labelEn: "MSM" },
-  { value: "msw", labelTh: "MSW (ชายขายบริการ)", labelEn: "MSW (Male sex worker)" },
+  { value: "msw", labelTh: "พนักงานบริการทางเพศ", labelEn: "Sex worker (SW)" },
   { value: "heterosexual", labelTh: "ผู้ชายที่มีเพศสัมพันธ์กับผู้หญิง", labelEn: "Heterosexual" },
   { value: "bisexual", labelTh: "ไบเซ็กชวล", labelEn: "Bisexual" },
   { value: "diverse", labelTh: "หลากหลาย", labelEn: "Diverse" },

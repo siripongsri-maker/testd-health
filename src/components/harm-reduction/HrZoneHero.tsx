@@ -33,8 +33,8 @@ export default function HrZoneHero({ onNavigate }: Props) {
     {
       id: "support",
       icon: HeartHandshake,
-      labelTh: "ขอความช่วยเหลือ",
-      labelEn: "Get support",
+      labelTh: "ขอคำปรึกษา หรือการสนับสนุน",
+      labelEn: "Get counseling or support",
       section: "support",
     },
     {
