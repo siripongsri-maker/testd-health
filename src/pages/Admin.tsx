@@ -187,6 +187,7 @@ export default function Admin() {
           {renderTab("system-health", <AdminSystemHealthContent />)}
           {renderTab("ip-docs", <AdminIPDocsContent />)}
           {renderTab("harm-reduction", <AdminHarmReductionContent />)}
+          {renderTab("safety-planner", <AdminSafetyPlannerContent />)}
           {renderTab("knowledge-graph", <AdminKnowledgeGraphContent />)}
           {renderTab("content-generator", <AdminContentGeneratorContent />)}
           {renderTab("references", <AdminReferencesContent />)}
