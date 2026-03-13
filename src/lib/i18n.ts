@@ -897,7 +897,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'booking.freeGlobalFund': 'Free (Global Fund: CLVM)',
     'booking.pepFreeThaiOnly': 'PEP: Free for Thai ONLY',
     'booking.pepWarning': '⚠️ PEP (Emergency Antiretroviral): Free for Thai nationals ONLY',
-    'booking.pepWarningDesc': 'Other nationalities (including CLVM) may have charges. Check pricing at swingsilompolyclinic.com',
+    'booking.pepWarningDesc': 'Other nationalities (including CLVM) may have charges. Contact clinic at +66 2 632 9501',
     'booking.riskDisclaimer': '⚕️ This is NOT a diagnosis. Answer questions to help recommend suitable services.',
     'booking.seeRecommendations': 'See Recommendations',
     'booking.selectDate': 'Select Date',
