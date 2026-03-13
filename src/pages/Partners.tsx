@@ -25,7 +25,7 @@ export default function PartnersPage() {
 
   const linkableAssets = [
     { icon: Shield, titleEn: "Drug Combination Risk Checker", titleTh: "เครื่องมือตรวจสอบความเสี่ยงยาผสม", descEn: "Interactive tool checking risks of 50+ drug combinations with harm reduction advice.", descTh: "เครื่องมือตรวจสอบความเสี่ยงยาผสมกว่า 50 รายการพร้อมคำแนะนำลดอันตราย", path: "/harm-reduction" },
-    { icon: BookOpen, titleEn: "Substance Knowledge Library", titleTh: "คลังความรู้สารเสพติด", descEn: "Comprehensive bilingual guides on 15+ substances with effects, risks, and safer use advice.", descTh: "คู่มือสองภาษาเกี่ยวกับสารเสพติดกว่า 15 ชนิด", path: "/harm-reduction" },
+    { icon: BookOpen, titleEn: "Substance Knowledge Library", titleTh: "คลังความรู้สารออกฤทธิ์", descEn: "Comprehensive bilingual guides on 15+ substances with effects, risks, and safer use advice.", descTh: "คู่มือสองภาษาเกี่ยวกับสารออกฤทธิ์กว่า 15 ชนิด", path: "/harm-reduction" },
     { icon: Heart, titleEn: "Chemsex Safety Hub", titleTh: "ศูนย์ความปลอดภัยเคมเซ็กส์", descEn: "Holistic chemsex harm reduction: risk screening, safer use planning, peer support, and counseling referrals.", descTh: "การลดอันตรายเคมเซ็กส์แบบองค์รวม", path: "/chemsex-safety" },
     { icon: FileText, titleEn: "HIV Self-Test Guide", titleTh: "คู่มือตรวจ HIV ด้วยตนเอง", descEn: "Step-by-step guide for HIV self-testing with AI-assisted result reading and counselor support.", descTh: "คู่มือตรวจ HIV ด้วยตนเองพร้อม AI ช่วยอ่านผล", path: "/hiv-self-test-guide" },
   ];
