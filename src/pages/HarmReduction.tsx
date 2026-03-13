@@ -199,13 +199,7 @@ export default function HarmReduction() {
         )}
 
         {section === "recovery" && (
-          <div className="space-y-6">
-            {/* Import RecoveryMode inline */}
-            {(() => {
-              const { RecoveryMode } = require("@/components/harm-reduction/RecoveryMode");
-              return <RecoveryMode userId={user?.id} onNavigateSupport={() => setSection("support")} />;
-            })()}
-          </div>
+          <RecoveryMode userId={user?.id} onNavigateSupport={() => setSection("support")} />
         )}
 
         {/* Service Recommendations — shown after entry selection */}

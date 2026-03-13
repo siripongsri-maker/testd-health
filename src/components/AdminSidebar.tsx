@@ -125,6 +125,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "outreach", icon: Globe, labelKey: "admin.outreach", adminOnly: true },
       { tab: "language-dictionary", icon: Languages, labelKey: "admin.languageDictionary", adminOnly: true },
       { tab: "clinic-settings", icon: Building2, labelKey: "admin.clinicSettings", adminOnly: true },
+      { tab: "service-pathways", icon: HeartHandshake, labelKey: "admin.servicePathways", adminOnly: true, meAnalyst: true },
     ],
   },
   {
