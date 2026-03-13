@@ -193,6 +193,7 @@ export default function Admin() {
           {renderTab("content-generator", <AdminContentGeneratorContent />)}
           {renderTab("references", <AdminReferencesContent />)}
           {renderTab("outreach", <AdminOutreachContent />)}
+          {renderTab("demographics", <AdminDemographicsContent />)}
         </Tabs>
       </div>
     </AdminLayout>
