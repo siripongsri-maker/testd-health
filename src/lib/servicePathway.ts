@@ -137,7 +137,8 @@ export async function createFollowup(
     pathway_id: pathwayId,
     user_id: userId || null,
     followup_type: followupType,
-    due_date: dueDate.toISOString().split("T")[0],
+    source_type: "service_pathway",
+    scheduled_at: dueDate.toISOString(),
     status: "pending",
   });
 
