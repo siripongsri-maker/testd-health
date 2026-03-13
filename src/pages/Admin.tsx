@@ -48,6 +48,17 @@ const AdminReferencesContent = lazy(() => import("@/components/admin/AdminRefere
 const AdminDemographicsContent = lazy(() => import("@/components/admin/AdminDemographicsContent"));
 const AdminOutreachContent = lazy(() => import("@/components/admin/AdminOutreachContent"));
 
+// MEL modules
+const MelServiceLedgerContent = lazy(() => import("@/components/admin/mel/MelServiceLedgerContent"));
+const MelIndicatorsContent = lazy(() => import("@/components/admin/mel/MelIndicatorsContent"));
+const MelOutreachEventsContent = lazy(() => import("@/components/admin/mel/MelOutreachEventsContent"));
+const MelTrainingContent = lazy(() => import("@/components/admin/mel/MelTrainingContent"));
+const MelSafeSpacesContent = lazy(() => import("@/components/admin/mel/MelSafeSpacesContent"));
+const MelPartnersContent = lazy(() => import("@/components/admin/mel/MelPartnersContent"));
+const MelPolicyContent = lazy(() => import("@/components/admin/mel/MelPolicyContent"));
+const MelEvaluationContent = lazy(() => import("@/components/admin/mel/MelEvaluationContent"));
+const MelReportingContent = lazy(() => import("@/components/admin/mel/MelReportingContent"));
+
 const TabLoader = () => (
   <div className="flex items-center justify-center h-64">
     <Loader2 className="h-8 w-8 animate-spin text-primary" />
