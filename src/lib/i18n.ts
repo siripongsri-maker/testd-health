@@ -385,7 +385,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'booking.freeGlobalFund': 'ฟรี กองทุนโลก (CLVM)',
     'booking.pepFreeThaiOnly': 'PEP ฟรีเฉพาะคนไทย',
     'booking.pepWarning': '⚠️ PEP (ยาต้านฉุกเฉิน): ฟรีเฉพาะคนไทยเท่านั้น',
-    'booking.pepWarningDesc': 'สัญชาติอื่น (รวมถึง CLVM) อาจมีค่าใช้จ่าย ตรวจสอบราคาที่ swingsilompolyclinic.com',
+    'booking.pepWarningDesc': 'สัญชาติอื่น (รวมถึง CLVM) อาจมีค่าใช้จ่าย สอบถามเพิ่มเติมที่คลินิก โทร 02 632 9501',
     'booking.riskDisclaimer': '⚕️ นี่ไม่ใช่การวินิจฉัย ตอบคำถามเพื่อช่วยแนะนำบริการที่เหมาะสม',
     'booking.seeRecommendations': 'ดูบริการแนะนำ',
     'booking.selectDate': 'เลือกวันที่',
