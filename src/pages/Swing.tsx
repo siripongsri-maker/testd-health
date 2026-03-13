@@ -10,8 +10,7 @@ import { trackEvent } from "@/hooks/useAnalytics";
 import swingLogo from "@/assets/swing-logo.png";
 import {
   CalendarDays, Phone, MessageCircle, ChevronRight, Loader2,
-  Shield, Heart, Clock, MapPin, TestTube, Pill, Stethoscope,
-  Brain, HeartHandshake, Package, Syringe, RefreshCw,
+  Shield, Heart, Clock, MapPin,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -26,39 +25,24 @@ interface Service {
   display_order: number;
 }
 
-const ICON_MAP: Record<string, React.ElementType> = {
-  TestTube, Pill, Shield, Brain, HeartHandshake, Package, Stethoscope, Syringe, RefreshCw,
-  "test-tube": TestTube,
-  "pill": Pill,
-  "shield": Shield,
-  "brain": Brain,
-  "heart-handshake": HeartHandshake,
-  "package": Package,
-  "stethoscope": Stethoscope,
-  "syringe": Syringe,
-  "refresh-cw": RefreshCw,
+const SLUG_COLORS: Record<string, string> = {
+  "hiv-testing": "bg-red-100 dark:bg-red-900/40",
+  "syphilis-testing": "bg-purple-100 dark:bg-purple-900/40",
+  "sti-screening": "bg-purple-100 dark:bg-purple-900/40",
+  "prep-consultation": "bg-blue-100 dark:bg-blue-900/40",
+  "prep-daily": "bg-blue-100 dark:bg-blue-900/40",
+  "prep-on-demand": "bg-blue-100 dark:bg-blue-900/40",
+  "pep": "bg-orange-100 dark:bg-orange-900/40",
+  "hepc-testing": "bg-teal-100 dark:bg-teal-900/40",
+  "harm-reduction-counseling": "bg-rose-100 dark:bg-rose-900/40",
+  "mental-health-support": "bg-indigo-100 dark:bg-indigo-900/40",
+  "self-test-support": "bg-teal-100 dark:bg-teal-900/40",
+  "followup-consultation": "bg-emerald-100 dark:bg-emerald-900/40",
 };
 
-const CATEGORY_COLORS: Record<string, string> = {
-  "hiv-testing": "bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-400",
-  "syphilis-testing": "bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-400",
-  "sti-screening": "bg-purple-100 text-purple-600 dark:bg-purple-900/40 dark:text-purple-400",
-  "prep-daily": "bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400",
-  "prep-on-demand": "bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400",
-  "pep": "bg-orange-100 text-orange-600 dark:bg-orange-900/40 dark:text-orange-400",
-  "hepc-testing": "bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-400",
-  "harm-reduction-counseling": "bg-rose-100 text-rose-600 dark:bg-rose-900/40 dark:text-rose-400",
-  "mental-health-support": "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400",
-  "self-test-support": "bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-400",
-  "followup-consultation": "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400",
-};
-
-function getIconComponent(iconName: string): React.ElementType {
-  return ICON_MAP[iconName] || TestTube;
-}
-
-function getColorClass(slug: string): string {
-  return CATEGORY_COLORS[slug] || "bg-primary/10 text-primary";
+function ServiceIcon({ icon, className }: { icon: string; className?: string }) {
+  // DB stores emoji icons — render them directly
+  return <span className={cn("text-lg leading-none", className)}>{icon}</span>;
 }
 
 export default function Swing() {
@@ -98,9 +82,8 @@ export default function Swing() {
   const loc = (th: string | null | undefined, en: string | null | undefined) =>
     isEn ? (en || th || "") : (th || en || "");
 
-  // Featured services: first 4 by display order
+  // Featured = first 4, but ALL services always shown below
   const featured = services.slice(0, 4);
-  const remaining = services.slice(4);
 
   if (loading) {
     return (
@@ -176,78 +159,70 @@ export default function Swing() {
                 {isEn ? "Popular Services" : "บริการยอดนิยม"}
               </h2>
               <div className="grid grid-cols-2 gap-2.5">
-                {featured.map((svc) => {
-                  const Icon = getIconComponent(svc.icon);
-                  const colorClass = getColorClass(svc.slug);
-                  return (
-                    <Card
-                      key={svc.id}
-                      className="cursor-pointer hover:shadow-md transition-all border-border/60 hover:border-primary/30 active:scale-[0.98]"
-                      onClick={() => handleServiceClick(svc.slug)}
-                    >
-                      <CardContent className="p-3.5 space-y-2.5">
-                        <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", colorClass)}>
-                          <Icon className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-semibold text-foreground leading-tight">
-                            {loc(svc.name_th, svc.name_en)}
-                          </h3>
-                          {(svc.description_th || svc.description_en) && (
-                            <p className="text-[11px] text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
-                              {loc(svc.description_th, svc.description_en)}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex justify-end">
-                          <span className="text-[10px] text-primary font-medium flex items-center gap-0.5">
-                            {isEn ? "Book" : "จอง"}
-                            <ChevronRight className="h-3 w-3" />
-                          </span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+                {featured.map((svc) => (
+                  <Card
+                    key={svc.id}
+                    className="cursor-pointer hover:shadow-md transition-all border-border/60 hover:border-primary/30 active:scale-[0.98]"
+                    onClick={() => handleServiceClick(svc.slug)}
+                  >
+                    <CardContent className="p-3.5 space-y-2.5">
+                      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", SLUG_COLORS[svc.slug] || "bg-primary/10")}>
+                        <ServiceIcon icon={svc.icon} className="text-xl" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-foreground leading-tight">
+                          {loc(svc.name_th, svc.name_en)}
+                        </h3>
+                        {(svc.description_th || svc.description_en) && (
+                          <p className="text-[11px] text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
+                            {loc(svc.description_th, svc.description_en)}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex justify-end">
+                        <span className="text-[10px] text-primary font-medium flex items-center gap-0.5">
+                          {isEn ? "Book" : "จอง"}
+                          <ChevronRight className="h-3 w-3" />
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </div>
           )}
 
-          {/* All services */}
-          {remaining.length > 0 && (
+          {/* ALL services — complete list */}
+          {services.length > 0 && (
             <div className="space-y-3">
               <h2 className="text-base font-semibold text-foreground">
-                {isEn ? "All Services" : "บริการทั้งหมด"}
+                {isEn ? "All Clinic Services" : "บริการทั้งหมด"}
               </h2>
               <div className="space-y-2">
-                {remaining.map((svc) => {
-                  const Icon = getIconComponent(svc.icon);
-                  const colorClass = getColorClass(svc.slug);
-                  return (
-                    <Card
-                      key={svc.id}
-                      className="cursor-pointer hover:shadow-md transition-all border-border/60 hover:border-primary/30 active:scale-[0.98]"
-                      onClick={() => handleServiceClick(svc.slug)}
-                    >
-                      <CardContent className="p-3 flex items-center gap-3">
-                        <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0", colorClass)}>
-                          <Icon className="h-4 w-4" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-semibold text-foreground">
-                            {loc(svc.name_th, svc.name_en)}
-                          </h3>
-                          {(svc.description_th || svc.description_en) && (
-                            <p className="text-[11px] text-muted-foreground line-clamp-1">
-                              {loc(svc.description_th, svc.description_en)}
-                            </p>
-                          )}
-                        </div>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+                {services.map((svc) => (
+                  <Card
+                    key={svc.id}
+                    className="cursor-pointer hover:shadow-md transition-all border-border/60 hover:border-primary/30 active:scale-[0.98]"
+                    onClick={() => handleServiceClick(svc.slug)}
+                  >
+                    <CardContent className="p-3 flex items-center gap-3">
+                      <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0", SLUG_COLORS[svc.slug] || "bg-primary/10")}>
+                        <ServiceIcon icon={svc.icon} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-semibold text-foreground">
+                          {loc(svc.name_th, svc.name_en)}
+                        </h3>
+                        {(svc.description_th || svc.description_en) && (
+                          <p className="text-[11px] text-muted-foreground line-clamp-1">
+                            {loc(svc.description_th, svc.description_en)}
+                          </p>
+                        )}
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </div>
           )}

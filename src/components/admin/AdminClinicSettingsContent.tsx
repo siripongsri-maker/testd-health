@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Save, Building2, Phone, Clock, MapPin, Link2, AlertTriangle } from "lucide-react";
+import { Loader2, Save, Building2, Phone, Clock, MapPin, Link2, AlertTriangle, ListChecks, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 
@@ -29,6 +30,16 @@ interface AuditLog {
   created_at: string;
 }
 
+interface ServiceRow {
+  id: string;
+  slug: string;
+  name_en: string;
+  name_th: string;
+  icon: string;
+  is_active: boolean;
+  display_order: number;
+}
+
 export default function AdminClinicSettingsContent() {
   const { language } = useLanguage();
   const isEn = language === "en";
@@ -36,6 +47,8 @@ export default function AdminClinicSettingsContent() {
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState<ClinicSettings | null>(null);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [serviceRows, setServiceRows] = useState<ServiceRow[]>([]);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -43,12 +56,14 @@ export default function AdminClinicSettingsContent() {
 
   const fetchData = async () => {
     setLoading(true);
-    const [settingsRes, auditRes] = await Promise.all([
+    const [settingsRes, auditRes, svcRes] = await Promise.all([
       supabase.from("clinic_settings" as any).select("*").eq("clinic_key", "swing_main").single(),
       supabase.from("clinic_link_audit" as any).select("*").order("created_at", { ascending: false }).limit(50),
+      supabase.from("booking_services").select("id, slug, name_en, name_th, icon, is_active, display_order").order("display_order"),
     ]);
     if (settingsRes.data) setSettings(settingsRes.data as any);
     if (auditRes.data) setAuditLogs(auditRes.data as any);
+    if (svcRes.data) setServiceRows(svcRes.data as ServiceRow[]);
     setLoading(false);
   };
 
@@ -73,6 +88,21 @@ export default function AdminClinicSettingsContent() {
       toast.success(isEn ? "Settings saved" : "บันทึกสำเร็จ");
     }
     setSaving(false);
+  };
+
+  const toggleServiceActive = async (svc: ServiceRow) => {
+    setTogglingId(svc.id);
+    const { error } = await supabase
+      .from("booking_services")
+      .update({ is_active: !svc.is_active })
+      .eq("id", svc.id);
+    if (error) {
+      toast.error(isEn ? "Failed to update" : "อัปเดตไม่สำเร็จ");
+    } else {
+      setServiceRows(prev => prev.map(s => s.id === svc.id ? { ...s, is_active: !s.is_active } : s));
+      toast.success(isEn ? "Service updated" : "อัปเดตบริการแล้ว");
+    }
+    setTogglingId(null);
   };
 
   if (loading) {
@@ -121,6 +151,66 @@ export default function AdminClinicSettingsContent() {
           </CardContent>
         </Card>
       )}
+
+      {/* Service Visibility */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <ListChecks className="h-4 w-4" />
+            {isEn ? "Clinic Service Visibility" : "การแสดงผลบริการคลินิก"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-xs text-muted-foreground mb-3">
+            {isEn
+              ? "Services shown on /clinic and /booking pages. Toggle to show or hide from users."
+              : "บริการที่แสดงบนหน้า /clinic และ /booking สลับเพื่อแสดงหรือซ่อนจากผู้ใช้"}
+          </p>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-10">#</TableHead>
+                <TableHead>{isEn ? "Service" : "บริการ"}</TableHead>
+                <TableHead className="w-20">{isEn ? "Slug" : "Slug"}</TableHead>
+                <TableHead className="w-20 text-center">{isEn ? "Visible" : "แสดงผล"}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {serviceRows.map((svc) => (
+                <TableRow key={svc.id}>
+                  <TableCell className="text-xs text-muted-foreground">{svc.display_order}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <span className="text-base">{svc.icon}</span>
+                      <div>
+                        <p className="text-sm font-medium">{isEn ? svc.name_en : svc.name_th}</p>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-xs font-mono text-muted-foreground">{svc.slug}</TableCell>
+                  <TableCell className="text-center">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      disabled={togglingId === svc.id}
+                      onClick={() => toggleServiceActive(svc)}
+                      className="h-8 w-8 p-0"
+                    >
+                      {togglingId === svc.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : svc.is_active ? (
+                        <Eye className="h-4 w-4 text-primary" />
+                      ) : (
+                        <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       {/* Link Audit Log */}
       <Card>
