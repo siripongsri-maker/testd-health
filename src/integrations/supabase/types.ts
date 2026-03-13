@@ -1746,6 +1746,89 @@ export type Database = {
         }
         Relationships: []
       }
+      hr_call_events: {
+        Row: {
+          callback_request_id: string | null
+          created_at: string
+          event_type: string
+          id: string
+          notes: string | null
+          provider_name: string | null
+          status: string
+        }
+        Insert: {
+          callback_request_id?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          notes?: string | null
+          provider_name?: string | null
+          status?: string
+        }
+        Update: {
+          callback_request_id?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          notes?: string | null
+          provider_name?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_call_events_callback_request_id_fkey"
+            columns: ["callback_request_id"]
+            isOneToOne: false
+            referencedRelation: "hr_callback_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_callback_requests: {
+        Row: {
+          anonymous_token: string | null
+          callback_reason: string | null
+          callback_status: string
+          consent_to_call: boolean
+          created_at: string
+          escalation_level: string | null
+          id: string
+          phone_number: string | null
+          preferred_language: string | null
+          preferred_time: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          anonymous_token?: string | null
+          callback_reason?: string | null
+          callback_status?: string
+          consent_to_call?: boolean
+          created_at?: string
+          escalation_level?: string | null
+          id?: string
+          phone_number?: string | null
+          preferred_language?: string | null
+          preferred_time?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          anonymous_token?: string | null
+          callback_reason?: string | null
+          callback_status?: string
+          consent_to_call?: boolean
+          created_at?: string
+          escalation_level?: string | null
+          id?: string
+          phone_number?: string | null
+          preferred_language?: string | null
+          preferred_time?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       hr_checkins: {
         Row: {
           anonymous_token: string | null
@@ -2459,6 +2542,50 @@ export type Database = {
           },
         ]
       }
+      hr_plan_actions: {
+        Row: {
+          action_type: string
+          created_at: string
+          id: string
+          is_enabled: boolean
+          label_en: string
+          label_th: string
+          plan_id: string
+          status: string
+          trigger_time: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          label_en: string
+          label_th: string
+          plan_id: string
+          status?: string
+          trigger_time?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          label_en?: string
+          label_th?: string
+          plan_id?: string
+          status?: string
+          trigger_time?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_plan_actions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "hr_user_safety_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hr_references: {
         Row: {
           access_date: string | null
@@ -2516,6 +2643,36 @@ export type Database = {
           updated_at?: string
           url?: string | null
           year?: number | null
+        }
+        Relationships: []
+      }
+      hr_referral_events: {
+        Row: {
+          anonymous_token: string | null
+          created_at: string
+          id: string
+          referral_target: string
+          referral_type: string
+          source_context: string | null
+          user_id: string | null
+        }
+        Insert: {
+          anonymous_token?: string | null
+          created_at?: string
+          id?: string
+          referral_target?: string
+          referral_type: string
+          source_context?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          anonymous_token?: string | null
+          created_at?: string
+          id?: string
+          referral_target?: string
+          referral_type?: string
+          source_context?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -2659,6 +2816,92 @@ export type Database = {
           plan_name?: string | null
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      hr_safety_alert_events: {
+        Row: {
+          alert_type: string
+          anonymous_token: string | null
+          created_at: string
+          id: string
+          plan_id: string | null
+          response_action: string | null
+          severity: string
+          triggered_at: string
+          user_id: string | null
+        }
+        Insert: {
+          alert_type: string
+          anonymous_token?: string | null
+          created_at?: string
+          id?: string
+          plan_id?: string | null
+          response_action?: string | null
+          severity?: string
+          triggered_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          alert_type?: string
+          anonymous_token?: string | null
+          created_at?: string
+          id?: string
+          plan_id?: string | null
+          response_action?: string | null
+          severity?: string
+          triggered_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_safety_alert_events_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "hr_user_safety_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_safety_scenarios: {
+        Row: {
+          created_at: string
+          description_en: string | null
+          description_th: string | null
+          display_order: number
+          icon: string
+          id: string
+          is_active: boolean
+          slug: string
+          title_en: string
+          title_th: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description_en?: string | null
+          description_th?: string | null
+          display_order?: number
+          icon?: string
+          id?: string
+          is_active?: boolean
+          slug: string
+          title_en: string
+          title_th: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description_en?: string | null
+          description_th?: string | null
+          display_order?: number
+          icon?: string
+          id?: string
+          is_active?: boolean
+          slug?: string
+          title_en?: string
+          title_th?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -3002,6 +3245,107 @@ export type Database = {
           nickname?: string | null
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      hr_user_safety_plans: {
+        Row: {
+          alcohol_involved: boolean | null
+          anonymous_token: string | null
+          buddy_enabled: boolean | null
+          created_at: string
+          dose_timer_enabled: boolean | null
+          emergency_shortcuts_enabled: boolean | null
+          hydration_enabled: boolean | null
+          id: string
+          recovery_check_enabled: boolean | null
+          saved_plan_json: Json | null
+          scenario_id: string | null
+          sex_related: boolean | null
+          status: string
+          substances_selected: string[] | null
+          swing_referral_enabled: boolean | null
+          updated_at: string
+          user_id: string | null
+          using_alone: boolean | null
+        }
+        Insert: {
+          alcohol_involved?: boolean | null
+          anonymous_token?: string | null
+          buddy_enabled?: boolean | null
+          created_at?: string
+          dose_timer_enabled?: boolean | null
+          emergency_shortcuts_enabled?: boolean | null
+          hydration_enabled?: boolean | null
+          id?: string
+          recovery_check_enabled?: boolean | null
+          saved_plan_json?: Json | null
+          scenario_id?: string | null
+          sex_related?: boolean | null
+          status?: string
+          substances_selected?: string[] | null
+          swing_referral_enabled?: boolean | null
+          updated_at?: string
+          user_id?: string | null
+          using_alone?: boolean | null
+        }
+        Update: {
+          alcohol_involved?: boolean | null
+          anonymous_token?: string | null
+          buddy_enabled?: boolean | null
+          created_at?: string
+          dose_timer_enabled?: boolean | null
+          emergency_shortcuts_enabled?: boolean | null
+          hydration_enabled?: boolean | null
+          id?: string
+          recovery_check_enabled?: boolean | null
+          saved_plan_json?: Json | null
+          scenario_id?: string | null
+          sex_related?: boolean | null
+          status?: string
+          substances_selected?: string[] | null
+          swing_referral_enabled?: boolean | null
+          updated_at?: string
+          user_id?: string | null
+          using_alone?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_user_safety_plans_scenario_id_fkey"
+            columns: ["scenario_id"]
+            isOneToOne: false
+            referencedRelation: "hr_safety_scenarios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hr_voice_integration_settings: {
+        Row: {
+          escalation_rules_json: Json | null
+          id: string
+          inbound_supported: boolean
+          is_enabled: boolean
+          outbound_supported: boolean
+          provider_name: string
+          updated_at: string
+        }
+        Insert: {
+          escalation_rules_json?: Json | null
+          id?: string
+          inbound_supported?: boolean
+          is_enabled?: boolean
+          outbound_supported?: boolean
+          provider_name?: string
+          updated_at?: string
+        }
+        Update: {
+          escalation_rules_json?: Json | null
+          id?: string
+          inbound_supported?: boolean
+          is_enabled?: boolean
+          outbound_supported?: boolean
+          provider_name?: string
+          updated_at?: string
         }
         Relationships: []
       }
