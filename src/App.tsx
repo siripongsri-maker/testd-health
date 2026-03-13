@@ -71,6 +71,7 @@ const SEOLanding = lazy(() => import("./pages/SEOLanding"));
 const InteractionPage = lazy(() => import("./pages/InteractionPage"));
 const Partners = lazy(() => import("./pages/Partners"));
 const WhatsNew = lazy(() => import("./pages/WhatsNew"));
+const HarmReductionGuide = lazy(() => import("./pages/HarmReductionGuide"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
