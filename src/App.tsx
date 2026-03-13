@@ -12,9 +12,9 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { FloatingMedClock } from "@/components/FloatingMedClock";
 import { AppLayout } from "@/components/AppLayout";
 import { ForceUpdateGuard } from "@/components/ForceUpdateGuard";
+import { VersionAcknowledgementGate } from "@/components/VersionAcknowledgementGate";
 import { VersionAnnouncementBanner } from "@/components/VersionAnnouncementBanner";
-import { Version3Changelog } from "@/components/Version3Changelog";
-import { UpdateNoticeModal } from "@/components/UpdateNoticeModal";
+import { WhatsNewModal } from "@/components/WhatsNewModal";
 
 // Lazy load all pages for code-splitting
 const Home = lazy(() => import("./pages/Home"));
@@ -70,12 +70,93 @@ const HarmReduction = lazy(() => import("./pages/HarmReduction"));
 const SEOLanding = lazy(() => import("./pages/SEOLanding"));
 const InteractionPage = lazy(() => import("./pages/InteractionPage"));
 const Partners = lazy(() => import("./pages/Partners"));
+const WhatsNew = lazy(() => import("./pages/WhatsNew"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
+/** Inner shell — lives inside BrowserRouter so children can useNavigate */
+function AppShell() {
+  const [whatsNewOpen, setWhatsNewOpen] = useState(false);
+
+  return (
+    <>
+      <VersionAnnouncementBanner onOpenChangelog={() => setWhatsNewOpen(true)} />
+      <WhatsNewModal open={whatsNewOpen} onOpenChange={setWhatsNewOpen} />
+      <AnalyticsProvider>
+        <Suspense fallback={<PageLoader />}>
+          <AppLayout>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/consent" element={<Consent />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/setup/prep-daily" element={<SetupPrepDaily />} />
+              <Route path="/setup/prep-ondemand" element={<SetupPrepOnDemand />} />
+              <Route path="/pep" element={<PEPEmergency />} />
+              <Route path="/pep-tracker" element={<PEPTracker />} />
+              <Route path="/progress" element={<Progress />} />
+              <Route path="/info" element={<Info />} />
+              <Route path="/info/:id" element={<InfoArticle />} />
+              <Route path="/info/article/:slug" element={<InfoArticle />} />
+              <Route path="/info/write" element={<WriteArticle />} />
+              <Route path="/swing" element={<Swing />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/community" element={<Community />} />
+              <Route path="/community/chat/:slug" element={<ChatRoom />} />
+              <Route path="/community/interests" element={<Interests />} />
+              <Route path="/self-care" element={<SelfCare />} />
+              <Route path="/hiv-selftest" element={<HIVSelfTest />} />
+              <Route path="/quests" element={<Quests />} />
+              <Route path="/leaderboard" element={<Leaderboard />} />
+              <Route path="/share-achievements" element={<ShareAchievements />} />
+              <Route path="/surveys" element={<Surveys />} />
+              <Route path="/surveys/:id" element={<SurveyTake />} />
+              <Route path="/surveys/:id/builder" element={<SurveyBuilder />} />
+              <Route path="/health-profile" element={<HealthProfile />} />
+              <Route path="/consultation" element={<ConsultationForm />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="/track-order" element={<TrackOrder />} />
+              <Route path="/personal-info" element={<PersonalInfo />} />
+              <Route path="/avatar" element={<AvatarCustomization />} />
+              <Route path="/medication-tracker" element={<MedicationTracker />} />
+              <Route path="/booking" element={<Booking />} />
+              <Route path="/my-appointments" element={<MyAppointments />} />
+              <Route path="/guest-appointments" element={<GuestAppointments />} />
+              <Route path="/invite" element={<InviteCreate />} />
+              <Route path="/credits" element={<Credits />} />
+              <Route path="/invite/:code" element={<InviteLanding />} />
+              <Route path="/invite/session/:sessionCode" element={<InviteSession />} />
+              <Route path="/install" element={<Install />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/docs" element={<DocsIndex />} />
+              <Route path="/docs/:docName" element={<DocsViewer />} />
+              <Route path="/support-chat" element={<SupportChat />} />
+              <Route path="/prevention-match" element={<PreventionMatch />} />
+              <Route path="/queue-tv/:branchSlug" element={<QueueTV />} />
+              <Route path="/harm-reduction" element={<HarmReduction />} />
+              <Route path="/chemsex-safety" element={<SEOLanding />} />
+              <Route path="/drug-combination-risk" element={<SEOLanding />} />
+              <Route path="/ghb-overdose" element={<SEOLanding />} />
+              <Route path="/meth-harm-reduction" element={<SEOLanding />} />
+              <Route path="/hiv-self-test-guide" element={<SEOLanding />} />
+              <Route path="/interaction/:slug" element={<InteractionPage />} />
+              <Route path="/partners" element={<Partners />} />
+              <Route path="/whats-new" element={<WhatsNew />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AppLayout>
+        </Suspense>
+        <FloatingMedClock />
+      </AnalyticsProvider>
+    </>
+  );
+}
+
 const App = () => {
-  const [changelogOpen, setChangelogOpen] = useState(false);
+  const [whatsNewFromGate, setWhatsNewFromGate] = useState(false);
 
   return (
     <ForceUpdateGuard>
@@ -84,80 +165,15 @@ const App = () => {
           <ThemedBackground />
           <RainbowSwingBackground />
           <OfflineBanner />
-          <UpdateNoticeModal />
-          <VersionAnnouncementBanner onOpenChangelog={() => setChangelogOpen(true)} />
-          <Version3Changelog open={changelogOpen} onOpenChange={setChangelogOpen} />
           <Toaster />
           <Sonner position="top-center" />
-          <ScrollToTop />
+          {/* Acknowledgement gate — renders outside Router (no navigation needed) */}
+          <VersionAcknowledgementGate onOpenWhatsNew={() => setWhatsNewFromGate(true)} />
           <BrowserRouter>
-            <AnalyticsProvider>
-              <Suspense fallback={<PageLoader />}>
-                <AppLayout>
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/auth" element={<Auth />} />
-                    <Route path="/onboarding" element={<Onboarding />} />
-                    <Route path="/consent" element={<Consent />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/setup/prep-daily" element={<SetupPrepDaily />} />
-                    <Route path="/setup/prep-ondemand" element={<SetupPrepOnDemand />} />
-                    <Route path="/pep" element={<PEPEmergency />} />
-                    <Route path="/pep-tracker" element={<PEPTracker />} />
-                    <Route path="/progress" element={<Progress />} />
-                    <Route path="/info" element={<Info />} />
-                    <Route path="/info/:id" element={<InfoArticle />} />
-                    <Route path="/info/article/:slug" element={<InfoArticle />} />
-                    <Route path="/info/write" element={<WriteArticle />} />
-                    <Route path="/swing" element={<Swing />} />
-                    <Route path="/settings" element={<Settings />} />
-                    <Route path="/community" element={<Community />} />
-                    <Route path="/community/chat/:slug" element={<ChatRoom />} />
-                    <Route path="/community/interests" element={<Interests />} />
-                    <Route path="/self-care" element={<SelfCare />} />
-                    <Route path="/hiv-selftest" element={<HIVSelfTest />} />
-                    <Route path="/quests" element={<Quests />} />
-                    <Route path="/leaderboard" element={<Leaderboard />} />
-                    <Route path="/share-achievements" element={<ShareAchievements />} />
-                    <Route path="/surveys" element={<Surveys />} />
-                    <Route path="/surveys/:id" element={<SurveyTake />} />
-                    <Route path="/surveys/:id/builder" element={<SurveyBuilder />} />
-                    <Route path="/health-profile" element={<HealthProfile />} />
-                    <Route path="/consultation" element={<ConsultationForm />} />
-                    <Route path="/admin" element={<Admin />} />
-                    <Route path="/track-order" element={<TrackOrder />} />
-                    <Route path="/personal-info" element={<PersonalInfo />} />
-                    <Route path="/avatar" element={<AvatarCustomization />} />
-                    <Route path="/medication-tracker" element={<MedicationTracker />} />
-                    <Route path="/booking" element={<Booking />} />
-                    <Route path="/my-appointments" element={<MyAppointments />} />
-                    <Route path="/guest-appointments" element={<GuestAppointments />} />
-                    <Route path="/invite" element={<InviteCreate />} />
-                    <Route path="/credits" element={<Credits />} />
-                    <Route path="/invite/:code" element={<InviteLanding />} />
-                    <Route path="/invite/session/:sessionCode" element={<InviteSession />} />
-                    <Route path="/install" element={<Install />} />
-                    <Route path="/forgot-password" element={<ForgotPassword />} />
-                    <Route path="/reset-password" element={<ResetPassword />} />
-                    <Route path="/docs" element={<DocsIndex />} />
-                    <Route path="/docs/:docName" element={<DocsViewer />} />
-                    <Route path="/support-chat" element={<SupportChat />} />
-                    <Route path="/prevention-match" element={<PreventionMatch />} />
-                    <Route path="/queue-tv/:branchSlug" element={<QueueTV />} />
-                    <Route path="/harm-reduction" element={<HarmReduction />} />
-                    <Route path="/chemsex-safety" element={<SEOLanding />} />
-                    <Route path="/drug-combination-risk" element={<SEOLanding />} />
-                    <Route path="/ghb-overdose" element={<SEOLanding />} />
-                    <Route path="/meth-harm-reduction" element={<SEOLanding />} />
-                    <Route path="/hiv-self-test-guide" element={<SEOLanding />} />
-                    <Route path="/interaction/:slug" element={<InteractionPage />} />
-                    <Route path="/partners" element={<Partners />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </AppLayout>
-              </Suspense>
-              <FloatingMedClock />
-            </AnalyticsProvider>
+            <ScrollToTop />
+            {/* Secondary What's New modal triggered from gate */}
+            <WhatsNewModal open={whatsNewFromGate} onOpenChange={setWhatsNewFromGate} />
+            <AppShell />
           </BrowserRouter>
         </TooltipProvider>
       </QueryClientProvider>
