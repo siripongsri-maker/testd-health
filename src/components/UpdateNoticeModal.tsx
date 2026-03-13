@@ -1,26 +1,28 @@
 import { useState, useEffect, useCallback } from "react";
-import { useLanguage } from "@/lib/i18n";
 import { APP_VERSION } from "@/config/appVersion";
 import { Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const STORED_VERSION_KEY = "testd_app_version";
+const NOTICE_DISMISSED_KEY = "testd_update_notice_dismissed";
 
 export function UpdateNoticeModal() {
-  const { language } = useLanguage();
   const [show, setShow] = useState(false);
   const [deferred, setDeferred] = useState(false);
+  const [lang, setLang] = useState<string>("th");
 
   useEffect(() => {
+    setLang(localStorage.getItem("testd-language") || "th");
     const stored = localStorage.getItem(STORED_VERSION_KEY);
-    if (stored && stored !== APP_VERSION) {
+    const dismissed = sessionStorage.getItem(NOTICE_DISMISSED_KEY);
+    // Show only if version was stamped before (returning user) AND different
+    if (stored && stored !== APP_VERSION && dismissed !== APP_VERSION) {
       setShow(true);
-      // Track analytics
       try {
         window.dispatchEvent(new CustomEvent("testd-analytics", { detail: { event: "version_update_shown", version: APP_VERSION } }));
       } catch {}
     }
-    // Always stamp current version for new users
+    // Stamp for new users
     if (!stored) {
       localStorage.setItem(STORED_VERSION_KEY, APP_VERSION);
     }
@@ -37,11 +39,7 @@ export function UpdateNoticeModal() {
   const handleDefer = useCallback(() => {
     setDeferred(true);
     setShow(false);
-    // Re-show after 5 minutes
-    setTimeout(() => {
-      setDeferred(false);
-      setShow(true);
-    }, 5 * 60 * 1000);
+    sessionStorage.setItem(NOTICE_DISMISSED_KEY, APP_VERSION);
   }, []);
 
   if (!show || deferred) return null;
@@ -58,7 +56,7 @@ export function UpdateNoticeModal() {
         </h2>
 
         <div className="text-sm text-muted-foreground space-y-2">
-          {language === "th" ? (
+          {lang === "th" ? (
             <>
               <p>เราได้อัปเดตระบบ testD เป็นเวอร์ชันใหม่เพื่อเพิ่มความปลอดภัย ความเร็ว และฟีเจอร์ใหม่สำหรับการดูแลสุขภาพของคุณ</p>
               <p>กรุณาอัปเดตหน้าเว็บไซต์เพื่อใช้งานเวอร์ชันล่าสุด</p>
@@ -73,10 +71,10 @@ export function UpdateNoticeModal() {
 
         <div className="flex flex-col gap-2 pt-2">
           <Button onClick={handleUpdate} className="w-full rounded-full font-semibold">
-            {language === "th" ? "อัปเดตเลย" : "Update Now"}
+            {lang === "th" ? "อัปเดตเลย" : "Update Now"}
           </Button>
           <Button variant="ghost" size="sm" onClick={handleDefer} className="text-xs text-muted-foreground">
-            {language === "th" ? "เตือนฉันทีหลัง" : "Remind me later"}
+            {lang === "th" ? "เตือนฉันทีหลัง" : "Remind me later"}
           </Button>
         </div>
       </div>
