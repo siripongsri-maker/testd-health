@@ -2347,6 +2347,50 @@ export type Database = {
         }
         Relationships: []
       }
+      hr_page_reference_links: {
+        Row: {
+          citation_note: string | null
+          created_at: string
+          display_order: number
+          id: string
+          page_id: string | null
+          page_slug: string
+          page_type: string
+          reference_id: string
+          section_key: string | null
+        }
+        Insert: {
+          citation_note?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          page_id?: string | null
+          page_slug: string
+          page_type: string
+          reference_id: string
+          section_key?: string | null
+        }
+        Update: {
+          citation_note?: string | null
+          created_at?: string
+          display_order?: number
+          id?: string
+          page_id?: string | null
+          page_slug?: string
+          page_type?: string
+          reference_id?: string
+          section_key?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hr_page_reference_links_reference_id_fkey"
+            columns: ["reference_id"]
+            isOneToOne: false
+            referencedRelation: "hr_references"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hr_peer_posts: {
         Row: {
           admin_note: string | null
@@ -2414,6 +2458,66 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      hr_references: {
+        Row: {
+          access_date: string | null
+          authors: string | null
+          citation_full: string | null
+          citation_short: string
+          created_at: string
+          credibility_level: string
+          id: string
+          is_active: boolean
+          language: string | null
+          organization: string
+          publisher: string | null
+          region: string | null
+          source_type: string
+          title: string
+          updated_at: string
+          url: string | null
+          year: number | null
+        }
+        Insert: {
+          access_date?: string | null
+          authors?: string | null
+          citation_full?: string | null
+          citation_short: string
+          created_at?: string
+          credibility_level?: string
+          id?: string
+          is_active?: boolean
+          language?: string | null
+          organization: string
+          publisher?: string | null
+          region?: string | null
+          source_type?: string
+          title: string
+          updated_at?: string
+          url?: string | null
+          year?: number | null
+        }
+        Update: {
+          access_date?: string | null
+          authors?: string | null
+          citation_full?: string | null
+          citation_short?: string
+          created_at?: string
+          credibility_level?: string
+          id?: string
+          is_active?: boolean
+          language?: string | null
+          organization?: string
+          publisher?: string | null
+          region?: string | null
+          source_type?: string
+          title?: string
+          updated_at?: string
+          url?: string | null
+          year?: number | null
+        }
+        Relationships: []
       }
       hr_referrals: {
         Row: {

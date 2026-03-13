@@ -11,7 +11,7 @@ import {
 import type { Substance, SubstanceInteraction } from "./SubstanceLibrary";
 import {
   SEOHead, buildMedicalPageJsonLd, buildFaqJsonLd,
-  AISummaryBlock, QuickFactsCard, FAQSection, SourcesCard,
+  AISummaryBlock, QuickFactsCard, FAQSection, SourcesCard, PageReferences,
 } from "@/components/seo";
 import type { FAQItem } from "@/components/seo";
 import { RelatedKnowledge } from "@/components/harm-reduction/RelatedKnowledge";
@@ -379,7 +379,16 @@ export function SubstanceProfile({ substance: s, interactions, allSubstances, on
       {/* Knowledge Graph Related */}
       <RelatedKnowledge entitySlug={s.slug} titleEn="Related Knowledge" titleTh="ความรู้ที่เกี่ยวข้อง" />
 
-      {/* Sources */}
+      {/* References (DB-backed) */}
+      <PageReferences
+        pageType="substance"
+        pageSlug={s.slug}
+        isEn={isEn}
+        lastReviewed="March 2026"
+        sourceBasis={isEn ? "Based on WHO, NIDA, and EMCDDA guidance" : "อ้างอิงจากแนวทาง WHO, NIDA และ EMCDDA"}
+      />
+
+      {/* Fallback Sources */}
       <SourcesCard isEn={isEn} />
 
       {/* Disclaimer */}

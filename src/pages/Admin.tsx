@@ -43,6 +43,7 @@ const AdminQueueBoardContent = lazy(() => import("@/components/admin/AdminQueueB
 const AdminHarmReductionContent = lazy(() => import("@/components/admin/AdminHarmReductionContent").then(m => ({ default: m.AdminHarmReductionContent })));
 const AdminKnowledgeGraphContent = lazy(() => import("@/components/admin/AdminKnowledgeGraphContent"));
 const AdminContentGeneratorContent = lazy(() => import("@/components/admin/AdminContentGeneratorContent"));
+const AdminReferencesContent = lazy(() => import("@/components/admin/AdminReferencesContent"));
 const AdminOutreachContent = lazy(() => import("@/components/admin/AdminOutreachContent"));
 
 const TabLoader = () => (
@@ -187,6 +188,7 @@ export default function Admin() {
           {renderTab("harm-reduction", <AdminHarmReductionContent />)}
           {renderTab("knowledge-graph", <AdminKnowledgeGraphContent />)}
           {renderTab("content-generator", <AdminContentGeneratorContent />)}
+          {renderTab("references", <AdminReferencesContent />)}
           {renderTab("outreach", <AdminOutreachContent />)}
         </Tabs>
       </div>
