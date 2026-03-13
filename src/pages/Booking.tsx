@@ -131,6 +131,15 @@ export default function Booking() {
           setStep('service');
         }
       }
+
+      // Preselect service from ?service= param (from clinic page)
+      const serviceSlug = searchParams.get('service');
+      if (serviceSlug && serviceRes.data) {
+        const foundSvc = (serviceRes.data as Service[]).find(s => s.slug === serviceSlug);
+        if (foundSvc) {
+          setSelectedServices([foundSvc]);
+        }
+      }
     };
     load();
   }, [searchParams]);
