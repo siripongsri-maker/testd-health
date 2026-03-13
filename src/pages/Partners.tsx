@@ -211,8 +211,8 @@ export default function PartnersPage() {
           </h3>
           <p className="text-xs text-muted-foreground leading-relaxed">
             {isEn
-              ? "testD provides harm reduction information only. This content does not constitute medical advice, does not endorse or encourage drug use, and should not replace professional medical consultation. All information is provided for educational purposes within a public health harm reduction framework. If you need emergency help, call your local emergency services."
-              : "testD ให้ข้อมูลการลดอันตรายเท่านั้น เนื้อหานี้ไม่ใช่คำแนะนำทางการแพทย์ ไม่สนับสนุนหรือส่งเสริมการใช้สารเสพติด และไม่ควรใช้แทนการปรึกษาแพทย์ ข้อมูลทั้งหมดให้เพื่อการศึกษาภายในกรอบการลดอันตรายด้านสาธารณสุข หากต้องการความช่วยเหลือฉุกเฉิน โปรดโทรหาบริการฉุกเฉินในพื้นที่"}
+              ? "testD provides harm reduction information only. This content does not constitute medical advice, does not endorse or encourage substance use, and should not replace professional medical consultation. All information is provided for educational purposes within a public health harm reduction framework. If you need emergency help, call your local emergency services."
+              : "testD ให้ข้อมูลการลดอันตรายเท่านั้น เนื้อหานี้ไม่ใช่คำแนะนำทางการแพทย์ ไม่สนับสนุนหรือส่งเสริมการใช้สารออกฤทธิ์ และไม่ควรใช้แทนการปรึกษาแพทย์ ข้อมูลทั้งหมดให้เพื่อการศึกษาภายในกรอบการลดอันตรายด้านสาธารณสุข หากต้องการความช่วยเหลือฉุกเฉิน โปรดโทรหาบริการฉุกเฉินในพื้นที่"}
           </p>
           <p className="text-xs text-muted-foreground">
             {isEn ? "Last reviewed: March 2026" : "ตรวจสอบล่าสุด: มีนาคม 2569"} · © SWING Foundation

@@ -124,6 +124,11 @@ export default function HrZoneTrust({ userId, onResetAge }: Props) {
             ? "Content reviewed by SWING Foundation health team. Last updated March 2026. Sources: WHO, Thai MOPH, UNAIDS guidelines."
             : "เนื้อหาตรวจสอบโดยทีมสุขภาพ SWING Foundation อัปเดตล่าสุด มีนาคม 2569 อ้างอิง: WHO, กระทรวงสาธารณสุข, UNAIDS"}
         </p>
+        <p className="text-[10px] text-muted-foreground/50 leading-relaxed mt-1.5 border-t border-border/20 pt-1.5">
+          {isEn
+            ? "Information on this website is provided for health education and self-care. It is not a medical diagnosis. For further consultation, contact SWING Clinic."
+            : "ข้อมูลในเว็บไซต์นี้จัดทำเพื่อให้ความรู้ด้านสุขภาพและการดูแลตนเอง ไม่ใช่การวินิจฉัยทางการแพทย์ หากต้องการคำปรึกษาเพิ่มเติมสามารถติดต่อคลินิก SWING"}
+        </p>
       </div>
 
       {/* Safety + reset */}
