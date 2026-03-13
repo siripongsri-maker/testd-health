@@ -217,6 +217,7 @@ export default function Admin() {
           {renderTab("language-dictionary", <AdminLanguageDictionaryContent />)}
           {renderTab("clinic-settings", <AdminClinicSettingsContent />)}
           {renderTab("service-pathways", <AdminServicePathwaysContent />)}
+          {renderTab("front-desk", <AdminFrontDeskContent userBranch={userBranch} />)}
 
           {/* MEL */}
           {renderTab("mel-services", <MelServiceLedgerContent />)}
