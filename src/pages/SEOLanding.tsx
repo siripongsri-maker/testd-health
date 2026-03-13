@@ -48,7 +48,7 @@ const LANDING_PAGES: LandingPageConfig[] = [
   {
     slug: "drug-combination-risk",
     titleEn: "Drug Combination Risk Checker — Interaction Safety Tool",
-    titleTh: "เช็กความเสี่ยงเมื่อใช้สารร่วมกัน — เครื่องมือตรวจสอบปฏิกิริยาระหว่างสาร",
+    titleTh: "ตรวจสอบปฏิกิริยาเมื่อใช้สารร่วมกัน — เครื่องมือตรวจสอบปฏิกิริยาระหว่างสาร",
     descriptionEn: "Check risks of mixing drugs such as GHB, methamphetamine, MDMA, ketamine, alcohol and more. Evidence-based harm reduction guidance and warning signs.",
     descriptionTh: "ตรวจสอบความเสี่ยงจากการผสมสาร เช่น GHB ยาไอซ์ MDMA เคตามีน แอลกอฮอล์ ข้อมูลลดอันตรายและสัญญาณเตือน",
     summaryEn: "The Drug Combination Risk Checker helps users understand the risks of mixing two or more substances. It provides evidence-based information about potential dangers, warning signs, and harm reduction strategies.",
