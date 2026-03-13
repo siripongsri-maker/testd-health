@@ -41,6 +41,7 @@ const AdminIPDocsContent = lazy(() => import("@/components/admin/AdminIPDocsCont
 const AdminAnalyticsOverview = lazy(() => import("@/components/admin/AdminAnalyticsOverview"));
 const AdminQueueBoardContent = lazy(() => import("@/components/admin/AdminQueueBoardContent"));
 const AdminHarmReductionContent = lazy(() => import("@/components/admin/AdminHarmReductionContent").then(m => ({ default: m.AdminHarmReductionContent })));
+const AdminSafetyPlannerContent = lazy(() => import("@/components/admin/AdminSafetyPlannerContent"));
 const AdminKnowledgeGraphContent = lazy(() => import("@/components/admin/AdminKnowledgeGraphContent"));
 const AdminContentGeneratorContent = lazy(() => import("@/components/admin/AdminContentGeneratorContent"));
 const AdminReferencesContent = lazy(() => import("@/components/admin/AdminReferencesContent"));
@@ -186,6 +187,7 @@ export default function Admin() {
           {renderTab("system-health", <AdminSystemHealthContent />)}
           {renderTab("ip-docs", <AdminIPDocsContent />)}
           {renderTab("harm-reduction", <AdminHarmReductionContent />)}
+          {renderTab("safety-planner", <AdminSafetyPlannerContent />)}
           {renderTab("knowledge-graph", <AdminKnowledgeGraphContent />)}
           {renderTab("content-generator", <AdminContentGeneratorContent />)}
           {renderTab("references", <AdminReferencesContent />)}

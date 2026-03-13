@@ -93,7 +93,7 @@ export default function HarmReduction() {
 
         {section === "learn" && <HarmReductionHub onNavigate={(tab) => setSection(tab as Section)} />}
         {section === "check" && <RiskScreening userId={user?.id} onNavigateSupport={() => setSection("support")} />}
-        {section === "plan" && <SaferUsePlanner userId={user?.id} />}
+        {section === "plan" && <SaferUsePlanner userId={user?.id} onNavigateSupport={() => setSection("support")} />}
         {section === "support" && <CounselingReferral userId={user?.id} />}
         {section === "peers" && <PeerSupport />}
 
