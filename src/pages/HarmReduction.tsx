@@ -13,6 +13,7 @@ import { PeerSupport } from "@/components/harm-reduction/PeerSupport";
 import { AICompanion } from "@/components/harm-reduction/AICompanion";
 import { NudgeCard } from "@/components/harm-reduction/NudgeCard";
 import { DailyCheckin } from "@/components/harm-reduction/DailyCheckin";
+import { RecoveryMode } from "@/components/harm-reduction/RecoveryMode";
 import { SwingClinicCard } from "@/components/harm-reduction/SwingClinicCard";
 import { useHrProfile } from "@/hooks/useHrProfile";
 import { getActiveNudges, type Nudge } from "@/lib/SafetyNudges";
