@@ -126,6 +126,20 @@ const menuGroups: MenuGroup[] = [
     ],
   },
   {
+    labelKey: "admin.mel",
+    items: [
+      { tab: "mel-services", icon: ClipboardList, labelKey: "admin.melServices", adminOnly: true, meAnalyst: true },
+      { tab: "mel-indicators", icon: Target, labelKey: "admin.melIndicators", adminOnly: true, meAnalyst: true },
+      { tab: "mel-outreach", icon: Globe, labelKey: "admin.melOutreach", adminOnly: true, meAnalyst: true },
+      { tab: "mel-training", icon: BookOpen, labelKey: "admin.melTraining", adminOnly: true, meAnalyst: true },
+      { tab: "mel-safe-spaces", icon: Users, labelKey: "admin.melSafeSpaces", adminOnly: true, meAnalyst: true },
+      { tab: "mel-partners", icon: Building2, labelKey: "admin.melPartners", adminOnly: true, meAnalyst: true },
+      { tab: "mel-policy", icon: Shield, labelKey: "admin.melPolicy", adminOnly: true, meAnalyst: true },
+      { tab: "mel-evaluation", icon: FileText, labelKey: "admin.melEvaluation", adminOnly: true, meAnalyst: true },
+      { tab: "mel-reporting", icon: BarChart3, labelKey: "admin.melReporting", adminOnly: true, meAnalyst: true },
+    ],
+  },
+  {
     labelKey: "admin.adminTools",
     items: [
       { tab: "diagnostics", icon: Wrench, labelKey: "admin.diagnostics", adminOnly: true },
