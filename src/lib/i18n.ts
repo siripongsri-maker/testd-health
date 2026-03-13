@@ -502,6 +502,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.references': 'แหล่งอ้างอิง',
     'admin.demographics': 'ข้อมูลประชากร',
     'admin.languageDictionary': 'พจนานุกรมภาษาปลอดภัย',
+    'admin.clinicSettings': 'ตั้งค่าคลินิก SWING',
     'admin.mel': 'MEL',
     'admin.melServices': 'บันทึกบริการ',
     'admin.melIndicators': 'ตัวชี้วัด',
