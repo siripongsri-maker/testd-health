@@ -208,6 +208,17 @@ export default function Admin() {
           {renderTab("references", <AdminReferencesContent />)}
           {renderTab("outreach", <AdminOutreachContent />)}
           {renderTab("demographics", <AdminDemographicsContent />)}
+
+          {/* MEL */}
+          {renderTab("mel-services", <MelServiceLedgerContent />)}
+          {renderTab("mel-indicators", <MelIndicatorsContent />)}
+          {renderTab("mel-outreach", <MelOutreachEventsContent />)}
+          {renderTab("mel-training", <MelTrainingContent />)}
+          {renderTab("mel-safe-spaces", <MelSafeSpacesContent />)}
+          {renderTab("mel-partners", <MelPartnersContent />)}
+          {renderTab("mel-policy", <MelPolicyContent />)}
+          {renderTab("mel-evaluation", <MelEvaluationContent />)}
+          {renderTab("mel-reporting", <MelReportingContent />)}
         </Tabs>
       </div>
     </AdminLayout>
