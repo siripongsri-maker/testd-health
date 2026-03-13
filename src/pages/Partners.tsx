@@ -25,7 +25,7 @@ export default function PartnersPage() {
 
   const linkableAssets = [
     { icon: Shield, titleEn: "Drug Combination Risk Checker", titleTh: "เครื่องมือตรวจสอบความเสี่ยงยาผสม", descEn: "Interactive tool checking risks of 50+ drug combinations with harm reduction advice.", descTh: "เครื่องมือตรวจสอบความเสี่ยงยาผสมกว่า 50 รายการพร้อมคำแนะนำลดอันตราย", path: "/harm-reduction" },
-    { icon: BookOpen, titleEn: "Substance Knowledge Library", titleTh: "คลังความรู้สารเสพติด", descEn: "Comprehensive bilingual guides on 15+ substances with effects, risks, and safer use advice.", descTh: "คู่มือสองภาษาเกี่ยวกับสารเสพติดกว่า 15 ชนิด", path: "/harm-reduction" },
+    { icon: BookOpen, titleEn: "Substance Knowledge Library", titleTh: "คลังความรู้สารออกฤทธิ์", descEn: "Comprehensive bilingual guides on 15+ substances with effects, risks, and safer use advice.", descTh: "คู่มือสองภาษาเกี่ยวกับสารออกฤทธิ์กว่า 15 ชนิด", path: "/harm-reduction" },
     { icon: Heart, titleEn: "Chemsex Safety Hub", titleTh: "ศูนย์ความปลอดภัยเคมเซ็กส์", descEn: "Holistic chemsex harm reduction: risk screening, safer use planning, peer support, and counseling referrals.", descTh: "การลดอันตรายเคมเซ็กส์แบบองค์รวม", path: "/chemsex-safety" },
     { icon: FileText, titleEn: "HIV Self-Test Guide", titleTh: "คู่มือตรวจ HIV ด้วยตนเอง", descEn: "Step-by-step guide for HIV self-testing with AI-assisted result reading and counselor support.", descTh: "คู่มือตรวจ HIV ด้วยตนเองพร้อม AI ช่วยอ่านผล", path: "/hiv-self-test-guide" },
   ];
@@ -40,7 +40,7 @@ export default function PartnersPage() {
   ] : [
     "อิงหลักฐาน: เนื้อหาทั้งหมดเป็นไปตามแนวทาง WHO, UNODC, EMCDDA และ NIDA",
     "ไม่ตีตรา: เราใช้ภาษาที่ให้ความสำคัญกับบุคคลและไม่ตัดสิน",
-    "เน้นการลดอันตราย: เรายอมรับว่ามีการใช้สารเสพติดและให้ความสำคัญกับความปลอดภัย",
+    "เน้นการลดอันตราย: เรายอมรับว่ามีการใช้สารออกฤทธิ์และให้ความสำคัญกับความปลอดภัย",
     "ไม่แนะนำปริมาณ: เราไม่ให้ข้อมูลเกี่ยวกับขนาดยา การเตรียม หรือแหล่งซื้อ",
     "สองภาษา: เนื้อหาทั้งหมดมีทั้งภาษาไทยและอังกฤษ",
     "ตรวจสอบเป็นประจำ: เนื้อหามีวันที่ตรวจสอบล่าสุดและการอ้างอิงแหล่งข้อมูล",
@@ -97,8 +97,8 @@ export default function PartnersPage() {
             <CardContent className="p-6 space-y-3">
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {isEn
-                  ? "testD is a digital health platform by SWING Foundation (Service Workers IN Group), a Thai NGO supporting sex workers, MSM, transgender people, and people who use drugs since 2004. testD provides HIV prevention tools, chemsex harm reduction education, and anonymous health support — all bilingual in Thai and English."
-                  : "testD เป็นแพลตฟอร์มสุขภาพดิจิทัลโดยมูลนิธิสวิง (Service Workers IN Group) องค์กรพัฒนาเอกชนไทยที่สนับสนุนผู้ให้บริการทางเพศ MSM ผู้มีความหลากหลายทางเพศ และผู้ใช้สารเสพติดตั้งแต่ปี 2547"}
+                  ? "testD is a digital health platform by SWING Foundation (Service Workers IN Group), a Thai NGO supporting sex workers, MSM, transgender people, and people who use substances since 2004. testD provides HIV prevention tools, chemsex harm reduction education, and anonymous health support — all bilingual in Thai and English."
+                  : "testD เป็นแพลตฟอร์มสุขภาพดิจิทัลโดยมูลนิธิสวิง (Service Workers IN Group) องค์กรพัฒนาเอกชนไทยที่สนับสนุนพนักงานบริการทางเพศ ชายที่มีเพศสัมพันธ์กับชาย ผู้มีความหลากหลายทางเพศ และผู้ที่ใช้สาร ตั้งแต่ปี 2547"}
               </p>
               <div className="flex flex-wrap gap-2">
                 {["HIV Prevention", "Chemsex Safety", "Harm Reduction", "Drug Interactions", "Mental Health"].map(tag => (
@@ -211,8 +211,8 @@ export default function PartnersPage() {
           </h3>
           <p className="text-xs text-muted-foreground leading-relaxed">
             {isEn
-              ? "testD provides harm reduction information only. This content does not constitute medical advice, does not endorse or encourage drug use, and should not replace professional medical consultation. All information is provided for educational purposes within a public health harm reduction framework. If you need emergency help, call your local emergency services."
-              : "testD ให้ข้อมูลการลดอันตรายเท่านั้น เนื้อหานี้ไม่ใช่คำแนะนำทางการแพทย์ ไม่สนับสนุนหรือส่งเสริมการใช้สารเสพติด และไม่ควรใช้แทนการปรึกษาแพทย์ ข้อมูลทั้งหมดให้เพื่อการศึกษาภายในกรอบการลดอันตรายด้านสาธารณสุข หากต้องการความช่วยเหลือฉุกเฉิน โปรดโทรหาบริการฉุกเฉินในพื้นที่"}
+              ? "testD provides harm reduction information only. This content does not constitute medical advice, does not endorse or encourage substance use, and should not replace professional medical consultation. All information is provided for educational purposes within a public health harm reduction framework. If you need emergency help, call your local emergency services."
+              : "testD ให้ข้อมูลการลดอันตรายเท่านั้น เนื้อหานี้ไม่ใช่คำแนะนำทางการแพทย์ ไม่สนับสนุนหรือส่งเสริมการใช้สารออกฤทธิ์ และไม่ควรใช้แทนการปรึกษาแพทย์ ข้อมูลทั้งหมดให้เพื่อการศึกษาภายในกรอบการลดอันตรายด้านสาธารณสุข หากต้องการความช่วยเหลือฉุกเฉิน โปรดโทรหาบริการฉุกเฉินในพื้นที่"}
           </p>
           <p className="text-xs text-muted-foreground">
             {isEn ? "Last reviewed: March 2026" : "ตรวจสอบล่าสุด: มีนาคม 2569"} · © SWING Foundation

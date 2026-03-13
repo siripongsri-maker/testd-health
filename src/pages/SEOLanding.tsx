@@ -48,11 +48,11 @@ const LANDING_PAGES: LandingPageConfig[] = [
   {
     slug: "drug-combination-risk",
     titleEn: "Drug Combination Risk Checker — Interaction Safety Tool",
-    titleTh: "เช็กความเสี่ยงเมื่อใช้สารร่วมกัน — เครื่องมือตรวจสอบปฏิกิริยาระหว่างสาร",
+    titleTh: "ตรวจสอบปฏิกิริยาเมื่อใช้สารร่วมกัน — เครื่องมือตรวจสอบปฏิกิริยาระหว่างสาร",
     descriptionEn: "Check risks of mixing drugs such as GHB, methamphetamine, MDMA, ketamine, alcohol and more. Evidence-based harm reduction guidance and warning signs.",
     descriptionTh: "ตรวจสอบความเสี่ยงจากการผสมสาร เช่น GHB ยาไอซ์ MDMA เคตามีน แอลกอฮอล์ ข้อมูลลดอันตรายและสัญญาณเตือน",
     summaryEn: "The Drug Combination Risk Checker helps users understand the risks of mixing two or more substances. It provides evidence-based information about potential dangers, warning signs, and harm reduction strategies.",
-    summaryTh: "เครื่องมือเช็กความเสี่ยงจากการใช้สารร่วมกัน ช่วยให้ผู้ใช้เข้าใจอันตรายจากการผสมสาร พร้อมข้อมูลสัญญาณเตือนและวิธีลดอันตราย",
+    summaryTh: "เครื่องมือตรวจสอบปฏิกิริยาจากการใช้สารร่วมกัน ช่วยให้ผู้ใช้เข้าใจความเสี่ยงจากการผสมสาร พร้อมข้อมูลสัญญาณเตือนและวิธีลดอันตราย",
     contentEn: "Mixing substances can significantly increase health risks including overdose, respiratory depression, cardiovascular complications, and mental health emergencies.\n\nOur interaction checker covers 40+ substance pairs with information about:\n• Risk level assessment\n• Why the combination increases risk\n• Warning signs to watch for\n• Harm reduction strategies\n• When to seek emergency help\n\nCommon high-risk combinations include GHB + Alcohol, Poppers + Viagra, and multiple depressants together.",
     contentTh: "การผสมสารอาจเพิ่มความเสี่ยงต่อสุขภาพอย่างมาก รวมถึง overdose ระบบหายใจล้มเหลว ภาวะแทรกซ้อนหัวใจ และวิกฤตสุขภาพจิต\n\nเครื่องมือตรวจสอบของเราครอบคลุม 40+ คู่สาร พร้อมข้อมูล:\n• ระดับความเสี่ยง\n• ทำไมคู่นี้จึงเพิ่มความเสี่ยง\n• อาการที่ควรสังเกต\n• วิธีลดอันตราย\n• เมื่อไหร่ควรขอความช่วยเหลือฉุกเฉิน",
     faqs: [
@@ -227,7 +227,7 @@ export default function SEOLandingPage() {
           links={[
             {
               labelEn: "Drug Combination Risk Checker",
-              labelTh: "เช็กความเสี่ยงเมื่อใช้สารร่วมกัน",
+              labelTh: "ตรวจสอบปฏิกิริยาเมื่อใช้สารร่วมกัน",
               icon: Shield,
               action: () => navigate("/harm-reduction"),
             },

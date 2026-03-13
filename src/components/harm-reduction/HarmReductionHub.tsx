@@ -34,7 +34,7 @@ const TIPS: TipCard[] = [
   { id: "b4", icon: Heart, titleTh: "บอกเพื่อนที่ไว้ใจ", titleEn: "Tell a Trusted Friend", descTh: "แจ้งให้คนที่ไว้ใจรู้ว่าคุณอยู่ที่ไหน เผื่อเหตุฉุกเฉิน", descEn: "Let someone you trust know your plans and location", category: "before" },
   { id: "d1", icon: Droplets, titleTh: "ดื่มน้ำสม่ำเสมอ", titleEn: "Stay Hydrated", descTh: "ดื่มน้ำทุก 30-60 นาที โดยเฉพาะหากใช้สาร", descEn: "Drink water every 30-60 minutes, especially if using substances", category: "during" },
   { id: "d2", icon: Shield, titleTh: "ใช้ถุงยางทุกครั้ง", titleEn: "Use Condoms Every Time", descTh: "ใช้ถุงยางและเจลหล่อลื่นทุกครั้งที่มีเพศสัมพันธ์", descEn: "Use condoms and lube for every sexual encounter", category: "during" },
-  { id: "d3", icon: AlertTriangle, titleTh: "ห้ามผสมสาร", titleEn: "Don't Mix Substances", descTh: "การผสมสารเสพติดหลายชนิดเพิ่มความเสี่ยงอย่างมาก", descEn: "Mixing multiple substances significantly increases risk", category: "during" },
+  { id: "d3", icon: AlertTriangle, titleTh: "หลีกเลี่ยงการผสมสาร", titleEn: "Avoid Mixing Substances", descTh: "การใช้สารออกฤทธิ์หลายชนิดร่วมกันอาจเพิ่มความเสี่ยงต่อสุขภาพอย่างมาก", descEn: "Using multiple substances together can significantly increase health risks", category: "during" },
   { id: "a1", icon: Droplets, titleTh: "พักผ่อนและฟื้นตัว", titleEn: "Rest & Recover", descTh: "นอนพักผ่อนให้เพียงพอ ดื่มน้ำ ทานอาหาร", descEn: "Get enough sleep, stay hydrated, eat well", category: "after" },
   { id: "a2", icon: TestTube, titleTh: "ตรวจ HIV/STI", titleEn: "Get HIV/STI Testing", descTh: "ตรวจ HIV และ STI ภายใน 2-4 สัปดาห์หลังกิจกรรม", descEn: "Get tested for HIV and STIs within 2-4 weeks", category: "after" },
   { id: "e1", icon: Zap, titleTh: "อาการ Overdose", titleEn: "Signs of Overdose", descTh: "หมดสติ หายใจลำบาก ชัก ตัวเขียว — โทร 1669 ทันที", descEn: "Unconscious, difficulty breathing, seizures, blue skin — call 1669 immediately", category: "emergency" },
@@ -42,7 +42,7 @@ const TIPS: TipCard[] = [
 ];
 
 const MYTHS = [
-  { id: "m1", mythTh: "ใช้สารแล้วไม่ต้องใช้ถุงยาง", mythEn: "You don't need condoms when using substances", factTh: "สารเสพติดไม่ได้ป้องกัน STI/HIV ต้องใช้ถุงยางทุกครั้ง", factEn: "Substances don't prevent STIs/HIV. Always use condoms" },
+  { id: "m1", mythTh: "ใช้สารแล้วไม่ต้องใช้ถุงยาง", mythEn: "You don't need condoms when using substances", factTh: "สารออกฤทธิ์ไม่ได้ป้องกัน STI/HIV ต้องใช้ถุงยางทุกครั้ง", factEn: "Substances don't prevent STIs/HIV. Always use condoms" },
   { id: "m2", mythTh: "Chemsex ไม่อันตราย", mythEn: "Chemsex is not dangerous", factTh: "Chemsex เพิ่มความเสี่ยงต่อ HIV/STI, overdose และปัญหาสุขภาพจิต", factEn: "Chemsex increases risk of HIV/STIs, overdose, and mental health issues" },
   { id: "m3", mythTh: "PrEP ป้องกันทุกอย่าง", mythEn: "PrEP protects against everything", factTh: "PrEP ป้องกัน HIV เท่านั้น ยังต้องใช้ถุงยางป้องกัน STI อื่นๆ", factEn: "PrEP only prevents HIV. You still need condoms for other STIs" },
 ];

@@ -123,6 +123,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "references", icon: BookOpen, labelKey: "admin.references", adminOnly: true },
       { tab: "demographics", icon: Fingerprint, labelKey: "admin.demographics", adminOnly: true, meAnalyst: true },
       { tab: "outreach", icon: Globe, labelKey: "admin.outreach", adminOnly: true },
+      { tab: "language-dictionary", icon: Languages, labelKey: "admin.languageDictionary", adminOnly: true },
     ],
   },
   {

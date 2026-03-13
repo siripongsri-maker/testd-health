@@ -19,22 +19,22 @@ export default function HrZoneHero({ onNavigate }: Props) {
     {
       id: "check",
       icon: ClipboardCheck,
-      labelTh: "เช็กความเสี่ยง",
-      labelEn: "Check risk",
+      labelTh: "ประเมินสถานการณ์สุขภาพ",
+      labelEn: "Health self-check",
       section: "check",
     },
     {
       id: "plan",
       icon: Shield,
-      labelTh: "วางแผนให้ปลอดภัย",
-      labelEn: "Make a plan",
+      labelTh: "วางแผนดูแลตัวเอง",
+      labelEn: "Build a safer plan",
       section: "plan",
     },
     {
       id: "support",
       icon: HeartHandshake,
-      labelTh: "ขอความช่วยเหลือ",
-      labelEn: "Get support",
+      labelTh: "ขอคำปรึกษา หรือการสนับสนุน",
+      labelEn: "Get counseling or support",
       section: "support",
     },
     {

@@ -100,7 +100,7 @@ export type OrientationKey =
 
 const ORIENTATION_MAP: Array<{ match: Set<string>; key: OrientationKey }> = [
   {
-    match: new Set(["gay", "เกย์", "ชายรักชาย", "homosexual"]),
+    match: new Set(["gay", "เกย์", "ชายรักชาย", "ชายที่มีเพศสัมพันธ์กับชาย", "homosexual", "msm"]),
     key: "เกย์ / Gay",
   },
   {
