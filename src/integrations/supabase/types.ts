@@ -1270,6 +1270,66 @@ export type Database = {
           },
         ]
       }
+      clinic_link_audit: {
+        Row: {
+          action_taken: string
+          component: string
+          created_at: string
+          id: string
+          original_link: string
+        }
+        Insert: {
+          action_taken?: string
+          component: string
+          created_at?: string
+          id?: string
+          original_link: string
+        }
+        Update: {
+          action_taken?: string
+          component?: string
+          created_at?: string
+          id?: string
+          original_link?: string
+        }
+        Relationships: []
+      }
+      clinic_settings: {
+        Row: {
+          clinic_address: string | null
+          clinic_hours: string | null
+          clinic_key: string
+          clinic_name: string
+          clinic_phone: string
+          id: string
+          internal_booking_path: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          clinic_address?: string | null
+          clinic_hours?: string | null
+          clinic_key: string
+          clinic_name?: string
+          clinic_phone?: string
+          id?: string
+          internal_booking_path?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          clinic_address?: string | null
+          clinic_hours?: string | null
+          clinic_key?: string
+          clinic_name?: string
+          clinic_phone?: string
+          id?: string
+          internal_booking_path?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       community_milestones: {
         Row: {
           completed_at: string | null

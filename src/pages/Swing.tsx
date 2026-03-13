@@ -2,15 +2,16 @@ import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/lib/i18n";
+import { useNavigate } from "react-router-dom";
 import swingLogo from "@/assets/swing-logo.png";
 import { MapPin, Clock, FileText, ExternalLink, Heart } from "lucide-react";
 
 export default function Swing() {
   const { t } = useLanguage();
+  const navigate = useNavigate();
 
-  const navigate = (await import("react-router-dom")).useNavigate ? undefined : undefined;
   const handleBookNow = () => {
-    window.location.href = "/booking";
+    navigate("/booking");
   };
 
   return (
