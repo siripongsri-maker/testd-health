@@ -498,6 +498,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.knowledgeGraph': 'กราฟความรู้',
     'admin.contentGenerator': 'สร้างเนื้อหา AI',
     'admin.outreach': 'Outreach & Backlinks',
+    'admin.references': 'แหล่งอ้างอิง',
     'admin.diagnostics': 'วินิจฉัยระบบ',
     'admin.systemHealth': 'สุขภาพระบบ',
     'admin.ipDocs': 'ศูนย์เอกสาร IP',
