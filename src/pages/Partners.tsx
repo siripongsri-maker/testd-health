@@ -97,8 +97,8 @@ export default function PartnersPage() {
             <CardContent className="p-6 space-y-3">
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {isEn
-                  ? "testD is a digital health platform by SWING Foundation (Service Workers IN Group), a Thai NGO supporting sex workers, MSM, transgender people, and people who use drugs since 2004. testD provides HIV prevention tools, chemsex harm reduction education, and anonymous health support — all bilingual in Thai and English."
-                  : "testD เป็นแพลตฟอร์มสุขภาพดิจิทัลโดยมูลนิธิสวิง (Service Workers IN Group) องค์กรพัฒนาเอกชนไทยที่สนับสนุนผู้ให้บริการทางเพศ MSM ผู้มีความหลากหลายทางเพศ และผู้ใช้สารเสพติดตั้งแต่ปี 2547"}
+                  ? "testD is a digital health platform by SWING Foundation (Service Workers IN Group), a Thai NGO supporting sex workers, MSM, transgender people, and people who use substances since 2004. testD provides HIV prevention tools, chemsex harm reduction education, and anonymous health support — all bilingual in Thai and English."
+                  : "testD เป็นแพลตฟอร์มสุขภาพดิจิทัลโดยมูลนิธิสวิง (Service Workers IN Group) องค์กรพัฒนาเอกชนไทยที่สนับสนุนพนักงานบริการทางเพศ ชายที่มีเพศสัมพันธ์กับชาย ผู้มีความหลากหลายทางเพศ และผู้ที่ใช้สาร ตั้งแต่ปี 2547"}
               </p>
               <div className="flex flex-wrap gap-2">
                 {["HIV Prevention", "Chemsex Safety", "Harm Reduction", "Drug Interactions", "Mental Health"].map(tag => (
