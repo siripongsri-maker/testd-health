@@ -15,7 +15,14 @@ import { toast } from "@/hooks/use-toast";
 
 const EVENT_TYPES = [
   "hiv_testing", "sti_screening", "prep_consultation", "pep_consultation",
-  "counseling", "harm_reduction", "referral", "outreach_contact", "follow_up", "other",
+  "counseling", "harm_reduction", "harm_reduction_counseling", "mental_health_support",
+  "hr_screening_completed", "hr_counseling_requested", "mental_health_screen_completed",
+  "callback_requested", "recovery_mode_activated", "referral", "outreach_contact", "follow_up", "other",
+];
+
+const SERVICE_CATEGORIES = [
+  "harm_reduction_counseling", "sexual_health", "hiv_test", "sti_test",
+  "prep", "pep", "self_test_support", "mental_health_support", "followup_consultation",
 ];
 
 const POPULATION_GROUPS = ["msm", "msw", "transgender", "pwid", "general", "other"];

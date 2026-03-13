@@ -1210,12 +1210,17 @@ export type Database = {
           branch_id: string | null
           clinical_notes: string | null
           created_at: string | null
+          distress_level: string | null
           encounter_date: string
           encounter_type: string
           follow_up_date: string | null
           follow_up_needed: boolean | null
           id: string
+          mental_health_screened: boolean | null
           outcome: string | null
+          pathway_id: string | null
+          referral_accepted: boolean | null
+          referral_destination: string | null
           service_event_id: string | null
           staff_id: string | null
           updated_at: string | null
@@ -1226,12 +1231,17 @@ export type Database = {
           branch_id?: string | null
           clinical_notes?: string | null
           created_at?: string | null
+          distress_level?: string | null
           encounter_date?: string
           encounter_type: string
           follow_up_date?: string | null
           follow_up_needed?: boolean | null
           id?: string
+          mental_health_screened?: boolean | null
           outcome?: string | null
+          pathway_id?: string | null
+          referral_accepted?: boolean | null
+          referral_destination?: string | null
           service_event_id?: string | null
           staff_id?: string | null
           updated_at?: string | null
@@ -1242,12 +1252,17 @@ export type Database = {
           branch_id?: string | null
           clinical_notes?: string | null
           created_at?: string | null
+          distress_level?: string | null
           encounter_date?: string
           encounter_type?: string
           follow_up_date?: string | null
           follow_up_needed?: boolean | null
           id?: string
+          mental_health_screened?: boolean | null
           outcome?: string | null
+          pathway_id?: string | null
+          referral_accepted?: boolean | null
+          referral_destination?: string | null
           service_event_id?: string | null
           staff_id?: string | null
           updated_at?: string | null
@@ -1259,6 +1274,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinic_encounters_pathway_id_fkey"
+            columns: ["pathway_id"]
+            isOneToOne: false
+            referencedRelation: "service_pathways"
             referencedColumns: ["id"]
           },
           {
@@ -1861,6 +1883,7 @@ export type Database = {
           followup_type: string
           id: string
           notes: string | null
+          pathway_id: string | null
           response_data: Json | null
           scheduled_at: string
           source_id: string | null
@@ -1876,6 +1899,7 @@ export type Database = {
           followup_type: string
           id?: string
           notes?: string | null
+          pathway_id?: string | null
           response_data?: Json | null
           scheduled_at: string
           source_id?: string | null
@@ -1891,6 +1915,7 @@ export type Database = {
           followup_type?: string
           id?: string
           notes?: string | null
+          pathway_id?: string | null
           response_data?: Json | null
           scheduled_at?: string
           source_id?: string | null
@@ -1899,7 +1924,15 @@ export type Database = {
           updated_at?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "followup_events_pathway_id_fkey"
+            columns: ["pathway_id"]
+            isOneToOne: false
+            referencedRelation: "service_pathways"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       guest_lookup_attempts: {
         Row: {
@@ -5873,54 +5906,84 @@ export type Database = {
           anonymous_token: string | null
           appointment_id: string | null
           branch_id: string | null
+          clinic_referral_needed: boolean | null
+          counseling_needed: boolean | null
           created_at: string | null
           description_en: string | null
           description_th: string | null
           event_type: string
+          followup_due_date: string | null
           id: string
           is_first_visit: boolean | null
+          mental_health_referral_needed: boolean | null
           meta: Json | null
           outcome: string | null
+          pathway_id: string | null
           population_group: string | null
+          screening_context: string | null
+          service_category: string | null
           service_date: string
+          service_status: string | null
+          service_subtype: string | null
           staff_id: string | null
           updated_at: string | null
+          urgency_level: string | null
           user_id: string | null
         }
         Insert: {
           anonymous_token?: string | null
           appointment_id?: string | null
           branch_id?: string | null
+          clinic_referral_needed?: boolean | null
+          counseling_needed?: boolean | null
           created_at?: string | null
           description_en?: string | null
           description_th?: string | null
           event_type: string
+          followup_due_date?: string | null
           id?: string
           is_first_visit?: boolean | null
+          mental_health_referral_needed?: boolean | null
           meta?: Json | null
           outcome?: string | null
+          pathway_id?: string | null
           population_group?: string | null
+          screening_context?: string | null
+          service_category?: string | null
           service_date?: string
+          service_status?: string | null
+          service_subtype?: string | null
           staff_id?: string | null
           updated_at?: string | null
+          urgency_level?: string | null
           user_id?: string | null
         }
         Update: {
           anonymous_token?: string | null
           appointment_id?: string | null
           branch_id?: string | null
+          clinic_referral_needed?: boolean | null
+          counseling_needed?: boolean | null
           created_at?: string | null
           description_en?: string | null
           description_th?: string | null
           event_type?: string
+          followup_due_date?: string | null
           id?: string
           is_first_visit?: boolean | null
+          mental_health_referral_needed?: boolean | null
           meta?: Json | null
           outcome?: string | null
+          pathway_id?: string | null
           population_group?: string | null
+          screening_context?: string | null
+          service_category?: string | null
           service_date?: string
+          service_status?: string | null
+          service_subtype?: string | null
           staff_id?: string | null
           updated_at?: string | null
+          urgency_level?: string | null
           user_id?: string | null
         }
         Relationships: [
@@ -5938,7 +6001,77 @@ export type Database = {
             referencedRelation: "booking_branches"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "service_events_pathway_id_fkey"
+            columns: ["pathway_id"]
+            isOneToOne: false
+            referencedRelation: "service_pathways"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      service_pathways: {
+        Row: {
+          anonymous_token: string | null
+          created_at: string | null
+          entry_point: string
+          followup_due_date: string | null
+          id: string
+          intake_age_range: string | null
+          intake_context: string | null
+          intake_gender: string | null
+          intake_urgency: string | null
+          preferred_support_channel: string | null
+          reason_for_visit: string[] | null
+          recommendation_accepted: string[] | null
+          recommendation_shown: string[] | null
+          screening_completed: boolean | null
+          screening_distress_level: string | null
+          service_status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          anonymous_token?: string | null
+          created_at?: string | null
+          entry_point?: string
+          followup_due_date?: string | null
+          id?: string
+          intake_age_range?: string | null
+          intake_context?: string | null
+          intake_gender?: string | null
+          intake_urgency?: string | null
+          preferred_support_channel?: string | null
+          reason_for_visit?: string[] | null
+          recommendation_accepted?: string[] | null
+          recommendation_shown?: string[] | null
+          screening_completed?: boolean | null
+          screening_distress_level?: string | null
+          service_status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          anonymous_token?: string | null
+          created_at?: string | null
+          entry_point?: string
+          followup_due_date?: string | null
+          id?: string
+          intake_age_range?: string | null
+          intake_context?: string | null
+          intake_gender?: string | null
+          intake_urgency?: string | null
+          preferred_support_channel?: string | null
+          reason_for_visit?: string[] | null
+          recommendation_accepted?: string[] | null
+          recommendation_shown?: string[] | null
+          screening_completed?: boolean | null
+          screening_distress_level?: string | null
+          service_status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       situational_analysis_items: {
         Row: {

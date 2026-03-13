@@ -25,7 +25,7 @@ import {
   ChevronDown, Languages, ShieldAlert, RefreshCw, Gift, Heart,
   MessageSquare, CreditCard, Wallet, Link2, UserCheck,
   Activity, Wrench, Monitor, FileDown, Target, Fingerprint, ListOrdered,
-  Network, Sparkles, Globe, BookOpen,
+  Network, Sparkles, Globe, BookOpen, HeartHandshake,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -125,6 +125,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "outreach", icon: Globe, labelKey: "admin.outreach", adminOnly: true },
       { tab: "language-dictionary", icon: Languages, labelKey: "admin.languageDictionary", adminOnly: true },
       { tab: "clinic-settings", icon: Building2, labelKey: "admin.clinicSettings", adminOnly: true },
+      { tab: "service-pathways", icon: HeartHandshake, labelKey: "admin.servicePathways", adminOnly: true, meAnalyst: true },
     ],
   },
   {

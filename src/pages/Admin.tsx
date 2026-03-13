@@ -49,6 +49,7 @@ const AdminDemographicsContent = lazy(() => import("@/components/admin/AdminDemo
 const AdminOutreachContent = lazy(() => import("@/components/admin/AdminOutreachContent"));
 const AdminLanguageDictionaryContent = lazy(() => import("@/components/admin/AdminLanguageDictionaryContent"));
 const AdminClinicSettingsContent = lazy(() => import("@/components/admin/AdminClinicSettingsContent"));
+const AdminServicePathwaysContent = lazy(() => import("@/components/admin/AdminServicePathwaysContent"));
 
 // MEL modules
 const MelServiceLedgerContent = lazy(() => import("@/components/admin/mel/MelServiceLedgerContent"));
@@ -84,6 +85,8 @@ const ME_ANALYST_TABS = new Set([
   // MEL
   "mel-services", "mel-indicators", "mel-outreach", "mel-training",
   "mel-safe-spaces", "mel-partners", "mel-policy", "mel-evaluation", "mel-reporting",
+  // HR Service System
+  "service-pathways",
   // System
   "system-health",
 ]);
@@ -212,6 +215,7 @@ export default function Admin() {
           {renderTab("demographics", <AdminDemographicsContent />)}
           {renderTab("language-dictionary", <AdminLanguageDictionaryContent />)}
           {renderTab("clinic-settings", <AdminClinicSettingsContent />)}
+          {renderTab("service-pathways", <AdminServicePathwaysContent />)}
 
           {/* MEL */}
           {renderTab("mel-services", <MelServiceLedgerContent />)}
