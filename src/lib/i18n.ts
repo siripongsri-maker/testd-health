@@ -1000,6 +1000,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.contentGenerator': 'AI Content Generator',
     'admin.outreach': 'Outreach & Backlinks',
     'admin.references': 'References',
+    'admin.demographics': 'Demographics',
     'admin.diagnostics': 'Diagnostics',
     'admin.systemHealth': 'System Health',
     'admin.ipDocs': 'IP Documentation',
