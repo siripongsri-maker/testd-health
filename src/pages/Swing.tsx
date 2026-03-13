@@ -8,8 +8,9 @@ import { MapPin, Clock, FileText, ExternalLink, Heart } from "lucide-react";
 export default function Swing() {
   const { t } = useLanguage();
 
+  const navigate = (await import("react-router-dom")).useNavigate ? undefined : undefined;
   const handleBookNow = () => {
-    window.open("https://swingthailand.org", "_blank");
+    window.location.href = "/booking";
   };
 
   return (

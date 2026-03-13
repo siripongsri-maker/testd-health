@@ -830,7 +830,7 @@ function ResultsView({
       label: isEn ? "Visit SWING Clinic" : "เยี่ยม SWING Clinic",
       icon: CalendarDays,
       primary: false,
-      onClick: () => window.open("https://zerva.app/swing_x_hornet_th", "_blank"),
+      onClick: () => navigate("/booking"),
     });
   }
 
