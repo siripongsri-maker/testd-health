@@ -213,6 +213,7 @@ export default function Admin() {
           {renderTab("demographics", <AdminDemographicsContent />)}
           {renderTab("language-dictionary", <AdminLanguageDictionaryContent />)}
           {renderTab("clinic-settings", <AdminClinicSettingsContent />)}
+          {renderTab("service-pathways", <AdminServicePathwaysContent />)}
 
           {/* MEL */}
           {renderTab("mel-services", <MelServiceLedgerContent />)}

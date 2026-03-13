@@ -20,19 +20,27 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { trackEvent } from "@/hooks/useAnalytics";
 import { SEOHead, buildMedicalPageJsonLd } from "@/components/seo";
+import { createServicePathway, recordServiceEvent } from "@/lib/servicePathway";
 
-// New zone components
+// Zone components
 import HrZoneHero from "@/components/harm-reduction/HrZoneHero";
 import HrZonePathways from "@/components/harm-reduction/HrZonePathways";
 import HrZonePersonalize from "@/components/harm-reduction/HrZonePersonalize";
 import HrZoneRecommendations from "@/components/harm-reduction/HrZoneRecommendations";
 import HrZoneTrust from "@/components/harm-reduction/HrZoneTrust";
 
+// Service pathway components
+import ServiceEntryCards from "@/components/harm-reduction/ServiceEntryCards";
+import ServiceRecommendations from "@/components/harm-reduction/ServiceRecommendations";
+import ServiceTimeline from "@/components/harm-reduction/ServiceTimeline";
+import ClinicServiceDoor from "@/components/harm-reduction/ClinicServiceDoor";
+import MentalHealthCheckin from "@/components/harm-reduction/MentalHealthCheckin";
+
 const AGE_STORAGE_KEY = "hr_age_confirmed";
 const DEMO_DISMISSED_KEY = "hr_demo_dismissed";
 
 type AgeState = "pending" | "adult" | "minor";
-type Section = "landing" | "learn" | "check" | "plan" | "support" | "peers" | "clinic";
+type Section = "landing" | "learn" | "check" | "plan" | "support" | "peers" | "clinic" | "service-entry" | "mental-health" | "clinic-services" | "recovery";
 
 export default function HarmReduction() {
   const { language } = useLanguage();
@@ -51,6 +59,9 @@ export default function HarmReduction() {
   const [section, setSection] = useState<Section>("landing");
   const [nudges, setNudges] = useState<Nudge[]>(() => getActiveNudges());
   const [demoDismissed, setDemoDismissed] = useState(() => localStorage.getItem(DEMO_DISMISSED_KEY) === "true");
+  const [pathwayId, setPathwayId] = useState<string | null>(null);
+  const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
+  const [distressLevel, setDistressLevel] = useState<string | undefined>();
 
   const handleDemoDismiss = () => {
     setDemoDismissed(true);
@@ -73,11 +84,54 @@ export default function HarmReduction() {
     setNudges((prev) => prev.filter((n) => n.id !== id));
   };
 
+  /** Handle service entry selection — creates a pathway and shows recommendations */
+  const handleServiceEntry = async (reason: string) => {
+    const reasons = [...selectedReasons, reason];
+    setSelectedReasons(reasons);
+
+    // Create pathway if not yet created
+    if (!pathwayId) {
+      const id = await createServicePathway(user?.id, {
+        entry_point: "harm_reduction",
+        reason_for_visit: reasons,
+      });
+      setPathwayId(id);
+    }
+
+    // Route to appropriate section based on reason
+    if (reason === "mental_health") {
+      setSection("mental-health");
+    } else if (reason === "clinic_support" || reason === "testing_prep_pep") {
+      setSection("clinic-services");
+    } else if (reason === "health_check") {
+      setSection("check");
+    } else if (reason === "after_use") {
+      setSection("recovery");
+    } else if (reason === "safer_info") {
+      setSection("learn");
+    } else {
+      setSection("support");
+    }
+  };
+
+  /** Handle recommendation action */
+  const handleServiceAction = (action: string) => {
+    if (action === "recovery_mode") setSection("recovery");
+    else if (action === "safer_plan") setSection("plan");
+    else if (action === "mental_health_screen") setSection("mental-health");
+    else if (action === "urgent_support") setSection("support");
+    else if (action === "callback") setSection("support");
+    else setSection("support");
+  };
+
   const handleNavigate = (target: string) => {
     if (target === "clinic") {
-      // Show clinic in support view or navigate to booking
       trackEvent("hr_section_enter", { section: "clinic" });
       navigate("/booking");
+      return;
+    }
+    if (target === "service-entry") {
+      setSection("service-entry");
       return;
     }
     setSection(target as Section);
@@ -122,12 +176,54 @@ export default function HarmReduction() {
         {section === "support" && <CounselingReferral userId={user?.id} />}
         {section === "peers" && <PeerSupport />}
 
+        {/* New service pathway sections */}
+        {section === "service-entry" && (
+          <ServiceEntryCards onSelect={handleServiceEntry} />
+        )}
+
+        {section === "mental-health" && (
+          <MentalHealthCheckin
+            userId={user?.id}
+            pathwayId={pathwayId}
+            onComplete={(level) => {
+              setDistressLevel(level);
+              // Show recommendations after mental health check
+            }}
+            onNavigate={handleNavigate}
+          />
+        )}
+
+        {section === "clinic-services" && (
+          <ClinicServiceDoor userId={user?.id} pathwayId={pathwayId} />
+        )}
+
+        {section === "recovery" && (
+          <div className="space-y-6">
+            {/* Import RecoveryMode inline */}
+            {(() => {
+              const { RecoveryMode } = require("@/components/harm-reduction/RecoveryMode");
+              return <RecoveryMode userId={user?.id} onNavigateSupport={() => setSection("support")} />;
+            })()}
+          </div>
+        )}
+
+        {/* Service Recommendations — shown after entry selection */}
+        {selectedReasons.length > 0 && section !== "service-entry" && section !== "clinic-services" && (
+          <div className="mt-6">
+            <ServiceRecommendations
+              reasons={selectedReasons}
+              distressLevel={distressLevel}
+              onAction={handleServiceAction}
+            />
+          </div>
+        )}
+
         <AICompanion />
       </PageContainer>
     );
   }
 
-  // ─── Landing: 5 clear zones ───
+  // ─── Landing: 5 clear zones + service pathway ───
   return (
     <PageContainer className="pb-24">
       <SEOHead
@@ -150,7 +246,7 @@ export default function HarmReduction() {
       />
 
       <div className="space-y-8">
-        {/* Safety Nudges — subtle, above hero */}
+        {/* Safety Nudges */}
         {nudges.length > 0 && (
           <div className="space-y-2">
             {nudges.map((nudge) => (
@@ -164,6 +260,9 @@ export default function HarmReduction() {
 
         {/* Zone 2 — Choose what you need (5 pathway cards) */}
         <HrZonePathways onNavigate={handleNavigate} />
+
+        {/* Service Timeline — for logged-in users with history */}
+        {user?.id && <ServiceTimeline userId={user.id} />}
 
         {/* Zone 3 — Personalize gently (collapsible) */}
         {!hasProfile && !demoDismissed && (
