@@ -79,6 +79,9 @@ const ME_ANALYST_TABS = new Set([
   "sms-relay", "credit-balances", "credit-purchases",
   // Reports
   "analytics", "analytics-overview", "export-center",
+  // MEL
+  "mel-services", "mel-indicators", "mel-outreach", "mel-training",
+  "mel-safe-spaces", "mel-partners", "mel-policy", "mel-evaluation", "mel-reporting",
   // System
   "system-health",
 ]);
