@@ -47,8 +47,18 @@ export default function AdminDiagnosticsContent() {
       results.push({ name: 'SMS Provider', status: 'warn', detail: e.message || 'Unable to check' });
     }
 
-    // 3. Tables existence
-    const tables = ['partner_invites', 'partner_invite_relays', 'partner_test_sessions', 'sms_credit_balances', 'sms_credit_transactions', 'sms_credit_purchases'];
+    // 3. Tables existence (core + MEL)
+    const tables = [
+      'partner_invites', 'partner_invite_relays', 'partner_test_sessions',
+      'sms_credit_balances', 'sms_credit_transactions', 'sms_credit_purchases',
+      // MEL tables
+      'service_events', 'clinic_encounters', 'outreach_events',
+      'training_sessions', 'training_curricula', 'support_sessions', 'support_groups',
+      'indicator_definitions', 'indicator_results', 'reporting_periods',
+      'evaluation_questions', 'evaluation_risks', 'mel_timeline_items',
+      'partner_organizations', 'engagement_meetings', 'policy_evidence_logs',
+      'knowledge_products', 'dissemination_logs', 'data_quality_flags',
+    ];
     for (const table of tables) {
       try {
         await (supabase as any).from(table).select('id', { count: 'exact', head: true });
