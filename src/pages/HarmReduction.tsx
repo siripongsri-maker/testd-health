@@ -218,6 +218,26 @@ export default function HarmReduction() {
         </div>
       )}
 
+      {/* Demographic personalization card */}
+      {!hasProfile && !demoDismissed && (
+        <div className="mb-4">
+          <DemographicCard onSave={saveProfile} onDismiss={handleDemoDismiss} />
+        </div>
+      )}
+
+      {/* Personalized recommendations */}
+      {hasProfile && (isMSM || isMSW || isYouth) && (
+        <div className="mb-4">
+          <PersonalizedRecommendations
+            isMSM={isMSM}
+            isMSW={isMSW}
+            isYouth={isYouth}
+            ageRange={ageRange}
+            onNavigate={(s) => setSection(s as Section)}
+          />
+        </div>
+      )}
+
       {/* Daily Check-in */}
       <div className="mb-4">
         <DailyCheckin />
