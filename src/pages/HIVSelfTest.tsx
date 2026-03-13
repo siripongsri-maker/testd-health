@@ -22,7 +22,8 @@ import {
   Timer,
   Loader2,
   Check,
-  X
+  X,
+  MessageCircle
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
