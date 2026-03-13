@@ -124,6 +124,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "demographics", icon: Fingerprint, labelKey: "admin.demographics", adminOnly: true, meAnalyst: true },
       { tab: "outreach", icon: Globe, labelKey: "admin.outreach", adminOnly: true },
       { tab: "language-dictionary", icon: Languages, labelKey: "admin.languageDictionary", adminOnly: true },
+      { tab: "clinic-settings", icon: Building2, labelKey: "admin.clinicSettings", adminOnly: true },
     ],
   },
   {
