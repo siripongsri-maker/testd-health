@@ -13,6 +13,9 @@ import { AICompanion } from "@/components/harm-reduction/AICompanion";
 import { NudgeCard } from "@/components/harm-reduction/NudgeCard";
 import { DailyCheckin } from "@/components/harm-reduction/DailyCheckin";
 import { HealthProgressTracker } from "@/components/harm-reduction/HealthProgressTracker";
+import { DemographicCard } from "@/components/harm-reduction/DemographicCard";
+import { PersonalizedRecommendations } from "@/components/harm-reduction/PersonalizedRecommendations";
+import { useHrProfile } from "@/hooks/useHrProfile";
 import { getActiveNudges, type Nudge } from "@/lib/SafetyNudges";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,6 +27,7 @@ import { trackEvent } from "@/hooks/useAnalytics";
 import { SEOHead, buildMedicalPageJsonLd } from "@/components/seo";
 
 const AGE_STORAGE_KEY = "hr_age_confirmed";
+const DEMO_DISMISSED_KEY = "hr_demo_dismissed";
 
 type AgeState = "pending" | "adult" | "minor";
 type Section = "landing" | "learn" | "check" | "plan" | "support" | "peers";
