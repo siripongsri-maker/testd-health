@@ -188,6 +188,7 @@ export default function Admin() {
           {renderTab("harm-reduction", <AdminHarmReductionContent />)}
           {renderTab("knowledge-graph", <AdminKnowledgeGraphContent />)}
           {renderTab("content-generator", <AdminContentGeneratorContent />)}
+          {renderTab("references", <AdminReferencesContent />)}
           {renderTab("outreach", <AdminOutreachContent />)}
         </Tabs>
       </div>

@@ -4,3 +4,6 @@ export { QuickFactsCard } from "./QuickFactsCard";
 export { FAQSection, type FAQItem } from "./FAQSection";
 export { SourcesCard } from "./SourcesCard";
 export { RelatedContentLinks, buildHarmReductionLinks } from "./RelatedContentLinks";
+export { CitationChips } from "./CitationChips";
+export { LastReviewedBadge } from "./LastReviewedBadge";
+export { PageReferences } from "./PageReferences";
