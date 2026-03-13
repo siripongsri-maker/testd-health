@@ -49,6 +49,7 @@ const AdminDemographicsContent = lazy(() => import("@/components/admin/AdminDemo
 const AdminOutreachContent = lazy(() => import("@/components/admin/AdminOutreachContent"));
 const AdminLanguageDictionaryContent = lazy(() => import("@/components/admin/AdminLanguageDictionaryContent"));
 const AdminClinicSettingsContent = lazy(() => import("@/components/admin/AdminClinicSettingsContent"));
+const AdminServicePathwaysContent = lazy(() => import("@/components/admin/AdminServicePathwaysContent"));
 
 // MEL modules
 const MelServiceLedgerContent = lazy(() => import("@/components/admin/mel/MelServiceLedgerContent"));
