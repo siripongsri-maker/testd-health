@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import ReportingPeriodDrawer from "./ReportingPeriodDrawer";
+import MelDeleteDialog from "./MelDeleteDialog";
+import MelSOPCard, { MEL_SOPS } from "./MelSOPCard";
 
 function exportToCSV(data: any[], filename: string) {
   if (!data.length) return;
@@ -27,6 +29,7 @@ export default function MelReportingContent() {
   const qc = useQueryClient();
   const [periodDrawerOpen, setPeriodDrawerOpen] = useState(false);
   const [editPeriod, setEditPeriod] = useState<any>(null);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
 
   const { data: periods } = useQuery({
     queryKey: ["mel-reporting-periods"],
@@ -54,11 +57,13 @@ export default function MelReportingContent() {
   const deletePeriod = useMutation({
     mutationFn: async (id: string) => { const { error } = await supabase.from("reporting_periods").delete().eq("id", id); if (error) throw error; },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["mel-reporting-periods"] }); toast({ title: isTh ? "ลบสำเร็จ" : "Deleted" }); },
+    onError: () => { toast({ title: isTh ? "ลบไม่สำเร็จ" : "Delete failed", variant: "destructive" }); },
   });
 
   const resolveDqFlag = useMutation({
     mutationFn: async (id: string) => { const { error } = await supabase.from("data_quality_flags").update({ status: "resolved", resolved_at: new Date().toISOString() }).eq("id", id); if (error) throw error; },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["mel-dq-flags"] }); toast({ title: isTh ? "แก้ไขแล้ว" : "Resolved" }); },
+    onError: () => { toast({ title: isTh ? "แก้ไขไม่สำเร็จ" : "Failed to resolve", variant: "destructive" }); },
   });
 
   const handleExportIndicators = () => {
@@ -66,17 +71,7 @@ export default function MelReportingContent() {
     const rows = indicators.map((ind: any) => {
       const indResults = results?.filter((r: any) => r.indicator_id === ind.id) || [];
       const latestValue = indResults.length > 0 ? indResults[0].value : "";
-      return {
-        code: ind.indicator_code,
-        name_en: ind.indicator_name_en,
-        name_th: ind.indicator_name_th,
-        result_level: ind.result_level,
-        unit: ind.unit,
-        target: ind.target_value,
-        latest_value: latestValue,
-        progress: ind.target_value ? `${Math.round((Number(latestValue) / ind.target_value) * 100)}%` : "",
-        results_count: indResults.length,
-      };
+      return { code: ind.indicator_code, name_en: ind.indicator_name_en, name_th: ind.indicator_name_th, result_level: ind.result_level, unit: ind.unit, target: ind.target_value, latest_value: latestValue, progress: ind.target_value ? `${Math.round((Number(latestValue) / ind.target_value) * 100)}%` : "", results_count: indResults.length };
     });
     exportToCSV(rows, `mel-indicator-summary-${new Date().toISOString().split("T")[0]}.csv`);
     toast({ title: isTh ? "ส่งออกสำเร็จ" : "Exported" });
@@ -84,21 +79,11 @@ export default function MelReportingContent() {
 
   const handleExportResults = () => {
     if (!results?.length) return;
-    const rows = results.map((r: any) => ({
-      indicator_code: r.indicator_definitions?.indicator_code,
-      indicator_en: r.indicator_definitions?.indicator_name_en,
-      value: r.value,
-      period: r.period_label,
-      disaggregation: r.disaggregation_key,
-      notes: r.notes,
-      verified: r.verified ? "Yes" : "No",
-      created_at: r.created_at,
-    }));
+    const rows = results.map((r: any) => ({ indicator_code: r.indicator_definitions?.indicator_code, indicator_en: r.indicator_definitions?.indicator_name_en, value: r.value, period: r.period_label, disaggregation: r.disaggregation_key, notes: r.notes, verified: r.verified ? "Yes" : "No", created_at: r.created_at }));
     exportToCSV(rows, `mel-results-${new Date().toISOString().split("T")[0]}.csv`);
     toast({ title: isTh ? "ส่งออกสำเร็จ" : "Exported" });
   };
 
-  // Build progress summary
   const indicatorProgress = indicators?.map((ind: any) => {
     const indResults = results?.filter((r: any) => r.indicator_id === ind.id) || [];
     const latestValue = indResults.length > 0 ? indResults[0].value : 0;
@@ -119,6 +104,8 @@ export default function MelReportingContent() {
         </div>
       </div>
 
+      <MelSOPCard {...MEL_SOPS.reporting} />
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{isTh ? "ตัวชี้วัด" : "Indicators"}</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold text-foreground">{indicators?.length || 0}</p></CardContent></Card>
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{isTh ? "รอบรายงาน" : "Periods"}</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold text-foreground">{periods?.length || 0}</p></CardContent></Card>
@@ -137,41 +124,37 @@ export default function MelReportingContent() {
           {indicatorProgress.length === 0 ? (
             <Card className="border-dashed"><CardContent className="flex flex-col items-center py-12"><BarChart3 className="h-12 w-12 text-muted-foreground/40 mb-4" /><p className="text-muted-foreground">{isTh ? "ยังไม่มีตัวชี้วัด" : "No indicators to show"}</p></CardContent></Card>
           ) : (
-            <Card>
-              <CardContent className="p-0">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead><tr className="border-b bg-muted/50">
-                      <th className="text-left p-3 font-medium text-muted-foreground">{isTh ? "รหัส" : "Code"}</th>
-                      <th className="text-left p-3 font-medium text-muted-foreground">{isTh ? "ตัวชี้วัด" : "Indicator"}</th>
-                      <th className="text-right p-3 font-medium text-muted-foreground">{isTh ? "เป้าหมาย" : "Target"}</th>
-                      <th className="text-right p-3 font-medium text-muted-foreground">{isTh ? "ล่าสุด" : "Latest"}</th>
-                      <th className="text-right p-3 font-medium text-muted-foreground">{isTh ? "ความคืบหน้า" : "Progress"}</th>
-                    </tr></thead>
-                    <tbody>
-                      {indicatorProgress.map((ind: any) => (
-                        <tr key={ind.id} className="border-b hover:bg-muted/30">
-                          <td className="p-3 font-mono text-xs">{ind.indicator_code}</td>
-                          <td className="p-3">{isTh ? ind.indicator_name_th : ind.indicator_name_en}</td>
-                          <td className="p-3 text-right">{ind.target_value ?? "—"}</td>
-                          <td className="p-3 text-right font-semibold">{ind.latestValue || "—"}</td>
-                          <td className="p-3 text-right">
-                            {ind.pct != null ? (
-                              <div className="flex items-center justify-end gap-2">
-                                <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
-                                  <div className={`h-full rounded-full ${ind.pct >= 80 ? "bg-green-500" : ind.pct >= 50 ? "bg-amber-500" : "bg-red-500"}`} style={{ width: `${ind.pct}%` }} />
-                                </div>
-                                <span className="text-xs w-10 text-right">{ind.pct}%</span>
-                              </div>
-                            ) : "—"}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
+            <Card><CardContent className="p-0"><div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="border-b bg-muted/50">
+                  <th className="text-left p-3 font-medium text-muted-foreground">{isTh ? "รหัส" : "Code"}</th>
+                  <th className="text-left p-3 font-medium text-muted-foreground">{isTh ? "ตัวชี้วัด" : "Indicator"}</th>
+                  <th className="text-right p-3 font-medium text-muted-foreground">{isTh ? "เป้าหมาย" : "Target"}</th>
+                  <th className="text-right p-3 font-medium text-muted-foreground">{isTh ? "ล่าสุด" : "Latest"}</th>
+                  <th className="text-right p-3 font-medium text-muted-foreground">{isTh ? "ความคืบหน้า" : "Progress"}</th>
+                </tr></thead>
+                <tbody>
+                  {indicatorProgress.map((ind: any) => (
+                    <tr key={ind.id} className="border-b hover:bg-muted/30">
+                      <td className="p-3 font-mono text-xs">{ind.indicator_code}</td>
+                      <td className="p-3">{isTh ? ind.indicator_name_th : ind.indicator_name_en}</td>
+                      <td className="p-3 text-right">{ind.target_value ?? "—"}</td>
+                      <td className="p-3 text-right font-semibold">{ind.latestValue || "—"}</td>
+                      <td className="p-3 text-right">
+                        {ind.pct != null ? (
+                          <div className="flex items-center justify-end gap-2">
+                            <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
+                              <div className={`h-full rounded-full ${ind.pct >= 80 ? "bg-green-500" : ind.pct >= 50 ? "bg-amber-500" : "bg-red-500"}`} style={{ width: `${ind.pct}%` }} />
+                            </div>
+                            <span className="text-xs w-10 text-right">{ind.pct}%</span>
+                          </div>
+                        ) : "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div></CardContent></Card>
           )}
         </TabsContent>
 
@@ -191,7 +174,7 @@ export default function MelReportingContent() {
                 <div className="flex items-center gap-2">
                   <span className={`text-xs px-2 py-1 rounded-full ${p.status === "submitted" ? "bg-green-500/10 text-green-600" : p.status === "closed" ? "bg-muted text-muted-foreground" : "bg-blue-500/10 text-blue-600"}`}>{p.status}</span>
                   <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setEditPeriod(p); setPeriodDrawerOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
-                  <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => { if (confirm(isTh ? "ลบ?" : "Delete?")) deletePeriod.mutate(p.id); }}><Trash2 className="h-3.5 w-3.5" /></Button>
+                  <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => setDeleteTarget(p)}><Trash2 className="h-3.5 w-3.5" /></Button>
                 </div>
               </div>
             </CardContent></Card>
@@ -211,9 +194,7 @@ export default function MelReportingContent() {
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">{f.source_table} · {f.description || "—"}</p>
                 </div>
-                <Button size="sm" variant="outline" onClick={() => resolveDqFlag.mutate(f.id)}>
-                  {isTh ? "แก้ไข" : "Resolve"}
-                </Button>
+                <Button size="sm" variant="outline" onClick={() => resolveDqFlag.mutate(f.id)}>{isTh ? "แก้ไข" : "Resolve"}</Button>
               </div>
             </CardContent></Card>
           ))}
@@ -221,6 +202,7 @@ export default function MelReportingContent() {
       </Tabs>
 
       <ReportingPeriodDrawer key={editPeriod?.id || "new-p"} open={periodDrawerOpen} onOpenChange={setPeriodDrawerOpen} editItem={editPeriod} />
+      <MelDeleteDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }} onConfirm={() => { if (deleteTarget) { deletePeriod.mutate(deleteTarget.id); setDeleteTarget(null); } }} itemLabel={deleteTarget?.period_label} />
     </div>
   );
 }
