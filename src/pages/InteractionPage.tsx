@@ -13,7 +13,7 @@ import {
 import {
   SEOHead, buildMedicalPageJsonLd, buildFaqJsonLd,
   AISummaryBlock, QuickFactsCard, FAQSection, SourcesCard,
-  RelatedContentLinks,
+  RelatedContentLinks, PageReferences,
 } from "@/components/seo";
 import { RelatedKnowledge } from "@/components/harm-reduction/RelatedKnowledge";
 import type { FAQItem } from "@/components/seo";
