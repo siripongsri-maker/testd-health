@@ -1,7 +1,6 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-// Force rebuild to clear corrupted module cache
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -12,9 +11,10 @@ import { PageLoader } from "@/components/PageLoader";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { FloatingMedClock } from "@/components/FloatingMedClock";
 import { AppLayout } from "@/components/AppLayout";
-// Update guards temporarily disabled
-// import { ForceUpdateGuard } from "@/components/ForceUpdateGuard";
-// import { VersionChecker } from "@/components/VersionChecker";
+import { ForceUpdateGuard } from "@/components/ForceUpdateGuard";
+import { VersionAnnouncementBanner } from "@/components/VersionAnnouncementBanner";
+import { Version3Changelog } from "@/components/Version3Changelog";
+import { UpdateNoticeModal } from "@/components/UpdateNoticeModal";
 
 // Lazy load all pages for code-splitting
 const Home = lazy(() => import("./pages/Home"));
@@ -74,89 +74,95 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <>
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <ThemedBackground />
-      <RainbowSwingBackground />
-      <OfflineBanner />
-      {/* <VersionChecker /> */}
-      <Toaster />
-      <Sonner position="top-center" />
-      <ScrollToTop />
-      <BrowserRouter>
-        <AnalyticsProvider>
-          <Suspense fallback={<PageLoader />}>
-            <AppLayout>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/consent" element={<Consent />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/setup/prep-daily" element={<SetupPrepDaily />} />
-                <Route path="/setup/prep-ondemand" element={<SetupPrepOnDemand />} />
-                <Route path="/pep" element={<PEPEmergency />} />
-                <Route path="/pep-tracker" element={<PEPTracker />} />
-                <Route path="/progress" element={<Progress />} />
-                <Route path="/info" element={<Info />} />
-                <Route path="/info/:id" element={<InfoArticle />} />
-                <Route path="/info/article/:slug" element={<InfoArticle />} />
-                <Route path="/info/write" element={<WriteArticle />} />
-                <Route path="/swing" element={<Swing />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/community" element={<Community />} />
-                <Route path="/community/chat/:slug" element={<ChatRoom />} />
-                <Route path="/community/interests" element={<Interests />} />
-                <Route path="/self-care" element={<SelfCare />} />
-                <Route path="/hiv-selftest" element={<HIVSelfTest />} />
-                <Route path="/quests" element={<Quests />} />
-                <Route path="/leaderboard" element={<Leaderboard />} />
-                <Route path="/share-achievements" element={<ShareAchievements />} />
-                <Route path="/surveys" element={<Surveys />} />
-                <Route path="/surveys/:id" element={<SurveyTake />} />
-                <Route path="/surveys/:id/builder" element={<SurveyBuilder />} />
-                <Route path="/health-profile" element={<HealthProfile />} />
-                <Route path="/consultation" element={<ConsultationForm />} />
-                <Route path="/admin" element={<Admin />} />
-                <Route path="/track-order" element={<TrackOrder />} />
-                <Route path="/personal-info" element={<PersonalInfo />} />
-                <Route path="/avatar" element={<AvatarCustomization />} />
-                <Route path="/medication-tracker" element={<MedicationTracker />} />
-                <Route path="/booking" element={<Booking />} />
-                <Route path="/my-appointments" element={<MyAppointments />} />
-                <Route path="/guest-appointments" element={<GuestAppointments />} />
-                <Route path="/invite" element={<InviteCreate />} />
-                <Route path="/credits" element={<Credits />} />
-                <Route path="/invite/:code" element={<InviteLanding />} />
-                <Route path="/invite/session/:sessionCode" element={<InviteSession />} />
-                <Route path="/install" element={<Install />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/docs" element={<DocsIndex />} />
-                <Route path="/docs/:docName" element={<DocsViewer />} />
-                <Route path="/support-chat" element={<SupportChat />} />
-                <Route path="/prevention-match" element={<PreventionMatch />} />
-                <Route path="/queue-tv/:branchSlug" element={<QueueTV />} />
-                <Route path="/harm-reduction" element={<HarmReduction />} />
-                <Route path="/chemsex-safety" element={<SEOLanding />} />
-                <Route path="/drug-combination-risk" element={<SEOLanding />} />
-                <Route path="/ghb-overdose" element={<SEOLanding />} />
-                <Route path="/meth-harm-reduction" element={<SEOLanding />} />
-                <Route path="/hiv-self-test-guide" element={<SEOLanding />} />
-                <Route path="/interaction/:slug" element={<InteractionPage />} />
-                <Route path="/partners" element={<Partners />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </AppLayout>
-          </Suspense>
-          <FloatingMedClock />
-        </AnalyticsProvider>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-  </>
-);
+const App = () => {
+  const [changelogOpen, setChangelogOpen] = useState(false);
+
+  return (
+    <ForceUpdateGuard>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <ThemedBackground />
+          <RainbowSwingBackground />
+          <OfflineBanner />
+          <UpdateNoticeModal />
+          <VersionAnnouncementBanner onOpenChangelog={() => setChangelogOpen(true)} />
+          <Version3Changelog open={changelogOpen} onOpenChange={setChangelogOpen} />
+          <Toaster />
+          <Sonner position="top-center" />
+          <ScrollToTop />
+          <BrowserRouter>
+            <AnalyticsProvider>
+              <Suspense fallback={<PageLoader />}>
+                <AppLayout>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/onboarding" element={<Onboarding />} />
+                    <Route path="/consent" element={<Consent />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/setup/prep-daily" element={<SetupPrepDaily />} />
+                    <Route path="/setup/prep-ondemand" element={<SetupPrepOnDemand />} />
+                    <Route path="/pep" element={<PEPEmergency />} />
+                    <Route path="/pep-tracker" element={<PEPTracker />} />
+                    <Route path="/progress" element={<Progress />} />
+                    <Route path="/info" element={<Info />} />
+                    <Route path="/info/:id" element={<InfoArticle />} />
+                    <Route path="/info/article/:slug" element={<InfoArticle />} />
+                    <Route path="/info/write" element={<WriteArticle />} />
+                    <Route path="/swing" element={<Swing />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/community" element={<Community />} />
+                    <Route path="/community/chat/:slug" element={<ChatRoom />} />
+                    <Route path="/community/interests" element={<Interests />} />
+                    <Route path="/self-care" element={<SelfCare />} />
+                    <Route path="/hiv-selftest" element={<HIVSelfTest />} />
+                    <Route path="/quests" element={<Quests />} />
+                    <Route path="/leaderboard" element={<Leaderboard />} />
+                    <Route path="/share-achievements" element={<ShareAchievements />} />
+                    <Route path="/surveys" element={<Surveys />} />
+                    <Route path="/surveys/:id" element={<SurveyTake />} />
+                    <Route path="/surveys/:id/builder" element={<SurveyBuilder />} />
+                    <Route path="/health-profile" element={<HealthProfile />} />
+                    <Route path="/consultation" element={<ConsultationForm />} />
+                    <Route path="/admin" element={<Admin />} />
+                    <Route path="/track-order" element={<TrackOrder />} />
+                    <Route path="/personal-info" element={<PersonalInfo />} />
+                    <Route path="/avatar" element={<AvatarCustomization />} />
+                    <Route path="/medication-tracker" element={<MedicationTracker />} />
+                    <Route path="/booking" element={<Booking />} />
+                    <Route path="/my-appointments" element={<MyAppointments />} />
+                    <Route path="/guest-appointments" element={<GuestAppointments />} />
+                    <Route path="/invite" element={<InviteCreate />} />
+                    <Route path="/credits" element={<Credits />} />
+                    <Route path="/invite/:code" element={<InviteLanding />} />
+                    <Route path="/invite/session/:sessionCode" element={<InviteSession />} />
+                    <Route path="/install" element={<Install />} />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/docs" element={<DocsIndex />} />
+                    <Route path="/docs/:docName" element={<DocsViewer />} />
+                    <Route path="/support-chat" element={<SupportChat />} />
+                    <Route path="/prevention-match" element={<PreventionMatch />} />
+                    <Route path="/queue-tv/:branchSlug" element={<QueueTV />} />
+                    <Route path="/harm-reduction" element={<HarmReduction />} />
+                    <Route path="/chemsex-safety" element={<SEOLanding />} />
+                    <Route path="/drug-combination-risk" element={<SEOLanding />} />
+                    <Route path="/ghb-overdose" element={<SEOLanding />} />
+                    <Route path="/meth-harm-reduction" element={<SEOLanding />} />
+                    <Route path="/hiv-self-test-guide" element={<SEOLanding />} />
+                    <Route path="/interaction/:slug" element={<InteractionPage />} />
+                    <Route path="/partners" element={<Partners />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </AppLayout>
+              </Suspense>
+              <FloatingMedClock />
+            </AnalyticsProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ForceUpdateGuard>
+  );
+};
 
 export default App;
