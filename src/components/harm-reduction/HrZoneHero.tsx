@@ -26,8 +26,8 @@ export default function HrZoneHero({ onNavigate }: Props) {
     {
       id: "plan",
       icon: Shield,
-      labelTh: "วางแผนให้ปลอดภัย",
-      labelEn: "Make a plan",
+      labelTh: "วางแผนดูแลตัวเอง",
+      labelEn: "Build a safer plan",
       section: "plan",
     },
     {
