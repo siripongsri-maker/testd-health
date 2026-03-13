@@ -1352,6 +1352,97 @@ export type Database = {
         }
         Relationships: []
       }
+      clinic_walkins: {
+        Row: {
+          age_range: string | null
+          anonymous_id: string | null
+          branch_id: string | null
+          community_context: string | null
+          completed_at: string | null
+          consent_confirmed: boolean | null
+          created_at: string
+          gender_identity: string | null
+          id: string
+          intake_started_at: string | null
+          participant_name: string | null
+          pathway_id: string | null
+          preferred_language: string | null
+          queue_status: string | null
+          reason_for_visit: string[] | null
+          session_id: string | null
+          source: string | null
+          staff_id: string | null
+          updated_at: string
+          urgency_level: string | null
+        }
+        Insert: {
+          age_range?: string | null
+          anonymous_id?: string | null
+          branch_id?: string | null
+          community_context?: string | null
+          completed_at?: string | null
+          consent_confirmed?: boolean | null
+          created_at?: string
+          gender_identity?: string | null
+          id?: string
+          intake_started_at?: string | null
+          participant_name?: string | null
+          pathway_id?: string | null
+          preferred_language?: string | null
+          queue_status?: string | null
+          reason_for_visit?: string[] | null
+          session_id?: string | null
+          source?: string | null
+          staff_id?: string | null
+          updated_at?: string
+          urgency_level?: string | null
+        }
+        Update: {
+          age_range?: string | null
+          anonymous_id?: string | null
+          branch_id?: string | null
+          community_context?: string | null
+          completed_at?: string | null
+          consent_confirmed?: boolean | null
+          created_at?: string
+          gender_identity?: string | null
+          id?: string
+          intake_started_at?: string | null
+          participant_name?: string | null
+          pathway_id?: string | null
+          preferred_language?: string | null
+          queue_status?: string | null
+          reason_for_visit?: string[] | null
+          session_id?: string | null
+          source?: string | null
+          staff_id?: string | null
+          updated_at?: string
+          urgency_level?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinic_walkins_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinic_walkins_pathway_id_fkey"
+            columns: ["pathway_id"]
+            isOneToOne: false
+            referencedRelation: "service_pathways"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinic_walkins_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "counseling_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       community_milestones: {
         Row: {
           completed_at: string | null
@@ -1459,6 +1550,109 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      counseling_sessions: {
+        Row: {
+          action_plan: Json | null
+          anonymous_token: string | null
+          branch_id: string | null
+          completed_at: string | null
+          created_at: string
+          digital_context: Json | null
+          encounter_id: string | null
+          focus_areas: string[] | null
+          followup_due_date: string | null
+          followup_plan: string | null
+          guidance_notes: string | null
+          id: string
+          intake_notes: string | null
+          intake_questions: Json | null
+          intake_reason: string[] | null
+          intake_urgency: string | null
+          participant_name: string | null
+          pathway_id: string | null
+          session_outcome: string | null
+          session_status: string
+          session_type: string
+          staff_id: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          action_plan?: Json | null
+          anonymous_token?: string | null
+          branch_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          digital_context?: Json | null
+          encounter_id?: string | null
+          focus_areas?: string[] | null
+          followup_due_date?: string | null
+          followup_plan?: string | null
+          guidance_notes?: string | null
+          id?: string
+          intake_notes?: string | null
+          intake_questions?: Json | null
+          intake_reason?: string[] | null
+          intake_urgency?: string | null
+          participant_name?: string | null
+          pathway_id?: string | null
+          session_outcome?: string | null
+          session_status?: string
+          session_type?: string
+          staff_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          action_plan?: Json | null
+          anonymous_token?: string | null
+          branch_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          digital_context?: Json | null
+          encounter_id?: string | null
+          focus_areas?: string[] | null
+          followup_due_date?: string | null
+          followup_plan?: string | null
+          guidance_notes?: string | null
+          id?: string
+          intake_notes?: string | null
+          intake_questions?: Json | null
+          intake_reason?: string[] | null
+          intake_urgency?: string | null
+          participant_name?: string | null
+          pathway_id?: string | null
+          session_outcome?: string | null
+          session_status?: string
+          session_type?: string
+          staff_id?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "counseling_sessions_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "counseling_sessions_encounter_id_fkey"
+            columns: ["encounter_id"]
+            isOneToOne: false
+            referencedRelation: "clinic_encounters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "counseling_sessions_pathway_id_fkey"
+            columns: ["pathway_id"]
+            isOneToOne: false
+            referencedRelation: "service_pathways"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       data_quality_flags: {
         Row: {

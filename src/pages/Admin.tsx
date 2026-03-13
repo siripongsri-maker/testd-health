@@ -50,6 +50,7 @@ const AdminOutreachContent = lazy(() => import("@/components/admin/AdminOutreach
 const AdminLanguageDictionaryContent = lazy(() => import("@/components/admin/AdminLanguageDictionaryContent"));
 const AdminClinicSettingsContent = lazy(() => import("@/components/admin/AdminClinicSettingsContent"));
 const AdminServicePathwaysContent = lazy(() => import("@/components/admin/AdminServicePathwaysContent"));
+const AdminFrontDeskContent = lazy(() => import("@/components/admin/AdminFrontDeskContent"));
 
 // MEL modules
 const MelServiceLedgerContent = lazy(() => import("@/components/admin/mel/MelServiceLedgerContent"));
@@ -69,7 +70,7 @@ const TabLoader = () => (
 );
 
 // Tabs accessible by moderators (branch staff)
-const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "quick-register", "bookings", "today", "schedule", "queue-board"]);
+const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk"]);
 
 // Tabs accessible by M&E Analyst (read-only analytics/reporting)
 const ME_ANALYST_TABS = new Set([
@@ -216,6 +217,7 @@ export default function Admin() {
           {renderTab("language-dictionary", <AdminLanguageDictionaryContent />)}
           {renderTab("clinic-settings", <AdminClinicSettingsContent />)}
           {renderTab("service-pathways", <AdminServicePathwaysContent />)}
+          {renderTab("front-desk", <AdminFrontDeskContent userBranch={userBranch} />)}
 
           {/* MEL */}
           {renderTab("mel-services", <MelServiceLedgerContent />)}
