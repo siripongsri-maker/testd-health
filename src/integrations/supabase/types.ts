@@ -5940,6 +5940,69 @@ export type Database = {
           },
         ]
       }
+      service_pathways: {
+        Row: {
+          anonymous_token: string | null
+          created_at: string | null
+          entry_point: string
+          followup_due_date: string | null
+          id: string
+          intake_age_range: string | null
+          intake_context: string | null
+          intake_gender: string | null
+          intake_urgency: string | null
+          preferred_support_channel: string | null
+          reason_for_visit: string[] | null
+          recommendation_accepted: string[] | null
+          recommendation_shown: string[] | null
+          screening_completed: boolean | null
+          screening_distress_level: string | null
+          service_status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          anonymous_token?: string | null
+          created_at?: string | null
+          entry_point?: string
+          followup_due_date?: string | null
+          id?: string
+          intake_age_range?: string | null
+          intake_context?: string | null
+          intake_gender?: string | null
+          intake_urgency?: string | null
+          preferred_support_channel?: string | null
+          reason_for_visit?: string[] | null
+          recommendation_accepted?: string[] | null
+          recommendation_shown?: string[] | null
+          screening_completed?: boolean | null
+          screening_distress_level?: string | null
+          service_status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          anonymous_token?: string | null
+          created_at?: string | null
+          entry_point?: string
+          followup_due_date?: string | null
+          id?: string
+          intake_age_range?: string | null
+          intake_context?: string | null
+          intake_gender?: string | null
+          intake_urgency?: string | null
+          preferred_support_channel?: string | null
+          reason_for_visit?: string[] | null
+          recommendation_accepted?: string[] | null
+          recommendation_shown?: string[] | null
+          screening_completed?: boolean | null
+          screening_distress_level?: string | null
+          service_status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       situational_analysis_items: {
         Row: {
           created_at: string | null
