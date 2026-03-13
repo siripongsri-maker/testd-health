@@ -418,7 +418,18 @@ export default function InteractionPage() {
           {/* Knowledge Graph Related */}
           {slug && <RelatedKnowledge entitySlug={slug} titleEn="Related Knowledge" titleTh="ความรู้ที่เกี่ยวข้อง" />}
 
-          {/* Sources */}
+          {/* References (DB-backed) */}
+          {slug && (
+            <PageReferences
+              pageType="interaction"
+              pageSlug={slug}
+              isEn={isEn}
+              lastReviewed="March 2026"
+              sourceBasis={isEn ? "Based on WHO, UNODC, and EMCDDA guidance" : "อ้างอิงจากแนวทาง WHO, UNODC และ EMCDDA"}
+            />
+          )}
+
+          {/* Fallback Sources */}
           <SourcesCard isEn={isEn} />
 
           {/* CTA Actions */}
