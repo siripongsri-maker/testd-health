@@ -519,6 +519,9 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.diagnostics': 'วินิจฉัยระบบ',
     'admin.systemHealth': 'สุขภาพระบบ',
     'admin.ipDocs': 'ศูนย์เอกสาร IP',
+    'admin.servicesCare': 'บริการและการดูแล',
+    'admin.melReportingGroup': 'MEL และรายงาน',
+    'admin.systemSettings': 'ตั้งค่าระบบ',
     'admin.backToApp': 'กลับหน้าหลัก',
     'admin.logout': 'ออกจากระบบ',
 
