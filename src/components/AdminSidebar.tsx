@@ -26,6 +26,7 @@ import {
   MessageSquare, CreditCard, Wallet, Link2, UserCheck,
   Activity, Wrench, Monitor, FileDown, Target, Fingerprint, ListOrdered,
   Network, Sparkles, Globe, BookOpen, HeartHandshake,
+  Stethoscope,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -39,9 +40,7 @@ interface MenuItemDef {
   tab: string;
   icon: LucideIcon;
   labelKey: string;
-  /** Only visible to super admin */
   adminOnly?: boolean;
-  /** Also visible to me_analyst */
   meAnalyst?: boolean;
 }
 
@@ -51,22 +50,43 @@ interface MenuGroup {
 }
 
 const menuGroups: MenuGroup[] = [
+  // ─── Main ───
   {
     labelKey: "admin.main",
     items: [
       { tab: "dashboard", icon: LayoutDashboard, labelKey: "admin.dashboard", meAnalyst: true },
     ],
   },
+
+  // ─── A. Services & Care ───
   {
-    labelKey: "admin.operations",
+    labelKey: "admin.servicesCare",
     items: [
-      { tab: "kit-orders", icon: Package, labelKey: "admin.kitOrders", meAnalyst: true },
       { tab: "bookings", icon: CalendarDays, labelKey: "admin.bookings", meAnalyst: true },
       { tab: "today", icon: Clipboard, labelKey: "admin.today" },
       { tab: "schedule", icon: Clock, labelKey: "admin.schedule" },
       { tab: "queue-board", icon: ListOrdered, labelKey: "admin.queueBoard" },
+      { tab: "front-desk", icon: ClipboardList, labelKey: "admin.frontDesk", meAnalyst: true },
+      { tab: "service-pathways", icon: HeartHandshake, labelKey: "admin.servicePathways", adminOnly: true, meAnalyst: true },
+      { tab: "clinic-settings", icon: Stethoscope, labelKey: "admin.clinicSettings", adminOnly: true },
+      { tab: "kit-orders", icon: Package, labelKey: "admin.kitOrders", meAnalyst: true },
     ],
   },
+
+  // ─── B. Harm Reduction ───
+  {
+    labelKey: "admin.harmReduction",
+    items: [
+      { tab: "harm-reduction", icon: Heart, labelKey: "admin.harmReductionDashboard", adminOnly: true, meAnalyst: true },
+      { tab: "safety-planner", icon: Shield, labelKey: "admin.safetyPlanner", adminOnly: true },
+      { tab: "knowledge-graph", icon: Network, labelKey: "admin.knowledgeGraph", adminOnly: true },
+      { tab: "content-generator", icon: Sparkles, labelKey: "admin.contentGenerator", adminOnly: true },
+      { tab: "references", icon: BookOpen, labelKey: "admin.references", adminOnly: true },
+      { tab: "language-dictionary", icon: Languages, labelKey: "admin.languageDictionary", adminOnly: true },
+    ],
+  },
+
+  // ─── C. Partner Network ───
   {
     labelKey: "admin.partnerNetwork",
     items: [
@@ -75,23 +95,20 @@ const menuGroups: MenuGroup[] = [
       { tab: "anonymous-responses", icon: UserCheck, labelKey: "admin.anonymousResponses", adminOnly: true, meAnalyst: true },
     ],
   },
-  {
-    labelKey: "admin.smsCredits",
-    items: [
-      { tab: "sms-relay", icon: MessageSquare, labelKey: "admin.smsRelay", adminOnly: true, meAnalyst: true },
-      { tab: "credit-balances", icon: Wallet, labelKey: "admin.creditBalances", adminOnly: true, meAnalyst: true },
-      { tab: "credit-purchases", icon: CreditCard, labelKey: "admin.creditPurchases", adminOnly: true, meAnalyst: true },
-    ],
-  },
+
+  // ─── D. People ───
   {
     labelKey: "admin.people",
     items: [
       { tab: "users", icon: Users, labelKey: "admin.users", adminOnly: true },
       { tab: "branch-staff", icon: Building2, labelKey: "admin.branchStaff", adminOnly: true },
       { tab: "quick-register", icon: UserPlus, labelKey: "admin.quickRegister" },
+      { tab: "demographics", icon: Fingerprint, labelKey: "admin.demographics", adminOnly: true, meAnalyst: true },
       { tab: "abuse-logs", icon: ShieldAlert, labelKey: "admin.abuseLogs", adminOnly: true },
     ],
   },
+
+  // ─── E. Content & Engagement ───
   {
     labelKey: "admin.content",
     items: [
@@ -104,33 +121,20 @@ const menuGroups: MenuGroup[] = [
       { tab: "translations", icon: Languages, labelKey: "admin.translations", adminOnly: true },
     ],
   },
+
+  // ─── F. SMS & Credits ───
   {
-    labelKey: "admin.reports",
+    labelKey: "admin.smsCredits",
     items: [
-      { tab: "analytics", icon: BarChart3, labelKey: "admin.analytics", adminOnly: true, meAnalyst: true },
-      { tab: "analytics-overview", icon: BarChart3, labelKey: "admin.analyticsOverview", adminOnly: true, meAnalyst: true },
-      { tab: "export-center", icon: FileDown, labelKey: "admin.exportCenter", adminOnly: true, meAnalyst: true },
-      { tab: "activity-logs", icon: Activity, labelKey: "admin.activityLogs", adminOnly: true, meAnalyst: true },
+      { tab: "sms-relay", icon: MessageSquare, labelKey: "admin.smsRelay", adminOnly: true, meAnalyst: true },
+      { tab: "credit-balances", icon: Wallet, labelKey: "admin.creditBalances", adminOnly: true, meAnalyst: true },
+      { tab: "credit-purchases", icon: CreditCard, labelKey: "admin.creditPurchases", adminOnly: true, meAnalyst: true },
     ],
   },
+
+  // ─── G. MEL & Reporting ───
   {
-    labelKey: "admin.harmReduction",
-    items: [
-      { tab: "harm-reduction", icon: Heart, labelKey: "admin.harmReductionDashboard", adminOnly: true, meAnalyst: true },
-      { tab: "safety-planner", icon: Shield, labelKey: "admin.safetyPlanner", adminOnly: true },
-      { tab: "knowledge-graph", icon: Network, labelKey: "admin.knowledgeGraph", adminOnly: true },
-      { tab: "content-generator", icon: Sparkles, labelKey: "admin.contentGenerator", adminOnly: true },
-      { tab: "references", icon: BookOpen, labelKey: "admin.references", adminOnly: true },
-      { tab: "demographics", icon: Fingerprint, labelKey: "admin.demographics", adminOnly: true, meAnalyst: true },
-      { tab: "outreach", icon: Globe, labelKey: "admin.outreach", adminOnly: true },
-      { tab: "language-dictionary", icon: Languages, labelKey: "admin.languageDictionary", adminOnly: true },
-      { tab: "clinic-settings", icon: Building2, labelKey: "admin.clinicSettings", adminOnly: true },
-      { tab: "service-pathways", icon: HeartHandshake, labelKey: "admin.servicePathways", adminOnly: true, meAnalyst: true },
-      { tab: "front-desk", icon: ClipboardList, labelKey: "admin.frontDesk", meAnalyst: true },
-    ],
-  },
-  {
-    labelKey: "admin.mel",
+    labelKey: "admin.melReportingGroup",
     items: [
       { tab: "mel-services", icon: ClipboardList, labelKey: "admin.melServices", adminOnly: true, meAnalyst: true },
       { tab: "mel-indicators", icon: Target, labelKey: "admin.melIndicators", adminOnly: true, meAnalyst: true },
@@ -141,10 +145,17 @@ const menuGroups: MenuGroup[] = [
       { tab: "mel-policy", icon: Shield, labelKey: "admin.melPolicy", adminOnly: true, meAnalyst: true },
       { tab: "mel-evaluation", icon: FileText, labelKey: "admin.melEvaluation", adminOnly: true, meAnalyst: true },
       { tab: "mel-reporting", icon: BarChart3, labelKey: "admin.melReporting", adminOnly: true, meAnalyst: true },
+      { tab: "analytics", icon: BarChart3, labelKey: "admin.analytics", adminOnly: true, meAnalyst: true },
+      { tab: "analytics-overview", icon: BarChart3, labelKey: "admin.analyticsOverview", adminOnly: true, meAnalyst: true },
+      { tab: "export-center", icon: FileDown, labelKey: "admin.exportCenter", adminOnly: true, meAnalyst: true },
+      { tab: "activity-logs", icon: Activity, labelKey: "admin.activityLogs", adminOnly: true, meAnalyst: true },
+      { tab: "outreach", icon: Globe, labelKey: "admin.outreach", adminOnly: true },
     ],
   },
+
+  // ─── H. System Settings ───
   {
-    labelKey: "admin.adminTools",
+    labelKey: "admin.systemSettings",
     items: [
       { tab: "diagnostics", icon: Wrench, labelKey: "admin.diagnostics", adminOnly: true },
       { tab: "import", icon: FileUp, labelKey: "admin.import", adminOnly: true },
@@ -178,7 +189,7 @@ export function AdminSidebar() {
     if (isAdmin) return true;
     if (isMeAnalyst && item.meAnalyst) return true;
     if (item.adminOnly) return false;
-    return true; // moderator sees non-adminOnly items
+    return true;
   };
 
   const filteredGroups = menuGroups
