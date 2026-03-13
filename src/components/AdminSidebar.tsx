@@ -121,6 +121,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "knowledge-graph", icon: Network, labelKey: "admin.knowledgeGraph", adminOnly: true },
       { tab: "content-generator", icon: Sparkles, labelKey: "admin.contentGenerator", adminOnly: true },
       { tab: "references", icon: BookOpen, labelKey: "admin.references", adminOnly: true },
+      { tab: "demographics", icon: Fingerprint, labelKey: "admin.demographics", adminOnly: true, meAnalyst: true },
       { tab: "outreach", icon: Globe, labelKey: "admin.outreach", adminOnly: true },
     ],
   },

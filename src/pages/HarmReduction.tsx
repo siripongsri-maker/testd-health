@@ -13,6 +13,9 @@ import { AICompanion } from "@/components/harm-reduction/AICompanion";
 import { NudgeCard } from "@/components/harm-reduction/NudgeCard";
 import { DailyCheckin } from "@/components/harm-reduction/DailyCheckin";
 import { HealthProgressTracker } from "@/components/harm-reduction/HealthProgressTracker";
+import { DemographicCard } from "@/components/harm-reduction/DemographicCard";
+import { PersonalizedRecommendations } from "@/components/harm-reduction/PersonalizedRecommendations";
+import { useHrProfile } from "@/hooks/useHrProfile";
 import { getActiveNudges, type Nudge } from "@/lib/SafetyNudges";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,6 +27,7 @@ import { trackEvent } from "@/hooks/useAnalytics";
 import { SEOHead, buildMedicalPageJsonLd } from "@/components/seo";
 
 const AGE_STORAGE_KEY = "hr_age_confirmed";
+const DEMO_DISMISSED_KEY = "hr_demo_dismissed";
 
 type AgeState = "pending" | "adult" | "minor";
 type Section = "landing" | "learn" | "check" | "plan" | "support" | "peers";
@@ -32,6 +36,7 @@ export default function HarmReduction() {
   const { language } = useLanguage();
   const { user } = useAuth();
   const isEn = language === "en";
+  const { profile, hasProfile, saveProfile, isMSM, isMSW, isYouth, ageRange } = useHrProfile(user?.id);
 
   const [ageState, setAgeState] = useState<AgeState>(() => {
     const stored = localStorage.getItem(AGE_STORAGE_KEY);
@@ -42,6 +47,12 @@ export default function HarmReduction() {
 
   const [section, setSection] = useState<Section>("landing");
   const [nudges, setNudges] = useState<Nudge[]>(() => getActiveNudges());
+  const [demoDismissed, setDemoDismissed] = useState(() => localStorage.getItem(DEMO_DISMISSED_KEY) === "true");
+
+  const handleDemoDismiss = () => {
+    setDemoDismissed(true);
+    localStorage.setItem(DEMO_DISMISSED_KEY, "true");
+  };
 
   const handleAgeConfirm = (isAdult: boolean) => {
     const state = isAdult ? "adult" : "minor";
@@ -204,6 +215,26 @@ export default function HarmReduction() {
           {nudges.map((nudge) => (
             <NudgeCard key={nudge.id} nudge={nudge} onDismiss={() => dismissNudge(nudge.id)} />
           ))}
+        </div>
+      )}
+
+      {/* Demographic personalization card */}
+      {!hasProfile && !demoDismissed && (
+        <div className="mb-4">
+          <DemographicCard onSave={saveProfile} onDismiss={handleDemoDismiss} />
+        </div>
+      )}
+
+      {/* Personalized recommendations */}
+      {hasProfile && (isMSM || isMSW || isYouth) && (
+        <div className="mb-4">
+          <PersonalizedRecommendations
+            isMSM={isMSM}
+            isMSW={isMSW}
+            isYouth={isYouth}
+            ageRange={ageRange}
+            onNavigate={(s) => setSection(s as Section)}
+          />
         </div>
       )}
 

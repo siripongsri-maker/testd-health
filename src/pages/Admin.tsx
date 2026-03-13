@@ -45,6 +45,7 @@ const AdminSafetyPlannerContent = lazy(() => import("@/components/admin/AdminSaf
 const AdminKnowledgeGraphContent = lazy(() => import("@/components/admin/AdminKnowledgeGraphContent"));
 const AdminContentGeneratorContent = lazy(() => import("@/components/admin/AdminContentGeneratorContent"));
 const AdminReferencesContent = lazy(() => import("@/components/admin/AdminReferencesContent"));
+const AdminDemographicsContent = lazy(() => import("@/components/admin/AdminDemographicsContent"));
 const AdminOutreachContent = lazy(() => import("@/components/admin/AdminOutreachContent"));
 
 const TabLoader = () => (
@@ -192,6 +193,7 @@ export default function Admin() {
           {renderTab("content-generator", <AdminContentGeneratorContent />)}
           {renderTab("references", <AdminReferencesContent />)}
           {renderTab("outreach", <AdminOutreachContent />)}
+          {renderTab("demographics", <AdminDemographicsContent />)}
         </Tabs>
       </div>
     </AdminLayout>
