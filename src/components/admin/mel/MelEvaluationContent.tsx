@@ -10,6 +10,8 @@ import { toast } from "@/hooks/use-toast";
 import KEQDrawer from "./KEQDrawer";
 import RiskDrawer from "./RiskDrawer";
 import TimelineDrawer from "./TimelineDrawer";
+import MelDeleteDialog from "./MelDeleteDialog";
+import MelSOPCard, { MEL_SOPS } from "./MelSOPCard";
 
 export default function MelEvaluationContent() {
   const { language } = useLanguage();
@@ -22,6 +24,7 @@ export default function MelEvaluationContent() {
   const [editRisk, setEditRisk] = useState<any>(null);
   const [tlDrawerOpen, setTlDrawerOpen] = useState(false);
   const [editTl, setEditTl] = useState<any>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; table: string; label: string } | null>(null);
 
   const { data: keqs } = useQuery({
     queryKey: ["mel-keqs"],
@@ -38,9 +41,19 @@ export default function MelEvaluationContent() {
     queryFn: async () => { const { data } = await supabase.from("mel_timeline_items").select("*").order("display_order"); return data || []; },
   });
 
-  const deleteKeq = useMutation({ mutationFn: async (id: string) => { const { error } = await supabase.from("evaluation_questions").delete().eq("id", id); if (error) throw error; }, onSuccess: () => { qc.invalidateQueries({ queryKey: ["mel-keqs"] }); toast({ title: isTh ? "ลบสำเร็จ" : "Deleted" }); } });
-  const deleteRisk = useMutation({ mutationFn: async (id: string) => { const { error } = await supabase.from("evaluation_risks").delete().eq("id", id); if (error) throw error; }, onSuccess: () => { qc.invalidateQueries({ queryKey: ["mel-eval-risks"] }); toast({ title: isTh ? "ลบสำเร็จ" : "Deleted" }); } });
-  const deleteTl = useMutation({ mutationFn: async (id: string) => { const { error } = await supabase.from("mel_timeline_items").delete().eq("id", id); if (error) throw error; }, onSuccess: () => { qc.invalidateQueries({ queryKey: ["mel-timeline"] }); toast({ title: isTh ? "ลบสำเร็จ" : "Deleted" }); } });
+  const deleteMutation = useMutation({
+    mutationFn: async ({ id, table }: { id: string; table: string }) => {
+      const { error } = await supabase.from(table as any).delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["mel-keqs"] });
+      qc.invalidateQueries({ queryKey: ["mel-eval-risks"] });
+      qc.invalidateQueries({ queryKey: ["mel-timeline"] });
+      toast({ title: isTh ? "ลบสำเร็จ" : "Deleted" });
+    },
+    onError: () => { toast({ title: isTh ? "ลบไม่สำเร็จ" : "Delete failed", variant: "destructive" }); },
+  });
 
   const riskColor = (level: string) => {
     if (level === "critical" || level === "high") return "text-red-600";
@@ -54,6 +67,8 @@ export default function MelEvaluationContent() {
         <h2 className="text-2xl font-bold text-foreground">{isTh ? "การประเมินผล" : "Evaluation Workspace"}</h2>
         <p className="text-muted-foreground text-sm">{isTh ? "KEQs, เมทริกซ์, ความเสี่ยง, และไทม์ไลน์" : "KEQs, matrix, risks & timeline"}</p>
       </div>
+
+      <MelSOPCard {...MEL_SOPS.evaluation} />
 
       <Tabs defaultValue="keqs">
         <TabsList>
@@ -77,7 +92,7 @@ export default function MelEvaluationContent() {
                 </div>
                 <div className="flex gap-1">
                   <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setEditKeq(q); setKeqDrawerOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
-                  <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => { if (confirm(isTh ? "ลบ?" : "Delete?")) deleteKeq.mutate(q.id); }}><Trash2 className="h-3.5 w-3.5" /></Button>
+                  <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => setDeleteTarget({ id: q.id, table: "evaluation_questions", label: q.question_text?.substring(0, 40) })}><Trash2 className="h-3.5 w-3.5" /></Button>
                 </div>
               </div>
             </CardContent></Card>
@@ -102,7 +117,7 @@ export default function MelEvaluationContent() {
                 </div>
                 <div className="flex gap-1">
                   <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setEditRisk(r); setRiskDrawerOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
-                  <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => { if (confirm(isTh ? "ลบ?" : "Delete?")) deleteRisk.mutate(r.id); }}><Trash2 className="h-3.5 w-3.5" /></Button>
+                  <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => setDeleteTarget({ id: r.id, table: "evaluation_risks", label: r.risk_description?.substring(0, 40) })}><Trash2 className="h-3.5 w-3.5" /></Button>
                 </div>
               </div>
             </CardContent></Card>
@@ -125,7 +140,7 @@ export default function MelEvaluationContent() {
                 <div className="flex items-center gap-2">
                   <span className={`text-xs px-2 py-1 rounded-full ${t.status === "completed" ? "bg-green-500/10 text-green-600" : t.status === "in_progress" ? "bg-blue-500/10 text-blue-600" : t.status === "delayed" ? "bg-amber-500/10 text-amber-600" : "bg-muted text-muted-foreground"}`}>{t.status}</span>
                   <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setEditTl(t); setTlDrawerOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
-                  <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => { if (confirm(isTh ? "ลบ?" : "Delete?")) deleteTl.mutate(t.id); }}><Trash2 className="h-3.5 w-3.5" /></Button>
+                  <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => setDeleteTarget({ id: t.id, table: "mel_timeline_items", label: t.activity_name })}><Trash2 className="h-3.5 w-3.5" /></Button>
                 </div>
               </div>
             </CardContent></Card>
@@ -136,6 +151,12 @@ export default function MelEvaluationContent() {
       <KEQDrawer key={editKeq?.id || "new-keq"} open={keqDrawerOpen} onOpenChange={setKeqDrawerOpen} editItem={editKeq} />
       <RiskDrawer key={editRisk?.id || "new-risk"} open={riskDrawerOpen} onOpenChange={setRiskDrawerOpen} editItem={editRisk} />
       <TimelineDrawer key={editTl?.id || "new-tl"} open={tlDrawerOpen} onOpenChange={setTlDrawerOpen} editItem={editTl} />
+      <MelDeleteDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
+        onConfirm={() => { if (deleteTarget) { deleteMutation.mutate({ id: deleteTarget.id, table: deleteTarget.table }); setDeleteTarget(null); } }}
+        itemLabel={deleteTarget?.label}
+      />
     </div>
   );
 }

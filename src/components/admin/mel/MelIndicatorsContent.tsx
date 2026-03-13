@@ -2,12 +2,14 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Target, Plus, Pencil, Trash2, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import IndicatorDrawer from "./IndicatorDrawer";
 import IndicatorResultDrawer from "./IndicatorResultDrawer";
+import MelDeleteDialog from "./MelDeleteDialog";
+import MelSOPCard, { MEL_SOPS } from "./MelSOPCard";
 
 export default function MelIndicatorsContent() {
   const { language } = useLanguage();
@@ -18,14 +20,12 @@ export default function MelIndicatorsContent() {
   const [resultDrawerOpen, setResultDrawerOpen] = useState(false);
   const [resultIndicator, setResultIndicator] = useState<any>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
 
   const { data: indicators, isLoading } = useQuery({
     queryKey: ["mel-indicators"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("indicator_definitions")
-        .select("*")
-        .order("display_order");
+      const { data, error } = await supabase.from("indicator_definitions").select("*").order("display_order");
       if (error) throw error;
       return data;
     },
@@ -35,12 +35,7 @@ export default function MelIndicatorsContent() {
     queryKey: ["mel-indicator-results", expandedId],
     enabled: !!expandedId,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("indicator_results")
-        .select("*")
-        .eq("indicator_id", expandedId!)
-        .order("created_at", { ascending: false })
-        .limit(20);
+      const { data, error } = await supabase.from("indicator_results").select("*").eq("indicator_id", expandedId!).order("created_at", { ascending: false }).limit(20);
       if (error) throw error;
       return data;
     },
@@ -51,15 +46,9 @@ export default function MelIndicatorsContent() {
       const { error } = await supabase.from("indicator_definitions").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["mel-indicators"] });
-      toast({ title: isTh ? "ลบสำเร็จ" : "Deleted" });
-    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["mel-indicators"] }); toast({ title: isTh ? "ลบสำเร็จ" : "Deleted" }); },
+    onError: () => { toast({ title: isTh ? "ลบไม่สำเร็จ" : "Delete failed", variant: "destructive" }); },
   });
-
-  const handleAdd = () => { setEditIndicator(null); setDrawerOpen(true); };
-  const handleEdit = (ind: any) => { setEditIndicator(ind); setDrawerOpen(true); };
-  const handleRecordResult = (ind: any) => { setResultIndicator(ind); setResultDrawerOpen(true); };
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -74,10 +63,12 @@ export default function MelIndicatorsContent() {
           <h2 className="text-2xl font-bold text-foreground">{isTh ? "ตัวชี้วัด" : "Indicators"}</h2>
           <p className="text-muted-foreground text-sm">{isTh ? "นิยามและเป้าหมายตัวชี้วัด MEL" : "MEL indicator definitions & targets"}</p>
         </div>
-        <Button size="sm" className="gap-2" onClick={handleAdd}>
+        <Button size="sm" className="gap-2" onClick={() => { setEditIndicator(null); setDrawerOpen(true); }}>
           <Plus className="h-4 w-4" />{isTh ? "เพิ่มตัวชี้วัด" : "Add Indicator"}
         </Button>
       </div>
+
+      <MelSOPCard {...MEL_SOPS.indicators} />
 
       {(!indicators || indicators.length === 0) ? (
         <Card className="border-dashed">
@@ -112,21 +103,18 @@ export default function MelIndicatorsContent() {
                               <p className="text-lg font-bold text-primary">{ind.target_value}</p>
                             </div>
                           )}
-                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleRecordResult(ind)} title={isTh ? "บันทึกผล" : "Record result"}>
+                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setResultIndicator(ind); setResultDrawerOpen(true); }} title={isTh ? "บันทึกผล" : "Record result"}>
                             <BarChart3 className="h-3.5 w-3.5" />
                           </Button>
-                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleEdit(ind)}>
+                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setEditIndicator(ind); setDrawerOpen(true); }}>
                             <Pencil className="h-3.5 w-3.5" />
                           </Button>
-                          <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => {
-                            if (confirm(isTh ? "ลบตัวชี้วัดนี้?" : "Delete this indicator?")) deleteMutation.mutate(ind.id);
-                          }}>
+                          <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => setDeleteTarget(ind)}>
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
                       </div>
 
-                      {/* Expanded results */}
                       {expandedId === ind.id && (
                         <div className="mt-4 pt-3 border-t">
                           <p className="text-sm font-medium text-muted-foreground mb-2">{isTh ? "ผลลัพธ์ล่าสุด" : "Recent Results"}</p>
@@ -135,14 +123,12 @@ export default function MelIndicatorsContent() {
                           ) : (
                             <div className="overflow-x-auto">
                               <table className="w-full text-xs">
-                                <thead>
-                                  <tr className="border-b">
-                                    <th className="text-left py-1.5 pr-3 font-medium text-muted-foreground">{isTh ? "ช่วงเวลา" : "Period"}</th>
-                                    <th className="text-right py-1.5 pr-3 font-medium text-muted-foreground">{isTh ? "ค่า" : "Value"}</th>
-                                    <th className="text-left py-1.5 pr-3 font-medium text-muted-foreground">{isTh ? "กลุ่มย่อย" : "Disagg."}</th>
-                                    <th className="text-left py-1.5 font-medium text-muted-foreground">{isTh ? "หมายเหตุ" : "Notes"}</th>
-                                  </tr>
-                                </thead>
+                                <thead><tr className="border-b">
+                                  <th className="text-left py-1.5 pr-3 font-medium text-muted-foreground">{isTh ? "ช่วงเวลา" : "Period"}</th>
+                                  <th className="text-right py-1.5 pr-3 font-medium text-muted-foreground">{isTh ? "ค่า" : "Value"}</th>
+                                  <th className="text-left py-1.5 pr-3 font-medium text-muted-foreground">{isTh ? "กลุ่มย่อย" : "Disagg."}</th>
+                                  <th className="text-left py-1.5 font-medium text-muted-foreground">{isTh ? "หมายเหตุ" : "Notes"}</th>
+                                </tr></thead>
                                 <tbody>
                                   {results.map((r: any) => (
                                     <tr key={r.id} className="border-b border-muted/30">
@@ -167,21 +153,16 @@ export default function MelIndicatorsContent() {
         })
       )}
 
-      <IndicatorDrawer
-        key={editIndicator?.id || "new-ind"}
-        open={drawerOpen}
-        onOpenChange={setDrawerOpen}
-        editIndicator={editIndicator}
-      />
-
+      <IndicatorDrawer key={editIndicator?.id || "new-ind"} open={drawerOpen} onOpenChange={setDrawerOpen} editIndicator={editIndicator} />
       {resultIndicator && (
-        <IndicatorResultDrawer
-          key={resultIndicator.id}
-          open={resultDrawerOpen}
-          onOpenChange={setResultDrawerOpen}
-          indicator={resultIndicator}
-        />
+        <IndicatorResultDrawer key={resultIndicator.id} open={resultDrawerOpen} onOpenChange={setResultDrawerOpen} indicator={resultIndicator} />
       )}
+      <MelDeleteDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
+        onConfirm={() => { if (deleteTarget) { deleteMutation.mutate(deleteTarget.id); setDeleteTarget(null); } }}
+        itemLabel={deleteTarget?.indicator_code}
+      />
     </div>
   );
 }

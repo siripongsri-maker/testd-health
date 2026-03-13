@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 import ServiceEventDrawer from "./ServiceEventDrawer";
+import MelDeleteDialog from "./MelDeleteDialog";
+import MelSOPCard, { MEL_SOPS } from "./MelSOPCard";
 
 export default function MelServiceLedgerContent() {
   const { language } = useLanguage();
@@ -15,6 +17,7 @@ export default function MelServiceLedgerContent() {
   const qc = useQueryClient();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editEvent, setEditEvent] = useState<any>(null);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
 
   const { data: events, isLoading } = useQuery({
     queryKey: ["mel-service-events"],
@@ -27,6 +30,7 @@ export default function MelServiceLedgerContent() {
       if (error) throw error;
       return data;
     },
+    meta: { errorMessage: isTh ? "โหลดข้อมูลไม่สำเร็จ" : "Failed to load service events" },
   });
 
   const deleteMutation = useMutation({
@@ -38,17 +42,8 @@ export default function MelServiceLedgerContent() {
       qc.invalidateQueries({ queryKey: ["mel-service-events"] });
       toast({ title: isTh ? "ลบสำเร็จ" : "Deleted" });
     },
+    onError: () => { toast({ title: isTh ? "ลบไม่สำเร็จ" : "Delete failed", variant: "destructive" }); },
   });
-
-  const handleEdit = (event: any) => {
-    setEditEvent(event);
-    setDrawerOpen(true);
-  };
-
-  const handleAdd = () => {
-    setEditEvent(null);
-    setDrawerOpen(true);
-  };
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
@@ -61,25 +56,17 @@ export default function MelServiceLedgerContent() {
           <h2 className="text-2xl font-bold text-foreground">{isTh ? "บันทึกการให้บริการ" : "Service Ledger"}</h2>
           <p className="text-muted-foreground text-sm">{isTh ? "บันทึกเหตุการณ์การให้บริการทั้งหมด" : "Unified record of all service events"}</p>
         </div>
-        <Button size="sm" className="gap-2" onClick={handleAdd}>
-          <Plus className="h-4 w-4" />
-          {isTh ? "เพิ่มรายการ" : "Add Event"}
+        <Button size="sm" className="gap-2" onClick={() => { setEditEvent(null); setDrawerOpen(true); }}>
+          <Plus className="h-4 w-4" />{isTh ? "เพิ่มรายการ" : "Add Event"}
         </Button>
       </div>
 
+      <MelSOPCard {...MEL_SOPS.serviceLedger} />
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{isTh ? "เหตุการณ์ทั้งหมด" : "Total Events"}</CardTitle></CardHeader>
-          <CardContent><p className="text-3xl font-bold text-foreground">{events?.length || 0}</p></CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{isTh ? "ผู้ใช้บริการครั้งแรก" : "First Visits"}</CardTitle></CardHeader>
-          <CardContent><p className="text-3xl font-bold text-foreground">{events?.filter((e: any) => e.is_first_visit).length || 0}</p></CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{isTh ? "สำเร็จ" : "Completed"}</CardTitle></CardHeader>
-          <CardContent><p className="text-3xl font-bold text-foreground">{events?.filter((e: any) => e.outcome === "completed").length || 0}</p></CardContent>
-        </Card>
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{isTh ? "เหตุการณ์ทั้งหมด" : "Total Events"}</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold text-foreground">{events?.length || 0}</p></CardContent></Card>
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{isTh ? "ผู้ใช้บริการครั้งแรก" : "First Visits"}</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold text-foreground">{events?.filter((e: any) => e.is_first_visit).length || 0}</p></CardContent></Card>
+        <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{isTh ? "สำเร็จ" : "Completed"}</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold text-foreground">{events?.filter((e: any) => e.outcome === "completed").length || 0}</p></CardContent></Card>
       </div>
 
       {(!events || events.length === 0) ? (
@@ -117,12 +104,10 @@ export default function MelServiceLedgerContent() {
                       <td className="p-3">{event.is_first_visit ? "✓" : ""}</td>
                       <td className="p-3">
                         <div className="flex gap-1">
-                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleEdit(event)}>
+                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setEditEvent(event); setDrawerOpen(true); }}>
                             <Pencil className="h-3.5 w-3.5" />
                           </Button>
-                          <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => {
-                            if (confirm(isTh ? "ลบรายการนี้?" : "Delete this event?")) deleteMutation.mutate(event.id);
-                          }}>
+                          <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => setDeleteTarget(event)}>
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
@@ -136,11 +121,12 @@ export default function MelServiceLedgerContent() {
         </Card>
       )}
 
-      <ServiceEventDrawer
-        key={editEvent?.id || "new"}
-        open={drawerOpen}
-        onOpenChange={setDrawerOpen}
-        editEvent={editEvent}
+      <ServiceEventDrawer key={editEvent?.id || "new"} open={drawerOpen} onOpenChange={setDrawerOpen} editEvent={editEvent} />
+      <MelDeleteDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
+        onConfirm={() => { if (deleteTarget) { deleteMutation.mutate(deleteTarget.id); setDeleteTarget(null); } }}
+        itemLabel={deleteTarget?.event_type?.replace(/_/g, " ")}
       />
     </div>
   );
