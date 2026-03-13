@@ -227,7 +227,7 @@ export default function SEOLandingPage() {
           links={[
             {
               labelEn: "Drug Combination Risk Checker",
-              labelTh: "เช็กความเสี่ยงเมื่อใช้สารร่วมกัน",
+              labelTh: "ตรวจสอบปฏิกิริยาเมื่อใช้สารร่วมกัน",
               icon: Shield,
               action: () => navigate("/harm-reduction"),
             },
