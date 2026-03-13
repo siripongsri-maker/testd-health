@@ -43,12 +43,14 @@ export default function AdminClinicSettingsContent() {
 
   const fetchData = async () => {
     setLoading(true);
-    const [settingsRes, auditRes] = await Promise.all([
+    const [settingsRes, auditRes, svcRes] = await Promise.all([
       supabase.from("clinic_settings" as any).select("*").eq("clinic_key", "swing_main").single(),
       supabase.from("clinic_link_audit" as any).select("*").order("created_at", { ascending: false }).limit(50),
+      supabase.from("booking_services").select("id, slug, name_en, name_th, icon, is_active, display_order").order("display_order"),
     ]);
     if (settingsRes.data) setSettings(settingsRes.data as any);
     if (auditRes.data) setAuditLogs(auditRes.data as any);
+    if (svcRes.data) setServiceRows(svcRes.data as ServiceRow[]);
     setLoading(false);
   };
 
