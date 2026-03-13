@@ -19,8 +19,8 @@ export default function HrZoneHero({ onNavigate }: Props) {
     {
       id: "check",
       icon: ClipboardCheck,
-      labelTh: "เช็กความเสี่ยง",
-      labelEn: "Check risk",
+      labelTh: "ประเมินสถานการณ์สุขภาพ",
+      labelEn: "Health self-check",
       section: "check",
     },
     {
