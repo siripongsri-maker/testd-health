@@ -3215,6 +3215,48 @@ export type Database = {
         }
         Relationships: []
       }
+      hr_user_profile: {
+        Row: {
+          age_range: string | null
+          anonymous_token: string | null
+          consent_profile_use: boolean | null
+          created_at: string
+          gender_identity: string | null
+          id: string
+          is_msm: boolean | null
+          is_msw: boolean | null
+          sexual_behavior_category: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          age_range?: string | null
+          anonymous_token?: string | null
+          consent_profile_use?: boolean | null
+          created_at?: string
+          gender_identity?: string | null
+          id?: string
+          is_msm?: boolean | null
+          is_msw?: boolean | null
+          sexual_behavior_category?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          age_range?: string | null
+          anonymous_token?: string | null
+          consent_profile_use?: boolean | null
+          created_at?: string
+          gender_identity?: string | null
+          id?: string
+          is_msm?: boolean | null
+          is_msw?: boolean | null
+          sexual_behavior_category?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       hr_user_profiles: {
         Row: {
           anonymous_token: string | null
@@ -5865,6 +5907,17 @@ export type Database = {
           services_summary: string
           start_time: string
           status: string
+        }[]
+      }
+      get_hr_demographic_stats: {
+        Args: never
+        Returns: {
+          age_stats: Json
+          behavior_stats: Json
+          gender_stats: Json
+          msm_count: number
+          msw_count: number
+          total_profiles: number
         }[]
       }
       get_milestone_completed_count: {
