@@ -504,6 +504,8 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.languageDictionary': 'พจนานุกรมภาษาปลอดภัย',
     'admin.clinicSettings': 'ตั้งค่าคลินิก SWING',
     'admin.servicePathways': 'ระบบบริการ HR',
+    'admin.frontDesk': 'แผนกต้อนรับ',
+    'admin.clinicOps': 'ปฏิบัติการคลินิก',
     'admin.mel': 'MEL',
     'admin.melServices': 'บันทึกบริการ',
     'admin.melIndicators': 'ตัวชี้วัด',
