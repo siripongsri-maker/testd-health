@@ -48,6 +48,17 @@ const AdminReferencesContent = lazy(() => import("@/components/admin/AdminRefere
 const AdminDemographicsContent = lazy(() => import("@/components/admin/AdminDemographicsContent"));
 const AdminOutreachContent = lazy(() => import("@/components/admin/AdminOutreachContent"));
 
+// MEL modules
+const MelServiceLedgerContent = lazy(() => import("@/components/admin/mel/MelServiceLedgerContent"));
+const MelIndicatorsContent = lazy(() => import("@/components/admin/mel/MelIndicatorsContent"));
+const MelOutreachEventsContent = lazy(() => import("@/components/admin/mel/MelOutreachEventsContent"));
+const MelTrainingContent = lazy(() => import("@/components/admin/mel/MelTrainingContent"));
+const MelSafeSpacesContent = lazy(() => import("@/components/admin/mel/MelSafeSpacesContent"));
+const MelPartnersContent = lazy(() => import("@/components/admin/mel/MelPartnersContent"));
+const MelPolicyContent = lazy(() => import("@/components/admin/mel/MelPolicyContent"));
+const MelEvaluationContent = lazy(() => import("@/components/admin/mel/MelEvaluationContent"));
+const MelReportingContent = lazy(() => import("@/components/admin/mel/MelReportingContent"));
+
 const TabLoader = () => (
   <div className="flex items-center justify-center h-64">
     <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -68,6 +79,9 @@ const ME_ANALYST_TABS = new Set([
   "sms-relay", "credit-balances", "credit-purchases",
   // Reports
   "analytics", "analytics-overview", "export-center",
+  // MEL
+  "mel-services", "mel-indicators", "mel-outreach", "mel-training",
+  "mel-safe-spaces", "mel-partners", "mel-policy", "mel-evaluation", "mel-reporting",
   // System
   "system-health",
 ]);
@@ -194,6 +208,17 @@ export default function Admin() {
           {renderTab("references", <AdminReferencesContent />)}
           {renderTab("outreach", <AdminOutreachContent />)}
           {renderTab("demographics", <AdminDemographicsContent />)}
+
+          {/* MEL */}
+          {renderTab("mel-services", <MelServiceLedgerContent />)}
+          {renderTab("mel-indicators", <MelIndicatorsContent />)}
+          {renderTab("mel-outreach", <MelOutreachEventsContent />)}
+          {renderTab("mel-training", <MelTrainingContent />)}
+          {renderTab("mel-safe-spaces", <MelSafeSpacesContent />)}
+          {renderTab("mel-partners", <MelPartnersContent />)}
+          {renderTab("mel-policy", <MelPolicyContent />)}
+          {renderTab("mel-evaluation", <MelEvaluationContent />)}
+          {renderTab("mel-reporting", <MelReportingContent />)}
         </Tabs>
       </div>
     </AdminLayout>
