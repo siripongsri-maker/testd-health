@@ -33,7 +33,7 @@ const GENDER_OPTIONS = [
 
 const CONTEXT_OPTIONS = [
   { value: "msm", labelTh: "ชายที่มีเพศสัมพันธ์กับชาย (MSM)", labelEn: "Men who have sex with men (MSM)" },
-  { value: "msw", labelTh: "พนักงานบริการชาย / Male sex worker", labelEn: "Male sex worker (MSW)" },
+  { value: "msw", labelTh: "พนักงานบริการทางเพศ", labelEn: "Sex worker (SW)" },
   { value: "lgbtq", labelTh: "LGBTQ+", labelEn: "LGBTQ+" },
   { value: "chemsex", labelTh: "คนที่ใช้สารร่วมกับเซ็กซ์", labelEn: "People who use substances with sex" },
   { value: "general", labelTh: "คนที่ต้องการข้อมูลทั่วไป", labelEn: "General information" },
