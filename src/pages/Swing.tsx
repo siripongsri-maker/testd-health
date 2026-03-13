@@ -10,7 +10,7 @@ import { trackEvent } from "@/hooks/useAnalytics";
 import swingLogo from "@/assets/swing-logo.png";
 import {
   CalendarDays, Phone, MessageCircle, ChevronRight, Loader2,
-  Shield, Heart, Clock, MapPin,
+  Shield, Heart, Clock, MapPin, Stethoscope, HeartHandshake,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -28,21 +28,51 @@ interface Service {
 const SLUG_COLORS: Record<string, string> = {
   "hiv-testing": "bg-red-100 dark:bg-red-900/40",
   "syphilis-testing": "bg-purple-100 dark:bg-purple-900/40",
-  "sti-screening": "bg-purple-100 dark:bg-purple-900/40",
   "prep-consultation": "bg-blue-100 dark:bg-blue-900/40",
-  "prep-daily": "bg-blue-100 dark:bg-blue-900/40",
-  "prep-on-demand": "bg-blue-100 dark:bg-blue-900/40",
   "pep": "bg-orange-100 dark:bg-orange-900/40",
   "hepc-testing": "bg-teal-100 dark:bg-teal-900/40",
   "harm-reduction-counseling": "bg-rose-100 dark:bg-rose-900/40",
   "mental-health-support": "bg-indigo-100 dark:bg-indigo-900/40",
-  "self-test-support": "bg-teal-100 dark:bg-teal-900/40",
   "followup-consultation": "bg-emerald-100 dark:bg-emerald-900/40",
 };
 
+const PREVENTION_SLUGS = ["hiv-testing", "prep-consultation", "pep", "syphilis-testing", "hepc-testing"];
+const COUNSELING_SLUGS = ["harm-reduction-counseling", "mental-health-support", "followup-consultation"];
+const FEATURED_SLUGS = ["hiv-testing", "prep-consultation", "harm-reduction-counseling"];
+
 function ServiceIcon({ icon, className }: { icon: string; className?: string }) {
-  // DB stores emoji icons — render them directly
   return <span className={cn("text-lg leading-none", className)}>{icon}</span>;
+}
+
+function ServiceCard({ svc, isEn, loc, onClick }: {
+  svc: Service;
+  isEn: boolean;
+  loc: (th: string | null | undefined, en: string | null | undefined) => string;
+  onClick: () => void;
+}) {
+  return (
+    <Card
+      className="cursor-pointer hover:shadow-md transition-all border-border/60 hover:border-primary/30 active:scale-[0.98]"
+      onClick={onClick}
+    >
+      <CardContent className="p-3 flex items-center gap-3">
+        <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0", SLUG_COLORS[svc.slug] || "bg-primary/10")}>
+          <ServiceIcon icon={svc.icon} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-semibold text-foreground">
+            {loc(svc.name_th, svc.name_en)}
+          </h3>
+          {(svc.description_th || svc.description_en) && (
+            <p className="text-[11px] text-muted-foreground line-clamp-1 leading-relaxed">
+              {loc(svc.description_th, svc.description_en)}
+            </p>
+          )}
+        </div>
+        <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+      </CardContent>
+    </Card>
+  );
 }
 
 export default function Swing() {
@@ -67,11 +97,7 @@ export default function Swing() {
 
   const handleServiceClick = (slug: string) => {
     trackEvent("clinic_service_selected", { service: slug, source: "clinic_page" });
-    if (slug === "self-test-support") {
-      navigate("/hiv-selftest");
-    } else {
-      navigate(`/booking?service=${slug}`);
-    }
+    navigate(`/booking?service=${slug}`);
   };
 
   const handleCallback = () => {
@@ -82,8 +108,9 @@ export default function Swing() {
   const loc = (th: string | null | undefined, en: string | null | undefined) =>
     isEn ? (en || th || "") : (th || en || "");
 
-  // Featured = first 4, but ALL services always shown below
-  const featured = services.slice(0, 4);
+  const featured = services.filter(s => FEATURED_SLUGS.includes(s.slug));
+  const prevention = services.filter(s => PREVENTION_SLUGS.includes(s.slug));
+  const counseling = services.filter(s => COUNSELING_SLUGS.includes(s.slug));
 
   if (loading) {
     return (
@@ -156,35 +183,33 @@ export default function Swing() {
           {featured.length > 0 && (
             <div className="space-y-3">
               <h2 className="text-base font-semibold text-foreground">
-                {isEn ? "Popular Services" : "บริการยอดนิยม"}
+                {isEn ? "Recommended" : "บริการที่แนะนำ"}
               </h2>
-              <div className="grid grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-1 gap-2.5">
                 {featured.map((svc) => (
                   <Card
                     key={svc.id}
-                    className="cursor-pointer hover:shadow-md transition-all border-border/60 hover:border-primary/30 active:scale-[0.98]"
+                    className="cursor-pointer hover:shadow-md transition-all border-primary/20 bg-primary/[0.03] hover:border-primary/40 active:scale-[0.98]"
                     onClick={() => handleServiceClick(svc.slug)}
                   >
-                    <CardContent className="p-3.5 space-y-2.5">
-                      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", SLUG_COLORS[svc.slug] || "bg-primary/10")}>
+                    <CardContent className="p-4 flex items-center gap-3.5">
+                      <div className={cn("w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0", SLUG_COLORS[svc.slug] || "bg-primary/10")}>
                         <ServiceIcon icon={svc.icon} className="text-xl" />
                       </div>
-                      <div>
-                        <h3 className="text-sm font-semibold text-foreground leading-tight">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-sm font-semibold text-foreground">
                           {loc(svc.name_th, svc.name_en)}
                         </h3>
                         {(svc.description_th || svc.description_en) && (
-                          <p className="text-[11px] text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
+                          <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">
                             {loc(svc.description_th, svc.description_en)}
                           </p>
                         )}
                       </div>
-                      <div className="flex justify-end">
-                        <span className="text-[10px] text-primary font-medium flex items-center gap-0.5">
-                          {isEn ? "Book" : "จอง"}
-                          <ChevronRight className="h-3 w-3" />
-                        </span>
-                      </div>
+                      <Button size="sm" variant="ghost" className="text-primary text-xs gap-1 h-8 px-2 flex-shrink-0">
+                        {isEn ? "Book" : "จอง"}
+                        <ChevronRight className="h-3.5 w-3.5" />
+                      </Button>
                     </CardContent>
                   </Card>
                 ))}
@@ -192,36 +217,45 @@ export default function Swing() {
             </div>
           )}
 
-          {/* ALL services — complete list */}
-          {services.length > 0 && (
-            <div className="space-y-3">
-              <h2 className="text-base font-semibold text-foreground">
-                {isEn ? "All Clinic Services" : "บริการทั้งหมด"}
-              </h2>
+          {/* Category: Prevention & Health Access */}
+          {prevention.length > 0 && (
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-2">
+                <Stethoscope className="h-4 w-4 text-primary" />
+                <h2 className="text-base font-semibold text-foreground">
+                  {isEn ? "Prevention & Health Access" : "การป้องกันและการตรวจสุขภาพ"}
+                </h2>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {isEn
+                  ? "Testing, prevention medication, and routine health screening"
+                  : "การตรวจ ยาป้องกัน และการคัดกรองสุขภาพ"}
+              </p>
               <div className="space-y-2">
-                {services.map((svc) => (
-                  <Card
-                    key={svc.id}
-                    className="cursor-pointer hover:shadow-md transition-all border-border/60 hover:border-primary/30 active:scale-[0.98]"
-                    onClick={() => handleServiceClick(svc.slug)}
-                  >
-                    <CardContent className="p-3 flex items-center gap-3">
-                      <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0", SLUG_COLORS[svc.slug] || "bg-primary/10")}>
-                        <ServiceIcon icon={svc.icon} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-semibold text-foreground">
-                          {loc(svc.name_th, svc.name_en)}
-                        </h3>
-                        {(svc.description_th || svc.description_en) && (
-                          <p className="text-[11px] text-muted-foreground line-clamp-1">
-                            {loc(svc.description_th, svc.description_en)}
-                          </p>
-                        )}
-                      </div>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    </CardContent>
-                  </Card>
+                {prevention.map((svc) => (
+                  <ServiceCard key={svc.id} svc={svc} isEn={isEn} loc={loc} onClick={() => handleServiceClick(svc.slug)} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Category: Counseling & Care */}
+          {counseling.length > 0 && (
+            <div className="space-y-2.5">
+              <div className="flex items-center gap-2">
+                <HeartHandshake className="h-4 w-4 text-primary" />
+                <h2 className="text-base font-semibold text-foreground">
+                  {isEn ? "Counseling & Care" : "คำปรึกษาและการดูแล"}
+                </h2>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {isEn
+                  ? "Harm reduction counseling, mental health support, and follow-up care"
+                  : "คำปรึกษาการลดอันตราย สนับสนุนสุขภาพจิต และการดูแลต่อเนื่อง"}
+              </p>
+              <div className="space-y-2">
+                {counseling.map((svc) => (
+                  <ServiceCard key={svc.id} svc={svc} isEn={isEn} loc={loc} onClick={() => handleServiceClick(svc.slug)} />
                 ))}
               </div>
             </div>
