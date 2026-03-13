@@ -11,7 +11,7 @@ import {
 import type { Substance, SubstanceInteraction } from "./SubstanceLibrary";
 import {
   SEOHead, buildMedicalPageJsonLd, buildFaqJsonLd,
-  AISummaryBlock, QuickFactsCard, FAQSection, SourcesCard,
+  AISummaryBlock, QuickFactsCard, FAQSection, SourcesCard, PageReferences,
 } from "@/components/seo";
 import type { FAQItem } from "@/components/seo";
 import { RelatedKnowledge } from "@/components/harm-reduction/RelatedKnowledge";
