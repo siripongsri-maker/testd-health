@@ -486,15 +486,9 @@ export default function Booking() {
             <p className="text-sm text-muted-foreground mt-1">
               {t('booking.subtitle')}
             </p>
-            <a
-              href="https://swingsilompolyclinic.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-primary underline mt-1 inline-flex items-center gap-1"
-            >
-              <Globe className="h-3 w-3" />
-              swingsilompolyclinic.com
-            </a>
+            <p className="text-xs text-muted-foreground mt-1">
+              {language === 'th' ? 'โทร 02 632 9501' : 'Call +66 2 632 9501'}
+            </p>
           </div>
 
           {/* Step indicator */}

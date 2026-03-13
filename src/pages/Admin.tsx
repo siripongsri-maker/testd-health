@@ -48,6 +48,7 @@ const AdminReferencesContent = lazy(() => import("@/components/admin/AdminRefere
 const AdminDemographicsContent = lazy(() => import("@/components/admin/AdminDemographicsContent"));
 const AdminOutreachContent = lazy(() => import("@/components/admin/AdminOutreachContent"));
 const AdminLanguageDictionaryContent = lazy(() => import("@/components/admin/AdminLanguageDictionaryContent"));
+const AdminClinicSettingsContent = lazy(() => import("@/components/admin/AdminClinicSettingsContent"));
 
 // MEL modules
 const MelServiceLedgerContent = lazy(() => import("@/components/admin/mel/MelServiceLedgerContent"));
@@ -210,6 +211,7 @@ export default function Admin() {
           {renderTab("outreach", <AdminOutreachContent />)}
           {renderTab("demographics", <AdminDemographicsContent />)}
           {renderTab("language-dictionary", <AdminLanguageDictionaryContent />)}
+          {renderTab("clinic-settings", <AdminClinicSettingsContent />)}
 
           {/* MEL */}
           {renderTab("mel-services", <MelServiceLedgerContent />)}

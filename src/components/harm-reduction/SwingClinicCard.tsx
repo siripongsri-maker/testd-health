@@ -96,9 +96,9 @@ export function SwingClinicCard({ userId, sourceContext, compact }: Props) {
             {isEn ? "Chat" : "แชท"}
           </Button>
         </div>
-        <Button variant="ghost" className="w-full rounded-xl text-xs h-8 text-muted-foreground" onClick={() => { trackReferral("phone"); window.open("tel:+6626323834"); }}>
+        <Button variant="ghost" className="w-full rounded-xl text-xs h-8 text-muted-foreground" onClick={() => { trackReferral("phone"); window.open("tel:+6626329501"); }}>
           <Phone className="h-3.5 w-3.5 mr-1.5" />
-          {isEn ? "Call Clinic" : "โทรหาคลินิก"}
+          {isEn ? "Call +66 2 632 9501" : "โทร 02 632 9501"}
         </Button>
       </CardContent>
     </Card>

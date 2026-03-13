@@ -77,10 +77,10 @@ export default function HrZoneTrust({ userId, onResetAge }: Props) {
             <Button
               variant="ghost"
               className="w-full rounded-full text-xs h-8 text-muted-foreground"
-              onClick={() => { trackReferral("phone"); window.open("tel:+6626323834"); }}
+              onClick={() => { trackReferral("phone"); window.open("tel:+6626329501"); }}
             >
               <Phone className="h-3.5 w-3.5 mr-1.5" />
-              {isEn ? "Call 02-632-3834" : "โทร 02-632-3834"}
+              {isEn ? "Call +66 2 632 9501" : "โทร 02 632 9501"}
             </Button>
           </div>
         </CardContent>

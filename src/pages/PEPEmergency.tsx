@@ -134,7 +134,7 @@ export default function PEPEmergency() {
                 <p className="text-sm text-muted-foreground mb-3">
                   {t('pep.emergency.whereDesc')}
                 </p>
-                <Button variant="outline" size="sm" onClick={() => navigate("/swing")} className="gap-2">
+                <Button variant="outline" size="sm" onClick={() => navigate("/booking")} className="gap-2">
                   <ExternalLink className="h-4 w-4" />
                   {t('pep.emergency.findSwing')}
                 </Button>
