@@ -994,6 +994,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.adminTools': 'Admin Tools',
     'admin.harmReduction': 'Harm Reduction',
     'admin.harmReductionDashboard': 'HR Dashboard',
+    'admin.safetyPlanner': 'Safety Planner',
     'admin.knowledgeGraph': 'Knowledge Graph',
     'admin.contentGenerator': 'AI Content Generator',
     'admin.outreach': 'Outreach & Backlinks',
