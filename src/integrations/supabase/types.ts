@@ -2777,6 +2777,36 @@ export type Database = {
         }
         Relationships: []
       }
+      hr_language_dictionary: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          term_original: string
+          term_recommended: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          term_original: string
+          term_recommended: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          term_original?: string
+          term_recommended?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       hr_mental_health: {
         Row: {
           anxiety_level: number | null
