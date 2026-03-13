@@ -139,6 +139,7 @@ export default function Booking() {
         if (foundSvc) {
           setSelectedServices([foundSvc]);
         }
+        // Graceful fallback: if slug not found (removed/inactive), just show full list
       }
     };
     load();
