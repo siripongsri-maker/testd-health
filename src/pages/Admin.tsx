@@ -209,6 +209,7 @@ export default function Admin() {
           {renderTab("references", <AdminReferencesContent />)}
           {renderTab("outreach", <AdminOutreachContent />)}
           {renderTab("demographics", <AdminDemographicsContent />)}
+          {renderTab("language-dictionary", <AdminLanguageDictionaryContent />)}
 
           {/* MEL */}
           {renderTab("mel-services", <MelServiceLedgerContent />)}
