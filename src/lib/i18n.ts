@@ -1037,6 +1037,9 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.diagnostics': 'Diagnostics',
     'admin.systemHealth': 'System Health',
     'admin.ipDocs': 'IP Documentation',
+    'admin.servicesCare': 'Services & Care',
+    'admin.melReportingGroup': 'MEL & Reporting',
+    'admin.systemSettings': 'System Settings',
     'admin.backToApp': 'Back to App',
     'admin.logout': 'Logout',
 
