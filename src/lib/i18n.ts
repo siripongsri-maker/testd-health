@@ -1042,6 +1042,8 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.servicesCare': 'Services & Care',
     'admin.melReportingGroup': 'MEL & Reporting',
     'admin.systemSettings': 'System Settings',
+    'admin.complianceSecurity': 'Compliance & Security',
+    'admin.pdpaCompliance': 'PDPA Compliance',
     'admin.backToApp': 'Back to App',
     'admin.logout': 'Logout',
 
