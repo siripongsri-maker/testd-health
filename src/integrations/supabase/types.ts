@@ -1487,40 +1487,117 @@ export type Database = {
       }
       consent_records: {
         Row: {
+          action: string
           anonymous_token: string | null
+          consent_text_snapshot: string | null
           consent_type: string
+          consent_version_id: string | null
           created_at: string | null
+          device_info: string | null
           granted: boolean
           granted_at: string | null
           id: string
           ip_hint: string | null
           revoked_at: string | null
+          source_page: string | null
+          staff_actor_id: string | null
           updated_at: string | null
           user_id: string | null
         }
         Insert: {
+          action?: string
           anonymous_token?: string | null
+          consent_text_snapshot?: string | null
           consent_type: string
+          consent_version_id?: string | null
           created_at?: string | null
+          device_info?: string | null
           granted?: boolean
           granted_at?: string | null
           id?: string
           ip_hint?: string | null
           revoked_at?: string | null
+          source_page?: string | null
+          staff_actor_id?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
         Update: {
+          action?: string
           anonymous_token?: string | null
+          consent_text_snapshot?: string | null
           consent_type?: string
+          consent_version_id?: string | null
           created_at?: string | null
+          device_info?: string | null
           granted?: boolean
           granted_at?: string | null
           id?: string
           ip_hint?: string | null
           revoked_at?: string | null
+          source_page?: string | null
+          staff_actor_id?: string | null
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consent_records_consent_version_id_fkey"
+            columns: ["consent_version_id"]
+            isOneToOne: false
+            referencedRelation: "consent_versions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      consent_versions: {
+        Row: {
+          consent_type: string
+          created_at: string
+          created_by: string | null
+          full_text_en: string
+          full_text_th: string
+          id: string
+          is_active: boolean
+          published_at: string | null
+          requires_re_consent: boolean
+          summary_en: string
+          summary_th: string
+          title_en: string
+          title_th: string
+          version: number
+        }
+        Insert: {
+          consent_type: string
+          created_at?: string
+          created_by?: string | null
+          full_text_en: string
+          full_text_th: string
+          id?: string
+          is_active?: boolean
+          published_at?: string | null
+          requires_re_consent?: boolean
+          summary_en: string
+          summary_th: string
+          title_en: string
+          title_th: string
+          version?: number
+        }
+        Update: {
+          consent_type?: string
+          created_at?: string
+          created_by?: string | null
+          full_text_en?: string
+          full_text_th?: string
+          id?: string
+          is_active?: boolean
+          published_at?: string | null
+          requires_re_consent?: boolean
+          summary_en?: string
+          summary_th?: string
+          title_en?: string
+          title_th?: string
+          version?: number
         }
         Relationships: []
       }
@@ -1653,6 +1730,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      data_classifications: {
+        Row: {
+          classification: string
+          column_name: string | null
+          description: string | null
+          id: string
+          requires_consent_type: string | null
+          table_name: string
+          updated_at: string
+        }
+        Insert: {
+          classification?: string
+          column_name?: string | null
+          description?: string | null
+          id?: string
+          requires_consent_type?: string | null
+          table_name: string
+          updated_at?: string
+        }
+        Update: {
+          classification?: string
+          column_name?: string | null
+          description?: string | null
+          id?: string
+          requires_consent_type?: string | null
+          table_name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       data_quality_flags: {
         Row: {
@@ -5456,6 +5563,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      pdpa_audit_logs: {
+        Row: {
+          action_type: string
+          actor_id: string | null
+          actor_role: string | null
+          actor_type: string
+          branch: string | null
+          created_at: string
+          device_info: string | null
+          id: string
+          ip_hint: string | null
+          metadata: Json | null
+          reason: string | null
+          result: string
+          target_classification: string | null
+          target_id: string | null
+          target_type: string | null
+        }
+        Insert: {
+          action_type: string
+          actor_id?: string | null
+          actor_role?: string | null
+          actor_type?: string
+          branch?: string | null
+          created_at?: string
+          device_info?: string | null
+          id?: string
+          ip_hint?: string | null
+          metadata?: Json | null
+          reason?: string | null
+          result?: string
+          target_classification?: string | null
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Update: {
+          action_type?: string
+          actor_id?: string | null
+          actor_role?: string | null
+          actor_type?: string
+          branch?: string | null
+          created_at?: string
+          device_info?: string | null
+          id?: string
+          ip_hint?: string | null
+          metadata?: Json | null
+          reason?: string | null
+          result?: string
+          target_classification?: string | null
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Relationships: []
       }
       policy_evidence_logs: {
         Row: {
