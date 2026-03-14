@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -6,10 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Shield, Activity, FileDown, Eye, AlertTriangle, Search, RefreshCw, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { Shield, Activity, FileDown, Eye, AlertTriangle, Search, RefreshCw, CheckCircle2, XCircle, Clock, Lock, Users } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/lib/i18n';
 import { format } from 'date-fns';
+import { PermissionMatrixView } from '@/components/pdpa/PermissionMatrixView';
+import { StaffGovernanceDashboard } from '@/components/pdpa/StaffGovernanceDashboard';
 
 interface AuditLog {
   id: string;
