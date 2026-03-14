@@ -72,6 +72,8 @@ const InteractionPage = lazy(() => import("./pages/InteractionPage"));
 const Partners = lazy(() => import("./pages/Partners"));
 const WhatsNew = lazy(() => import("./pages/WhatsNew"));
 const HarmReductionGuide = lazy(() => import("./pages/HarmReductionGuide"));
+const PrivacyCenter = lazy(() => import("./pages/PrivacyCenter"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
