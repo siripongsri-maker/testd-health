@@ -153,7 +153,15 @@ const menuGroups: MenuGroup[] = [
     ],
   },
 
-  // ─── H. System Settings ───
+  // ─── H. Compliance & Security ───
+  {
+    labelKey: "admin.complianceSecurity",
+    items: [
+      { tab: "pdpa-compliance", icon: Shield, labelKey: "admin.pdpaCompliance", adminOnly: true },
+    ],
+  },
+
+  // ─── I. System Settings ───
   {
     labelKey: "admin.systemSettings",
     items: [
