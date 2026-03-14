@@ -2,6 +2,10 @@ import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/s
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { useLanguage } from "@/lib/i18n";
 import { Shield } from "lucide-react";
+import { useStaffGovernance } from "@/hooks/useStaffGovernance";
+import { SessionTimeoutDialog } from "@/components/pdpa/SessionTimeoutDialog";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -9,6 +13,13 @@ interface AdminLayoutProps {
 
 export function AdminLayout({ children }: AdminLayoutProps) {
   const { t } = useLanguage();
+  const navigate = useNavigate();
+  const { isTimedOut, isStaff } = useStaffGovernance();
+
+  const handleReLogin = async () => {
+    await supabase.auth.signOut();
+    navigate('/auth', { state: { from: '/admin' } });
+  };
 
   return (
     <SidebarProvider>
@@ -29,6 +40,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           </main>
         </SidebarInset>
       </div>
+
+      {/* Staff session timeout */}
+      {isStaff && <SessionTimeoutDialog open={isTimedOut} onReLogin={handleReLogin} />}
     </SidebarProvider>
   );
 }

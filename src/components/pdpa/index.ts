@@ -5,3 +5,7 @@ export { SensitiveRecordBanner } from './SensitiveRecordBanner';
 export { AccessReasonPrompt } from './AccessReasonPrompt';
 export { ExportApprovalModal } from './ExportApprovalModal';
 export { ConsentHistoryCard } from './ConsentHistoryCard';
+export { ReAuthDialog } from './ReAuthDialog';
+export { SessionTimeoutDialog } from './SessionTimeoutDialog';
+export { PermissionMatrixView } from './PermissionMatrixView';
+export { StaffGovernanceDashboard } from './StaffGovernanceDashboard';

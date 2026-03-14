@@ -5618,6 +5618,60 @@ export type Database = {
         }
         Relationships: []
       }
+      permission_matrix: {
+        Row: {
+          branch_scoped: boolean
+          can_create: boolean
+          can_delete: boolean
+          can_export: boolean
+          can_reveal_pii: boolean
+          can_update: boolean
+          can_view: boolean
+          data_classification: string
+          field_visibility: Json
+          id: string
+          module: string
+          requires_reason: boolean
+          role: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          branch_scoped?: boolean
+          can_create?: boolean
+          can_delete?: boolean
+          can_export?: boolean
+          can_reveal_pii?: boolean
+          can_update?: boolean
+          can_view?: boolean
+          data_classification?: string
+          field_visibility?: Json
+          id?: string
+          module: string
+          requires_reason?: boolean
+          role: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          branch_scoped?: boolean
+          can_create?: boolean
+          can_delete?: boolean
+          can_export?: boolean
+          can_reveal_pii?: boolean
+          can_update?: boolean
+          can_view?: boolean
+          data_classification?: string
+          field_visibility?: Json
+          id?: string
+          module?: string
+          requires_reason?: boolean
+          role?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       policy_evidence_logs: {
         Row: {
           created_at: string | null
@@ -6051,6 +6105,54 @@ export type Database = {
           question_en?: string
           question_th?: string
           recommended_services?: string[]
+        }
+        Relationships: []
+      }
+      security_alerts: {
+        Row: {
+          actor_id: string | null
+          actor_role: string | null
+          alert_type: string
+          branch: string | null
+          created_at: string
+          description: string
+          details: Json | null
+          id: string
+          is_resolved: boolean
+          resolution_notes: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+        }
+        Insert: {
+          actor_id?: string | null
+          actor_role?: string | null
+          alert_type: string
+          branch?: string | null
+          created_at?: string
+          description: string
+          details?: Json | null
+          id?: string
+          is_resolved?: boolean
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+        }
+        Update: {
+          actor_id?: string | null
+          actor_role?: string | null
+          alert_type?: string
+          branch?: string | null
+          created_at?: string
+          description?: string
+          details?: Json | null
+          id?: string
+          is_resolved?: boolean
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
         }
         Relationships: []
       }
@@ -6615,6 +6717,54 @@ export type Database = {
           metadata?: Json
           relay_id?: string | null
           transaction_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      staff_access_sessions: {
+        Row: {
+          branch: string | null
+          device_info: string | null
+          force_logout: boolean
+          force_logout_reason: string | null
+          id: string
+          ip_hint: string | null
+          is_active: boolean
+          last_active_at: string
+          login_at: string
+          logout_at: string | null
+          role: string
+          session_token_hash: string | null
+          user_id: string
+        }
+        Insert: {
+          branch?: string | null
+          device_info?: string | null
+          force_logout?: boolean
+          force_logout_reason?: string | null
+          id?: string
+          ip_hint?: string | null
+          is_active?: boolean
+          last_active_at?: string
+          login_at?: string
+          logout_at?: string | null
+          role: string
+          session_token_hash?: string | null
+          user_id: string
+        }
+        Update: {
+          branch?: string | null
+          device_info?: string | null
+          force_logout?: boolean
+          force_logout_reason?: string | null
+          id?: string
+          ip_hint?: string | null
+          is_active?: boolean
+          last_active_at?: string
+          login_at?: string
+          logout_at?: string | null
+          role?: string
+          session_token_hash?: string | null
           user_id?: string
         }
         Relationships: []

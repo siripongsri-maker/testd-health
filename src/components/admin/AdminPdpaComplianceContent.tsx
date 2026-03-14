@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -6,10 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Shield, Activity, FileDown, Eye, AlertTriangle, Search, RefreshCw, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { Shield, Activity, FileDown, Eye, AlertTriangle, Search, RefreshCw, CheckCircle2, XCircle, Clock, Lock, Users } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/lib/i18n';
 import { format } from 'date-fns';
+import { PermissionMatrixView } from '@/components/pdpa/PermissionMatrixView';
+import { StaffGovernanceDashboard } from '@/components/pdpa/StaffGovernanceDashboard';
 
 interface AuditLog {
   id: string;
@@ -134,10 +136,12 @@ export default function AdminPdpaComplianceContent() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
+        <TabsList className="flex-wrap">
           <TabsTrigger value="overview">{th ? 'ภาพรวม' : 'Overview'}</TabsTrigger>
           <TabsTrigger value="consent">{th ? 'ความยินยอม' : 'Consent'}</TabsTrigger>
           <TabsTrigger value="audit">{th ? 'บันทึกตรวจสอบ' : 'Audit Logs'}</TabsTrigger>
+          <TabsTrigger value="permissions">{th ? 'สิทธิ์การเข้าถึง' : 'Permissions'}</TabsTrigger>
+          <TabsTrigger value="governance">{th ? 'กำกับดูแลเจ้าหน้าที่' : 'Staff Governance'}</TabsTrigger>
           <TabsTrigger value="alerts">{th ? 'การแจ้งเตือน' : 'Alerts'}</TabsTrigger>
         </TabsList>
 
@@ -325,6 +329,16 @@ export default function AdminPdpaComplianceContent() {
               </p>
             </Card>
           )}
+        </TabsContent>
+
+        {/* Permissions Tab */}
+        <TabsContent value="permissions" className="space-y-4">
+          <PermissionMatrixView />
+        </TabsContent>
+
+        {/* Staff Governance Tab */}
+        <TabsContent value="governance" className="space-y-4">
+          <StaffGovernanceDashboard />
         </TabsContent>
       </Tabs>
     </div>
