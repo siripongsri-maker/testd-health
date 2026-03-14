@@ -522,6 +522,8 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.servicesCare': 'บริการและการดูแล',
     'admin.melReportingGroup': 'MEL และรายงาน',
     'admin.systemSettings': 'ตั้งค่าระบบ',
+    'admin.complianceSecurity': 'ปฏิบัติตามกฎหมายและความปลอดภัย',
+    'admin.pdpaCompliance': 'PDPA Compliance',
     'admin.backToApp': 'กลับหน้าหลัก',
     'admin.logout': 'ออกจากระบบ',
 
