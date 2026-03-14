@@ -136,10 +136,12 @@ export default function AdminPdpaComplianceContent() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
+        <TabsList className="flex-wrap">
           <TabsTrigger value="overview">{th ? 'ภาพรวม' : 'Overview'}</TabsTrigger>
           <TabsTrigger value="consent">{th ? 'ความยินยอม' : 'Consent'}</TabsTrigger>
           <TabsTrigger value="audit">{th ? 'บันทึกตรวจสอบ' : 'Audit Logs'}</TabsTrigger>
+          <TabsTrigger value="permissions">{th ? 'สิทธิ์การเข้าถึง' : 'Permissions'}</TabsTrigger>
+          <TabsTrigger value="governance">{th ? 'กำกับดูแลเจ้าหน้าที่' : 'Staff Governance'}</TabsTrigger>
           <TabsTrigger value="alerts">{th ? 'การแจ้งเตือน' : 'Alerts'}</TabsTrigger>
         </TabsList>
 
