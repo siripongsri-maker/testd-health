@@ -47,8 +47,12 @@ async function nukeCache(): Promise<void> {
     } catch {}
   }
 
-  // 3. Clear sessionStorage entirely
+  // 3. Clear sessionStorage except retry/session keys
+  const retryVal = sessionStorage.getItem(RETRY_KEY);
+  const sessionVal = sessionStorage.getItem(SESSION_KEY);
   sessionStorage.clear();
+  if (retryVal) sessionStorage.setItem(RETRY_KEY, retryVal);
+  if (sessionVal) sessionStorage.setItem(SESSION_KEY, sessionVal);
 
   // 4. Clear localStorage except preserved keys
   const keysToRemove: string[] = [];
