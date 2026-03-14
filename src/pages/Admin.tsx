@@ -51,6 +51,7 @@ const AdminLanguageDictionaryContent = lazy(() => import("@/components/admin/Adm
 const AdminClinicSettingsContent = lazy(() => import("@/components/admin/AdminClinicSettingsContent"));
 const AdminServicePathwaysContent = lazy(() => import("@/components/admin/AdminServicePathwaysContent"));
 const AdminFrontDeskContent = lazy(() => import("@/components/admin/AdminFrontDeskContent"));
+const AdminPdpaComplianceContent = lazy(() => import("@/components/admin/AdminPdpaComplianceContent"));
 
 // MEL modules
 const MelServiceLedgerContent = lazy(() => import("@/components/admin/mel/MelServiceLedgerContent"));
