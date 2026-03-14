@@ -330,6 +330,16 @@ export default function AdminPdpaComplianceContent() {
             </Card>
           )}
         </TabsContent>
+
+        {/* Permissions Tab */}
+        <TabsContent value="permissions" className="space-y-4">
+          <PermissionMatrixView />
+        </TabsContent>
+
+        {/* Staff Governance Tab */}
+        <TabsContent value="governance" className="space-y-4">
+          <StaffGovernanceDashboard />
+        </TabsContent>
       </Tabs>
     </div>
   );
