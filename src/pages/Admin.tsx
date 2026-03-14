@@ -220,6 +220,9 @@ export default function Admin() {
           {renderTab("service-pathways", <AdminServicePathwaysContent />)}
           {renderTab("front-desk", <AdminFrontDeskContent userBranch={userBranch} />)}
 
+          {/* Compliance */}
+          {renderTab("pdpa-compliance", <AdminPdpaComplianceContent />)}
+
           {/* MEL */}
           {renderTab("mel-services", <MelServiceLedgerContent />)}
           {renderTab("mel-indicators", <MelIndicatorsContent />)}
