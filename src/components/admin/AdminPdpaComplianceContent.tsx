@@ -145,6 +145,9 @@ export default function AdminPdpaComplianceContent() {
           <TabsTrigger value="audit">{th ? 'บันทึกตรวจสอบ' : 'Audit Logs'}</TabsTrigger>
           <TabsTrigger value="permissions">{th ? 'สิทธิ์การเข้าถึง' : 'Permissions'}</TabsTrigger>
           <TabsTrigger value="governance">{th ? 'กำกับดูแลเจ้าหน้าที่' : 'Staff Governance'}</TabsTrigger>
+          <TabsTrigger value="retention">{th ? 'การเก็บรักษา' : 'Retention'}</TabsTrigger>
+          <TabsTrigger value="dsar">{th ? 'คำขอข้อมูล' : 'DSAR'}</TabsTrigger>
+          <TabsTrigger value="incidents">{th ? 'เหตุการณ์' : 'Incidents'}</TabsTrigger>
           <TabsTrigger value="alerts">{th ? 'การแจ้งเตือน' : 'Alerts'}</TabsTrigger>
         </TabsList>
 
