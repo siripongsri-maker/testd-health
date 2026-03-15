@@ -128,6 +128,62 @@ export type Database = {
         }
         Relationships: []
       }
+      anonymization_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          policy_id: string | null
+          records_anonymized: number
+          records_deleted: number
+          records_failed: number
+          records_processed: number
+          started_at: string | null
+          status: string
+          target_table: string
+          triggered_by: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          policy_id?: string | null
+          records_anonymized?: number
+          records_deleted?: number
+          records_failed?: number
+          records_processed?: number
+          started_at?: string | null
+          status?: string
+          target_table: string
+          triggered_by?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          policy_id?: string | null
+          records_anonymized?: number
+          records_deleted?: number
+          records_failed?: number
+          records_processed?: number
+          started_at?: string | null
+          status?: string
+          target_table?: string
+          triggered_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "anonymization_jobs_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "retention_policies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       app_feature_flags: {
         Row: {
           enabled: boolean
@@ -1797,6 +1853,72 @@ export type Database = {
           source_id?: string | null
           source_table?: string
           status?: string | null
+        }
+        Relationships: []
+      }
+      deletion_requests: {
+        Row: {
+          admin_notes: string | null
+          assigned_to: string | null
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          data_categories: string[]
+          deadline_at: string | null
+          evidence_summary: string | null
+          id: string
+          priority: string
+          reason: string | null
+          request_type: string
+          requester_email: string | null
+          requester_id: string | null
+          requester_name: string | null
+          status: string
+          updated_at: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          assigned_to?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          data_categories?: string[]
+          deadline_at?: string | null
+          evidence_summary?: string | null
+          id?: string
+          priority?: string
+          reason?: string | null
+          request_type?: string
+          requester_email?: string | null
+          requester_id?: string | null
+          requester_name?: string | null
+          status?: string
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          assigned_to?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          data_categories?: string[]
+          deadline_at?: string | null
+          evidence_summary?: string | null
+          id?: string
+          priority?: string
+          reason?: string | null
+          request_type?: string
+          requester_email?: string | null
+          requester_id?: string | null
+          requester_name?: string | null
+          status?: string
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
         }
         Relationships: []
       }
@@ -6075,6 +6197,57 @@ export type Database = {
         }
         Relationships: []
       }
+      retention_policies: {
+        Row: {
+          action: string
+          applies_to_table: string | null
+          classification: string
+          created_at: string
+          data_type: string
+          description_en: string | null
+          description_th: string | null
+          display_name_en: string
+          display_name_th: string
+          id: string
+          is_active: boolean
+          retention_days: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          action?: string
+          applies_to_table?: string | null
+          classification?: string
+          created_at?: string
+          data_type: string
+          description_en?: string | null
+          description_th?: string | null
+          display_name_en?: string
+          display_name_th?: string
+          id?: string
+          is_active?: boolean
+          retention_days?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          action?: string
+          applies_to_table?: string | null
+          classification?: string
+          created_at?: string
+          data_type?: string
+          description_en?: string | null
+          description_th?: string | null
+          display_name_en?: string
+          display_name_th?: string
+          id?: string
+          is_active?: boolean
+          retention_days?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       risk_assessment_questions: {
         Row: {
           created_at: string
@@ -6153,6 +6326,78 @@ export type Database = {
           resolved_at?: string | null
           resolved_by?: string | null
           severity?: string
+        }
+        Relationships: []
+      }
+      security_incidents: {
+        Row: {
+          affected_data_categories: string[] | null
+          affected_records_count: number | null
+          assigned_to: string | null
+          containment_actions: string | null
+          created_at: string
+          description: string | null
+          evidence_urls: string[] | null
+          id: string
+          incident_type: string
+          internal_notes: string | null
+          notification_status: string | null
+          reported_by: string | null
+          resolution_summary: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          status: string
+          suspected_cause: string | null
+          timeline_events: Json | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          affected_data_categories?: string[] | null
+          affected_records_count?: number | null
+          assigned_to?: string | null
+          containment_actions?: string | null
+          created_at?: string
+          description?: string | null
+          evidence_urls?: string[] | null
+          id?: string
+          incident_type?: string
+          internal_notes?: string | null
+          notification_status?: string | null
+          reported_by?: string | null
+          resolution_summary?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
+          suspected_cause?: string | null
+          timeline_events?: Json | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          affected_data_categories?: string[] | null
+          affected_records_count?: number | null
+          assigned_to?: string | null
+          containment_actions?: string | null
+          created_at?: string
+          description?: string | null
+          evidence_urls?: string[] | null
+          id?: string
+          incident_type?: string
+          internal_notes?: string | null
+          notification_status?: string | null
+          reported_by?: string | null
+          resolution_summary?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
+          suspected_cause?: string | null
+          timeline_events?: Json | null
+          title?: string
+          updated_at?: string
         }
         Relationships: []
       }
