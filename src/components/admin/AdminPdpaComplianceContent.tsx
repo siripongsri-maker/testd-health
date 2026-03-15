@@ -12,6 +12,9 @@ import { useLanguage } from '@/lib/i18n';
 import { format } from 'date-fns';
 import { PermissionMatrixView } from '@/components/pdpa/PermissionMatrixView';
 import { StaffGovernanceDashboard } from '@/components/pdpa/StaffGovernanceDashboard';
+import { RetentionDashboard } from '@/components/pdpa/RetentionDashboard';
+import { DsarWorkflow } from '@/components/pdpa/DsarWorkflow';
+import { IncidentManagement } from '@/components/pdpa/IncidentManagement';
 
 interface AuditLog {
   id: string;
@@ -142,6 +145,9 @@ export default function AdminPdpaComplianceContent() {
           <TabsTrigger value="audit">{th ? 'บันทึกตรวจสอบ' : 'Audit Logs'}</TabsTrigger>
           <TabsTrigger value="permissions">{th ? 'สิทธิ์การเข้าถึง' : 'Permissions'}</TabsTrigger>
           <TabsTrigger value="governance">{th ? 'กำกับดูแลเจ้าหน้าที่' : 'Staff Governance'}</TabsTrigger>
+          <TabsTrigger value="retention">{th ? 'การเก็บรักษา' : 'Retention'}</TabsTrigger>
+          <TabsTrigger value="dsar">{th ? 'คำขอข้อมูล' : 'DSAR'}</TabsTrigger>
+          <TabsTrigger value="incidents">{th ? 'เหตุการณ์' : 'Incidents'}</TabsTrigger>
           <TabsTrigger value="alerts">{th ? 'การแจ้งเตือน' : 'Alerts'}</TabsTrigger>
         </TabsList>
 
@@ -339,6 +345,21 @@ export default function AdminPdpaComplianceContent() {
         {/* Staff Governance Tab */}
         <TabsContent value="governance" className="space-y-4">
           <StaffGovernanceDashboard />
+        </TabsContent>
+
+        {/* Retention Tab */}
+        <TabsContent value="retention" className="space-y-4">
+          <RetentionDashboard />
+        </TabsContent>
+
+        {/* DSAR Tab */}
+        <TabsContent value="dsar" className="space-y-4">
+          <DsarWorkflow />
+        </TabsContent>
+
+        {/* Incidents Tab */}
+        <TabsContent value="incidents" className="space-y-4">
+          <IncidentManagement />
         </TabsContent>
       </Tabs>
     </div>

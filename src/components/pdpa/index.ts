@@ -9,3 +9,6 @@ export { ReAuthDialog } from './ReAuthDialog';
 export { SessionTimeoutDialog } from './SessionTimeoutDialog';
 export { PermissionMatrixView } from './PermissionMatrixView';
 export { StaffGovernanceDashboard } from './StaffGovernanceDashboard';
+export { RetentionDashboard } from './RetentionDashboard';
+export { DsarWorkflow } from './DsarWorkflow';
+export { IncidentManagement } from './IncidentManagement';
