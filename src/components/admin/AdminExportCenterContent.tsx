@@ -110,13 +110,13 @@ export default function AdminExportCenterContent() {
     });
 
     try {
-      const { data, error } = await (supabase
+      const { data, error } = await (supabase as any)
         .from(tmpl.table)
         .select('*')
         .gte('created_at', `${dateFrom}T00:00:00`)
         .lte('created_at', `${dateTo}T23:59:59`)
         .order('created_at', { ascending: false })
-        .limit(5000) as any);
+        .limit(5000);
 
       if (error) throw error;
 
