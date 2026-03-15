@@ -1,8 +1,10 @@
 import { format } from 'date-fns';
+import { watermarkCsv, type WatermarkPayload } from './exportWatermark';
 
 /**
  * Reusable CSV export utility for admin modules.
  * Supports UTF-8 BOM for Thai character compatibility.
+ * Optionally embeds invisible watermarks for PDPA traceability.
  */
 
 export interface CsvColumn<T> {
