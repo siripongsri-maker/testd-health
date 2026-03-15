@@ -346,6 +346,21 @@ export default function AdminPdpaComplianceContent() {
         <TabsContent value="governance" className="space-y-4">
           <StaffGovernanceDashboard />
         </TabsContent>
+
+        {/* Retention Tab */}
+        <TabsContent value="retention" className="space-y-4">
+          <RetentionDashboard />
+        </TabsContent>
+
+        {/* DSAR Tab */}
+        <TabsContent value="dsar" className="space-y-4">
+          <DsarWorkflow />
+        </TabsContent>
+
+        {/* Incidents Tab */}
+        <TabsContent value="incidents" className="space-y-4">
+          <IncidentManagement />
+        </TabsContent>
       </Tabs>
     </div>
   );
