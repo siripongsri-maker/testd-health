@@ -12,6 +12,9 @@ import { useLanguage } from '@/lib/i18n';
 import { format } from 'date-fns';
 import { PermissionMatrixView } from '@/components/pdpa/PermissionMatrixView';
 import { StaffGovernanceDashboard } from '@/components/pdpa/StaffGovernanceDashboard';
+import { RetentionDashboard } from '@/components/pdpa/RetentionDashboard';
+import { DsarWorkflow } from '@/components/pdpa/DsarWorkflow';
+import { IncidentManagement } from '@/components/pdpa/IncidentManagement';
 
 interface AuditLog {
   id: string;
