@@ -1,8 +1,10 @@
 import { format } from 'date-fns';
+import { watermarkCsv, type WatermarkPayload } from './exportWatermark';
 
 /**
  * Reusable CSV export utility for admin modules.
  * Supports UTF-8 BOM for Thai character compatibility.
+ * Optionally embeds invisible watermarks for PDPA traceability.
  */
 
 export interface CsvColumn<T> {
@@ -68,14 +70,18 @@ export function downloadCsv(csvContent: string, filename: string): void {
   URL.revokeObjectURL(url);
 }
 
-/** All-in-one: export rows to a downloadable CSV file */
+/** All-in-one: export rows to a downloadable CSV file, with optional watermark */
 export function exportToCsv<T>(
   rows: T[],
   columns: CsvColumn<T>[],
   module: string,
-  dateRange?: { from?: string; to?: string }
+  dateRange?: { from?: string; to?: string },
+  watermark?: WatermarkPayload
 ): void {
-  const csv = rowsToCsv(rows, columns);
+  let csv = rowsToCsv(rows, columns);
+  if (watermark) {
+    csv = watermarkCsv(csv, watermark);
+  }
   const filename = csvFilename(module, dateRange);
   downloadCsv(csv, filename);
 }

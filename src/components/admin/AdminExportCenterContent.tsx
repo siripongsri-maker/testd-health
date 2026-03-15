@@ -1,11 +1,15 @@
 import { useState } from "react";
 import { useLanguage } from "@/lib/i18n";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FileDown, Download, Calendar } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { FileDown, Download, Calendar, Loader2, Fingerprint } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useAdminRole } from "@/hooks/useAdminRole";
+import { usePdpaAudit } from "@/hooks/usePdpaAudit";
+import { exportToCsv, type CsvColumn, formatCsvDate } from "@/lib/adminCsvExport";
+import { toast } from "sonner";
 
 interface ReportTemplate {
   id: string;
@@ -14,26 +18,67 @@ interface ReportTemplate {
   description: string;
   descriptionTh: string;
   module: string;
+  table: string;
   icon: string;
+  columns: CsvColumn<any>[];
 }
 
 const reportTemplates: ReportTemplate[] = [
-  { id: 'invite_performance', name: 'Invite Performance Report', nameTh: 'รายงานประสิทธิภาพคำชวน', description: 'Invite funnel conversion rates and trends', descriptionTh: 'อัตรา Conversion และแนวโน้มคำชวน', module: 'partner-invites', icon: '💌' },
-  { id: 'booking_conversion', name: 'Booking Conversion Report', nameTh: 'รายงาน Conversion จอง', description: 'Booking lifecycle from created to completed', descriptionTh: 'วงจรการจองจากสร้างถึงเสร็จ', module: 'bookings', icon: '📅' },
-  { id: 'sms_usage', name: 'SMS Usage Report', nameTh: 'รายงานการใช้ SMS', description: 'SMS relay activity, success rates, and provider health', descriptionTh: 'กิจกรรม SMS, อัตราสำเร็จ, และสถานะ Provider', module: 'sms-relay', icon: '📱' },
-  { id: 'credit_financial', name: 'SMS Credit Financial Report', nameTh: 'รายงานการเงินเครดิต SMS', description: 'Credit purchases, grants, usage, and refunds', descriptionTh: 'การซื้อ, ให้, ใช้, และคืนเครดิต', module: 'credit-purchases', icon: '💳' },
-  { id: 'abuse_moderation', name: 'Abuse & Moderation Report', nameTh: 'รายงานการตรวจสอบการละเมิด', description: 'Abuse flags, severity distribution, resolution rates', descriptionTh: 'แฟลกการละเมิด, การกระจายความรุนแรง, อัตราแก้ไข', module: 'abuse-logs', icon: '🛡️' },
-  { id: 'user_activity', name: 'User Activity Report', nameTh: 'รายงานกิจกรรมผู้ใช้', description: 'User registrations, active users, and engagement', descriptionTh: 'การลงทะเบียน, ผู้ใช้ที่ใช้งาน, และความผูกพัน', module: 'users', icon: '👥' },
-  { id: 'selftest_ops', name: 'Self-Test Operations Report', nameTh: 'รายงานการดำเนินการตรวจ', description: 'Self-test request fulfillment by branch', descriptionTh: 'การดำเนินการคำขอตรวจแยกตามสาขา', module: 'kit-orders', icon: '🧪' },
-  { id: 'rewards_campaign', name: 'Campaign & Rewards Report', nameTh: 'รายงานแคมเปญและรางวัล', description: 'Active campaigns, participation, and content status', descriptionTh: 'แคมเปญที่ใช้งาน, การเข้าร่วม, และสถานะเนื้อหา', module: 'rewards', icon: '🎁' },
+  {
+    id: 'booking_conversion', name: 'Booking Report', nameTh: 'รายงานการจอง',
+    description: 'All appointments with status and branch', descriptionTh: 'การนัดหมายทั้งหมดพร้อมสถานะและสาขา',
+    module: 'bookings', table: 'appointments', icon: '📅',
+    columns: [
+      { key: 'referral_code', header: 'Referral Code' },
+      { key: 'appointment_date', header: 'Date', format: (r: any) => formatCsvDate(r.appointment_date, false) },
+      { key: 'start_time', header: 'Time' },
+      { key: 'status', header: 'Status' },
+      { key: 'source', header: 'Source' },
+      { key: 'created_at', header: 'Created', format: (r: any) => formatCsvDate(r.created_at) },
+    ],
+  },
+  {
+    id: 'selftest_ops', name: 'Self-Test Operations', nameTh: 'รายงานการตรวจ',
+    description: 'Self-test request fulfillment', descriptionTh: 'การดำเนินการคำขอตรวจ',
+    module: 'kit-orders', table: 'hiv_selftest_requests', icon: '🧪',
+    columns: [
+      { key: 'status', header: 'Status' },
+      { key: 'assigned_branch', header: 'Branch' },
+      { key: 'created_at', header: 'Created', format: (r: any) => formatCsvDate(r.created_at) },
+    ],
+  },
+  {
+    id: 'user_activity', name: 'User Activity', nameTh: 'รายงานผู้ใช้',
+    description: 'User registrations and profiles', descriptionTh: 'การลงทะเบียนและโปรไฟล์',
+    module: 'users', table: 'profiles', icon: '👥',
+    columns: [
+      { key: 'display_name', header: 'Display Name' },
+      { key: 'created_at', header: 'Joined', format: (r: any) => formatCsvDate(r.created_at) },
+    ],
+  },
+  {
+    id: 'abuse_moderation', name: 'Abuse & Moderation', nameTh: 'รายงานการละเมิด',
+    description: 'Abuse flags and moderation', descriptionTh: 'แฟลกการละเมิดและการตรวจสอบ',
+    module: 'abuse-logs', table: 'pdpa_audit_logs', icon: '🛡️',
+    columns: [
+      { key: 'action_type', header: 'Action' },
+      { key: 'actor_role', header: 'Role' },
+      { key: 'result', header: 'Result' },
+      { key: 'created_at', header: 'Time', format: (r: any) => formatCsvDate(r.created_at) },
+    ],
+  },
 ];
 
 export default function AdminExportCenterContent() {
   const { language } = useLanguage();
   const isTh = language === 'th';
+  const { user } = useAuth();
+  const { role } = useAdminRole();
+  const { log } = usePdpaAudit();
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [selectedRange, setSelectedRange] = useState('7d');
+  const [exporting, setExporting] = useState<string | null>(null);
 
   const handleQuickRange = (range: string) => {
     setSelectedRange(range);
@@ -47,15 +92,93 @@ export default function AdminExportCenterContent() {
     setDateTo(to);
   };
 
+  const handleExport = async (tmpl: ReportTemplate) => {
+    if (!dateFrom || !dateTo) {
+      toast.error(isTh ? 'กรุณาเลือกช่วงเวลา' : 'Please select a date range');
+      return;
+    }
+
+    setExporting(tmpl.id);
+
+    // Audit: log attempt
+    await log({
+      action_type: 'export_attempt',
+      target_type: tmpl.table,
+      target_classification: 'personal',
+      reason: `Export ${tmpl.module} report`,
+      metadata: { dateFrom, dateTo, module: tmpl.module },
+    });
+
+    try {
+      const { data, error } = await (supabase as any)
+        .from(tmpl.table)
+        .select('*')
+        .gte('created_at', `${dateFrom}T00:00:00`)
+        .lte('created_at', `${dateTo}T23:59:59`)
+        .order('created_at', { ascending: false })
+        .limit(5000);
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        toast.info(isTh ? 'ไม่พบข้อมูลในช่วงเวลานี้' : 'No data found for this period');
+        setExporting(null);
+        return;
+      }
+
+      // Export with watermark
+      exportToCsv(
+        data,
+        tmpl.columns,
+        tmpl.module,
+        { from: dateFrom, to: dateTo },
+        {
+          userId: user?.id || 'unknown',
+          role: role || 'admin',
+          timestamp: Date.now(),
+          module: tmpl.module,
+        }
+      );
+
+      // Audit: log success
+      await log({
+        action_type: 'export_success',
+        target_type: tmpl.table,
+        target_classification: 'personal',
+        metadata: { dateFrom, dateTo, module: tmpl.module, rowCount: data.length },
+      });
+
+      toast.success(isTh ? `ส่งออก ${data.length} แถวสำเร็จ` : `Exported ${data.length} rows`);
+    } catch (err: any) {
+      toast.error(isTh ? 'เกิดข้อผิดพลาดในการส่งออก' : 'Export failed');
+    } finally {
+      setExporting(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <FileDown className="h-5 w-5 text-primary" />
         <div>
           <h2 className="text-xl font-bold text-foreground">{isTh ? 'ศูนย์รายงานและส่งออก' : 'Reports & Export Center'}</h2>
-          <p className="text-sm text-muted-foreground">{isTh ? 'สร้างและดาวน์โหลดรายงานจากข้อมูลจริง' : 'Generate and download reports from real data'}</p>
+          <p className="text-sm text-muted-foreground">
+            {isTh ? 'ส่งออกข้อมูลพร้อมลายน้ำดิจิทัลเพื่อความปลอดภัย' : 'Export data with digital watermarking for PDPA compliance'}
+          </p>
         </div>
       </div>
+
+      {/* Watermark notice */}
+      <Card className="border border-primary/20 bg-primary/5">
+        <CardContent className="p-3 flex items-center gap-3">
+          <Fingerprint className="h-5 w-5 text-primary shrink-0" />
+          <p className="text-xs text-muted-foreground">
+            {isTh
+              ? '📌 ไฟล์ CSV ทุกไฟล์จะมีลายน้ำดิจิทัลที่มองไม่เห็นเพื่อระบุตัวผู้ส่งออก ตามข้อกำหนด PDPA'
+              : '📌 All CSV exports contain invisible digital watermarks identifying the exporter, per PDPA requirements'}
+          </p>
+        </CardContent>
+      </Card>
 
       {/* Date range */}
       <Card className="border border-border/50">
@@ -92,8 +215,18 @@ export default function AdminExportCenterContent() {
                   <h3 className="font-semibold text-sm text-foreground">{isTh ? tmpl.nameTh : tmpl.name}</h3>
                   <p className="text-xs text-muted-foreground mt-0.5">{isTh ? tmpl.descriptionTh : tmpl.description}</p>
                 </div>
-                <Button variant="outline" size="sm" className="gap-1 shrink-0 h-7 text-xs">
-                  <Download className="h-3 w-3" />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1 shrink-0 h-7 text-xs"
+                  disabled={exporting === tmpl.id}
+                  onClick={() => handleExport(tmpl)}
+                >
+                  {exporting === tmpl.id ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <Download className="h-3 w-3" />
+                  )}
                   {isTh ? 'ส่งออก' : 'Export'}
                 </Button>
               </div>

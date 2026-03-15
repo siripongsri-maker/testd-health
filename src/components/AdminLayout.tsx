@@ -6,6 +6,7 @@ import { useStaffGovernance } from "@/hooks/useStaffGovernance";
 import { SessionTimeoutDialog } from "@/components/pdpa/SessionTimeoutDialog";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useBrowserSecurity } from "@/hooks/useBrowserSecurity";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -15,6 +16,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const { isTimedOut, isStaff } = useStaffGovernance();
+  useBrowserSecurity();
 
   const handleReLogin = async () => {
     await supabase.auth.signOut();
