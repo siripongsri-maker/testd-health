@@ -16,6 +16,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const { isTimedOut, isStaff } = useStaffGovernance();
+  useBrowserSecurity();
 
   const handleReLogin = async () => {
     await supabase.auth.signOut();
