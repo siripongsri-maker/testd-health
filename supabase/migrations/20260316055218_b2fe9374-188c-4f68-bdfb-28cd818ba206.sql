@@ -1,0 +1,1 @@
+UPDATE public.app_feature_flags SET enabled = true, updated_at = now() WHERE flag_key = 'pdpa_compliance';

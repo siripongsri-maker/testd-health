@@ -16,7 +16,7 @@ import {
 export function useBrowserSecurity(options?: { enabled?: boolean }) {
   const { user } = useAuth();
   const { log } = usePdpaAudit();
-  const pdpaEnabled = usePdpaFeatureFlag();
+  const { pdpaEnabled } = usePdpaFeatureFlag();
   const active = (options?.enabled ?? true) && pdpaEnabled;
 
   useEffect(() => {
