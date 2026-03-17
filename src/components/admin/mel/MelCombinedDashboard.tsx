@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import OutreachPopulationMap from "./OutreachPopulationMap";
+import { hasValidCoordinates, pickFirstNonEmpty, toValidCoordinate } from "./outreachAnalytics";
 
 // ── Types ───────────────────────────────────────────────────────────
 interface UnifiedRecord {
