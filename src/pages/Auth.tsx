@@ -132,8 +132,17 @@ export default function Auth() {
           localStorage.setItem('isLoggedIn', 'true');
           localStorage.setItem('currentUser', displayName);
           toast.success(language === 'th' ? 'เข้าสู่ระบบสำเร็จ' : 'Login successful');
-          // Always redirect to home page, never to admin
-          navigate('/', { replace: true });
+          
+          // Check if user is outreach_staff → redirect to form directly
+          const { data: isOutreach } = await supabase.rpc('has_role', {
+            _user_id: data.user.id,
+            _role: 'outreach_staff' as any,
+          });
+          if (isOutreach) {
+            navigate('/outreach-form', { replace: true });
+          } else {
+            navigate('/', { replace: true });
+          }
         }
       }
     } catch (err) {
