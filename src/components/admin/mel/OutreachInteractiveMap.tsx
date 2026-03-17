@@ -173,62 +173,7 @@ export default function OutreachInteractiveMap({ records }: { records: DataRecor
           </div>
         ) : (
           <div className="w-full overflow-hidden rounded-lg border border-border bg-muted/20" style={{ height: "clamp(320px, 52vw, 500px)" }}>
-            {/* @ts-ignore react-leaflet v5 type mismatch */}
-            <MapContainer
-              key={mapSyncKey}
-              center={center}
-              zoom={zoom}
-              className="h-full w-full z-0"
-              scrollWheelZoom={true}
-              style={{ height: "100%", width: "100%" }}
-            >
-              {/* @ts-ignore */}
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              <MapViewportSync center={center} zoom={zoom} points={pointList} syncKey={mapSyncKey} />
-              {filteredPins.map((pin, index) => (
-                // @ts-ignore
-                <Marker
-                  key={`${pin.lat}-${pin.lng}-${index}`}
-                  position={[pin.lat, pin.lng]}
-                  icon={pin.city === "พัทยา" ? PTY_ICON : pin.city === "กรุงเทพฯ" ? BKK_ICON : OTHER_ICON}
-                >
-                  {/* @ts-ignore */}
-                  <Popup maxWidth={260} className="outreach-popup">
-                    <div className="space-y-1.5 text-xs">
-                      <p className="font-semibold text-sm">{pin.venue}</p>
-                      <p className="text-muted-foreground">📍 {pin.area}</p>
-                      <div className="flex flex-wrap gap-1">
-                        <Badge variant="secondary" className="text-[10px]">{pin.city}</Badge>
-                        {pin.date && (
-                          <Badge variant="outline" className="text-[10px]">
-                            {format(new Date(pin.date), "dd/MM/yyyy")}
-                          </Badge>
-                        )}
-                      </div>
-                      {pin.mswRange ? (
-                        <p>👥 MSW โดยประมาณ: <strong>{pin.mswRange}</strong></p>
-                      ) : (
-                        <p className="text-muted-foreground">👥 ยังไม่มีข้อมูล MSW</p>
-                      )}
-                      {pin.msmRange ? (
-                        <p>👥 MSM โดยประมาณ: <strong>{pin.msmRange}</strong></p>
-                      ) : (
-                        <p className="text-muted-foreground">👥 ยังไม่มีข้อมูล MSM</p>
-                      )}
-                      {pin.offsiteProportion && (
-                        <p>🏠 รับงานนอกสถานที่: <strong>{pin.offsiteProportion}</strong></p>
-                      )}
-                      <p className="pt-1 text-[10px] text-muted-foreground">
-                        {pin.lat.toFixed(4)}, {pin.lng.toFixed(4)}
-                      </p>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-            </MapContainer>
+            <OutreachLeafletCanvas center={center} zoom={zoom} pins={filteredPins} syncKey={mapSyncKey} />
           </div>
         )}
       </CardContent>
