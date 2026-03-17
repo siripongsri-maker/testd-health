@@ -5,11 +5,10 @@ import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Loader2, Download, MapPin, Users, AlertTriangle, TrendingUp, BarChart3, Globe, Shield, Lightbulb, Eye, Filter, RotateCcw } from "lucide-react";
-import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
+import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 // ── Types ───────────────────────────────────────────────────────────
@@ -38,6 +37,12 @@ interface UnifiedRecord {
   thai_proficiency: string;
   primary_languages: string[];
   comm_channels: string[];
+  health_languages: string[];
+  population_groups: string[];
+  offsite_proportion: string;
+  offsite_nationalities: string[];
+  map_lat: number | null;
+  map_lng: number | null;
   raw: any;
 }
 
@@ -56,7 +61,6 @@ export default function MelCombinedDashboard() {
   const [filterSource, setFilterSource] = useState("all");
   const [viewItem, setViewItem] = useState<UnifiedRecord | null>(null);
 
-  // Fetch all three data sources
   const { data: fieldNotes, isLoading: l1 } = useQuery({
     queryKey: ["mel-combined-field-notes"],
     queryFn: async () => {
@@ -86,86 +90,56 @@ export default function MelCombinedDashboard() {
 
   const isLoading = l1 || l2 || l3;
 
-  // Normalize all records into unified format
+  // Normalize all records
   const allRecords = useMemo<UnifiedRecord[]>(() => {
     const records: UnifiedRecord[] = [];
-    // Field notes
     (fieldNotes || []).forEach((fn: any) => {
       records.push({
-        id: fn.id,
-        source: "field_note",
-        date: fn.visit_date,
-        city: normalizeCity(fn.city),
-        area: fn.area_name || "",
-        venue: fn.venue_alias || "",
-        observer: fn.observer_name || "",
-        msw_count: String(fn.estimated_msw_seen || ""),
+        id: fn.id, source: "field_note", date: fn.visit_date,
+        city: normalizeCity(fn.city), area: fn.area_name || "", venue: fn.venue_alias || "",
+        observer: fn.observer_name || "", msw_count: String(fn.estimated_msw_seen || ""),
         nationality_groups: fn.main_nationality_groups ? fn.main_nationality_groups.split(/[,\s]+/).filter(Boolean) : [],
-        nationality_other: "",
-        communication_barrier: fn.communication_barrier_level || "ไม่มี",
-        urgency_level: "normal",
-        service_interests: [],
-        service_barriers: [],
+        nationality_other: "", communication_barrier: fn.communication_barrier_level || "ไม่มี",
+        urgency_level: "normal", service_interests: [], service_barriers: [],
         project_implications: fn.project_implications || [],
-        chemsex_signal: "ไม่พบ",
-        mental_health_signal: "ไม่พบ",
-        violence_signal: "ไม่พบ",
-        is_hotspot: false,
-        confidence: "medium",
+        chemsex_signal: "ไม่พบ", mental_health_signal: "ไม่พบ", violence_signal: "ไม่พบ",
+        is_hotspot: false, confidence: "medium",
         informant_type: fn.info_sources ? (Array.isArray(fn.info_sources) ? fn.info_sources : [fn.info_sources]) : [],
-        thai_proficiency: "",
-        primary_languages: [],
-        comm_channels: [],
-        raw: fn,
+        thai_proficiency: "", primary_languages: [], comm_channels: [],
+        health_languages: [], population_groups: [],
+        offsite_proportion: "", offsite_nationalities: [],
+        map_lat: null, map_lng: null, raw: fn,
       });
     });
-    // Rapid MSW
     (rapidMsw || []).forEach((r: any) => {
       records.push({
-        id: r.id,
-        source: "rapid_msw",
-        date: r.survey_date,
-        city: normalizeCity(r.venue_code),
-        area: r.bangkok_area || r.pattaya_area || "",
-        venue: r.venue_type || "",
-        observer: r.email || "",
+        id: r.id, source: "rapid_msw", date: r.survey_date,
+        city: normalizeCity(r.venue_code), area: r.bangkok_area || r.pattaya_area || "",
+        venue: r.venue_type || "", observer: r.email || "",
         msw_count: r.msw_count_estimate || "",
         nationality_groups: Array.isArray(r.foreign_groups) ? r.foreign_groups : [],
-        nationality_other: "",
-        communication_barrier: r.language_skill === "other_language_primary" ? "มีมาก" : "ไม่มี",
-        urgency_level: "normal",
-        service_interests: [],
-        service_barriers: [],
-        project_implications: [],
-        chemsex_signal: "ไม่พบ",
-        mental_health_signal: "ไม่พบ",
-        violence_signal: "ไม่พบ",
-        is_hotspot: false,
-        confidence: "medium",
+        nationality_other: "", communication_barrier: r.language_skill === "other_language_primary" ? "มีมาก" : "ไม่มี",
+        urgency_level: "normal", service_interests: [], service_barriers: [],
+        project_implications: [], chemsex_signal: "ไม่พบ", mental_health_signal: "ไม่พบ",
+        violence_signal: "ไม่พบ", is_hotspot: false, confidence: "medium",
         informant_type: r.respondent_type ? [r.respondent_type] : [],
-        thai_proficiency: r.language_skill || "",
-        primary_languages: r.other_primary_language ? [r.other_primary_language] : [],
+        thai_proficiency: r.language_skill || "", primary_languages: r.other_primary_language ? [r.other_primary_language] : [],
         comm_channels: r.health_info_channel ? (Array.isArray(r.health_info_channel) ? r.health_info_channel : [r.health_info_channel]) : [],
-        raw: r,
+        health_languages: [], population_groups: [],
+        offsite_proportion: "", offsite_nationalities: [],
+        map_lat: null, map_lng: null, raw: r,
       });
     });
-    // Unified forms
     (unifiedForms || []).forEach((u: any) => {
       records.push({
-        id: u.id,
-        source: "unified_form",
-        date: u.survey_date,
-        city: normalizeCity(u.city),
-        area: u.area_name || "",
-        venue: u.venue_alias || u.venue_type || "",
-        observer: u.observer_name || "",
-        msw_count: u.estimated_msw_count || "",
-        nationality_groups: u.nationality_groups || [],
-        nationality_other: u.nationality_other || "",
+        id: u.id, source: "unified_form", date: u.survey_date,
+        city: normalizeCity(u.city), area: u.area_name || "",
+        venue: u.venue_alias || u.venue_type || "", observer: u.observer_name || "",
+        msw_count: u.msw_estimated_range || u.estimated_msw_count || "",
+        nationality_groups: u.nationality_groups || [], nationality_other: u.nationality_other || "",
         communication_barrier: u.communication_barrier_level || "ไม่มี",
         urgency_level: u.urgency_level || "normal",
-        service_interests: u.service_interests || [],
-        service_barriers: u.service_barriers || [],
+        service_interests: u.service_interests || [], service_barriers: u.service_barriers || [],
         project_implications: u.project_implications || [],
         chemsex_signal: u.chemsex_signal || "ไม่พบ",
         mental_health_signal: u.mental_health_signal || "ไม่พบ",
@@ -176,13 +150,17 @@ export default function MelCombinedDashboard() {
         thai_proficiency: u.thai_proficiency || "",
         primary_languages: u.primary_languages || [],
         comm_channels: u.comm_channels || [],
+        health_languages: u.health_languages || [],
+        population_groups: u.population_groups || [],
+        offsite_proportion: u.offsite_proportion || "",
+        offsite_nationalities: u.offsite_nationalities || [],
+        map_lat: u.map_lat || null, map_lng: u.map_lng || null,
         raw: u,
       });
     });
     return records.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
   }, [fieldNotes, rapidMsw, unifiedForms]);
 
-  // Filtered records
   const filtered = useMemo(() => {
     return allRecords.filter((r) => {
       if (filterCity !== "all" && r.city !== filterCity) return false;
@@ -200,42 +178,24 @@ export default function MelCombinedDashboard() {
   const hotspotCount = allRecords.filter((r) => r.is_hotspot).length;
   const highBarrierCount = allRecords.filter((r) => r.communication_barrier === "มีมาก").length;
 
-  // Area ranking
   const areaRanking = useMemo(() => {
     const map: Record<string, number> = {};
     filtered.forEach((r) => { if (r.area) map[r.area] = (map[r.area] || 0) + 1; });
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 10);
   }, [filtered]);
 
-  // Nationality distribution
   const nationalityDist = useMemo(() => {
     const map: Record<string, number> = {};
     filtered.forEach((r) => r.nationality_groups.forEach((g) => { if (g) map[g] = (map[g] || 0) + 1; }));
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 10);
   }, [filtered]);
 
-  // Service needs
-  const serviceNeedsDist = useMemo(() => {
-    const map: Record<string, number> = {};
-    filtered.forEach((r) => r.service_interests.forEach((s) => { map[s] = (map[s] || 0) + 1; }));
-    return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 8);
-  }, [filtered]);
-
-  // Barriers
-  const barriersDist = useMemo(() => {
-    const map: Record<string, number> = {};
-    filtered.forEach((r) => r.service_barriers.forEach((b) => { map[b] = (map[b] || 0) + 1; }));
-    return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 8);
-  }, [filtered]);
-
-  // Informant type distribution
   const informantDist = useMemo(() => {
     const map: Record<string, number> = {};
     filtered.forEach((r) => r.informant_type.forEach((t) => { if (t) map[t] = (map[t] || 0) + 1; }));
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 10);
   }, [filtered]);
 
-  // Thai proficiency distribution
   const proficiencyDist = useMemo(() => {
     const map: Record<string, number> = { "fluent": 0, "basic": 0, "other_primary": 0 };
     const labels: Record<string, string> = { "fluent": "สื่อสารได้ดี", "basic": "พื้นฐาน", "other_primary": "ใช้ภาษาอื่น" };
@@ -243,14 +203,37 @@ export default function MelCombinedDashboard() {
     return Object.entries(map).filter(([, v]) => v > 0).map(([k, v]) => [labels[k] || k, v] as [string, number]);
   }, [filtered]);
 
-  // Communication channels distribution
   const channelDist = useMemo(() => {
     const map: Record<string, number> = {};
     filtered.forEach((r) => r.comm_channels.forEach((c) => { if (c) map[c] = (map[c] || 0) + 1; }));
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 10);
   }, [filtered]);
 
-  // Signal counts
+  // NEW: Health language needs
+  const healthLangDist = useMemo(() => {
+    const map: Record<string, number> = {};
+    filtered.forEach((r) => r.health_languages.forEach((l) => { if (l) map[l] = (map[l] || 0) + 1; }));
+    return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  }, [filtered]);
+
+  // NEW: Population group breakdown
+  const populationGroupDist = useMemo(() => {
+    const map: Record<string, number> = {};
+    filtered.forEach((r) => r.population_groups.forEach((g) => { if (g) map[g] = (map[g] || 0) + 1; }));
+    return Object.entries(map).sort((a, b) => b[1] - a[1]);
+  }, [filtered]);
+
+  // NEW: Offsite proportion distribution
+  const offsiteDist = useMemo(() => {
+    const map: Record<string, number> = { low: 0, medium: 0, high: 0 };
+    const labels: Record<string, string> = { low: "ต่ำ (<25%)", medium: "ปานกลาง (25-50%)", high: "สูง (>50%)" };
+    filtered.forEach((r) => { if (r.offsite_proportion && map[r.offsite_proportion] !== undefined) map[r.offsite_proportion]++; });
+    return Object.entries(map).filter(([, v]) => v > 0).map(([k, v]) => [labels[k] || k, v] as [string, number]);
+  }, [filtered]);
+
+  // NEW: Pinned location count
+  const pinnedCount = filtered.filter((r) => r.map_lat && r.map_lng).length;
+
   const signalCounts = useMemo(() => {
     let chemsex = 0, mh = 0, violence = 0;
     filtered.forEach((r) => {
@@ -261,21 +244,18 @@ export default function MelCombinedDashboard() {
     return { chemsex, mh, violence };
   }, [filtered]);
 
-  // Implications
   const implicationsDist = useMemo(() => {
     const map: Record<string, number> = {};
     filtered.forEach((r) => r.project_implications.forEach((i) => { map[i] = (map[i] || 0) + 1; }));
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 8);
   }, [filtered]);
 
-  // Barrier distribution chart data
   const barrierLevelDist = useMemo(() => {
     const map: Record<string, number> = { "ไม่มี": 0, "มีบ้าง": 0, "มีมาก": 0 };
     filtered.forEach((r) => { if (map[r.communication_barrier] !== undefined) map[r.communication_barrier]++; });
     return map;
   }, [filtered]);
 
-  // Monthly trend
   const monthlyTrend = useMemo(() => {
     const map: Record<string, { fn: number; rm: number; uf: number }> = {};
     filtered.forEach((r) => {
@@ -292,56 +272,43 @@ export default function MelCombinedDashboard() {
   // Auto-generate insights
   const insights = useMemo(() => {
     const ins: { icon: string; text: string; severity: "info" | "warning" | "success" }[] = [];
-    if (highBarrierCount > 0) {
-      ins.push({ icon: "💬", text: `พบอุปสรรคด้านภาษาระดับ "มีมาก" จำนวน ${highBarrierCount} ครั้ง — ควรพิจารณาสื่อหลายภาษาและ Peer ต่างชาติ`, severity: "warning" });
-    }
-    if (signalCounts.chemsex > 0) {
-      ins.push({ icon: "⚡", text: `พบสัญญาณ Chemsex จำนวน ${signalCounts.chemsex} ครั้ง — ควรพัฒนาชุดความรู้ Safer Chemsex`, severity: "warning" });
-    }
-    if (signalCounts.violence > 0) {
-      ins.push({ icon: "🛡️", text: `พบสัญญาณความรุนแรง/ความปลอดภัย ${signalCounts.violence} ครั้ง — ต้องเฝ้าระวังและเพิ่มช่องทางรายงาน`, severity: "warning" });
-    }
-    if (highConcernCount > 0) {
-      ins.push({ icon: "🔴", text: `มี ${highConcernCount} บันทึกที่มีระดับความเร่งด่วนสูง — ควรติดตามเร่งด่วน`, severity: "warning" });
-    }
-    if (areaRanking.length > 0) {
-      ins.push({ icon: "📍", text: `พื้นที่ที่มีการลงพื้นที่บ่อยที่สุด: ${areaRanking[0][0]} (${areaRanking[0][1]} ครั้ง)`, severity: "info" });
-    }
-    if (nationalityDist.length > 0) {
-      ins.push({ icon: "🌍", text: `กลุ่มสัญชาติที่พบบ่อยที่สุด: ${nationalityDist.slice(0, 3).map(([g]) => g).join(", ")}`, severity: "info" });
-    }
-    if (serviceNeedsDist.length > 0) {
-      ins.push({ icon: "🏥", text: `บริการที่ต้องการมากที่สุด: ${serviceNeedsDist[0][0]} (${serviceNeedsDist[0][1]} ครั้ง)`, severity: "info" });
-    }
-    if (channelDist.length > 0) {
-      ins.push({ icon: "📱", text: `ช่องทางที่ MSW ใช้มากที่สุด: ${channelDist.slice(0, 3).map(([c]) => c).join(", ")}`, severity: "info" });
+    if (highBarrierCount > 0) ins.push({ icon: "💬", text: `พบอุปสรรคด้านภาษาระดับ "มีมาก" จำนวน ${highBarrierCount} ครั้ง — ควรพิจารณาสื่อหลายภาษาและ Peer ต่างชาติ`, severity: "warning" });
+    if (signalCounts.chemsex > 0) ins.push({ icon: "⚡", text: `พบสัญญาณ Chemsex จำนวน ${signalCounts.chemsex} ครั้ง — ควรพัฒนาชุดความรู้ Safer Chemsex`, severity: "warning" });
+    if (signalCounts.violence > 0) ins.push({ icon: "🛡️", text: `พบสัญญาณความรุนแรง/ความปลอดภัย ${signalCounts.violence} ครั้ง`, severity: "warning" });
+    if (highConcernCount > 0) ins.push({ icon: "🔴", text: `มี ${highConcernCount} บันทึกที่มีระดับความเร่งด่วนสูง`, severity: "warning" });
+    if (areaRanking.length > 0) ins.push({ icon: "📍", text: `พื้นที่ที่ลงบ่อยที่สุด: ${areaRanking[0][0]} (${areaRanking[0][1]} ครั้ง)`, severity: "info" });
+    if (nationalityDist.length > 0) ins.push({ icon: "🌍", text: `กลุ่มสัญชาติที่พบบ่อย: ${nationalityDist.slice(0, 3).map(([g]) => g).join(", ")}`, severity: "info" });
+    if (channelDist.length > 0) ins.push({ icon: "📱", text: `ช่องทางที่ MSW ใช้มากที่สุด: ${channelDist.slice(0, 3).map(([c]) => c).join(", ")}`, severity: "info" });
+    if (healthLangDist.length > 0) ins.push({ icon: "📖", text: `ภาษาที่ต้องการสำหรับสื่อสุขภาพ: ${healthLangDist.slice(0, 3).map(([l]) => l).join(", ")}`, severity: "info" });
+    if (populationGroupDist.length > 0) {
+      const migrant = populationGroupDist.find(([g]) => g.includes("Migrant"));
+      if (migrant && migrant[1] > 0) ins.push({ icon: "🧑‍🤝‍🧑", text: `พบ MSW ข้ามชาติ ${migrant[1]} ครั้ง — ควรเตรียมสื่อหลายภาษาและ peer ต่างชาติ`, severity: "warning" });
     }
     if (proficiencyDist.length > 0) {
       const otherLang = proficiencyDist.find(([k]) => k === "ใช้ภาษาอื่น");
-      if (otherLang && otherLang[1] > 0) {
-        ins.push({ icon: "🗣️", text: `พบ MSW ที่ใช้ภาษาอื่นเป็นหลัก ${otherLang[1]} ครั้ง — ควรเตรียม peer หรือสื่อหลายภาษา`, severity: "warning" });
-      }
+      if (otherLang && otherLang[1] > 0) ins.push({ icon: "🗣️", text: `พบ MSW ที่ใช้ภาษาอื่นเป็นหลัก ${otherLang[1]} ครั้ง`, severity: "warning" });
     }
-    if (total === 0) {
-      ins.push({ icon: "📋", text: "ยังไม่มีข้อมูล — เริ่มบันทึกจากแท็บ 'แบบฟอร์ม'", severity: "info" });
-    }
+    if (total === 0) ins.push({ icon: "📋", text: "ยังไม่มีข้อมูล — เริ่มบันทึกจากแท็บ 'แบบฟอร์ม'", severity: "info" });
     return ins;
-  }, [highBarrierCount, signalCounts, highConcernCount, areaRanking, nationalityDist, serviceNeedsDist, channelDist, proficiencyDist, total]);
+  }, [highBarrierCount, signalCounts, highConcernCount, areaRanking, nationalityDist, channelDist, healthLangDist, populationGroupDist, proficiencyDist, total]);
 
-  // CSV Export — full raw dataset for external DB / BI ingestion
+  // CSV Export — full raw dataset
   const exportCsv = () => {
     if (!filtered.length) return;
-    // Build full column set from all raw records
     const FULL_HEADERS = [
-      "record_source", "date", "city", "area", "venue_alias", "venue_type", "observer",
-      "observer_role", "peer_code", "outreach_type", "record_type",
-      "start_time", "end_time",
+      "record_source", "date", "city", "area", "area_notes", "venue_alias", "venue_type", "venue_name",
+      "map_lat", "map_lng", "observer", "observer_role", "peer_code",
+      "outreach_type", "record_type", "start_time", "end_time",
       "activity_intensity", "is_known_hotspot", "is_emerging_hotspot",
-      "estimated_msw_count", "estimated_msm_count",
+      "msw_estimated_range", "estimated_msw_count", "estimated_msm_count",
       "population_pattern", "nationality_groups", "nationality_pattern", "nationality_other",
-      "age_pattern", "offsite_ratio", "mobility_pattern", "online_offline_linkage",
+      "age_pattern", "offsite_proportion", "offsite_nationalities", "offsite_nationalities_other",
+      "offsite_ratio", "mobility_pattern", "online_offline_linkage",
+      "population_groups",
       "informant_type", "informant_type_other",
       "thai_proficiency", "primary_languages", "primary_languages_other",
+      "health_languages", "health_languages_other",
+      "communication_barrier_level", "barrier_observation_note", "interpreter_needed",
       "comm_channels", "comm_channels_other",
       "chemsex_signal", "common_substances", "injection_signal",
       "mental_health_signal", "violence_safety_signal", "police_pressure_signal",
@@ -349,11 +316,8 @@ export default function MelCombinedDashboard() {
       "digital_platform_pattern", "urgency_level",
       "service_interests", "service_barriers",
       "preferred_contact_channel", "preferred_service_model",
-      "main_language", "other_languages", "communication_barrier_level",
-      "barrier_observation_note", "interpreter_needed", "digital_content_language",
       "project_implications",
       "environment_notes", "visible_changes",
-      "key_finding_summary", "recommended_action",
       // field_notes specific
       "estimated_msw_seen", "estimated_offsite_clients", "visible_nationality_ratio",
       "info_sources", "estimated_msw_per_night_range", "foreign_msw_ratio",
@@ -374,9 +338,7 @@ export default function MelCombinedDashboard() {
       if (typeof val === "boolean") return val ? "TRUE" : "FALSE";
       if (Array.isArray(val)) return `"${val.join("; ").replace(/"/g, '""')}"`;
       const str = String(val);
-      if (str.includes(",") || str.includes('"') || str.includes("\n") || str.includes("\r")) {
-        return `"${str.replace(/"/g, '""')}"`;
-      }
+      if (str.includes(",") || str.includes('"') || str.includes("\n") || str.includes("\r")) return `"${str.replace(/"/g, '""')}"`;
       return str;
     };
 
@@ -384,13 +346,13 @@ export default function MelCombinedDashboard() {
     for (const r of filtered) {
       const raw = r.raw || {};
       const row = FULL_HEADERS.map((h) => {
-        // Map normalized fields first
         if (h === "record_source") return escapeCell(r.source);
         if (h === "date") return escapeCell(r.date);
         if (h === "city") return escapeCell(r.city);
         if (h === "area") return escapeCell(r.area);
         if (h === "observer") return escapeCell(r.observer);
-        // Then try raw data
+        if (h === "map_lat") return escapeCell(r.map_lat);
+        if (h === "map_lng") return escapeCell(r.map_lng);
         return escapeCell(raw[h]);
       });
       csvRows.push(row.join(","));
@@ -404,11 +366,7 @@ export default function MelCombinedDashboard() {
     URL.revokeObjectURL(url);
   };
 
-  const resetFilters = () => {
-    setFilterCity("all");
-    setFilterUrgency("all");
-    setFilterSource("all");
-  };
+  const resetFilters = () => { setFilterCity("all"); setFilterUrgency("all"); setFilterSource("all"); };
 
   const BarChart = ({ data, maxVal }: { data: [string, number][]; maxVal?: number }) => {
     const max = maxVal || Math.max(...data.map(([, v]) => v), 1);
@@ -449,7 +407,7 @@ export default function MelCombinedDashboard() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h2 className="text-xl font-bold text-foreground">{isTh ? "Dashboard วิเคราะห์สถานการณ์" : "Situational Analysis Dashboard"}</h2>
-          <p className="text-muted-foreground text-sm">{isTh ? "รวมข้อมูลจากทุกแหล่ง — บันทึกภาคสนาม, Rapid MSW, และแบบฟอร์มรวม" : "Combined data from all outreach sources"}</p>
+          <p className="text-muted-foreground text-sm">{isTh ? "รวมข้อมูลจากทุกแหล่ง" : "Combined data from all outreach sources"}</p>
         </div>
         {filtered.length > 0 && (
           <Button size="sm" variant="outline" onClick={exportCsv}>
@@ -510,7 +468,7 @@ export default function MelCombinedDashboard() {
           { label: "พัทยา", value: ptyCount, icon: MapPin, color: "text-emerald-500" },
           { label: isTh ? "น่ากังวลสูง" : "High Concern", value: highConcernCount, icon: AlertTriangle, color: "text-destructive" },
           { label: "Hotspot", value: hotspotCount, icon: TrendingUp, color: "text-amber-500" },
-          { label: isTh ? "อุปสรรคภาษา" : "Lang Barrier", value: highBarrierCount, icon: Globe, color: "text-purple-500" },
+          { label: isTh ? "📍 ปักหมุด" : "📍 Pinned", value: pinnedCount, icon: MapPin, color: "text-purple-500" },
         ].map(({ label, value, icon: Icon, color }) => (
           <Card key={label}>
             <CardContent className="pt-4 pb-3">
@@ -530,7 +488,7 @@ export default function MelCombinedDashboard() {
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center gap-2">
               <Shield className="h-4 w-4 text-amber-500" />
-              {isTh ? "สัญญาณความเสี่ยง / ข้อสังเกตเชิงพื้นที่" : "Risk Signals"}
+              {isTh ? "สัญญาณความเสี่ยง" : "Risk Signals"}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -552,6 +510,14 @@ export default function MelCombinedDashboard() {
 
       {/* Main Charts Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Population Group Breakdown (NEW) */}
+        {populationGroupDist.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "กลุ่มประชากร" : "Population Groups"}</CardTitle></CardHeader>
+            <CardContent><BarChart data={populationGroupDist} /></CardContent>
+          </Card>
+        )}
+
         {/* Area Ranking */}
         <Card>
           <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "พื้นที่ที่ลงเยี่ยมบ่อย" : "Top Areas"}</CardTitle></CardHeader>
@@ -567,14 +533,52 @@ export default function MelCombinedDashboard() {
             {nationalityDist.length === 0 ? <p className="text-xs text-muted-foreground">ยังไม่มีข้อมูล</p> : (
               <div className="flex flex-wrap gap-2">
                 {nationalityDist.map(([g, c]) => (
-                  <Badge key={g} variant="outline" className="text-xs">
-                    {g} <span className="ml-1 font-bold text-primary">({c})</span>
-                  </Badge>
+                  <Badge key={g} variant="outline" className="text-xs">{g} <span className="ml-1 font-bold text-primary">({c})</span></Badge>
                 ))}
               </div>
             )}
           </CardContent>
         </Card>
+
+        {/* Health Language Needs (NEW) */}
+        {healthLangDist.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "ภาษาสำหรับสื่อสุขภาพ" : "Health Material Languages"}</CardTitle></CardHeader>
+            <CardContent><BarChart data={healthLangDist} /></CardContent>
+          </Card>
+        )}
+
+        {/* Communication Channels */}
+        {channelDist.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "ช่องทางรับข้อมูล MSW" : "MSW Comm Channels"}</CardTitle></CardHeader>
+            <CardContent><BarChart data={channelDist} /></CardContent>
+          </Card>
+        )}
+
+        {/* Informant Type */}
+        {informantDist.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "ประเภทผู้ให้ข้อมูล" : "Informant Types"}</CardTitle></CardHeader>
+            <CardContent><BarChart data={informantDist} /></CardContent>
+          </Card>
+        )}
+
+        {/* Thai Proficiency */}
+        {proficiencyDist.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "ระดับภาษาไทยของ MSW" : "MSW Thai Proficiency"}</CardTitle></CardHeader>
+            <CardContent><BarChart data={proficiencyDist} /></CardContent>
+          </Card>
+        )}
+
+        {/* Offsite Work Proportion (NEW) */}
+        {offsiteDist.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "สัดส่วนงานนอกสถานที่" : "Offsite Work Proportion"}</CardTitle></CardHeader>
+            <CardContent><BarChart data={offsiteDist} /></CardContent>
+          </Card>
+        )}
 
         {/* Communication Barriers */}
         <Card>
@@ -597,51 +601,11 @@ export default function MelCombinedDashboard() {
           </CardContent>
         </Card>
 
-        {/* Service Needs */}
-        {serviceNeedsDist.length > 0 && (
-          <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "ความต้องการบริการ" : "Service Needs"}</CardTitle></CardHeader>
-            <CardContent><BarChart data={serviceNeedsDist} /></CardContent>
-          </Card>
-        )}
-
-        {/* Service Barriers */}
-        {barriersDist.length > 0 && (
-          <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "อุปสรรคการเข้าถึงบริการ" : "Access Barriers"}</CardTitle></CardHeader>
-            <CardContent><BarChart data={barriersDist} /></CardContent>
-          </Card>
-        )}
-
         {/* Project Implications */}
         {implicationsDist.length > 0 && (
           <Card>
             <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "ผลกระทบต่อโครงการ" : "Programme Implications"}</CardTitle></CardHeader>
             <CardContent><BarChart data={implicationsDist} /></CardContent>
-          </Card>
-        )}
-
-        {/* Informant Type */}
-        {informantDist.length > 0 && (
-          <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "ประเภทผู้ให้ข้อมูล" : "Informant Types"}</CardTitle></CardHeader>
-            <CardContent><BarChart data={informantDist} /></CardContent>
-          </Card>
-        )}
-
-        {/* Thai Proficiency */}
-        {proficiencyDist.length > 0 && (
-          <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "ระดับภาษาไทยของ MSW" : "MSW Thai Proficiency"}</CardTitle></CardHeader>
-            <CardContent><BarChart data={proficiencyDist} /></CardContent>
-          </Card>
-        )}
-
-        {/* Communication Channels */}
-        {channelDist.length > 0 && (
-          <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "ช่องทางรับข้อมูล MSW" : "MSW Comm Channels"}</CardTitle></CardHeader>
-            <CardContent><BarChart data={channelDist} /></CardContent>
           </Card>
         )}
       </div>
@@ -658,12 +622,12 @@ export default function MelCombinedDashboard() {
           <CardContent>
             <div className="flex items-end gap-1 h-32">
               {monthlyTrend.map(([month, counts]) => {
-                const total = counts.fn + counts.rm + counts.uf;
-                const maxTotal = Math.max(...monthlyTrend.map(([, c]) => c.fn + c.rm + c.uf), 1);
-                const height = Math.max((total / maxTotal) * 100, 4);
+                const t = counts.fn + counts.rm + counts.uf;
+                const maxT = Math.max(...monthlyTrend.map(([, c]) => c.fn + c.rm + c.uf), 1);
+                const height = Math.max((t / maxT) * 100, 4);
                 return (
                   <div key={month} className="flex-1 flex flex-col items-center gap-1">
-                    <span className="text-[10px] font-medium text-foreground">{total}</span>
+                    <span className="text-[10px] font-medium text-foreground">{t}</span>
                     <div className="w-full flex flex-col gap-px" style={{ height: `${height}%` }}>
                       {counts.uf > 0 && <div className="bg-primary rounded-t flex-grow" style={{ flex: counts.uf }} />}
                       {counts.fn > 0 && <div className="bg-primary/60 flex-grow" style={{ flex: counts.fn }} />}
@@ -724,7 +688,7 @@ export default function MelCombinedDashboard() {
                   <th className="text-left p-3 font-medium text-muted-foreground">{isTh ? "เมือง" : "City"}</th>
                   <th className="text-left p-3 font-medium text-muted-foreground">{isTh ? "พื้นที่" : "Area"}</th>
                   <th className="text-center p-3 font-medium text-muted-foreground">MSW</th>
-                  <th className="text-center p-3 font-medium text-muted-foreground">{isTh ? "ระดับ" : "Urgency"}</th>
+                  <th className="text-center p-3 font-medium text-muted-foreground">{isTh ? "กลุ่ม" : "Pop"}</th>
                   <th className="p-3 w-10" />
                 </tr>
               </thead>
@@ -736,13 +700,7 @@ export default function MelCombinedDashboard() {
                     <td className="p-3 text-xs">{r.city}</td>
                     <td className="p-3 text-xs">{r.area || "—"}</td>
                     <td className="p-3 text-center font-medium text-xs">{r.msw_count || "—"}</td>
-                    <td className="p-3 text-center">
-                      {r.urgency_level === "high_concern" ? (
-                        <Badge variant="destructive" className="text-[10px]">🔴</Badge>
-                      ) : r.urgency_level === "watch" ? (
-                        <Badge variant="secondary" className="text-[10px]">🟡</Badge>
-                      ) : null}
-                    </td>
+                    <td className="p-3 text-center text-xs">{r.population_groups.length > 0 ? r.population_groups.join(", ") : "—"}</td>
                     <td className="p-3">
                       <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setViewItem(r)}>
                         <Eye className="h-3.5 w-3.5" />
@@ -775,20 +733,16 @@ export default function MelCombinedDashboard() {
                 [isTh ? "ผู้สังเกต" : "Observer", viewItem.observer],
                 ["MSW #", viewItem.msw_count],
                 [isTh ? "ประเภทผู้ให้ข้อมูล" : "Informant", viewItem.informant_type.join(", ") || "—"],
-                [isTh ? "สัญชาติ" : "Nationality", [
-                  ...viewItem.nationality_groups,
-                  viewItem.nationality_other ? `(${viewItem.nationality_other})` : ""
-                ].filter(Boolean).join(", ") || "—"],
+                [isTh ? "กลุ่มประชากร" : "Population", viewItem.population_groups.join(", ") || "—"],
+                [isTh ? "สัญชาติ" : "Nationality", [...viewItem.nationality_groups, viewItem.nationality_other ? `(${viewItem.nationality_other})` : ""].filter(Boolean).join(", ") || "—"],
                 [isTh ? "ระดับภาษาไทย" : "Thai Level", viewItem.thai_proficiency || "—"],
                 [isTh ? "ภาษาหลัก" : "Primary Lang", viewItem.primary_languages.join(", ") || "—"],
+                [isTh ? "ภาษาสื่อสุขภาพ" : "Health Lang", viewItem.health_languages.join(", ") || "—"],
                 [isTh ? "ช่องทางรับข้อมูล" : "Channels", viewItem.comm_channels.join(", ") || "—"],
                 [isTh ? "อุปสรรคภาษา" : "Barrier", viewItem.communication_barrier],
+                [isTh ? "สัดส่วนนอกสถานที่" : "Offsite", viewItem.offsite_proportion || "—"],
                 [isTh ? "ระดับเร่งด่วน" : "Urgency", viewItem.urgency_level],
-                ["Chemsex", viewItem.chemsex_signal],
-                [isTh ? "สุขภาพจิต" : "Mental Health", viewItem.mental_health_signal],
-                [isTh ? "ความรุนแรง" : "Violence", viewItem.violence_signal],
-                [isTh ? "บริการที่สนใจ" : "Service Interests", viewItem.service_interests.join(", ") || "—"],
-                [isTh ? "อุปสรรค" : "Barriers", viewItem.service_barriers.join(", ") || "—"],
+                [isTh ? "📍 พิกัด" : "📍 Coords", viewItem.map_lat && viewItem.map_lng ? `${viewItem.map_lat.toFixed(4)}, ${viewItem.map_lng.toFixed(4)}` : "—"],
                 [isTh ? "ข้อเสนอ" : "Implications", viewItem.project_implications.join(", ") || "—"],
               ].map(([label, value], i) => (
                 <div key={i} className="flex justify-between border-b border-border pb-2">
