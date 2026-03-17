@@ -222,7 +222,7 @@ export default function Settings() {
               </div>
               
               {/* Admin Section */}
-              {(isAdmin || isModerator) ? (
+              {(isAdmin || isModerator || isMeAnalyst) ? (
                 <Button 
                   variant="outline" 
                   className="w-full justify-start gap-3 rounded-xl h-12"
