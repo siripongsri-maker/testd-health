@@ -5498,6 +5498,8 @@ export type Database = {
           barrier_observation_note: string | null
           chemsex_signal: string | null
           city: string
+          comm_channels: string[] | null
+          comm_channels_other: string | null
           common_substances: string | null
           communication_barrier_level: string | null
           confidence_level: string | null
@@ -5511,6 +5513,8 @@ export type Database = {
           housing_vulnerability_signal: string | null
           id: string
           immediate_followup_needed: boolean | null
+          informant_type: string[] | null
+          informant_type_other: string | null
           injection_signal: string | null
           internal_note: string | null
           interpreter_needed: boolean | null
@@ -5522,6 +5526,7 @@ export type Database = {
           mental_health_signal: string | null
           mobility_pattern: string | null
           nationality_groups: string[] | null
+          nationality_other: string | null
           nationality_pattern: string | null
           observer_name: string
           observer_role: string | null
@@ -5535,6 +5540,8 @@ export type Database = {
           population_pattern: string | null
           preferred_contact_channel: string | null
           preferred_service_model: string | null
+          primary_languages: string[] | null
+          primary_languages_other: string | null
           project_implications: string[] | null
           recommended_action: string | null
           record_source: string | null
@@ -5544,6 +5551,7 @@ export type Database = {
           start_time: string | null
           submitted_by: string | null
           survey_date: string
+          thai_proficiency: string | null
           updated_at: string | null
           urgency_level: string | null
           venue_alias: string | null
@@ -5560,6 +5568,8 @@ export type Database = {
           barrier_observation_note?: string | null
           chemsex_signal?: string | null
           city: string
+          comm_channels?: string[] | null
+          comm_channels_other?: string | null
           common_substances?: string | null
           communication_barrier_level?: string | null
           confidence_level?: string | null
@@ -5573,6 +5583,8 @@ export type Database = {
           housing_vulnerability_signal?: string | null
           id?: string
           immediate_followup_needed?: boolean | null
+          informant_type?: string[] | null
+          informant_type_other?: string | null
           injection_signal?: string | null
           internal_note?: string | null
           interpreter_needed?: boolean | null
@@ -5584,6 +5596,7 @@ export type Database = {
           mental_health_signal?: string | null
           mobility_pattern?: string | null
           nationality_groups?: string[] | null
+          nationality_other?: string | null
           nationality_pattern?: string | null
           observer_name: string
           observer_role?: string | null
@@ -5597,6 +5610,8 @@ export type Database = {
           population_pattern?: string | null
           preferred_contact_channel?: string | null
           preferred_service_model?: string | null
+          primary_languages?: string[] | null
+          primary_languages_other?: string | null
           project_implications?: string[] | null
           recommended_action?: string | null
           record_source?: string | null
@@ -5606,6 +5621,7 @@ export type Database = {
           start_time?: string | null
           submitted_by?: string | null
           survey_date?: string
+          thai_proficiency?: string | null
           updated_at?: string | null
           urgency_level?: string | null
           venue_alias?: string | null
@@ -5622,6 +5638,8 @@ export type Database = {
           barrier_observation_note?: string | null
           chemsex_signal?: string | null
           city?: string
+          comm_channels?: string[] | null
+          comm_channels_other?: string | null
           common_substances?: string | null
           communication_barrier_level?: string | null
           confidence_level?: string | null
@@ -5635,6 +5653,8 @@ export type Database = {
           housing_vulnerability_signal?: string | null
           id?: string
           immediate_followup_needed?: boolean | null
+          informant_type?: string[] | null
+          informant_type_other?: string | null
           injection_signal?: string | null
           internal_note?: string | null
           interpreter_needed?: boolean | null
@@ -5646,6 +5666,7 @@ export type Database = {
           mental_health_signal?: string | null
           mobility_pattern?: string | null
           nationality_groups?: string[] | null
+          nationality_other?: string | null
           nationality_pattern?: string | null
           observer_name?: string
           observer_role?: string | null
@@ -5659,6 +5680,8 @@ export type Database = {
           population_pattern?: string | null
           preferred_contact_channel?: string | null
           preferred_service_model?: string | null
+          primary_languages?: string[] | null
+          primary_languages_other?: string | null
           project_implications?: string[] | null
           recommended_action?: string | null
           record_source?: string | null
@@ -5668,6 +5691,7 @@ export type Database = {
           start_time?: string | null
           submitted_by?: string | null
           survey_date?: string
+          thai_proficiency?: string | null
           updated_at?: string | null
           urgency_level?: string | null
           venue_alias?: string | null
