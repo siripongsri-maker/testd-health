@@ -1,6 +1,8 @@
-import { useMemo } from "react";
+import { useMemo, lazy, Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, MapPin } from "lucide-react";
+import { Users, Loader2 } from "lucide-react";
+
+const OutreachInteractiveMap = lazy(() => import("./OutreachInteractiveMap"));
 
 interface DataRecord {
   city: string;
@@ -9,13 +11,13 @@ interface DataRecord {
   area: string;
   venue: string;
   raw: any;
+  date?: string;
 }
 
 interface Props {
   records: DataRecord[];
 }
 
-// Parse MSW/MSM range strings like "1-5", "6-10", "11-20", "21-50", "50+" into midpoint numbers
 function parseRange(val: string | null | undefined): number {
   if (!val || val === "unknown" || val === "ไม่ทราบ" || val === "") return 0;
   if (val.includes("+")) return parseInt(val) || 0;
@@ -26,14 +28,7 @@ function parseRange(val: string | null | undefined): number {
   return parseInt(val) || 0;
 }
 
-// Bangkok & Pattaya bounds for mapping lat/lng to SVG coordinates
-const REGIONS = {
-  "กรุงเทพฯ": { label: "Bangkok", cx: 150, cy: 160, bounds: { minLat: 13.55, maxLat: 13.95, minLng: 100.35, maxLng: 100.75 }, mapW: 200, mapH: 200, offsetX: 50, offsetY: 60 },
-  "พัทยา": { label: "Pattaya", cx: 480, cy: 160, bounds: { minLat: 12.85, maxLat: 13.1, minLng: 100.82, maxLng: 101.02 }, mapW: 140, mapH: 200, offsetX: 410, offsetY: 60 },
-};
-
 export default function OutreachPopulationMap({ records }: Props) {
-  // Aggregate MSW vs MSM by city
   const populationData = useMemo(() => {
     const cities: Record<string, { msw: number; msm: number; count: number }> = {};
     records.forEach((r) => {
@@ -50,24 +45,12 @@ export default function OutreachPopulationMap({ records }: Props) {
     return Object.entries(cities).sort((a, b) => (b[1].msw + b[1].msm) - (a[1].msw + a[1].msm));
   }, [records]);
 
-  // Pins with lat/lng
-  const pins = useMemo(() => {
-    return records
-      .filter((r) => r.map_lat && r.map_lng)
-      .map((r) => ({
-        lat: r.map_lat!,
-        lng: r.map_lng!,
-        city: r.city,
-        area: r.area,
-        venue: r.venue,
-      }));
-  }, [records]);
-
+  const hasPins = records.some((r) => r.map_lat && r.map_lng);
   const totalMsw = populationData.reduce((s, [, d]) => s + d.msw, 0);
   const totalMsm = populationData.reduce((s, [, d]) => s + d.msm, 0);
   const maxPop = Math.max(...populationData.map(([, d]) => Math.max(d.msw, d.msm)), 1);
 
-  if (populationData.length === 0 && pins.length === 0) return null;
+  if (populationData.length === 0 && !hasPins) return null;
 
   return (
     <div className="space-y-4">
@@ -88,7 +71,6 @@ export default function OutreachPopulationMap({ records }: Props) {
               const total = data.msw + data.msm;
               const mswPct = total > 0 ? (data.msw / total) * 100 : 0;
               const msmPct = total > 0 ? (data.msm / total) * 100 : 0;
-              const barMax = Math.max(data.msw, data.msm, 1);
               return (
                 <div key={city} className="space-y-1.5">
                   <div className="flex items-center justify-between">
@@ -134,70 +116,18 @@ export default function OutreachPopulationMap({ records }: Props) {
         </Card>
       )}
 
-      {/* Pin Map */}
-      {pins.length > 0 && (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <MapPin className="h-4 w-4" />
-              แผนที่จุดสำรวจ ({pins.length} จุด)
-            </CardTitle>
-            <CardDescription className="text-xs">
-              ตำแหน่ง GPS ที่บันทึกจากการลงพื้นที่ กรุงเทพฯ และ พัทยา
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <svg viewBox="0 0 620 300" className="w-full h-auto" style={{ maxHeight: 400 }}>
-              {/* Background */}
-              <rect x="0" y="0" width="620" height="300" rx="8" className="fill-muted/30" />
-
-              {/* Bangkok region */}
-              <rect x="50" y="40" width="200" height="220" rx="6" className="fill-muted/50 stroke-border" strokeWidth="1" />
-              <text x="150" y="30" textAnchor="middle" className="fill-foreground text-[11px] font-semibold">กรุงเทพฯ</text>
-
-              {/* Pattaya region */}
-              <rect x="410" y="40" width="140" height="220" rx="6" className="fill-muted/50 stroke-border" strokeWidth="1" />
-              <text x="480" y="30" textAnchor="middle" className="fill-foreground text-[11px] font-semibold">พัทยา</text>
-
-              {/* Plot pins */}
-              {pins.map((pin, i) => {
-                let svgX = 310, svgY = 150; // default center for unknown
-                const region = Object.entries(REGIONS).find(([name]) => pin.city === name);
-                if (region) {
-                  const [, cfg] = region;
-                  const { bounds, mapW, mapH, offsetX, offsetY } = cfg;
-                  const pctX = (pin.lng - bounds.minLng) / (bounds.maxLng - bounds.minLng);
-                  const pctY = 1 - (pin.lat - bounds.minLat) / (bounds.maxLat - bounds.minLat);
-                  svgX = offsetX + pctX * mapW;
-                  svgY = offsetY + pctY * mapH;
-                  // Clamp inside region box
-                  svgX = Math.max(offsetX + 4, Math.min(offsetX + mapW - 4, svgX));
-                  svgY = Math.max(offsetY + 4, Math.min(offsetY + mapH - 4, svgY));
-                }
-                return (
-                  <g key={i}>
-                    <circle cx={svgX} cy={svgY} r="4" className="fill-primary/80 stroke-primary-foreground" strokeWidth="1">
-                      <title>{`${pin.area || pin.venue || pin.city}\n${pin.lat.toFixed(4)}, ${pin.lng.toFixed(4)}`}</title>
-                    </circle>
-                    {/* Pulse effect */}
-                    <circle cx={svgX} cy={svgY} r="4" className="fill-primary/30" strokeWidth="0">
-                      <animate attributeName="r" values="4;10;4" dur="3s" begin={`${(i % 5) * 0.6}s`} repeatCount="indefinite" />
-                      <animate attributeName="opacity" values="0.5;0;0.5" dur="3s" begin={`${(i % 5) * 0.6}s`} repeatCount="indefinite" />
-                    </circle>
-                  </g>
-                );
-              })}
-
-              {/* Stats labels */}
-              <text x="150" y="275" textAnchor="middle" className="fill-muted-foreground text-[9px]">
-                {pins.filter(p => p.city === "กรุงเทพฯ").length} pins
-              </text>
-              <text x="480" y="275" textAnchor="middle" className="fill-muted-foreground text-[9px]">
-                {pins.filter(p => p.city === "พัทยา").length} pins
-              </text>
-            </svg>
-          </CardContent>
-        </Card>
+      {/* Interactive Leaflet Map */}
+      {hasPins && (
+        <Suspense fallback={
+          <Card>
+            <CardContent className="flex items-center justify-center py-12">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <span className="ml-2 text-sm text-muted-foreground">กำลังโหลดแผนที่...</span>
+            </CardContent>
+          </Card>
+        }>
+          <OutreachInteractiveMap records={records} />
+        </Suspense>
       )}
     </div>
   );
