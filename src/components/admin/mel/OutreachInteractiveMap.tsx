@@ -49,7 +49,7 @@ interface DataRecord {
   area: string;
   venue: string;
   raw: any;
-  date: string;
+  date?: string;
 }
 
 interface Props {
