@@ -101,6 +101,7 @@ export default function MelCombinedDashboard() {
         observer: fn.observer_name || "",
         msw_count: String(fn.estimated_msw_seen || ""),
         nationality_groups: fn.main_nationality_groups ? fn.main_nationality_groups.split(/[,\s]+/).filter(Boolean) : [],
+        nationality_other: "",
         communication_barrier: fn.communication_barrier_level || "ไม่มี",
         urgency_level: "normal",
         service_interests: [],
@@ -111,6 +112,10 @@ export default function MelCombinedDashboard() {
         violence_signal: "ไม่พบ",
         is_hotspot: false,
         confidence: "medium",
+        informant_type: fn.info_sources ? (Array.isArray(fn.info_sources) ? fn.info_sources : [fn.info_sources]) : [],
+        thai_proficiency: "",
+        primary_languages: [],
+        comm_channels: [],
         raw: fn,
       });
     });
