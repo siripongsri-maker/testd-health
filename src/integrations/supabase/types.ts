@@ -5489,6 +5489,195 @@ export type Database = {
           },
         ]
       }
+      outreach_situational_forms: {
+        Row: {
+          access_barrier_signal: string | null
+          activity_intensity: string | null
+          age_pattern: string | null
+          area_name: string
+          barrier_observation_note: string | null
+          chemsex_signal: string | null
+          city: string
+          common_substances: string | null
+          communication_barrier_level: string | null
+          confidence_level: string | null
+          created_at: string | null
+          digital_content_language: string | null
+          digital_platform_pattern: string | null
+          end_time: string | null
+          environment_notes: string | null
+          estimated_msm_count: string | null
+          estimated_msw_count: string | null
+          housing_vulnerability_signal: string | null
+          id: string
+          immediate_followup_needed: boolean | null
+          injection_signal: string | null
+          internal_note: string | null
+          interpreter_needed: boolean | null
+          is_draft: boolean | null
+          is_emerging_hotspot: boolean | null
+          is_known_hotspot: boolean | null
+          key_finding_summary: string | null
+          main_language: string | null
+          mental_health_signal: string | null
+          mobility_pattern: string | null
+          nationality_groups: string[] | null
+          nationality_pattern: string | null
+          observer_name: string
+          observer_role: string | null
+          offsite_ratio: string | null
+          online_offline_linkage: string | null
+          other_languages: string | null
+          outreach_type: string | null
+          peer_code: string | null
+          police_pressure_signal: string | null
+          policy_issue: string | null
+          population_pattern: string | null
+          preferred_contact_channel: string | null
+          preferred_service_model: string | null
+          project_implications: string[] | null
+          recommended_action: string | null
+          record_source: string | null
+          record_type: string | null
+          service_barriers: string[] | null
+          service_interests: string[] | null
+          start_time: string | null
+          submitted_by: string | null
+          survey_date: string
+          updated_at: string | null
+          urgency_level: string | null
+          venue_alias: string | null
+          venue_type: string | null
+          violence_safety_signal: string | null
+          visible_changes: string | null
+          work_pattern: string | null
+        }
+        Insert: {
+          access_barrier_signal?: string | null
+          activity_intensity?: string | null
+          age_pattern?: string | null
+          area_name: string
+          barrier_observation_note?: string | null
+          chemsex_signal?: string | null
+          city: string
+          common_substances?: string | null
+          communication_barrier_level?: string | null
+          confidence_level?: string | null
+          created_at?: string | null
+          digital_content_language?: string | null
+          digital_platform_pattern?: string | null
+          end_time?: string | null
+          environment_notes?: string | null
+          estimated_msm_count?: string | null
+          estimated_msw_count?: string | null
+          housing_vulnerability_signal?: string | null
+          id?: string
+          immediate_followup_needed?: boolean | null
+          injection_signal?: string | null
+          internal_note?: string | null
+          interpreter_needed?: boolean | null
+          is_draft?: boolean | null
+          is_emerging_hotspot?: boolean | null
+          is_known_hotspot?: boolean | null
+          key_finding_summary?: string | null
+          main_language?: string | null
+          mental_health_signal?: string | null
+          mobility_pattern?: string | null
+          nationality_groups?: string[] | null
+          nationality_pattern?: string | null
+          observer_name: string
+          observer_role?: string | null
+          offsite_ratio?: string | null
+          online_offline_linkage?: string | null
+          other_languages?: string | null
+          outreach_type?: string | null
+          peer_code?: string | null
+          police_pressure_signal?: string | null
+          policy_issue?: string | null
+          population_pattern?: string | null
+          preferred_contact_channel?: string | null
+          preferred_service_model?: string | null
+          project_implications?: string[] | null
+          recommended_action?: string | null
+          record_source?: string | null
+          record_type?: string | null
+          service_barriers?: string[] | null
+          service_interests?: string[] | null
+          start_time?: string | null
+          submitted_by?: string | null
+          survey_date?: string
+          updated_at?: string | null
+          urgency_level?: string | null
+          venue_alias?: string | null
+          venue_type?: string | null
+          violence_safety_signal?: string | null
+          visible_changes?: string | null
+          work_pattern?: string | null
+        }
+        Update: {
+          access_barrier_signal?: string | null
+          activity_intensity?: string | null
+          age_pattern?: string | null
+          area_name?: string
+          barrier_observation_note?: string | null
+          chemsex_signal?: string | null
+          city?: string
+          common_substances?: string | null
+          communication_barrier_level?: string | null
+          confidence_level?: string | null
+          created_at?: string | null
+          digital_content_language?: string | null
+          digital_platform_pattern?: string | null
+          end_time?: string | null
+          environment_notes?: string | null
+          estimated_msm_count?: string | null
+          estimated_msw_count?: string | null
+          housing_vulnerability_signal?: string | null
+          id?: string
+          immediate_followup_needed?: boolean | null
+          injection_signal?: string | null
+          internal_note?: string | null
+          interpreter_needed?: boolean | null
+          is_draft?: boolean | null
+          is_emerging_hotspot?: boolean | null
+          is_known_hotspot?: boolean | null
+          key_finding_summary?: string | null
+          main_language?: string | null
+          mental_health_signal?: string | null
+          mobility_pattern?: string | null
+          nationality_groups?: string[] | null
+          nationality_pattern?: string | null
+          observer_name?: string
+          observer_role?: string | null
+          offsite_ratio?: string | null
+          online_offline_linkage?: string | null
+          other_languages?: string | null
+          outreach_type?: string | null
+          peer_code?: string | null
+          police_pressure_signal?: string | null
+          policy_issue?: string | null
+          population_pattern?: string | null
+          preferred_contact_channel?: string | null
+          preferred_service_model?: string | null
+          project_implications?: string[] | null
+          recommended_action?: string | null
+          record_source?: string | null
+          record_type?: string | null
+          service_barriers?: string[] | null
+          service_interests?: string[] | null
+          start_time?: string | null
+          submitted_by?: string | null
+          survey_date?: string
+          updated_at?: string | null
+          urgency_level?: string | null
+          venue_alias?: string | null
+          venue_type?: string | null
+          violence_safety_signal?: string | null
+          visible_changes?: string | null
+          work_pattern?: string | null
+        }
+        Relationships: []
+      }
       partner_invite_abuse_flags: {
         Row: {
           abuse_type: string
