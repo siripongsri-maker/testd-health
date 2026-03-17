@@ -12,6 +12,7 @@ import OutreachEventDrawer from "./OutreachEventDrawer";
 import MelDeleteDialog from "./MelDeleteDialog";
 import MelSOPCard, { MEL_SOPS } from "./MelSOPCard";
 import MswRapidAssessmentList from "./MswRapidAssessmentList";
+import FieldNotesDashboard from "./FieldNotesDashboard";
 
 export default function MelOutreachEventsContent() {
   const { language } = useLanguage();
@@ -20,7 +21,7 @@ export default function MelOutreachEventsContent() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editEvent, setEditEvent] = useState<any>(null);
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState("assessments");
+  const [activeTab, setActiveTab] = useState("field-notes");
 
   const { data: events, isLoading } = useQuery({
     queryKey: ["mel-outreach-events"],
@@ -49,7 +50,10 @@ export default function MelOutreachEventsContent() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="field-notes">
+            {isTh ? "บันทึกภาคสนาม" : "Field Notes"}
+          </TabsTrigger>
           <TabsTrigger value="assessments">
             {isTh ? "แบบสอบถาม Rapid MSW" : "Rapid MSW Assessment"}
           </TabsTrigger>
@@ -57,6 +61,10 @@ export default function MelOutreachEventsContent() {
             {isTh ? "กิจกรรมเชิงรุก" : "Outreach Events"}
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="field-notes" className="mt-6">
+          <FieldNotesDashboard />
+        </TabsContent>
 
         <TabsContent value="assessments" className="mt-6">
           <MswRapidAssessmentList />

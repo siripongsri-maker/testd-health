@@ -2298,6 +2298,87 @@ export type Database = {
           },
         ]
       }
+      field_notes: {
+        Row: {
+          area_name: string
+          barrier_observation_note: string | null
+          city: string
+          common_languages: string
+          communication_barrier_level: string
+          created_at: string
+          end_time: string
+          estimated_msw_per_night_range: string
+          estimated_msw_seen: number
+          estimated_offsite_clients: string
+          foreign_msw_ratio: string
+          id: string
+          info_sources: string[]
+          internal_note: string | null
+          is_draft: boolean
+          main_nationality_groups: string
+          observer_name: string
+          project_implications: string[]
+          start_time: string
+          submitted_by: string | null
+          updated_at: string
+          venue_alias: string
+          visible_nationality_ratio: string
+          visit_date: string
+        }
+        Insert: {
+          area_name: string
+          barrier_observation_note?: string | null
+          city: string
+          common_languages?: string
+          communication_barrier_level: string
+          created_at?: string
+          end_time: string
+          estimated_msw_per_night_range?: string
+          estimated_msw_seen?: number
+          estimated_offsite_clients?: string
+          foreign_msw_ratio: string
+          id?: string
+          info_sources?: string[]
+          internal_note?: string | null
+          is_draft?: boolean
+          main_nationality_groups?: string
+          observer_name: string
+          project_implications?: string[]
+          start_time: string
+          submitted_by?: string | null
+          updated_at?: string
+          venue_alias: string
+          visible_nationality_ratio?: string
+          visit_date: string
+        }
+        Update: {
+          area_name?: string
+          barrier_observation_note?: string | null
+          city?: string
+          common_languages?: string
+          communication_barrier_level?: string
+          created_at?: string
+          end_time?: string
+          estimated_msw_per_night_range?: string
+          estimated_msw_seen?: number
+          estimated_offsite_clients?: string
+          foreign_msw_ratio?: string
+          id?: string
+          info_sources?: string[]
+          internal_note?: string | null
+          is_draft?: boolean
+          main_nationality_groups?: string
+          observer_name?: string
+          project_implications?: string[]
+          start_time?: string
+          submitted_by?: string | null
+          updated_at?: string
+          venue_alias?: string
+          visible_nationality_ratio?: string
+          visit_date?: string
+        }
+        Relationships: []
+      }
       followup_events: {
         Row: {
           anonymous_token: string | null
