@@ -73,9 +73,13 @@ function detectCity(lat: number, lng: number, cityField: string): string {
   return "อื่นๆ";
 }
 
-// Component to recenter map when filter changes
+// Component to recenter map when filter changes + fix tile loading in tabs
 function MapRecenter({ center, zoom }: { center: [number, number]; zoom: number }) {
   const map = useMap();
+  useEffect(() => {
+    // Fix tiles not rendering when map is inside a hidden tab
+    setTimeout(() => map.invalidateSize(), 200);
+  }, [map]);
   useEffect(() => {
     map.flyTo(center, zoom, { duration: 0.8 });
   }, [center, zoom, map]);
