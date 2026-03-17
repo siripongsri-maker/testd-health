@@ -180,6 +180,7 @@ const App = () => {
           <VersionAcknowledgementGate onOpenWhatsNew={() => setWhatsNewFromGate(true)} />
           <BrowserRouter>
             <ScrollToTop />
+            <AutoSEO />
             {/* Secondary What's New modal triggered from gate */}
             <WhatsNewModal open={whatsNewFromGate} onOpenChange={setWhatsNewFromGate} />
             <AppShell />
