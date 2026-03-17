@@ -131,6 +131,7 @@ export default function MelCombinedDashboard() {
         observer: r.email || "",
         msw_count: r.msw_count_estimate || "",
         nationality_groups: Array.isArray(r.foreign_groups) ? r.foreign_groups : [],
+        nationality_other: "",
         communication_barrier: r.language_skill === "other_language_primary" ? "มีมาก" : "ไม่มี",
         urgency_level: "normal",
         service_interests: [],
@@ -141,6 +142,10 @@ export default function MelCombinedDashboard() {
         violence_signal: "ไม่พบ",
         is_hotspot: false,
         confidence: "medium",
+        informant_type: r.respondent_type ? [r.respondent_type] : [],
+        thai_proficiency: r.language_skill || "",
+        primary_languages: r.other_primary_language ? [r.other_primary_language] : [],
+        comm_channels: r.health_info_channel ? (Array.isArray(r.health_info_channel) ? r.health_info_channel : [r.health_info_channel]) : [],
         raw: r,
       });
     });
