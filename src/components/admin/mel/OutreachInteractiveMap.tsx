@@ -158,6 +158,7 @@ export default function OutreachInteractiveMap({ records }: Props) {
       </CardHeader>
       <CardContent className="p-0 sm:px-6 sm:pb-6">
         <div className="w-full rounded-lg overflow-hidden" style={{ height: "clamp(300px, 50vw, 500px)" }}>
+          {/* @ts-ignore react-leaflet v5 type mismatch */}
           <MapContainer
             center={center}
             zoom={zoom}
@@ -165,17 +166,20 @@ export default function OutreachInteractiveMap({ records }: Props) {
             scrollWheelZoom={true}
             style={{ height: "100%", width: "100%" }}
           >
+            {/* @ts-ignore */}
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             <MapRecenter center={center} zoom={zoom} />
             {filteredPins.map((pin, i) => (
+              // @ts-ignore
               <Marker
                 key={`${pin.lat}-${pin.lng}-${i}`}
                 position={[pin.lat, pin.lng]}
                 icon={pin.city === "พัทยา" ? PTY_ICON : BKK_ICON}
               >
+                {/* @ts-ignore */}
                 <Popup maxWidth={260} className="outreach-popup">
                   <div className="space-y-1.5 text-xs">
                     <p className="font-semibold text-sm">{pin.venue}</p>
