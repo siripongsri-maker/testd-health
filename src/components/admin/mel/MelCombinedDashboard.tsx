@@ -23,6 +23,7 @@ interface UnifiedRecord {
   observer: string;
   msw_count: string;
   nationality_groups: string[];
+  nationality_other: string;
   communication_barrier: string;
   urgency_level: string;
   service_interests: string[];
@@ -33,6 +34,10 @@ interface UnifiedRecord {
   violence_signal: string;
   is_hotspot: boolean;
   confidence: string;
+  informant_type: string[];
+  thai_proficiency: string;
+  primary_languages: string[];
+  comm_channels: string[];
   raw: any;
 }
 
@@ -96,6 +101,7 @@ export default function MelCombinedDashboard() {
         observer: fn.observer_name || "",
         msw_count: String(fn.estimated_msw_seen || ""),
         nationality_groups: fn.main_nationality_groups ? fn.main_nationality_groups.split(/[,\s]+/).filter(Boolean) : [],
+        nationality_other: "",
         communication_barrier: fn.communication_barrier_level || "ไม่มี",
         urgency_level: "normal",
         service_interests: [],
@@ -106,6 +112,10 @@ export default function MelCombinedDashboard() {
         violence_signal: "ไม่พบ",
         is_hotspot: false,
         confidence: "medium",
+        informant_type: fn.info_sources ? (Array.isArray(fn.info_sources) ? fn.info_sources : [fn.info_sources]) : [],
+        thai_proficiency: "",
+        primary_languages: [],
+        comm_channels: [],
         raw: fn,
       });
     });
@@ -121,6 +131,7 @@ export default function MelCombinedDashboard() {
         observer: r.email || "",
         msw_count: r.msw_count_estimate || "",
         nationality_groups: Array.isArray(r.foreign_groups) ? r.foreign_groups : [],
+        nationality_other: "",
         communication_barrier: r.language_skill === "other_language_primary" ? "มีมาก" : "ไม่มี",
         urgency_level: "normal",
         service_interests: [],
@@ -131,6 +142,10 @@ export default function MelCombinedDashboard() {
         violence_signal: "ไม่พบ",
         is_hotspot: false,
         confidence: "medium",
+        informant_type: r.respondent_type ? [r.respondent_type] : [],
+        thai_proficiency: r.language_skill || "",
+        primary_languages: r.other_primary_language ? [r.other_primary_language] : [],
+        comm_channels: r.health_info_channel ? (Array.isArray(r.health_info_channel) ? r.health_info_channel : [r.health_info_channel]) : [],
         raw: r,
       });
     });
@@ -146,6 +161,7 @@ export default function MelCombinedDashboard() {
         observer: u.observer_name || "",
         msw_count: u.estimated_msw_count || "",
         nationality_groups: u.nationality_groups || [],
+        nationality_other: u.nationality_other || "",
         communication_barrier: u.communication_barrier_level || "ไม่มี",
         urgency_level: u.urgency_level || "normal",
         service_interests: u.service_interests || [],
@@ -156,6 +172,10 @@ export default function MelCombinedDashboard() {
         violence_signal: u.violence_safety_signal || "ไม่พบ",
         is_hotspot: u.is_known_hotspot || u.is_emerging_hotspot || false,
         confidence: u.confidence_level || "medium",
+        informant_type: u.informant_type || [],
+        thai_proficiency: u.thai_proficiency || "",
+        primary_languages: u.primary_languages || [],
+        comm_channels: u.comm_channels || [],
         raw: u,
       });
     });
@@ -206,6 +226,28 @@ export default function MelCombinedDashboard() {
     const map: Record<string, number> = {};
     filtered.forEach((r) => r.service_barriers.forEach((b) => { map[b] = (map[b] || 0) + 1; }));
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  }, [filtered]);
+
+  // Informant type distribution
+  const informantDist = useMemo(() => {
+    const map: Record<string, number> = {};
+    filtered.forEach((r) => r.informant_type.forEach((t) => { if (t) map[t] = (map[t] || 0) + 1; }));
+    return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  }, [filtered]);
+
+  // Thai proficiency distribution
+  const proficiencyDist = useMemo(() => {
+    const map: Record<string, number> = { "fluent": 0, "basic": 0, "other_primary": 0 };
+    const labels: Record<string, string> = { "fluent": "สื่อสารได้ดี", "basic": "พื้นฐาน", "other_primary": "ใช้ภาษาอื่น" };
+    filtered.forEach((r) => { if (r.thai_proficiency && map[r.thai_proficiency] !== undefined) map[r.thai_proficiency]++; });
+    return Object.entries(map).filter(([, v]) => v > 0).map(([k, v]) => [labels[k] || k, v] as [string, number]);
+  }, [filtered]);
+
+  // Communication channels distribution
+  const channelDist = useMemo(() => {
+    const map: Record<string, number> = {};
+    filtered.forEach((r) => r.comm_channels.forEach((c) => { if (c) map[c] = (map[c] || 0) + 1; }));
+    return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 10);
   }, [filtered]);
 
   // Signal counts
@@ -271,11 +313,20 @@ export default function MelCombinedDashboard() {
     if (serviceNeedsDist.length > 0) {
       ins.push({ icon: "🏥", text: `บริการที่ต้องการมากที่สุด: ${serviceNeedsDist[0][0]} (${serviceNeedsDist[0][1]} ครั้ง)`, severity: "info" });
     }
+    if (channelDist.length > 0) {
+      ins.push({ icon: "📱", text: `ช่องทางที่ MSW ใช้มากที่สุด: ${channelDist.slice(0, 3).map(([c]) => c).join(", ")}`, severity: "info" });
+    }
+    if (proficiencyDist.length > 0) {
+      const otherLang = proficiencyDist.find(([k]) => k === "ใช้ภาษาอื่น");
+      if (otherLang && otherLang[1] > 0) {
+        ins.push({ icon: "🗣️", text: `พบ MSW ที่ใช้ภาษาอื่นเป็นหลัก ${otherLang[1]} ครั้ง — ควรเตรียม peer หรือสื่อหลายภาษา`, severity: "warning" });
+      }
+    }
     if (total === 0) {
       ins.push({ icon: "📋", text: "ยังไม่มีข้อมูล — เริ่มบันทึกจากแท็บ 'แบบฟอร์ม'", severity: "info" });
     }
     return ins;
-  }, [highBarrierCount, signalCounts, highConcernCount, areaRanking, nationalityDist, serviceNeedsDist, total]);
+  }, [highBarrierCount, signalCounts, highConcernCount, areaRanking, nationalityDist, serviceNeedsDist, channelDist, proficiencyDist, total]);
 
   // CSV Export — full raw dataset for external DB / BI ingestion
   const exportCsv = () => {
@@ -287,8 +338,11 @@ export default function MelCombinedDashboard() {
       "start_time", "end_time",
       "activity_intensity", "is_known_hotspot", "is_emerging_hotspot",
       "estimated_msw_count", "estimated_msm_count",
-      "population_pattern", "nationality_groups", "nationality_pattern",
+      "population_pattern", "nationality_groups", "nationality_pattern", "nationality_other",
       "age_pattern", "offsite_ratio", "mobility_pattern", "online_offline_linkage",
+      "informant_type", "informant_type_other",
+      "thai_proficiency", "primary_languages", "primary_languages_other",
+      "comm_channels", "comm_channels_other",
       "chemsex_signal", "common_substances", "injection_signal",
       "mental_health_signal", "violence_safety_signal", "police_pressure_signal",
       "housing_vulnerability_signal", "access_barrier_signal",
@@ -566,6 +620,30 @@ export default function MelCombinedDashboard() {
             <CardContent><BarChart data={implicationsDist} /></CardContent>
           </Card>
         )}
+
+        {/* Informant Type */}
+        {informantDist.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "ประเภทผู้ให้ข้อมูล" : "Informant Types"}</CardTitle></CardHeader>
+            <CardContent><BarChart data={informantDist} /></CardContent>
+          </Card>
+        )}
+
+        {/* Thai Proficiency */}
+        {proficiencyDist.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "ระดับภาษาไทยของ MSW" : "MSW Thai Proficiency"}</CardTitle></CardHeader>
+            <CardContent><BarChart data={proficiencyDist} /></CardContent>
+          </Card>
+        )}
+
+        {/* Communication Channels */}
+        {channelDist.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "ช่องทางรับข้อมูล MSW" : "MSW Comm Channels"}</CardTitle></CardHeader>
+            <CardContent><BarChart data={channelDist} /></CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Monthly Trend */}
@@ -696,7 +774,14 @@ export default function MelCombinedDashboard() {
                 [isTh ? "สถานที่" : "Venue", viewItem.venue],
                 [isTh ? "ผู้สังเกต" : "Observer", viewItem.observer],
                 ["MSW #", viewItem.msw_count],
-                [isTh ? "สัญชาติ" : "Nationality", viewItem.nationality_groups.join(", ") || "—"],
+                [isTh ? "ประเภทผู้ให้ข้อมูล" : "Informant", viewItem.informant_type.join(", ") || "—"],
+                [isTh ? "สัญชาติ" : "Nationality", [
+                  ...viewItem.nationality_groups,
+                  viewItem.nationality_other ? `(${viewItem.nationality_other})` : ""
+                ].filter(Boolean).join(", ") || "—"],
+                [isTh ? "ระดับภาษาไทย" : "Thai Level", viewItem.thai_proficiency || "—"],
+                [isTh ? "ภาษาหลัก" : "Primary Lang", viewItem.primary_languages.join(", ") || "—"],
+                [isTh ? "ช่องทางรับข้อมูล" : "Channels", viewItem.comm_channels.join(", ") || "—"],
                 [isTh ? "อุปสรรคภาษา" : "Barrier", viewItem.communication_barrier],
                 [isTh ? "ระดับเร่งด่วน" : "Urgency", viewItem.urgency_level],
                 ["Chemsex", viewItem.chemsex_signal],
