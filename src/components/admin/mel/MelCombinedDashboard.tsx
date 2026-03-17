@@ -765,7 +765,14 @@ export default function MelCombinedDashboard() {
                 [isTh ? "สถานที่" : "Venue", viewItem.venue],
                 [isTh ? "ผู้สังเกต" : "Observer", viewItem.observer],
                 ["MSW #", viewItem.msw_count],
-                [isTh ? "สัญชาติ" : "Nationality", viewItem.nationality_groups.join(", ") || "—"],
+                [isTh ? "ประเภทผู้ให้ข้อมูล" : "Informant", viewItem.informant_type.join(", ") || "—"],
+                [isTh ? "สัญชาติ" : "Nationality", [
+                  ...viewItem.nationality_groups,
+                  viewItem.nationality_other ? `(${viewItem.nationality_other})` : ""
+                ].filter(Boolean).join(", ") || "—"],
+                [isTh ? "ระดับภาษาไทย" : "Thai Level", viewItem.thai_proficiency || "—"],
+                [isTh ? "ภาษาหลัก" : "Primary Lang", viewItem.primary_languages.join(", ") || "—"],
+                [isTh ? "ช่องทางรับข้อมูล" : "Channels", viewItem.comm_channels.join(", ") || "—"],
                 [isTh ? "อุปสรรคภาษา" : "Barrier", viewItem.communication_barrier],
                 [isTh ? "ระดับเร่งด่วน" : "Urgency", viewItem.urgency_level],
                 ["Chemsex", viewItem.chemsex_signal],
