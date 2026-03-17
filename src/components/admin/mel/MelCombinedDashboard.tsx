@@ -15,6 +15,7 @@ import { Loader2, Download, MapPin, AlertTriangle, TrendingUp, BarChart3, Shield
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import OutreachPopulationMap from "./OutreachPopulationMap";
 
 // ── Types ───────────────────────────────────────────────────────────
 interface UnifiedRecord {
@@ -836,6 +837,9 @@ export default function MelCombinedDashboard() {
               </Card>
             )}
           </div>
+
+          {/* Population & Map Addon */}
+          <OutreachPopulationMap records={filtered} />
         </>
       )}
 
