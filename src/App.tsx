@@ -151,6 +151,7 @@ function AppShell() {
               <Route path="/whats-new" element={<WhatsNew />} />
               <Route path="/admin/docs/harm-reduction-guide" element={<HarmReductionGuide />} />
               <Route path="/privacy-center" element={<PrivacyCenter />} />
+              <Route path="/outreach-form" element={<OutreachForm />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

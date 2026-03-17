@@ -64,7 +64,8 @@ export function useAdminRole(): AdminRoleState {
     isAdmin: role === 'admin',
     isModerator: role === 'moderator',
     isMeAnalyst: role === 'me_analyst',
-    readOnly: role === 'me_analyst',
+    isOutreachStaff: role === 'outreach_staff',
+    readOnly: role === 'me_analyst' || role === 'outreach_staff',
     userBranch,
     loading: loading || authLoading,
   };
