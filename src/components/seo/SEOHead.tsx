@@ -49,6 +49,9 @@ export function SEOHead({
     // Standard meta
     setMeta("name", "description", description);
     setMeta("name", "language", lang);
+    if (robots) {
+      setMeta("name", "robots", robots);
+    }
 
     // Open Graph
     setMeta("property", "og:title", fullTitle);
