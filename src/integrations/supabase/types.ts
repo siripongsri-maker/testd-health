@@ -5021,6 +5021,120 @@ export type Database = {
         }
         Relationships: []
       }
+      msw_rapid_assessments: {
+        Row: {
+          bangkok_area: string | null
+          bangkok_area_other: string | null
+          bangkok_peer_code: string | null
+          bangkok_peer_code_other: string | null
+          created_at: string
+          email: string
+          foreign_groups: string[]
+          foreign_groups_other: string | null
+          health_info_channel: string
+          health_info_channel_other: string | null
+          health_info_language_priority: string
+          health_info_language_priority_other: string | null
+          id: string
+          language_skill: string
+          language_skill_other: string | null
+          msw_count_estimate: string
+          msw_count_estimate_other: string | null
+          nationality_mix: string
+          nationality_mix_other: string | null
+          offsite_work_ratio: string
+          offsite_work_ratio_other: string | null
+          other_primary_language: string | null
+          other_primary_language_other: string | null
+          pattaya_area: string | null
+          pattaya_area_other: string | null
+          pattaya_peer_code: string | null
+          pattaya_peer_code_other: string | null
+          respondent_type: string
+          respondent_type_other: string | null
+          submitted_by: string | null
+          survey_date: string
+          survey_time: string
+          venue_code: string
+          venue_type: string
+          venue_type_other: string | null
+        }
+        Insert: {
+          bangkok_area?: string | null
+          bangkok_area_other?: string | null
+          bangkok_peer_code?: string | null
+          bangkok_peer_code_other?: string | null
+          created_at?: string
+          email: string
+          foreign_groups?: string[]
+          foreign_groups_other?: string | null
+          health_info_channel: string
+          health_info_channel_other?: string | null
+          health_info_language_priority: string
+          health_info_language_priority_other?: string | null
+          id?: string
+          language_skill: string
+          language_skill_other?: string | null
+          msw_count_estimate: string
+          msw_count_estimate_other?: string | null
+          nationality_mix: string
+          nationality_mix_other?: string | null
+          offsite_work_ratio: string
+          offsite_work_ratio_other?: string | null
+          other_primary_language?: string | null
+          other_primary_language_other?: string | null
+          pattaya_area?: string | null
+          pattaya_area_other?: string | null
+          pattaya_peer_code?: string | null
+          pattaya_peer_code_other?: string | null
+          respondent_type: string
+          respondent_type_other?: string | null
+          submitted_by?: string | null
+          survey_date: string
+          survey_time: string
+          venue_code: string
+          venue_type: string
+          venue_type_other?: string | null
+        }
+        Update: {
+          bangkok_area?: string | null
+          bangkok_area_other?: string | null
+          bangkok_peer_code?: string | null
+          bangkok_peer_code_other?: string | null
+          created_at?: string
+          email?: string
+          foreign_groups?: string[]
+          foreign_groups_other?: string | null
+          health_info_channel?: string
+          health_info_channel_other?: string | null
+          health_info_language_priority?: string
+          health_info_language_priority_other?: string | null
+          id?: string
+          language_skill?: string
+          language_skill_other?: string | null
+          msw_count_estimate?: string
+          msw_count_estimate_other?: string | null
+          nationality_mix?: string
+          nationality_mix_other?: string | null
+          offsite_work_ratio?: string
+          offsite_work_ratio_other?: string | null
+          other_primary_language?: string | null
+          other_primary_language_other?: string | null
+          pattaya_area?: string | null
+          pattaya_area_other?: string | null
+          pattaya_peer_code?: string | null
+          pattaya_peer_code_other?: string | null
+          respondent_type?: string
+          respondent_type_other?: string | null
+          submitted_by?: string | null
+          survey_date?: string
+          survey_time?: string
+          venue_code?: string
+          venue_type?: string
+          venue_type_other?: string | null
+        }
+        Relationships: []
+      }
       notification_logs: {
         Row: {
           appointment_id: string | null
