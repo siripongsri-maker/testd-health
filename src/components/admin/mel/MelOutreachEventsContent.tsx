@@ -13,6 +13,8 @@ import MelDeleteDialog from "./MelDeleteDialog";
 import MelSOPCard, { MEL_SOPS } from "./MelSOPCard";
 import MswRapidAssessmentList from "./MswRapidAssessmentList";
 import FieldNotesDashboard from "./FieldNotesDashboard";
+import UnifiedOutreachForm from "./UnifiedOutreachForm";
+import MelCombinedDashboard from "./MelCombinedDashboard";
 
 export default function MelOutreachEventsContent() {
   const { language } = useLanguage();
@@ -21,7 +23,8 @@ export default function MelOutreachEventsContent() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editEvent, setEditEvent] = useState<any>(null);
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState("field-notes");
+  const [activeTab, setActiveTab] = useState("unified-form");
+  const [showUnifiedForm, setShowUnifiedForm] = useState(false);
 
   const { data: events, isLoading } = useQuery({
     queryKey: ["mel-outreach-events"],
@@ -42,6 +45,11 @@ export default function MelOutreachEventsContent() {
   const totalCondoms = events?.reduce((sum: number, e: any) => sum + (e.condoms_distributed || 0), 0) || 0;
   const totalTests = events?.reduce((sum: number, e: any) => sum + (e.hiv_tests_done || 0), 0) || 0;
 
+  // If unified form is open, show it full screen
+  if (showUnifiedForm) {
+    return <UnifiedOutreachForm onClose={() => setShowUnifiedForm(false)} />;
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -50,82 +58,56 @@ export default function MelOutreachEventsContent() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="field-notes">
-            {isTh ? "บันทึกภาคสนาม" : "Field Notes"}
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="unified-form" className="text-xs sm:text-sm">
+            {isTh ? "📋 แบบฟอร์ม" : "📋 Form"}
           </TabsTrigger>
-          <TabsTrigger value="assessments">
-            {isTh ? "แบบสอบถาม Rapid MSW" : "Rapid MSW Assessment"}
+          <TabsTrigger value="field-notes" className="text-xs sm:text-sm">
+            {isTh ? "📝 ภาคสนาม" : "📝 Field Notes"}
           </TabsTrigger>
-          <TabsTrigger value="events">
-            {isTh ? "กิจกรรมเชิงรุก" : "Outreach Events"}
+          <TabsTrigger value="assessments" className="text-xs sm:text-sm">
+            {isTh ? "📊 Rapid MSW" : "📊 Rapid MSW"}
+          </TabsTrigger>
+          <TabsTrigger value="dashboard" className="text-xs sm:text-sm">
+            {isTh ? "📈 วิเคราะห์" : "📈 Analysis"}
           </TabsTrigger>
         </TabsList>
 
+        {/* Tab 1: Unified Form Entry */}
+        <TabsContent value="unified-form" className="mt-6">
+          <Card className="border-primary/20">
+            <CardContent className="flex flex-col items-center justify-center py-12 text-center gap-4">
+              <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="text-3xl">📋</span>
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-foreground">{isTh ? "แบบฟอร์มรวม Outreach" : "Unified Outreach Form"}</h3>
+                <p className="text-sm text-muted-foreground max-w-md mt-1">
+                  {isTh 
+                    ? "แบบฟอร์มรวมสำหรับบันทึกข้อมูลภาคสนาม ครอบคลุมการสังเกต สัญญาณเชิงพื้นที่ บริการ ภาษา และข้อเสนอเชิง MEL ในแบบเดียว" 
+                    : "Consolidated form for field observations, situational signals, services, language, and MEL insights"}
+                </p>
+              </div>
+              <Button size="lg" className="min-h-[52px] gap-2 text-base" onClick={() => setShowUnifiedForm(true)}>
+                <Plus className="h-5 w-5" />{isTh ? "เริ่มบันทึก" : "Start Entry"}
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tab 2: Field Notes (existing) */}
         <TabsContent value="field-notes" className="mt-6">
           <FieldNotesDashboard />
         </TabsContent>
 
+        {/* Tab 3: Rapid MSW (existing) */}
         <TabsContent value="assessments" className="mt-6">
           <MswRapidAssessmentList />
         </TabsContent>
 
-        <TabsContent value="events" className="mt-6 space-y-6">
-          <div className="flex items-center justify-end">
-            <Button size="sm" className="gap-2" onClick={() => { setEditEvent(null); setDrawerOpen(true); }}>
-              <Plus className="h-4 w-4" />{isTh ? "เพิ่มกิจกรรม" : "Add Event"}
-            </Button>
-          </div>
-
-          <MelSOPCard {...MEL_SOPS.outreach} />
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{isTh ? "กิจกรรม" : "Events"}</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold text-foreground">{events?.length || 0}</p></CardContent></Card>
-            <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{isTh ? "เข้าถึง" : "Reached"}</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold text-foreground">{totalReached}</p></CardContent></Card>
-            <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{isTh ? "ถุงยาง" : "Condoms"}</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold text-foreground">{totalCondoms}</p></CardContent></Card>
-            <Card><CardHeader className="pb-2"><CardTitle className="text-sm text-muted-foreground">{isTh ? "ตรวจ HIV" : "HIV Tests"}</CardTitle></CardHeader><CardContent><p className="text-3xl font-bold text-foreground">{totalTests}</p></CardContent></Card>
-          </div>
-
-          {isLoading ? (
-            <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
-          ) : (!events || events.length === 0) ? (
-            <Card className="border-dashed"><CardContent className="flex flex-col items-center justify-center py-12 text-center"><MapPin className="h-12 w-12 text-muted-foreground/40 mb-4" /><p className="text-muted-foreground">{isTh ? "ยังไม่มีกิจกรรมเชิงรุก" : "No outreach events yet"}</p></CardContent></Card>
-          ) : (
-            <Card><CardContent className="p-0"><div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead><tr className="border-b bg-muted/50">
-                  <th className="text-left p-3 font-medium text-muted-foreground">{isTh ? "วันที่" : "Date"}</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground">{isTh ? "ประเภท" : "Type"}</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground">{isTh ? "สถานที่" : "Location"}</th>
-                  <th className="text-right p-3 font-medium text-muted-foreground">{isTh ? "เข้าถึง" : "Reached"}</th>
-                  <th className="text-right p-3 font-medium text-muted-foreground">{isTh ? "ถุงยาง" : "Condoms"}</th>
-                  <th className="text-right p-3 font-medium text-muted-foreground">{isTh ? "ตรวจ" : "Tests"}</th>
-                  <th className="p-3 w-20" />
-                </tr></thead>
-                <tbody>
-                  {events.map((e: any) => (
-                    <tr key={e.id} className="border-b hover:bg-muted/30">
-                      <td className="p-3">{format(new Date(e.event_date), "dd MMM yyyy")}</td>
-                      <td className="p-3 capitalize">{e.event_type?.replace(/_/g, " ")}</td>
-                      <td className="p-3">{e.location_name || "—"}</td>
-                      <td className="p-3 text-right font-medium">{e.people_reached ?? "—"}</td>
-                      <td className="p-3 text-right">{e.condoms_distributed ?? "—"}</td>
-                      <td className="p-3 text-right">{e.hiv_tests_done ?? "—"}</td>
-                      <td className="p-3">
-                        <div className="flex gap-1">
-                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setEditEvent(e); setDrawerOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
-                          <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => setDeleteTarget(e)}><Trash2 className="h-3.5 w-3.5" /></Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div></CardContent></Card>
-          )}
-
-          <OutreachEventDrawer key={editEvent?.id || "new"} open={drawerOpen} onOpenChange={setDrawerOpen} editEvent={editEvent} />
-          <MelDeleteDialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }} onConfirm={() => { if (deleteTarget) { deleteMutation.mutate(deleteTarget.id); setDeleteTarget(null); } }} itemLabel={deleteTarget?.location_name} />
+        {/* Tab 4: Combined MEL Dashboard */}
+        <TabsContent value="dashboard" className="mt-6">
+          <MelCombinedDashboard />
         </TabsContent>
       </Tabs>
     </div>
