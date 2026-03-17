@@ -7,6 +7,7 @@ interface SEOHeadProps {
   ogImage?: string;
   ogType?: string;
   lang?: string;
+  robots?: string;
   alternateLanguages?: { lang: string; path: string }[];
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
@@ -25,6 +26,7 @@ export function SEOHead({
   ogImage,
   ogType = "website",
   lang = "th",
+  robots,
   alternateLanguages,
   jsonLd,
 }: SEOHeadProps) {
@@ -47,6 +49,9 @@ export function SEOHead({
     // Standard meta
     setMeta("name", "description", description);
     setMeta("name", "language", lang);
+    if (robots) {
+      setMeta("name", "robots", robots);
+    }
 
     // Open Graph
     setMeta("property", "og:title", fullTitle);

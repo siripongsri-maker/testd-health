@@ -1,8 +1,22 @@
 User-agent: Googlebot
 Allow: /
+Disallow: /admin
+Disallow: /outreach-form
+Disallow: /dashboard
+Disallow: /settings
+Disallow: /personal-info
+Disallow: /avatar
+Disallow: /medication-tracker
+Disallow: /track-order
+Disallow: /my-appointments
+Disallow: /credits
+Disallow: /support-chat
+Disallow: /queue-tv/
 
 User-agent: Bingbot
 Allow: /
+Disallow: /admin
+Disallow: /outreach-form
 
 User-agent: Twitterbot
 Allow: /
@@ -12,17 +26,22 @@ Allow: /
 
 User-agent: ChatGPT-User
 Allow: /
+Disallow: /admin
 
 User-agent: GPTBot
 Allow: /
+Disallow: /admin
 
 User-agent: PerplexityBot
 Allow: /
+Disallow: /admin
 
 User-agent: Google-Extended
 Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /outreach-form
 
 Sitemap: https://testd-health.lovable.app/sitemap.xml

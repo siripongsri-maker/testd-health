@@ -1,4 +1,5 @@
 export { SEOHead, buildMedicalPageJsonLd, buildFaqJsonLd } from "./SEOHead";
+export { AutoSEO } from "./AutoSEO";
 export { AISummaryBlock } from "./AISummaryBlock";
 export { QuickFactsCard } from "./QuickFactsCard";
 export { FAQSection, type FAQItem } from "./FAQSection";
