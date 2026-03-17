@@ -313,11 +313,20 @@ export default function MelCombinedDashboard() {
     if (serviceNeedsDist.length > 0) {
       ins.push({ icon: "🏥", text: `บริการที่ต้องการมากที่สุด: ${serviceNeedsDist[0][0]} (${serviceNeedsDist[0][1]} ครั้ง)`, severity: "info" });
     }
+    if (channelDist.length > 0) {
+      ins.push({ icon: "📱", text: `ช่องทางที่ MSW ใช้มากที่สุด: ${channelDist.slice(0, 3).map(([c]) => c).join(", ")}`, severity: "info" });
+    }
+    if (proficiencyDist.length > 0) {
+      const otherLang = proficiencyDist.find(([k]) => k === "ใช้ภาษาอื่น");
+      if (otherLang && otherLang[1] > 0) {
+        ins.push({ icon: "🗣️", text: `พบ MSW ที่ใช้ภาษาอื่นเป็นหลัก ${otherLang[1]} ครั้ง — ควรเตรียม peer หรือสื่อหลายภาษา`, severity: "warning" });
+      }
+    }
     if (total === 0) {
       ins.push({ icon: "📋", text: "ยังไม่มีข้อมูล — เริ่มบันทึกจากแท็บ 'แบบฟอร์ม'", severity: "info" });
     }
     return ins;
-  }, [highBarrierCount, signalCounts, highConcernCount, areaRanking, nationalityDist, serviceNeedsDist, total]);
+  }, [highBarrierCount, signalCounts, highConcernCount, areaRanking, nationalityDist, serviceNeedsDist, channelDist, proficiencyDist, total]);
 
   // CSV Export — full raw dataset for external DB / BI ingestion
   const exportCsv = () => {
