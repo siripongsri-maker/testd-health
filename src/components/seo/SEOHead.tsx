@@ -26,6 +26,7 @@ export function SEOHead({
   ogImage,
   ogType = "website",
   lang = "th",
+  robots,
   alternateLanguages,
   jsonLd,
 }: SEOHeadProps) {
