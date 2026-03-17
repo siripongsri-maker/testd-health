@@ -2,14 +2,15 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 
-export type AdminRole = 'admin' | 'moderator' | 'me_analyst' | null;
+export type AdminRole = 'admin' | 'moderator' | 'me_analyst' | 'outreach_staff' | null;
 
 interface AdminRoleState {
   role: AdminRole;
   isAdmin: boolean;
   isModerator: boolean;
   isMeAnalyst: boolean;
-  /** True for me_analyst — all mutation UI should be hidden */
+  isOutreachStaff: boolean;
+  /** True for me_analyst or outreach_staff — all mutation UI should be hidden */
   readOnly: boolean;
   userBranch: string | null;
   loading: boolean;
@@ -48,6 +49,10 @@ export function useAdminRole(): AdminRoleState {
         return;
       }
 
+      // Check outreach_staff
+      const { data: outreachData } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'outreach_staff' as any });
+      if (outreachData) { setRole('outreach_staff'); setLoading(false); return; }
+
       setRole(null);
       setLoading(false);
     };
@@ -59,7 +64,8 @@ export function useAdminRole(): AdminRoleState {
     isAdmin: role === 'admin',
     isModerator: role === 'moderator',
     isMeAnalyst: role === 'me_analyst',
-    readOnly: role === 'me_analyst',
+    isOutreachStaff: role === 'outreach_staff',
+    readOnly: role === 'me_analyst' || role === 'outreach_staff',
     userBranch,
     loading: loading || authLoading,
   };
