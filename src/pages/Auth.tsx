@@ -9,6 +9,7 @@ import { Shield, Lock, User, ArrowLeft, Eye, EyeOff, Loader2, UserPlus, Sparkles
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { SocialLoginButtons } from '@/components/SocialLoginButtons';
+import { supabase } from '@/integrations/supabase/client';
 
 // Helper to convert username to internal email format
 const usernameToEmail = (value: string) => {
