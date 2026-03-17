@@ -9,6 +9,7 @@ import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { PageLoader } from "@/components/PageLoader";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { AutoSEO } from "@/components/seo/AutoSEO";
 import { FloatingMedClock } from "@/components/FloatingMedClock";
 import { AppLayout } from "@/components/AppLayout";
 import { ForceUpdateGuard } from "@/components/ForceUpdateGuard";
