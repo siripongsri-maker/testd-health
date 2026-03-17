@@ -213,6 +213,12 @@ export default function Settings() {
                     Admin
                   </Badge>
                 )}
+              {isMeAnalyst && !isAdmin && (
+                <Badge className="gap-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-0">
+                  <ShieldCheck className="h-3 w-3" />
+                  M&E
+                </Badge>
+              )}
               {isModerator && !isAdmin && (
                 <Badge className="gap-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0">
                   <Building2 className="h-3 w-3" />
