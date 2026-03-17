@@ -7,6 +7,7 @@ interface SEOHeadProps {
   ogImage?: string;
   ogType?: string;
   lang?: string;
+  robots?: string;
   alternateLanguages?: { lang: string; path: string }[];
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
