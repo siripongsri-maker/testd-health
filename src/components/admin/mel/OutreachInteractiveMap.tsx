@@ -1,44 +1,9 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import { MapPin, Filter, AlertCircle } from "lucide-react";
-import { format } from "date-fns";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
 import { detectOutreachCity, hasValidCoordinates, pickFirstNonEmpty, toValidCoordinate } from "./outreachAnalytics";
-
-import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
-import markerIcon from "leaflet/dist/images/marker-icon.png";
-import markerShadow from "leaflet/dist/images/marker-shadow.png";
-
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-});
-
-function createColorIcon(color: "blue" | "orange" | "red") {
-  const hue = color === "blue" ? "210" : color === "orange" ? "30" : "0";
-  return L.divIcon({
-    className: "custom-map-pin",
-    html: `<div style="
-      width:14px;height:14px;border-radius:50%;
-      background:hsl(${hue},90%,55%);
-      border:2.5px solid white;
-      box-shadow:0 2px 6px rgba(0,0,0,0.35);
-    "></div>`,
-    iconSize: [14, 14],
-    iconAnchor: [7, 7],
-    popupAnchor: [0, -10],
-  });
-}
-
-const BKK_ICON = createColorIcon("blue");
-const PTY_ICON = createColorIcon("orange");
-const OTHER_ICON = createColorIcon("red");
+import OutreachLeafletCanvas from "./OutreachLeafletCanvas";
 
 interface DataRecord {
   city: string;
@@ -62,54 +27,6 @@ const CENTERS: Record<string, [number, number]> = {
   อื่นๆ: [13.45, 100.6],
 };
 const ZOOMS: Record<string, number> = { all: 8, กรุงเทพฯ: 12, พัทยา: 13, อื่นๆ: 8 };
-
-function MapViewportSync({
-  center,
-  zoom,
-  points,
-  syncKey,
-}: {
-  center: [number, number];
-  zoom: number;
-  points: [number, number][];
-  syncKey: string;
-}) {
-  const map = useMap();
-
-  useEffect(() => {
-    const invalidate = () => map.invalidateSize();
-    const timers = [0, 120, 320, 700].map((delay) => window.setTimeout(invalidate, delay));
-    const frame = window.requestAnimationFrame(invalidate);
-    const container = map.getContainer();
-    const resizeObserver = new ResizeObserver(invalidate);
-    resizeObserver.observe(container);
-
-    return () => {
-      timers.forEach((timer) => window.clearTimeout(timer));
-      window.cancelAnimationFrame(frame);
-      resizeObserver.disconnect();
-    };
-  }, [map, syncKey]);
-
-  useEffect(() => {
-    if (points.length === 1) {
-      map.setView(points[0], Math.max(zoom, 14), { animate: false });
-      return;
-    }
-
-    if (points.length > 1) {
-      const bounds = L.latLngBounds(points);
-      if (bounds.isValid()) {
-        map.fitBounds(bounds.pad(0.18), { animate: false, maxZoom: 14 });
-        return;
-      }
-    }
-
-    map.setView(center, zoom, { animate: false });
-  }, [map, center, zoom, points, syncKey]);
-
-  return null;
-}
 
 export default function OutreachInteractiveMap({ records }: { records: DataRecord[] }) {
   const [cityFilter, setCityFilter] = useState("all");
@@ -256,62 +173,7 @@ export default function OutreachInteractiveMap({ records }: { records: DataRecor
           </div>
         ) : (
           <div className="w-full overflow-hidden rounded-lg border border-border bg-muted/20" style={{ height: "clamp(320px, 52vw, 500px)" }}>
-            {/* @ts-ignore react-leaflet v5 type mismatch */}
-            <MapContainer
-              key={mapSyncKey}
-              center={center}
-              zoom={zoom}
-              className="h-full w-full z-0"
-              scrollWheelZoom={true}
-              style={{ height: "100%", width: "100%" }}
-            >
-              {/* @ts-ignore */}
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              <MapViewportSync center={center} zoom={zoom} points={pointList} syncKey={mapSyncKey} />
-              {filteredPins.map((pin, index) => (
-                // @ts-ignore
-                <Marker
-                  key={`${pin.lat}-${pin.lng}-${index}`}
-                  position={[pin.lat, pin.lng]}
-                  icon={pin.city === "พัทยา" ? PTY_ICON : pin.city === "กรุงเทพฯ" ? BKK_ICON : OTHER_ICON}
-                >
-                  {/* @ts-ignore */}
-                  <Popup maxWidth={260} className="outreach-popup">
-                    <div className="space-y-1.5 text-xs">
-                      <p className="font-semibold text-sm">{pin.venue}</p>
-                      <p className="text-muted-foreground">📍 {pin.area}</p>
-                      <div className="flex flex-wrap gap-1">
-                        <Badge variant="secondary" className="text-[10px]">{pin.city}</Badge>
-                        {pin.date && (
-                          <Badge variant="outline" className="text-[10px]">
-                            {format(new Date(pin.date), "dd/MM/yyyy")}
-                          </Badge>
-                        )}
-                      </div>
-                      {pin.mswRange ? (
-                        <p>👥 MSW โดยประมาณ: <strong>{pin.mswRange}</strong></p>
-                      ) : (
-                        <p className="text-muted-foreground">👥 ยังไม่มีข้อมูล MSW</p>
-                      )}
-                      {pin.msmRange ? (
-                        <p>👥 MSM โดยประมาณ: <strong>{pin.msmRange}</strong></p>
-                      ) : (
-                        <p className="text-muted-foreground">👥 ยังไม่มีข้อมูล MSM</p>
-                      )}
-                      {pin.offsiteProportion && (
-                        <p>🏠 รับงานนอกสถานที่: <strong>{pin.offsiteProportion}</strong></p>
-                      )}
-                      <p className="pt-1 text-[10px] text-muted-foreground">
-                        {pin.lat.toFixed(4)}, {pin.lng.toFixed(4)}
-                      </p>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-            </MapContainer>
+            <OutreachLeafletCanvas center={center} zoom={zoom} pins={filteredPins} syncKey={mapSyncKey} />
           </div>
         )}
       </CardContent>
