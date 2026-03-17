@@ -23,6 +23,7 @@ interface UnifiedRecord {
   observer: string;
   msw_count: string;
   nationality_groups: string[];
+  nationality_other: string;
   communication_barrier: string;
   urgency_level: string;
   service_interests: string[];
@@ -33,6 +34,10 @@ interface UnifiedRecord {
   violence_signal: string;
   is_hotspot: boolean;
   confidence: string;
+  informant_type: string[];
+  thai_proficiency: string;
+  primary_languages: string[];
+  comm_channels: string[];
   raw: any;
 }
 
