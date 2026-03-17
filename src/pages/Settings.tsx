@@ -48,6 +48,7 @@ export default function Settings() {
   const [settings, setSettings] = useState(getUserData().notificationSettings);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isModerator, setIsModerator] = useState(false);
+  const [isMeAnalyst, setIsMeAnalyst] = useState(false);
   const [userBranch, setUserBranch] = useState<string | null>(null);
   const [adminRequest, setAdminRequest] = useState<{ status: string } | null>(null);
   const [showAdminRequest, setShowAdminRequest] = useState(false);
@@ -63,6 +64,7 @@ export default function Settings() {
     if (user) {
       checkAdminStatus();
       checkModeratorStatus();
+      checkMeAnalystStatus();
       checkAdminRequest();
     }
   }, [user]);
@@ -93,6 +95,15 @@ export default function Settings() {
         .maybeSingle();
       setUserBranch(branchData?.branch || null);
     }
+  };
+
+  const checkMeAnalystStatus = async () => {
+    if (!user) return;
+    const { data } = await supabase.rpc('has_role', {
+      _user_id: user.id,
+      _role: 'me_analyst',
+    });
+    setIsMeAnalyst(!!data);
   };
 
   const checkAdminRequest = async () => {
@@ -202,6 +213,12 @@ export default function Settings() {
                     Admin
                   </Badge>
                 )}
+              {isMeAnalyst && !isAdmin && (
+                <Badge className="gap-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-0">
+                  <ShieldCheck className="h-3 w-3" />
+                  M&E
+                </Badge>
+              )}
               {isModerator && !isAdmin && (
                 <Badge className="gap-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0">
                   <Building2 className="h-3 w-3" />
@@ -211,7 +228,7 @@ export default function Settings() {
               </div>
               
               {/* Admin Section */}
-              {(isAdmin || isModerator) ? (
+              {(isAdmin || isModerator || isMeAnalyst) ? (
                 <Button 
                   variant="outline" 
                   className="w-full justify-start gap-3 rounded-xl h-12"
@@ -224,6 +241,8 @@ export default function Settings() {
                   )}
                   {isAdmin 
                     ? (language === 'th' ? 'แดชบอร์ดผู้ดูแล' : 'Admin Dashboard')
+                    : isMeAnalyst
+                    ? (language === 'th' ? 'M&E Analytics' : 'M&E Analytics')
                     : (language === 'th' ? 'จัดการสาขา' : 'Branch Management')
                   }
                 </Button>
