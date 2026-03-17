@@ -9,7 +9,8 @@ interface AdminRoleState {
   isAdmin: boolean;
   isModerator: boolean;
   isMeAnalyst: boolean;
-  /** True for me_analyst — all mutation UI should be hidden */
+  isOutreachStaff: boolean;
+  /** True for me_analyst or outreach_staff — all mutation UI should be hidden */
   readOnly: boolean;
   userBranch: string | null;
   loading: boolean;
