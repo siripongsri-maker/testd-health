@@ -248,6 +248,7 @@ export default function MelCombinedDashboard() {
     const map: Record<string, number> = {};
     filtered.forEach((r) => r.comm_channels.forEach((c) => { if (c) map[c] = (map[c] || 0) + 1; }));
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  }, [filtered]);
 
   // Signal counts
   const signalCounts = useMemo(() => {
