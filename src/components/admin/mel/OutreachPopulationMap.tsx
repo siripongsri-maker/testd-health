@@ -30,15 +30,7 @@ function parseRange(val: string | null | undefined): number {
   return parseInt(val) || 0;
 }
 
-// Bangkok & Pattaya bounds for mapping lat/lng to SVG coordinates
-const REGIONS = {
-  "กรุงเทพฯ": { label: "Bangkok", cx: 150, cy: 160, bounds: { minLat: 13.55, maxLat: 13.95, minLng: 100.35, maxLng: 100.75 }, mapW: 200, mapH: 200, offsetX: 50, offsetY: 60 },
-  "พัทยา": { label: "Pattaya", cx: 480, cy: 160, bounds: { minLat: 12.85, maxLat: 13.1, minLng: 100.82, maxLng: 101.02 }, mapW: 140, mapH: 200, offsetX: 410, offsetY: 60 },
-};
-
 export default function OutreachPopulationMap({ records }: Props) {
-  // Aggregate MSW vs MSM by city
-  const populationData = useMemo(() => {
     const cities: Record<string, { msw: number; msm: number; count: number }> = {};
     records.forEach((r) => {
       const raw = r.raw;
