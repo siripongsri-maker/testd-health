@@ -20,9 +20,15 @@ interface Props {
 
 function parseRange(val: string | null | undefined): number {
   if (!val || val === "unknown" || val === "ไม่ทราบ" || val === "") return 0;
+  // Handle "<10" style
+  if (val.startsWith("<")) return Math.max(Math.floor((parseInt(val.slice(1)) || 0) / 2), 1);
+  // Handle "50+" style
   if (val.includes("+")) return parseInt(val) || 0;
-  if (val.includes("-")) {
-    const [lo, hi] = val.split("-").map(Number);
+  // Handle ranges with hyphen (-) or en-dash (–) or em-dash (—)
+  const rangeMatch = val.match(/(\d+)\s*[-–—]\s*(\d+)/);
+  if (rangeMatch) {
+    const lo = parseInt(rangeMatch[1]);
+    const hi = parseInt(rangeMatch[2]);
     return Math.round((lo + hi) / 2);
   }
   return parseInt(val) || 0;
