@@ -21,7 +21,7 @@ export default function MelOutreachEventsContent() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editEvent, setEditEvent] = useState<any>(null);
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState("assessments");
+  const [activeTab, setActiveTab] = useState("field-notes");
 
   const { data: events, isLoading } = useQuery({
     queryKey: ["mel-outreach-events"],
