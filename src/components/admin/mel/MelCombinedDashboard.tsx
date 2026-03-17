@@ -837,6 +837,9 @@ export default function MelCombinedDashboard() {
               </Card>
             )}
           </div>
+
+          {/* Population & Map Addon */}
+          <OutreachPopulationMap records={filtered} />
         </>
       )}
 
