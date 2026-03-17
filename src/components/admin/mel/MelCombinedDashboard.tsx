@@ -608,6 +608,30 @@ export default function MelCombinedDashboard() {
             <CardContent><BarChart data={implicationsDist} /></CardContent>
           </Card>
         )}
+
+        {/* Informant Type */}
+        {informantDist.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "ประเภทผู้ให้ข้อมูล" : "Informant Types"}</CardTitle></CardHeader>
+            <CardContent><BarChart data={informantDist} /></CardContent>
+          </Card>
+        )}
+
+        {/* Thai Proficiency */}
+        {proficiencyDist.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "ระดับภาษาไทยของ MSW" : "MSW Thai Proficiency"}</CardTitle></CardHeader>
+            <CardContent><BarChart data={proficiencyDist} /></CardContent>
+          </Card>
+        )}
+
+        {/* Communication Channels */}
+        {channelDist.length > 0 && (
+          <Card>
+            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "ช่องทางรับข้อมูล MSW" : "MSW Comm Channels"}</CardTitle></CardHeader>
+            <CardContent><BarChart data={channelDist} /></CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Monthly Trend */}
