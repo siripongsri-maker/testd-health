@@ -277,17 +277,67 @@ export default function MelCombinedDashboard() {
     return ins;
   }, [highBarrierCount, signalCounts, highConcernCount, areaRanking, nationalityDist, serviceNeedsDist, total]);
 
-  // CSV Export
+  // CSV Export — full raw dataset for external DB / BI ingestion
   const exportCsv = () => {
     if (!filtered.length) return;
-    const headers = ["source", "date", "city", "area", "venue", "observer", "msw_count", "nationality_groups", "communication_barrier", "urgency_level", "chemsex_signal", "mental_health_signal", "violence_signal"];
-    const csvRows = [headers.join(",")];
+    // Build full column set from all raw records
+    const FULL_HEADERS = [
+      "record_source", "date", "city", "area", "venue_alias", "venue_type", "observer",
+      "observer_role", "peer_code", "outreach_type", "record_type",
+      "start_time", "end_time",
+      "activity_intensity", "is_known_hotspot", "is_emerging_hotspot",
+      "estimated_msw_count", "estimated_msm_count",
+      "population_pattern", "nationality_groups", "nationality_pattern",
+      "age_pattern", "offsite_ratio", "mobility_pattern", "online_offline_linkage",
+      "chemsex_signal", "common_substances", "injection_signal",
+      "mental_health_signal", "violence_safety_signal", "police_pressure_signal",
+      "housing_vulnerability_signal", "access_barrier_signal",
+      "digital_platform_pattern", "urgency_level",
+      "service_interests", "service_barriers",
+      "preferred_contact_channel", "preferred_service_model",
+      "main_language", "other_languages", "communication_barrier_level",
+      "barrier_observation_note", "interpreter_needed", "digital_content_language",
+      "project_implications",
+      "environment_notes", "visible_changes",
+      "key_finding_summary", "recommended_action",
+      // field_notes specific
+      "estimated_msw_seen", "estimated_offsite_clients", "visible_nationality_ratio",
+      "info_sources", "estimated_msw_per_night_range", "foreign_msw_ratio",
+      "main_nationality_groups", "common_languages",
+      // rapid_msw specific
+      "email", "venue_code", "bangkok_area", "pattaya_area",
+      "bangkok_peer_code", "pattaya_peer_code",
+      "respondent_type", "msw_count_estimate",
+      "offsite_work_ratio", "nationality_mix", "foreign_groups",
+      "language_skill", "other_primary_language",
+      "health_info_language_priority", "health_info_channel",
+      // metadata
+      "id", "created_at",
+    ];
+
+    const escapeCell = (val: unknown): string => {
+      if (val === null || val === undefined) return "";
+      if (typeof val === "boolean") return val ? "TRUE" : "FALSE";
+      if (Array.isArray(val)) return `"${val.join("; ").replace(/"/g, '""')}"`;
+      const str = String(val);
+      if (str.includes(",") || str.includes('"') || str.includes("\n") || str.includes("\r")) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    const csvRows = [FULL_HEADERS.join(",")];
     for (const r of filtered) {
-      const row = headers.map((h) => {
-        const val = (r as any)[h];
-        if (Array.isArray(val)) return `"${val.join("; ")}"`;
-        if (val === null || val === undefined) return "";
-        return `"${String(val).replace(/"/g, '""')}"`;
+      const raw = r.raw || {};
+      const row = FULL_HEADERS.map((h) => {
+        // Map normalized fields first
+        if (h === "record_source") return escapeCell(r.source);
+        if (h === "date") return escapeCell(r.date);
+        if (h === "city") return escapeCell(r.city);
+        if (h === "area") return escapeCell(r.area);
+        if (h === "observer") return escapeCell(r.observer);
+        // Then try raw data
+        return escapeCell(raw[h]);
       });
       csvRows.push(row.join(","));
     }
@@ -295,7 +345,7 @@ export default function MelCombinedDashboard() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `mel-situational-analysis-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `mel-full-dataset-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
