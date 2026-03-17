@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useLanguage } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -59,7 +58,6 @@ interface FormData {
   offsite_nationalities: string[];
   offsite_nationalities_other: string;
   offsite_ratio: string;
-  population_groups: string[];
   // Section 4: Language
   thai_proficiency: string;
   primary_languages: string[];
@@ -75,6 +73,7 @@ interface FormData {
   // Section 6: MEL
   project_implications: string[];
   // Backward compat defaults (not shown in form)
+  population_groups: string[];
   chemsex_signal: string;
   common_substances: string;
   injection_signal: string;
@@ -139,19 +138,19 @@ const INITIAL: FormData = {
   offsite_nationalities: [],
   offsite_nationalities_other: "",
   offsite_ratio: "",
-  population_groups: [],
   thai_proficiency: "",
   primary_languages: [],
   primary_languages_other: "",
   health_languages: [],
   health_languages_other: "",
-  communication_barrier_level: "ไม่มี",
+  communication_barrier_level: "",
   barrier_observation_note: "",
   interpreter_needed: false,
   comm_channels: [],
   comm_channels_other: "",
   project_implications: [],
   // Backward compat defaults
+  population_groups: [],
   chemsex_signal: "ไม่พบ",
   common_substances: "",
   injection_signal: "ไม่พบ",
@@ -178,48 +177,53 @@ const INITIAL: FormData = {
 };
 
 const DRAFT_KEY = "unified-outreach-draft";
+const DRAFT_VERSION = 3; // Increment to force reset stale drafts
 
-// ── Option lists ────────────────────────────────────────────────────
+// ── Option lists (ALL Thai) ─────────────────────────────────────────
 const CITIES = ["กรุงเทพมหานคร", "พัทยา ชลบุรี"];
 const BKK_AREAS = ["สีลม", "สวนพลู", "บ่อนไก่", "อินทามระ", "สะพานควาย", "พัฒน์พงษ์", "อารีย์", "บางเขน"];
 const PTY_AREAS = ["จอมเทียนคอมเพล็กซ์", "บอยทาวน์", "พัทยาเหนือ", "ซอยก่อไผ่", "Walking Street", "ชัยพูน พัทยาใต้", "ถนนเรียบหาดพัทยาใต้"];
 const VENUE_TYPES = ["บาร์", "คลับ", "โกโก้บาร์", "นวด", "ซาวน่า", "ถนน/พื้นที่เปิด", "ออนไลน์"];
 const OUTREACH_TYPES = [
-  { value: "venue", label: "สถานบริการ (Venue)" },
-  { value: "street", label: "ถนน / พื้นที่เปิด (Street)" },
-  { value: "online", label: "ออนไลน์ (Online)" },
-  { value: "mixed", label: "ผสมผสาน (Mixed)" },
+  { value: "venue", label: "สถานบริการ" },
+  { value: "street", label: "ถนน / พื้นที่เปิด" },
+  { value: "online", label: "ออนไลน์" },
+  { value: "mixed", label: "ผสมผสาน" },
 ];
 const RECORD_TYPES = [
-  { value: "single_session", label: "ครั้งเดียว (Single)" },
-  { value: "repeated_visit", label: "เยี่ยมซ้ำ (Repeated)" },
-  { value: "follow_up", label: "ติดตาม (Follow-up)" },
+  { value: "single_session", label: "ครั้งเดียว" },
+  { value: "repeated_visit", label: "เยี่ยมซ้ำ" },
+  { value: "follow_up", label: "ติดตาม" },
 ];
 const OBSERVER_ROLES = [
   "Peer outreach worker", "เจ้าหน้าที่ภาคสนาม", "ผู้จัดการ", "อาสาสมัคร", "อื่นๆ",
 ];
 
-// Updated informant options per spec
-const INFORMANT_OPTIONS = ["Bar staff / Bartender", "MSW", "Peer Outreach Worker", "Mamasan", "Venue owner / Manager", "อื่นๆ"];
+const INFORMANT_OPTIONS = ["พนักงานบาร์ / บาร์เทนเดอร์", "MSW", "Peer Outreach Worker", "มาม่าซัง", "เจ้าของสถานที่ / ผู้จัดการ", "อื่นๆ"];
 
-// Standardized MSW ranges per spec
 const MSW_RANGES = ["<10", "10–30", "31–50", "51–100", "100+"];
 
 const NATIONALITY_OPTIONS = ["ไทย", "เมียนมา", "กัมพูชา", "จีน", "สปป. ลาว", "เวียดนาม", "ไทใหญ่", "อื่นๆ"];
-const OFFSITE_NATIONALITY_OPTIONS = ["ไทย", "เมียนมา", "กัมพูชา", "จีน", "สปป. ลาว", "เวียดนาม", "ไทใหญ่", "อื่นๆ"];
 
-const HEALTH_LANGUAGE_OPTIONS = ["English", "Myanmar", "Cambodian", "Chinese", "Lao", "Vietnamese", "Tai Yai", "อื่นๆ"];
+const HEALTH_LANGUAGE_OPTIONS = ["อังกฤษ", "เมียนมา", "กัมพูชา", "จีน", "ลาว", "เวียดนาม", "ไทใหญ่", "อื่นๆ"];
 
 const COMM_CHANNEL_OPTIONS = [
-  "Peer outreach / organization",
-  "Online media",
-  "Social media",
-  "Dating apps (Hornet, Grindr, Jack'd)",
-  "Clinics / community",
+  "Peer outreach / องค์กร",
+  "สื่อออนไลน์",
+  "โซเชียลมีเดีย",
+  "แอปหาคู่ (Hornet, Grindr, Jack'd)",
+  "คลินิก / ชุมชน",
   "อื่นๆ",
 ];
 
-const POPULATION_GROUP_OPTIONS = ["MSM", "MSW (Thai)", "MSW (Migrant / Non-Thai)"];
+const OFFSITE_PROPORTION_OPTIONS = [
+  { value: "unknown", label: "ไม่รู้" },
+  { value: "none", label: "ไม่มี" },
+  { value: "low", label: "ต่ำ (<25%)" },
+  { value: "medium", label: "ปานกลาง (25–50%)" },
+  { value: "medium_high", label: "ค่อนข้างสูง (50–75%)" },
+  { value: "high", label: "สูง (>75%)" },
+];
 
 const IMPLICATION_OPTIONS = [
   "ควรใช้สื่อภาพหรือสื่ออ่านง่าย", "ควรพัฒนาสื่อหลายภาษา",
@@ -228,39 +232,44 @@ const IMPLICATION_OPTIONS = [
   "ควรจัดบริการเคลื่อนที่", "ควรพัฒนาชุดความรู้ safer chemsex",
 ];
 const POPULATION_PATTERNS = ["คนไทย", "คนไทยเป็นหลัก", "ไทยและต่างชาติผสม", "ต่างชาติเป็นส่วนใหญ่"];
-const MOBILITY_PATTERNS = ["ประจำ (Stable)", "หมุนเวียน (Rotating)", "ตามฤดูกาล (Seasonal)", "ไม่ชัดเจน (Unclear)"];
+const MOBILITY_PATTERNS = ["ประจำ", "หมุนเวียน", "ตามฤดูกาล", "ไม่ชัดเจน"];
 const BARRIER_LEVELS = ["ไม่มี", "มีบ้าง", "มีมาก"];
 const THAI_PROFICIENCY_OPTIONS = [
-  { value: "fluent", label: "สื่อสารภาษาไทยได้ดี (Communicates well)" },
-  { value: "basic", label: "ภาษาไทยพื้นฐาน (Basic Thai)" },
-  { value: "other_primary", label: "ใช้ภาษาอื่นเป็นหลัก (Other language)" },
+  { value: "fluent", label: "สื่อสารภาษาไทยได้ดี" },
+  { value: "basic", label: "ภาษาไทยพื้นฐาน" },
+  { value: "other_primary", label: "ใช้ภาษาอื่นเป็นหลัก" },
 ];
 
-// ── Sections (6 sections — new order) ───────────────────────────
-interface SectionDef { key: string; title: string; titleEn: string; icon: string; }
+// ── Sections (5 sections — population group removed from MEL) ───
+interface SectionDef { key: string; title: string; icon: string; }
 
 const SECTIONS: SectionDef[] = [
-  { key: "informant", title: "ประเภทผู้ให้ข้อมูล", titleEn: "Informant", icon: "🗣️" },
-  { key: "location", title: "พื้นที่และบริบท", titleEn: "Location & Context", icon: "📍" },
-  { key: "population", title: "ประชากรและรูปแบบงาน", titleEn: "Population & Work Pattern", icon: "👥" },
-  { key: "language", title: "ภาษาสำหรับสื่อสุขภาพ", titleEn: "Health Communication Language", icon: "💬" },
-  { key: "channels", title: "ช่องทางรับข้อมูล MSW", titleEn: "MSW Communication Channels", icon: "📱" },
-  { key: "mel", title: "Population Identity & MEL", titleEn: "Population Identity & Programme Implications", icon: "📊" },
+  { key: "informant", title: "ประเภทผู้ให้ข้อมูล", icon: "🗣️" },
+  { key: "location", title: "พื้นที่และบริบท", icon: "📍" },
+  { key: "population", title: "ประชากรและรูปแบบงาน", icon: "👥" },
+  { key: "language", title: "ภาษาสำหรับสื่อสุขภาพ", icon: "💬" },
+  { key: "channels_mel", title: "ช่องทางรับข้อมูลและข้อเสนอ MEL", icon: "📱" },
 ];
 
 interface Props { onClose: () => void; }
 
 export default function UnifiedOutreachForm({ onClose }: Props) {
   const { user } = useAuth();
-  const { language } = useLanguage();
-  const isTh = language === "th";
   const qc = useQueryClient();
 
+  // Force-clear stale drafts on mount
   const [data, setData] = useState<FormData>(() => {
     try {
       const saved = localStorage.getItem(DRAFT_KEY);
-      if (saved) return { ...INITIAL, ...JSON.parse(saved) };
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed._v === DRAFT_VERSION) {
+          return { ...INITIAL, ...parsed };
+        }
+      }
     } catch {}
+    // Clear any old draft
+    localStorage.removeItem(DRAFT_KEY);
     return { ...INITIAL };
   });
   const [sectionIdx, setSectionIdx] = useState(0);
@@ -268,7 +277,7 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(data)); } catch {}
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...data, _v: DRAFT_VERSION })); } catch {}
   }, [data]);
 
   const clearDraft = useCallback(() => { localStorage.removeItem(DRAFT_KEY); }, []);
@@ -297,8 +306,7 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
     location: ["survey_date", "start_time", "end_time", "observer_name", "city", "area_name"],
     population: ["msw_estimated_range"],
     language: [],
-    channels: [],
-    mel: [],
+    channels_mel: [],
   };
 
   const validateSection = (): boolean => {
@@ -318,7 +326,7 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
 
   const goNext = () => {
     if (!validateSection()) {
-      toast.error(isTh ? "กรุณากรอกข้อมูลที่จำเป็น" : "Please fill required fields");
+      toast.error("กรุณากรอกข้อมูลที่จำเป็น");
       return;
     }
     setSectionIdx((i) => Math.min(i + 1, SECTIONS.length - 1));
@@ -331,19 +339,18 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
     window.scrollTo(0, 0);
   };
 
-  // Map pin: use browser geolocation
   const captureLocation = () => {
     if (!navigator.geolocation) {
-      toast.error(isTh ? "เบราว์เซอร์ไม่รองรับ GPS" : "GPS not supported");
+      toast.error("เบราว์เซอร์ไม่รองรับ GPS");
       return;
     }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setField("map_lat", pos.coords.latitude);
         setField("map_lng", pos.coords.longitude);
-        toast.success(isTh ? "จับพิกัดแล้ว" : "Location captured");
+        toast.success("จับพิกัดแล้ว");
       },
-      () => toast.error(isTh ? "ไม่สามารถจับพิกัดได้" : "Could not get location"),
+      () => toast.error("ไม่สามารถจับพิกัดได้"),
       { enableHighAccuracy: true, timeout: 10000 }
     );
   };
@@ -351,7 +358,7 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
   const submitMutation = useMutation({
     mutationFn: async (isDraft: boolean) => {
       const payload: any = { ...data, is_draft: isDraft, submitted_by: user?.id || null, record_source: "unified_form" };
-      // Sync msw_estimated_range → estimated_msw_count for backward compat
+      delete payload._v;
       if (payload.msw_estimated_range) payload.estimated_msw_count = payload.msw_estimated_range;
       if (payload.thai_proficiency !== "other_primary") {
         payload.primary_languages = [];
@@ -363,6 +370,8 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
       if (!payload.offsite_nationalities?.includes("อื่นๆ")) payload.offsite_nationalities_other = null;
       if (!payload.health_languages?.includes("อื่นๆ")) payload.health_languages_other = null;
       if (payload.communication_barrier_level !== "มีมาก") payload.barrier_observation_note = null;
+      // population_groups not shown but still submitted as empty for backward compat
+      payload.population_groups = [];
       const { error } = await supabase.from("outreach_situational_forms" as any).insert(payload as any);
       if (error) throw error;
     },
@@ -371,18 +380,18 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
       qc.invalidateQueries({ queryKey: ["outreach-situational"] });
       qc.invalidateQueries({ queryKey: ["mel-combined-dashboard"] });
       if (isDraft) {
-        toast.success(isTh ? "บันทึกฉบับร่างแล้ว" : "Draft saved");
+        toast.success("บันทึกฉบับร่างแล้ว");
         onClose();
       } else {
         setSubmitted(true);
       }
     },
-    onError: () => { toast.error(isTh ? "เกิดข้อผิดพลาด" : "Failed to save"); },
+    onError: () => { toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่"); },
   });
 
   const handleSubmit = () => {
     if (!validateSection()) {
-      toast.error(isTh ? "กรุณากรอกข้อมูลที่จำเป็น" : "Please fill required fields");
+      toast.error("กรุณากรอกข้อมูลที่จำเป็น");
       return;
     }
     submitMutation.mutate(false);
@@ -394,12 +403,12 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
         <div className="h-20 w-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
           <CheckCircle className="h-10 w-10 text-green-600 dark:text-green-400" />
         </div>
-        <h2 className="text-2xl font-bold text-foreground">{isTh ? "บันทึกสำเร็จ!" : "Submission Recorded!"}</h2>
-        <p className="text-muted-foreground max-w-md">{isTh ? "ข้อมูลถูกบันทึกเรียบร้อยแล้ว" : "Your observation has been recorded."}</p>
+        <h2 className="text-2xl font-bold text-foreground">บันทึกสำเร็จ!</h2>
+        <p className="text-muted-foreground max-w-md">ข้อมูลถูกบันทึกเรียบร้อยแล้ว สามารถดูผลได้ที่แท็บวิเคราะห์</p>
         <div className="flex gap-3 mt-4">
-          <Button variant="outline" onClick={onClose}>{isTh ? "กลับรายการ" : "Back"}</Button>
+          <Button variant="outline" onClick={onClose}>กลับรายการ</Button>
           <Button onClick={() => { setData({ ...INITIAL }); setSectionIdx(0); setSubmitted(false); }}>
-            {isTh ? "บันทึกอีกครั้ง" : "New Entry"}
+            บันทึกอีกครั้ง
           </Button>
         </div>
       </div>
@@ -454,17 +463,17 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
             <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
               <CardContent className="pt-4 pb-3">
                 <p className="text-xs text-muted-foreground">
-                  🗣️ {isTh ? "ระบุประเภทของผู้ให้ข้อมูลที่พูดคุยด้วยในครั้งนี้ — สามารถเลือกได้มากกว่า 1" : "Select the main person(s) providing this information"}
+                  🗣️ ระบุประเภทของผู้ให้ข้อมูลที่พูดคุยด้วยในครั้งนี้ — สามารถเลือกได้มากกว่า 1
                 </p>
               </CardContent>
             </Card>
             <div className="space-y-1.5">
-              <FieldLabel label={isTh ? "ประเภทผู้ให้ข้อมูล" : "Type of Informant"} />
-              <HelperText text={isTh ? "เลือกผู้ที่ให้ข้อมูลในระหว่างลงพื้นที่" : "Select the main person providing this information"} />
+              <FieldLabel label="ประเภทผู้ให้ข้อมูล" />
+              <HelperText text="เลือกผู้ที่ให้ข้อมูลหลักในระหว่างลงพื้นที่" />
               <MultiCheckboxField field="informant_type" options={INFORMANT_OPTIONS} />
               {data.informant_type.includes("อื่นๆ") && (
                 <div className="mt-2 pl-3 border-l-2 border-primary/30">
-                  <FieldLabel label={isTh ? "ระบุประเภทอื่น" : "Specify other"} />
+                  <FieldLabel label="ระบุประเภทอื่น" />
                   <Input placeholder="เช่น เจ้าของร้าน ลูกค้าประจำ" value={data.informant_type_other} onChange={(e) => setField("informant_type_other", e.target.value)} className="min-h-[48px] mt-1" />
                 </div>
               )}
@@ -478,41 +487,46 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
           <div className="space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <FieldLabel label={isTh ? "วันที่ลงพื้นที่จริง" : "Survey date"} required error={errors.survey_date} />
+                <FieldLabel label="วันที่ลงพื้นที่จริง" required error={errors.survey_date} />
+                <HelperText text="วันที่ออกเยี่ยมภาคสนาม" />
                 <Input type="date" value={data.survey_date} onChange={(e) => setField("survey_date", e.target.value)} className="min-h-[48px]" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <FieldLabel label={isTh ? "เริ่ม" : "Start"} required error={errors.start_time} />
+                  <FieldLabel label="เริ่ม" required error={errors.start_time} />
                   <Input type="time" value={data.start_time} onChange={(e) => setField("start_time", e.target.value)} className="min-h-[48px]" />
                 </div>
                 <div className="space-y-1.5">
-                  <FieldLabel label={isTh ? "สิ้นสุด" : "End"} required error={errors.end_time} />
+                  <FieldLabel label="สิ้นสุด" required error={errors.end_time} />
                   <Input type="time" value={data.end_time} onChange={(e) => setField("end_time", e.target.value)} className="min-h-[48px]" />
                 </div>
               </div>
             </div>
             <div className="space-y-1.5">
-              <FieldLabel label={isTh ? "ผู้สังเกต / Peer" : "Observer / Peer"} required error={errors.observer_name} />
+              <FieldLabel label="ชื่อผู้สังเกต / Peer" required error={errors.observer_name} />
+              <HelperText text="ชื่อหรือรหัสของผู้ลงพื้นที่" />
               <Input placeholder="เช่น นพสร" value={data.observer_name} onChange={(e) => setField("observer_name", e.target.value)} className={cn("min-h-[48px]", errors.observer_name && "border-destructive")} />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <FieldLabel label={isTh ? "บทบาทผู้สังเกต" : "Observer role"} />
+                <FieldLabel label="บทบาทผู้สังเกต" />
+                <HelperText text="เลือกบทบาทของผู้ลงพื้นที่" />
                 <SelectField field="observer_role" options={OBSERVER_ROLES} placeholder="เลือกบทบาท" />
               </div>
               <div className="space-y-1.5">
-                <FieldLabel label={isTh ? "รหัส Peer" : "Peer code"} />
+                <FieldLabel label="รหัส Peer" />
+                <HelperText text="รหัสสำหรับอ้างอิง" />
                 <Input placeholder="เช่น BKK01" value={data.peer_code} onChange={(e) => setField("peer_code", e.target.value)} className="min-h-[48px]" />
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <FieldLabel label={isTh ? "เมือง / จังหวัด" : "City"} required error={errors.city} />
+                <FieldLabel label="เมือง / จังหวัด" required error={errors.city} />
                 <SelectField field="city" options={CITIES} placeholder="เลือกเมือง" />
               </div>
               <div className="space-y-1.5">
-                <FieldLabel label={isTh ? "ย่าน (Area / Zone)" : "Area / Zone"} required error={errors.area_name} />
+                <FieldLabel label="ย่าน / พื้นที่" required error={errors.area_name} />
+                <HelperText text="เลือกหรือพิมพ์ชื่อย่านที่ลงพื้นที่" />
                 {areas.length > 0 ? (
                   <SelectField field="area_name" options={areas} placeholder="เลือกพื้นที่" />
                 ) : (
@@ -521,22 +535,22 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
               </div>
             </div>
             <div className="space-y-1.5">
-              <FieldLabel label={isTh ? "รายละเอียดพื้นที่เพิ่มเติม" : "Additional area details"} />
-              <HelperText text={isTh ? "ข้อมูลเสริมเกี่ยวกับย่านหรือพื้นที่เฉพาะ" : "Extra context about this area"} />
+              <FieldLabel label="รายละเอียดพื้นที่เพิ่มเติม" />
+              <HelperText text="ข้อมูลเสริมเกี่ยวกับย่านหรือพื้นที่เฉพาะ เช่น ซอย จุดรวมตัว" />
               <Textarea placeholder="เช่น ซอยที่เฉพาะ จุดรวมตัว" value={data.area_notes} onChange={(e) => setField("area_notes", e.target.value)} className="min-h-[60px]" />
             </div>
             <div className="space-y-1.5">
-              <FieldLabel label={isTh ? "สถานที่ (รหัส/ชื่อ)" : "Venue alias"} />
-              <HelperText text={isTh ? "ไม่ระบุชื่อจริง — ใช้รหัสแทน" : "Use code name, not real venue name"} />
+              <FieldLabel label="สถานที่ (รหัส/ชื่อเล่น)" />
+              <HelperText text="ไม่ระบุชื่อจริง — ใช้รหัสแทนเพื่อความปลอดภัย" />
               <Input placeholder="เช่น Venue A / Bar 01" value={data.venue_alias} onChange={(e) => setField("venue_alias", e.target.value)} className="min-h-[48px]" />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <FieldLabel label={isTh ? "ประเภทสถานที่" : "Venue type"} />
+                <FieldLabel label="ประเภทสถานที่" />
                 <SelectField field="venue_type" options={VENUE_TYPES} placeholder="เลือกประเภท" />
               </div>
               <div className="space-y-1.5">
-                <FieldLabel label={isTh ? "ประเภท Outreach" : "Outreach type"} />
+                <FieldLabel label="ประเภทการลงพื้นที่" />
                 <SelectField field="outreach_type" options={OUTREACH_TYPES} />
               </div>
             </div>
@@ -545,11 +559,11 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
               <CardContent className="pt-4 pb-3 space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium">{isTh ? "📍 ปักหมุดตำแหน่ง" : "📍 Drop Pin"}</p>
-                    <p className="text-xs text-muted-foreground">{isTh ? "จับพิกัด GPS เพื่อลดความซ้ำซ้อนของข้อมูลพื้นที่" : "Capture GPS to reduce location duplication"}</p>
+                    <p className="text-sm font-medium">📍 ปักหมุดตำแหน่ง</p>
+                    <p className="text-xs text-muted-foreground">จับพิกัด GPS เพื่อลดความซ้ำซ้อนของข้อมูลพื้นที่</p>
                   </div>
                   <Button size="sm" variant="outline" onClick={captureLocation} className="min-h-[40px] gap-1">
-                    <MapPin className="h-4 w-4" />{isTh ? "จับพิกัด" : "Pin"}
+                    <MapPin className="h-4 w-4" />จับพิกัด
                   </Button>
                 </div>
                 {data.map_lat && data.map_lng && (
@@ -558,40 +572,44 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
                   </div>
                 )}
                 <div className="space-y-1.5">
-                  <FieldLabel label={isTh ? "ชื่อสถานที่ (จาก GPS)" : "Venue name (from pin)"} />
-                  <HelperText text={isTh ? "ชื่อที่เห็นบน Google Maps — ช่วยลดการตั้งชื่อซ้ำ" : "As shown on map to reduce naming duplication"} />
+                  <FieldLabel label="ชื่อสถานที่ (จาก GPS)" />
+                  <HelperText text="ชื่อที่เห็นบนแผนที่ — ช่วยลดการตั้งชื่อซ้ำ" />
                   <Input placeholder="เช่น DJ Station" value={data.venue_name} onChange={(e) => setField("venue_name", e.target.value)} className="min-h-[48px]" />
                 </div>
               </CardContent>
             </Card>
             <div className="space-y-1.5">
-              <FieldLabel label={isTh ? "ลักษณะการบันทึก" : "Record type"} />
+              <FieldLabel label="ลักษณะการบันทึก" />
+              <HelperText text="เป็นการลงพื้นที่ครั้งแรก หรือเยี่ยมซ้ำ/ติดตาม" />
               <SelectField field="record_type" options={RECORD_TYPES} />
             </div>
             <div className="space-y-1.5">
-              <FieldLabel label={isTh ? "ระดับความเข้มข้นของกิจกรรม" : "Activity intensity"} />
+              <FieldLabel label="ระดับความเข้มข้นของกิจกรรม" />
+              <HelperText text="ประเมินจากบรรยากาศและจำนวนคนที่พบเห็น" />
               <SelectField field="activity_intensity" options={[
-                { value: "low", label: "ต่ำ (Low)" },
-                { value: "medium", label: "ปานกลาง (Medium)" },
-                { value: "high", label: "สูง (High)" },
+                { value: "low", label: "ต่ำ" },
+                { value: "medium", label: "ปานกลาง" },
+                { value: "high", label: "สูง" },
               ]} />
             </div>
             <div className="flex items-center gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
                 <Switch checked={data.is_known_hotspot} onCheckedChange={(v) => setField("is_known_hotspot", v)} />
-                <span className="text-sm">{isTh ? "Hotspot ที่รู้จัก" : "Known hotspot"}</span>
+                <span className="text-sm">Hotspot ที่รู้จัก</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <Switch checked={data.is_emerging_hotspot} onCheckedChange={(v) => setField("is_emerging_hotspot", v)} />
-                <span className="text-sm">{isTh ? "Hotspot ใหม่" : "Emerging hotspot"}</span>
+                <span className="text-sm">Hotspot ใหม่</span>
               </label>
             </div>
             <div className="space-y-1.5">
-              <FieldLabel label={isTh ? "การเปลี่ยนแปลงจากครั้งก่อน" : "Changes from previous visit"} />
+              <FieldLabel label="การเปลี่ยนแปลงจากครั้งก่อน" />
+              <HelperText text="สิ่งที่แตกต่างจากการลงพื้นที่ครั้งก่อน" />
               <Textarea placeholder="เช่น พบกลุ่มเป้าหมายน้อยลง / ย้ายพื้นที่" value={data.visible_changes} onChange={(e) => setField("visible_changes", e.target.value)} className="min-h-[80px]" />
             </div>
             <div className="space-y-1.5">
-              <FieldLabel label={isTh ? "บันทึกเพิ่มเติมเกี่ยวกับสภาพแวดล้อม" : "Environment notes"} />
+              <FieldLabel label="บันทึกเพิ่มเติมเกี่ยวกับสภาพแวดล้อม" />
+              <HelperText text="สิ่งที่สังเกตเห็นในพื้นที่ เช่น ช่วงเวลา ลักษณะพิเศษ" />
               <Textarea placeholder="เช่น ช่วง crowd flow / active hours" value={data.environment_notes} onChange={(e) => setField("environment_notes", e.target.value)} className="min-h-[80px]" />
             </div>
           </div>
@@ -602,60 +620,61 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
         return (
           <div className="space-y-5">
             <div className="space-y-1.5">
-              <FieldLabel label={isTh ? "จำนวน MSW ที่พบเห็นต่อคืนโดยประมาณ" : "Estimated MSW per night"} required error={errors.msw_estimated_range} />
-              <HelperText text={isTh ? "ประมาณจากการสังเกตหรือข้อมูลจากผู้ให้ข้อมูลในช่วงเวลาที่ลง" : "Estimate based on observation or informant input during this time period"} />
+              <FieldLabel label="จำนวน MSW ที่พบเห็นต่อคืนโดยประมาณ" required error={errors.msw_estimated_range} />
+              <HelperText text="ประมาณจากการสังเกตหรือข้อมูลจากผู้ให้ข้อมูลในช่วงเวลาที่ลง" />
               <SelectField field="msw_estimated_range" options={MSW_RANGES} placeholder="เลือกช่วง" />
             </div>
             <div className="space-y-1.5">
-              <FieldLabel label={isTh ? "จำนวน MSM อื่นๆ ที่พบ (ถ้ามี)" : "Other MSM observed (if any)"} />
+              <FieldLabel label="จำนวน MSM อื่นๆ ที่พบ (ถ้ามี)" />
+              <HelperText text="จำนวน MSM ที่ไม่ใช่ MSW ที่สังเกตเห็นในพื้นที่" />
               <SelectField field="estimated_msm_count" options={MSW_RANGES} placeholder="เลือกช่วง" />
             </div>
             <div className="space-y-1.5">
-              <FieldLabel label={isTh ? "รูปแบบประชากร (ไทย/ต่างชาติ)" : "Population pattern"} />
+              <FieldLabel label="รูปแบบประชากร (ไทย/ต่างชาติ)" />
+              <HelperText text="สัดส่วนคนไทยกับต่างชาติที่พบเห็นโดยรวม" />
               <SelectField field="population_pattern" options={POPULATION_PATTERNS} />
             </div>
             <div className="space-y-1.5">
-              <FieldLabel label={isTh ? "กลุ่มสัญชาติที่พบ" : "Nationality groups observed"} />
-              <HelperText text={isTh ? "เลือกกลุ่มสัญชาติที่สังเกตเห็น — เลือก 'อื่นๆ' เพื่อระบุเพิ่มเติม" : "Select all observed — choose 'Other' for unlisted"} />
+              <FieldLabel label="กลุ่มสัญชาติที่พบ" />
+              <HelperText text="เลือกกลุ่มสัญชาติที่สังเกตเห็น — เลือก 'อื่นๆ' เพื่อระบุเพิ่มเติม" />
               <MultiCheckboxField field="nationality_groups" options={NATIONALITY_OPTIONS} />
               {data.nationality_groups.includes("อื่นๆ") && (
                 <div className="mt-2 pl-3 border-l-2 border-primary/30">
-                  <FieldLabel label={isTh ? "ระบุสัญชาติอื่น" : "Specify other nationality"} />
+                  <FieldLabel label="ระบุสัญชาติอื่น" />
                   <Input placeholder="เช่น อินเดีย ฟิลิปปินส์" value={data.nationality_other} onChange={(e) => setField("nationality_other", e.target.value)} className="min-h-[48px] mt-1" />
                 </div>
               )}
             </div>
             <div className="space-y-1.5">
-              <FieldLabel label={isTh ? "รูปแบบอายุโดยประมาณ" : "Age pattern"} />
+              <FieldLabel label="ช่วงอายุโดยประมาณ" />
+              <HelperText text="ช่วงอายุของ MSW ที่พบเห็นมากที่สุด" />
               <Input placeholder="เช่น 18-30 เป็นส่วนใหญ่" value={data.age_pattern} onChange={(e) => setField("age_pattern", e.target.value)} className="min-h-[48px]" />
             </div>
             <div className="space-y-1.5">
-              <FieldLabel label={isTh ? "สัดส่วนรับงานนอกสถานที่" : "Offsite work proportion"} />
-              <HelperText text={isTh ? "ประมาณสัดส่วน MSW ที่ทำงานนอกสถานที่" : "Approximate offsite work ratio"} />
-              <SelectField field="offsite_proportion" options={[
-                { value: "low", label: "ต่ำ (Low — <25%)" },
-                { value: "medium", label: "ปานกลาง (Medium — 25–50%)" },
-                { value: "high", label: "สูง (High — >50%)" },
-              ]} placeholder="เลือก" />
+              <FieldLabel label="สัดส่วนรับงานนอกสถานที่" />
+              <HelperText text="ประมาณสัดส่วน MSW ที่รับงานนอกสถานบริการ" />
+              <SelectField field="offsite_proportion" options={OFFSITE_PROPORTION_OPTIONS} placeholder="เลือก" />
             </div>
             <div className="space-y-1.5">
-              <FieldLabel label={isTh ? "สัญชาติที่ทำงานนอกสถานที่บ่อย" : "Nationalities commonly working offsite"} />
-              <HelperText text={isTh ? "สัญชาติใดที่พบว่ารับงานนอกสถานที่มากที่สุด" : "Which nationalities are most commonly working offsite?"} />
-              <MultiCheckboxField field="offsite_nationalities" options={OFFSITE_NATIONALITY_OPTIONS} />
+              <FieldLabel label="สัญชาติที่ทำงานนอกสถานที่บ่อย" />
+              <HelperText text="สัญชาติใดที่พบว่ารับงานนอกสถานที่มากที่สุด" />
+              <MultiCheckboxField field="offsite_nationalities" options={NATIONALITY_OPTIONS} />
               {data.offsite_nationalities.includes("อื่นๆ") && (
                 <div className="mt-2 pl-3 border-l-2 border-primary/30">
-                  <FieldLabel label={isTh ? "ระบุสัญชาติอื่น" : "Specify other"} />
+                  <FieldLabel label="ระบุสัญชาติอื่น" />
                   <Input placeholder="เช่น อินเดีย" value={data.offsite_nationalities_other} onChange={(e) => setField("offsite_nationalities_other", e.target.value)} className="min-h-[48px] mt-1" />
                 </div>
               )}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <FieldLabel label={isTh ? "รูปแบบการเคลื่อนย้าย" : "Mobility pattern"} />
+                <FieldLabel label="รูปแบบการเคลื่อนย้าย" />
+                <HelperText text="MSW อยู่ประจำหรือหมุนเวียนย้ายที่" />
                 <SelectField field="mobility_pattern" options={MOBILITY_PATTERNS} />
               </div>
               <div className="space-y-1.5">
-                <FieldLabel label={isTh ? "การเชื่อมโยง Online ↔ Offline" : "Online-offline linkage"} />
+                <FieldLabel label="การเชื่อมโยง Online ↔ Offline" />
+                <HelperText text="MSW ใช้ช่องทางออนไลน์หาลูกค้าอย่างไร" />
                 <Input placeholder="เช่น ใช้แอปหาลูกค้าแล้วนัดพบที่บาร์" value={data.online_offline_linkage} onChange={(e) => setField("online_offline_linkage", e.target.value)} className="min-h-[48px]" />
               </div>
             </div>
@@ -669,24 +688,24 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
             <Card className="border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20">
               <CardContent className="pt-4 pb-3">
                 <p className="text-xs text-muted-foreground">
-                  💬 {isTh ? "ส่วนนี้โฟกัสการสื่อสารกับ MSW — ประเมินระดับภาษาไทยและภาษาที่ต้องการสำหรับสื่อสุขภาพ" : "MSW-focused: assess Thai proficiency and languages needed for health materials"}
+                  💬 ส่วนนี้ประเมินระดับภาษาไทยของ MSW และภาษาที่ต้องการสำหรับสื่อสุขภาพ
                 </p>
               </CardContent>
             </Card>
             <div className="space-y-1.5">
-              <FieldLabel label={isTh ? "ระดับภาษาไทยของ MSW ในพื้นที่" : "Thai proficiency of MSW in this area"} />
-              <HelperText text={isTh ? "ประเมินจากการพูดคุยจริง — MSW สื่อสารภาษาไทยได้แค่ไหน" : "Assess from actual conversation — how well MSW communicate in Thai"} />
+              <FieldLabel label="ระดับภาษาไทยของ MSW ในพื้นที่" />
+              <HelperText text="ประเมินจากการพูดคุยจริง — MSW สื่อสารภาษาไทยได้แค่ไหน" />
               <SelectField field="thai_proficiency" options={THAI_PROFICIENCY_OPTIONS} placeholder="เลือกระดับ" />
             </div>
             {data.thai_proficiency === "other_primary" && (
               <div className="space-y-3 pl-3 border-l-2 border-blue-300 dark:border-blue-700">
                 <div className="space-y-1.5">
-                  <FieldLabel label={isTh ? "ภาษาหลักที่ MSW ใช้สื่อสาร" : "Main language used by MSW"} />
-                  <HelperText text={isTh ? "เลือกภาษาที่ MSW ใช้จริง — เลือกได้มากกว่า 1" : "Select languages MSW actually use — multi-select"} />
+                  <FieldLabel label="ภาษาหลักที่ MSW ใช้สื่อสาร" />
+                  <HelperText text="เลือกภาษาที่ MSW ใช้จริง — เลือกได้มากกว่า 1" />
                   <MultiCheckboxField field="primary_languages" options={["เมียนมา", "กัมพูชา", "ลาว", "เวียดนาม", "จีน", "อังกฤษ", "รัสเซีย", "อื่นๆ"]} />
                   {data.primary_languages.includes("อื่นๆ") && (
                     <div className="mt-2 pl-3 border-l-2 border-primary/30">
-                      <FieldLabel label={isTh ? "ระบุภาษาอื่น" : "Specify other"} />
+                      <FieldLabel label="ระบุภาษาอื่น" />
                       <Input placeholder="เช่น ฮินดี ญี่ปุ่น" value={data.primary_languages_other} onChange={(e) => setField("primary_languages_other", e.target.value)} className="min-h-[48px] mt-1" />
                     </div>
                   )}
@@ -694,80 +713,71 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
               </div>
             )}
             <div className="space-y-1.5">
-              <FieldLabel label={isTh ? "ภาษาที่ควรมีสำหรับสื่อสุขภาพ / ลดอันตราย" : "Languages needed for health / harm reduction materials"} />
-              <HelperText text={isTh ? "ภาษาที่จำเป็นในการสื่อสารข้อมูลสุขภาพอย่างมีประสิทธิภาพ" : "Languages needed to effectively deliver health and harm reduction information"} />
+              <FieldLabel label="ภาษาที่ควรมีสำหรับสื่อสุขภาพ / ลดอันตราย" />
+              <HelperText text="ภาษาที่จำเป็นในการสื่อสารข้อมูลสุขภาพอย่างมีประสิทธิภาพ" />
               <MultiCheckboxField field="health_languages" options={HEALTH_LANGUAGE_OPTIONS} />
               {data.health_languages.includes("อื่นๆ") && (
                 <div className="mt-2 pl-3 border-l-2 border-primary/30">
-                  <FieldLabel label={isTh ? "ระบุภาษาอื่น" : "Specify other"} />
-                  <Input placeholder="เช่น Hindi Japanese" value={data.health_languages_other} onChange={(e) => setField("health_languages_other", e.target.value)} className="min-h-[48px] mt-1" />
+                  <FieldLabel label="ระบุภาษาอื่น" />
+                  <Input placeholder="เช่น ฮินดี ญี่ปุ่น" value={data.health_languages_other} onChange={(e) => setField("health_languages_other", e.target.value)} className="min-h-[48px] mt-1" />
                 </div>
               )}
             </div>
             <div className="space-y-1.5">
-              <FieldLabel label={isTh ? "ระดับอุปสรรคด้านการสื่อสาร" : "Communication barrier level"} />
-              <HelperText text={isTh ? "โดยรวม — MSW เข้าใจข้อมูลสุขภาพที่สื่อสารได้มากน้อยแค่ไหน" : "Overall — how well MSW understand health info communicated"} />
+              <FieldLabel label="ระดับอุปสรรคด้านการสื่อสาร" />
+              <HelperText text="โดยรวม — MSW เข้าใจข้อมูลสุขภาพที่สื่อสารได้มากน้อยแค่ไหน" />
               <SelectField field="communication_barrier_level" options={BARRIER_LEVELS} />
             </div>
             {data.communication_barrier_level === "มีมาก" && (
               <div className="space-y-1.5 pl-3 border-l-2 border-destructive/30">
-                <FieldLabel label={isTh ? "อุปสรรคด้านภาษาที่พบ" : "Language barriers observed"} />
-                <HelperText text={isTh ? "เช่น MSW ไม่เข้าใจคำแนะนำ / ต้องใช้ล่าม / ไม่สามารถอ่านสื่อที่มี" : "e.g. MSW can't understand advice / need interpreter / can't read materials"} />
-                <Textarea placeholder={isTh ? "เขียนข้อสังเกตเกี่ยวกับอุปสรรค" : "Describe barriers"} value={data.barrier_observation_note} onChange={(e) => setField("barrier_observation_note", e.target.value)} className="min-h-[100px]" />
+                <FieldLabel label="อุปสรรคด้านภาษาที่พบ" />
+                <HelperText text="เช่น MSW ไม่เข้าใจคำแนะนำ / ต้องใช้ล่าม / ไม่สามารถอ่านสื่อที่มี" />
+                <Textarea placeholder="เขียนข้อสังเกตเกี่ยวกับอุปสรรค" value={data.barrier_observation_note} onChange={(e) => setField("barrier_observation_note", e.target.value)} className="min-h-[100px]" />
               </div>
             )}
             <div className="flex items-center gap-2">
               <Switch checked={data.interpreter_needed} onCheckedChange={(v) => setField("interpreter_needed", v)} />
-              <span className="text-sm">{isTh ? "ต้องการล่ามหรือ Peer ที่พูดภาษาเดียวกับ MSW" : "Interpreter / same-language peer needed"}</span>
+              <span className="text-sm">ต้องการล่ามหรือ Peer ที่พูดภาษาเดียวกับ MSW</span>
             </div>
           </div>
         );
 
-      // ─── SECTION 5: MSW COMMUNICATION CHANNELS ───
-      case "channels":
+      // ─── SECTION 5: CHANNELS + MEL (merged) ───
+      case "channels_mel":
         return (
           <div className="space-y-5">
             <Card className="border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-950/20">
               <CardContent className="pt-4 pb-3">
                 <p className="text-xs text-muted-foreground">
-                  📱 {isTh ? "ช่องทางที่ MSW ใช้รับข้อมูลสุขภาพหรือข้อมูลอื่นๆ" : "Preferred channels MSW use to receive health or other information"}
+                  📱 ช่องทางที่ MSW ใช้รับข้อมูลสุขภาพ และข้อเสนอแนะเชิงโครงการ
                 </p>
               </CardContent>
             </Card>
             <div className="space-y-1.5">
-              <FieldLabel label={isTh ? "ช่องทางที่ MSW นิยมใช้ในการรับข้อมูล" : "MSW preferred information channels"} />
-              <HelperText text={isTh ? "ช่องทางที่ MSW ได้รับข้อมูลสุขภาพหรือบริการบ่อยที่สุด" : "Where MSW most often receive health or service information"} />
+              <FieldLabel label="ช่องทางที่ MSW นิยมใช้ในการรับข้อมูล" />
+              <HelperText text="ช่องทางที่ MSW ได้รับข้อมูลสุขภาพหรือบริการบ่อยที่สุด" />
               <MultiCheckboxField field="comm_channels" options={COMM_CHANNEL_OPTIONS} />
               {data.comm_channels.includes("อื่นๆ") && (
                 <div className="mt-2 pl-3 border-l-2 border-primary/30">
-                  <FieldLabel label={isTh ? "ระบุช่องทางอื่น" : "Specify other"} />
+                  <FieldLabel label="ระบุช่องทางอื่น" />
                   <Input placeholder="เช่น TikTok Twitter/X" value={data.comm_channels_other} onChange={(e) => setField("comm_channels_other", e.target.value)} className="min-h-[48px] mt-1" />
                 </div>
               )}
             </div>
-          </div>
-        );
 
-      // ─── SECTION 6: POPULATION IDENTITY + MEL ───
-      case "mel":
-        return (
-          <div className="space-y-5">
-            <Card className="border-primary/20 bg-primary/5">
-              <CardContent className="pt-4 pb-3">
-                <p className="text-xs text-muted-foreground">
-                  📊 {isTh ? "เลือกกลุ่มประชากรที่สังเกตเห็น และผลกระทบต่อโครงการ — ข้อเสนอแนะเชิงลึกจะถูกสร้างอัตโนมัติใน Dashboard" : "Select observed population groups and programme implications — detailed insights auto-generated in Dashboard"}
-                </p>
-              </CardContent>
-            </Card>
-            <div className="space-y-1.5">
-              <FieldLabel label={isTh ? "กลุ่มประชากรที่พบ" : "Population group observed"} />
-              <HelperText text={isTh ? "เลือกทุกกลุ่มที่สังเกตเห็นในการลงพื้นที่ครั้งนี้" : "Select all groups observed in this outreach period"} />
-              <MultiCheckboxField field="population_groups" options={POPULATION_GROUP_OPTIONS} />
-            </div>
-            <div className="space-y-1.5">
-              <FieldLabel label={isTh ? "ผลกระทบต่อการออกแบบโครงการ" : "Programme implications"} />
-              <HelperText text={isTh ? "เลือกหากเกี่ยวข้องกับสิ่งที่สังเกตเห็นในครั้งนี้" : "Select if relevant to what was observed"} />
-              <MultiCheckboxField field="project_implications" options={IMPLICATION_OPTIONS} />
+            <div className="border-t border-border pt-5 mt-5">
+              <Card className="border-primary/20 bg-primary/5 mb-4">
+                <CardContent className="pt-4 pb-3">
+                  <p className="text-xs text-muted-foreground">
+                    📊 ข้อเสนอแนะเชิงโครงการ — เลือกหากเกี่ยวข้องกับสิ่งที่สังเกตเห็นในครั้งนี้
+                  </p>
+                </CardContent>
+              </Card>
+              <div className="space-y-1.5">
+                <FieldLabel label="ผลกระทบต่อการออกแบบโครงการ" />
+                <HelperText text="เลือกข้อเสนอแนะที่เกี่ยวข้องกับสิ่งที่พบในครั้งนี้" />
+                <MultiCheckboxField field="project_implications" options={IMPLICATION_OPTIONS} />
+              </div>
             </div>
           </div>
         );
@@ -785,9 +795,9 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div className="flex-1 min-w-0">
-          <h2 className="text-lg font-bold text-foreground truncate">{isTh ? "แบบฟอร์มรวม Outreach" : "Unified Outreach Form"}</h2>
+          <h2 className="text-lg font-bold text-foreground truncate">แบบฟอร์มรวม Outreach</h2>
           <p className="text-xs text-muted-foreground">
-            {currentSection.icon} {currentSection.title} <span className="text-muted-foreground/60">/ {currentSection.titleEn}</span>
+            {currentSection.icon} {currentSection.title}
           </p>
         </div>
         <span className="text-xs text-muted-foreground shrink-0">{sectionIdx + 1}/{SECTIONS.length}</span>
@@ -818,7 +828,6 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-base">{currentSection.title}</CardTitle>
-          <CardDescription className="text-xs">{currentSection.titleEn}</CardDescription>
         </CardHeader>
         <CardContent>{renderSection()}</CardContent>
       </Card>
@@ -826,19 +835,19 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
       {/* Navigation */}
       <div className="flex gap-3 sticky bottom-0 bg-background/95 backdrop-blur-sm py-3 border-t border-border -mx-4 px-4">
         <Button variant="outline" onClick={goBack} className="min-h-[48px] flex-1">
-          <ArrowLeft className="h-4 w-4 mr-1" />{sectionIdx === 0 ? (isTh ? "ยกเลิก" : "Cancel") : (isTh ? "ย้อนกลับ" : "Back")}
+          <ArrowLeft className="h-4 w-4 mr-1" />{sectionIdx === 0 ? "ยกเลิก" : "ย้อนกลับ"}
         </Button>
         <Button variant="outline" onClick={() => submitMutation.mutate(true)} disabled={submitMutation.isPending} className="min-h-[48px]">
-          <Save className="h-4 w-4 mr-1" />{isTh ? "ร่าง" : "Draft"}
+          <Save className="h-4 w-4 mr-1" />ร่าง
         </Button>
         {isLast ? (
           <Button onClick={handleSubmit} disabled={submitMutation.isPending} className="min-h-[48px] flex-1">
             {submitMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <ClipboardCheck className="h-4 w-4 mr-1" />}
-            {isTh ? "ส่งบันทึก" : "Submit"}
+            ส่งบันทึก
           </Button>
         ) : (
           <Button onClick={goNext} className="min-h-[48px] flex-1">
-            {isTh ? "ถัดไป" : "Next"}<ArrowRight className="h-4 w-4 ml-1" />
+            ถัดไป<ArrowRight className="h-4 w-4 ml-1" />
           </Button>
         )}
       </div>

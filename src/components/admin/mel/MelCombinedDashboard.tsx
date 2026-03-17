@@ -1,13 +1,13 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Loader2, Download, MapPin, Users, AlertTriangle, TrendingUp, BarChart3, Globe, Shield, Lightbulb, Eye, Filter, RotateCcw } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2, Download, MapPin, AlertTriangle, TrendingUp, BarChart3, Shield, Lightbulb, Eye, Filter, RotateCcw, List, LayoutGrid, Table2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -38,7 +38,6 @@ interface UnifiedRecord {
   primary_languages: string[];
   comm_channels: string[];
   health_languages: string[];
-  population_groups: string[];
   offsite_proportion: string;
   offsite_nationalities: string[];
   map_lat: number | null;
@@ -47,19 +46,27 @@ interface UnifiedRecord {
 }
 
 const normalizeCity = (c: string) => {
-  if (!c) return "unknown";
+  if (!c) return "ไม่ระบุ";
   if (c.includes("กรุงเทพ") || c === "bangkok") return "กรุงเทพฯ";
   if (c.includes("พัทยา") || c.includes("ชลบุรี") || c === "pattaya_chonburi") return "พัทยา";
   return c;
 };
 
+// Color palette for charts
+const CHART_COLORS = [
+  "bg-primary", "bg-blue-500", "bg-emerald-500", "bg-amber-500", "bg-purple-500",
+  "bg-rose-500", "bg-cyan-500", "bg-orange-500", "bg-indigo-500", "bg-teal-500"
+];
+const CHART_TEXT_COLORS = [
+  "text-primary", "text-blue-500", "text-emerald-500", "text-amber-500", "text-purple-500",
+  "text-rose-500", "text-cyan-500", "text-orange-500", "text-indigo-500", "text-teal-500"
+];
+
 export default function MelCombinedDashboard() {
-  const { language } = useLanguage();
-  const isTh = language === "th";
   const [filterCity, setFilterCity] = useState("all");
-  const [filterUrgency, setFilterUrgency] = useState("all");
   const [filterSource, setFilterSource] = useState("all");
   const [viewItem, setViewItem] = useState<UnifiedRecord | null>(null);
+  const [viewMode, setViewMode] = useState<"charts" | "cards" | "table">("charts");
 
   const { data: fieldNotes, isLoading: l1 } = useQuery({
     queryKey: ["mel-combined-field-notes"],
@@ -106,7 +113,7 @@ export default function MelCombinedDashboard() {
         is_hotspot: false, confidence: "medium",
         informant_type: fn.info_sources ? (Array.isArray(fn.info_sources) ? fn.info_sources : [fn.info_sources]) : [],
         thai_proficiency: "", primary_languages: [], comm_channels: [],
-        health_languages: [], population_groups: [],
+        health_languages: [],
         offsite_proportion: "", offsite_nationalities: [],
         map_lat: null, map_lng: null, raw: fn,
       });
@@ -125,7 +132,7 @@ export default function MelCombinedDashboard() {
         informant_type: r.respondent_type ? [r.respondent_type] : [],
         thai_proficiency: r.language_skill || "", primary_languages: r.other_primary_language ? [r.other_primary_language] : [],
         comm_channels: r.health_info_channel ? (Array.isArray(r.health_info_channel) ? r.health_info_channel : [r.health_info_channel]) : [],
-        health_languages: [], population_groups: [],
+        health_languages: [],
         offsite_proportion: "", offsite_nationalities: [],
         map_lat: null, map_lng: null, raw: r,
       });
@@ -151,7 +158,6 @@ export default function MelCombinedDashboard() {
         primary_languages: u.primary_languages || [],
         comm_channels: u.comm_channels || [],
         health_languages: u.health_languages || [],
-        population_groups: u.population_groups || [],
         offsite_proportion: u.offsite_proportion || "",
         offsite_nationalities: u.offsite_nationalities || [],
         map_lat: u.map_lat || null, map_lng: u.map_lng || null,
@@ -164,19 +170,18 @@ export default function MelCombinedDashboard() {
   const filtered = useMemo(() => {
     return allRecords.filter((r) => {
       if (filterCity !== "all" && r.city !== filterCity) return false;
-      if (filterUrgency !== "all" && r.urgency_level !== filterUrgency) return false;
       if (filterSource !== "all" && r.source !== filterSource) return false;
       return true;
     });
-  }, [allRecords, filterCity, filterUrgency, filterSource]);
+  }, [allRecords, filterCity, filterSource]);
 
   // ── Stats ──
   const total = allRecords.length;
   const bkkCount = allRecords.filter((r) => r.city === "กรุงเทพฯ").length;
   const ptyCount = allRecords.filter((r) => r.city === "พัทยา").length;
-  const highConcernCount = allRecords.filter((r) => r.urgency_level === "high_concern").length;
   const hotspotCount = allRecords.filter((r) => r.is_hotspot).length;
   const highBarrierCount = allRecords.filter((r) => r.communication_barrier === "มีมาก").length;
+  const pinnedCount = filtered.filter((r) => r.map_lat && r.map_lng).length;
 
   const areaRanking = useMemo(() => {
     const map: Record<string, number> = {};
@@ -209,30 +214,26 @@ export default function MelCombinedDashboard() {
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 10);
   }, [filtered]);
 
-  // NEW: Health language needs
   const healthLangDist = useMemo(() => {
     const map: Record<string, number> = {};
     filtered.forEach((r) => r.health_languages.forEach((l) => { if (l) map[l] = (map[l] || 0) + 1; }));
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 10);
   }, [filtered]);
 
-  // NEW: Population group breakdown
-  const populationGroupDist = useMemo(() => {
+  const offsiteDist = useMemo(() => {
+    const labels: Record<string, string> = {
+      unknown: "ไม่รู้", none: "ไม่มี", low: "ต่ำ (<25%)",
+      medium: "ปานกลาง (25-50%)", medium_high: "ค่อนข้างสูง (50-75%)", high: "สูง (>75%)"
+    };
     const map: Record<string, number> = {};
-    filtered.forEach((r) => r.population_groups.forEach((g) => { if (g) map[g] = (map[g] || 0) + 1; }));
+    filtered.forEach((r) => {
+      if (r.offsite_proportion) {
+        const label = labels[r.offsite_proportion] || r.offsite_proportion;
+        map[label] = (map[label] || 0) + 1;
+      }
+    });
     return Object.entries(map).sort((a, b) => b[1] - a[1]);
   }, [filtered]);
-
-  // NEW: Offsite proportion distribution
-  const offsiteDist = useMemo(() => {
-    const map: Record<string, number> = { low: 0, medium: 0, high: 0 };
-    const labels: Record<string, string> = { low: "ต่ำ (<25%)", medium: "ปานกลาง (25-50%)", high: "สูง (>50%)" };
-    filtered.forEach((r) => { if (r.offsite_proportion && map[r.offsite_proportion] !== undefined) map[r.offsite_proportion]++; });
-    return Object.entries(map).filter(([, v]) => v > 0).map(([k, v]) => [labels[k] || k, v] as [string, number]);
-  }, [filtered]);
-
-  // NEW: Pinned location count
-  const pinnedCount = filtered.filter((r) => r.map_lat && r.map_lng).length;
 
   const signalCounts = useMemo(() => {
     let chemsex = 0, mh = 0, violence = 0;
@@ -269,28 +270,35 @@ export default function MelCombinedDashboard() {
     return Object.entries(map).sort((a, b) => a[0].localeCompare(b[0])).slice(-12);
   }, [filtered]);
 
+  // Source distribution for donut
+  const sourceDist = useMemo(() => {
+    const fn = filtered.filter(r => r.source === "field_note").length;
+    const rm = filtered.filter(r => r.source === "rapid_msw").length;
+    const uf = filtered.filter(r => r.source === "unified_form").length;
+    return [
+      { label: "บันทึกภาคสนาม", value: fn, color: "bg-blue-500" },
+      { label: "Rapid MSW", value: rm, color: "bg-emerald-500" },
+      { label: "แบบฟอร์มรวม", value: uf, color: "bg-primary" },
+    ].filter(s => s.value > 0);
+  }, [filtered]);
+
   // Auto-generate insights
   const insights = useMemo(() => {
     const ins: { icon: string; text: string; severity: "info" | "warning" | "success" }[] = [];
     if (highBarrierCount > 0) ins.push({ icon: "💬", text: `พบอุปสรรคด้านภาษาระดับ "มีมาก" จำนวน ${highBarrierCount} ครั้ง — ควรพิจารณาสื่อหลายภาษาและ Peer ต่างชาติ`, severity: "warning" });
     if (signalCounts.chemsex > 0) ins.push({ icon: "⚡", text: `พบสัญญาณ Chemsex จำนวน ${signalCounts.chemsex} ครั้ง — ควรพัฒนาชุดความรู้ Safer Chemsex`, severity: "warning" });
     if (signalCounts.violence > 0) ins.push({ icon: "🛡️", text: `พบสัญญาณความรุนแรง/ความปลอดภัย ${signalCounts.violence} ครั้ง`, severity: "warning" });
-    if (highConcernCount > 0) ins.push({ icon: "🔴", text: `มี ${highConcernCount} บันทึกที่มีระดับความเร่งด่วนสูง`, severity: "warning" });
     if (areaRanking.length > 0) ins.push({ icon: "📍", text: `พื้นที่ที่ลงบ่อยที่สุด: ${areaRanking[0][0]} (${areaRanking[0][1]} ครั้ง)`, severity: "info" });
     if (nationalityDist.length > 0) ins.push({ icon: "🌍", text: `กลุ่มสัญชาติที่พบบ่อย: ${nationalityDist.slice(0, 3).map(([g]) => g).join(", ")}`, severity: "info" });
     if (channelDist.length > 0) ins.push({ icon: "📱", text: `ช่องทางที่ MSW ใช้มากที่สุด: ${channelDist.slice(0, 3).map(([c]) => c).join(", ")}`, severity: "info" });
     if (healthLangDist.length > 0) ins.push({ icon: "📖", text: `ภาษาที่ต้องการสำหรับสื่อสุขภาพ: ${healthLangDist.slice(0, 3).map(([l]) => l).join(", ")}`, severity: "info" });
-    if (populationGroupDist.length > 0) {
-      const migrant = populationGroupDist.find(([g]) => g.includes("Migrant"));
-      if (migrant && migrant[1] > 0) ins.push({ icon: "🧑‍🤝‍🧑", text: `พบ MSW ข้ามชาติ ${migrant[1]} ครั้ง — ควรเตรียมสื่อหลายภาษาและ peer ต่างชาติ`, severity: "warning" });
-    }
     if (proficiencyDist.length > 0) {
       const otherLang = proficiencyDist.find(([k]) => k === "ใช้ภาษาอื่น");
       if (otherLang && otherLang[1] > 0) ins.push({ icon: "🗣️", text: `พบ MSW ที่ใช้ภาษาอื่นเป็นหลัก ${otherLang[1]} ครั้ง`, severity: "warning" });
     }
     if (total === 0) ins.push({ icon: "📋", text: "ยังไม่มีข้อมูล — เริ่มบันทึกจากแท็บ 'แบบฟอร์ม'", severity: "info" });
     return ins;
-  }, [highBarrierCount, signalCounts, highConcernCount, areaRanking, nationalityDist, channelDist, healthLangDist, populationGroupDist, proficiencyDist, total]);
+  }, [highBarrierCount, signalCounts, areaRanking, nationalityDist, channelDist, healthLangDist, proficiencyDist, total]);
 
   // CSV Export — full raw dataset
   const exportCsv = () => {
@@ -304,7 +312,6 @@ export default function MelCombinedDashboard() {
       "population_pattern", "nationality_groups", "nationality_pattern", "nationality_other",
       "age_pattern", "offsite_proportion", "offsite_nationalities", "offsite_nationalities_other",
       "offsite_ratio", "mobility_pattern", "online_offline_linkage",
-      "population_groups",
       "informant_type", "informant_type_other",
       "thai_proficiency", "primary_languages", "primary_languages_other",
       "health_languages", "health_languages_other",
@@ -318,18 +325,15 @@ export default function MelCombinedDashboard() {
       "preferred_contact_channel", "preferred_service_model",
       "project_implications",
       "environment_notes", "visible_changes",
-      // field_notes specific
       "estimated_msw_seen", "estimated_offsite_clients", "visible_nationality_ratio",
       "info_sources", "estimated_msw_per_night_range", "foreign_msw_ratio",
       "main_nationality_groups", "common_languages",
-      // rapid_msw specific
       "email", "venue_code", "bangkok_area", "pattaya_area",
       "bangkok_peer_code", "pattaya_peer_code",
       "respondent_type", "msw_count_estimate",
       "offsite_work_ratio", "nationality_mix", "foreign_groups",
       "language_skill", "other_primary_language",
       "health_info_language_priority", "health_info_channel",
-      // metadata
       "id", "created_at",
     ];
 
@@ -361,25 +365,26 @@ export default function MelCombinedDashboard() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `mel-full-dataset-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `mel-outreach-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
-  const resetFilters = () => { setFilterCity("all"); setFilterUrgency("all"); setFilterSource("all"); };
+  const resetFilters = () => { setFilterCity("all"); setFilterSource("all"); };
 
-  const BarChart = ({ data, maxVal }: { data: [string, number][]; maxVal?: number }) => {
-    const max = maxVal || Math.max(...data.map(([, v]) => v), 1);
+  // ── Chart Components ──
+  const HorizontalBar = ({ data: barData, colorIdx = 0 }: { data: [string, number][]; colorIdx?: number }) => {
+    const max = Math.max(...barData.map(([, v]) => v), 1);
     return (
-      <div className="space-y-2">
-        {data.map(([label, count]) => (
-          <div key={label} className="space-y-0.5">
+      <div className="space-y-2.5">
+        {barData.map(([label, count], i) => (
+          <div key={label} className="space-y-1">
             <div className="flex justify-between text-xs">
-              <span className="text-muted-foreground truncate max-w-[70%]">{label}</span>
-              <span className="font-medium text-foreground">{count}</span>
+              <span className="text-foreground/80 truncate max-w-[65%]">{label}</span>
+              <span className="font-semibold text-foreground tabular-nums">{count}</span>
             </div>
-            <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-              <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${(count / max) * 100}%` }} />
+            <div className="h-2.5 w-full bg-muted rounded-full overflow-hidden">
+              <div className={cn("h-full rounded-full transition-all duration-500", CHART_COLORS[(i + colorIdx) % CHART_COLORS.length])} style={{ width: `${Math.max((count / max) * 100, 3)}%` }} />
             </div>
           </div>
         ))}
@@ -387,14 +392,76 @@ export default function MelCombinedDashboard() {
     );
   };
 
+  const DonutChart = ({ data: segments }: { data: { label: string; value: number; color: string }[] }) => {
+    const total = segments.reduce((s, seg) => s + seg.value, 0);
+    if (total === 0) return null;
+    let cumPct = 0;
+    const arcs = segments.map(seg => {
+      const pct = (seg.value / total) * 100;
+      const start = cumPct;
+      cumPct += pct;
+      return { ...seg, pct, start };
+    });
+    return (
+      <div className="flex items-center gap-4">
+        <div className="relative w-24 h-24 shrink-0">
+          <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+            {arcs.map((arc, i) => (
+              <circle key={i} r="15.9" cx="18" cy="18" fill="none" strokeWidth="3.5"
+                className={arc.color.replace("bg-", "stroke-")}
+                strokeDasharray={`${arc.pct} ${100 - arc.pct}`}
+                strokeDashoffset={`-${arc.start}`}
+                strokeLinecap="round" />
+            ))}
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-lg font-bold text-foreground">{total}</span>
+          </div>
+        </div>
+        <div className="space-y-1.5 flex-1">
+          {segments.map(seg => (
+            <div key={seg.label} className="flex items-center gap-2 text-xs">
+              <div className={cn("w-2.5 h-2.5 rounded-full shrink-0", seg.color)} />
+              <span className="text-foreground/80 truncate">{seg.label}</span>
+              <span className="ml-auto font-semibold text-foreground tabular-nums">{seg.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const SegmentedBar = ({ data: segments }: { data: [string, number, string][] }) => {
+    const total = segments.reduce((s, [, v]) => s + v, 0);
+    if (total === 0) return null;
+    return (
+      <div className="space-y-3">
+        <div className="h-4 w-full rounded-full overflow-hidden flex">
+          {segments.map(([label, value, color], i) => (
+            <div key={i} className={cn("h-full transition-all", color)} style={{ width: `${(value / total) * 100}%` }} title={`${label}: ${value}`} />
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-3">
+          {segments.map(([label, value, color], i) => (
+            <div key={i} className="flex items-center gap-1.5 text-xs">
+              <div className={cn("w-2.5 h-2.5 rounded-full", color)} />
+              <span className="text-foreground/80">{label}</span>
+              <span className="font-semibold text-foreground">{value} ({Math.round((value / total) * 100)}%)</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   const SourceBadge = ({ source }: { source: string }) => {
-    const labels: Record<string, { label: string; variant: "default" | "secondary" | "outline" }> = {
-      field_note: { label: "FN", variant: "secondary" },
-      rapid_msw: { label: "RM", variant: "outline" },
-      unified_form: { label: "UF", variant: "default" },
+    const labels: Record<string, { label: string; className: string }> = {
+      field_note: { label: "ภาคสนาม", className: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300" },
+      rapid_msw: { label: "Rapid", className: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" },
+      unified_form: { label: "ฟอร์ม", className: "bg-primary/10 text-primary" },
     };
-    const s = labels[source] || { label: source, variant: "outline" as const };
-    return <Badge variant={s.variant} className="text-[10px] px-1.5">{s.label}</Badge>;
+    const s = labels[source] || { label: source, className: "" };
+    return <span className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium", s.className)}>{s.label}</span>;
   };
 
   if (isLoading) {
@@ -406,101 +473,99 @@ export default function MelCombinedDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-xl font-bold text-foreground">{isTh ? "Dashboard วิเคราะห์สถานการณ์" : "Situational Analysis Dashboard"}</h2>
-          <p className="text-muted-foreground text-sm">{isTh ? "รวมข้อมูลจากทุกแหล่ง" : "Combined data from all outreach sources"}</p>
+          <h2 className="text-xl font-bold text-foreground">Dashboard วิเคราะห์สถานการณ์</h2>
+          <p className="text-muted-foreground text-sm">รวมข้อมูลจากทุกแหล่ง — ภาคสนาม, Rapid MSW, และแบบฟอร์มรวม</p>
         </div>
-        {filtered.length > 0 && (
-          <Button size="sm" variant="outline" onClick={exportCsv}>
-            <Download className="h-4 w-4 mr-1" />CSV
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {/* View mode toggle */}
+          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)} className="hidden sm:block">
+            <TabsList className="h-8">
+              <TabsTrigger value="charts" className="h-6 px-2 text-xs gap-1"><BarChart3 className="h-3 w-3" />กราฟ</TabsTrigger>
+              <TabsTrigger value="cards" className="h-6 px-2 text-xs gap-1"><LayoutGrid className="h-3 w-3" />การ์ด</TabsTrigger>
+              <TabsTrigger value="table" className="h-6 px-2 text-xs gap-1"><Table2 className="h-3 w-3" />ตาราง</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          {filtered.length > 0 && (
+            <Button size="sm" variant="outline" onClick={exportCsv} className="h-8 text-xs gap-1">
+              <Download className="h-3.5 w-3.5" />CSV
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Filters */}
-      <Card>
+      <Card className="border-border/50">
         <CardContent className="pt-4 pb-3">
           <div className="flex items-center gap-2 mb-3">
             <Filter className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">{isTh ? "ตัวกรอง" : "Filters"}</span>
+            <span className="text-sm font-medium">ตัวกรอง</span>
             <Button variant="ghost" size="sm" onClick={resetFilters} className="ml-auto h-7 text-xs">
-              <RotateCcw className="h-3 w-3 mr-1" />{isTh ? "รีเซ็ต" : "Reset"}
+              <RotateCcw className="h-3 w-3 mr-1" />รีเซ็ต
             </Button>
           </div>
           <div className="flex flex-wrap gap-3">
             <Select value={filterCity} onValueChange={setFilterCity}>
-              <SelectTrigger className="w-[160px] h-9"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-[140px] h-9"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{isTh ? "ทุกเมือง" : "All Cities"}</SelectItem>
+                <SelectItem value="all">ทุกเมือง</SelectItem>
                 <SelectItem value="กรุงเทพฯ">กรุงเทพฯ</SelectItem>
                 <SelectItem value="พัทยา">พัทยา</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={filterUrgency} onValueChange={setFilterUrgency}>
-              <SelectTrigger className="w-[160px] h-9"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{isTh ? "ทุกระดับ" : "All Urgency"}</SelectItem>
-                <SelectItem value="normal">ปกติ</SelectItem>
-                <SelectItem value="watch">เฝ้าระวัง</SelectItem>
-                <SelectItem value="high_concern">น่ากังวลสูง</SelectItem>
-              </SelectContent>
-            </Select>
             <Select value={filterSource} onValueChange={setFilterSource}>
-              <SelectTrigger className="w-[160px] h-9"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-[150px] h-9"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">{isTh ? "ทุกแหล่ง" : "All Sources"}</SelectItem>
-                <SelectItem value="field_note">{isTh ? "บันทึกภาคสนาม" : "Field Notes"}</SelectItem>
+                <SelectItem value="all">ทุกแหล่ง</SelectItem>
+                <SelectItem value="field_note">บันทึกภาคสนาม</SelectItem>
                 <SelectItem value="rapid_msw">Rapid MSW</SelectItem>
-                <SelectItem value="unified_form">{isTh ? "แบบฟอร์มรวม" : "Unified Form"}</SelectItem>
+                <SelectItem value="unified_form">แบบฟอร์มรวม</SelectItem>
               </SelectContent>
             </Select>
-            <Badge variant="secondary" className="h-9 px-3 flex items-center">
-              {filtered.length} / {total} {isTh ? "รายการ" : "records"}
+            <Badge variant="secondary" className="h-9 px-3 flex items-center text-xs">
+              {filtered.length} / {total} รายการ
             </Badge>
           </div>
         </CardContent>
       </Card>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      {/* KPI Row */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
         {[
-          { label: isTh ? "ทั้งหมด" : "Total", value: total, icon: BarChart3, color: "text-primary" },
-          { label: "กรุงเทพฯ", value: bkkCount, icon: MapPin, color: "text-blue-500" },
-          { label: "พัทยา", value: ptyCount, icon: MapPin, color: "text-emerald-500" },
-          { label: isTh ? "น่ากังวลสูง" : "High Concern", value: highConcernCount, icon: AlertTriangle, color: "text-destructive" },
-          { label: "Hotspot", value: hotspotCount, icon: TrendingUp, color: "text-amber-500" },
-          { label: isTh ? "📍 ปักหมุด" : "📍 Pinned", value: pinnedCount, icon: MapPin, color: "text-purple-500" },
-        ].map(({ label, value, icon: Icon, color }) => (
-          <Card key={label}>
-            <CardContent className="pt-4 pb-3">
-              <div className="flex items-center gap-2 mb-1">
+          { label: "ทั้งหมด", value: total, icon: BarChart3, color: "text-primary", bg: "bg-primary/10" },
+          { label: "กรุงเทพฯ", value: bkkCount, icon: MapPin, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-950/20" },
+          { label: "พัทยา", value: ptyCount, icon: MapPin, color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-950/20" },
+          { label: "Hotspot", value: hotspotCount, icon: TrendingUp, color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-950/20" },
+          { label: "ปักหมุด GPS", value: pinnedCount, icon: MapPin, color: "text-purple-500", bg: "bg-purple-50 dark:bg-purple-950/20" },
+        ].map(({ label, value, icon: Icon, color, bg }) => (
+          <Card key={label} className="overflow-hidden">
+            <CardContent className="p-4">
+              <div className={cn("inline-flex items-center justify-center w-8 h-8 rounded-lg mb-2", bg)}>
                 <Icon className={cn("h-4 w-4", color)} />
-                <span className="text-xs text-muted-foreground">{label}</span>
               </div>
               <p className="text-2xl font-bold text-foreground">{value}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Risk Signals */}
+      {/* Risk Signals — compact horizontal */}
       {(signalCounts.chemsex > 0 || signalCounts.mh > 0 || signalCounts.violence > 0) && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2">
+        <Card className="border-amber-200/50 dark:border-amber-800/30">
+          <CardContent className="py-4">
+            <div className="flex items-center gap-2 mb-3">
               <Shield className="h-4 w-4 text-amber-500" />
-              {isTh ? "สัญญาณความเสี่ยง" : "Risk Signals"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <span className="text-sm font-semibold text-foreground">สัญญาณความเสี่ยง</span>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
               {[
-                { label: "Chemsex", count: signalCounts.chemsex, color: "text-orange-500", bg: "bg-orange-100 dark:bg-orange-900/20" },
-                { label: isTh ? "สุขภาพจิต" : "Mental Health", count: signalCounts.mh, color: "text-blue-500", bg: "bg-blue-100 dark:bg-blue-900/20" },
-                { label: isTh ? "ความรุนแรง" : "Violence", count: signalCounts.violence, color: "text-red-500", bg: "bg-red-100 dark:bg-red-900/20" },
+                { label: "Chemsex", count: signalCounts.chemsex, color: "text-orange-500", bg: "bg-orange-50 dark:bg-orange-950/20" },
+                { label: "สุขภาพจิต", count: signalCounts.mh, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-950/20" },
+                { label: "ความรุนแรง", count: signalCounts.violence, color: "text-red-500", bg: "bg-red-50 dark:bg-red-950/20" },
               ].map(({ label, count, color, bg }) => (
-                <div key={label} className={cn("rounded-lg p-4", bg)}>
-                  <p className={cn("text-2xl font-bold", color)}>{count}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{label}</p>
+                <div key={label} className={cn("rounded-xl p-3 text-center", bg)}>
+                  <p className={cn("text-xl font-bold", color)}>{count}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{label}</p>
                 </div>
               ))}
             </div>
@@ -508,140 +573,234 @@ export default function MelCombinedDashboard() {
         </Card>
       )}
 
-      {/* Main Charts Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Population Group Breakdown (NEW) */}
-        {populationGroupDist.length > 0 && (
-          <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "กลุ่มประชากร" : "Population Groups"}</CardTitle></CardHeader>
-            <CardContent><BarChart data={populationGroupDist} /></CardContent>
-          </Card>
-        )}
-
-        {/* Area Ranking */}
-        <Card>
-          <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "พื้นที่ที่ลงเยี่ยมบ่อย" : "Top Areas"}</CardTitle></CardHeader>
-          <CardContent>
-            {areaRanking.length === 0 ? <p className="text-xs text-muted-foreground">ยังไม่มีข้อมูล</p> : <BarChart data={areaRanking} />}
-          </CardContent>
-        </Card>
-
-        {/* Nationality */}
-        <Card>
-          <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "กลุ่มสัญชาติที่พบ" : "Nationality Groups"}</CardTitle></CardHeader>
-          <CardContent>
-            {nationalityDist.length === 0 ? <p className="text-xs text-muted-foreground">ยังไม่มีข้อมูล</p> : (
-              <div className="flex flex-wrap gap-2">
-                {nationalityDist.map(([g, c]) => (
-                  <Badge key={g} variant="outline" className="text-xs">{g} <span className="ml-1 font-bold text-primary">({c})</span></Badge>
-                ))}
-              </div>
+      {/* Charts View */}
+      {viewMode === "charts" && (
+        <>
+          {/* Source distribution + Monthly Trend row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Source Distribution Donut */}
+            {sourceDist.length > 0 && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">แหล่งข้อมูล</CardTitle>
+                  <CardDescription className="text-xs">สัดส่วนข้อมูลจากแต่ละแหล่ง</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <DonutChart data={sourceDist} />
+                </CardContent>
+              </Card>
             )}
-          </CardContent>
-        </Card>
 
-        {/* Health Language Needs (NEW) */}
-        {healthLangDist.length > 0 && (
-          <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "ภาษาสำหรับสื่อสุขภาพ" : "Health Material Languages"}</CardTitle></CardHeader>
-            <CardContent><BarChart data={healthLangDist} /></CardContent>
-          </Card>
-        )}
-
-        {/* Communication Channels */}
-        {channelDist.length > 0 && (
-          <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "ช่องทางรับข้อมูล MSW" : "MSW Comm Channels"}</CardTitle></CardHeader>
-            <CardContent><BarChart data={channelDist} /></CardContent>
-          </Card>
-        )}
-
-        {/* Informant Type */}
-        {informantDist.length > 0 && (
-          <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "ประเภทผู้ให้ข้อมูล" : "Informant Types"}</CardTitle></CardHeader>
-            <CardContent><BarChart data={informantDist} /></CardContent>
-          </Card>
-        )}
-
-        {/* Thai Proficiency */}
-        {proficiencyDist.length > 0 && (
-          <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "ระดับภาษาไทยของ MSW" : "MSW Thai Proficiency"}</CardTitle></CardHeader>
-            <CardContent><BarChart data={proficiencyDist} /></CardContent>
-          </Card>
-        )}
-
-        {/* Offsite Work Proportion (NEW) */}
-        {offsiteDist.length > 0 && (
-          <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "สัดส่วนงานนอกสถานที่" : "Offsite Work Proportion"}</CardTitle></CardHeader>
-            <CardContent><BarChart data={offsiteDist} /></CardContent>
-          </Card>
-        )}
-
-        {/* Communication Barriers */}
-        <Card>
-          <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "อุปสรรคด้านการสื่อสาร" : "Communication Barriers"}</CardTitle></CardHeader>
-          <CardContent className="space-y-2">
-            {Object.entries(barrierLevelDist).map(([level, count]) => {
-              const pct = filtered.length > 0 ? Math.round((count / filtered.length) * 100) : 0;
-              return (
-                <div key={level} className="space-y-1">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">{level}</span>
-                    <span className="font-medium text-foreground">{count} ({pct}%)</span>
+            {/* Monthly Trend */}
+            {monthlyTrend.length > 0 && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4" />แนวโน้มรายเดือน
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-end gap-1 h-36">
+                    {monthlyTrend.map(([month, counts]) => {
+                      const t = counts.fn + counts.rm + counts.uf;
+                      const maxT = Math.max(...monthlyTrend.map(([, c]) => c.fn + c.rm + c.uf), 1);
+                      const height = Math.max((t / maxT) * 100, 6);
+                      return (
+                        <div key={month} className="flex-1 flex flex-col items-center gap-1">
+                          <span className="text-[10px] font-semibold text-foreground">{t}</span>
+                          <div className="w-full flex flex-col gap-px rounded-t-sm overflow-hidden" style={{ height: `${height}%` }}>
+                            {counts.uf > 0 && <div className="bg-primary flex-grow" style={{ flex: counts.uf }} />}
+                            {counts.fn > 0 && <div className="bg-blue-500 flex-grow" style={{ flex: counts.fn }} />}
+                            {counts.rm > 0 && <div className="bg-emerald-500 flex-grow" style={{ flex: counts.rm }} />}
+                          </div>
+                          <span className="text-[9px] text-muted-foreground">{month.slice(5)}</span>
+                        </div>
+                      );
+                    })}
                   </div>
-                  <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                    <div className={cn("h-full rounded-full", level === "ไม่มี" ? "bg-green-500" : level === "มีบ้าง" ? "bg-amber-500" : "bg-destructive")} style={{ width: `${pct}%` }} />
+                  <div className="flex items-center gap-4 mt-3 text-[10px] text-muted-foreground">
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-primary" />ฟอร์ม</span>
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-blue-500" />ภาคสนาม</span>
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-emerald-500" />Rapid</span>
                   </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Communication Barriers — segmented bar */}
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">อุปสรรคด้านการสื่อสาร</CardTitle>
+              <CardDescription className="text-xs">สัดส่วนระดับอุปสรรคทั้งหมด</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <SegmentedBar data={[
+                ["ไม่มี", barrierLevelDist["ไม่มี"], "bg-emerald-500"],
+                ["มีบ้าง", barrierLevelDist["มีบ้าง"], "bg-amber-500"],
+                ["มีมาก", barrierLevelDist["มีมาก"], "bg-red-500"],
+              ]} />
+            </CardContent>
+          </Card>
+
+          {/* Main Charts Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Area Ranking */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">พื้นที่ที่ลงเยี่ยมบ่อย</CardTitle>
+                <CardDescription className="text-xs">อันดับตามจำนวนครั้ง</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {areaRanking.length === 0 ? <p className="text-xs text-muted-foreground py-4 text-center">ยังไม่มีข้อมูล</p> : <HorizontalBar data={areaRanking} colorIdx={0} />}
+              </CardContent>
+            </Card>
+
+            {/* Nationality */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm">กลุ่มสัญชาติที่พบ</CardTitle>
+                <CardDescription className="text-xs">สัญชาติที่สังเกตเห็นในพื้นที่</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {nationalityDist.length === 0 ? <p className="text-xs text-muted-foreground py-4 text-center">ยังไม่มีข้อมูล</p> : <HorizontalBar data={nationalityDist} colorIdx={2} />}
+              </CardContent>
+            </Card>
+
+            {/* Health Language Needs */}
+            {healthLangDist.length > 0 && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">ภาษาสำหรับสื่อสุขภาพ</CardTitle>
+                  <CardDescription className="text-xs">ภาษาที่ต้องการเพื่อสื่อสารข้อมูลสุขภาพ</CardDescription>
+                </CardHeader>
+                <CardContent><HorizontalBar data={healthLangDist} colorIdx={4} /></CardContent>
+              </Card>
+            )}
+
+            {/* Communication Channels */}
+            {channelDist.length > 0 && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">ช่องทางรับข้อมูล MSW</CardTitle>
+                  <CardDescription className="text-xs">ช่องทางที่ MSW ได้รับข้อมูลบ่อยที่สุด</CardDescription>
+                </CardHeader>
+                <CardContent><HorizontalBar data={channelDist} colorIdx={1} /></CardContent>
+              </Card>
+            )}
+
+            {/* Informant Type */}
+            {informantDist.length > 0 && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">ประเภทผู้ให้ข้อมูล</CardTitle>
+                  <CardDescription className="text-xs">ผู้ที่ให้ข้อมูลหลักในการลงพื้นที่</CardDescription>
+                </CardHeader>
+                <CardContent><HorizontalBar data={informantDist} colorIdx={3} /></CardContent>
+              </Card>
+            )}
+
+            {/* Thai Proficiency */}
+            {proficiencyDist.length > 0 && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">ระดับภาษาไทยของ MSW</CardTitle>
+                  <CardDescription className="text-xs">ความสามารถด้านภาษาไทยของ MSW ในพื้นที่</CardDescription>
+                </CardHeader>
+                <CardContent><HorizontalBar data={proficiencyDist} colorIdx={5} /></CardContent>
+              </Card>
+            )}
+
+            {/* Offsite Work Proportion */}
+            {offsiteDist.length > 0 && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">สัดส่วนงานนอกสถานที่</CardTitle>
+                  <CardDescription className="text-xs">ระดับการรับงานนอกสถานบริการ</CardDescription>
+                </CardHeader>
+                <CardContent><HorizontalBar data={offsiteDist} colorIdx={6} /></CardContent>
+              </Card>
+            )}
+
+            {/* Project Implications */}
+            {implicationsDist.length > 0 && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm">ผลกระทบต่อโครงการ</CardTitle>
+                  <CardDescription className="text-xs">ข้อเสนอแนะที่ถูกเลือกบ่อย</CardDescription>
+                </CardHeader>
+                <CardContent><HorizontalBar data={implicationsDist} colorIdx={7} /></CardContent>
+              </Card>
+            )}
+          </div>
+        </>
+      )}
+
+      {/* Cards View */}
+      {viewMode === "cards" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {filtered.slice(0, 30).map((r) => (
+            <Card key={`${r.source}-${r.id}`} className="cursor-pointer hover:border-primary/30 transition-colors" onClick={() => setViewItem(r)}>
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <SourceBadge source={r.source} />
+                    <span className="text-xs text-muted-foreground">{r.date ? format(new Date(r.date), "d MMM yy") : "—"}</span>
+                  </div>
+                  {r.is_hotspot && <Badge variant="outline" className="text-[10px] border-amber-300 text-amber-600">Hotspot</Badge>}
                 </div>
-              );
-            })}
-          </CardContent>
-        </Card>
-
-        {/* Project Implications */}
-        {implicationsDist.length > 0 && (
-          <Card>
-            <CardHeader className="pb-3"><CardTitle className="text-sm">{isTh ? "ผลกระทบต่อโครงการ" : "Programme Implications"}</CardTitle></CardHeader>
-            <CardContent><BarChart data={implicationsDist} /></CardContent>
-          </Card>
-        )}
-      </div>
-
-      {/* Monthly Trend */}
-      {monthlyTrend.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              {isTh ? "แนวโน้มรายเดือน" : "Monthly Trend"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-end gap-1 h-32">
-              {monthlyTrend.map(([month, counts]) => {
-                const t = counts.fn + counts.rm + counts.uf;
-                const maxT = Math.max(...monthlyTrend.map(([, c]) => c.fn + c.rm + c.uf), 1);
-                const height = Math.max((t / maxT) * 100, 4);
-                return (
-                  <div key={month} className="flex-1 flex flex-col items-center gap-1">
-                    <span className="text-[10px] font-medium text-foreground">{t}</span>
-                    <div className="w-full flex flex-col gap-px" style={{ height: `${height}%` }}>
-                      {counts.uf > 0 && <div className="bg-primary rounded-t flex-grow" style={{ flex: counts.uf }} />}
-                      {counts.fn > 0 && <div className="bg-primary/60 flex-grow" style={{ flex: counts.fn }} />}
-                      {counts.rm > 0 && <div className="bg-primary/30 rounded-b flex-grow" style={{ flex: counts.rm }} />}
-                    </div>
-                    <span className="text-[9px] text-muted-foreground">{month.slice(5)}</span>
+                <p className="text-sm font-medium text-foreground">{r.city} — {r.area || "ไม่ระบุ"}</p>
+                <p className="text-xs text-muted-foreground mt-1">{r.venue || "ไม่ระบุสถานที่"} • MSW: {r.msw_count || "—"}</p>
+                {r.nationality_groups.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {r.nationality_groups.slice(0, 4).map(g => <Badge key={g} variant="secondary" className="text-[10px]">{g}</Badge>)}
                   </div>
-                );
-              })}
-            </div>
-            <div className="flex items-center gap-4 mt-3 text-[10px] text-muted-foreground">
-              <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-primary" />UF</span>
-              <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-primary/60" />FN</span>
-              <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-primary/30" />RM</span>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+          {filtered.length === 0 && <p className="text-sm text-muted-foreground col-span-2 text-center py-8">ยังไม่มีข้อมูล</p>}
+        </div>
+      )}
+
+      {/* Table View */}
+      {viewMode === "table" && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm">บันทึกล่าสุด ({filtered.length})</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b bg-muted/50">
+                    <th className="text-left p-3 font-medium text-muted-foreground text-xs">แหล่ง</th>
+                    <th className="text-left p-3 font-medium text-muted-foreground text-xs">วันที่</th>
+                    <th className="text-left p-3 font-medium text-muted-foreground text-xs">เมือง</th>
+                    <th className="text-left p-3 font-medium text-muted-foreground text-xs">พื้นที่</th>
+                    <th className="text-center p-3 font-medium text-muted-foreground text-xs">MSW</th>
+                    <th className="text-left p-3 font-medium text-muted-foreground text-xs">ผู้ให้ข้อมูล</th>
+                    <th className="p-3 w-10" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.slice(0, 50).map((r) => (
+                    <tr key={`${r.source}-${r.id}`} className="border-b hover:bg-muted/30 transition-colors">
+                      <td className="p-3"><SourceBadge source={r.source} /></td>
+                      <td className="p-3 whitespace-nowrap text-xs">{r.date ? format(new Date(r.date), "dd MMM yy") : "—"}</td>
+                      <td className="p-3 text-xs">{r.city}</td>
+                      <td className="p-3 text-xs">{r.area || "—"}</td>
+                      <td className="p-3 text-center font-medium text-xs">{r.msw_count || "—"}</td>
+                      <td className="p-3 text-xs truncate max-w-[120px]">{r.informant_type.join(", ") || "—"}</td>
+                      <td className="p-3">
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setViewItem(r)}>
+                          <Eye className="h-3.5 w-3.5" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </CardContent>
         </Card>
@@ -649,70 +808,29 @@ export default function MelCombinedDashboard() {
 
       {/* MEL Insights */}
       {insights.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
+        <Card className="border-amber-200/30 dark:border-amber-800/20">
+          <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
               <Lightbulb className="h-4 w-4 text-amber-500" />
-              {isTh ? "ข้อค้นพบเชิง MEL" : "MEL Learning Insights"}
+              ข้อค้นพบเชิง MEL
             </CardTitle>
-            <CardDescription className="text-xs">{isTh ? "สร้างอัตโนมัติจากข้อมูลรวม" : "Auto-generated from combined data"}</CardDescription>
+            <CardDescription className="text-xs">สร้างอัตโนมัติจากข้อมูลรวม</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
             {insights.map((ins, i) => (
               <div key={i} className={cn(
-                "rounded-lg p-3 text-sm flex items-start gap-2",
-                ins.severity === "warning" ? "bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800" :
-                ins.severity === "success" ? "bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800" :
-                "bg-muted border border-border"
+                "rounded-xl p-3 text-sm flex items-start gap-2.5",
+                ins.severity === "warning" ? "bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-800/30" :
+                ins.severity === "success" ? "bg-green-50 dark:bg-green-950/20 border border-green-200/50 dark:border-green-800/30" :
+                "bg-muted/50 border border-border/50"
               )}>
-                <span className="text-base shrink-0">{ins.icon}</span>
-                <span className="text-muted-foreground">{ins.text}</span>
+                <span className="text-base shrink-0 mt-0.5">{ins.icon}</span>
+                <span className="text-foreground/80 text-xs leading-relaxed">{ins.text}</span>
               </div>
             ))}
           </CardContent>
         </Card>
       )}
-
-      {/* Recent Records Table */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm">{isTh ? "บันทึกล่าสุด" : "Recent Records"} ({filtered.length})</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-muted/50">
-                  <th className="text-left p-3 font-medium text-muted-foreground">{isTh ? "แหล่ง" : "Src"}</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground">{isTh ? "วันที่" : "Date"}</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground">{isTh ? "เมือง" : "City"}</th>
-                  <th className="text-left p-3 font-medium text-muted-foreground">{isTh ? "พื้นที่" : "Area"}</th>
-                  <th className="text-center p-3 font-medium text-muted-foreground">MSW</th>
-                  <th className="text-center p-3 font-medium text-muted-foreground">{isTh ? "กลุ่ม" : "Pop"}</th>
-                  <th className="p-3 w-10" />
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.slice(0, 50).map((r) => (
-                  <tr key={`${r.source}-${r.id}`} className="border-b hover:bg-muted/30 transition-colors">
-                    <td className="p-3"><SourceBadge source={r.source} /></td>
-                    <td className="p-3 whitespace-nowrap text-xs">{r.date ? format(new Date(r.date), "dd MMM yy") : "—"}</td>
-                    <td className="p-3 text-xs">{r.city}</td>
-                    <td className="p-3 text-xs">{r.area || "—"}</td>
-                    <td className="p-3 text-center font-medium text-xs">{r.msw_count || "—"}</td>
-                    <td className="p-3 text-center text-xs">{r.population_groups.length > 0 ? r.population_groups.join(", ") : "—"}</td>
-                    <td className="p-3">
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setViewItem(r)}>
-                        <Eye className="h-3.5 w-3.5" />
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Detail Drawer */}
       <Sheet open={!!viewItem} onOpenChange={(open) => { if (!open) setViewItem(null); }}>
@@ -720,32 +838,30 @@ export default function MelCombinedDashboard() {
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
               {viewItem && <SourceBadge source={viewItem.source} />}
-              {isTh ? "รายละเอียด" : "Details"}
+              รายละเอียด
             </SheetTitle>
           </SheetHeader>
           {viewItem && (
             <div className="mt-6 space-y-3">
               {[
-                [isTh ? "วันที่" : "Date", viewItem.date],
-                [isTh ? "เมือง" : "City", viewItem.city],
-                [isTh ? "พื้นที่" : "Area", viewItem.area],
-                [isTh ? "สถานที่" : "Venue", viewItem.venue],
-                [isTh ? "ผู้สังเกต" : "Observer", viewItem.observer],
-                ["MSW #", viewItem.msw_count],
-                [isTh ? "ประเภทผู้ให้ข้อมูล" : "Informant", viewItem.informant_type.join(", ") || "—"],
-                [isTh ? "กลุ่มประชากร" : "Population", viewItem.population_groups.join(", ") || "—"],
-                [isTh ? "สัญชาติ" : "Nationality", [...viewItem.nationality_groups, viewItem.nationality_other ? `(${viewItem.nationality_other})` : ""].filter(Boolean).join(", ") || "—"],
-                [isTh ? "ระดับภาษาไทย" : "Thai Level", viewItem.thai_proficiency || "—"],
-                [isTh ? "ภาษาหลัก" : "Primary Lang", viewItem.primary_languages.join(", ") || "—"],
-                [isTh ? "ภาษาสื่อสุขภาพ" : "Health Lang", viewItem.health_languages.join(", ") || "—"],
-                [isTh ? "ช่องทางรับข้อมูล" : "Channels", viewItem.comm_channels.join(", ") || "—"],
-                [isTh ? "อุปสรรคภาษา" : "Barrier", viewItem.communication_barrier],
-                [isTh ? "สัดส่วนนอกสถานที่" : "Offsite", viewItem.offsite_proportion || "—"],
-                [isTh ? "ระดับเร่งด่วน" : "Urgency", viewItem.urgency_level],
-                [isTh ? "📍 พิกัด" : "📍 Coords", viewItem.map_lat && viewItem.map_lng ? `${viewItem.map_lat.toFixed(4)}, ${viewItem.map_lng.toFixed(4)}` : "—"],
-                [isTh ? "ข้อเสนอ" : "Implications", viewItem.project_implications.join(", ") || "—"],
+                ["วันที่", viewItem.date],
+                ["เมือง", viewItem.city],
+                ["พื้นที่", viewItem.area],
+                ["สถานที่", viewItem.venue],
+                ["ผู้สังเกต", viewItem.observer],
+                ["จำนวน MSW", viewItem.msw_count],
+                ["ประเภทผู้ให้ข้อมูล", viewItem.informant_type.join(", ") || "—"],
+                ["สัญชาติ", [...viewItem.nationality_groups, viewItem.nationality_other ? `(${viewItem.nationality_other})` : ""].filter(Boolean).join(", ") || "—"],
+                ["ระดับภาษาไทย", viewItem.thai_proficiency || "—"],
+                ["ภาษาหลัก", viewItem.primary_languages.join(", ") || "—"],
+                ["ภาษาสื่อสุขภาพ", viewItem.health_languages.join(", ") || "—"],
+                ["ช่องทางรับข้อมูล", viewItem.comm_channels.join(", ") || "—"],
+                ["อุปสรรคภาษา", viewItem.communication_barrier],
+                ["สัดส่วนนอกสถานที่", viewItem.offsite_proportion || "—"],
+                ["📍 พิกัด", viewItem.map_lat && viewItem.map_lng ? `${viewItem.map_lat.toFixed(4)}, ${viewItem.map_lng.toFixed(4)}` : "—"],
+                ["ข้อเสนอ MEL", viewItem.project_implications.join(", ") || "—"],
               ].map(([label, value], i) => (
-                <div key={i} className="flex justify-between border-b border-border pb-2">
+                <div key={i} className="flex justify-between border-b border-border/50 pb-2">
                   <span className="text-sm text-muted-foreground">{label}</span>
                   <span className="text-sm font-medium text-foreground text-right max-w-[60%]">{value || "—"}</span>
                 </div>
