@@ -40,12 +40,15 @@ interface FormData {
   population_pattern: string;
   nationality_pattern: string;
   nationality_groups: string[];
+  nationality_other: string;
   age_pattern: string;
   online_offline_linkage: string;
   work_pattern: string;
   mobility_pattern: string;
   offsite_ratio: string;
-  // Risk signals removed from form — kept in DB for backward compat
+  informant_type: string[];
+  informant_type_other: string;
+  // Risk signals — kept in DB for backward compat (defaults)
   chemsex_signal: string;
   common_substances: string;
   injection_signal: string;
@@ -56,18 +59,24 @@ interface FormData {
   access_barrier_signal: string;
   digital_platform_pattern: string;
   urgency_level: string;
-  // Service section removed from form — kept in DB for backward compat
+  // Service section — kept in DB for backward compat (defaults)
   service_interests: string[];
   service_barriers: string[];
   preferred_contact_channel: string;
   preferred_service_model: string;
   // Language — MSW focused
+  thai_proficiency: string;
+  primary_languages: string[];
+  primary_languages_other: string;
   main_language: string;
   other_languages: string;
   communication_barrier_level: string;
   barrier_observation_note: string;
   interpreter_needed: boolean;
   digital_content_language: string;
+  // Communication channels
+  comm_channels: string[];
+  comm_channels_other: string;
   // MEL — minimal
   project_implications: string[];
   // Removed fields kept as defaults for DB compat
@@ -102,11 +111,14 @@ const INITIAL: FormData = {
   population_pattern: "",
   nationality_pattern: "",
   nationality_groups: [],
+  nationality_other: "",
   age_pattern: "",
   online_offline_linkage: "",
   work_pattern: "",
   mobility_pattern: "",
   offsite_ratio: "",
+  informant_type: [],
+  informant_type_other: "",
   chemsex_signal: "ไม่พบ",
   common_substances: "",
   injection_signal: "ไม่พบ",
@@ -121,12 +133,17 @@ const INITIAL: FormData = {
   service_barriers: [],
   preferred_contact_channel: "",
   preferred_service_model: "",
+  thai_proficiency: "",
+  primary_languages: [],
+  primary_languages_other: "",
   main_language: "",
   other_languages: "",
   communication_barrier_level: "ไม่มี",
   barrier_observation_note: "",
   interpreter_needed: false,
   digital_content_language: "",
+  comm_channels: [],
+  comm_channels_other: "",
   project_implications: [],
   key_finding_summary: "",
   recommended_action: "",
@@ -158,7 +175,8 @@ const OBSERVER_ROLES = [
   "Peer outreach worker", "เจ้าหน้าที่ภาคสนาม", "ผู้จัดการ", "อาสาสมัคร", "อื่นๆ",
 ];
 const MSW_RANGES = ["0", "1–5", "6–10", "11–20", "21–50", "50+"];
-const NATIONALITY_OPTIONS = ["เมียนมา", "กัมพูชา", "สปป. ลาว", "เวียดนาม", "จีน", "ยุโรป/รัสเซีย", "ไทใหญ่"];
+const NATIONALITY_OPTIONS = ["ไทย", "เมียนมา", "กัมพูชา", "สปป. ลาว", "เวียดนาม", "จีน", "ยุโรป/รัสเซีย", "ไทใหญ่", "อื่นๆ"];
+const INFORMANT_OPTIONS = ["MSW", "Peer educator", "พนักงานบาร์ / ผู้จัดการ", "เจ้าหน้าที่ Outreach", "อื่นๆ"];
 const IMPLICATION_OPTIONS = [
   "ควรใช้สื่อภาพหรือสื่ออ่านง่าย", "ควรพัฒนาสื่อหลายภาษา",
   "ควรมี peer แรงงานข้ามชาติร่วมทำงาน", "ควรเพิ่มการเข้าถึงผ่านช่องทางออนไลน์",
@@ -168,8 +186,15 @@ const IMPLICATION_OPTIONS = [
 const POPULATION_PATTERNS = ["คนไทย", "คนไทยเป็นหลัก", "ไทยและต่างชาติผสม", "ต่างชาติเป็นส่วนใหญ่"];
 const MOBILITY_PATTERNS = ["ประจำ (Stable)", "หมุนเวียน (Rotating)", "ตามฤดูกาล (Seasonal)", "ไม่ชัดเจน (Unclear)"];
 const BARRIER_LEVELS = ["ไม่มี", "มีบ้าง", "มีมาก"];
+const THAI_PROFICIENCY_OPTIONS = [
+  { value: "fluent", label: "สื่อสารภาษาไทยได้ดี" },
+  { value: "basic", label: "ภาษาไทยพื้นฐาน" },
+  { value: "other_primary", label: "ใช้ภาษาอื่นเป็นหลัก" },
+];
+const PRIMARY_LANGUAGE_OPTIONS = ["เมียนมา", "กัมพูชา", "ลาว", "เวียดนาม", "จีน", "อังกฤษ", "รัสเซีย", "อื่นๆ"];
+const COMM_CHANNEL_OPTIONS = ["LINE", "Facebook", "WhatsApp", "Telegram", "พบตัวโดยตรง (In-person)", "เพื่อน/เครือข่าย Peer", "อื่นๆ"];
 
-// ── Sections (5 sections: removed Risk + Service) ───────────────────
+// ── Sections (7 sections) ───────────────────────────────────────
 interface SectionDef {
   key: string;
   title: string;
@@ -181,7 +206,9 @@ const SECTIONS: SectionDef[] = [
   { key: "basic", title: "ข้อมูลพื้นฐาน", titleEn: "Basic Session Info", icon: "📋" },
   { key: "location", title: "พื้นที่และบริบท", titleEn: "Location & Context", icon: "📍" },
   { key: "population", title: "การสังเกตประชากร", titleEn: "Population Observation", icon: "👥" },
+  { key: "informant", title: "ประเภทผู้ให้ข้อมูล", titleEn: "Informant Type", icon: "🗣️" },
   { key: "language", title: "ภาษาและการสื่อสารกับ MSW", titleEn: "Language & MSW Communication", icon: "💬" },
+  { key: "channels", title: "ช่องทางรับข้อมูล", titleEn: "Communication Channels", icon: "📱" },
   { key: "mel", title: "ผลกระทบต่อโครงการ", titleEn: "Programme Implications", icon: "📊" },
 ];
 
@@ -233,7 +260,9 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
     basic: ["survey_date", "start_time", "end_time", "observer_name", "city", "area_name"],
     location: [],
     population: ["estimated_msw_count"],
+    informant: [],
     language: [],
+    channels: [],
     mel: [],
   };
 
@@ -272,6 +301,13 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
       const payload: any = { ...data, is_draft: isDraft, submitted_by: user?.id || null, record_source: "unified_form" };
       if (payload.estimated_msw_count === "") payload.estimated_msw_count = null;
       if (payload.communication_barrier_level !== "มีมาก") payload.barrier_observation_note = null;
+      if (payload.thai_proficiency !== "other_primary") {
+        payload.primary_languages = [];
+        payload.primary_languages_other = null;
+      }
+      if (!payload.nationality_groups?.includes("อื่นๆ")) payload.nationality_other = null;
+      if (!payload.informant_type?.includes("อื่นๆ")) payload.informant_type_other = null;
+      if (!payload.comm_channels?.includes("อื่นๆ")) payload.comm_channels_other = null;
       const { error } = await supabase.from("outreach_situational_forms" as any).insert(payload as any);
       if (error) throw error;
     },
@@ -475,7 +511,14 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
             </div>
             <div className="space-y-1.5">
               <FieldLabel label="กลุ่มสัญชาติที่พบ" />
+              <HelperText text="เลือกกลุ่มสัญชาติที่สังเกตเห็น — เลือก 'อื่นๆ' เพื่อระบุเพิ่มเติม" />
               <MultiCheckboxField field="nationality_groups" options={NATIONALITY_OPTIONS} />
+              {data.nationality_groups.includes("อื่นๆ") && (
+                <div className="mt-2 pl-3 border-l-2 border-primary/30">
+                  <FieldLabel label="ระบุสัญชาติอื่น" />
+                  <Input placeholder="เช่น อินเดีย ฟิลิปปินส์" value={data.nationality_other} onChange={(e) => setField("nationality_other", e.target.value)} className="min-h-[48px] mt-1" />
+                </div>
+              )}
             </div>
             <div className="space-y-1.5">
               <FieldLabel label="รูปแบบอายุโดยประมาณ" />
@@ -498,29 +541,63 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
           </div>
         );
 
+      case "informant":
+        return (
+          <div className="space-y-5">
+            <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
+              <CardContent className="pt-4 pb-3">
+                <p className="text-xs text-muted-foreground">
+                  🗣️ ระบุประเภทของผู้ให้ข้อมูลที่พูดคุยด้วยในครั้งนี้ — สามารถเลือกได้มากกว่า 1
+                </p>
+              </CardContent>
+            </Card>
+            <div className="space-y-1.5">
+              <FieldLabel label="ประเภทผู้ให้ข้อมูล" />
+              <HelperText text="ผู้ที่ให้ข้อมูลหรือพูดคุยด้วยในระหว่างการลงพื้นที่" />
+              <MultiCheckboxField field="informant_type" options={INFORMANT_OPTIONS} />
+              {data.informant_type.includes("อื่นๆ") && (
+                <div className="mt-2 pl-3 border-l-2 border-primary/30">
+                  <FieldLabel label="ระบุประเภทอื่น" />
+                  <Input placeholder="เช่น เจ้าของร้าน ลูกค้าประจำ" value={data.informant_type_other} onChange={(e) => setField("informant_type_other", e.target.value)} className="min-h-[48px] mt-1" />
+                </div>
+              )}
+            </div>
+          </div>
+        );
+
       case "language":
         return (
           <div className="space-y-5">
             <Card className="border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20">
               <CardContent className="pt-4 pb-3">
                 <p className="text-xs text-muted-foreground">
-                  💬 ส่วนนี้โฟกัสการสื่อสารกับ MSW — เก็บข้อมูลภาษาที่ใช้จริงในพื้นที่ เพื่อวางแผนสื่อและ peer ที่เหมาะสม
+                  💬 ส่วนนี้โฟกัสการสื่อสารกับ MSW — เก็บข้อมูลระดับภาษาไทยและภาษาที่ใช้จริง เพื่อวางแผนสื่อและ peer ที่เหมาะสม
                 </p>
               </CardContent>
             </Card>
             <div className="space-y-1.5">
-              <FieldLabel label="ภาษาที่ใช้สื่อสารกับ MSW" />
-              <HelperText text="ภาษาหลักที่ MSW ในพื้นที่นี้ใช้พูดคุยกัน" />
-              <Input placeholder="เช่น ไทย / พม่า / อังกฤษง่ายๆ" value={data.main_language} onChange={(e) => setField("main_language", e.target.value)} className="min-h-[48px]" />
+              <FieldLabel label="ระดับภาษาไทยของ MSW ในพื้นที่" />
+              <HelperText text="ประเมินจากการพูดคุยจริง — MSW สื่อสารภาษาไทยได้แค่ไหน" />
+              <SelectField field="thai_proficiency" options={THAI_PROFICIENCY_OPTIONS} placeholder="เลือกระดับ" />
             </div>
+            {data.thai_proficiency === "other_primary" && (
+              <div className="space-y-3 pl-3 border-l-2 border-blue-300 dark:border-blue-700">
+                <div className="space-y-1.5">
+                  <FieldLabel label="ภาษาหลักที่ MSW ใช้สื่อสาร" />
+                  <HelperText text="เลือกภาษาที่ MSW ใช้จริง — เลือกได้มากกว่า 1" />
+                  <MultiCheckboxField field="primary_languages" options={PRIMARY_LANGUAGE_OPTIONS} />
+                  {data.primary_languages.includes("อื่นๆ") && (
+                    <div className="mt-2 pl-3 border-l-2 border-primary/30">
+                      <FieldLabel label="ระบุภาษาอื่น" />
+                      <Input placeholder="เช่น ฮินดี ญี่ปุ่น" value={data.primary_languages_other} onChange={(e) => setField("primary_languages_other", e.target.value)} className="min-h-[48px] mt-1" />
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
             <div className="space-y-1.5">
-              <FieldLabel label="ภาษาอื่นที่พบในพื้นที่" />
-              <HelperText text="ภาษาอื่นที่ได้ยินหรือสังเกตเห็นจาก MSW" />
-              <Input placeholder="เช่น กัมพูชา ลาว เมียนมา" value={data.other_languages} onChange={(e) => setField("other_languages", e.target.value)} className="min-h-[48px]" />
-            </div>
-            <div className="space-y-1.5">
-              <FieldLabel label="ระดับความเข้าใจในการสื่อสารกับ MSW" />
-              <HelperText text="ประเมินจากการพูดคุยจริง — MSW เข้าใจข้อมูลด้านสุขภาพที่สื่อสารมากน้อยแค่ไหน" />
+              <FieldLabel label="ระดับอุปสรรคด้านการสื่อสาร" />
+              <HelperText text="โดยรวม — MSW เข้าใจข้อมูลสุขภาพที่สื่อสารได้มากน้อยแค่ไหน" />
               <SelectField field="communication_barrier_level" options={BARRIER_LEVELS} />
             </div>
             {data.communication_barrier_level === "มีมาก" && (
@@ -538,6 +615,30 @@ export default function UnifiedOutreachForm({ onClose }: Props) {
               <FieldLabel label="ภาษาที่ควรมีสำหรับสื่อสุขภาพ / ลดอันตราย" />
               <HelperText text="นอกจากภาษาไทย ควรเพิ่มภาษาใดสำหรับ MSW ในพื้นที่นี้" />
               <Input placeholder="เช่น ภาษาพม่า ภาษาอังกฤษ" value={data.digital_content_language} onChange={(e) => setField("digital_content_language", e.target.value)} className="min-h-[48px]" />
+            </div>
+          </div>
+        );
+
+      case "channels":
+        return (
+          <div className="space-y-5">
+            <Card className="border-purple-200 dark:border-purple-800 bg-purple-50/50 dark:bg-purple-950/20">
+              <CardContent className="pt-4 pb-3">
+                <p className="text-xs text-muted-foreground">
+                  📱 ช่องทางที่ MSW ใช้รับข้อมูลสุขภาพ หรือข้อมูลอื่นๆ — เพื่อวางแผนการสื่อสารและเข้าถึงที่เหมาะสม
+                </p>
+              </CardContent>
+            </Card>
+            <div className="space-y-1.5">
+              <FieldLabel label="ช่องทางที่ MSW นิยมใช้ในการรับข้อมูล" />
+              <HelperText text="เลือกช่องทางที่ MSW ในพื้นที่นี้ใช้จริง — เลือกได้มากกว่า 1" />
+              <MultiCheckboxField field="comm_channels" options={COMM_CHANNEL_OPTIONS} />
+              {data.comm_channels.includes("อื่นๆ") && (
+                <div className="mt-2 pl-3 border-l-2 border-primary/30">
+                  <FieldLabel label="ระบุช่องทางอื่น" />
+                  <Input placeholder="เช่น TikTok Twitter/X" value={data.comm_channels_other} onChange={(e) => setField("comm_channels_other", e.target.value)} className="min-h-[48px] mt-1" />
+                </div>
+              )}
             </div>
           </div>
         );
