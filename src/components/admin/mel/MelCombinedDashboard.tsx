@@ -161,6 +161,7 @@ export default function MelCombinedDashboard() {
         observer: u.observer_name || "",
         msw_count: u.estimated_msw_count || "",
         nationality_groups: u.nationality_groups || [],
+        nationality_other: u.nationality_other || "",
         communication_barrier: u.communication_barrier_level || "ไม่มี",
         urgency_level: u.urgency_level || "normal",
         service_interests: u.service_interests || [],
@@ -171,6 +172,10 @@ export default function MelCombinedDashboard() {
         violence_signal: u.violence_safety_signal || "ไม่พบ",
         is_hotspot: u.is_known_hotspot || u.is_emerging_hotspot || false,
         confidence: u.confidence_level || "medium",
+        informant_type: u.informant_type || [],
+        thai_proficiency: u.thai_proficiency || "",
+        primary_languages: u.primary_languages || [],
+        comm_channels: u.comm_channels || [],
         raw: u,
       });
     });
