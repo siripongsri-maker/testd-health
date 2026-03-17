@@ -49,6 +49,10 @@ export function useAdminRole(): AdminRoleState {
         return;
       }
 
+      // Check outreach_staff
+      const { data: outreachData } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'outreach_staff' as any });
+      if (outreachData) { setRole('outreach_staff'); setLoading(false); return; }
+
       setRole(null);
       setLoading(false);
     };
