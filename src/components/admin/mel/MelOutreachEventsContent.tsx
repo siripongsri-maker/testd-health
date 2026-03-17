@@ -12,6 +12,7 @@ import OutreachEventDrawer from "./OutreachEventDrawer";
 import MelDeleteDialog from "./MelDeleteDialog";
 import MelSOPCard, { MEL_SOPS } from "./MelSOPCard";
 import MswRapidAssessmentList from "./MswRapidAssessmentList";
+import FieldNotesDashboard from "./FieldNotesDashboard";
 
 export default function MelOutreachEventsContent() {
   const { language } = useLanguage();
