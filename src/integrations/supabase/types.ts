@@ -5495,6 +5495,7 @@ export type Database = {
           activity_intensity: string | null
           age_pattern: string | null
           area_name: string
+          area_notes: string | null
           barrier_observation_note: string | null
           chemsex_signal: string | null
           city: string
@@ -5510,6 +5511,8 @@ export type Database = {
           environment_notes: string | null
           estimated_msm_count: string | null
           estimated_msw_count: string | null
+          health_languages: string[] | null
+          health_languages_other: string | null
           housing_vulnerability_signal: string | null
           id: string
           immediate_followup_needed: boolean | null
@@ -5523,13 +5526,19 @@ export type Database = {
           is_known_hotspot: boolean | null
           key_finding_summary: string | null
           main_language: string | null
+          map_lat: number | null
+          map_lng: number | null
           mental_health_signal: string | null
           mobility_pattern: string | null
+          msw_estimated_range: string | null
           nationality_groups: string[] | null
           nationality_other: string | null
           nationality_pattern: string | null
           observer_name: string
           observer_role: string | null
+          offsite_nationalities: string[] | null
+          offsite_nationalities_other: string | null
+          offsite_proportion: string | null
           offsite_ratio: string | null
           online_offline_linkage: string | null
           other_languages: string | null
@@ -5537,6 +5546,7 @@ export type Database = {
           peer_code: string | null
           police_pressure_signal: string | null
           policy_issue: string | null
+          population_groups: string[] | null
           population_pattern: string | null
           preferred_contact_channel: string | null
           preferred_service_model: string | null
@@ -5555,6 +5565,7 @@ export type Database = {
           updated_at: string | null
           urgency_level: string | null
           venue_alias: string | null
+          venue_name: string | null
           venue_type: string | null
           violence_safety_signal: string | null
           visible_changes: string | null
@@ -5565,6 +5576,7 @@ export type Database = {
           activity_intensity?: string | null
           age_pattern?: string | null
           area_name: string
+          area_notes?: string | null
           barrier_observation_note?: string | null
           chemsex_signal?: string | null
           city: string
@@ -5580,6 +5592,8 @@ export type Database = {
           environment_notes?: string | null
           estimated_msm_count?: string | null
           estimated_msw_count?: string | null
+          health_languages?: string[] | null
+          health_languages_other?: string | null
           housing_vulnerability_signal?: string | null
           id?: string
           immediate_followup_needed?: boolean | null
@@ -5593,13 +5607,19 @@ export type Database = {
           is_known_hotspot?: boolean | null
           key_finding_summary?: string | null
           main_language?: string | null
+          map_lat?: number | null
+          map_lng?: number | null
           mental_health_signal?: string | null
           mobility_pattern?: string | null
+          msw_estimated_range?: string | null
           nationality_groups?: string[] | null
           nationality_other?: string | null
           nationality_pattern?: string | null
           observer_name: string
           observer_role?: string | null
+          offsite_nationalities?: string[] | null
+          offsite_nationalities_other?: string | null
+          offsite_proportion?: string | null
           offsite_ratio?: string | null
           online_offline_linkage?: string | null
           other_languages?: string | null
@@ -5607,6 +5627,7 @@ export type Database = {
           peer_code?: string | null
           police_pressure_signal?: string | null
           policy_issue?: string | null
+          population_groups?: string[] | null
           population_pattern?: string | null
           preferred_contact_channel?: string | null
           preferred_service_model?: string | null
@@ -5625,6 +5646,7 @@ export type Database = {
           updated_at?: string | null
           urgency_level?: string | null
           venue_alias?: string | null
+          venue_name?: string | null
           venue_type?: string | null
           violence_safety_signal?: string | null
           visible_changes?: string | null
@@ -5635,6 +5657,7 @@ export type Database = {
           activity_intensity?: string | null
           age_pattern?: string | null
           area_name?: string
+          area_notes?: string | null
           barrier_observation_note?: string | null
           chemsex_signal?: string | null
           city?: string
@@ -5650,6 +5673,8 @@ export type Database = {
           environment_notes?: string | null
           estimated_msm_count?: string | null
           estimated_msw_count?: string | null
+          health_languages?: string[] | null
+          health_languages_other?: string | null
           housing_vulnerability_signal?: string | null
           id?: string
           immediate_followup_needed?: boolean | null
@@ -5663,13 +5688,19 @@ export type Database = {
           is_known_hotspot?: boolean | null
           key_finding_summary?: string | null
           main_language?: string | null
+          map_lat?: number | null
+          map_lng?: number | null
           mental_health_signal?: string | null
           mobility_pattern?: string | null
+          msw_estimated_range?: string | null
           nationality_groups?: string[] | null
           nationality_other?: string | null
           nationality_pattern?: string | null
           observer_name?: string
           observer_role?: string | null
+          offsite_nationalities?: string[] | null
+          offsite_nationalities_other?: string | null
+          offsite_proportion?: string | null
           offsite_ratio?: string | null
           online_offline_linkage?: string | null
           other_languages?: string | null
@@ -5677,6 +5708,7 @@ export type Database = {
           peer_code?: string | null
           police_pressure_signal?: string | null
           policy_issue?: string | null
+          population_groups?: string[] | null
           population_pattern?: string | null
           preferred_contact_channel?: string | null
           preferred_service_model?: string | null
@@ -5695,6 +5727,7 @@ export type Database = {
           updated_at?: string | null
           urgency_level?: string | null
           venue_alias?: string | null
+          venue_name?: string | null
           venue_type?: string | null
           violence_safety_signal?: string | null
           visible_changes?: string | null
