@@ -26,8 +26,11 @@ interface UnifiedRecord {
   city: string;
   area: string;
   venue: string;
+  venue_name: string;
   observer: string;
   msw_count: string;
+  estimated_msw_count: string;
+  estimated_msm_count: string;
   nationality_groups: string[];
   nationality_other: string;
   communication_barrier: string;
@@ -49,6 +52,7 @@ interface UnifiedRecord {
   offsite_nationalities: string[];
   map_lat: number | null;
   map_lng: number | null;
+  created_at: string | null;
   raw: any;
 }
 
