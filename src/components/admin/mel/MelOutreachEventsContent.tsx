@@ -50,7 +50,10 @@ export default function MelOutreachEventsContent() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="field-notes">
+            {isTh ? "บันทึกภาคสนาม" : "Field Notes"}
+          </TabsTrigger>
           <TabsTrigger value="assessments">
             {isTh ? "แบบสอบถาม Rapid MSW" : "Rapid MSW Assessment"}
           </TabsTrigger>
@@ -58,6 +61,10 @@ export default function MelOutreachEventsContent() {
             {isTh ? "กิจกรรมเชิงรุก" : "Outreach Events"}
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="field-notes" className="mt-6">
+          <FieldNotesDashboard />
+        </TabsContent>
 
         <TabsContent value="assessments" className="mt-6">
           <MswRapidAssessmentList />
