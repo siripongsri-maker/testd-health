@@ -48,6 +48,7 @@ export default function Settings() {
   const [settings, setSettings] = useState(getUserData().notificationSettings);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isModerator, setIsModerator] = useState(false);
+  const [isMeAnalyst, setIsMeAnalyst] = useState(false);
   const [userBranch, setUserBranch] = useState<string | null>(null);
   const [adminRequest, setAdminRequest] = useState<{ status: string } | null>(null);
   const [showAdminRequest, setShowAdminRequest] = useState(false);
