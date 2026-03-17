@@ -925,7 +925,7 @@ export default function MelCombinedDashboard() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
               <Lightbulb className="h-4 w-4 text-amber-500" />
-              ข้อค้นพบเชิง MEL
+              ข้อต้นพบจากกิจกรรม
             </CardTitle>
             <CardDescription className="text-xs">สร้างอัตโนมัติจากข้อมูลรวม</CardDescription>
           </CardHeader>
