@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { PageLoader } from "@/components/PageLoader";
+import { SEOHead } from "@/components/seo/SEOHead";
 import UnifiedOutreachForm from "@/components/admin/mel/UnifiedOutreachForm";
 
 export default function OutreachForm() {
