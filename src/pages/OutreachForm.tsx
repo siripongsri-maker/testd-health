@@ -65,6 +65,11 @@ export default function OutreachForm() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="testD — แบบฟอร์ม Outreach"
+        description="แบบฟอร์มบันทึกข้อมูลกิจกรรมเชิงรุกภาคสนาม สำหรับเจ้าหน้าที่ SWING Foundation"
+        canonicalPath="/outreach-form"
+      />
       {/* Simple header for standalone mode */}
       <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-3">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
