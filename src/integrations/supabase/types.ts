@@ -4994,6 +4994,39 @@ export type Database = {
           },
         ]
       }
+      mel_deletion_audit: {
+        Row: {
+          action_type: string
+          deleted_at: string
+          deleted_by: string | null
+          id: string
+          metadata: Json | null
+          record_count: number | null
+          record_id: string | null
+          source_table: string
+        }
+        Insert: {
+          action_type: string
+          deleted_at?: string
+          deleted_by?: string | null
+          id?: string
+          metadata?: Json | null
+          record_count?: number | null
+          record_id?: string | null
+          source_table: string
+        }
+        Update: {
+          action_type?: string
+          deleted_at?: string
+          deleted_by?: string | null
+          id?: string
+          metadata?: Json | null
+          record_count?: number | null
+          record_id?: string | null
+          source_table?: string
+        }
+        Relationships: []
+      }
       mel_referrals: {
         Row: {
           anonymous_token: string | null

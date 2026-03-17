@@ -1,15 +1,20 @@
 import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useAdminRole } from "@/hooks/useAdminRole";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, Download, MapPin, AlertTriangle, TrendingUp, BarChart3, Shield, Lightbulb, Eye, Filter, RotateCcw, List, LayoutGrid, Table2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Loader2, Download, MapPin, AlertTriangle, TrendingUp, BarChart3, Shield, Lightbulb, Eye, Filter, RotateCcw, List, LayoutGrid, Table2, Trash2, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 // ── Types ───────────────────────────────────────────────────────────
 interface UnifiedRecord {
@@ -45,6 +50,12 @@ interface UnifiedRecord {
   raw: any;
 }
 
+const SOURCE_TABLE_MAP: Record<string, string> = {
+  field_note: "field_notes",
+  rapid_msw: "msw_rapid_assessments",
+  unified_form: "outreach_situational_forms",
+};
+
 const normalizeCity = (c: string) => {
   if (!c) return "ไม่ระบุ";
   if (c.includes("กรุงเทพ") || c === "bangkok") return "กรุงเทพฯ";
@@ -57,16 +68,22 @@ const CHART_COLORS = [
   "bg-primary", "bg-blue-500", "bg-emerald-500", "bg-amber-500", "bg-purple-500",
   "bg-rose-500", "bg-cyan-500", "bg-orange-500", "bg-indigo-500", "bg-teal-500"
 ];
-const CHART_TEXT_COLORS = [
-  "text-primary", "text-blue-500", "text-emerald-500", "text-amber-500", "text-purple-500",
-  "text-rose-500", "text-cyan-500", "text-orange-500", "text-indigo-500", "text-teal-500"
-];
 
 export default function MelCombinedDashboard() {
+  const { user } = useAuth();
+  const { isAdmin, isModerator, readOnly } = useAdminRole();
+  const qc = useQueryClient();
+  const canDelete = (isAdmin || isModerator) && !readOnly;
+
   const [filterCity, setFilterCity] = useState("all");
   const [filterSource, setFilterSource] = useState("all");
   const [viewItem, setViewItem] = useState<UnifiedRecord | null>(null);
   const [viewMode, setViewMode] = useState<"charts" | "cards" | "table">("charts");
+
+  // Delete states
+  const [deleteTarget, setDeleteTarget] = useState<UnifiedRecord | null>(null);
+  const [clearAllOpen, setClearAllOpen] = useState(false);
+  const [clearAllConfirmText, setClearAllConfirmText] = useState("");
 
   const { data: fieldNotes, isLoading: l1 } = useQuery({
     queryKey: ["mel-combined-field-notes"],
@@ -96,6 +113,74 @@ export default function MelCombinedDashboard() {
   });
 
   const isLoading = l1 || l2 || l3;
+
+  // ── Delete single record ──
+  const deleteSingleMutation = useMutation({
+    mutationFn: async (record: UnifiedRecord) => {
+      const table = SOURCE_TABLE_MAP[record.source];
+      const { error } = await supabase.from(table as any).delete().eq("id", record.id);
+      if (error) throw error;
+      // Audit log
+      await supabase.from("mel_deletion_audit" as any).insert({
+        deleted_by: user?.id || null,
+        action_type: "single_delete",
+        source_table: table,
+        record_id: record.id,
+        record_count: 1,
+        metadata: { city: record.city, area: record.area, date: record.date },
+      } as any);
+    },
+    onSuccess: () => {
+      invalidateAll();
+      toast.success("ลบข้อมูลสำเร็จ");
+      setDeleteTarget(null);
+      setViewItem(null);
+    },
+    onError: () => toast.error("ลบไม่สำเร็จ กรุณาลองใหม่"),
+  });
+
+  // ── Clear all records ──
+  const clearAllMutation = useMutation({
+    mutationFn: async () => {
+      const tables = ["field_notes", "msw_rapid_assessments", "outreach_situational_forms"] as const;
+      let totalDeleted = 0;
+      for (const table of tables) {
+        const { data: existing } = await supabase.from(table as any).select("id").limit(1000);
+        const count = existing?.length || 0;
+        if (count > 0) {
+          const { error } = await supabase.from(table as any).delete().neq("id", "00000000-0000-0000-0000-000000000000");
+          if (error) throw error;
+          totalDeleted += count;
+        }
+      }
+      // Audit log
+      await supabase.from("mel_deletion_audit" as any).insert({
+        deleted_by: user?.id || null,
+        action_type: "clear_all",
+        source_table: "all_outreach",
+        record_id: null,
+        record_count: totalDeleted,
+        metadata: { tables: tables },
+      } as any);
+    },
+    onSuccess: () => {
+      invalidateAll();
+      toast.success("ล้างข้อมูลทั้งหมดสำเร็จ");
+      setClearAllOpen(false);
+      setClearAllConfirmText("");
+      // Clear drafts too
+      localStorage.removeItem("unified-outreach-draft");
+    },
+    onError: () => toast.error("ล้างข้อมูลไม่สำเร็จ กรุณาลองใหม่"),
+  });
+
+  const invalidateAll = () => {
+    qc.invalidateQueries({ queryKey: ["mel-combined-field-notes"] });
+    qc.invalidateQueries({ queryKey: ["mel-combined-rapid-msw"] });
+    qc.invalidateQueries({ queryKey: ["mel-combined-unified"] });
+    qc.invalidateQueries({ queryKey: ["outreach-situational"] });
+    qc.invalidateQueries({ queryKey: ["mel-combined-dashboard"] });
+  };
 
   // Normalize all records
   const allRecords = useMemo<UnifiedRecord[]>(() => {
@@ -270,7 +355,6 @@ export default function MelCombinedDashboard() {
     return Object.entries(map).sort((a, b) => a[0].localeCompare(b[0])).slice(-12);
   }, [filtered]);
 
-  // Source distribution for donut
   const sourceDist = useMemo(() => {
     const fn = filtered.filter(r => r.source === "field_note").length;
     const rm = filtered.filter(r => r.source === "rapid_msw").length;
@@ -282,7 +366,6 @@ export default function MelCombinedDashboard() {
     ].filter(s => s.value > 0);
   }, [filtered]);
 
-  // Auto-generate insights
   const insights = useMemo(() => {
     const ins: { icon: string; text: string; severity: "info" | "warning" | "success" }[] = [];
     if (highBarrierCount > 0) ins.push({ icon: "💬", text: `พบอุปสรรคด้านภาษาระดับ "มีมาก" จำนวน ${highBarrierCount} ครั้ง — ควรพิจารณาสื่อหลายภาษาและ Peer ต่างชาติ`, severity: "warning" });
@@ -300,7 +383,7 @@ export default function MelCombinedDashboard() {
     return ins;
   }, [highBarrierCount, signalCounts, areaRanking, nationalityDist, channelDist, healthLangDist, proficiencyDist, total]);
 
-  // CSV Export — full raw dataset
+  // CSV Export
   const exportCsv = () => {
     if (!filtered.length) return;
     const FULL_HEADERS = [
@@ -464,8 +547,40 @@ export default function MelCombinedDashboard() {
     return <span className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium", s.className)}>{s.label}</span>;
   };
 
+  // ── Delete button helper ──
+  const DeleteButton = ({ record, size = "icon" }: { record: UnifiedRecord; size?: "icon" | "default" }) => {
+    if (!canDelete) return null;
+    if (size === "default") {
+      return (
+        <Button variant="destructive" size="sm" className="gap-1.5" onClick={() => setDeleteTarget(record)}>
+          <Trash2 className="h-3.5 w-3.5" />ลบข้อมูล
+        </Button>
+      );
+    }
+    return (
+      <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); setDeleteTarget(record); }}>
+        <Trash2 className="h-3.5 w-3.5" />
+      </Button>
+    );
+  };
+
+  // ── Empty state ──
+  const EmptyState = () => (
+    <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
+      <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center">
+        <BarChart3 className="h-8 w-8 text-muted-foreground" />
+      </div>
+      <h3 className="text-lg font-semibold text-foreground">ยังไม่มีข้อมูล</h3>
+      <p className="text-sm text-muted-foreground max-w-md">ยังไม่มีบันทึกในหน้านี้ หรือข้อมูลถูกลบออกแล้ว</p>
+    </div>
+  );
+
   if (isLoading) {
     return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+  }
+
+  if (total === 0) {
+    return <EmptyState />;
   }
 
   return (
@@ -477,7 +592,6 @@ export default function MelCombinedDashboard() {
           <p className="text-muted-foreground text-sm">รวมข้อมูลจากทุกแหล่ง — ภาคสนาม, Rapid MSW, และแบบฟอร์มรวม</p>
         </div>
         <div className="flex items-center gap-2">
-          {/* View mode toggle */}
           <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)} className="hidden sm:block">
             <TabsList className="h-8">
               <TabsTrigger value="charts" className="h-6 px-2 text-xs gap-1"><BarChart3 className="h-3 w-3" />กราฟ</TabsTrigger>
@@ -488,6 +602,11 @@ export default function MelCombinedDashboard() {
           {filtered.length > 0 && (
             <Button size="sm" variant="outline" onClick={exportCsv} className="h-8 text-xs gap-1">
               <Download className="h-3.5 w-3.5" />CSV
+            </Button>
+          )}
+          {canDelete && isAdmin && (
+            <Button size="sm" variant="outline" onClick={() => setClearAllOpen(true)} className="h-8 text-xs gap-1 text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive">
+              <Trash2 className="h-3.5 w-3.5" />ล้างทั้งหมด
             </Button>
           )}
         </div>
@@ -549,7 +668,7 @@ export default function MelCombinedDashboard() {
         ))}
       </div>
 
-      {/* Risk Signals — compact horizontal */}
+      {/* Risk Signals */}
       {(signalCounts.chemsex > 0 || signalCounts.mh > 0 || signalCounts.violence > 0) && (
         <Card className="border-amber-200/50 dark:border-amber-800/30">
           <CardContent className="py-4">
@@ -576,22 +695,16 @@ export default function MelCombinedDashboard() {
       {/* Charts View */}
       {viewMode === "charts" && (
         <>
-          {/* Source distribution + Monthly Trend row */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Source Distribution Donut */}
             {sourceDist.length > 0 && (
               <Card>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-sm">แหล่งข้อมูล</CardTitle>
                   <CardDescription className="text-xs">สัดส่วนข้อมูลจากแต่ละแหล่ง</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <DonutChart data={sourceDist} />
-                </CardContent>
+                <CardContent><DonutChart data={sourceDist} /></CardContent>
               </Card>
             )}
-
-            {/* Monthly Trend */}
             {monthlyTrend.length > 0 && (
               <Card>
                 <CardHeader className="pb-2">
@@ -628,7 +741,6 @@ export default function MelCombinedDashboard() {
             )}
           </div>
 
-          {/* Communication Barriers — segmented bar */}
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm">อุปสรรคด้านการสื่อสาร</CardTitle>
@@ -643,9 +755,7 @@ export default function MelCombinedDashboard() {
             </CardContent>
           </Card>
 
-          {/* Main Charts Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Area Ranking */}
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm">พื้นที่ที่ลงเยี่ยมบ่อย</CardTitle>
@@ -656,7 +766,6 @@ export default function MelCombinedDashboard() {
               </CardContent>
             </Card>
 
-            {/* Nationality */}
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm">กลุ่มสัญชาติที่พบ</CardTitle>
@@ -667,7 +776,6 @@ export default function MelCombinedDashboard() {
               </CardContent>
             </Card>
 
-            {/* Health Language Needs */}
             {healthLangDist.length > 0 && (
               <Card>
                 <CardHeader className="pb-2">
@@ -678,7 +786,6 @@ export default function MelCombinedDashboard() {
               </Card>
             )}
 
-            {/* Communication Channels */}
             {channelDist.length > 0 && (
               <Card>
                 <CardHeader className="pb-2">
@@ -689,7 +796,6 @@ export default function MelCombinedDashboard() {
               </Card>
             )}
 
-            {/* Informant Type */}
             {informantDist.length > 0 && (
               <Card>
                 <CardHeader className="pb-2">
@@ -700,7 +806,6 @@ export default function MelCombinedDashboard() {
               </Card>
             )}
 
-            {/* Thai Proficiency */}
             {proficiencyDist.length > 0 && (
               <Card>
                 <CardHeader className="pb-2">
@@ -711,7 +816,6 @@ export default function MelCombinedDashboard() {
               </Card>
             )}
 
-            {/* Offsite Work Proportion */}
             {offsiteDist.length > 0 && (
               <Card>
                 <CardHeader className="pb-2">
@@ -722,7 +826,6 @@ export default function MelCombinedDashboard() {
               </Card>
             )}
 
-            {/* Project Implications */}
             {implicationsDist.length > 0 && (
               <Card>
                 <CardHeader className="pb-2">
@@ -747,7 +850,10 @@ export default function MelCombinedDashboard() {
                     <SourceBadge source={r.source} />
                     <span className="text-xs text-muted-foreground">{r.date ? format(new Date(r.date), "d MMM yy") : "—"}</span>
                   </div>
-                  {r.is_hotspot && <Badge variant="outline" className="text-[10px] border-amber-300 text-amber-600">Hotspot</Badge>}
+                  <div className="flex items-center gap-1">
+                    {r.is_hotspot && <Badge variant="outline" className="text-[10px] border-amber-300 text-amber-600">Hotspot</Badge>}
+                    <DeleteButton record={r} />
+                  </div>
                 </div>
                 <p className="text-sm font-medium text-foreground">{r.city} — {r.area || "ไม่ระบุ"}</p>
                 <p className="text-xs text-muted-foreground mt-1">{r.venue || "ไม่ระบุสถานที่"} • MSW: {r.msw_count || "—"}</p>
@@ -780,7 +886,7 @@ export default function MelCombinedDashboard() {
                     <th className="text-left p-3 font-medium text-muted-foreground text-xs">พื้นที่</th>
                     <th className="text-center p-3 font-medium text-muted-foreground text-xs">MSW</th>
                     <th className="text-left p-3 font-medium text-muted-foreground text-xs">ผู้ให้ข้อมูล</th>
-                    <th className="p-3 w-10" />
+                    <th className="p-3 w-20" />
                   </tr>
                 </thead>
                 <tbody>
@@ -793,9 +899,12 @@ export default function MelCombinedDashboard() {
                       <td className="p-3 text-center font-medium text-xs">{r.msw_count || "—"}</td>
                       <td className="p-3 text-xs truncate max-w-[120px]">{r.informant_type.join(", ") || "—"}</td>
                       <td className="p-3">
-                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setViewItem(r)}>
-                          <Eye className="h-3.5 w-3.5" />
-                        </Button>
+                        <div className="flex items-center gap-0.5">
+                          <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setViewItem(r)}>
+                            <Eye className="h-3.5 w-3.5" />
+                          </Button>
+                          <DeleteButton record={r} />
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -866,10 +975,90 @@ export default function MelCombinedDashboard() {
                   <span className="text-sm font-medium text-foreground text-right max-w-[60%]">{value || "—"}</span>
                 </div>
               ))}
+              {canDelete && (
+                <div className="pt-4">
+                  <DeleteButton record={viewItem} size="default" />
+                </div>
+              )}
             </div>
           )}
         </SheetContent>
       </Sheet>
+
+      {/* Single Delete Confirmation Dialog */}
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              ยืนยันการลบข้อมูล
+            </DialogTitle>
+            <DialogDescription>
+              คุณต้องการลบข้อมูลรายการนี้ใช่หรือไม่? ข้อมูลที่ลบแล้วจะไม่สามารถกู้คืนได้
+            </DialogDescription>
+          </DialogHeader>
+          {deleteTarget && (
+            <div className="rounded-lg bg-muted/50 p-3 text-sm space-y-1">
+              <p><span className="text-muted-foreground">แหล่ง:</span> <SourceBadge source={deleteTarget.source} /></p>
+              <p><span className="text-muted-foreground">วันที่:</span> {deleteTarget.date || "—"}</p>
+              <p><span className="text-muted-foreground">พื้นที่:</span> {deleteTarget.city} — {deleteTarget.area || "ไม่ระบุ"}</p>
+            </div>
+          )}
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setDeleteTarget(null)}>ยกเลิก</Button>
+            <Button variant="destructive" onClick={() => deleteTarget && deleteSingleMutation.mutate(deleteTarget)} disabled={deleteSingleMutation.isPending} className="gap-1.5">
+              {deleteSingleMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+              ลบข้อมูล
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Clear All Confirmation Dialog — two-step */}
+      <Dialog open={clearAllOpen} onOpenChange={(open) => { if (!open) { setClearAllOpen(false); setClearAllConfirmText(""); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-destructive" />
+              ล้างข้อมูลทั้งหมด
+            </DialogTitle>
+            <DialogDescription>
+              การดำเนินการนี้จะลบข้อมูลทั้งหมดของหน้านี้ออกอย่างถาวร และไม่สามารถกู้คืนได้
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-sm">
+              <p className="font-medium text-destructive">⚠️ จะลบข้อมูลจำนวน {total} รายการ จากทุกแหล่งข้อมูล</p>
+              <ul className="text-xs text-muted-foreground mt-2 space-y-0.5 list-disc list-inside">
+                <li>บันทึกภาคสนาม ({(fieldNotes || []).length})</li>
+                <li>Rapid MSW ({(rapidMsw || []).length})</li>
+                <li>แบบฟอร์มรวม ({(unifiedForms || []).length})</li>
+              </ul>
+            </div>
+            <div>
+              <p className="text-sm text-foreground mb-2">พิมพ์ <span className="font-bold text-destructive">"ล้างข้อมูลทั้งหมด"</span> เพื่อยืนยัน</p>
+              <Input
+                value={clearAllConfirmText}
+                onChange={(e) => setClearAllConfirmText(e.target.value)}
+                placeholder="ล้างข้อมูลทั้งหมด"
+                className="text-sm"
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => { setClearAllOpen(false); setClearAllConfirmText(""); }}>ยกเลิก</Button>
+            <Button
+              variant="destructive"
+              onClick={() => clearAllMutation.mutate()}
+              disabled={clearAllConfirmText !== "ล้างข้อมูลทั้งหมด" || clearAllMutation.isPending}
+              className="gap-1.5"
+            >
+              {clearAllMutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+              ล้างข้อมูลทั้งหมด
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
