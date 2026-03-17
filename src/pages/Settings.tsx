@@ -241,6 +241,8 @@ export default function Settings() {
                   )}
                   {isAdmin 
                     ? (language === 'th' ? 'แดชบอร์ดผู้ดูแล' : 'Admin Dashboard')
+                    : isMeAnalyst
+                    ? (language === 'th' ? 'M&E Analytics' : 'M&E Analytics')
                     : (language === 'th' ? 'จัดการสาขา' : 'Branch Management')
                   }
                 </Button>
