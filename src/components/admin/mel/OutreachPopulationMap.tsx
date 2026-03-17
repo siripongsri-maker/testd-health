@@ -1,6 +1,9 @@
-import { useMemo } from "react";
+import { useMemo, lazy, Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, MapPin } from "lucide-react";
+import { Users } from "lucide-react";
+import { Loader2 } from "lucide-react";
+
+const OutreachInteractiveMap = lazy(() => import("./OutreachInteractiveMap"));
 
 interface DataRecord {
   city: string;
@@ -9,6 +12,7 @@ interface DataRecord {
   area: string;
   venue: string;
   raw: any;
+  date?: string;
 }
 
 interface Props {
