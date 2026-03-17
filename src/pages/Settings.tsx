@@ -97,6 +97,15 @@ export default function Settings() {
     }
   };
 
+  const checkMeAnalystStatus = async () => {
+    if (!user) return;
+    const { data } = await supabase.rpc('has_role', {
+      _user_id: user.id,
+      _role: 'me_analyst',
+    });
+    setIsMeAnalyst(!!data);
+  };
+
   const checkAdminRequest = async () => {
     if (!user) return;
     const { data } = await supabase
