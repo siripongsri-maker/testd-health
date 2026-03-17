@@ -228,6 +228,27 @@ export default function MelCombinedDashboard() {
     return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 8);
   }, [filtered]);
 
+  // Informant type distribution
+  const informantDist = useMemo(() => {
+    const map: Record<string, number> = {};
+    filtered.forEach((r) => r.informant_type.forEach((t) => { if (t) map[t] = (map[t] || 0) + 1; }));
+    return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  }, [filtered]);
+
+  // Thai proficiency distribution
+  const proficiencyDist = useMemo(() => {
+    const map: Record<string, number> = { "fluent": 0, "basic": 0, "other_primary": 0 };
+    const labels: Record<string, string> = { "fluent": "สื่อสารได้ดี", "basic": "พื้นฐาน", "other_primary": "ใช้ภาษาอื่น" };
+    filtered.forEach((r) => { if (r.thai_proficiency && map[r.thai_proficiency] !== undefined) map[r.thai_proficiency]++; });
+    return Object.entries(map).filter(([, v]) => v > 0).map(([k, v]) => [labels[k] || k, v] as [string, number]);
+  }, [filtered]);
+
+  // Communication channels distribution
+  const channelDist = useMemo(() => {
+    const map: Record<string, number> = {};
+    filtered.forEach((r) => r.comm_channels.forEach((c) => { if (c) map[c] = (map[c] || 0) + 1; }));
+    return Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 10);
+
   // Signal counts
   const signalCounts = useMemo(() => {
     let chemsex = 0, mh = 0, violence = 0;
