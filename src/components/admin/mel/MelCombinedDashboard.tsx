@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import OutreachPopulationMap from "./OutreachPopulationMap";
+import { hasValidCoordinates, pickFirstNonEmpty, toValidCoordinate } from "./outreachAnalytics";
 
 // ── Types ───────────────────────────────────────────────────────────
 interface UnifiedRecord {
@@ -25,8 +26,11 @@ interface UnifiedRecord {
   city: string;
   area: string;
   venue: string;
+  venue_name: string;
   observer: string;
   msw_count: string;
+  estimated_msw_count: string;
+  estimated_msm_count: string;
   nationality_groups: string[];
   nationality_other: string;
   communication_barrier: string;
@@ -48,6 +52,7 @@ interface UnifiedRecord {
   offsite_nationalities: string[];
   map_lat: number | null;
   map_lng: number | null;
+  created_at: string | null;
   raw: any;
 }
 
@@ -186,53 +191,129 @@ export default function MelCombinedDashboard() {
   // Normalize all records
   const allRecords = useMemo<UnifiedRecord[]>(() => {
     const records: UnifiedRecord[] = [];
+
     (fieldNotes || []).forEach((fn: any) => {
+      const venueName = pickFirstNonEmpty([fn.venue_name, fn.venue_alias]);
+      const estimatedMswCount = fn.estimated_msw_per_night_range || (fn.estimated_msw_seen != null ? String(fn.estimated_msw_seen) : "");
+
       records.push({
-        id: fn.id, source: "field_note", date: fn.visit_date,
-        city: normalizeCity(fn.city), area: fn.area_name || "", venue: fn.venue_alias || "",
-        observer: fn.observer_name || "", msw_count: String(fn.estimated_msw_seen || ""),
+        id: fn.id,
+        source: "field_note",
+        date: fn.visit_date,
+        city: normalizeCity(fn.city),
+        area: fn.area_name || "",
+        venue: venueName,
+        venue_name: venueName,
+        observer: fn.observer_name || "",
+        msw_count: String(fn.estimated_msw_seen || ""),
+        estimated_msw_count: estimatedMswCount,
+        estimated_msm_count: "",
         nationality_groups: fn.main_nationality_groups ? fn.main_nationality_groups.split(/[,\s]+/).filter(Boolean) : [],
-        nationality_other: "", communication_barrier: fn.communication_barrier_level || "ไม่มี",
-        urgency_level: "normal", service_interests: [], service_barriers: [],
+        nationality_other: "",
+        communication_barrier: fn.communication_barrier_level || "ไม่มี",
+        urgency_level: "normal",
+        service_interests: [],
+        service_barriers: [],
         project_implications: fn.project_implications || [],
-        chemsex_signal: "ไม่พบ", mental_health_signal: "ไม่พบ", violence_signal: "ไม่พบ",
-        is_hotspot: false, confidence: "medium",
+        chemsex_signal: "ไม่พบ",
+        mental_health_signal: "ไม่พบ",
+        violence_signal: "ไม่พบ",
+        is_hotspot: false,
+        confidence: "medium",
         informant_type: fn.info_sources ? (Array.isArray(fn.info_sources) ? fn.info_sources : [fn.info_sources]) : [],
-        thai_proficiency: "", primary_languages: [], comm_channels: [],
+        thai_proficiency: "",
+        primary_languages: [],
+        comm_channels: [],
         health_languages: [],
-        offsite_proportion: "", offsite_nationalities: [],
-        map_lat: null, map_lng: null, raw: fn,
+        offsite_proportion: fn.estimated_offsite_clients || "",
+        offsite_nationalities: [],
+        map_lat: null,
+        map_lng: null,
+        created_at: fn.created_at || null,
+        raw: {
+          ...fn,
+          area: fn.area_name || "",
+          venue_name: venueName,
+          estimated_msw_count: estimatedMswCount,
+          estimated_msm_count: "",
+          offsite_proportion: fn.estimated_offsite_clients || "",
+        },
       });
     });
+
     (rapidMsw || []).forEach((r: any) => {
+      const areaName = r.bangkok_area || r.pattaya_area || "";
+      const venueName = pickFirstNonEmpty([r.venue_name, r.venue_type]);
+
       records.push({
-        id: r.id, source: "rapid_msw", date: r.survey_date,
-        city: normalizeCity(r.venue_code), area: r.bangkok_area || r.pattaya_area || "",
-        venue: r.venue_type || "", observer: r.email || "",
+        id: r.id,
+        source: "rapid_msw",
+        date: r.survey_date,
+        city: normalizeCity(r.venue_code),
+        area: areaName,
+        venue: venueName,
+        venue_name: venueName,
+        observer: r.email || "",
         msw_count: r.msw_count_estimate || "",
+        estimated_msw_count: r.msw_count_estimate || "",
+        estimated_msm_count: "",
         nationality_groups: Array.isArray(r.foreign_groups) ? r.foreign_groups : [],
-        nationality_other: "", communication_barrier: r.language_skill === "other_language_primary" ? "มีมาก" : "ไม่มี",
-        urgency_level: "normal", service_interests: [], service_barriers: [],
-        project_implications: [], chemsex_signal: "ไม่พบ", mental_health_signal: "ไม่พบ",
-        violence_signal: "ไม่พบ", is_hotspot: false, confidence: "medium",
+        nationality_other: "",
+        communication_barrier: r.language_skill === "other_language_primary" ? "มีมาก" : "ไม่มี",
+        urgency_level: "normal",
+        service_interests: [],
+        service_barriers: [],
+        project_implications: [],
+        chemsex_signal: "ไม่พบ",
+        mental_health_signal: "ไม่พบ",
+        violence_signal: "ไม่พบ",
+        is_hotspot: false,
+        confidence: "medium",
         informant_type: r.respondent_type ? [r.respondent_type] : [],
-        thai_proficiency: r.language_skill || "", primary_languages: r.other_primary_language ? [r.other_primary_language] : [],
+        thai_proficiency: r.language_skill || "",
+        primary_languages: r.other_primary_language ? [r.other_primary_language] : [],
         comm_channels: r.health_info_channel ? (Array.isArray(r.health_info_channel) ? r.health_info_channel : [r.health_info_channel]) : [],
         health_languages: [],
-        offsite_proportion: "", offsite_nationalities: [],
-        map_lat: null, map_lng: null, raw: r,
+        offsite_proportion: r.offsite_work_ratio || "",
+        offsite_nationalities: [],
+        map_lat: null,
+        map_lng: null,
+        created_at: r.created_at || null,
+        raw: {
+          ...r,
+          area: areaName,
+          venue_name: venueName,
+          estimated_msw_count: r.msw_count_estimate || "",
+          estimated_msm_count: "",
+          offsite_proportion: r.offsite_work_ratio || "",
+        },
       });
     });
+
     (unifiedForms || []).forEach((u: any) => {
+      const venueName = pickFirstNonEmpty([u.venue_name, u.venue_alias, u.venue_type]);
+      const estimatedMswCount = pickFirstNonEmpty([u.estimated_msw_count, u.msw_estimated_range]);
+      const estimatedMsmCount = pickFirstNonEmpty([u.estimated_msm_count]);
+      const areaName = u.area_name || u.area || "";
+
       records.push({
-        id: u.id, source: "unified_form", date: u.survey_date,
-        city: normalizeCity(u.city), area: u.area_name || "",
-        venue: u.venue_alias || u.venue_type || "", observer: u.observer_name || "",
-        msw_count: u.msw_estimated_range || u.estimated_msw_count || "",
-        nationality_groups: u.nationality_groups || [], nationality_other: u.nationality_other || "",
+        id: u.id,
+        source: "unified_form",
+        date: u.survey_date,
+        city: normalizeCity(u.city),
+        area: areaName,
+        venue: venueName,
+        venue_name: venueName,
+        observer: u.observer_name || "",
+        msw_count: estimatedMswCount,
+        estimated_msw_count: estimatedMswCount,
+        estimated_msm_count: estimatedMsmCount,
+        nationality_groups: u.nationality_groups || [],
+        nationality_other: u.nationality_other || "",
         communication_barrier: u.communication_barrier_level || "ไม่มี",
         urgency_level: u.urgency_level || "normal",
-        service_interests: u.service_interests || [], service_barriers: u.service_barriers || [],
+        service_interests: u.service_interests || [],
+        service_barriers: u.service_barriers || [],
         project_implications: u.project_implications || [],
         chemsex_signal: u.chemsex_signal || "ไม่พบ",
         mental_health_signal: u.mental_health_signal || "ไม่พบ",
@@ -246,10 +327,20 @@ export default function MelCombinedDashboard() {
         health_languages: u.health_languages || [],
         offsite_proportion: u.offsite_proportion || "",
         offsite_nationalities: u.offsite_nationalities || [],
-        map_lat: u.map_lat || null, map_lng: u.map_lng || null,
-        raw: u,
+        map_lat: toValidCoordinate(u.map_lat),
+        map_lng: toValidCoordinate(u.map_lng),
+        created_at: u.created_at || null,
+        raw: {
+          ...u,
+          area: areaName,
+          venue_name: venueName,
+          estimated_msw_count: estimatedMswCount,
+          estimated_msm_count: estimatedMsmCount,
+          offsite_proportion: u.offsite_proportion || "",
+        },
       });
     });
+
     return records.sort((a, b) => (b.date || "").localeCompare(a.date || ""));
   }, [fieldNotes, rapidMsw, unifiedForms]);
 
@@ -267,7 +358,7 @@ export default function MelCombinedDashboard() {
   const ptyCount = allRecords.filter((r) => r.city === "พัทยา").length;
   const hotspotCount = allRecords.filter((r) => r.is_hotspot).length;
   const highBarrierCount = allRecords.filter((r) => r.communication_barrier === "มีมาก").length;
-  const pinnedCount = filtered.filter((r) => r.map_lat && r.map_lng).length;
+  const pinnedCount = filtered.filter((r) => hasValidCoordinates(r)).length;
 
   const areaRanking = useMemo(() => {
     const map: Record<string, number> = {};

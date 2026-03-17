@@ -2,15 +2,13 @@ import { useMemo, useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Filter } from "lucide-react";
+import { MapPin, Filter, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
-
-// Lazy-load Leaflet CSS + components
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { detectOutreachCity, hasValidCoordinates, pickFirstNonEmpty, toValidCoordinate } from "./outreachAnalytics";
 
-// Fix default marker icons in bundled environments
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
@@ -22,7 +20,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-// Custom colored icons
 function createColorIcon(color: "blue" | "orange" | "red") {
   const hue = color === "blue" ? "210" : color === "orange" ? "30" : "0";
   return L.divIcon({
@@ -41,6 +38,7 @@ function createColorIcon(color: "blue" | "orange" | "red") {
 
 const BKK_ICON = createColorIcon("blue");
 const PTY_ICON = createColorIcon("orange");
+const OTHER_ICON = createColorIcon("red");
 
 interface DataRecord {
   city: string;
@@ -48,77 +46,164 @@ interface DataRecord {
   map_lng: number | null;
   area: string;
   venue: string;
+  venue_name?: string;
   raw: any;
   date?: string;
+  estimated_msw_count?: string;
+  estimated_msm_count?: string;
+  msw_estimated_range?: string;
+  offsite_proportion?: string;
 }
 
-interface Props {
-  records: DataRecord[];
-}
-
-// Bangkok center ~13.75, 100.5 | Pattaya center ~12.93, 100.88
 const CENTERS: Record<string, [number, number]> = {
   all: [13.45, 100.6],
   กรุงเทพฯ: [13.75, 100.52],
   พัทยา: [12.93, 100.88],
+  อื่นๆ: [13.45, 100.6],
 };
-const ZOOMS: Record<string, number> = { all: 8, กรุงเทพฯ: 12, พัทยา: 13 };
+const ZOOMS: Record<string, number> = { all: 8, กรุงเทพฯ: 12, พัทยา: 13, อื่นๆ: 8 };
 
-function detectCity(lat: number, lng: number, cityField: string): string {
-  if (cityField.includes("กรุงเทพ")) return "กรุงเทพฯ";
-  if (cityField.includes("พัทยา")) return "พัทยา";
-  // Coordinate-based detection
-  if (lat > 13.4 && lat < 14.1 && lng > 100.2 && lng < 100.9) return "กรุงเทพฯ";
-  if (lat > 12.7 && lat < 13.2 && lng > 100.7 && lng < 101.1) return "พัทยา";
-  return "อื่นๆ";
-}
-
-// Component to recenter map when filter changes + fix tile loading in tabs
-function MapRecenter({ center, zoom }: { center: [number, number]; zoom: number }) {
+function MapViewportSync({
+  center,
+  zoom,
+  points,
+  syncKey,
+}: {
+  center: [number, number];
+  zoom: number;
+  points: [number, number][];
+  syncKey: string;
+}) {
   const map = useMap();
+
   useEffect(() => {
-    // Fix tiles not rendering when map is inside a hidden tab
-    setTimeout(() => map.invalidateSize(), 200);
-  }, [map]);
+    const invalidate = () => map.invalidateSize();
+    const timers = [0, 120, 320, 700].map((delay) => window.setTimeout(invalidate, delay));
+    const frame = window.requestAnimationFrame(invalidate);
+    const container = map.getContainer();
+    const resizeObserver = new ResizeObserver(invalidate);
+    resizeObserver.observe(container);
+
+    return () => {
+      timers.forEach((timer) => window.clearTimeout(timer));
+      window.cancelAnimationFrame(frame);
+      resizeObserver.disconnect();
+    };
+  }, [map, syncKey]);
+
   useEffect(() => {
-    map.flyTo(center, zoom, { duration: 0.8 });
-  }, [center, zoom, map]);
+    if (points.length === 1) {
+      map.setView(points[0], Math.max(zoom, 14), { animate: false });
+      return;
+    }
+
+    if (points.length > 1) {
+      const bounds = L.latLngBounds(points);
+      if (bounds.isValid()) {
+        map.fitBounds(bounds.pad(0.18), { animate: false, maxZoom: 14 });
+        return;
+      }
+    }
+
+    map.setView(center, zoom, { animate: false });
+  }, [map, center, zoom, points, syncKey]);
+
   return null;
 }
 
-export default function OutreachInteractiveMap({ records }: Props) {
+export default function OutreachInteractiveMap({ records }: { records: DataRecord[] }) {
   const [cityFilter, setCityFilter] = useState("all");
 
   const pins = useMemo(() => {
-    return records
-      .filter((r) => r.map_lat && r.map_lng)
-      .map((r) => {
-        const detectedCity = detectCity(r.map_lat!, r.map_lng!, r.city);
-        return {
-          lat: r.map_lat!,
-          lng: r.map_lng!,
-          city: detectedCity,
-          area: r.area,
-          venue: r.venue || r.raw?.venue_name || "-",
-          date: r.date,
-          mswRange: r.raw?.msw_estimated_range || r.raw?.estimated_msw_count || "-",
-          offsiteProportion: r.raw?.offsite_proportion || "-",
-        };
+    return records.reduce<
+      Array<{
+        lat: number;
+        lng: number;
+        city: string;
+        area: string;
+        venue: string;
+        date?: string;
+        mswRange: string;
+        msmRange: string;
+        offsiteProportion: string;
+      }>
+    >((acc, record) => {
+      if (!hasValidCoordinates(record)) return acc;
+
+      const lat = toValidCoordinate(record.map_lat);
+      const lng = toValidCoordinate(record.map_lng);
+      if (lat === null || lng === null) return acc;
+
+      acc.push({
+        lat,
+        lng,
+        city: detectOutreachCity(lat, lng, record.city || ""),
+        area: pickFirstNonEmpty([record.area, record.raw?.area_name, record.raw?.area]) || "ไม่ระบุพื้นที่",
+        venue:
+          pickFirstNonEmpty([
+            record.venue_name,
+            record.venue,
+            record.raw?.venue_name,
+            record.raw?.venue_alias,
+            record.raw?.venue_type,
+          ]) || "ไม่ระบุสถานที่",
+        date: record.date,
+        mswRange:
+          pickFirstNonEmpty([
+            record.msw_estimated_range,
+            record.estimated_msw_count,
+            record.raw?.msw_estimated_range,
+            record.raw?.estimated_msw_count,
+          ]) || "",
+        msmRange: pickFirstNonEmpty([record.estimated_msm_count, record.raw?.estimated_msm_count]) || "",
+        offsiteProportion: pickFirstNonEmpty([record.offsite_proportion, record.raw?.offsite_proportion]) || "",
       });
+
+      return acc;
+    }, []);
   }, [records]);
 
   const filteredPins = useMemo(
-    () => (cityFilter === "all" ? pins : pins.filter((p) => p.city === cityFilter)),
+    () => (cityFilter === "all" ? pins : pins.filter((pin) => pin.city === cityFilter)),
     [pins, cityFilter]
   );
 
-  const bkkCount = pins.filter((p) => p.city === "กรุงเทพฯ").length;
-  const ptyCount = pins.filter((p) => p.city === "พัทยา").length;
+  const cityCounts = useMemo(
+    () => ({
+      กรุงเทพฯ: pins.filter((pin) => pin.city === "กรุงเทพฯ").length,
+      พัทยา: pins.filter((pin) => pin.city === "พัทยา").length,
+      อื่นๆ: pins.filter((pin) => pin.city === "อื่นๆ").length,
+    }),
+    [pins]
+  );
 
   const center = CENTERS[cityFilter] || CENTERS.all;
   const zoom = ZOOMS[cityFilter] || ZOOMS.all;
+  const pointList = filteredPins.map((pin) => [pin.lat, pin.lng] as [number, number]);
+  const mapSyncKey = `${cityFilter}-${pointList.map(([lat, lng]) => `${lat.toFixed(4)}:${lng.toFixed(4)}`).join("|")}`;
 
-  if (pins.length === 0) return null;
+  if (pins.length === 0) {
+    return (
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <MapPin className="h-4 w-4" />
+            แผนที่จุดสำรวจ
+          </CardTitle>
+          <CardDescription className="text-xs">แสดงผลเฉพาะข้อมูลพิกัดที่บันทึกจริงจากแบบฟอร์ม</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-lg border border-dashed border-border bg-muted/30 px-4 py-8 text-center">
+            <AlertCircle className="mx-auto h-5 w-5 text-muted-foreground" />
+            <p className="mt-3 text-sm font-medium text-foreground">ยังไม่มีข้อมูลแผนที่</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              ระบบยังไม่พบข้อมูลพิกัดจากแบบฟอร์มที่บันทึกไว้
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -130,83 +215,105 @@ export default function OutreachInteractiveMap({ records }: Props) {
               แผนที่จุดสำรวจ ({filteredPins.length} จุด)
             </CardTitle>
             <CardDescription className="text-xs mt-1">
-              ตำแหน่ง GPS ที่บันทึกจากการลงพื้นที่
+              ตำแหน่ง GPS ที่บันทึกจากการลงพื้นที่จริง
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
             <Filter className="h-3.5 w-3.5 text-muted-foreground" />
             <Select value={cityFilter} onValueChange={setCityFilter}>
-              <SelectTrigger className="h-8 w-[140px] text-xs">
+              <SelectTrigger className="h-8 w-[150px] text-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">ทั้งหมด ({pins.length})</SelectItem>
-                <SelectItem value="กรุงเทพฯ">กรุงเทพฯ ({bkkCount})</SelectItem>
-                <SelectItem value="พัทยา">พัทยา ({ptyCount})</SelectItem>
+                <SelectItem value="กรุงเทพฯ">กรุงเทพฯ ({cityCounts["กรุงเทพฯ"]})</SelectItem>
+                <SelectItem value="พัทยา">พัทยา ({cityCounts["พัทยา"]})</SelectItem>
+                {cityCounts["อื่นๆ"] > 0 && <SelectItem value="อื่นๆ">อื่นๆ ({cityCounts["อื่นๆ"]})</SelectItem>}
               </SelectContent>
             </Select>
           </div>
         </div>
-        <div className="flex items-center gap-3 pt-1 text-[10px] text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-3 pt-1 text-[10px] text-muted-foreground">
           <span className="flex items-center gap-1">
             <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />กรุงเทพฯ
           </span>
           <span className="flex items-center gap-1">
             <span className="w-2.5 h-2.5 rounded-full bg-orange-500" />พัทยา
           </span>
+          {cityCounts["อื่นๆ"] > 0 && (
+            <span className="flex items-center gap-1">
+              <span className="w-2.5 h-2.5 rounded-full bg-red-500" />อื่นๆ
+            </span>
+          )}
         </div>
       </CardHeader>
       <CardContent className="p-0 sm:px-6 sm:pb-6">
-        <div className="w-full rounded-lg overflow-hidden" style={{ height: "clamp(300px, 50vw, 500px)" }}>
-          {/* @ts-ignore react-leaflet v5 type mismatch */}
-          <MapContainer
-            center={center}
-            zoom={zoom}
-            className="w-full h-full z-0"
-            scrollWheelZoom={true}
-            style={{ height: "100%", width: "100%" }}
-          >
-            {/* @ts-ignore */}
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <MapRecenter center={center} zoom={zoom} />
-            {filteredPins.map((pin, i) => (
-              // @ts-ignore
-              <Marker
-                key={`${pin.lat}-${pin.lng}-${i}`}
-                position={[pin.lat, pin.lng]}
-                icon={pin.city === "พัทยา" ? PTY_ICON : BKK_ICON}
-              >
-                {/* @ts-ignore */}
-                <Popup maxWidth={260} className="outreach-popup">
-                  <div className="space-y-1.5 text-xs">
-                    <p className="font-semibold text-sm">{pin.venue}</p>
-                    <p className="text-muted-foreground">📍 {pin.area}</p>
-                    <div className="flex flex-wrap gap-1">
-                      <Badge variant="secondary" className="text-[10px]">{pin.city}</Badge>
-                      {pin.date && (
-                        <Badge variant="outline" className="text-[10px]">
-                          {format(new Date(pin.date), "dd/MM/yyyy")}
-                        </Badge>
+        {filteredPins.length === 0 ? (
+          <div className="mx-4 mb-4 rounded-lg border border-dashed border-border bg-muted/30 px-4 py-8 text-center sm:mx-0 sm:mb-0">
+            <AlertCircle className="mx-auto h-5 w-5 text-muted-foreground" />
+            <p className="mt-3 text-sm font-medium text-foreground">ยังไม่มีข้อมูลพิกัดแผนที่ในตัวกรองนี้</p>
+            <p className="mt-1 text-xs text-muted-foreground">กรุณาเปลี่ยนตัวกรองเมืองเพื่อแสดงผลจุดสำรวจ</p>
+          </div>
+        ) : (
+          <div className="w-full overflow-hidden rounded-lg border border-border bg-muted/20" style={{ height: "clamp(320px, 52vw, 500px)" }}>
+            {/* @ts-ignore react-leaflet v5 type mismatch */}
+            <MapContainer
+              key={mapSyncKey}
+              center={center}
+              zoom={zoom}
+              className="h-full w-full z-0"
+              scrollWheelZoom={true}
+              style={{ height: "100%", width: "100%" }}
+            >
+              {/* @ts-ignore */}
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              <MapViewportSync center={center} zoom={zoom} points={pointList} syncKey={mapSyncKey} />
+              {filteredPins.map((pin, index) => (
+                // @ts-ignore
+                <Marker
+                  key={`${pin.lat}-${pin.lng}-${index}`}
+                  position={[pin.lat, pin.lng]}
+                  icon={pin.city === "พัทยา" ? PTY_ICON : pin.city === "กรุงเทพฯ" ? BKK_ICON : OTHER_ICON}
+                >
+                  {/* @ts-ignore */}
+                  <Popup maxWidth={260} className="outreach-popup">
+                    <div className="space-y-1.5 text-xs">
+                      <p className="font-semibold text-sm">{pin.venue}</p>
+                      <p className="text-muted-foreground">📍 {pin.area}</p>
+                      <div className="flex flex-wrap gap-1">
+                        <Badge variant="secondary" className="text-[10px]">{pin.city}</Badge>
+                        {pin.date && (
+                          <Badge variant="outline" className="text-[10px]">
+                            {format(new Date(pin.date), "dd/MM/yyyy")}
+                          </Badge>
+                        )}
+                      </div>
+                      {pin.mswRange ? (
+                        <p>👥 MSW โดยประมาณ: <strong>{pin.mswRange}</strong></p>
+                      ) : (
+                        <p className="text-muted-foreground">👥 ยังไม่มีข้อมูล MSW</p>
                       )}
+                      {pin.msmRange ? (
+                        <p>👥 MSM โดยประมาณ: <strong>{pin.msmRange}</strong></p>
+                      ) : (
+                        <p className="text-muted-foreground">👥 ยังไม่มีข้อมูล MSM</p>
+                      )}
+                      {pin.offsiteProportion && (
+                        <p>🏠 รับงานนอกสถานที่: <strong>{pin.offsiteProportion}</strong></p>
+                      )}
+                      <p className="pt-1 text-[10px] text-muted-foreground">
+                        {pin.lat.toFixed(4)}, {pin.lng.toFixed(4)}
+                      </p>
                     </div>
-                    {pin.mswRange !== "-" && (
-                      <p>👥 MSW โดยประมาณ: <strong>{pin.mswRange}</strong></p>
-                    )}
-                    {pin.offsiteProportion !== "-" && (
-                      <p>🏠 รับงานนอกสถานที่: <strong>{pin.offsiteProportion}</strong></p>
-                    )}
-                    <p className="text-[10px] text-muted-foreground pt-1">
-                      {pin.lat.toFixed(4)}, {pin.lng.toFixed(4)}
-                    </p>
-                  </div>
-                </Popup>
-              </Marker>
-            ))}
-          </MapContainer>
-        </div>
+                  </Popup>
+                </Marker>
+              ))}
+            </MapContainer>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
