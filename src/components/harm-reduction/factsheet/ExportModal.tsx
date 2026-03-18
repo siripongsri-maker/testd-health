@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from "react";
+import { trackEvent } from "@/hooks/useAnalytics";
 import { useLanguage } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Download, Share2, X, Loader2, Check } from "lucide-react";
