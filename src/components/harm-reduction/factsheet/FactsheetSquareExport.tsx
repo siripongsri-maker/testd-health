@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 import { Shield, AlertTriangle, CheckCircle2, Phone } from "lucide-react";
-import { SubstanceData, RISK_GRADIENTS, RISK_LABELS } from "@/data/substanceData";
+import { SubstanceData, RISK_LABELS } from "@/data/substanceData";
 import testdLogo from "@/assets/testd-logo.png";
 import swingLogo from "@/assets/swing-logo.png";
 import { RiskIcon } from "./RiskIcon";
@@ -19,7 +19,7 @@ interface Props {
 
 /**
  * Square export — 1080×1080 (1:1) for social feed cards.
- * Condensed content, strong hierarchy.
+ * Image header + two-column content.
  */
 export const FactsheetSquareExport = forwardRef<HTMLDivElement, Props>(
   ({ substance, exportLang }, ref) => {
@@ -41,31 +41,37 @@ export const FactsheetSquareExport = forwardRef<HTMLDivElement, Props>(
           overflow: "hidden",
         }}
       >
-        {/* Hero */}
-        <div
-          style={{
-            background: RISK_GRADIENTS[d.riskLevel],
-            padding: "48px 56px 40px",
-            flex: "0 0 auto",
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-            <div>
-              <span style={{ fontSize: 56 }}>{d.icon}</span>
-              <h1 style={{ fontSize: 44, fontWeight: 900, color: "#fff", margin: "12px 0 4px", lineHeight: 1.15 }}>
-                {exportLang === "en" ? d.nameEn : d.nameTh}
-              </h1>
-              <p style={{ fontSize: 22, color: "rgba(255,255,255,.7)", fontWeight: 500, margin: 0 }}>
-                {exportLang === "en" ? d.nameTh : d.nameEn}
-              </p>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "flex-end" }}>
-              <span style={{ fontSize: 18, fontWeight: 700, textTransform: "uppercase", padding: "6px 16px", borderRadius: 999, background: "rgba(255,255,255,.2)", color: "#fff" }}>
-                {exportLang === "en" ? d.categoryEn : d.categoryTh}
-              </span>
-              <span style={{ fontSize: 18, fontWeight: 700, textTransform: "uppercase", padding: "6px 16px", borderRadius: 999, background: "rgba(255,255,255,.25)", color: "#fff" }}>
-                {t(RISK_LABELS[d.riskLevel], exportLang)}
-              </span>
+        {/* Image Hero — top 40% */}
+        <div style={{ position: "relative", flex: "0 0 380px" }}>
+          <img
+            src={d.image.cover}
+            alt={d.image.alt}
+            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            crossOrigin="anonymous"
+          />
+          <div style={{
+            position: "absolute", inset: 0,
+            background: "linear-gradient(to top, rgba(0,0,0,.75) 0%, rgba(0,0,0,.15) 50%, rgba(0,0,0,.05) 100%)",
+          }} />
+          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 48px 36px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+              <div>
+                <span style={{ fontSize: 48 }}>{d.icon}</span>
+                <h1 style={{ fontSize: 40, fontWeight: 900, color: "#fff", margin: "8px 0 4px", lineHeight: 1.15, textShadow: "0 2px 12px rgba(0,0,0,.3)" }}>
+                  {exportLang === "en" ? d.nameEn : d.nameTh}
+                </h1>
+                <p style={{ fontSize: 20, color: "rgba(255,255,255,.7)", fontWeight: 500, margin: 0 }}>
+                  {exportLang === "en" ? d.nameTh : d.nameEn}
+                </p>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "flex-end" }}>
+                <span style={{ fontSize: 16, fontWeight: 700, textTransform: "uppercase", padding: "6px 16px", borderRadius: 999, background: "rgba(255,255,255,.15)", color: "#fff", backdropFilter: "blur(8px)" }}>
+                  {exportLang === "en" ? d.categoryEn : d.categoryTh}
+                </span>
+                <span style={{ fontSize: 16, fontWeight: 700, textTransform: "uppercase", padding: "6px 16px", borderRadius: 999, background: "rgba(255,255,255,.2)", color: "#fff" }}>
+                  {t(RISK_LABELS[d.riskLevel], exportLang)}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -106,7 +112,7 @@ export const FactsheetSquareExport = forwardRef<HTMLDivElement, Props>(
         </div>
 
         {/* Emergency + Footer */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 56px", background: "#fef2f2" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 48px", background: "#fef2f2" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <Phone style={{ width: 22, height: 22, color: "#ef4444" }} />
             <span style={{ fontSize: 22, fontWeight: 800, color: "#b91c1c" }}>
