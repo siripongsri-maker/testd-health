@@ -73,6 +73,7 @@ const InteractionPage = lazy(() => import("./pages/InteractionPage"));
 const Partners = lazy(() => import("./pages/Partners"));
 const WhatsNew = lazy(() => import("./pages/WhatsNew"));
 const HarmReductionGuide = lazy(() => import("./pages/HarmReductionGuide"));
+const VirtualMode = lazy(() => import("./pages/VirtualMode"));
 const OutreachForm = lazy(() => import("./pages/OutreachForm"));
 const PrivacyCenter = lazy(() => import("./pages/PrivacyCenter"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
@@ -154,6 +155,7 @@ function AppShell() {
               <Route path="/privacy-center" element={<PrivacyCenter />} />
               <Route path="/outreach-form" element={<OutreachForm />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/virtual" element={<VirtualMode />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AppLayout>

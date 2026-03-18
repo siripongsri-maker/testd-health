@@ -6,7 +6,7 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import testdLogo from "@/assets/testd-logo.png";
-import { User, LogIn } from "lucide-react";
+import { User, LogIn, MapPin } from "lucide-react";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -36,6 +36,15 @@ export function AppLayout({ children, hideNav }: AppLayoutProps) {
           <img src={testdLogo} alt="testD" className="h-7 w-auto cursor-pointer" onClick={() => navigate("/")} />
         </div>
         <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full h-8 w-8 text-muted-foreground hover:text-primary"
+            onClick={() => navigate("/virtual")}
+            aria-label="Virtual Mode"
+          >
+            <MapPin className="h-4 w-4" />
+          </Button>
           <NotificationBell />
           <LanguageToggle />
           {user ? (
