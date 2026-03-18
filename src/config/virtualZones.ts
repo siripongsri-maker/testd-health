@@ -1,0 +1,124 @@
+export interface VirtualZone {
+  id: string;
+  labelTh: string;
+  labelEn: string;
+  descriptionTh: string;
+  descriptionEn: string;
+  icon: string;
+  targetRoute: string;
+  color: string;
+  position: { row: number; col: number };
+}
+
+export const VIRTUAL_ZONES: VirtualZone[] = [
+  {
+    id: "welcome",
+    labelTh: "ศูนย์ต้อนรับ",
+    labelEn: "Welcome Hub",
+    descriptionTh: "หน้าหลักของคุณ",
+    descriptionEn: "Your home base",
+    icon: "Home",
+    targetRoute: "/",
+    color: "from-primary/20 to-primary/5",
+    position: { row: 1, col: 1 },
+  },
+  {
+    id: "testing",
+    labelTh: "สถานีตรวจ",
+    labelEn: "Testing Station",
+    descriptionTh: "ตรวจ HIV ด้วยตัวเอง",
+    descriptionEn: "HIV self-testing",
+    icon: "TestTube",
+    targetRoute: "/hiv-selftest",
+    color: "from-teal-400/20 to-teal-600/5",
+    position: { row: 1, col: 2 },
+  },
+  {
+    id: "booking",
+    labelTh: "จองนัดหมาย",
+    labelEn: "Booking Desk",
+    descriptionTh: "จองเวลานัดพบ",
+    descriptionEn: "Book an appointment",
+    icon: "Calendar",
+    targetRoute: "/booking",
+    color: "from-blue-400/20 to-blue-600/5",
+    position: { row: 2, col: 1 },
+  },
+  {
+    id: "appointments",
+    labelTh: "นัดหมายของฉัน",
+    labelEn: "My Appointments",
+    descriptionTh: "ดูนัดหมายที่จองไว้",
+    descriptionEn: "View your bookings",
+    icon: "ClipboardList",
+    targetRoute: "/my-appointments",
+    color: "from-indigo-400/20 to-indigo-600/5",
+    position: { row: 2, col: 2 },
+  },
+  {
+    id: "learning",
+    labelTh: "มุมเรียนรู้",
+    labelEn: "Learning Corner",
+    descriptionTh: "บทความสุขภาพ",
+    descriptionEn: "Health articles",
+    icon: "BookOpen",
+    targetRoute: "/info",
+    color: "from-amber-400/20 to-amber-600/5",
+    position: { row: 3, col: 1 },
+  },
+  {
+    id: "selfcare",
+    labelTh: "มุมดูแลตัวเอง",
+    labelEn: "Self-Care Corner",
+    descriptionTh: "เครื่องมือดูแลสุขภาพ",
+    descriptionEn: "Wellness tools",
+    icon: "Heart",
+    targetRoute: "/self-care",
+    color: "from-rose-400/20 to-rose-600/5",
+    position: { row: 3, col: 2 },
+  },
+  {
+    id: "community",
+    labelTh: "ชุมชน",
+    labelEn: "Community Lounge",
+    descriptionTh: "พูดคุยกับเพื่อน",
+    descriptionEn: "Chat with peers",
+    icon: "MessageCircle",
+    targetRoute: "/community",
+    color: "from-violet-400/20 to-violet-600/5",
+    position: { row: 4, col: 1 },
+  },
+  {
+    id: "prevention",
+    labelTh: "Prevention Match",
+    labelEn: "Prevention Match",
+    descriptionTh: "ค้นหาวิธีป้องกันที่เหมาะ",
+    descriptionEn: "Find your prevention fit",
+    icon: "Sparkles",
+    targetRoute: "/prevention-match",
+    color: "from-fuchsia-400/20 to-fuchsia-600/5",
+    position: { row: 4, col: 2 },
+  },
+  {
+    id: "harmreduction",
+    labelTh: "Harm Reduction",
+    labelEn: "Harm Reduction Zone",
+    descriptionTh: "ข้อมูลลดอันตราย",
+    descriptionEn: "Safer use info",
+    icon: "ShieldHalf",
+    targetRoute: "/harm-reduction",
+    color: "from-emerald-400/20 to-emerald-600/5",
+    position: { row: 5, col: 1 },
+  },
+  {
+    id: "support",
+    labelTh: "โต๊ะช่วยเหลือ",
+    labelEn: "Support Desk",
+    descriptionTh: "แชทกับทีมงาน",
+    descriptionEn: "Chat with our team",
+    icon: "Headphones",
+    targetRoute: "/support-chat",
+    color: "from-cyan-400/20 to-cyan-600/5",
+    position: { row: 5, col: 2 },
+  },
+];
