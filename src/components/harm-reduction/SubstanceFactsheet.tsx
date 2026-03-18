@@ -99,32 +99,65 @@ export function SubstanceFactsheet({ onBack }: Props) {
     if (!factsheetRef.current) return;
     setDownloading(true);
     try {
-      const { toPng } = await import("html-to-image");
-      const dataUrl = await toPng(factsheetRef.current, {
+      const htmlToImage = await import("html-to-image");
+      // Run toPng twice — first call warms up fonts/images for reliable render
+      await htmlToImage.toPng(factsheetRef.current, { quality: 0.95, pixelRatio: 2, backgroundColor: "#ffffff" });
+      const dataUrl = await htmlToImage.toPng(factsheetRef.current, {
         quality: 0.95,
         pixelRatio: 2,
         backgroundColor: "#ffffff",
+        cacheBust: true,
       });
       const link = document.createElement("a");
       link.download = `testd-factsheet-${data.nameEn.toLowerCase().replace(/\s+/g, "-")}.png`;
       link.href = dataUrl;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
     } catch (err) {
       console.error("Download failed:", err);
+      const { toast } = await import("sonner");
+      toast.error(isEn ? "Download failed. Please try again." : "ดาวน์โหลดไม่สำเร็จ กรุณาลองอีกครั้ง");
     } finally {
       setDownloading(false);
     }
-  }, [data.nameEn]);
+  }, [data.nameEn, isEn]);
 
   const handleShare = useCallback(async () => {
-    if (navigator.share) {
-      try {
+    if (!factsheetRef.current) return;
+    try {
+      const htmlToImage = await import("html-to-image");
+      await htmlToImage.toPng(factsheetRef.current, { quality: 0.95, pixelRatio: 2, backgroundColor: "#ffffff" });
+      const dataUrl = await htmlToImage.toPng(factsheetRef.current, {
+        quality: 0.95, pixelRatio: 2, backgroundColor: "#ffffff", cacheBust: true,
+      });
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      const file = new File([blob], "testd-factsheet.png", { type: "image/png" });
+
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          title: `${data.nameEn} — Harm Reduction Factsheet`,
+          text: isEn ? "Learn how to stay safer. From testD × SWING." : "เรียนรู้วิธีลดอันตราย จาก testD × SWING",
+          files: [file],
+        });
+      } else if (navigator.share) {
         await navigator.share({
           title: `${data.nameEn} — Harm Reduction Factsheet`,
           text: isEn ? "Learn how to stay safer. From testD × SWING." : "เรียนรู้วิธีลดอันตราย จาก testD × SWING",
           url: window.location.href,
         });
-      } catch { /* user cancelled */ }
+      } else {
+        // Fallback to download
+        const link = document.createElement("a");
+        link.download = "testd-factsheet.png";
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch {
+      /* user cancelled or unsupported */
     }
   }, [data.nameEn, isEn]);
 
