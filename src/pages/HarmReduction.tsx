@@ -203,6 +203,10 @@ export default function HarmReduction() {
           <RecoveryMode userId={user?.id} onNavigateSupport={() => setSection("support")} />
         )}
 
+        {section === "factsheet" && (
+          <SubstanceFactsheet onBack={() => setSection("landing")} />
+        )}
+
         {/* Service Recommendations — shown after entry selection */}
         {selectedReasons.length > 0 && section !== "service-entry" && section !== "clinic-services" && (
           <div className="mt-6">
