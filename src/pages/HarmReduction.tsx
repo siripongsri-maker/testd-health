@@ -261,6 +261,28 @@ export default function HarmReduction() {
         {/* Zone 2 — Choose what you need (5 pathway cards) */}
         <HrZonePathways onNavigate={handleNavigate} />
 
+        {/* Factsheet CTA */}
+        <button
+          onClick={() => setSection("factsheet")}
+          className="w-full rounded-2xl p-4 text-left transition-all active:scale-[0.98]"
+          style={{
+            background: "linear-gradient(135deg, hsl(340 60% 45%), hsl(270 50% 40%))",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">💎</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-white">
+                {isEn ? "Substance Factsheet" : "แผ่นข้อมูลสาร"}
+              </p>
+              <p className="text-xs text-white/70 mt-0.5">
+                {isEn ? "Quick-read safety guide · Downloadable" : "คู่มือความปลอดภัย · ดาวน์โหลดได้"}
+              </p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-white/50 flex-shrink-0" />
+          </div>
+        </button>
         {/* Service Timeline — for logged-in users with history */}
         {user?.id && <ServiceTimeline userId={user.id} />}
 
