@@ -6,7 +6,7 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import testdLogo from "@/assets/testd-logo.png";
-import { User, LogIn } from "lucide-react";
+import { User, LogIn, MapPin } from "lucide-react";
 
 interface AppLayoutProps {
   children: React.ReactNode;

@@ -155,6 +155,7 @@ function AppShell() {
               <Route path="/privacy-center" element={<PrivacyCenter />} />
               <Route path="/outreach-form" element={<OutreachForm />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/virtual" element={<VirtualMode />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AppLayout>
