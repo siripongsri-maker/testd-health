@@ -29,7 +29,7 @@ function fill(c: C, p: AvatarPalette): string | null {
   switch (c) {
     case "h": return p.hair;
     case "s": return p.skin;
-    case "e": return "#333";
+    case "e": return "#445";
     case "t": return p.shirt;
     case "p": return p.pants;
     default:  return null;
@@ -50,27 +50,46 @@ export function PixelAvatar({ palette, isWalking, label, isMe, facingLeft }: Pro
           className="absolute -top-5 left-1/2 whitespace-nowrap pointer-events-none select-none"
           style={{
             transform: `translateX(-50%)${facingLeft ? " scaleX(-1)" : ""}`,
-            fontFamily: "'Press Start 2P', monospace",
-            fontSize: 6,
-            color: "#fff",
-            textShadow: "1px 1px 0 rgba(0,0,0,.5), -1px -1px 0 rgba(0,0,0,.5), 1px -1px 0 rgba(0,0,0,.5), -1px 1px 0 rgba(0,0,0,.5)",
+            fontFamily: "'Inter', 'Noto Sans Thai', sans-serif",
+            fontSize: 8,
+            fontWeight: 600,
+            color: "#2a6a70",
+            textShadow: "0 1px 2px rgba(255,255,255,.8)",
+            letterSpacing: "0.02em",
           }}
         >
           {label}
         </div>
       )}
 
-      {/* Drop shadow — soft ellipse */}
+      {/* "Me" indicator ring */}
+      {isMe && (
+        <div
+          className="absolute"
+          style={{
+            bottom: -5,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: 22,
+            height: 8,
+            borderRadius: "50%",
+            border: "1.5px solid rgba(42,106,112,0.35)",
+            background: "radial-gradient(ellipse, rgba(91,168,181,0.15) 0%, transparent 70%)",
+          }}
+        />
+      )}
+
+      {/* Drop shadow */}
       <div
         className="absolute"
         style={{
           bottom: -3,
           left: "50%",
           transform: "translateX(-50%)",
-          width: 20,
-          height: 6,
+          width: 18,
+          height: 5,
           borderRadius: "50%",
-          background: "radial-gradient(ellipse, rgba(0,0,0,0.2) 0%, transparent 70%)",
+          background: "radial-gradient(ellipse, rgba(0,0,0,0.1) 0%, transparent 70%)",
         }}
       />
 
@@ -83,9 +102,12 @@ export function PixelAvatar({ palette, isWalking, label, isMe, facingLeft }: Pro
         style={{
           imageRendering: "pixelated",
           animation: isWalking
-            ? "pixel-bob 0.35s steps(2) infinite"
-            : "pixel-idle 2.5s ease-in-out infinite",
-          filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.15))",
+            ? "pixel-walk 0.4s steps(2) infinite"
+            : "pixel-breathe 3s ease-in-out infinite",
+          filter: isMe
+            ? "drop-shadow(0 1px 2px rgba(42,106,112,0.2))"
+            : "drop-shadow(0 1px 1px rgba(0,0,0,0.08))",
+          opacity: isMe ? 1 : 0.85,
         }}
       >
         {SPRITE.flatMap((row, ry) =>

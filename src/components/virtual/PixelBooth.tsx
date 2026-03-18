@@ -20,155 +20,123 @@ export function PixelBooth({ booth, language, onClick, nearby }: Props) {
         width: booth.w,
         height: booth.h,
         cursor: "pointer",
-        zIndex: booth.y,
+        zIndex: booth.y + 10,
       }}
       className="group"
     >
-      {/* ── Building shadow ── */}
-      <div
-        style={{
-          position: "absolute",
-          left: 4,
-          top: 8,
-          width: booth.w,
-          height: booth.h,
-          background: "radial-gradient(ellipse at center, rgba(0,0,0,0.12) 0%, transparent 70%)",
-          borderRadius: 4,
-          filter: "blur(3px)",
-          zIndex: -1,
-        }}
-      />
+      {/* ── Desk shadow ── */}
+      <div style={{
+        position: "absolute",
+        left: 2,
+        top: 4,
+        width: booth.w,
+        height: booth.h,
+        background: "radial-gradient(ellipse at center bottom, rgba(0,0,0,0.06) 0%, transparent 70%)",
+        borderRadius: 6,
+        filter: "blur(2px)",
+        zIndex: -1,
+      }} />
 
-      {/* ── Roof ── */}
-      <div
-        style={{
-          width: booth.w + 12,
-          height: 14,
-          marginLeft: -6,
-          background: `linear-gradient(180deg, ${booth.roofColor} 0%, ${booth.accentColor || booth.roofColor} 100%)`,
-          borderBottom: "3px solid rgba(0,0,0,0.1)",
-          borderRadius: "3px 3px 0 0",
-          boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
-        }}
-      />
+      {/* ── Desk top bar (colored header) ── */}
+      <div style={{
+        width: booth.w,
+        height: 6,
+        background: `linear-gradient(90deg, ${booth.roofColor}, ${booth.accentColor || booth.roofColor})`,
+        borderRadius: "6px 6px 0 0",
+      }} />
 
-      {/* ── Wall ── */}
-      <div
-        style={{
-          width: booth.w,
-          height: booth.h - 14,
-          background: `linear-gradient(180deg, ${booth.wallColor} 0%, ${darken(booth.wallColor, 8)} 100%)`,
-          border: "2px solid rgba(0,0,0,0.06)",
-          borderTop: "none",
-          borderRadius: "0 0 2px 2px",
+      {/* ── Desk body ── */}
+      <div style={{
+        width: booth.w,
+        height: booth.h - 6,
+        background: booth.wallColor,
+        border: `1.5px solid ${nearby ? booth.roofColor : "rgba(0,0,0,0.06)"}`,
+        borderTop: "none",
+        borderRadius: "0 0 6px 6px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 3,
+        position: "relative",
+        transition: "border-color 0.3s, box-shadow 0.3s",
+        boxShadow: nearby
+          ? `0 0 12px ${booth.roofColor}30, inset 0 0 8px ${booth.roofColor}10`
+          : "0 1px 3px rgba(0,0,0,0.04)",
+      }}>
+        {/* Icon + label row */}
+        <div style={{
           display: "flex",
-          flexDirection: "column",
           alignItems: "center",
-          justifyContent: "center",
           gap: 4,
-          position: "relative",
-          boxShadow: "inset 0 -2px 4px rgba(0,0,0,0.04)",
-        }}
-      >
-        {/* Sign board */}
-        <div
-          style={{
-            fontFamily: "'Press Start 2P', monospace",
-            fontSize: 7,
-            color: "#4a4a4a",
+        }}>
+          {booth.icon && (
+            <span style={{ fontSize: 11, lineHeight: 1 }}>{booth.icon}</span>
+          )}
+          <div style={{
+            fontFamily: "'Inter', 'Noto Sans Thai', sans-serif",
+            fontSize: 8,
+            fontWeight: 600,
+            color: "#3a5060",
             textAlign: "center",
             lineHeight: 1.3,
-            padding: "2px 6px",
-            background: "rgba(255,255,255,0.5)",
-            borderRadius: 3,
-            border: "1px solid rgba(0,0,0,0.06)",
-            animation: nearby ? "sign-glow 1.5s ease-in-out infinite" : undefined,
-          }}
-        >
-          {label}
-        </div>
-
-        {/* Door */}
-        <div
-          style={{
-            width: 14,
-            height: 18,
-            background: "linear-gradient(180deg, #a06830 0%, #7a4e28 100%)",
-            border: "2px solid #654321",
-            borderRadius: "3px 3px 0 0",
-            position: "relative",
-            boxShadow: nearby ? "0 0 8px rgba(255,215,0,0.4)" : "inset 0 1px 2px rgba(0,0,0,0.2)",
-            transition: "box-shadow 0.3s",
-          }}
-        >
-          {/* door knob */}
-          <div
-            style={{
-              position: "absolute",
-              right: 2,
-              top: 7,
-              width: 3,
-              height: 3,
-              background: nearby ? "#FFE066" : "#D4A840",
-              borderRadius: "50%",
-              boxShadow: nearby ? "0 0 4px #FFE066" : "none",
-              transition: "all 0.3s",
-            }}
-          />
+            letterSpacing: "0.01em",
+          }}>
+            {label}
+          </div>
         </div>
 
         {/* Staff indicator */}
         {booth.hasStaff && (
-          <div
-            style={{
-              position: "absolute",
-              top: 4,
-              right: 4,
-              width: 7,
-              height: 7,
+          <div style={{
+            position: "absolute",
+            top: 4,
+            right: 6,
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+          }}>
+            <div style={{
+              width: 5,
+              height: 5,
               borderRadius: "50%",
-              background: "radial-gradient(circle, #6ee090 0%, #40b860 100%)",
-              boxShadow: "0 0 6px rgba(64,184,96,0.5)",
-              animation: "pixel-pulse 2s ease-in-out infinite",
-            }}
-          />
+              background: "#4aba80",
+              boxShadow: "0 0 4px rgba(74,186,128,0.4)",
+              animation: "clinic-pulse 2.5s ease-in-out infinite",
+            }} />
+            <span style={{
+              fontFamily: "'Inter', sans-serif",
+              fontSize: 6,
+              color: "#4aba80",
+              fontWeight: 500,
+            }}>
+              {language === "th" ? "พร้อม" : "ready"}
+            </span>
+          </div>
         )}
-
-        {/* Window decorations */}
-        <div style={{ position: "absolute", top: 6, left: 8, display: "flex", gap: 10 }}>
-          <div style={{ width: 8, height: 8, background: "rgba(180,220,255,0.5)", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 1 }} />
-          <div style={{ width: 8, height: 8, background: "rgba(180,220,255,0.5)", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 1 }} />
-        </div>
       </div>
 
       {/* Hover/nearby prompt */}
       <div
-        className={`absolute -bottom-8 left-1/2 -translate-x-1/2 transition-all duration-300 ${
+        className={`absolute -bottom-7 left-1/2 -translate-x-1/2 transition-all duration-300 ${
           nearby ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1 group-hover:opacity-80 group-hover:translate-y-0"
         }`}
         style={{
-          fontFamily: "'Press Start 2P', monospace",
-          fontSize: 6,
+          fontFamily: "'Inter', 'Noto Sans Thai', sans-serif",
+          fontSize: 7,
+          fontWeight: 500,
           color: "#fff",
-          background: "rgba(0,0,0,0.65)",
+          background: "rgba(42,80,96,0.8)",
+          backdropFilter: "blur(4px)",
           padding: "3px 10px",
-          borderRadius: 6,
+          borderRadius: 10,
           whiteSpace: "nowrap",
           pointerEvents: "none",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
         }}
       >
-        {language === "th" ? "▶ เข้า" : "▶ Enter"}
+        {language === "th" ? "เริ่มใช้งาน →" : "Open service →"}
       </div>
     </div>
   );
-}
-
-/* Simple darken helper — shift hex color slightly darker */
-function darken(hex: string, amount: number): string {
-  const num = parseInt(hex.replace("#", ""), 16);
-  const r = Math.max(0, (num >> 16) - amount);
-  const g = Math.max(0, ((num >> 8) & 0xff) - amount);
-  const b = Math.max(0, (num & 0xff) - amount);
-  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, "0")}`;
 }
