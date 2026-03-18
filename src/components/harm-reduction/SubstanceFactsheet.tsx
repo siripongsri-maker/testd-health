@@ -55,7 +55,10 @@ export function SubstanceFactsheet({ onBack }: Props) {
         {SUBSTANCES.map((s) => (
           <button
             key={s.id}
-            onClick={() => setSelectedId(s.id)}
+            onClick={() => {
+              setSelectedId(s.id);
+              trackEvent("substance_view", { substance: s.slug });
+            }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all flex-shrink-0 ${
               selectedId === s.id
                 ? "bg-primary text-primary-foreground shadow-sm"

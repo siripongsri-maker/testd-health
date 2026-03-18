@@ -93,6 +93,7 @@ export function ExportModal({ open, onClose, initialSubstance }: Props) {
           text: isEn ? "Learn how to stay safer." : "เรียนรู้วิธีลดอันตราย",
           files: [file],
         });
+        trackEvent("factsheet_export", { substance: selectedSubstance.slug, format: exportFormat, lang: exportLang, method: "share" });
       } else {
         // Fallback to download
         handleDownload();
