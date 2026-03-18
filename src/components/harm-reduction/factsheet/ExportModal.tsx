@@ -67,6 +67,7 @@ export function ExportModal({ open, onClose, initialSubstance }: Props) {
       link.click();
       document.body.removeChild(link);
       setDone(true);
+      trackEvent("factsheet_export", { substance: selectedSubstance.slug, format: exportFormat, lang: exportLang, method: "download" });
       setTimeout(() => setDone(false), 2000);
     } catch (err) {
       console.error("Export failed:", err);
