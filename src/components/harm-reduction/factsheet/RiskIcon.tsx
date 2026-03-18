@@ -1,7 +1,7 @@
 import React from "react";
-import { Activity, Brain, Flame, Droplets, Eye } from "lucide-react";
+import { Activity, Brain, Flame, Droplets, Eye, type LucideIcon } from "lucide-react";
 
-const ICON_MAP: Record<string, React.ComponentType<{ size?: number; color?: string; className?: string }>> = {
+const ICON_MAP: Record<string, LucideIcon> = {
   Activity,
   Brain,
   Flame,
