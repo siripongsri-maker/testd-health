@@ -141,11 +141,12 @@ export const trackEvent = async (eventType: string, metadata?: Record<string, un
       user_id: user?.id || null,
       session_id: getSessionId(),
       device_type: getDeviceType(),
+      metadata: metadata && Object.keys(metadata).length > 0 ? (metadata as any) : null,
     };
 
     const { error } = await supabase
       .from('analytics_events')
-      .insert(eventData);
+      .insert(eventData as any);
 
     if (error) {
       console.error('Failed to track event:', error);
