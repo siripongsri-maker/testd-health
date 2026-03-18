@@ -33,12 +33,18 @@ export interface PixelPresence {
 
 /* ── hook ───────────────────────────────────────────────────── */
 
+/**
+ * Cross-app presence: uses a global "app-presence" channel so ALL users
+ * across the entire app appear in the virtual workspace, not just those
+ * on the /virtual route. Users on other pages get assigned random positions
+ * within the workspace bounds.
+ */
 export function usePixelPresence(): PixelPresence {
   const [state, setState] = useState<{ totalOnline: number; others: OtherPlayer[] }>({ totalOnline: 0, others: [] });
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const sid = useRef(getSessionId());
   const seed = useRef(getAvatarSeed());
-  const posRef = useRef({ x: 375, y: 460 });
+  const posRef = useRef({ x: 400, y: 420 });
   const throttle = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const recalc = useCallback((ps: Record<string, any[]>) => {
@@ -48,8 +54,8 @@ export function usePixelPresence(): PixelPresence {
       if ((p as any).sid === sid.current) continue;
       others.push({
         sessionId: (p as any).sid,
-        x: (p as any).x ?? 375,
-        y: (p as any).y ?? 460,
+        x: (p as any).x ?? 400,
+        y: (p as any).y ?? 420,
         avatarSeed: (p as any).as ?? 0,
       });
     }
@@ -57,14 +63,20 @@ export function usePixelPresence(): PixelPresence {
   }, []);
 
   useEffect(() => {
-    const ch = supabase.channel("pixel-world", {
+    const ch = supabase.channel("app-presence", {
       config: { presence: { key: sid.current } },
     });
 
     ch.on("presence", { event: "sync" }, () => recalc(ch.presenceState()))
       .subscribe(async (status) => {
         if (status === "SUBSCRIBED") {
-          await ch.track({ sid: sid.current, x: posRef.current.x, y: posRef.current.y, as: seed.current });
+          await ch.track({
+            sid: sid.current,
+            x: posRef.current.x,
+            y: posRef.current.y,
+            as: seed.current,
+            v: true, // marks this user as being in virtual mode
+          });
         }
       });
 
@@ -82,7 +94,13 @@ export function usePixelPresence(): PixelPresence {
     if (!throttle.current) {
       throttle.current = setTimeout(() => {
         throttle.current = null;
-        channelRef.current?.track({ sid: sid.current, x: posRef.current.x, y: posRef.current.y, as: seed.current });
+        channelRef.current?.track({
+          sid: sid.current,
+          x: posRef.current.x,
+          y: posRef.current.y,
+          as: seed.current,
+          v: true,
+        });
       }, 250);
     }
   }, []);

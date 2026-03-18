@@ -7,6 +7,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import testdLogo from "@/assets/testd-logo.png";
 import { User, LogIn, MapPin } from "lucide-react";
+import { useGlobalPresence } from "@/hooks/useGlobalPresence";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -18,6 +19,7 @@ export function AppLayout({ children, hideNav }: AppLayoutProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  useGlobalPresence();
 
   // Admin pages use AdminLayout — don't wrap them
   const isAdminPage = location.pathname.startsWith("/admin");
