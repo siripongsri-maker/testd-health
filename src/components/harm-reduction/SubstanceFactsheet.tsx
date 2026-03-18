@@ -24,6 +24,12 @@ export function SubstanceFactsheet({ onBack }: Props) {
   const [exportOpen, setExportOpen] = useState(false);
 
   const data = SUBSTANCES.find((s) => s.id === selectedId) || SUBSTANCES[0];
+
+  // Track initial substance view
+  useEffect(() => {
+    trackEvent("substance_view", { substance: data.slug });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const c = data.content;
 
   const txt = useCallback((bi: { th: string; en: string }) => (isEn ? bi.en : bi.th), [isEn]);
