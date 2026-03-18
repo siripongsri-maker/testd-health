@@ -41,7 +41,7 @@ const AGE_STORAGE_KEY = "hr_age_confirmed";
 const DEMO_DISMISSED_KEY = "hr_demo_dismissed";
 
 type AgeState = "pending" | "adult" | "minor";
-type Section = "landing" | "learn" | "check" | "plan" | "support" | "peers" | "clinic" | "service-entry" | "mental-health" | "clinic-services" | "recovery";
+type Section = "landing" | "learn" | "check" | "plan" | "support" | "peers" | "clinic" | "service-entry" | "mental-health" | "clinic-services" | "recovery" | "factsheet";
 
 export default function HarmReduction() {
   const { language } = useLanguage();
