@@ -271,13 +271,13 @@ export default function HarmReduction() {
           }}
         >
           <div className="flex items-center gap-3">
-            <span className="text-2xl">💎</span>
+            <span className="text-2xl">📋</span>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold text-white">
-                {isEn ? "Substance Factsheet" : "แผ่นข้อมูลสาร"}
+                {isEn ? "Substance Factsheets" : "แผ่นข้อมูลสาร"}
               </p>
               <p className="text-xs text-white/70 mt-0.5">
-                {isEn ? "Quick-read safety guide · Downloadable" : "คู่มือความปลอดภัย · ดาวน์โหลดได้"}
+                {isEn ? "7 substances · Export for IG Story · TH/EN" : "7 สาร · ส่งออก IG Story · ไทย/อังกฤษ"}
               </p>
             </div>
             <ChevronRight className="h-4 w-4 text-white/50 flex-shrink-0" />
