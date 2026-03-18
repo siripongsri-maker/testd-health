@@ -2,7 +2,7 @@ import { forwardRef } from "react";
 import {
   Clock, Zap, AlertTriangle, CheckCircle2, Phone, Heart, Shield,
 } from "lucide-react";
-import { SubstanceData, RISK_GRADIENTS, RISK_LABELS } from "@/data/substanceData";
+import { SubstanceData, RISK_LABELS } from "@/data/substanceData";
 import testdLogo from "@/assets/testd-logo.png";
 import swingLogo from "@/assets/swing-logo.png";
 import { RiskIcon } from "./RiskIcon";
@@ -34,30 +34,37 @@ export const FactsheetFullExport = forwardRef<HTMLDivElement, Props>(
           color: "#1a1a2e",
         }}
       >
-        {/* Header */}
-        <div
-          style={{
-            background: RISK_GRADIENTS[d.riskLevel],
-            padding: "28px 24px 24px",
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-            <div>
-              <span style={{ fontSize: 36 }}>{d.icon}</span>
-              <h1 style={{ fontSize: 22, fontWeight: 800, color: "#fff", margin: "8px 0 2px", lineHeight: 1.2 }}>
-                {exportLang === "en" ? d.nameEn : d.nameTh}
-              </h1>
-              <p style={{ fontSize: 12, color: "rgba(255,255,255,.7)", fontWeight: 500 }}>
-                {exportLang === "en" ? d.nameTh : d.nameEn}
-              </p>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
-              <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", padding: "4px 10px", borderRadius: 999, background: "rgba(255,255,255,.2)", color: "#fff" }}>
-                {exportLang === "en" ? d.categoryEn : d.categoryTh}
-              </span>
-              <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", padding: "4px 10px", borderRadius: 999, background: "rgba(255,255,255,.25)", color: "#fff" }}>
-                {t(RISK_LABELS[d.riskLevel], exportLang)}
-              </span>
+        {/* Image Header */}
+        <div style={{ position: "relative" }}>
+          <img
+            src={d.image.cover}
+            alt={d.image.alt}
+            style={{ width: "100%", height: 200, objectFit: "cover", display: "block" }}
+            crossOrigin="anonymous"
+          />
+          <div style={{
+            position: "absolute", inset: 0,
+            background: "linear-gradient(to top, rgba(0,0,0,.75) 0%, rgba(0,0,0,.25) 50%, rgba(0,0,0,.1) 100%)",
+          }} />
+          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "20px 24px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+              <div>
+                <span style={{ fontSize: 36 }}>{d.icon}</span>
+                <h1 style={{ fontSize: 22, fontWeight: 800, color: "#fff", margin: "8px 0 2px", lineHeight: 1.2 }}>
+                  {exportLang === "en" ? d.nameEn : d.nameTh}
+                </h1>
+                <p style={{ fontSize: 12, color: "rgba(255,255,255,.7)", fontWeight: 500, margin: 0 }}>
+                  {exportLang === "en" ? d.nameTh : d.nameEn}
+                </p>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+                <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", padding: "4px 10px", borderRadius: 999, background: "rgba(255,255,255,.2)", color: "#fff", backdropFilter: "blur(4px)" }}>
+                  {exportLang === "en" ? d.categoryEn : d.categoryTh}
+                </span>
+                <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", padding: "4px 10px", borderRadius: 999, background: "rgba(255,255,255,.25)", color: "#fff" }}>
+                  {t(RISK_LABELS[d.riskLevel], exportLang)}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -84,7 +91,7 @@ export const FactsheetFullExport = forwardRef<HTMLDivElement, Props>(
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
             <AlertTriangle style={{ width: 14, height: 14, color: "#f59e0b" }} />
             <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#888" }}>
-              {exportLang === "en" ? "Potential Risks" : exportLang === "th" ? "ความเสี่ยงที่อาจเกิดขึ้น" : "ความเสี่ยงที่อาจเกิดขึ้น · Potential Risks"}
+              {exportLang === "en" ? "Potential Risks" : exportLang === "th" ? "ความเสี่ยงที่อาจเกิดขึ้น" : "ความเสี่ยง · Risks"}
             </span>
           </div>
           {c.risks.map((r, i) => (
@@ -100,7 +107,7 @@ export const FactsheetFullExport = forwardRef<HTMLDivElement, Props>(
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
             <Shield style={{ width: 14, height: 14, color: "#10b981" }} />
             <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#047857" }}>
-              {exportLang === "en" ? "Harm Reduction Tips" : exportLang === "th" ? "คำแนะนำลดอันตราย" : "คำแนะนำลดอันตราย · Harm Reduction Tips"}
+              {exportLang === "en" ? "Harm Reduction Tips" : exportLang === "th" ? "คำแนะนำลดอันตราย" : "ลดอันตราย · Harm Reduction"}
             </span>
           </div>
           {c.harmReduction.map((tip, i) => (
@@ -116,7 +123,7 @@ export const FactsheetFullExport = forwardRef<HTMLDivElement, Props>(
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
             <Phone style={{ width: 14, height: 14, color: "#ef4444" }} />
             <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#b91c1c" }}>
-              {exportLang === "en" ? "Seek Help Immediately If…" : exportLang === "th" ? "ขอความช่วยเหลือทันทีหาก…" : "ขอความช่วยเหลือทันทีหาก… · Seek Help If…"}
+              {exportLang === "en" ? "Seek Help Immediately If…" : exportLang === "th" ? "ขอความช่วยเหลือทันทีหาก…" : "ขอความช่วยเหลือ · Seek Help If…"}
             </span>
           </div>
           {c.emergencySigns.map((s, i) => (
@@ -137,7 +144,7 @@ export const FactsheetFullExport = forwardRef<HTMLDivElement, Props>(
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
             <Heart style={{ width: 14, height: 14, color: "#ec4899" }} />
             <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#888" }}>
-              {exportLang === "en" ? "Aftercare & Recovery" : exportLang === "th" ? "การดูแลหลังใช้" : "การดูแลหลังใช้ · Aftercare"}
+              {exportLang === "en" ? "Aftercare & Recovery" : exportLang === "th" ? "การดูแลหลังใช้" : "ดูแลหลังใช้ · Aftercare"}
             </span>
           </div>
           {c.aftercare.map((tip, i) => (

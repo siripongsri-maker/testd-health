@@ -3,6 +3,14 @@
    Add new substances by appending to SUBSTANCES array.
    ──────────────────────────────────────────────────────────── */
 
+import coverMeth from "@/assets/factsheet/cover-meth.jpg";
+import coverKetamine from "@/assets/factsheet/cover-ketamine.jpg";
+import coverMdma from "@/assets/factsheet/cover-mdma.jpg";
+import coverCannabis from "@/assets/factsheet/cover-cannabis.jpg";
+import coverPoppers from "@/assets/factsheet/cover-poppers.jpg";
+import coverGhb from "@/assets/factsheet/cover-ghb.jpg";
+import coverCocaine from "@/assets/factsheet/cover-cocaine.jpg";
+
 export type RiskLevel = "high" | "medium" | "low";
 
 export interface BilingualText {
@@ -11,9 +19,14 @@ export interface BilingualText {
 }
 
 export interface RiskItem {
-  iconName: string; // lucide icon name
+  iconName: string;
   th: string;
   en: string;
+}
+
+export interface SubstanceImage {
+  cover: string;
+  alt: string;
 }
 
 export interface SubstanceContent {
@@ -35,6 +48,7 @@ export interface SubstanceData {
   categoryTh: string;
   categoryEn: string;
   riskLevel: RiskLevel;
+  image: SubstanceImage;
   content: SubstanceContent;
 }
 
@@ -64,6 +78,7 @@ export const SUBSTANCES: SubstanceData[] = [
     categoryTh: "สารกระตุ้น",
     categoryEn: "Stimulant",
     riskLevel: "high",
+    image: { cover: coverMeth, alt: "Crystal geometric shapes dissolving" },
     content: {
       desc: {
         th: "สารกระตุ้นออกฤทธิ์แรงที่เพิ่มพลังงาน ความตื่นตัว และความสุข แต่มีความเสี่ยงสูงต่อสุขภาพ",
@@ -108,6 +123,7 @@ export const SUBSTANCES: SubstanceData[] = [
     categoryTh: "สารหลอนประสาทแยกตัว",
     categoryEn: "Dissociative",
     riskLevel: "high",
+    image: { cover: coverKetamine, alt: "Flowing liquid forms in ocean blue" },
     content: {
       desc: {
         th: "สารที่ทำให้เกิดภาวะแยกตัวจากร่างกาย ใช้ทางการแพทย์เป็นยาสลบ แต่ใช้เพื่อความบันเทิงมีความเสี่ยง",
@@ -149,6 +165,7 @@ export const SUBSTANCES: SubstanceData[] = [
     categoryTh: "สารกระตุ้น-หลอนประสาท",
     categoryEn: "Stimulant-Psychedelic",
     riskLevel: "medium",
+    image: { cover: coverMdma, alt: "Colorful light waves flowing" },
     content: {
       desc: {
         th: "สารที่เพิ่มความรู้สึกใกล้ชิด ความสุข และพลังงาน แต่มีผลกระทบต่ออุณหภูมิร่างกายและสมดุลน้ำ",
@@ -192,6 +209,7 @@ export const SUBSTANCES: SubstanceData[] = [
     categoryTh: "สารกดประสาท-หลอนประสาท",
     categoryEn: "Depressant-Psychedelic",
     riskLevel: "low",
+    image: { cover: coverCannabis, alt: "Soft green botanical leaves" },
     content: {
       desc: {
         th: "พืชที่มีสาร THC และ CBD ใช้เพื่อผ่อนคลาย แต่อาจส่งผลต่อจิตใจและการทำงานของสมอง",
@@ -233,6 +251,7 @@ export const SUBSTANCES: SubstanceData[] = [
     categoryTh: "สารสูดดม",
     categoryEn: "Inhalant",
     riskLevel: "medium",
+    image: { cover: coverPoppers, alt: "Amber and rose vapor wisps" },
     content: {
       desc: {
         th: "สารเคมีที่สูดดมเพื่อผ่อนคลายกล้ามเนื้อและเพิ่มความรู้สึก ออกฤทธิ์สั้น แต่มีความเสี่ยง",
@@ -274,6 +293,7 @@ export const SUBSTANCES: SubstanceData[] = [
     categoryTh: "สารกดประสาท",
     categoryEn: "Depressant",
     riskLevel: "high",
+    image: { cover: coverGhb, alt: "Clear droplets on deep blue surface" },
     content: {
       desc: {
         th: "สารกดประสาทที่มีช่วงปริมาณปลอดภัยแคบมาก ใช้มากเกินนิดเดียวอาจหมดสติ",
@@ -315,6 +335,7 @@ export const SUBSTANCES: SubstanceData[] = [
     categoryTh: "สารกระตุ้น",
     categoryEn: "Stimulant",
     riskLevel: "high",
+    image: { cover: coverCocaine, alt: "Crystalline particles in cold light" },
     content: {
       desc: {
         th: "สารกระตุ้นที่ออกฤทธิ์เร็วและสั้น ทำให้รู้สึกมั่นใจและมีพลัง แต่เสพติดได้ง่ายและมีผลต่อหัวใจ",

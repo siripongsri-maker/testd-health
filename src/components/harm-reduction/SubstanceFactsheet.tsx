@@ -1,9 +1,9 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useLanguage } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import {
   Clock, Zap, AlertTriangle, CheckCircle2, Phone, Heart,
-  Download, Share2, ChevronLeft, Shield,
+  Download, ChevronLeft, Shield,
 } from "lucide-react";
 import { SUBSTANCES, RISK_GRADIENTS, RISK_LABELS, type SubstanceData } from "@/data/substanceData";
 import { RiskIcon } from "./factsheet/RiskIcon";
@@ -25,7 +25,7 @@ export function SubstanceFactsheet({ onBack }: Props) {
   const data = SUBSTANCES.find((s) => s.id === selectedId) || SUBSTANCES[0];
   const c = data.content;
 
-  const txt = (bi: { th: string; en: string }) => (isEn ? bi.en : bi.th);
+  const txt = useCallback((bi: { th: string; en: string }) => (isEn ? bi.en : bi.th), [isEn]);
 
   return (
     <div className="space-y-3">
@@ -76,24 +76,45 @@ export function SubstanceFactsheet({ onBack }: Props) {
           boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
         }}
       >
-        {/* 1. Header */}
-        <div
-          className="relative px-5 pt-6 pb-5"
-          style={{ background: RISK_GRADIENTS[data.riskLevel] }}
-        >
-          <div className="flex items-start justify-between">
-            <div className="space-y-1.5">
-              <span className="text-3xl">{data.icon}</span>
-              <h1 className="text-xl font-bold text-white leading-tight">{isEn ? data.nameEn : data.nameTh}</h1>
-              <p className="text-xs text-white/70 font-medium">{isEn ? data.nameTh : data.nameEn}</p>
-            </div>
-            <div className="flex flex-col items-end gap-1.5 mt-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full" style={{ background: "rgba(255,255,255,.2)", color: "#fff", backdropFilter: "blur(4px)" }}>
-                {isEn ? data.categoryEn : data.categoryTh}
-              </span>
-              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full" style={{ background: "rgba(255,255,255,.25)", color: "#fff" }}>
-                {txt(RISK_LABELS[data.riskLevel])}
-              </span>
+        {/* 1. Image-based Header */}
+        <div className="relative" style={{ minHeight: 200 }}>
+          <img
+            src={data.image.cover}
+            alt={data.image.alt}
+            className="w-full h-48 object-cover"
+            loading="lazy"
+          />
+          {/* Dark gradient overlay */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: "linear-gradient(to top, rgba(0,0,0,.75) 0%, rgba(0,0,0,.3) 50%, rgba(0,0,0,.15) 100%)",
+            }}
+          />
+          {/* Content on image */}
+          <div className="absolute inset-0 flex flex-col justify-end px-5 pb-5">
+            <div className="flex items-end justify-between">
+              <div className="space-y-1.5">
+                <span className="text-3xl drop-shadow-lg">{data.icon}</span>
+                <h1 className="text-xl font-bold text-white leading-tight drop-shadow-md">
+                  {isEn ? data.nameEn : data.nameTh}
+                </h1>
+                <p className="text-xs text-white/70 font-medium">{isEn ? data.nameTh : data.nameEn}</p>
+              </div>
+              <div className="flex flex-col items-end gap-1.5">
+                <span
+                  className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full"
+                  style={{ background: "rgba(255,255,255,.2)", color: "#fff", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
+                >
+                  {isEn ? data.categoryEn : data.categoryTh}
+                </span>
+                <span
+                  className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full"
+                  style={{ background: "rgba(255,255,255,.25)", color: "#fff", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}
+                >
+                  {txt(RISK_LABELS[data.riskLevel])}
+                </span>
+              </div>
             </div>
           </div>
         </div>
