@@ -18,7 +18,7 @@ import { SwingClinicCard } from "@/components/harm-reduction/SwingClinicCard";
 import { useHrProfile } from "@/hooks/useHrProfile";
 import { getActiveNudges, type Nudge } from "@/lib/SafetyNudges";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronRight } from "lucide-react";
 import { trackEvent } from "@/hooks/useAnalytics";
 import { SEOHead, buildMedicalPageJsonLd } from "@/components/seo";
 import { createServicePathway, recordServiceEvent } from "@/lib/servicePathway";
@@ -36,12 +36,13 @@ import ServiceRecommendations from "@/components/harm-reduction/ServiceRecommend
 import ServiceTimeline from "@/components/harm-reduction/ServiceTimeline";
 import ClinicServiceDoor from "@/components/harm-reduction/ClinicServiceDoor";
 import MentalHealthCheckin from "@/components/harm-reduction/MentalHealthCheckin";
+import { SubstanceFactsheet } from "@/components/harm-reduction/SubstanceFactsheet";
 
 const AGE_STORAGE_KEY = "hr_age_confirmed";
 const DEMO_DISMISSED_KEY = "hr_demo_dismissed";
 
 type AgeState = "pending" | "adult" | "minor";
-type Section = "landing" | "learn" | "check" | "plan" | "support" | "peers" | "clinic" | "service-entry" | "mental-health" | "clinic-services" | "recovery";
+type Section = "landing" | "learn" | "check" | "plan" | "support" | "peers" | "clinic" | "service-entry" | "mental-health" | "clinic-services" | "recovery" | "factsheet";
 
 export default function HarmReduction() {
   const { language } = useLanguage();
@@ -202,6 +203,10 @@ export default function HarmReduction() {
           <RecoveryMode userId={user?.id} onNavigateSupport={() => setSection("support")} />
         )}
 
+        {section === "factsheet" && (
+          <SubstanceFactsheet onBack={() => setSection("landing")} />
+        )}
+
         {/* Service Recommendations — shown after entry selection */}
         {selectedReasons.length > 0 && section !== "service-entry" && section !== "clinic-services" && (
           <div className="mt-6">
@@ -256,6 +261,28 @@ export default function HarmReduction() {
         {/* Zone 2 — Choose what you need (5 pathway cards) */}
         <HrZonePathways onNavigate={handleNavigate} />
 
+        {/* Factsheet CTA */}
+        <button
+          onClick={() => setSection("factsheet")}
+          className="w-full rounded-2xl p-4 text-left transition-all active:scale-[0.98]"
+          style={{
+            background: "linear-gradient(135deg, hsl(340 60% 45%), hsl(270 50% 40%))",
+            boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">💎</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-white">
+                {isEn ? "Substance Factsheet" : "แผ่นข้อมูลสาร"}
+              </p>
+              <p className="text-xs text-white/70 mt-0.5">
+                {isEn ? "Quick-read safety guide · Downloadable" : "คู่มือความปลอดภัย · ดาวน์โหลดได้"}
+              </p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-white/50 flex-shrink-0" />
+          </div>
+        </button>
         {/* Service Timeline — for logged-in users with history */}
         {user?.id && <ServiceTimeline userId={user.id} />}
 
