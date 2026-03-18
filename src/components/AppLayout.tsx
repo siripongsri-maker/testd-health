@@ -7,6 +7,7 @@ import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import testdLogo from "@/assets/testd-logo.png";
 import { User, LogIn, MapPin } from "lucide-react";
+import { useGlobalPresence } from "@/hooks/useGlobalPresence";
 
 interface AppLayoutProps {
   children: React.ReactNode;
