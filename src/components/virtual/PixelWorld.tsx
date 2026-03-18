@@ -2,17 +2,15 @@ import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 import {
-  BOOTHS, WORLD_W, WORLD_H, SPAWN, AVATAR_SPEED, TREES, getPalette,
+  BOOTHS, WORLD_W, WORLD_H, SPAWN, AVATAR_SPEED, TREES, FLOWERS, LAMPS, getPalette,
 } from "@/config/pixelWorldConfig";
 import { PixelAvatar } from "./PixelAvatar";
 import { PixelBooth } from "./PixelBooth";
 import { usePixelPresence } from "@/hooks/usePixelPresence";
 import { Users } from "lucide-react";
 
-/* ── Types ──────────────────────────────────────────────────── */
 interface Props { displayName?: string }
 
-/* ── Component ──────────────────────────────────────────────── */
 export function PixelWorld({ displayName }: Props) {
   const navigate = useNavigate();
   const { language } = useLanguage();
@@ -36,7 +34,12 @@ export function PixelWorld({ displayName }: Props) {
       s.id = "px-style";
       s.textContent = `
         @keyframes pixel-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
-        @keyframes pixel-pulse{0%,100%{opacity:.4}50%{opacity:.9}}
+        @keyframes pixel-idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-0.5px)}}
+        @keyframes pixel-pulse{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.9;transform:scale(1.2)}}
+        @keyframes sign-glow{0%,100%{box-shadow:0 0 2px rgba(255,215,0,.2)}50%{box-shadow:0 0 8px rgba(255,215,0,.4)}}
+        @keyframes tree-sway{0%,100%{transform:skewX(0deg)}25%{transform:skewX(1deg)}75%{transform:skewX(-1deg)}}
+        @keyframes flower-sway{0%,100%{transform:rotate(0deg)}50%{transform:rotate(3deg)}}
+        @keyframes lamp-flicker{0%,100%{opacity:.6}50%{opacity:.85}}
       `;
       document.head.appendChild(s);
     }
@@ -96,7 +99,7 @@ export function PixelWorld({ displayName }: Props) {
     });
   }, [playerPos]);
 
-  /* ── pointer handlers (distinguish tap from scroll) ── */
+  /* ── pointer handlers ── */
   const onDown = useCallback((e: React.PointerEvent) => {
     ptrStart.current = { x: e.clientX, y: e.clientY, t: Date.now() };
   }, []);
@@ -129,11 +132,18 @@ export function PixelWorld({ displayName }: Props) {
   const myPalette = getPalette(presence.avatarSeed);
 
   return (
-    <div className="relative flex-1 overflow-hidden" style={{ background: "#2a3a1f" }}>
+    <div className="relative flex-1 overflow-hidden" style={{ background: "#3a5a2f" }}>
       {/* ── HUD: online count ── */}
       <div
-        className="absolute top-2 right-2 z-10 flex items-center gap-1.5 rounded px-2 py-1"
-        style={{ background: "rgba(0,0,0,.6)", fontFamily: "'Press Start 2P',monospace", fontSize: 7, color: "#4ade80" }}
+        className="absolute top-2 right-2 z-10 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5"
+        style={{
+          background: "rgba(0,0,0,.5)",
+          backdropFilter: "blur(4px)",
+          fontFamily: "'Press Start 2P',monospace",
+          fontSize: 7,
+          color: "#8ee0a0",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+        }}
       >
         <Users className="h-3 w-3" />
         {presence.totalOnline} {language === "th" ? "ออนไลน์" : "online"}
@@ -141,8 +151,15 @@ export function PixelWorld({ displayName }: Props) {
 
       {/* ── HUD: controls hint ── */}
       <div
-        className="absolute bottom-2 left-1/2 -translate-x-1/2 z-10 rounded px-3 py-1"
-        style={{ background: "rgba(0,0,0,.45)", fontFamily: "'Press Start 2P',monospace", fontSize: 6, color: "rgba(255,255,255,.45)" }}
+        className="absolute bottom-2 left-1/2 -translate-x-1/2 z-10 rounded-lg px-3 py-1.5"
+        style={{
+          background: "rgba(0,0,0,.4)",
+          backdropFilter: "blur(4px)",
+          fontFamily: "'Press Start 2P',monospace",
+          fontSize: 6,
+          color: "rgba(255,255,255,.5)",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+        }}
       >
         {language === "th" ? "แตะเพื่อเดิน · แตะโซนเพื่อเข้า" : "Tap to walk · Tap booth to enter"}
       </div>
@@ -162,38 +179,111 @@ export function PixelWorld({ displayName }: Props) {
             height: WORLD_H,
             minWidth: WORLD_W,
             minHeight: WORLD_H,
-            backgroundColor: "#5a9c3e",
-            backgroundImage: "linear-gradient(rgba(0,0,0,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.03) 1px,transparent 1px)",
-            backgroundSize: "16px 16px",
             imageRendering: "pixelated",
           }}
         >
-          {/* ── Paths ── */}
-          <div style={{ position: "absolute", left: WORLD_W / 2 - 24, top: 20, width: 48, height: WORLD_H - 40, background: "#c9a86c", opacity: 0.45, borderRadius: 2 }} />
-          {[140, 300, 460, 620].map((y) => (
-            <div key={y} style={{ position: "absolute", left: 60, top: y - 14, width: WORLD_W - 120, height: 28, background: "#c9a86c", opacity: 0.35, borderRadius: 2 }} />
+          {/* ── Ground: layered for depth ── */}
+          <div style={{
+            position: "absolute", inset: 0,
+            background: "linear-gradient(180deg, #7ab858 0%, #6aaa48 40%, #5a9a3e 70%, #4e8a36 100%)",
+          }} />
+          {/* Grid lines */}
+          <div style={{
+            position: "absolute", inset: 0,
+            backgroundImage: "linear-gradient(rgba(0,0,0,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.025) 1px,transparent 1px)",
+            backgroundSize: "16px 16px",
+          }} />
+          {/* Grass patches for variety */}
+          {[
+            { x: 50, y: 140, w: 60, h: 30 },
+            { x: 400, y: 200, w: 80, h: 40 },
+            { x: 150, y: 500, w: 70, h: 35 },
+            { x: 500, y: 700, w: 90, h: 40 },
+            { x: 650, y: 350, w: 50, h: 25 },
+            { x: 100, y: 750, w: 60, h: 30 },
+          ].map((p, i) => (
+            <div key={`grass${i}`} style={{
+              position: "absolute", left: p.x, top: p.y, width: p.w, height: p.h,
+              background: "radial-gradient(ellipse, rgba(100,180,70,0.3) 0%, transparent 70%)",
+              borderRadius: "50%",
+            }} />
           ))}
-          {/* cross-path to staff desk */}
-          <div style={{ position: "absolute", left: WORLD_W / 2 - 24, top: 760, width: 48, height: 80, background: "#c9a86c", opacity: 0.45, borderRadius: 2 }} />
 
-          {/* ── Trees ── */}
+          {/* ── Paths (warmer tone) ── */}
+          <div style={{ position: "absolute", left: WORLD_W / 2 - 24, top: 20, width: 48, height: WORLD_H - 40, background: "linear-gradient(90deg, #d4b880, #c8a870, #d4b880)", opacity: 0.5, borderRadius: 3 }} />
+          {[140, 300, 460, 620].map((y) => (
+            <div key={y} style={{ position: "absolute", left: 60, top: y - 14, width: WORLD_W - 120, height: 28, background: "linear-gradient(180deg, #d4b880, #c8a870, #d4b880)", opacity: 0.4, borderRadius: 3 }} />
+          ))}
+          <div style={{ position: "absolute", left: WORLD_W / 2 - 24, top: 760, width: 48, height: 80, background: "linear-gradient(90deg, #d4b880, #c8a870, #d4b880)", opacity: 0.5, borderRadius: 3 }} />
+          {/* Path edge shadows */}
+          <div style={{ position: "absolute", left: WORLD_W / 2 - 26, top: 20, width: 52, height: WORLD_H - 40, border: "2px solid rgba(0,0,0,0.04)", borderRadius: 3, pointerEvents: "none" }} />
+
+          {/* ── Flowers ── */}
+          {FLOWERS.map((f, i) => (
+            <div key={`f${i}`} style={{
+              position: "absolute", left: f.x, top: f.y, zIndex: f.y,
+              pointerEvents: "none",
+              animation: `flower-sway ${2 + (i % 3) * 0.5}s ease-in-out infinite`,
+              animationDelay: `${i * 0.3}s`,
+            }}>
+              <div style={{ width: 6, height: 6, background: f.color, borderRadius: "50%", boxShadow: `0 0 4px ${f.color}40` }} />
+              <div style={{ width: 2, height: 5, background: "#5a8a38", margin: "-1px auto 0" }} />
+            </div>
+          ))}
+
+          {/* ── Lamp posts ── */}
+          {LAMPS.map((l, i) => (
+            <div key={`l${i}`} style={{ position: "absolute", left: l.x, top: l.y, zIndex: l.y, pointerEvents: "none" }}>
+              <div style={{
+                width: 8, height: 8, borderRadius: "50%",
+                background: "radial-gradient(circle, rgba(255,240,180,0.7) 0%, rgba(255,220,120,0.2) 60%, transparent 100%)",
+                animation: "lamp-flicker 3s ease-in-out infinite",
+                animationDelay: `${i * 0.7}s`,
+                marginBottom: -2,
+              }} />
+              <div style={{ width: 4, height: 4, background: "#888", margin: "0 auto", borderRadius: "50% 50% 0 0" }} />
+              <div style={{ width: 2, height: 14, background: "#777", margin: "0 auto" }} />
+              {/* lamp shadow */}
+              <div style={{
+                width: 12, height: 4, borderRadius: "50%",
+                background: "radial-gradient(ellipse, rgba(0,0,0,0.1) 0%, transparent 70%)",
+                margin: "1px auto 0",
+              }} />
+            </div>
+          ))}
+
+          {/* ── Trees (with sway animation) ── */}
           {TREES.map((t, i) => (
-            <div key={`t${i}`} style={{ position: "absolute", left: t.x, top: t.y, zIndex: t.y, pointerEvents: "none" }}>
-              <div style={{ width: 20, height: 14, background: "#2d7a1e", borderRadius: "4px 4px 2px 2px", marginLeft: -2 }} />
-              <div style={{ width: 16, height: 10, background: "#3a9628", margin: "-3px auto 0" }} />
-              <div style={{ width: 6, height: 10, background: "#8B5E3C", margin: "0 auto" }} />
+            <div key={`t${i}`} style={{
+              position: "absolute", left: t.x, top: t.y, zIndex: t.y, pointerEvents: "none",
+              animation: `tree-sway ${3 + (i % 3)}s ease-in-out infinite`,
+              animationDelay: `${i * 0.4}s`,
+              transformOrigin: "bottom center",
+            }}>
+              {/* Tree shadow */}
+              <div style={{
+                position: "absolute", bottom: -4, left: -2, width: 24, height: 6, borderRadius: "50%",
+                background: "radial-gradient(ellipse, rgba(0,0,0,0.12) 0%, transparent 70%)",
+              }} />
+              <div style={{ width: 22, height: 14, background: "linear-gradient(180deg, #48a030 0%, #2d8020 100%)", borderRadius: "5px 5px 2px 2px", marginLeft: -2 }} />
+              <div style={{ width: 18, height: 10, background: "linear-gradient(180deg, #58b838 0%, #3a9628 100%)", margin: "-4px auto 0", borderRadius: 3 }} />
+              <div style={{ width: 6, height: 10, background: "linear-gradient(180deg, #9a7050 0%, #7a5438 100%)", margin: "0 auto" }} />
             </div>
           ))}
 
           {/* ── Spawn marker ── */}
-          <div style={{ position: "absolute", left: SPAWN.x - 10, top: SPAWN.y - 10, width: 20, height: 20, border: "2px dashed rgba(255,255,255,.15)", borderRadius: "50%", pointerEvents: "none" }} />
+          <div style={{
+            position: "absolute", left: SPAWN.x - 12, top: SPAWN.y - 12, width: 24, height: 24,
+            border: "2px dashed rgba(255,255,255,.1)", borderRadius: "50%", pointerEvents: "none",
+            background: "radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%)",
+          }} />
 
           {/* ── Booths ── */}
           {BOOTHS.map((b) => (
             <PixelBooth key={b.id} booth={b} language={language} onClick={() => navigate(b.targetRoute)} nearby={nearbyBooth === b.id} />
           ))}
 
-          {/* ── Other avatars (anonymous — no labels) ── */}
+          {/* ── Other avatars ── */}
           {presence.others.map((o) => (
             <div
               key={o.sessionId}
