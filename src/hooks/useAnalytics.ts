@@ -135,17 +135,14 @@ export const trackEvent = async (eventType: string, metadata?: Record<string, un
   try {
     const { data: { user } } = await supabase.auth.getUser();
 
-    const eventData: Record<string, unknown> = {
+    const eventData = {
       event_type: eventType,
       page_path: window.location.pathname,
       user_id: user?.id || null,
       session_id: getSessionId(),
       device_type: getDeviceType(),
+      metadata: metadata && Object.keys(metadata).length > 0 ? metadata : null,
     };
-
-    if (metadata && Object.keys(metadata).length > 0) {
-      eventData.metadata = metadata;
-    }
 
     const { error } = await supabase
       .from('analytics_events')
