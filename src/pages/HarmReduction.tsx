@@ -36,6 +36,7 @@ import ServiceRecommendations from "@/components/harm-reduction/ServiceRecommend
 import ServiceTimeline from "@/components/harm-reduction/ServiceTimeline";
 import ClinicServiceDoor from "@/components/harm-reduction/ClinicServiceDoor";
 import MentalHealthCheckin from "@/components/harm-reduction/MentalHealthCheckin";
+import { SubstanceFactsheet } from "@/components/harm-reduction/SubstanceFactsheet";
 
 const AGE_STORAGE_KEY = "hr_age_confirmed";
 const DEMO_DISMISSED_KEY = "hr_demo_dismissed";
