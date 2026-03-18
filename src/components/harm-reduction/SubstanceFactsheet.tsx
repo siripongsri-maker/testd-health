@@ -1,4 +1,5 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { trackEvent } from "@/hooks/useAnalytics";
 import { useLanguage } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +24,12 @@ export function SubstanceFactsheet({ onBack }: Props) {
   const [exportOpen, setExportOpen] = useState(false);
 
   const data = SUBSTANCES.find((s) => s.id === selectedId) || SUBSTANCES[0];
+
+  // Track initial substance view
+  useEffect(() => {
+    trackEvent("substance_view", { substance: data.slug });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const c = data.content;
 
   const txt = useCallback((bi: { th: string; en: string }) => (isEn ? bi.en : bi.th), [isEn]);
@@ -54,7 +61,10 @@ export function SubstanceFactsheet({ onBack }: Props) {
         {SUBSTANCES.map((s) => (
           <button
             key={s.id}
-            onClick={() => setSelectedId(s.id)}
+            onClick={() => {
+              setSelectedId(s.id);
+              trackEvent("substance_view", { substance: s.slug });
+            }}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all flex-shrink-0 ${
               selectedId === s.id
                 ? "bg-primary text-primary-foreground shadow-sm"
