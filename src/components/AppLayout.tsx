@@ -19,6 +19,7 @@ export function AppLayout({ children, hideNav }: AppLayoutProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  useGlobalPresence();
 
   // Admin pages use AdminLayout — don't wrap them
   const isAdminPage = location.pathname.startsWith("/admin");
