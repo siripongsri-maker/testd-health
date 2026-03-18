@@ -8,6 +8,7 @@ export interface VirtualZone {
   targetRoute: string;
   color: string;
   position: { row: number; col: number };
+  hasStaff?: boolean;
 }
 
 export const VIRTUAL_ZONES: VirtualZone[] = [
@@ -32,6 +33,7 @@ export const VIRTUAL_ZONES: VirtualZone[] = [
     targetRoute: "/hiv-selftest",
     color: "from-teal-400/20 to-teal-600/5",
     position: { row: 1, col: 2 },
+    hasStaff: true,
   },
   {
     id: "booking",
@@ -43,6 +45,7 @@ export const VIRTUAL_ZONES: VirtualZone[] = [
     targetRoute: "/booking",
     color: "from-blue-400/20 to-blue-600/5",
     position: { row: 2, col: 1 },
+    hasStaff: true,
   },
   {
     id: "appointments",
@@ -111,6 +114,18 @@ export const VIRTUAL_ZONES: VirtualZone[] = [
     position: { row: 5, col: 1 },
   },
   {
+    id: "staffdesk",
+    labelTh: "คุยกับทีม",
+    labelEn: "Talk to Staff",
+    descriptionTh: "ขอคำแนะนำจากเจ้าหน้าที่",
+    descriptionEn: "Get guidance from our team",
+    icon: "UserRound",
+    targetRoute: "/support-chat",
+    color: "from-sky-400/20 to-sky-600/5",
+    position: { row: 5, col: 2 },
+    hasStaff: true,
+  },
+  {
     id: "support",
     labelTh: "โต๊ะช่วยเหลือ",
     labelEn: "Support Desk",
@@ -119,6 +134,7 @@ export const VIRTUAL_ZONES: VirtualZone[] = [
     icon: "Headphones",
     targetRoute: "/support-chat",
     color: "from-cyan-400/20 to-cyan-600/5",
-    position: { row: 5, col: 2 },
+    position: { row: 6, col: 1 },
+    hasStaff: true,
   },
 ];

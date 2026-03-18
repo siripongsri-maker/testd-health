@@ -4,19 +4,22 @@ import type { VirtualZone } from "@/config/virtualZones";
 import {
   Home, TestTube, Calendar, ClipboardList, BookOpen,
   Heart, MessageCircle, Sparkles, ShieldHalf, Headphones,
+  UserRound, Users,
 } from "lucide-react";
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
   Home, TestTube, Calendar, ClipboardList, BookOpen,
   Heart, MessageCircle, Sparkles, ShieldHalf, Headphones,
+  UserRound,
 };
 
 interface Props {
   zone: VirtualZone;
   index: number;
+  presenceCount?: number;
 }
 
-export function VirtualZoneCard({ zone, index }: Props) {
+export function VirtualZoneCard({ zone, index, presenceCount = 0 }: Props) {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const Icon = ICON_MAP[zone.icon] ?? Home;
@@ -35,8 +38,21 @@ export function VirtualZoneCard({ zone, index }: Props) {
       `}
       style={{ animationDelay: `${index * 60}ms`, animationFillMode: "both" }}
     >
-      {/* Glow dot */}
-      <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-primary/50 group-hover:bg-primary transition-colors" />
+      {/* Presence + staff badges */}
+      <div className="absolute top-2 right-2 flex items-center gap-1">
+        {zone.hasStaff && (
+          <span className="flex items-center gap-0.5 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            {language === "th" ? "มีเจ้าหน้าที่" : "Staff"}
+          </span>
+        )}
+        {presenceCount > 0 && (
+          <span className="flex items-center gap-0.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+            <Users className="h-2.5 w-2.5" />
+            {presenceCount}
+          </span>
+        )}
+      </div>
 
       <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-background/60 shadow-sm group-hover:shadow-md transition-shadow">
         <Icon className="h-6 w-6 text-primary" />
