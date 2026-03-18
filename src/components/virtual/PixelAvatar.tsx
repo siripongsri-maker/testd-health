@@ -8,8 +8,6 @@ interface Props {
   facingLeft?: boolean;
 }
 
-/*  8×12 pixel sprite.
-    0 = transparent, h = hair, s = skin, e = eye, t = shirt, p = pants  */
 type C = 0 | "h" | "s" | "e" | "t" | "p";
 
 const SPRITE: C[][] = [
@@ -31,14 +29,14 @@ function fill(c: C, p: AvatarPalette): string | null {
   switch (c) {
     case "h": return p.hair;
     case "s": return p.skin;
-    case "e": return "#111";
+    case "e": return "#333";
     case "t": return p.shirt;
     case "p": return p.pants;
     default:  return null;
   }
 }
 
-const PX = 3; // each sprite-pixel = 3 CSS px → 24×36 avatar
+const PX = 3;
 
 export function PixelAvatar({ palette, isWalking, label, isMe, facingLeft }: Props) {
   return (
@@ -55,24 +53,24 @@ export function PixelAvatar({ palette, isWalking, label, isMe, facingLeft }: Pro
             fontFamily: "'Press Start 2P', monospace",
             fontSize: 6,
             color: "#fff",
-            textShadow: "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000",
+            textShadow: "1px 1px 0 rgba(0,0,0,.5), -1px -1px 0 rgba(0,0,0,.5), 1px -1px 0 rgba(0,0,0,.5), -1px 1px 0 rgba(0,0,0,.5)",
           }}
         >
           {label}
         </div>
       )}
 
-      {/* Drop shadow */}
+      {/* Drop shadow — soft ellipse */}
       <div
         className="absolute"
         style={{
-          bottom: -2,
+          bottom: -3,
           left: "50%",
           transform: "translateX(-50%)",
-          width: 16,
-          height: 4,
+          width: 20,
+          height: 6,
           borderRadius: "50%",
-          background: "rgba(0,0,0,0.2)",
+          background: "radial-gradient(ellipse, rgba(0,0,0,0.2) 0%, transparent 70%)",
         }}
       />
 
@@ -84,7 +82,10 @@ export function PixelAvatar({ palette, isWalking, label, isMe, facingLeft }: Pro
         shapeRendering="crispEdges"
         style={{
           imageRendering: "pixelated",
-          animation: isWalking ? "pixel-bob 0.35s steps(2) infinite" : undefined,
+          animation: isWalking
+            ? "pixel-bob 0.35s steps(2) infinite"
+            : "pixel-idle 2.5s ease-in-out infinite",
+          filter: "drop-shadow(0 1px 1px rgba(0,0,0,0.15))",
         }}
       >
         {SPRITE.flatMap((row, ry) =>

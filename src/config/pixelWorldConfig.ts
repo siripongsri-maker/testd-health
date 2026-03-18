@@ -17,21 +17,22 @@ export interface PixelBoothConfig {
   roofColor: string;
   wallColor: string;
   hasStaff?: boolean;
+  accentColor?: string;
 }
 
 export const BOOTHS: PixelBoothConfig[] = [
-  { id: "welcome",       labelTh: "ต้อนรับ",     labelEn: "Welcome",      targetRoute: "/",                x: 80,  y: 60,  w: 110, h: 76, roofColor: "#4ade80", wallColor: "#dcfce7" },
-  { id: "testing",        labelTh: "ตรวจเลือด",   labelEn: "Testing",      targetRoute: "/hiv-selftest",    x: 550, y: 60,  w: 110, h: 76, roofColor: "#2dd4bf", wallColor: "#ccfbf1", hasStaff: true },
-  { id: "booking",        labelTh: "จองนัด",      labelEn: "Booking",      targetRoute: "/booking",         x: 80,  y: 220, w: 110, h: 76, roofColor: "#60a5fa", wallColor: "#dbeafe", hasStaff: true },
-  { id: "appointments",   labelTh: "นัดหมาย",     labelEn: "Appts",        targetRoute: "/my-appointments", x: 550, y: 220, w: 110, h: 76, roofColor: "#818cf8", wallColor: "#e0e7ff" },
-  { id: "learning",       labelTh: "เรียนรู้",      labelEn: "Learn",        targetRoute: "/info",            x: 80,  y: 380, w: 110, h: 76, roofColor: "#fbbf24", wallColor: "#fef3c7" },
-  { id: "selfcare",       labelTh: "ดูแลตัวเอง",  labelEn: "Self-Care",    targetRoute: "/self-care",       x: 550, y: 380, w: 110, h: 76, roofColor: "#f472b6", wallColor: "#fce7f3" },
-  { id: "community",      labelTh: "ชุมชน",       labelEn: "Community",    targetRoute: "/community",       x: 80,  y: 540, w: 110, h: 76, roofColor: "#a78bfa", wallColor: "#ede9fe" },
-  { id: "harmreduction",  labelTh: "ลดอันตราย",   labelEn: "Harm Red.",    targetRoute: "/harm-reduction",  x: 550, y: 540, w: 110, h: 76, roofColor: "#34d399", wallColor: "#d1fae5" },
-  { id: "staffdesk",      labelTh: "คุยกับทีม",    labelEn: "Staff Desk",   targetRoute: "/support-chat",    x: 305, y: 720, w: 130, h: 76, roofColor: "#38bdf8", wallColor: "#e0f2fe", hasStaff: true },
+  { id: "welcome",       labelTh: "ต้อนรับ",     labelEn: "Welcome",      targetRoute: "/",                x: 80,  y: 60,  w: 110, h: 76, roofColor: "#8ecda0", wallColor: "#e8f5e9", accentColor: "#b5e6c5" },
+  { id: "testing",        labelTh: "ตรวจเลือด",   labelEn: "Testing",      targetRoute: "/hiv-selftest",    x: 550, y: 60,  w: 110, h: 76, roofColor: "#7ecdc4", wallColor: "#e0f2ef", accentColor: "#a8ded8", hasStaff: true },
+  { id: "booking",        labelTh: "จองนัด",      labelEn: "Booking",      targetRoute: "/booking",         x: 80,  y: 220, w: 110, h: 76, roofColor: "#89b8e0", wallColor: "#e3eef8", accentColor: "#aed0f0", hasStaff: true },
+  { id: "appointments",   labelTh: "นัดหมาย",     labelEn: "Appts",        targetRoute: "/my-appointments", x: 550, y: 220, w: 110, h: 76, roofColor: "#a8a4e0", wallColor: "#eae8f8", accentColor: "#c4c1f0" },
+  { id: "learning",       labelTh: "เรียนรู้",      labelEn: "Learn",        targetRoute: "/info",            x: 80,  y: 380, w: 110, h: 76, roofColor: "#e8c87a", wallColor: "#fdf4e0", accentColor: "#f0d89a" },
+  { id: "selfcare",       labelTh: "ดูแลตัวเอง",  labelEn: "Self-Care",    targetRoute: "/self-care",       x: 550, y: 380, w: 110, h: 76, roofColor: "#e8a0b8", wallColor: "#fce8f0", accentColor: "#f0b8cc" },
+  { id: "community",      labelTh: "ชุมชน",       labelEn: "Community",    targetRoute: "/community",       x: 80,  y: 540, w: 110, h: 76, roofColor: "#b8a0e0", wallColor: "#f0e8fa", accentColor: "#d0c0f0" },
+  { id: "harmreduction",  labelTh: "ลดอันตราย",   labelEn: "Harm Red.",    targetRoute: "/harm-reduction",  x: 550, y: 540, w: 110, h: 76, roofColor: "#7ec8a8", wallColor: "#e0f4ea", accentColor: "#a0dcc0" },
+  { id: "staffdesk",      labelTh: "คุยกับทีม",    labelEn: "Staff Desk",   targetRoute: "/support-chat",    x: 305, y: 720, w: 130, h: 76, roofColor: "#7ab8d8", wallColor: "#e0f0f8", accentColor: "#a0d0e8", hasStaff: true },
 ];
 
-/* ── Avatar palettes ──────────────────────────────────────────── */
+/* ── Avatar palettes (softer, pastel tones) ───────────────────── */
 
 export interface AvatarPalette {
   hair: string;
@@ -41,14 +42,14 @@ export interface AvatarPalette {
 }
 
 export const PALETTES: AvatarPalette[] = [
-  { hair: "#5c3317", skin: "#f5c8a0", shirt: "#e74c3c", pants: "#2c3e50" },
-  { hair: "#1a1a2e", skin: "#d4a574", shirt: "#3498db", pants: "#34495e" },
-  { hair: "#c0392b", skin: "#fad7a0", shirt: "#27ae60", pants: "#7f8c8d" },
-  { hair: "#f39c12", skin: "#f0d5a8", shirt: "#8e44ad", pants: "#2c3e50" },
-  { hair: "#2c3e50", skin: "#e8c39e", shirt: "#e67e22", pants: "#1a252f" },
-  { hair: "#e91e63", skin: "#f5cba7", shirt: "#00bcd4", pants: "#37474f" },
-  { hair: "#4a148c", skin: "#d7b899", shirt: "#ff9800", pants: "#3e2723" },
-  { hair: "#006064", skin: "#f0c8a0", shirt: "#ff5722", pants: "#263238" },
+  { hair: "#6b4423", skin: "#f5d0b0", shirt: "#e07060", pants: "#506070" },
+  { hair: "#2a2a3e", skin: "#ddb090", shirt: "#5aa0d0", pants: "#607080" },
+  { hair: "#c06040", skin: "#fce0c0", shirt: "#50b878", pants: "#889098" },
+  { hair: "#e0a040", skin: "#f8e0c0", shirt: "#a06cc0", pants: "#506070" },
+  { hair: "#405060", skin: "#f0d0b0", shirt: "#e09050", pants: "#384858" },
+  { hair: "#d06088", skin: "#f8d8c0", shirt: "#40b8c8", pants: "#586870" },
+  { hair: "#6030a0", skin: "#e0c8a8", shirt: "#f0a050", pants: "#504038" },
+  { hair: "#207878", skin: "#f8d0b0", shirt: "#f07850", pants: "#485860" },
 ];
 
 export function getPalette(seed: number): AvatarPalette {
@@ -66,4 +67,24 @@ export const TREES = [
   { x: 510, y: 480 },
   { x: 340, y: 640 },
   { x: 410, y: 650 },
+];
+
+/* ── Decorative flowers ───────────────────────────────────────── */
+export const FLOWERS = [
+  { x: 45, y: 170, color: "#f0a0b0" },
+  { x: 680, y: 180, color: "#a0c8f0" },
+  { x: 200, y: 350, color: "#f0d080" },
+  { x: 650, y: 460, color: "#c0a0e0" },
+  { x: 160, y: 650, color: "#90d8b0" },
+  { x: 600, y: 670, color: "#f0b090" },
+  { x: 370, y: 160, color: "#e0b0c0" },
+  { x: 460, y: 550, color: "#b0d0f0" },
+];
+
+/* ── Lamp posts ───────────────────────────────────────────────── */
+export const LAMPS = [
+  { x: 280, y: 150 },
+  { x: 460, y: 150 },
+  { x: 280, y: 500 },
+  { x: 460, y: 500 },
 ];
