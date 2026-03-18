@@ -87,6 +87,7 @@ export type Database = {
           device_type: string | null
           event_type: string
           id: string
+          metadata: Json | null
           page_path: string
           referrer: string | null
           session_duration_seconds: number | null
@@ -102,6 +103,7 @@ export type Database = {
           device_type?: string | null
           event_type?: string
           id?: string
+          metadata?: Json | null
           page_path: string
           referrer?: string | null
           session_duration_seconds?: number | null
@@ -117,6 +119,7 @@ export type Database = {
           device_type?: string | null
           event_type?: string
           id?: string
+          metadata?: Json | null
           page_path?: string
           referrer?: string | null
           session_duration_seconds?: number | null
