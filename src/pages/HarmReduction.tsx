@@ -18,7 +18,7 @@ import { SwingClinicCard } from "@/components/harm-reduction/SwingClinicCard";
 import { useHrProfile } from "@/hooks/useHrProfile";
 import { getActiveNudges, type Nudge } from "@/lib/SafetyNudges";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChevronRight } from "lucide-react";
 import { trackEvent } from "@/hooks/useAnalytics";
 import { SEOHead, buildMedicalPageJsonLd } from "@/components/seo";
 import { createServicePathway, recordServiceEvent } from "@/lib/servicePathway";
