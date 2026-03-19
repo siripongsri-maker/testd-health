@@ -13,6 +13,7 @@ import { HomeActionGrid } from "@/components/home/HomeActionGrid";
 import { SmartPriorityCard } from "@/components/home/SmartPriorityCard";
 import { MyPreventionJourneyCard } from "@/components/home/MyPreventionJourneyCard";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
+import { VirtualGreetingBubbles } from "@/components/home/VirtualGreetingBubbles";
 
 import { Users, Eye } from "lucide-react";
 import swingLogo from "@/assets/swing-logo.png";
