@@ -11,7 +11,7 @@ import { useNpcAvatars } from "@/hooks/useNpcAvatars";
 import { useVirtualGreetings } from "@/hooks/useVirtualGreetings";
 import { VirtualChatInput } from "./VirtualChatInput";
 import { SpeechBubble } from "./SpeechBubble";
-import { Users, Activity } from "lucide-react";
+import { Activity } from "lucide-react";
 
 interface Props { displayName?: string }
 
@@ -19,13 +19,11 @@ export function PixelWorld({ displayName }: Props) {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const presence = usePixelPresence();
-  const npcAvatars = useNpcAvatars(8, language);
+  const npcAvatars = useNpcAvatars(6, language);
   const { greetings, sendGreeting, sending } = useVirtualGreetings(15);
 
-  // Track which greetings have been shown as bubbles (by id)
   const [shownBubbles, setShownBubbles] = useState<Array<{ id: string; message: string; name: string; x: number; y: number; ts: number }>>([]);
 
-  // Show new greetings as speech bubbles at player position
   const lastGreetingId = useRef("");
   useEffect(() => {
     if (greetings.length === 0) return;
@@ -33,10 +31,9 @@ export function PixelWorld({ displayName }: Props) {
     if (latest.id === lastGreetingId.current) return;
     lastGreetingId.current = latest.id;
     
-    // Place bubble at a random visible position or center
-    const bx = 100 + Math.random() * (WORLD_W - 200);
-    const by = 100 + Math.random() * (WORLD_H - 300);
-    setShownBubbles(prev => [...prev.slice(-8), {
+    const bx = 40 + Math.random() * (WORLD_W - 80);
+    const by = 140 + Math.random() * (WORLD_H - 400);
+    setShownBubbles(prev => [...prev.slice(-6), {
       id: latest.id,
       message: latest.message,
       name: latest.display_name,
@@ -149,7 +146,7 @@ export function PixelWorld({ displayName }: Props) {
     for (const b of BOOTHS) {
       const cx = b.x + b.w / 2;
       const cy = b.y + b.h / 2;
-      if (Math.abs(playerPos.x - cx) < b.w / 2 + 28 && Math.abs(playerPos.y - (b.y + b.h + 16)) < 28) return b.id;
+      if (Math.abs(playerPos.x - cx) < b.w / 2 + 28 && Math.abs(playerPos.y - (b.y + b.h + 16)) < 36) return b.id;
     }
     return null;
   }, [playerPos]);
@@ -157,77 +154,84 @@ export function PixelWorld({ displayName }: Props) {
   const myPalette = getPalette(presence.avatarSeed);
 
   return (
-    <div className="relative flex-1 overflow-hidden" style={{ background: "#e8eff2" }}>
-      {/* ── HUD: online count ── */}
+    <div className="relative flex-1 overflow-hidden" style={{ background: "#eef3f5" }}>
+      {/* ── HUD: top bar ── */}
       <div
-        className="absolute top-2 right-2 z-10 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5"
+        className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-3 py-2"
         style={{
-          background: "rgba(255,255,255,.85)",
-          backdropFilter: "blur(8px)",
-          fontFamily: "'Inter', sans-serif",
-          fontSize: 10,
-          fontWeight: 600,
-          color: "#3a6070",
-          boxShadow: "0 1px 6px rgba(0,0,0,0.08)",
-          border: "1px solid rgba(0,0,0,0.06)",
+          background: "rgba(255,255,255,.88)",
+          backdropFilter: "blur(12px)",
+          borderBottom: "1px solid rgba(0,0,0,0.04)",
+          paddingTop: "calc(env(safe-area-inset-top, 0px) + 8px)",
         }}
       >
-        <Activity className="h-3 w-3" style={{ color: "#4aba80" }} />
-        <span>{presence.totalOnline + npcAvatars.length}</span>
-        <span style={{ fontWeight: 400, color: "#6a8898" }}>
-          {language === "th" ? "ออนไลน์" : "online"}
-        </span>
-      </div>
-
-      {/* ── HUD: SWING branding ── */}
-      <div
-        className="absolute top-2 left-2 z-10 rounded-lg px-2.5 py-1.5"
-        style={{
-          background: "rgba(255,255,255,.85)",
-          backdropFilter: "blur(8px)",
+        {/* Branding */}
+        <div style={{
           fontFamily: "'Inter', sans-serif",
-          fontSize: 9,
+          fontSize: 11,
           fontWeight: 700,
           color: "#2a6a70",
-          boxShadow: "0 1px 6px rgba(0,0,0,0.08)",
-          border: "1px solid rgba(0,0,0,0.06)",
-          letterSpacing: "0.05em",
-        }}
-      >
-        🏥 SWING Virtual Clinic
+          letterSpacing: "0.04em",
+          display: "flex",
+          alignItems: "center",
+          gap: 4,
+        }}>
+          <span style={{ fontSize: 14 }}>🏥</span>
+          SWING Virtual Clinic
+        </div>
+
+        {/* Online count */}
+        <div
+          className="flex items-center gap-1.5 rounded-full px-2.5 py-1"
+          style={{
+            background: "rgba(74,186,128,0.08)",
+            fontFamily: "'Inter', sans-serif",
+            fontSize: 11,
+            fontWeight: 600,
+            color: "#3a6070",
+          }}
+        >
+          <Activity className="h-3 w-3" style={{ color: "#4aba80" }} />
+          <span>{presence.totalOnline + npcAvatars.length}</span>
+          <span style={{ fontWeight: 400, color: "#6a8898", fontSize: 10 }}>
+            {language === "th" ? "ออนไลน์" : "online"}
+          </span>
+        </div>
       </div>
 
       {/* ── HUD: controls hint ── */}
       <div
-        className="absolute bottom-2 left-1/2 -translate-x-1/2 z-10 rounded-full px-4 py-1.5"
+        className="absolute z-30 left-1/2 -translate-x-1/2 rounded-full px-4 py-1"
         style={{
-          background: "rgba(255,255,255,.75)",
+          top: "calc(env(safe-area-inset-top, 0px) + 44px)",
+          background: "rgba(255,255,255,.7)",
           backdropFilter: "blur(8px)",
           fontFamily: "'Inter', 'Noto Sans Thai', sans-serif",
-          fontSize: 9,
+          fontSize: 10,
           fontWeight: 500,
-          color: "#6a8898",
-          boxShadow: "0 1px 6px rgba(0,0,0,0.06)",
-          border: "1px solid rgba(0,0,0,0.04)",
+          color: "#7a9098",
+          boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
         }}
       >
-        {language === "th" ? "แตะเพื่อเดิน · แตะโต๊ะเพื่อเปิดบริการ" : "Tap to walk · Tap desk to open service"}
+        {language === "th" ? "แตะเพื่อเดิน · แตะโต๊ะเพื่อเปิดบริการ" : "Tap to walk · Tap desk to open"}
       </div>
 
       {/* ── World viewport ── */}
       <div
         ref={viewportRef}
         className="w-full h-full overflow-auto"
-        style={{ WebkitOverflowScrolling: "touch" } as React.CSSProperties}
+        style={{
+          WebkitOverflowScrolling: "touch",
+          paddingTop: 60,
+        } as React.CSSProperties}
         onPointerDown={onDown}
         onPointerUp={onUp}
       >
         <div
-          className="relative select-none"
+          className="relative select-none mx-auto"
           style={{
             width: WORLD_W,
             height: WORLD_H,
-            minWidth: WORLD_W,
             minHeight: WORLD_H,
             imageRendering: "pixelated",
           }}
@@ -235,50 +239,28 @@ export function PixelWorld({ displayName }: Props) {
           {/* ── Clinic floor ── */}
           <div style={{
             position: "absolute", inset: 0,
-            background: "linear-gradient(180deg, #f0f4f6 0%, #e8eef2 50%, #e2e8ec 100%)",
+            background: "linear-gradient(180deg, #f2f6f8 0%, #edf2f4 40%, #e8edf0 100%)",
+            borderRadius: 16,
           }} />
 
           {/* Floor tile grid */}
           <div style={{
             position: "absolute", inset: 0,
             backgroundImage: `
-              linear-gradient(rgba(0,0,0,.02) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(0,0,0,.02) 1px, transparent 1px)
+              linear-gradient(rgba(0,0,0,.015) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(0,0,0,.015) 1px, transparent 1px)
             `,
-            backgroundSize: "40px 40px",
+            backgroundSize: "32px 32px",
+            borderRadius: 16,
           }} />
 
-          {/* Subtle floor pattern variation */}
-          {[
-            { x: 0, y: 0, w: 400, h: 350 },
-            { x: 400, y: 0, w: 400, h: 350 },
-            { x: 0, y: 350, w: 400, h: 350 },
-            { x: 400, y: 350, w: 400, h: 350 },
-          ].map((q, i) => (
-            <div key={`q${i}`} style={{
-              position: "absolute", left: q.x, top: q.y, width: q.w, height: q.h,
-              background: i % 2 === 0 ? "rgba(0,0,0,0.008)" : "transparent",
-            }} />
-          ))}
-
-          {/* ── Pathways (subtle) ── */}
-          {/* Vertical center corridor */}
+          {/* Walking path (center corridor) */}
           <div style={{
-            position: "absolute", left: WORLD_W / 2 - 30, top: 110, width: 60, height: WORLD_H - 180,
-            background: "linear-gradient(90deg, transparent, rgba(91,168,181,0.04), transparent)",
-            borderLeft: "1px dashed rgba(91,168,181,0.08)",
-            borderRight: "1px dashed rgba(91,168,181,0.08)",
+            position: "absolute", left: WORLD_W / 2 - 20, top: 140, width: 40, height: WORLD_H - 250,
+            background: "linear-gradient(90deg, transparent, rgba(91,168,181,0.03), transparent)",
+            borderLeft: "1px dashed rgba(91,168,181,0.06)",
+            borderRight: "1px dashed rgba(91,168,181,0.06)",
           }} />
-
-          {/* Horizontal corridors */}
-          {[200, 330, 460].map((y) => (
-            <div key={y} style={{
-              position: "absolute", left: 30, top: y - 8, width: WORLD_W - 60, height: 16,
-              background: "linear-gradient(180deg, transparent, rgba(91,168,181,0.03), transparent)",
-              borderTop: "1px dashed rgba(91,168,181,0.06)",
-              borderBottom: "1px dashed rgba(91,168,181,0.06)",
-            }} />
-          ))}
 
           {/* ── Clinic decorations ── */}
           {CLINIC_DECOR.map((d, i) => {
@@ -303,19 +285,19 @@ export function PixelWorld({ displayName }: Props) {
               }}>
                 <div style={{
                   fontFamily: "'Inter', sans-serif",
-                  fontSize: 9,
-                  fontWeight: 700,
+                  fontSize: 10,
+                  fontWeight: 800,
                   color: "#2a6a70",
                   background: "rgba(255,255,255,.7)",
                   backdropFilter: "blur(4px)",
-                  padding: "3px 12px",
-                  borderRadius: 4,
+                  padding: "4px 16px",
+                  borderRadius: 6,
                   border: "1px solid rgba(42,106,112,0.12)",
-                  letterSpacing: "0.1em",
+                  letterSpacing: "0.12em",
                 }}>
                   {d.label}
                 </div>
-                <div style={{ width: 2, height: 12, background: "#a0b0b8", margin: "0 auto" }} />
+                <div style={{ width: 2, height: 10, background: "#a0b0b8", margin: "0 auto" }} />
               </div>
             );
             if (d.type === "bench") return (
@@ -323,10 +305,10 @@ export function PixelWorld({ displayName }: Props) {
                 position: "absolute", left: d.x, top: d.y, zIndex: d.y,
                 pointerEvents: "none",
               }}>
-                <div style={{ width: 30, height: 6, background: "#c8b8a0", borderRadius: 2, border: "1px solid rgba(0,0,0,0.06)" }} />
-                <div style={{ display: "flex", justifyContent: "space-between", width: 30 }}>
-                  <div style={{ width: 3, height: 5, background: "#a89880" }} />
-                  <div style={{ width: 3, height: 5, background: "#a89880" }} />
+                <div style={{ width: 28, height: 5, background: "#c8b8a0", borderRadius: 2, border: "1px solid rgba(0,0,0,0.06)" }} />
+                <div style={{ display: "flex", justifyContent: "space-between", width: 28 }}>
+                  <div style={{ width: 3, height: 4, background: "#a89880" }} />
+                  <div style={{ width: 3, height: 4, background: "#a89880" }} />
                 </div>
               </div>
             );
@@ -335,8 +317,8 @@ export function PixelWorld({ displayName }: Props) {
                 position: "absolute", left: d.x, top: d.y, zIndex: d.y,
                 pointerEvents: "none",
               }}>
-                <div style={{ width: 12, height: 16, background: "#c0d0d8", borderRadius: "3px 3px 2px 2px", border: "1px solid rgba(0,0,0,0.06)" }} />
-                <div style={{ width: 6, height: 3, background: "#90b8c8", borderRadius: 1, margin: "-2px auto 0" }} />
+                <div style={{ width: 10, height: 14, background: "#c0d0d8", borderRadius: "3px 3px 2px 2px", border: "1px solid rgba(0,0,0,0.06)" }} />
+                <div style={{ width: 5, height: 2, background: "#90b8c8", borderRadius: 1, margin: "-1px auto 0" }} />
               </div>
             );
             if (d.type === "divider") return (
@@ -344,7 +326,7 @@ export function PixelWorld({ displayName }: Props) {
                 position: "absolute", left: d.x, top: d.y, zIndex: d.y,
                 pointerEvents: "none",
                 width: 2, height: WORLD_H - 250,
-                background: "linear-gradient(180deg, transparent, rgba(0,0,0,0.04), transparent)",
+                background: "linear-gradient(180deg, transparent, rgba(0,0,0,0.03), transparent)",
               }} />
             );
             return null;
@@ -365,7 +347,7 @@ export function PixelWorld({ displayName }: Props) {
                 top: npc.y - 18,
                 zIndex: Math.floor(npc.y),
                 pointerEvents: "none",
-                opacity: 0.85,
+                opacity: 0.8,
               }}
             >
               <PixelAvatar
@@ -425,7 +407,7 @@ export function PixelWorld({ displayName }: Props) {
         </div>
       </div>
 
-      {/* ── Chat input ── */}
+      {/* ── Chat input (fixed, mobile-safe) ── */}
       <VirtualChatInput onSend={handleSendGreeting} disabled={sending} />
     </div>
   );
