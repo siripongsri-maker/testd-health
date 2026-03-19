@@ -16,6 +16,7 @@ export function PixelWorld({ displayName }: Props) {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const presence = usePixelPresence();
+  const npcAvatars = useNpcAvatars(8, language);
 
   const [playerPos, setPlayerPos] = useState(SPAWN);
   const [isWalking, setIsWalking] = useState(false);
