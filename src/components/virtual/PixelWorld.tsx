@@ -7,6 +7,7 @@ import {
 import { PixelAvatar } from "./PixelAvatar";
 import { PixelBooth } from "./PixelBooth";
 import { usePixelPresence } from "@/hooks/usePixelPresence";
+import { useNpcAvatars } from "@/hooks/useNpcAvatars";
 import { Users, Activity } from "lucide-react";
 
 interface Props { displayName?: string }
