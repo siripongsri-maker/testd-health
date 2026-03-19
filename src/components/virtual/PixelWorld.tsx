@@ -7,6 +7,7 @@ import {
 import { PixelAvatar } from "./PixelAvatar";
 import { PixelBooth } from "./PixelBooth";
 import { usePixelPresence } from "@/hooks/usePixelPresence";
+import { useNpcAvatars } from "@/hooks/useNpcAvatars";
 import { Users, Activity } from "lucide-react";
 
 interface Props { displayName?: string }
@@ -15,6 +16,7 @@ export function PixelWorld({ displayName }: Props) {
   const navigate = useNavigate();
   const { language } = useLanguage();
   const presence = usePixelPresence();
+  const npcAvatars = useNpcAvatars(8, language);
 
   const [playerPos, setPlayerPos] = useState(SPAWN);
   const [isWalking, setIsWalking] = useState(false);
@@ -138,7 +140,7 @@ export function PixelWorld({ displayName }: Props) {
         }}
       >
         <Activity className="h-3 w-3" style={{ color: "#4aba80" }} />
-        <span>{presence.totalOnline}</span>
+        <span>{presence.totalOnline + npcAvatars.length}</span>
         <span style={{ fontWeight: 400, color: "#6a8898" }}>
           {language === "th" ? "ออนไลน์" : "online"}
         </span>
@@ -318,6 +320,27 @@ export function PixelWorld({ displayName }: Props) {
           {/* ── Booths (desks) ── */}
           {BOOTHS.map((b) => (
             <PixelBooth key={b.id} booth={b} language={language} onClick={() => navigate(b.targetRoute)} nearby={nearbyBooth === b.id} />
+          ))}
+
+          {/* ── NPC bot avatars ── */}
+          {npcAvatars.map((npc) => (
+            <div
+              key={npc.id}
+              style={{
+                position: "absolute",
+                left: npc.x - 12,
+                top: npc.y - 18,
+                zIndex: Math.floor(npc.y),
+                pointerEvents: "none",
+                opacity: 0.85,
+              }}
+            >
+              <PixelAvatar
+                palette={npc.palette}
+                isWalking={npc.isWalking}
+                facingLeft={npc.facingLeft}
+              />
+            </div>
           ))}
 
           {/* ── Other avatars ── */}
