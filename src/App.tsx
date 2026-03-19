@@ -13,9 +13,7 @@ import { AutoSEO } from "@/components/seo/AutoSEO";
 import { FloatingMedClock } from "@/components/FloatingMedClock";
 import { AppLayout } from "@/components/AppLayout";
 import { ForceUpdateGuard } from "@/components/ForceUpdateGuard";
-import { VersionAcknowledgementGate } from "@/components/VersionAcknowledgementGate";
 import { VersionAnnouncementBanner } from "@/components/VersionAnnouncementBanner";
-import { WhatsNewModal } from "@/components/WhatsNewModal";
 
 // Lazy load all pages for code-splitting
 const Home = lazy(() => import("./pages/Home"));
@@ -83,12 +81,9 @@ const queryClient = new QueryClient();
 
 /** Inner shell — lives inside BrowserRouter so children can useNavigate */
 function AppShell() {
-  const [whatsNewOpen, setWhatsNewOpen] = useState(false);
-
   return (
     <>
-      <VersionAnnouncementBanner onOpenChangelog={() => setWhatsNewOpen(true)} />
-      <WhatsNewModal open={whatsNewOpen} onOpenChange={setWhatsNewOpen} />
+      <VersionAnnouncementBanner />
       <AnalyticsProvider>
         <Suspense fallback={<PageLoader />}>
           <AppLayout>
@@ -167,8 +162,6 @@ function AppShell() {
 }
 
 const App = () => {
-  const [whatsNewFromGate, setWhatsNewFromGate] = useState(false);
-
   return (
     <ForceUpdateGuard>
       <QueryClientProvider client={queryClient}>
@@ -178,13 +171,9 @@ const App = () => {
           <OfflineBanner />
           <Toaster />
           <Sonner position="top-center" />
-          {/* Acknowledgement gate — renders outside Router (no navigation needed) */}
-          <VersionAcknowledgementGate onOpenWhatsNew={() => setWhatsNewFromGate(true)} />
           <BrowserRouter>
             <ScrollToTop />
             <AutoSEO />
-            {/* Secondary What's New modal triggered from gate */}
-            <WhatsNewModal open={whatsNewFromGate} onOpenChange={setWhatsNewFromGate} />
             <AppShell />
           </BrowserRouter>
         </TooltipProvider>
