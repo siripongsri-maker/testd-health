@@ -8,6 +8,9 @@ import { PixelAvatar } from "./PixelAvatar";
 import { PixelBooth } from "./PixelBooth";
 import { usePixelPresence } from "@/hooks/usePixelPresence";
 import { useNpcAvatars } from "@/hooks/useNpcAvatars";
+import { useVirtualGreetings } from "@/hooks/useVirtualGreetings";
+import { VirtualChatInput } from "./VirtualChatInput";
+import { SpeechBubble } from "./SpeechBubble";
 import { Users, Activity } from "lucide-react";
 
 interface Props { displayName?: string }
@@ -17,6 +20,36 @@ export function PixelWorld({ displayName }: Props) {
   const { language } = useLanguage();
   const presence = usePixelPresence();
   const npcAvatars = useNpcAvatars(8, language);
+  const { greetings, sendGreeting, sending } = useVirtualGreetings(15);
+
+  // Track which greetings have been shown as bubbles (by id)
+  const [shownBubbles, setShownBubbles] = useState<Array<{ id: string; message: string; name: string; x: number; y: number; ts: number }>>([]);
+
+  // Show new greetings as speech bubbles at player position
+  const lastGreetingId = useRef("");
+  useEffect(() => {
+    if (greetings.length === 0) return;
+    const latest = greetings[greetings.length - 1];
+    if (latest.id === lastGreetingId.current) return;
+    lastGreetingId.current = latest.id;
+    
+    // Place bubble at a random visible position or center
+    const bx = 100 + Math.random() * (WORLD_W - 200);
+    const by = 100 + Math.random() * (WORLD_H - 300);
+    setShownBubbles(prev => [...prev.slice(-8), {
+      id: latest.id,
+      message: latest.message,
+      name: latest.display_name,
+      x: bx,
+      y: by,
+      ts: Date.now(),
+    }]);
+  }, [greetings]);
+
+  const handleSendGreeting = useCallback((msg: string) => {
+    const name = displayName || (language === "th" ? "ฉัน" : "Me");
+    sendGreeting(msg, name, presence.avatarSeed);
+  }, [displayName, language, sendGreeting, presence.avatarSeed]);
 
   const [playerPos, setPlayerPos] = useState(SPAWN);
   const [isWalking, setIsWalking] = useState(false);
@@ -377,8 +410,23 @@ export function PixelWorld({ displayName }: Props) {
               facingLeft={facingLeft}
             />
           </div>
+
+          {/* ── Speech bubbles from greetings ── */}
+          {shownBubbles.map((b) => (
+            <SpeechBubble
+              key={b.id}
+              message={b.message}
+              name={b.name}
+              x={b.x}
+              y={b.y}
+              duration={7000}
+            />
+          ))}
         </div>
       </div>
+
+      {/* ── Chat input ── */}
+      <VirtualChatInput onSend={handleSendGreeting} disabled={sending} />
     </div>
   );
 }
