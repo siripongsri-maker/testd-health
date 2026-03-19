@@ -322,6 +322,27 @@ export function PixelWorld({ displayName }: Props) {
             <PixelBooth key={b.id} booth={b} language={language} onClick={() => navigate(b.targetRoute)} nearby={nearbyBooth === b.id} />
           ))}
 
+          {/* ── NPC bot avatars ── */}
+          {npcAvatars.map((npc) => (
+            <div
+              key={npc.id}
+              style={{
+                position: "absolute",
+                left: npc.x - 12,
+                top: npc.y - 18,
+                zIndex: Math.floor(npc.y),
+                pointerEvents: "none",
+                opacity: 0.85,
+              }}
+            >
+              <PixelAvatar
+                palette={npc.palette}
+                isWalking={npc.isWalking}
+                facingLeft={npc.facingLeft}
+              />
+            </div>
+          ))}
+
           {/* ── Other avatars ── */}
           {presence.others.map((o) => (
             <div
