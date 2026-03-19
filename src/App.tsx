@@ -162,8 +162,6 @@ function AppShell() {
 }
 
 const App = () => {
-  const [whatsNewFromGate, setWhatsNewFromGate] = useState(false);
-
   return (
     <ForceUpdateGuard>
       <QueryClientProvider client={queryClient}>
@@ -173,13 +171,9 @@ const App = () => {
           <OfflineBanner />
           <Toaster />
           <Sonner position="top-center" />
-          {/* Acknowledgement gate — renders outside Router (no navigation needed) */}
-          <VersionAcknowledgementGate onOpenWhatsNew={() => setWhatsNewFromGate(true)} />
           <BrowserRouter>
             <ScrollToTop />
             <AutoSEO />
-            {/* Secondary What's New modal triggered from gate */}
-            <WhatsNewModal open={whatsNewFromGate} onOpenChange={setWhatsNewFromGate} />
             <AppShell />
           </BrowserRouter>
         </TooltipProvider>

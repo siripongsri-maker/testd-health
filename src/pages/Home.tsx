@@ -172,7 +172,7 @@ export default function Home() {
       <div className="fixed bottom-16 left-0 right-0 h-1 bg-gradient-to-r from-[hsl(0,85%,65%)] via-[hsl(50,95%,55%)] via-[hsl(120,65%,50%)] via-[hsl(200,85%,55%)] to-[hsl(280,70%,60%)] z-30" />
 
       {/* Popups */}
-      <HIVTestPopup />
+      
       <AdminRequestsPopup open={adminPopupOpen} onOpenChange={setAdminPopupOpen} />
     </div>
   );
