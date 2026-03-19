@@ -410,8 +410,23 @@ export function PixelWorld({ displayName }: Props) {
               facingLeft={facingLeft}
             />
           </div>
+
+          {/* ── Speech bubbles from greetings ── */}
+          {shownBubbles.map((b) => (
+            <SpeechBubble
+              key={b.id}
+              message={b.message}
+              name={b.name}
+              x={b.x}
+              y={b.y}
+              duration={7000}
+            />
+          ))}
         </div>
       </div>
+
+      {/* ── Chat input ── */}
+      <VirtualChatInput onSend={handleSendGreeting} disabled={sending} />
     </div>
   );
 }
