@@ -8,6 +8,9 @@ import { PixelAvatar } from "./PixelAvatar";
 import { PixelBooth } from "./PixelBooth";
 import { usePixelPresence } from "@/hooks/usePixelPresence";
 import { useNpcAvatars } from "@/hooks/useNpcAvatars";
+import { useVirtualGreetings } from "@/hooks/useVirtualGreetings";
+import { VirtualChatInput } from "./VirtualChatInput";
+import { SpeechBubble } from "./SpeechBubble";
 import { Users, Activity } from "lucide-react";
 
 interface Props { displayName?: string }
