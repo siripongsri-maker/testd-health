@@ -1,7 +1,9 @@
-export const WORLD_W = 800;
-export const WORLD_H = 700;
-export const AVATAR_SPEED = 110;
-export const SPAWN = { x: 400, y: 420 };
+/* ── Mobile-first Virtual Clinic Layout ─────────────────────── */
+
+export const WORLD_W = 390;
+export const WORLD_H = 1100;
+export const AVATAR_SPEED = 90;
+export const SPAWN = { x: 195, y: 160 };
 
 /* ── Desk/Zone config ─────────────────────────────────────────── */
 
@@ -18,23 +20,102 @@ export interface PixelBoothConfig {
   wallColor: string;
   hasStaff?: boolean;
   accentColor?: string;
-  icon?: string; // emoji for desk type
+  icon?: string;
+  staffName?: string;
+  staffNameTh?: string;
+  welcomeEn?: string;
+  welcomeTh?: string;
 }
 
+/* Desks arranged in a vertical mobile-friendly grid:
+   2 columns, 4 rows, centered with clear spacing.
+   Reception spans full width at top. Help desk at bottom. */
+
+const COL_L = 24;
+const COL_R = 202;
+const DESK_W = 164;
+const DESK_H = 72;
+const ROW_GAP = 148;
+const ROW_START = 240;
+
 export const BOOTHS: PixelBoothConfig[] = [
-  // ── Reception (center top) ──
-  { id: "welcome",      labelTh: "ต้อนรับ",     labelEn: "Reception",    targetRoute: "/",                x: 320, y: 40,  w: 160, h: 64, roofColor: "#5ba8b5", wallColor: "#eef7f8", accentColor: "#8ecdd6", icon: "🏥", hasStaff: true },
-  // ── Left column ──
-  { id: "testing",       labelTh: "ตรวจเลือด",   labelEn: "Testing",      targetRoute: "/hiv-selftest",    x: 40,  y: 160, w: 140, h: 58, roofColor: "#4da8a0", wallColor: "#edf8f6", accentColor: "#80ccc5", icon: "🔬", hasStaff: true },
-  { id: "booking",       labelTh: "จองนัด",      labelEn: "Booking",      targetRoute: "/booking",         x: 40,  y: 290, w: 140, h: 58, roofColor: "#6a9fd8", wallColor: "#edf3fa", accentColor: "#96bde6", icon: "📋", hasStaff: true },
-  { id: "community",     labelTh: "ชุมชน",       labelEn: "Community",    targetRoute: "/community",       x: 40,  y: 420, w: 140, h: 58, roofColor: "#9a8ec8", wallColor: "#f0edf8", accentColor: "#b8aed8", icon: "👥" },
-  // ── Right column ──
-  { id: "appointments",  labelTh: "นัดหมาย",     labelEn: "Appointments", targetRoute: "/my-appointments", x: 620, y: 160, w: 140, h: 58, roofColor: "#7a9ad0", wallColor: "#eef2fa", accentColor: "#a0b8e0", icon: "📅" },
-  { id: "selfcare",      labelTh: "ดูแลตัวเอง",  labelEn: "Self-Care",    targetRoute: "/self-care",       x: 620, y: 290, w: 140, h: 58, roofColor: "#c88ea8", wallColor: "#f8edf2", accentColor: "#daa8be", icon: "💚" },
-  { id: "harmreduction", labelTh: "ลดอันตราย",   labelEn: "Harm Red.",    targetRoute: "/harm-reduction",  x: 620, y: 420, w: 140, h: 58, roofColor: "#5eb89a", wallColor: "#edf8f2", accentColor: "#88d0b8", icon: "🛡️" },
-  // ── Center row ──
-  { id: "learning",      labelTh: "เรียนรู้",      labelEn: "Info Board",   targetRoute: "/info",            x: 280, y: 260, w: 120, h: 54, roofColor: "#d0a860", wallColor: "#faf5ea", accentColor: "#e0c080", icon: "📖" },
-  { id: "staffdesk",     labelTh: "คุยกับทีม",    labelEn: "Help Desk",    targetRoute: "/support-chat",    x: 300, y: 560, w: 200, h: 64, roofColor: "#5ba8b5", wallColor: "#eef7f8", accentColor: "#8ecdd6", icon: "💬", hasStaff: true },
+  // ── Reception (full-width center top) ──
+  {
+    id: "welcome", labelTh: "ต้อนรับ", labelEn: "Reception",
+    targetRoute: "/",
+    x: 55, y: 60, w: 280, h: 78,
+    roofColor: "#5ba8b5", wallColor: "#f0f8f9", accentColor: "#8ecdd6",
+    icon: "🏥", hasStaff: true,
+    staffName: "Nong Fah", staffNameTh: "น้องฟ้า",
+    welcomeEn: "Welcome!", welcomeTh: "ยินดีต้อนรับค่ะ",
+  },
+  // ── Row 1 ──
+  {
+    id: "testing", labelTh: "ตรวจเลือด", labelEn: "HIV / STI Testing",
+    targetRoute: "/hiv-selftest",
+    x: COL_L, y: ROW_START, w: DESK_W, h: DESK_H,
+    roofColor: "#4da8a0", wallColor: "#edf8f6", accentColor: "#80ccc5",
+    icon: "🔬", hasStaff: true,
+    staffName: "P' Bee", staffNameTh: "พี่บี",
+    welcomeEn: "Free & confidential", welcomeTh: "ฟรี ปลอดภัย",
+  },
+  {
+    id: "booking", labelTh: "จองนัดหมาย", labelEn: "Booking",
+    targetRoute: "/booking",
+    x: COL_R, y: ROW_START, w: DESK_W, h: DESK_H,
+    roofColor: "#6a9fd8", wallColor: "#edf3fa", accentColor: "#96bde6",
+    icon: "📋", hasStaff: true,
+    staffName: "P' Kai", staffNameTh: "พี่ไก่",
+    welcomeEn: "Book anytime", welcomeTh: "นัดได้เลย",
+  },
+  // ── Row 2 ──
+  {
+    id: "counseling", labelTh: "คุยกับพี่", labelEn: "Counseling",
+    targetRoute: "/support-chat",
+    x: COL_L, y: ROW_START + ROW_GAP, w: DESK_W, h: DESK_H,
+    roofColor: "#c88ea8", wallColor: "#f8edf2", accentColor: "#daa8be",
+    icon: "💬", hasStaff: true,
+    staffName: "P' Mint", staffNameTh: "พี่มิ้นท์",
+    welcomeEn: "Talk with us", welcomeTh: "เริ่มคุยได้เลย",
+  },
+  {
+    id: "harmreduction", labelTh: "ลดอันตราย", labelEn: "Harm Reduction",
+    targetRoute: "/harm-reduction",
+    x: COL_R, y: ROW_START + ROW_GAP, w: DESK_W, h: DESK_H,
+    roofColor: "#5eb89a", wallColor: "#edf8f2", accentColor: "#88d0b8",
+    icon: "🛡️", hasStaff: true,
+    staffName: "P' Ton", staffNameTh: "พี่ต้น",
+    welcomeEn: "No judgment", welcomeTh: "ไม่ตัดสิน",
+  },
+  // ── Row 3 ──
+  {
+    id: "learning", labelTh: "เรียนรู้", labelEn: "Resources",
+    targetRoute: "/info",
+    x: COL_L, y: ROW_START + ROW_GAP * 2, w: DESK_W, h: DESK_H,
+    roofColor: "#d0a860", wallColor: "#faf5ea", accentColor: "#e0c080",
+    icon: "📖", hasStaff: true,
+    staffName: "P' Sky", staffNameTh: "พี่สกาย",
+    welcomeEn: "Learn more", welcomeTh: "เรียนรู้เพิ่ม",
+  },
+  {
+    id: "community", labelTh: "ชุมชน", labelEn: "Community",
+    targetRoute: "/community",
+    x: COL_R, y: ROW_START + ROW_GAP * 2, w: DESK_W, h: DESK_H,
+    roofColor: "#9a8ec8", wallColor: "#f0edf8", accentColor: "#b8aed8",
+    icon: "👥", hasStaff: true,
+    staffName: "P' Nat", staffNameTh: "พี่นัท",
+    welcomeEn: "Join us", welcomeTh: "มาร่วมกัน",
+  },
+  // ── Help Desk (full-width bottom) ──
+  {
+    id: "helpdesk", labelTh: "Help Desk", labelEn: "Help Desk",
+    targetRoute: "/support-chat",
+    x: 55, y: ROW_START + ROW_GAP * 3, w: 280, h: 78,
+    roofColor: "#5ba8b5", wallColor: "#f0f8f9", accentColor: "#8ecdd6",
+    icon: "🙋", hasStaff: true,
+    staffName: "P' Max", staffNameTh: "พี่แม็ก",
+    welcomeEn: "Need support?", welcomeTh: "ช่วยอะไรได้บ้าง?",
+  },
 ];
 
 /* ── Avatar palettes (clinic-soft tones) ──────────────────────── */
@@ -76,16 +157,22 @@ export interface ClinicDecor {
 }
 
 export const CLINIC_DECOR: ClinicDecor[] = [
-  { type: "plant", x: 250, y: 50 },
-  { type: "plant", x: 540, y: 50 },
-  { type: "plant", x: 30, y: 140 },
-  { type: "plant", x: 770, y: 140 },
-  { type: "sign", x: 370, y: 140, label: "SWING" },
-  { type: "bench", x: 320, y: 380 },
-  { type: "bench", x: 430, y: 380 },
-  { type: "water", x: 220, y: 560 },
-  { type: "divider", x: 200, y: 190 },
-  { type: "divider", x: 580, y: 190 },
-  { type: "plant", x: 30, y: 540 },
-  { type: "plant", x: 770, y: 540 },
+  // Entrance plants
+  { type: "plant", x: 30, y: 55 },
+  { type: "plant", x: 348, y: 55 },
+  // SWING sign
+  { type: "sign", x: 160, y: 172, label: "SWING" },
+  // Waiting area
+  { type: "bench", x: 140, y: 200 },
+  { type: "bench", x: 220, y: 200 },
+  { type: "water", x: 360, y: 200 },
+  // Corridor plants
+  { type: "plant", x: 14, y: 460 },
+  { type: "plant", x: 370, y: 460 },
+  { type: "plant", x: 14, y: 680 },
+  { type: "plant", x: 370, y: 680 },
+  // Bottom area
+  { type: "bench", x: 140, y: 880 },
+  { type: "plant", x: 30, y: 910 },
+  { type: "plant", x: 348, y: 910 },
 ];

@@ -16,7 +16,10 @@ export default function VirtualMode() {
   return (
     <>
       <VirtualIntroOverlay />
-      <div style={{ height: "calc(100dvh - 7rem)" }}>
+      <div style={{
+        height: "calc(100dvh - 3.5rem)",
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+      }}>
         <PixelWorld displayName={displayName} />
       </div>
       <VirtualGuide />
