@@ -13,9 +13,7 @@ import { AutoSEO } from "@/components/seo/AutoSEO";
 import { FloatingMedClock } from "@/components/FloatingMedClock";
 import { AppLayout } from "@/components/AppLayout";
 import { ForceUpdateGuard } from "@/components/ForceUpdateGuard";
-import { VersionAcknowledgementGate } from "@/components/VersionAcknowledgementGate";
 import { VersionAnnouncementBanner } from "@/components/VersionAnnouncementBanner";
-import { WhatsNewModal } from "@/components/WhatsNewModal";
 
 // Lazy load all pages for code-splitting
 const Home = lazy(() => import("./pages/Home"));
