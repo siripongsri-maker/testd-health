@@ -140,7 +140,7 @@ export function PixelWorld({ displayName }: Props) {
         }}
       >
         <Activity className="h-3 w-3" style={{ color: "#4aba80" }} />
-        <span>{presence.totalOnline}</span>
+        <span>{presence.totalOnline + npcAvatars.length}</span>
         <span style={{ fontWeight: 400, color: "#6a8898" }}>
           {language === "th" ? "ออนไลน์" : "online"}
         </span>
