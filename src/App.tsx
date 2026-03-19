@@ -81,12 +81,9 @@ const queryClient = new QueryClient();
 
 /** Inner shell — lives inside BrowserRouter so children can useNavigate */
 function AppShell() {
-  const [whatsNewOpen, setWhatsNewOpen] = useState(false);
-
   return (
     <>
-      <VersionAnnouncementBanner onOpenChangelog={() => setWhatsNewOpen(true)} />
-      <WhatsNewModal open={whatsNewOpen} onOpenChange={setWhatsNewOpen} />
+      <VersionAnnouncementBanner />
       <AnalyticsProvider>
         <Suspense fallback={<PageLoader />}>
           <AppLayout>
