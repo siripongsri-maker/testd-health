@@ -4,7 +4,7 @@ import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
-import { HIVTestPopup } from "@/components/HIVTestPopup";
+
 import { HomeLeaderboard } from "@/components/HomeLeaderboard";
 import { CommunityMilestoneCard } from "@/components/CommunityMilestoneCard";
 import { AdminRequestsPopup } from "@/components/AdminRequestsPopup";
