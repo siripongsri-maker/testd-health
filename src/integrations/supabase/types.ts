@@ -8363,6 +8363,30 @@ export type Database = {
         }
         Relationships: []
       }
+      virtual_greetings: {
+        Row: {
+          avatar_seed: number
+          created_at: string
+          display_name: string
+          id: string
+          message: string
+        }
+        Insert: {
+          avatar_seed?: number
+          created_at?: string
+          display_name?: string
+          id?: string
+          message: string
+        }
+        Update: {
+          avatar_seed?: number
+          created_at?: string
+          display_name?: string
+          id?: string
+          message?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       hall_of_fame_public: {
