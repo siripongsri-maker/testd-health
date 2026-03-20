@@ -26,16 +26,16 @@ export function VirtualChatInput({ onSend, disabled }: Props) {
       className="flex items-center gap-2"
       style={{
         position: "fixed",
-        bottom: "calc(env(safe-area-inset-bottom, 0px) + 64px)",
+        bottom: "calc(env(safe-area-inset-bottom, 0px) + 60px)",
         left: "50%",
         transform: "translateX(-50%)",
         zIndex: 50,
-        background: "rgba(255,255,255,.92)",
+        background: "rgba(255,255,255,.94)",
         backdropFilter: "blur(16px)",
-        borderRadius: 24,
-        padding: "5px 6px 5px 16px",
-        boxShadow: "0 4px 20px rgba(0,0,0,0.1), 0 0 0 1px rgba(91,168,181,0.1)",
-        width: "min(340px, calc(100vw - 32px))",
+        borderRadius: 22,
+        padding: "4px 6px 4px 14px",
+        boxShadow: "0 2px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(91,168,181,0.1)",
+        width: "min(320px, calc(100vw - 32px))",
       }}
     >
       <input
@@ -58,8 +58,8 @@ export function VirtualChatInput({ onSend, disabled }: Props) {
         disabled={!text.trim() || disabled}
         className="flex items-center justify-center rounded-full transition-all duration-200"
         style={{
-          width: 32,
-          height: 32,
+          width: 30,
+          height: 30,
           flexShrink: 0,
           background: text.trim()
             ? "linear-gradient(135deg, #5ba8b5, #4a98a5)"

@@ -146,7 +146,7 @@ export function PixelWorld({ displayName }: Props) {
     for (const b of BOOTHS) {
       const cx = b.x + b.w / 2;
       const cy = b.y + b.h / 2;
-      if (Math.abs(playerPos.x - cx) < b.w / 2 + 28 && Math.abs(playerPos.y - (b.y + b.h + 16)) < 36) return b.id;
+      if (Math.abs(playerPos.x - cx) < b.w / 2 + 28 && Math.abs(playerPos.y - cy) < b.h / 2 + 40) return b.id;
     }
     return null;
   }, [playerPos]);
@@ -154,18 +154,19 @@ export function PixelWorld({ displayName }: Props) {
   const myPalette = getPalette(presence.avatarSeed);
 
   return (
-    <div className="relative flex-1 overflow-hidden" style={{ background: "#eef3f5" }}>
+    <div className="relative flex-1 overflow-hidden" style={{ background: "#f0f4f6" }}>
       {/* ── HUD: top bar ── */}
       <div
-        className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-3 py-2"
+        className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-3"
         style={{
-          background: "rgba(255,255,255,.88)",
+          background: "rgba(255,255,255,.92)",
           backdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(0,0,0,0.04)",
-          paddingTop: "calc(env(safe-area-inset-top, 0px) + 8px)",
+          borderBottom: "1px solid rgba(0,0,0,0.05)",
+          paddingTop: "calc(env(safe-area-inset-top, 0px) + 6px)",
+          paddingBottom: 6,
+          height: 40,
         }}
       >
-        {/* Branding */}
         <div style={{
           fontFamily: "'Inter', sans-serif",
           fontSize: 11,
@@ -180,7 +181,6 @@ export function PixelWorld({ displayName }: Props) {
           SWING Virtual Clinic
         </div>
 
-        {/* Online count */}
         <div
           className="flex items-center gap-1.5 rounded-full px-2.5 py-1"
           style={{
@@ -199,30 +199,14 @@ export function PixelWorld({ displayName }: Props) {
         </div>
       </div>
 
-      {/* ── HUD: controls hint ── */}
-      <div
-        className="absolute z-30 left-1/2 -translate-x-1/2 rounded-full px-4 py-1"
-        style={{
-          top: "calc(env(safe-area-inset-top, 0px) + 44px)",
-          background: "rgba(255,255,255,.7)",
-          backdropFilter: "blur(8px)",
-          fontFamily: "'Inter', 'Noto Sans Thai', sans-serif",
-          fontSize: 10,
-          fontWeight: 500,
-          color: "#7a9098",
-          boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
-        }}
-      >
-        {language === "th" ? "แตะเพื่อเดิน · แตะโต๊ะเพื่อเปิดบริการ" : "Tap to walk · Tap desk to open"}
-      </div>
-
       {/* ── World viewport ── */}
       <div
         ref={viewportRef}
         className="w-full h-full overflow-auto"
         style={{
           WebkitOverflowScrolling: "touch",
-          paddingTop: 60,
+          paddingTop: 44,
+          paddingBottom: 80,
         } as React.CSSProperties}
         onPointerDown={onDown}
         onPointerUp={onUp}
@@ -233,33 +217,24 @@ export function PixelWorld({ displayName }: Props) {
             width: WORLD_W,
             height: WORLD_H,
             minHeight: WORLD_H,
-            imageRendering: "pixelated",
           }}
         >
           {/* ── Clinic floor ── */}
           <div style={{
             position: "absolute", inset: 0,
-            background: "linear-gradient(180deg, #f2f6f8 0%, #edf2f4 40%, #e8edf0 100%)",
-            borderRadius: 16,
+            background: "linear-gradient(180deg, #f4f7f9 0%, #eef2f4 40%, #eaeff1 100%)",
+            borderRadius: 12,
           }} />
 
           {/* Floor tile grid */}
           <div style={{
             position: "absolute", inset: 0,
             backgroundImage: `
-              linear-gradient(rgba(0,0,0,.015) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(0,0,0,.015) 1px, transparent 1px)
+              linear-gradient(rgba(0,0,0,.012) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(0,0,0,.012) 1px, transparent 1px)
             `,
             backgroundSize: "32px 32px",
-            borderRadius: 16,
-          }} />
-
-          {/* Walking path (center corridor) */}
-          <div style={{
-            position: "absolute", left: WORLD_W / 2 - 20, top: 140, width: 40, height: WORLD_H - 250,
-            background: "linear-gradient(90deg, transparent, rgba(91,168,181,0.03), transparent)",
-            borderLeft: "1px dashed rgba(91,168,181,0.06)",
-            borderRight: "1px dashed rgba(91,168,181,0.06)",
+            borderRadius: 12,
           }} />
 
           {/* ── Clinic decorations ── */}
@@ -290,14 +265,14 @@ export function PixelWorld({ displayName }: Props) {
                   color: "#2a6a70",
                   background: "rgba(255,255,255,.7)",
                   backdropFilter: "blur(4px)",
-                  padding: "4px 16px",
+                  padding: "3px 14px",
                   borderRadius: 6,
                   border: "1px solid rgba(42,106,112,0.12)",
                   letterSpacing: "0.12em",
                 }}>
                   {d.label}
                 </div>
-                <div style={{ width: 2, height: 10, background: "#a0b0b8", margin: "0 auto" }} />
+                <div style={{ width: 2, height: 8, background: "#a0b0b8", margin: "0 auto" }} />
               </div>
             );
             if (d.type === "bench") return (
