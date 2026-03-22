@@ -456,6 +456,8 @@ export default function Booking() {
                   idempotencyKey: `apt-action-${(data as any).id}`,
                   templateData: {
                     branchName: loc(selectedBranch.name_th, selectedBranch.name_en),
+                    landmark: getBranchLandmark(selectedBranch),
+                    googleMapsUrl: selectedBranch.google_maps_url || undefined,
                     serviceName: selectedServices.map(s => loc(s.name_th, s.name_en)).join(', '),
                     appointmentDate: format(selectedDate, 'd MMMM yyyy'),
                     appointmentTime: selectedTime,
