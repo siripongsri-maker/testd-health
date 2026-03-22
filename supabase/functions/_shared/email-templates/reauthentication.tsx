@@ -20,8 +20,10 @@ interface ReauthenticationEmailProps {
 const LOGO_URL = 'https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/email-assets/swing-logo.png'
 
 export const ReauthenticationEmail = ({ token }: ReauthenticationEmailProps) => (
-  <Html lang="en" dir="ltr">
-    <Head />
+  <Html lang="th" dir="ltr">
+    <Head>
+      <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
+    </Head>
     <Preview>รหัสยืนยันตัวตนของคุณ</Preview>
     <Body style={main}>
       <Container style={container}>

@@ -30,8 +30,10 @@ export const SignupEmail = ({
   recipient,
   confirmationUrl,
 }: SignupEmailProps) => (
-  <Html lang="en" dir="ltr">
-    <Head />
+  <Html lang="th" dir="ltr">
+    <Head>
+      <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
+    </Head>
     <Preview>ยืนยันอีเมลของคุณสำหรับ {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>

@@ -34,8 +34,10 @@ const PostServiceReviewEmail = ({
   appointmentDate = '15 มกราคม 2026',
   reviewUrl = APP_URL,
 }: PostServiceReviewProps) => (
-  <Html lang="en" dir="ltr">
-    <Head />
+  <Html lang="th" dir="ltr">
+    <Head>
+      <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
+    </Head>
     <Preview>ขอบคุณที่มาใช้บริการ 💛 — {branchName} | Thank you for your visit</Preview>
     <Body style={main}>
       <Container style={container}>

@@ -25,8 +25,10 @@ export const RecoveryEmail = ({
   siteName,
   confirmationUrl,
 }: RecoveryEmailProps) => (
-  <Html lang="en" dir="ltr">
-    <Head />
+  <Html lang="th" dir="ltr">
+    <Head>
+      <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
+    </Head>
     <Preview>รีเซ็ตรหัสผ่านสำหรับ {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>

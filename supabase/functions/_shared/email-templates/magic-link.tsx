@@ -25,8 +25,10 @@ export const MagicLinkEmail = ({
   siteName,
   confirmationUrl,
 }: MagicLinkEmailProps) => (
-  <Html lang="en" dir="ltr">
-    <Head />
+  <Html lang="th" dir="ltr">
+    <Head>
+      <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
+    </Head>
     <Preview>ลิงก์เข้าสู่ระบบสำหรับ {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
