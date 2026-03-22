@@ -222,6 +222,7 @@ Deno.serve(async (req) => {
       const branchName = apt.booking_branches?.name_en || "SWING Service Point";
       const branchLandmark = apt.booking_branches?.address_en || apt.booking_branches?.address_th || '';
       const branchMapUrl = apt.booking_branches?.google_maps_url || '';
+      const reviewUrl = `https://testd-health.lovable.app/my-appointments`;
 
       // Send review email via transactional system
       const { error: sendErr } = await supabase.functions.invoke('send-transactional-email', {
@@ -231,6 +232,8 @@ Deno.serve(async (req) => {
           idempotencyKey: `review-${appointment_id}`,
           templateData: {
             branchName,
+            landmark: branchLandmark || undefined,
+            googleMapsUrl: branchMapUrl || undefined,
             serviceName: serviceNames,
             appointmentDate: apt.appointment_date,
             reviewUrl,
