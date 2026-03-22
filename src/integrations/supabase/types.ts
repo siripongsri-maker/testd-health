@@ -250,6 +250,47 @@ export type Database = {
         }
         Relationships: []
       }
+      appointment_action_codes: {
+        Row: {
+          action_type: string
+          appointment_id: string
+          code: string
+          created_at: string
+          expires_at: string
+          id: string
+          used_action: string | null
+          used_at: string | null
+        }
+        Insert: {
+          action_type?: string
+          appointment_id: string
+          code: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          used_action?: string | null
+          used_at?: string | null
+        }
+        Update: {
+          action_type?: string
+          appointment_id?: string
+          code?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          used_action?: string | null
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_action_codes_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointment_logs: {
         Row: {
           action: string
@@ -280,6 +321,38 @@ export type Database = {
             foreignKeyName: "appointment_logs_appointment_id_fkey"
             columns: ["appointment_id"]
             isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      appointment_reviews: {
+        Row: {
+          appointment_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          rating: string
+        }
+        Insert: {
+          appointment_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating: string
+        }
+        Update: {
+          appointment_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_reviews_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: true
             referencedRelation: "appointments"
             referencedColumns: ["id"]
           },
@@ -345,6 +418,7 @@ export type Database = {
           notes: string | null
           rating: number | null
           referral_code: string | null
+          review_email_sent_at: string | null
           service_id: string | null
           source: string
           staff_notes: string | null
@@ -377,6 +451,7 @@ export type Database = {
           notes?: string | null
           rating?: number | null
           referral_code?: string | null
+          review_email_sent_at?: string | null
           service_id?: string | null
           source?: string
           staff_notes?: string | null
@@ -409,6 +484,7 @@ export type Database = {
           notes?: string | null
           rating?: number | null
           referral_code?: string | null
+          review_email_sent_at?: string | null
           service_id?: string | null
           source?: string
           staff_notes?: string | null
