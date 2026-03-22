@@ -1,43 +1,32 @@
 project_id = "tzerhfvlrssrashrcbeg"
 
 [auth]
-# Enable auto-confirm for development (users don't need email verification)
-# JWT tokens expire after 30 days (2592000 seconds)
-site_url = "https://testd-health.lovable.app"
+  site_url = "https://testd-health.lovable.app"
+  [auth.jwt]
+    expiry = 2592000
 
-[auth.jwt]
-# 30 days in seconds = 30 * 24 * 60 * 60 = 2592000
-expiry = 2592000
-
-[functions.kit-orders]
-verify_jwt = false
-
-[functions.scrape-shopee-images]
-verify_jwt = false
-
-[functions.admin-reset-password]
-verify_jwt = false
-
-[functions.scan-thai-id]
-verify_jwt = false
-
-[functions.translate-ui]
-verify_jwt = false
-
-[functions.sync-branch-google-data]
-verify_jwt = false
-
-[functions.auto-checkout]
-verify_jwt = false
-
-[functions.chat-ai-reply]
-verify_jwt = false
-
-[functions.hr-ai-companion]
-verify_jwt = false
-
-[functions.generate-hr-content]
-verify_jwt = false
-
-[functions.process-email-queue]
-verify_jwt = true
+[functions]
+  [functions.admin-reset-password]
+    verify_jwt = false
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.auto-checkout]
+    verify_jwt = false
+  [functions.chat-ai-reply]
+    verify_jwt = false
+  [functions.generate-hr-content]
+    verify_jwt = false
+  [functions.hr-ai-companion]
+    verify_jwt = false
+  [functions.kit-orders]
+    verify_jwt = false
+  [functions.process-email-queue]
+    verify_jwt = true
+  [functions.scan-thai-id]
+    verify_jwt = false
+  [functions.scrape-shopee-images]
+    verify_jwt = false
+  [functions.sync-branch-google-data]
+    verify_jwt = false
+  [functions.translate-ui]
+    verify_jwt = false
