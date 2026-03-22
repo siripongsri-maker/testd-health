@@ -220,7 +220,8 @@ Deno.serve(async (req) => {
         .join(", ") || apt.booking_services?.name_en || "Service";
 
       const branchName = apt.booking_branches?.name_en || "SWING Service Point";
-      const reviewUrl = `https://testd-health.lovable.app/my-appointments`;
+      const branchLandmark = apt.booking_branches?.address_en || apt.booking_branches?.address_th || '';
+      const branchMapUrl = apt.booking_branches?.google_maps_url || '';
 
       // Send review email via transactional system
       const { error: sendErr } = await supabase.functions.invoke('send-transactional-email', {
