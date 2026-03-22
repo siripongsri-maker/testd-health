@@ -122,9 +122,9 @@ export const template = {
     `📋 นัดหมายของคุณ — ${data.branchName || 'SWING Clinic'} | Your Appointment`,
   displayName: 'Appointment action',
   previewData: {
-    branchName: 'SWING Sathorn',
-    serviceName: 'HIV Testing',
-    appointmentDate: '15 มกราคม 2026',
+    branchName: 'SWING Petchakasem',
+    serviceName: 'HIV Testing, PrEP Consultation',
+    appointmentDate: '25 March 2026',
     appointmentTime: '14:00',
     verificationCode: '847291',
     referralCode: 'SWG-ABC123',
