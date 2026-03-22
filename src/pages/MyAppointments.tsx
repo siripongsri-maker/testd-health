@@ -379,6 +379,21 @@ export default function MyAppointments() {
               />
             )}
 
+            {/* Service completed — auto checkout notice */}
+            {apt.status === 'completed' && !apt.checked_out_at && (
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 text-center space-y-1">
+                <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                  ✅ บริการเสร็จสิ้นแล้ว
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  ระบบจะเช็คเอาท์ให้อัตโนมัติภายใน 1 ชั่วโมง หรือกดเช็คเอาท์เองได้เลย
+                </p>
+                <p className="text-[10px] text-muted-foreground opacity-70">
+                  (Service completed. Auto checkout in ~1 hour, or check out now)
+                </p>
+              </div>
+            )}
+
             {/* Checked out / completed info */}
             {apt.status === 'checked_out' && (
               <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 text-center space-y-1">
