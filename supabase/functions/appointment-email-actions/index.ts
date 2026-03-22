@@ -166,7 +166,7 @@ Deno.serve(async (req) => {
         .from("appointments")
         .select(`
           *,
-          booking_branches(name_th, name_en),
+          booking_branches(name_th, name_en, address_th, address_en, google_maps_url),
           booking_services(name_th, name_en)
         `)
         .eq("id", appointment_id)
@@ -220,6 +220,8 @@ Deno.serve(async (req) => {
         .join(", ") || apt.booking_services?.name_en || "Service";
 
       const branchName = apt.booking_branches?.name_en || "SWING Service Point";
+      const branchLandmark = apt.booking_branches?.address_en || apt.booking_branches?.address_th || '';
+      const branchMapUrl = apt.booking_branches?.google_maps_url || '';
       const reviewUrl = `https://testd-health.lovable.app/my-appointments`;
 
       // Send review email via transactional system
@@ -230,6 +232,8 @@ Deno.serve(async (req) => {
           idempotencyKey: `review-${appointment_id}`,
           templateData: {
             branchName,
+            landmark: branchLandmark || undefined,
+            googleMapsUrl: branchMapUrl || undefined,
             serviceName: serviceNames,
             appointmentDate: apt.appointment_date,
             reviewUrl,

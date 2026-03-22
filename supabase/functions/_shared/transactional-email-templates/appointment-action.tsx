@@ -10,6 +10,7 @@ import {
   Heading,
   Html,
   Img,
+  Link,
   Preview,
   Section,
   Text,
@@ -23,6 +24,8 @@ const APP_URL = 'https://testd-health.lovable.app'
 
 interface AppointmentActionProps {
   branchName?: string
+  landmark?: string
+  googleMapsUrl?: string
   serviceName?: string
   appointmentDate?: string
   appointmentTime?: string
@@ -36,6 +39,8 @@ interface AppointmentActionProps {
 
 const AppointmentActionEmail = ({
   branchName = 'SWING Service Point',
+  landmark,
+  googleMapsUrl,
   serviceName = 'Service',
   appointmentDate = '',
   appointmentTime = '',
@@ -59,6 +64,12 @@ const AppointmentActionEmail = ({
         <Section style={infoCard}>
           <Text style={infoLabel}>📍 สถานที่ / Location</Text>
           <Text style={infoValue}>{branchName}</Text>
+          {landmark ? <Text style={landmarkText}>{landmark}</Text> : null}
+          {googleMapsUrl ? (
+            <Link href={googleMapsUrl} style={mapLink}>
+              📌 เปิดแผนที่ / Open in Google Maps
+            </Link>
+          ) : null}
           <Text style={infoLabel}>🩺 บริการ / Service</Text>
           <Text style={infoValue}>{serviceName}</Text>
           <Text style={infoLabel}>📅 วันที่ / Date</Text>
@@ -119,10 +130,12 @@ const AppointmentActionEmail = ({
 export const template = {
   component: AppointmentActionEmail,
   subject: (data: Record<string, any>) =>
-    `📋 นัดหมายของคุณ — ${data.branchName || 'SWING Clinic'} | Your Appointment`,
+    `📋 นัดหมายของคุณ — ${data.branchName || 'SWING'} | Your Appointment`,
   displayName: 'Appointment action',
   previewData: {
-    branchName: 'SWING Petchakasem',
+    branchName: 'SWING Silom',
+    landmark: 'ใกล้ BTS ศาลาแดง / Silom area',
+    googleMapsUrl: 'https://maps.app.goo.gl/EytYQ2WhLAaUhkDb6',
     serviceName: 'HIV Testing, PrEP Consultation',
     appointmentDate: '25 March 2026',
     appointmentTime: '14:00',
@@ -146,7 +159,15 @@ const infoCard = {
   margin: '0 0 24px',
 }
 const infoLabel = { fontSize: '12px', color: '#888', margin: '0 0 2px', fontWeight: '500' as const }
-const infoValue = { fontSize: '15px', color: '#1e1e2e', margin: '0 0 12px', fontWeight: '600' as const }
+const infoValue = { fontSize: '15px', color: '#1e1e2e', margin: '0 0 4px', fontWeight: '600' as const }
+const landmarkText = { fontSize: '13px', color: '#666', margin: '0 0 6px', lineHeight: '1.4' }
+const mapLink = {
+  fontSize: '13px',
+  color: '#c0275e',
+  textDecoration: 'underline',
+  display: 'inline-block' as const,
+  margin: '0 0 16px',
+}
 const codeSection = {
   backgroundColor: '#fdf2f8',
   borderRadius: '16px',
