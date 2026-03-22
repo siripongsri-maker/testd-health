@@ -459,6 +459,7 @@ export default function Booking() {
             console.warn('Appointment action email failed:', emailErr);
           }
         }
+      }
 
       // Record booking attribution if came from invite
       try {
