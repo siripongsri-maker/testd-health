@@ -75,6 +75,7 @@ const VirtualMode = lazy(() => import("./pages/VirtualMode"));
 const OutreachForm = lazy(() => import("./pages/OutreachForm"));
 const PrivacyCenter = lazy(() => import("./pages/PrivacyCenter"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
