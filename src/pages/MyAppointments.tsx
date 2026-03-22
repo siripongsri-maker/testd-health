@@ -41,7 +41,7 @@ const STATUS_CONFIG: Record<string, { labelTh: string; labelEn: string; color: s
   no_show: { labelTh: 'ไม่มาตามนัด', labelEn: 'No Show', color: 'text-gray-600 bg-gray-100 dark:bg-gray-900/30', icon: AlertCircle },
 };
 
-const ACTIVE_STATUSES = new Set(['booked', 'confirmed', 'arrived']);
+const ACTIVE_STATUSES = new Set(['booked', 'confirmed', 'arrived', 'in_progress', 'completed']);
 
 export default function MyAppointments() {
   const { language } = useLanguage();
