@@ -28,8 +28,10 @@ export const InviteEmail = ({
   siteUrl,
   confirmationUrl,
 }: InviteEmailProps) => (
-  <Html lang="en" dir="ltr">
-    <Head />
+  <Html lang="th" dir="ltr">
+    <Head>
+      <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
+    </Head>
     <Preview>คุณได้รับเชิญเข้าร่วม {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>

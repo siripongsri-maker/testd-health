@@ -30,8 +30,10 @@ export const EmailChangeEmail = ({
   newEmail,
   confirmationUrl,
 }: EmailChangeEmailProps) => (
-  <Html lang="en" dir="ltr">
-    <Head />
+  <Html lang="th" dir="ltr">
+    <Head>
+      <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
+    </Head>
     <Preview>ยืนยันการเปลี่ยนอีเมลสำหรับ {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
