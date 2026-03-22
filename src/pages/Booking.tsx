@@ -66,6 +66,18 @@ interface RiskQuestion {
 
 type Step = 'branch' | 'service' | 'datetime' | 'confirm' | 'success';
 
+// Landmark hints for each branch slug — used in appointment emails
+const BRANCH_LANDMARKS: Record<string, string> = {
+  silom: 'ใกล้ BTS ศาลาแดง / Silom area',
+  petchakasem: 'ใกล้ MRT หลักสอง / Petchakasem area',
+  saphankwai: 'ใกล้ BTS สะพานควาย / Saphan Kwai area',
+  pattaya: 'ใกล้ Walking Street / South Pattaya',
+};
+
+function getBranchLandmark(branch: Branch): string {
+  return branch.address_en || branch.address_th || BRANCH_LANDMARKS[branch.slug] || '';
+}
+
 const DAY_NAMES_TH = ['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'];
 const DAY_NAMES_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
