@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useAdminRole } from './useAdminRole';
 
-const INACTIVITY_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes
+const INACTIVITY_TIMEOUT_MS = 2 * 60 * 60 * 1000; // 2 hours (extended for booking flow)
 const HEARTBEAT_INTERVAL_MS = 60 * 1000; // 1 minute
 const RE_AUTH_ACTIONS = ['export_sensitive', 'delete_record', 'reveal_highly_restricted', 'role_change'];
 

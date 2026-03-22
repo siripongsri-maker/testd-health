@@ -35,13 +35,13 @@ const STATUS_CONFIG: Record<string, { labelTh: string; labelEn: string; color: s
   confirmed: { labelTh: 'ยืนยันแล้ว', labelEn: 'Confirmed', color: 'text-green-600 bg-green-100 dark:bg-green-900/30', icon: CheckCircle2 },
   arrived: { labelTh: 'เช็คอินแล้ว', labelEn: 'Checked In', color: 'text-amber-600 bg-amber-100 dark:bg-amber-900/30', icon: LogIn },
   in_progress: { labelTh: 'กำลังรับบริการ', labelEn: 'In Progress', color: 'text-amber-600 bg-amber-100 dark:bg-amber-900/30', icon: Clock },
-  completed: { labelTh: 'เสร็จสิ้น', labelEn: 'Completed', color: 'text-green-700 bg-green-100 dark:bg-green-900/30', icon: CheckCircle2 },
+  completed: { labelTh: 'บริการเสร็จสิ้น', labelEn: 'Service Completed', color: 'text-green-700 bg-green-100 dark:bg-green-900/30', icon: CheckCircle2 },
   checked_out: { labelTh: 'เสร็จสิ้น', labelEn: 'Completed', color: 'text-green-700 bg-green-100 dark:bg-green-900/30', icon: CheckCircle2 },
   cancelled: { labelTh: 'ยกเลิก', labelEn: 'Cancelled', color: 'text-red-600 bg-red-100 dark:bg-red-900/30', icon: XCircle },
   no_show: { labelTh: 'ไม่มาตามนัด', labelEn: 'No Show', color: 'text-gray-600 bg-gray-100 dark:bg-gray-900/30', icon: AlertCircle },
 };
 
-const ACTIVE_STATUSES = new Set(['booked', 'confirmed', 'arrived']);
+const ACTIVE_STATUSES = new Set(['booked', 'confirmed', 'arrived', 'in_progress', 'completed']);
 
 export default function MyAppointments() {
   const { language } = useLanguage();
@@ -377,6 +377,21 @@ export default function MyAppointments() {
                 appointmentId={apt.id}
                 branchId={apt.branch_id}
               />
+            )}
+
+            {/* Service completed — auto checkout notice */}
+            {apt.status === 'completed' && !apt.checked_out_at && (
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 text-center space-y-1">
+                <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                  ✅ บริการเสร็จสิ้นแล้ว
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  ระบบจะเช็คเอาท์ให้อัตโนมัติภายใน 1 ชั่วโมง หรือกดเช็คเอาท์เองได้เลย
+                </p>
+                <p className="text-[10px] text-muted-foreground opacity-70">
+                  (Service completed. Auto checkout in ~1 hour, or check out now)
+                </p>
+              </div>
             )}
 
             {/* Checked out / completed info */}
