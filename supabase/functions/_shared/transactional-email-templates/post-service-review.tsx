@@ -10,6 +10,7 @@ import {
   Heading,
   Html,
   Img,
+  Link,
   Preview,
   Section,
   Text,
@@ -23,6 +24,8 @@ const APP_URL = 'https://testd-health.lovable.app'
 
 interface PostServiceReviewProps {
   branchName?: string
+  landmark?: string
+  googleMapsUrl?: string
   serviceName?: string
   appointmentDate?: string
   reviewUrl?: string
@@ -30,6 +33,8 @@ interface PostServiceReviewProps {
 
 const PostServiceReviewEmail = ({
   branchName = 'SWING Service Point',
+  landmark,
+  googleMapsUrl,
   serviceName = 'Service',
   appointmentDate = '',
   reviewUrl = APP_URL,
@@ -46,11 +51,20 @@ const PostServiceReviewEmail = ({
         <Heading style={h2}>Thank you for your visit!</Heading>
 
         <Text style={text}>
-          ขอบคุณที่ไว้วางใจมาใช้บริการที่ <strong>{branchName}</strong> เมื่อวันที่ {appointmentDate}
+          ขอบคุณที่ไว้วางใจมาใช้บริการที่ <strong>{branchName}</strong>
+          {landmark ? ` (${landmark})` : ''} เมื่อวันที่ {appointmentDate}
         </Text>
         <Text style={text}>
           Thank you for trusting us at <strong>{branchName}</strong>. We hope you had a good experience.
         </Text>
+
+        {googleMapsUrl ? (
+          <Text style={mapLinkWrap}>
+            <Link href={googleMapsUrl} style={mapLink}>
+              📌 เปิดแผนที่ / Open in Google Maps
+            </Link>
+          </Text>
+        ) : null}
 
         <Hr style={divider} />
 
@@ -104,7 +118,9 @@ export const template = {
   subject: '💛 ขอบคุณที่มาใช้บริการ — Thank you for your visit',
   displayName: 'Post-service review',
   previewData: {
-    branchName: 'SWING Petchakasem',
+    branchName: 'SWING Silom',
+    landmark: 'ใกล้ BTS ศาลาแดง / Silom area',
+    googleMapsUrl: 'https://maps.app.goo.gl/EytYQ2WhLAaUhkDb6',
     serviceName: 'HIV Testing, PrEP Consultation',
     appointmentDate: '25 March 2026',
     reviewUrl: APP_URL + '/my-appointments',
@@ -117,6 +133,8 @@ const logo = { marginBottom: '24px' }
 const h1 = { fontSize: '22px', fontWeight: 'bold' as const, color: '#1e1e2e', margin: '0 0 4px' }
 const h2 = { fontSize: '16px', fontWeight: '500' as const, color: '#666', margin: '0 0 20px' }
 const text = { fontSize: '15px', color: '#4a4a5a', lineHeight: '1.6', margin: '0 0 16px' }
+const mapLinkWrap = { margin: '0 0 8px' }
+const mapLink = { fontSize: '13px', color: '#c0275e', textDecoration: 'underline' }
 const divider = { borderColor: '#eee', margin: '24px 0' }
 const questionTitle = { fontSize: '16px', fontWeight: '600' as const, color: '#1e1e2e', margin: '0 0 16px', textAlign: 'center' as const }
 const ratingGroup = { margin: '0 0 10px', textAlign: 'center' as const }
