@@ -35,12 +35,12 @@ interface AppointmentActionProps {
 }
 
 const AppointmentActionEmail = ({
-  branchName = 'SWING Clinic',
-  serviceName = 'HIV Testing',
-  appointmentDate = '15 มกราคม 2026',
-  appointmentTime = '14:00',
-  verificationCode = '847291',
-  referralCode = 'SWG-XXXXXX',
+  branchName = 'SWING Service Point',
+  serviceName = 'Service',
+  appointmentDate = '',
+  appointmentTime = '',
+  verificationCode = '000000',
+  referralCode = '',
   checkinUrl = APP_URL,
   confirmUrl = APP_URL,
   rescheduleUrl = APP_URL,
