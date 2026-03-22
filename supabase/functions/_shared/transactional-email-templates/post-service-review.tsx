@@ -29,9 +29,9 @@ interface PostServiceReviewProps {
 }
 
 const PostServiceReviewEmail = ({
-  branchName = 'SWING Clinic',
-  serviceName = 'HIV Testing',
-  appointmentDate = '15 มกราคม 2026',
+  branchName = 'SWING Service Point',
+  serviceName = 'Service',
+  appointmentDate = '',
   reviewUrl = APP_URL,
 }: PostServiceReviewProps) => (
   <Html lang="th" dir="ltr">
@@ -104,9 +104,9 @@ export const template = {
   subject: '💛 ขอบคุณที่มาใช้บริการ — Thank you for your visit',
   displayName: 'Post-service review',
   previewData: {
-    branchName: 'SWING Sathorn',
-    serviceName: 'HIV Testing',
-    appointmentDate: '15 มกราคม 2026',
+    branchName: 'SWING Petchakasem',
+    serviceName: 'HIV Testing, PrEP Consultation',
+    appointmentDate: '25 March 2026',
     reviewUrl: APP_URL + '/my-appointments',
   },
 } satisfies TemplateEntry

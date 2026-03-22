@@ -219,7 +219,7 @@ Deno.serve(async (req) => {
         .filter(Boolean)
         .join(", ") || apt.booking_services?.name_en || "Service";
 
-      const branchName = apt.booking_branches?.name_en || "SWING Clinic";
+      const branchName = apt.booking_branches?.name_en || "SWING Service Point";
       const reviewUrl = `https://testd-health.lovable.app/my-appointments`;
 
       // Send review email via transactional system
