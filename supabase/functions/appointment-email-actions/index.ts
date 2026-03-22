@@ -166,7 +166,7 @@ Deno.serve(async (req) => {
         .from("appointments")
         .select(`
           *,
-          booking_branches(name_th, name_en),
+          booking_branches(name_th, name_en, address_th, address_en, google_maps_url),
           booking_services(name_th, name_en)
         `)
         .eq("id", appointment_id)
