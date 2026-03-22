@@ -375,6 +375,41 @@ export default function Booking() {
             },
           });
         } catch {}
+
+        // Send appointment action email with verification code
+        if (contactEmail.trim()) {
+          try {
+            // Generate verification code
+            const { data: codeData } = await supabase.functions.invoke('appointment-email-actions', {
+              body: { action: 'generate', appointment_id: result.id },
+            });
+            const code = codeData?.code;
+            if (code) {
+              const appUrl = 'https://testd-health.lovable.app';
+              await supabase.functions.invoke('send-transactional-email', {
+                body: {
+                  templateName: 'appointment-action',
+                  recipientEmail: contactEmail.trim(),
+                  idempotencyKey: `apt-action-${result.id}`,
+                  templateData: {
+                    branchName: loc(selectedBranch.name_th, selectedBranch.name_en),
+                    serviceName: selectedServices.map(s => loc(s.name_th, s.name_en)).join(', '),
+                    appointmentDate: format(selectedDate, 'd MMMM yyyy'),
+                    appointmentTime: selectedTime,
+                    verificationCode: code,
+                    referralCode: result.referral_code,
+                    checkinUrl: `${appUrl}/guest-appointments?token=${generatedToken || ''}`,
+                    confirmUrl: `${appUrl}/guest-appointments?token=${generatedToken || ''}`,
+                    rescheduleUrl: `${appUrl}/booking`,
+                    cancelUrl: `${appUrl}/guest-appointments?token=${generatedToken || ''}`,
+                  },
+                },
+              });
+            }
+          } catch (emailErr) {
+            console.warn('Appointment action email failed:', emailErr);
+          }
+        }
       } else {
         const { data, error } = await supabase.rpc('create_appointment_atomic', {
           p_branch_id: selectedBranch.id,
