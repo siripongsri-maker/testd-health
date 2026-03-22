@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
 
     // Default 3 hours threshold
     const body = req.method === "POST" ? await req.json().catch(() => ({})) : {};
-    const thresholdHours = body.threshold_hours || 3;
+    const thresholdHours = body.threshold_hours || 1;
 
     const { data, error } = await supabase.rpc("auto_checkout_stale_appointments", {
       p_threshold_hours: thresholdHours,
