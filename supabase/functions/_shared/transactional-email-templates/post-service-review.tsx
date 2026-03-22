@@ -29,9 +29,9 @@ interface PostServiceReviewProps {
 }
 
 const PostServiceReviewEmail = ({
-  branchName = 'SWING Clinic',
-  serviceName = 'HIV Testing',
-  appointmentDate = '15 มกราคม 2026',
+  branchName = 'SWING Service Point',
+  serviceName = 'Service',
+  appointmentDate = '',
   reviewUrl = APP_URL,
 }: PostServiceReviewProps) => (
   <Html lang="th" dir="ltr">
