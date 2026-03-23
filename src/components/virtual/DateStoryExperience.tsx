@@ -7,6 +7,7 @@ import {
   ENDING_DETAILS,
   SWING_SERVICES,
   type StoryNode,
+  type StoryChoice,
   type Speaker,
 } from "@/config/dateStoryData";
 import { ProgressIndicator } from "@/components/ProgressIndicator";
