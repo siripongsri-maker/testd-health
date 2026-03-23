@@ -10,8 +10,6 @@ import {
   type StoryChoice,
   type Speaker,
 } from "@/config/dateStoryData";
-import { ProgressIndicator } from "@/components/ProgressIndicator";
-import { supabase } from "@/integrations/supabase/client";
 
 /* ─── helpers ─── */
 function getEndingId(safe: number, risk: number): string {
