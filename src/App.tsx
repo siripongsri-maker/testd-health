@@ -152,6 +152,7 @@ function AppShell() {
               <Route path="/outreach-form" element={<OutreachForm />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/virtual" element={<VirtualMode />} />
+              <Route path="/virtual/clinic" element={<VirtualMode forceClinic />} />
               <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
