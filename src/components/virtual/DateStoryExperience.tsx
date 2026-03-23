@@ -233,7 +233,7 @@ export function DateStoryExperience() {
     }
   }, [currentNode, safeScore, riskScore]);
 
-  const handleChoice = useCallback((choice: typeof STORY_NODES[0]["choices"][0]) => {
+  const handleChoice = useCallback((choice: StoryChoice) => {
     if (choice.effect.safe) setSafeScore((s) => s + choice.effect.safe!);
     if (choice.effect.risk) setRiskScore((s) => s + choice.effect.risk!);
     setHistory((p) => [...p, choice.nextId]);
