@@ -222,7 +222,7 @@ export default function AdminDashboardContent() {
         return {
           label: format(date, trendView === "7d" ? "EEE" : "d MMM", { locale }),
           booked: dayBookings.length,
-          completed: dayBookings.filter(b => b.status === 'completed').length,
+          completed: dayBookings.filter(b => b.status === 'completed' || b.status === 'checked_out').length,
           cancelled: dayBookings.filter(b => b.status === 'cancelled').length,
         };
       });
