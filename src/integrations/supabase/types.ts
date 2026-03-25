@@ -82,50 +82,80 @@ export type Database = {
       }
       analytics_events: {
         Row: {
+          anonymous_id: string | null
+          booking_id: string | null
+          branch_id: string | null
+          campaign: string | null
+          channel: string | null
           country: string | null
           created_at: string
           device_type: string | null
+          event_category: string | null
           event_type: string
           id: string
+          link_id: string | null
+          medium: string | null
           metadata: Json | null
           page_path: string
           referrer: string | null
+          service_id: string | null
           session_duration_seconds: number | null
           session_ended_at: string | null
           session_id: string | null
           session_started_at: string | null
+          source: string | null
           user_agent: string | null
           user_id: string | null
         }
         Insert: {
+          anonymous_id?: string | null
+          booking_id?: string | null
+          branch_id?: string | null
+          campaign?: string | null
+          channel?: string | null
           country?: string | null
           created_at?: string
           device_type?: string | null
+          event_category?: string | null
           event_type?: string
           id?: string
+          link_id?: string | null
+          medium?: string | null
           metadata?: Json | null
           page_path: string
           referrer?: string | null
+          service_id?: string | null
           session_duration_seconds?: number | null
           session_ended_at?: string | null
           session_id?: string | null
           session_started_at?: string | null
+          source?: string | null
           user_agent?: string | null
           user_id?: string | null
         }
         Update: {
+          anonymous_id?: string | null
+          booking_id?: string | null
+          branch_id?: string | null
+          campaign?: string | null
+          channel?: string | null
           country?: string | null
           created_at?: string
           device_type?: string | null
+          event_category?: string | null
           event_type?: string
           id?: string
+          link_id?: string | null
+          medium?: string | null
           metadata?: Json | null
           page_path?: string
           referrer?: string | null
+          service_id?: string | null
           session_duration_seconds?: number | null
           session_ended_at?: string | null
           session_id?: string | null
           session_started_at?: string | null
+          source?: string | null
           user_agent?: string | null
           user_id?: string | null
         }
@@ -8162,6 +8192,66 @@ export type Database = {
         }
         Relationships: []
       }
+      tracked_links: {
+        Row: {
+          branch_focus: string | null
+          campaign: string | null
+          channel: string | null
+          click_count: number
+          content: string | null
+          created_at: string
+          created_by: string | null
+          destination_path: string
+          expires_at: string | null
+          id: string
+          label: string | null
+          medium: string | null
+          partner_name: string | null
+          service_focus: string | null
+          slug: string
+          source: string | null
+          term: string | null
+        }
+        Insert: {
+          branch_focus?: string | null
+          campaign?: string | null
+          channel?: string | null
+          click_count?: number
+          content?: string | null
+          created_at?: string
+          created_by?: string | null
+          destination_path?: string
+          expires_at?: string | null
+          id?: string
+          label?: string | null
+          medium?: string | null
+          partner_name?: string | null
+          service_focus?: string | null
+          slug: string
+          source?: string | null
+          term?: string | null
+        }
+        Update: {
+          branch_focus?: string | null
+          campaign?: string | null
+          channel?: string | null
+          click_count?: number
+          content?: string | null
+          created_at?: string
+          created_by?: string | null
+          destination_path?: string
+          expires_at?: string | null
+          id?: string
+          label?: string | null
+          medium?: string | null
+          partner_name?: string | null
+          service_focus?: string | null
+          slug?: string
+          source?: string | null
+          term?: string | null
+        }
+        Relationships: []
+      }
       training_attendance: {
         Row: {
           certificate_issued: boolean | null
@@ -8573,6 +8663,120 @@ export type Database = {
           message?: string
         }
         Relationships: []
+      }
+      visitor_attribution: {
+        Row: {
+          anonymous_id: string
+          device_type: string | null
+          first_seen_at: string
+          first_touch_at: string | null
+          first_touch_campaign: string | null
+          first_touch_channel: string | null
+          first_touch_content: string | null
+          first_touch_landing_page: string | null
+          first_touch_link_id: string | null
+          first_touch_medium: string | null
+          first_touch_partner: string | null
+          first_touch_referrer: string | null
+          first_touch_source: string | null
+          first_touch_term: string | null
+          id: string
+          last_seen_at: string
+          last_touch_at: string | null
+          last_touch_campaign: string | null
+          last_touch_channel: string | null
+          last_touch_content: string | null
+          last_touch_landing_page: string | null
+          last_touch_link_id: string | null
+          last_touch_medium: string | null
+          last_touch_partner: string | null
+          last_touch_referrer: string | null
+          last_touch_source: string | null
+          last_touch_term: string | null
+          total_sessions: number
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          anonymous_id: string
+          device_type?: string | null
+          first_seen_at?: string
+          first_touch_at?: string | null
+          first_touch_campaign?: string | null
+          first_touch_channel?: string | null
+          first_touch_content?: string | null
+          first_touch_landing_page?: string | null
+          first_touch_link_id?: string | null
+          first_touch_medium?: string | null
+          first_touch_partner?: string | null
+          first_touch_referrer?: string | null
+          first_touch_source?: string | null
+          first_touch_term?: string | null
+          id?: string
+          last_seen_at?: string
+          last_touch_at?: string | null
+          last_touch_campaign?: string | null
+          last_touch_channel?: string | null
+          last_touch_content?: string | null
+          last_touch_landing_page?: string | null
+          last_touch_link_id?: string | null
+          last_touch_medium?: string | null
+          last_touch_partner?: string | null
+          last_touch_referrer?: string | null
+          last_touch_source?: string | null
+          last_touch_term?: string | null
+          total_sessions?: number
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          anonymous_id?: string
+          device_type?: string | null
+          first_seen_at?: string
+          first_touch_at?: string | null
+          first_touch_campaign?: string | null
+          first_touch_channel?: string | null
+          first_touch_content?: string | null
+          first_touch_landing_page?: string | null
+          first_touch_link_id?: string | null
+          first_touch_medium?: string | null
+          first_touch_partner?: string | null
+          first_touch_referrer?: string | null
+          first_touch_source?: string | null
+          first_touch_term?: string | null
+          id?: string
+          last_seen_at?: string
+          last_touch_at?: string | null
+          last_touch_campaign?: string | null
+          last_touch_channel?: string | null
+          last_touch_content?: string | null
+          last_touch_landing_page?: string | null
+          last_touch_link_id?: string | null
+          last_touch_medium?: string | null
+          last_touch_partner?: string | null
+          last_touch_referrer?: string | null
+          last_touch_source?: string | null
+          last_touch_term?: string | null
+          total_sessions?: number
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visitor_attribution_first_touch_link_id_fkey"
+            columns: ["first_touch_link_id"]
+            isOneToOne: false
+            referencedRelation: "tracked_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "visitor_attribution_last_touch_link_id_fkey"
+            columns: ["last_touch_link_id"]
+            isOneToOne: false
+            referencedRelation: "tracked_links"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -9173,6 +9377,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_link_click: { Args: { p_slug: string }; Returns: Json }
       increment_survey_view: { Args: { p_survey_id: string }; Returns: number }
       is_booking_branch_admin: {
         Args: { p_branch_id: string }
