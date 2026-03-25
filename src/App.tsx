@@ -65,6 +65,7 @@ const DocsIndex = lazy(() => import("./pages/DocsViewer").then(m => ({ default: 
 const SupportChat = lazy(() => import("./pages/SupportChat"));
 const PreventionMatch = lazy(() => import("./pages/PreventionMatch"));
 const QueueTV = lazy(() => import("./pages/QueueTV"));
+const LinkRedirect = lazy(() => import("./pages/LinkRedirect"));
 const HarmReduction = lazy(() => import("./pages/HarmReduction"));
 const SEOLanding = lazy(() => import("./pages/SEOLanding"));
 const InteractionPage = lazy(() => import("./pages/InteractionPage"));
@@ -138,6 +139,7 @@ function AppShell() {
               <Route path="/support-chat" element={<SupportChat />} />
               <Route path="/prevention-match" element={<PreventionMatch />} />
               <Route path="/queue-tv/:branchSlug" element={<QueueTV />} />
+              <Route path="/go/:slug" element={<LinkRedirect />} />
               <Route path="/harm-reduction" element={<HarmReduction />} />
               <Route path="/chemsex-safety" element={<SEOLanding />} />
               <Route path="/drug-combination-risk" element={<SEOLanding />} />
