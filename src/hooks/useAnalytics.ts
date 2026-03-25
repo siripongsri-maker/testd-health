@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { getVisitorId } from '@/lib/visitorId';
+import { getSessionAttribution } from '@/lib/attribution';
 
 // Generate or get session ID
 const getSessionId = (): string => {
@@ -101,6 +103,9 @@ export const useAnalytics = () => {
         const sessionId = getSessionId();
         const sessionStartTime = new Date(getSessionStartTime()).toISOString();
 
+        const anonymousId = getVisitorId();
+        const attribution = getSessionAttribution();
+
         const eventData = {
           event_type: 'pageview',
           page_path: location.pathname,
@@ -110,6 +115,13 @@ export const useAnalytics = () => {
           user_agent: navigator.userAgent,
           device_type: getDeviceType(),
           session_started_at: sessionStartTime,
+          anonymous_id: anonymousId,
+          event_category: 'acquisition',
+          campaign: attribution?.campaign || null,
+          channel: attribution?.channel || null,
+          source: attribution?.source || null,
+          medium: attribution?.medium || null,
+          link_id: attribution?.link_id || null,
         };
 
         // Insert into analytics_events table
@@ -135,6 +147,9 @@ export const trackEvent = async (eventType: string, metadata?: Record<string, un
   try {
     const { data: { user } } = await supabase.auth.getUser();
 
+    const anonymousId = getVisitorId();
+    const attribution = getSessionAttribution();
+
     const eventData = {
       event_type: eventType,
       page_path: window.location.pathname,
@@ -142,6 +157,12 @@ export const trackEvent = async (eventType: string, metadata?: Record<string, un
       session_id: getSessionId(),
       device_type: getDeviceType(),
       metadata: metadata && Object.keys(metadata).length > 0 ? (metadata as any) : null,
+      anonymous_id: anonymousId,
+      campaign: attribution?.campaign || null,
+      channel: attribution?.channel || null,
+      source: attribution?.source || null,
+      medium: attribution?.medium || null,
+      link_id: attribution?.link_id || null,
     };
 
     const { error } = await supabase
