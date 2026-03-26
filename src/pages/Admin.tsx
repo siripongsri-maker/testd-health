@@ -53,6 +53,7 @@ const AdminServicePathwaysContent = lazy(() => import("@/components/admin/AdminS
 const AdminFrontDeskContent = lazy(() => import("@/components/admin/AdminFrontDeskContent"));
 const AdminPdpaComplianceContent = lazy(() => import("@/components/admin/AdminPdpaComplianceContent"));
 const AdminAttributionContent = lazy(() => import("@/components/admin/AdminAttributionContent"));
+const AdminFeedbackOutcomesContent = lazy(() => import("@/components/admin/AdminFeedbackOutcomesContent"));
 
 // MEL modules
 const MelServiceLedgerContent = lazy(() => import("@/components/admin/mel/MelServiceLedgerContent"));
@@ -84,7 +85,7 @@ const ME_ANALYST_TABS = new Set([
   // SMS & Credits (read-only)
   "sms-relay", "credit-balances", "credit-purchases",
   // Reports
-  "analytics", "analytics-overview", "export-center", "attribution",
+  "analytics", "analytics-overview", "export-center", "attribution", "feedback-outcomes",
   // MEL
   "mel-services", "mel-indicators", "mel-outreach", "mel-training",
   "mel-safe-spaces", "mel-partners", "mel-policy", "mel-evaluation", "mel-reporting",
@@ -201,6 +202,7 @@ export default function Admin() {
           {renderTab("analytics", <AdminAnalyticsContent />)}
           {renderTab("analytics-overview", <AdminAnalyticsOverview />)}
           {renderTab("attribution", <AdminAttributionContent />)}
+          {renderTab("feedback-outcomes", <AdminFeedbackOutcomesContent />)}
           {renderTab("export-center", <AdminExportCenterContent />)}
           {renderTab("activity-logs", <AdminActivityLogsContent />)}
 

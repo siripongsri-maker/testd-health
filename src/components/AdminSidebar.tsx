@@ -148,6 +148,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "analytics", icon: BarChart3, labelKey: "admin.analytics", adminOnly: true, meAnalyst: true },
       { tab: "analytics-overview", icon: BarChart3, labelKey: "admin.analyticsOverview", adminOnly: true, meAnalyst: true },
       { tab: "attribution", icon: Link2, labelKey: "admin.attribution", adminOnly: true, meAnalyst: true },
+      { tab: "feedback-outcomes", icon: ClipboardList, labelKey: "admin.feedbackOutcomes", adminOnly: true, meAnalyst: true },
       { tab: "export-center", icon: FileDown, labelKey: "admin.exportCenter", adminOnly: true, meAnalyst: true },
       { tab: "activity-logs", icon: Activity, labelKey: "admin.activityLogs", adminOnly: true, meAnalyst: true },
       { tab: "outreach", icon: Globe, labelKey: "admin.outreach", adminOnly: true },
