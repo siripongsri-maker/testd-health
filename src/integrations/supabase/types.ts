@@ -1213,6 +1213,222 @@ export type Database = {
         }
         Relationships: []
       }
+      client_feedback_responses: {
+        Row: {
+          appointment_id: string | null
+          art_knowledge_1: boolean | null
+          art_knowledge_2: boolean | null
+          art_knowledge_3: boolean | null
+          art_knowledge_score: number | null
+          art_status: string | null
+          booking_id: string | null
+          branch_id: string | null
+          channel: string
+          counselling_quality_percent: number | null
+          counselling_quality_score: number | null
+          created_at: string | null
+          created_by: string | null
+          hr_intention_change: Json | null
+          hr_intention_count: number | null
+          hr_knowledge_1: boolean | null
+          hr_knowledge_2: boolean | null
+          hr_knowledge_3: boolean | null
+          hr_knowledge_score: number | null
+          id: string
+          is_anonymous: boolean
+          language: string | null
+          mh_outcome: string | null
+          mh_referral_uptake: string | null
+          no_additional_service: boolean | null
+          open_feedback_text: string | null
+          pep_knowledge_1: boolean | null
+          pep_knowledge_2: boolean | null
+          pep_knowledge_3: boolean | null
+          pep_knowledge_score: number | null
+          pep_status: string | null
+          prep_knowledge_1: boolean | null
+          prep_knowledge_2: boolean | null
+          prep_knowledge_3: boolean | null
+          prep_knowledge_score: number | null
+          prep_status: string | null
+          q1_respect: number | null
+          q2_open_discussion: number | null
+          q3_info_clarity: number | null
+          q4_results_explained: number | null
+          q5_condom_demo: number | null
+          received_art: boolean | null
+          received_harm_reduction: boolean | null
+          received_mental_health: boolean | null
+          received_pep: boolean | null
+          received_prep: boolean | null
+          received_sti: boolean | null
+          referral_source: string | null
+          satisfaction_score: number | null
+          self_efficacy_score: number | null
+          service_date: string
+          service_point: string | null
+          source_app: string | null
+          staff_id: string | null
+          status: string
+          sti_knowledge_1: boolean | null
+          sti_knowledge_2: boolean | null
+          sti_knowledge_3: boolean | null
+          sti_knowledge_score: number | null
+          sti_status: string | null
+          submitted_at: string | null
+          unique_id: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          appointment_id?: string | null
+          art_knowledge_1?: boolean | null
+          art_knowledge_2?: boolean | null
+          art_knowledge_3?: boolean | null
+          art_knowledge_score?: number | null
+          art_status?: string | null
+          booking_id?: string | null
+          branch_id?: string | null
+          channel?: string
+          counselling_quality_percent?: number | null
+          counselling_quality_score?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          hr_intention_change?: Json | null
+          hr_intention_count?: number | null
+          hr_knowledge_1?: boolean | null
+          hr_knowledge_2?: boolean | null
+          hr_knowledge_3?: boolean | null
+          hr_knowledge_score?: number | null
+          id?: string
+          is_anonymous?: boolean
+          language?: string | null
+          mh_outcome?: string | null
+          mh_referral_uptake?: string | null
+          no_additional_service?: boolean | null
+          open_feedback_text?: string | null
+          pep_knowledge_1?: boolean | null
+          pep_knowledge_2?: boolean | null
+          pep_knowledge_3?: boolean | null
+          pep_knowledge_score?: number | null
+          pep_status?: string | null
+          prep_knowledge_1?: boolean | null
+          prep_knowledge_2?: boolean | null
+          prep_knowledge_3?: boolean | null
+          prep_knowledge_score?: number | null
+          prep_status?: string | null
+          q1_respect?: number | null
+          q2_open_discussion?: number | null
+          q3_info_clarity?: number | null
+          q4_results_explained?: number | null
+          q5_condom_demo?: number | null
+          received_art?: boolean | null
+          received_harm_reduction?: boolean | null
+          received_mental_health?: boolean | null
+          received_pep?: boolean | null
+          received_prep?: boolean | null
+          received_sti?: boolean | null
+          referral_source?: string | null
+          satisfaction_score?: number | null
+          self_efficacy_score?: number | null
+          service_date?: string
+          service_point?: string | null
+          source_app?: string | null
+          staff_id?: string | null
+          status?: string
+          sti_knowledge_1?: boolean | null
+          sti_knowledge_2?: boolean | null
+          sti_knowledge_3?: boolean | null
+          sti_knowledge_score?: number | null
+          sti_status?: string | null
+          submitted_at?: string | null
+          unique_id?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          appointment_id?: string | null
+          art_knowledge_1?: boolean | null
+          art_knowledge_2?: boolean | null
+          art_knowledge_3?: boolean | null
+          art_knowledge_score?: number | null
+          art_status?: string | null
+          booking_id?: string | null
+          branch_id?: string | null
+          channel?: string
+          counselling_quality_percent?: number | null
+          counselling_quality_score?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          hr_intention_change?: Json | null
+          hr_intention_count?: number | null
+          hr_knowledge_1?: boolean | null
+          hr_knowledge_2?: boolean | null
+          hr_knowledge_3?: boolean | null
+          hr_knowledge_score?: number | null
+          id?: string
+          is_anonymous?: boolean
+          language?: string | null
+          mh_outcome?: string | null
+          mh_referral_uptake?: string | null
+          no_additional_service?: boolean | null
+          open_feedback_text?: string | null
+          pep_knowledge_1?: boolean | null
+          pep_knowledge_2?: boolean | null
+          pep_knowledge_3?: boolean | null
+          pep_knowledge_score?: number | null
+          pep_status?: string | null
+          prep_knowledge_1?: boolean | null
+          prep_knowledge_2?: boolean | null
+          prep_knowledge_3?: boolean | null
+          prep_knowledge_score?: number | null
+          prep_status?: string | null
+          q1_respect?: number | null
+          q2_open_discussion?: number | null
+          q3_info_clarity?: number | null
+          q4_results_explained?: number | null
+          q5_condom_demo?: number | null
+          received_art?: boolean | null
+          received_harm_reduction?: boolean | null
+          received_mental_health?: boolean | null
+          received_pep?: boolean | null
+          received_prep?: boolean | null
+          received_sti?: boolean | null
+          referral_source?: string | null
+          satisfaction_score?: number | null
+          self_efficacy_score?: number | null
+          service_date?: string
+          service_point?: string | null
+          source_app?: string | null
+          staff_id?: string | null
+          status?: string
+          sti_knowledge_1?: boolean | null
+          sti_knowledge_2?: boolean | null
+          sti_knowledge_3?: boolean | null
+          sti_knowledge_score?: number | null
+          sti_status?: string | null
+          submitted_at?: string | null
+          unique_id?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_feedback_responses_appointment_id_fkey"
+            columns: ["appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_feedback_responses_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_visit_flow_steps: {
         Row: {
           assigned_staff_id: string | null
@@ -8780,6 +8996,39 @@ export type Database = {
       }
     }
     Views: {
+      feedback_summary: {
+        Row: {
+          art_count: number | null
+          avg_art_knowledge: number | null
+          avg_hr_knowledge: number | null
+          avg_pep_knowledge: number | null
+          avg_prep_knowledge: number | null
+          avg_quality_pct: number | null
+          avg_satisfaction: number | null
+          avg_self_efficacy: number | null
+          avg_sti_knowledge: number | null
+          branch_id: string | null
+          channel: string | null
+          hr_count: number | null
+          mh_count: number | null
+          mh_improved: number | null
+          mh_total: number | null
+          month: string | null
+          pep_count: number | null
+          prep_count: number | null
+          sti_count: number | null
+          total_responses: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_feedback_responses_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hall_of_fame_public: {
         Row: {
           avatar_url: string | null
