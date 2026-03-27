@@ -227,7 +227,7 @@ export function LiteRequestStep({
       </Card>
 
       {/* Shipping info — only for delivery mode */}
-      {deliveryMode === 'ship' && (
+      {deliveryMode === 'ship' && (<>
         <Card className="p-4 space-y-3">
           <div className="flex items-center gap-2 mb-1">
             <Building2 className="h-4 w-4 text-primary" />
