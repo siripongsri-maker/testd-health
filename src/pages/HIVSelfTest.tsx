@@ -1480,10 +1480,6 @@ export default function HIVSelfTest() {
           <IntroStep 
             activeRequest={activeRequest}
             onStartRequest={(mode) => {
-              if (mode === 'ship' && !assignedBranch) {
-                toast.error(language === 'th' ? 'กรุณาเลือกสาขาก่อน' : 'Please select a branch first');
-                return;
-              }
               if (mode === 'pickup' && !assignedBranch) {
                 setAssignedBranch('silom');
               }
