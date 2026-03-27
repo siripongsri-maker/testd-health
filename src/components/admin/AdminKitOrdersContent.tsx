@@ -950,7 +950,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       </div>
 
       {/* Data Source Toggle */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-4 flex-wrap">
         <Button
           variant={dataSource === 'kit_orders' ? 'default' : 'outline'}
           size="sm"
@@ -970,6 +970,16 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
           <TestTube className="h-4 w-4" />
           {language === 'th' ? 'คำขอชุดตรวจ HIV' : 'HIV Test Requests'}
           <Badge variant="secondary" className="ml-1">{hivRequests.length}</Badge>
+        </Button>
+        <Button
+          variant={dataSource === 'onsite_pickup' ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => { setDataSource('onsite_pickup'); setActiveTab('all'); setCurrentPage(1); }}
+          className="gap-2"
+        >
+          <MapPin className="h-4 w-4" />
+          {language === 'th' ? 'รับที่หน้างาน' : 'On-site Pickup'}
+          <Badge variant="secondary" className="ml-1">{hivRequests.filter(r => r.delivery_mode === 'pickup').length}</Badge>
         </Button>
       </div>
 
