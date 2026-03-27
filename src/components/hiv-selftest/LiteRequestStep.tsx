@@ -148,7 +148,7 @@ export function LiteRequestStep({
   };
 
   const isNhsoValid = nhsoData.thaiId.length === 13 && !thaiIdError && nhsoData.dateOfBirth && nhsoData.gender;
-  const isShippingValid = deliveryMode === 'pickup' || (shippingData.fullName && shippingData.phone && shippingData.province);
+  const isShippingValid = deliveryMode === 'pickup' || (shippingData.fullName && shippingData.phone && shippingData.province && assignedBranch);
   const isFormValid = isNhsoValid && isShippingValid;
 
   const handleSubmit = async (e: React.FormEvent) => {
