@@ -8,7 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
-import { ArrowLeft, ArrowRight, Loader2, MapPin, Shield, Check, Home } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Loader2, MapPin, Shield, Check, Home, Building2 } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 import { ShippingFormData, NHSOFormData, GENDER_OPTIONS, validateThaiId } from './types';
 import { ThaiIdScanner, ScannedData } from './ThaiIdScanner';
@@ -30,7 +30,7 @@ interface LiteRequestStepProps {
 
 export function LiteRequestStep({
   shippingData, nhsoData, onShippingChange, onNhsoChange,
-  onSubmit, onBack, loading, hasSavedData, deliveryMode,
+  onSubmit, onBack, loading, hasSavedData, deliveryMode, assignedBranch, onBranchChange,
 }: LiteRequestStepProps) {
   const { language } = useLanguage();
   const [thaiIdError, setThaiIdError] = useState<string | null>(null);
@@ -228,6 +228,40 @@ export function LiteRequestStep({
 
       {/* Shipping info — only for delivery mode */}
       {deliveryMode === 'ship' && (
+        <Card className="p-4 space-y-3">
+          <div className="flex items-center gap-2 mb-1">
+            <Building2 className="h-4 w-4 text-primary" />
+            <h3 className="text-sm font-semibold text-foreground">
+              {language === 'th' ? 'เลือกสาขาจัดส่ง' : 'Select Fulfillment Branch'}
+            </h3>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {language === 'th' 
+              ? 'เลือกสาขา SWING ที่คุณต้องการให้จัดส่งชุดตรวจ'
+              : 'Choose the SWING branch to fulfill your test kit request.'
+            }
+          </p>
+          <Select value={assignedBranch || ''} onValueChange={(v) => onBranchChange?.(v)}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={language === 'th' ? 'เลือกสาขา...' : 'Select branch...'} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="silom">
+                <div className="flex items-center gap-2">
+                  <span>🏙️</span>
+                  <span>{language === 'th' ? 'SWING สีลม (กรุงเทพฯ)' : 'SWING Silom (Bangkok)'}</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="pattaya">
+                <div className="flex items-center gap-2">
+                  <span>🏖️</span>
+                  <span>{language === 'th' ? 'SWING พัทยา' : 'SWING Pattaya'}</span>
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </Card>
+
         <Card className="p-4 space-y-3">
           <div className="flex items-center gap-2 mb-1">
             <MapPin className="h-4 w-4 text-primary" />

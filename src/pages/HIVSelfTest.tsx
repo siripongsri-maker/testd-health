@@ -1529,6 +1529,8 @@ export default function HIVSelfTest() {
             loading={loading}
             hasSavedData={!!savedUserData?.thaiId}
             deliveryMode={deliveryMode}
+            assignedBranch={assignedBranch}
+            onBranchChange={setAssignedBranch}
           />
         )}
         
