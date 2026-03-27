@@ -13,6 +13,7 @@ import { useLanguage } from '@/lib/i18n';
 import { ShippingFormData, NHSOFormData, GENDER_OPTIONS, validateThaiId } from './types';
 import { ThaiIdScanner, ScannedData } from './ThaiIdScanner';
 import { getProvinces, getDistricts, getSubdistricts, getPostalCode, Subdistrict } from '@/lib/thailand-address';
+import { LocationCapture, LocationData } from './LocationCapture';
 
 interface LiteRequestStepProps {
   shippingData: ShippingFormData;
@@ -26,11 +27,14 @@ interface LiteRequestStepProps {
   deliveryMode: 'ship' | 'pickup';
   assignedBranch?: string;
   onBranchChange?: (branch: string) => void;
+  pickupLocation: LocationData | null;
+  onPickupLocationCaptured: (data: LocationData) => void;
 }
 
 export function LiteRequestStep({
   shippingData, nhsoData, onShippingChange, onNhsoChange,
   onSubmit, onBack, loading, hasSavedData, deliveryMode, assignedBranch, onBranchChange,
+  pickupLocation, onPickupLocationCaptured,
 }: LiteRequestStepProps) {
   const { language } = useLanguage();
   const [thaiIdError, setThaiIdError] = useState<string | null>(null);
@@ -148,8 +152,9 @@ export function LiteRequestStep({
   };
 
   const isNhsoValid = nhsoData.thaiId.length === 13 && !thaiIdError && nhsoData.dateOfBirth && nhsoData.gender;
+  const isPickupLocationValid = deliveryMode !== 'pickup' || (pickupLocation?.status === 'captured');
   const isShippingValid = deliveryMode === 'pickup' || (shippingData.fullName && shippingData.phone && shippingData.province && assignedBranch);
-  const isFormValid = isNhsoValid && isShippingValid;
+  const isFormValid = isNhsoValid && isShippingValid && isPickupLocationValid;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -377,36 +382,39 @@ export function LiteRequestStep({
         </Card>
       </>)}
 
-      {/* Pickup mode — minimal info */}
+      {/* Pickup mode — location + minimal info */}
       {deliveryMode === 'pickup' && (
-        <Card className="p-4 space-y-3">
-          <div className="flex items-center gap-2 mb-1">
-            <MapPin className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-semibold text-foreground">
-              {language === 'th' ? 'ข้อมูลผู้รับ' : 'Recipient Info'}
-            </h3>
-          </div>
-          <div className="space-y-2">
-            <Label>{language === 'th' ? 'ชื่อ-นามสกุล' : 'Full Name'}</Label>
-            <Input value={shippingData.fullName} onChange={(e) => onShippingChange({ ...shippingData, fullName: e.target.value })} />
-          </div>
-          <div className="space-y-2">
-            <Label>{language === 'th' ? 'เบอร์โทร' : 'Phone'} ({language === 'th' ? 'ไม่บังคับ' : 'optional'})</Label>
-            <Input
-              type="tel"
-              inputMode="tel"
-              value={shippingData.phone}
-              onChange={(e) => {
-                const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
-                let fmt = digits;
-                if (digits.length > 3) fmt = `${digits.slice(0, 3)}-${digits.slice(3)}`;
-                if (digits.length > 6) fmt = `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
-                onShippingChange({ ...shippingData, phone: fmt });
-              }}
-              placeholder="0XX-XXX-XXXX"
-            />
-          </div>
-        </Card>
+        <>
+          <LocationCapture location={pickupLocation} onLocationCaptured={onPickupLocationCaptured} />
+          <Card className="p-4 space-y-3">
+            <div className="flex items-center gap-2 mb-1">
+              <MapPin className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-semibold text-foreground">
+                {language === 'th' ? 'ข้อมูลผู้รับ' : 'Recipient Info'}
+              </h3>
+            </div>
+            <div className="space-y-2">
+              <Label>{language === 'th' ? 'ชื่อ-นามสกุล' : 'Full Name'}</Label>
+              <Input value={shippingData.fullName} onChange={(e) => onShippingChange({ ...shippingData, fullName: e.target.value })} />
+            </div>
+            <div className="space-y-2">
+              <Label>{language === 'th' ? 'เบอร์โทร' : 'Phone'} ({language === 'th' ? 'ไม่บังคับ' : 'optional'})</Label>
+              <Input
+                type="tel"
+                inputMode="tel"
+                value={shippingData.phone}
+                onChange={(e) => {
+                  const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                  let fmt = digits;
+                  if (digits.length > 3) fmt = `${digits.slice(0, 3)}-${digits.slice(3)}`;
+                  if (digits.length > 6) fmt = `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+                  onShippingChange({ ...shippingData, phone: fmt });
+                }}
+                placeholder="0XX-XXX-XXXX"
+              />
+            </div>
+          </Card>
+        </>
       )}
 
       {/* Submit */}

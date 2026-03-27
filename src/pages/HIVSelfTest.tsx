@@ -88,6 +88,9 @@ export default function HIVSelfTest() {
     gender: "",
   });
   
+  // Pickup location state
+  const [pickupLocation, setPickupLocation] = useState<{ latitude: number; longitude: number; timestamp: number; status: string } | null>(null);
+
   // Testing state
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
   
@@ -453,14 +456,29 @@ export default function HIVSelfTest() {
       const initialStatus = isPickup ? 'received' : 'pending';
 
       // Insert health data with reference to PII
-      const { data, error } = await supabase.from('hiv_selftest_requests').insert({
+      const insertPayload: Record<string, any> = {
         user_id: userId,
         pii_id: piiData.id,
         last_risk_date: shippingData.lastRiskDate || null,
         days_since_risk: daysSinceRisk,
         status: initialStatus,
         assigned_branch: assignedBranch,
-      }).select().single();
+        delivery_mode: deliveryMode,
+      };
+
+      // Add location data for pickup mode
+      if (isPickup && pickupLocation) {
+        insertPayload.pickup_location_captured = pickupLocation.status === 'captured';
+        insertPayload.pickup_latitude = pickupLocation.status === 'captured' ? pickupLocation.latitude : null;
+        insertPayload.pickup_longitude = pickupLocation.status === 'captured' ? pickupLocation.longitude : null;
+        insertPayload.pickup_location_timestamp = pickupLocation.status === 'captured' ? new Date(pickupLocation.timestamp).toISOString() : null;
+        insertPayload.pickup_location_status = pickupLocation.status;
+      } else if (isPickup) {
+        insertPayload.pickup_location_captured = false;
+        insertPayload.pickup_location_status = 'not_attempted';
+      }
+
+      const { data, error } = await supabase.from('hiv_selftest_requests').insert(insertPayload as any).select().single();
 
       if (error) throw error;
 
@@ -1527,6 +1545,8 @@ export default function HIVSelfTest() {
             deliveryMode={deliveryMode}
             assignedBranch={assignedBranch}
             onBranchChange={setAssignedBranch}
+            pickupLocation={pickupLocation as any}
+            onPickupLocationCaptured={setPickupLocation as any}
           />
         )}
         
