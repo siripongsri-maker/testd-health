@@ -178,7 +178,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>("all");
   // Moderators default to HIV requests view and their branch filter
-  const [dataSource, setDataSource] = useState<"kit_orders" | "hiv_requests">(isModerator ? "hiv_requests" : "kit_orders");
+  const [dataSource, setDataSource] = useState<"kit_orders" | "hiv_requests" | "onsite_pickup">(isModerator ? "hiv_requests" : "kit_orders");
   const [branchFilter, setBranchFilter] = useState<string>(userBranch || "all");
   const [pageSize, setPageSize] = useState<number>(50);
   const [currentPage, setCurrentPage] = useState(1);
