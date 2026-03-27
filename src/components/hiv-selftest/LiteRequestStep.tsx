@@ -375,7 +375,7 @@ export function LiteRequestStep({
             </>
           )}
         </Card>
-      )}
+      </>)}
 
       {/* Pickup mode — minimal info */}
       {deliveryMode === 'pickup' && (
