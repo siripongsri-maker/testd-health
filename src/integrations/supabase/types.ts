@@ -3006,6 +3006,7 @@ export type Database = {
           callback_phone: string | null
           created_at: string
           days_since_risk: number | null
+          delivery_mode: string | null
           full_name: string | null
           id: string
           last_risk_date: string | null
@@ -3013,6 +3014,11 @@ export type Database = {
           name_address_fp: string | null
           name_fp: string | null
           phone: string | null
+          pickup_latitude: number | null
+          pickup_location_captured: boolean | null
+          pickup_location_status: string | null
+          pickup_location_timestamp: string | null
+          pickup_longitude: number | null
           pii_id: string | null
           postal_code: string | null
           province: string | null
@@ -3040,6 +3046,7 @@ export type Database = {
           callback_phone?: string | null
           created_at?: string
           days_since_risk?: number | null
+          delivery_mode?: string | null
           full_name?: string | null
           id?: string
           last_risk_date?: string | null
@@ -3047,6 +3054,11 @@ export type Database = {
           name_address_fp?: string | null
           name_fp?: string | null
           phone?: string | null
+          pickup_latitude?: number | null
+          pickup_location_captured?: boolean | null
+          pickup_location_status?: string | null
+          pickup_location_timestamp?: string | null
+          pickup_longitude?: number | null
           pii_id?: string | null
           postal_code?: string | null
           province?: string | null
@@ -3074,6 +3086,7 @@ export type Database = {
           callback_phone?: string | null
           created_at?: string
           days_since_risk?: number | null
+          delivery_mode?: string | null
           full_name?: string | null
           id?: string
           last_risk_date?: string | null
@@ -3081,6 +3094,11 @@ export type Database = {
           name_address_fp?: string | null
           name_fp?: string | null
           phone?: string | null
+          pickup_latitude?: number | null
+          pickup_location_captured?: boolean | null
+          pickup_location_status?: string | null
+          pickup_location_timestamp?: string | null
+          pickup_longitude?: number | null
           pii_id?: string | null
           postal_code?: string | null
           province?: string | null
