@@ -1095,7 +1095,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             </TabsContent>
           </Tabs>
         </>
-      ) : (
+      ) : dataSource === 'hiv_requests' ? (
         <>
           <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setCurrentPage(1); }} className="w-full">
             <TabsList className="w-full mb-4 grid grid-cols-6 h-auto">
@@ -1423,6 +1423,142 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
               )}
             </TabsContent>
           </Tabs>
+        </>
+      ) : (
+        /* On-site Pickup View */
+        <>
+          <div className="space-y-3">
+            {/* Summary Cards */}
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              <Card className="p-3 text-center">
+                <p className="text-2xl font-bold text-foreground">
+                  {hivRequests.filter(r => r.delivery_mode === 'pickup').length}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {language === 'th' ? 'รับที่หน้างานทั้งหมด' : 'Total Pickups'}
+                </p>
+              </Card>
+              <Card className="p-3 text-center">
+                <p className="text-2xl font-bold text-green-600">
+                  {hivRequests.filter(r => r.delivery_mode === 'pickup' && r.pickup_location_captured).length}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {language === 'th' ? 'มีพิกัด' : 'With Location'}
+                </p>
+              </Card>
+              <Card className="p-3 text-center">
+                <p className="text-2xl font-bold text-muted-foreground">
+                  {hivRequests.filter(r => r.delivery_mode === 'pickup' && !r.pickup_location_captured).length}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {language === 'th' ? 'ไม่มีพิกัด' : 'No Location'}
+                </p>
+              </Card>
+            </div>
+
+            {/* Pickup Records List */}
+            <ScrollArea className="max-h-[60vh]">
+              <div className="space-y-3">
+                {hivRequests
+                  .filter(r => r.delivery_mode === 'pickup')
+                  .filter(r => {
+                    if (!searchQuery) return true;
+                    const q = searchQuery.toLowerCase();
+                    return (
+                      r.id.toLowerCase().includes(q) ||
+                      r.selftest_pii?.full_name?.toLowerCase().includes(q) ||
+                      r.selftest_pii?.phone?.toLowerCase().includes(q) ||
+                      r.status.toLowerCase().includes(q)
+                    );
+                  })
+                  .length === 0 ? (
+                  <Card className="p-8 text-center">
+                    <MapPin className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                    <p className="text-muted-foreground">
+                      {language === 'th' ? 'ยังไม่มีข้อมูลรับที่หน้างาน' : 'No on-site pickup data yet'}
+                    </p>
+                  </Card>
+                ) : (
+                  hivRequests
+                    .filter(r => r.delivery_mode === 'pickup')
+                    .filter(r => {
+                      if (!searchQuery) return true;
+                      const q = searchQuery.toLowerCase();
+                      return (
+                        r.id.toLowerCase().includes(q) ||
+                        r.selftest_pii?.full_name?.toLowerCase().includes(q) ||
+                        r.selftest_pii?.phone?.toLowerCase().includes(q) ||
+                        r.status.toLowerCase().includes(q)
+                      );
+                    })
+                    .map((request) => (
+                      <Card key={request.id} className="p-4 space-y-2">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <p className="font-medium text-sm">
+                              {request.selftest_pii?.full_name || (language === 'th' ? 'ไม่ระบุชื่อ' : 'No name')}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(request.created_at).toLocaleDateString(language === 'th' ? 'th-TH' : 'en-US', {
+                                year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                              })}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant={request.status === 'pending' ? 'secondary' : request.status === 'rejected' ? 'destructive' : 'default'}>
+                              {request.status}
+                            </Badge>
+                          </div>
+                        </div>
+
+                        {/* Location Info */}
+                        <div className={`flex items-center gap-2 p-2 rounded-md text-xs ${
+                          request.pickup_location_captured
+                            ? 'bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400'
+                            : 'bg-muted text-muted-foreground'
+                        }`}>
+                          <MapPin className="h-3.5 w-3.5 shrink-0" />
+                          {request.pickup_location_captured ? (
+                            <div>
+                              <span className="font-medium">
+                                {language === 'th' ? 'พิกัดบันทึกแล้ว' : 'Location captured'}
+                              </span>
+                              <span className="ml-2">
+                                {request.pickup_latitude?.toFixed(5)}, {request.pickup_longitude?.toFixed(5)}
+                              </span>
+                              {request.pickup_location_timestamp && (
+                                <span className="ml-2 opacity-70">
+                                  @ {new Date(request.pickup_location_timestamp).toLocaleTimeString(language === 'th' ? 'th-TH' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span>
+                              {language === 'th' ? 'ไม่มีข้อมูลพิกัด' : 'No location data'}
+                              {request.pickup_location_status && request.pickup_location_status !== 'captured' && (
+                                <span className="ml-1">({request.pickup_location_status})</span>
+                              )}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Contact Info */}
+                        {request.selftest_pii?.phone && (
+                          <p className="text-xs text-muted-foreground">
+                            📞 {request.selftest_pii.phone}
+                          </p>
+                        )}
+                        {request.assigned_branch && (
+                          <p className="text-xs text-muted-foreground">
+                            🏢 {request.assigned_branch === 'silom' ? 'Silom' : request.assigned_branch === 'pattaya' ? 'Pattaya' : request.assigned_branch}
+                          </p>
+                        )}
+                      </Card>
+                    ))
+                )}
+              </div>
+            </ScrollArea>
+          </div>
         </>
       )}
 
