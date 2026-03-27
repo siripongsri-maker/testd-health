@@ -13,6 +13,7 @@ import { useLanguage } from '@/lib/i18n';
 import { ShippingFormData, NHSOFormData, GENDER_OPTIONS, validateThaiId } from './types';
 import { ThaiIdScanner, ScannedData } from './ThaiIdScanner';
 import { getProvinces, getDistricts, getSubdistricts, getPostalCode, Subdistrict } from '@/lib/thailand-address';
+import { LocationCapture, LocationData } from './LocationCapture';
 
 interface LiteRequestStepProps {
   shippingData: ShippingFormData;
