@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Package, Plus, Search, Loader2, Eye, Copy, Truck, Download, FileSpreadsheet, TestTube, Printer, PhoneCall,
-  XCircle, AlertTriangle, ShieldAlert, CheckCircle, CheckSquare, Square, Pencil
+  XCircle, AlertTriangle, ShieldAlert, CheckCircle, CheckSquare, Square, Pencil, MapPin
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
