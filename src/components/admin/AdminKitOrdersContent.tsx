@@ -117,6 +117,12 @@ interface HIVTestRequest {
   abuse_reason: string | null;
   abuse_score: number | null;
   result_photo_url: string | null;
+  delivery_mode: string | null;
+  pickup_latitude: number | null;
+  pickup_longitude: number | null;
+  pickup_location_captured: boolean | null;
+  pickup_location_status: string | null;
+  pickup_location_timestamp: string | null;
 }
 
 const HIV_STATUS_OPTIONS = [
@@ -281,6 +287,12 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             abuse_reason,
             abuse_score,
             result_photo_url,
+            delivery_mode,
+            pickup_latitude,
+            pickup_longitude,
+            pickup_location_captured,
+            pickup_location_status,
+            pickup_location_timestamp,
             selftest_pii (
               id,
               full_name,
