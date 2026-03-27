@@ -233,74 +233,8 @@ export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onS
           : '🚚 Free shipping nationwide • No cost'}
       </p>
 
-      {/* Branch selector or indicator */}
-      {(showBranchSelector && !assignedBranch) || isEditingBranch ? (
-        <Card className="p-4 space-y-3 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
-          <div className="flex items-center gap-2">
-            <Building2 className="h-5 w-5 text-primary" />
-            <h4 className="font-semibold text-foreground">
-              {language === 'th' ? 'เลือกจุดรับชุดตรวจ' : 'Select Pickup Location'}
-            </h4>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            {language === 'th' 
-              ? 'เลือกสาขา SWING ที่คุณต้องการให้จัดส่งชุดตรวจ'
-              : 'Choose the SWING branch you would like to fulfill your test kit request.'
-            }
-          </p>
-          <Select value={assignedBranch} onValueChange={(value) => {
-            onBranchChange?.(value);
-            setIsEditingBranch(false);
-          }}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder={language === 'th' ? 'เลือกสาขา...' : 'Select branch...'} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="silom">
-                <div className="flex items-center gap-2">
-                  <span>🏙️</span>
-                  <span>{language === 'th' ? 'SWING สีลม (กรุงเทพฯ)' : 'SWING Silom (Bangkok)'}</span>
-                </div>
-              </SelectItem>
-              <SelectItem value="pattaya">
-                <div className="flex items-center gap-2">
-                  <span>🏖️</span>
-                  <span>{language === 'th' ? 'SWING พัทยา' : 'SWING Pattaya'}</span>
-                </div>
-              </SelectItem>
-            </SelectContent>
-          </Select>
-          {isEditingBranch && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="w-full text-muted-foreground"
-              onClick={() => setIsEditingBranch(false)}
-            >
-              {language === 'th' ? 'ยกเลิก' : 'Cancel'}
-            </Button>
-          )}
-        </Card>
-      ) : branchInfo ? (
-        <div className="flex items-center justify-center gap-2 py-2 px-4 bg-primary/5 rounded-lg border border-primary/10">
-          <MapPin className="h-4 w-4 text-primary" />
-          <span className="text-sm text-muted-foreground">
-            {language === 'th' ? 'จัดส่งโดย:' : 'Fulfilled by:'}
-          </span>
-          <span className="text-sm font-medium text-primary">
-            {branchInfo.icon} {language === 'th' ? branchInfo.nameTh : branchInfo.nameEn}
-          </span>
-          {showBranchSelector && onBranchChange && (
-            <button
-              onClick={() => setIsEditingBranch(true)}
-              className="ml-1 p-1 rounded-full hover:bg-primary/10 transition-colors"
-              aria-label={language === 'th' ? 'เปลี่ยนสาขา' : 'Change branch'}
-            >
-              <Pencil className="h-3 w-3 text-muted-foreground hover:text-primary" />
-            </button>
-          )}
-        </div>
-      ) : null}
+
+
 
       {/* Already have a kit? Submit result directly */}
       {onSubmitExistingKit && (
