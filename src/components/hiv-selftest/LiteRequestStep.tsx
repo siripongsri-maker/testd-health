@@ -24,6 +24,8 @@ interface LiteRequestStepProps {
   loading: boolean;
   hasSavedData?: boolean;
   deliveryMode: 'ship' | 'pickup';
+  assignedBranch?: string;
+  onBranchChange?: (branch: string) => void;
 }
 
 export function LiteRequestStep({
