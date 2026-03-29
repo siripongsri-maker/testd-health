@@ -54,6 +54,8 @@ interface BranchStaff {
   staffRole: string;
   isActive: boolean;
   staffProfileId: string | null;
+  /** true = has auth account (staff_branch_assignments), false = profile-only */
+  hasAuthAccount: boolean;
 }
 
 const BRANCH_INFO: Record<string, { nameEn: string; nameTh: string; icon: string }> = {
@@ -92,7 +94,9 @@ export function AdminBranchStaffContent() {
   const fetchStaff = async () => {
     setLoading(true);
     try {
-      // Get staff from staff_branch_assignments joined with staff_profiles
+      const staffList: BranchStaff[] = [];
+
+      // 1) Auth-linked staff from staff_branch_assignments
       const { data: assignments, error } = await supabase
         .from("staff_branch_assignments")
         .select("user_id, branch, created_at")
@@ -100,8 +104,9 @@ export function AdminBranchStaffContent() {
 
       if (error) throw error;
 
-      const staffList: BranchStaff[] = [];
+      const linkedUserIds = new Set<string>();
       for (const assignment of assignments || []) {
+        linkedUserIds.add(assignment.user_id);
         const [profileRes, staffProfileRes] = await Promise.all([
           supabase.from("profiles").select("display_name").eq("id", assignment.user_id).single(),
           supabase.from("staff_profiles").select("id, role, staff_role, is_active").eq("user_id", assignment.user_id).maybeSingle(),
@@ -117,6 +122,38 @@ export function AdminBranchStaffContent() {
           staffRole: staffProfileRes.data?.staff_role || "branch_staff",
           isActive: staffProfileRes.data?.is_active ?? true,
           staffProfileId: staffProfileRes.data?.id || null,
+          hasAuthAccount: true,
+        });
+      }
+
+      // 2) Profile-only staff (counselors without auth accounts)
+      const { data: profileOnly } = await supabase
+        .from("staff_profiles")
+        .select("id, name_th, name_en, role, staff_role, is_active, branch_id, created_at")
+        .is("user_id", null)
+        .eq("is_active", true);
+
+      // Map branch_id to slug
+      const { data: branches } = await supabase
+        .from("booking_branches")
+        .select("id, slug");
+      const branchIdToSlug = new Map((branches || []).map(b => [b.id, b.slug]));
+
+      for (const sp of profileOnly || []) {
+        const branchSlug = sp.branch_id ? branchIdToSlug.get(sp.branch_id) : null;
+        if (!branchSlug) continue;
+
+        staffList.push({
+          id: sp.id,
+          displayName: language === "th" ? (sp.name_th || sp.name_en) : (sp.name_en || sp.name_th),
+          email: "",
+          branch: branchSlug,
+          createdAt: sp.created_at,
+          jobRole: sp.role || "counselor",
+          staffRole: sp.staff_role || "branch_staff",
+          isActive: sp.is_active ?? true,
+          staffProfileId: sp.id,
+          hasAuthAccount: false,
         });
       }
 
@@ -413,6 +450,7 @@ export function AdminBranchStaffContent() {
                     <TableHead>{language === "th" ? "ชื่อ" : "Name"}</TableHead>
                     <TableHead>{language === "th" ? "สาขา" : "Branch"}</TableHead>
                     <TableHead>{language === "th" ? "ตำแหน่ง" : "Role"}</TableHead>
+                    <TableHead>{language === "th" ? "ประเภท" : "Type"}</TableHead>
                     <TableHead>{language === "th" ? "สถานะ" : "Status"}</TableHead>
                     <TableHead className="text-right">{language === "th" ? "จัดการ" : "Actions"}</TableHead>
                   </TableRow>
@@ -425,7 +463,9 @@ export function AdminBranchStaffContent() {
                         <TableCell>
                           <div>
                             <p className="font-medium">{s.displayName}</p>
-                            <p className="text-xs text-muted-foreground">{s.email}</p>
+                            {s.hasAuthAccount && s.email && (
+                              <p className="text-xs text-muted-foreground">{s.email}</p>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell>
@@ -439,6 +479,13 @@ export function AdminBranchStaffContent() {
                         </TableCell>
                         <TableCell>
                           <span className="text-sm">{getJobRoleLabel(s.jobRole)}</span>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className={s.hasAuthAccount ? "border-primary/30 text-primary" : "border-muted-foreground/30"}>
+                            {s.hasAuthAccount
+                              ? (language === "th" ? "มีบัญชี" : "Account")
+                              : (language === "th" ? "โปรไฟล์" : "Profile")}
+                          </Badge>
                         </TableCell>
                         <TableCell>
                           <Badge variant={s.isActive ? "default" : "secondary"}>
