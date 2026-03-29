@@ -450,6 +450,7 @@ export function AdminBranchStaffContent() {
                     <TableHead>{language === "th" ? "ชื่อ" : "Name"}</TableHead>
                     <TableHead>{language === "th" ? "สาขา" : "Branch"}</TableHead>
                     <TableHead>{language === "th" ? "ตำแหน่ง" : "Role"}</TableHead>
+                    <TableHead>{language === "th" ? "ประเภท" : "Type"}</TableHead>
                     <TableHead>{language === "th" ? "สถานะ" : "Status"}</TableHead>
                     <TableHead className="text-right">{language === "th" ? "จัดการ" : "Actions"}</TableHead>
                   </TableRow>
