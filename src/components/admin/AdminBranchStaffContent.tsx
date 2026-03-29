@@ -463,7 +463,9 @@ export function AdminBranchStaffContent() {
                         <TableCell>
                           <div>
                             <p className="font-medium">{s.displayName}</p>
-                            <p className="text-xs text-muted-foreground">{s.email}</p>
+                            {s.hasAuthAccount && s.email && (
+                              <p className="text-xs text-muted-foreground">{s.email}</p>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell>
