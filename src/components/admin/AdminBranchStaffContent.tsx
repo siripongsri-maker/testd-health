@@ -54,6 +54,8 @@ interface BranchStaff {
   staffRole: string;
   isActive: boolean;
   staffProfileId: string | null;
+  /** true = has auth account (staff_branch_assignments), false = profile-only */
+  hasAuthAccount: boolean;
 }
 
 const BRANCH_INFO: Record<string, { nameEn: string; nameTh: string; icon: string }> = {
