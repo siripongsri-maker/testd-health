@@ -481,6 +481,13 @@ export function AdminBranchStaffContent() {
                           <span className="text-sm">{getJobRoleLabel(s.jobRole)}</span>
                         </TableCell>
                         <TableCell>
+                          <Badge variant="outline" className={s.hasAuthAccount ? "border-primary/30 text-primary" : "border-muted-foreground/30"}>
+                            {s.hasAuthAccount
+                              ? (language === "th" ? "มีบัญชี" : "Account")
+                              : (language === "th" ? "โปรไฟล์" : "Profile")}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
                           <Badge variant={s.isActive ? "default" : "secondary"}>
                             {s.isActive
                               ? (language === "th" ? "ใช้งาน" : "Active")
