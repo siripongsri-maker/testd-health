@@ -152,7 +152,7 @@ export function LiteRequestStep({
   };
 
   const isNhsoValid = nhsoData.thaiId.length === 13 && !thaiIdError && nhsoData.dateOfBirth && nhsoData.gender;
-  const isPickupLocationValid = deliveryMode !== 'pickup' || (pickupLocation?.status === 'captured');
+  const isPickupLocationValid = true; // location is optional, never blocks submission
   const isShippingValid = deliveryMode === 'pickup' || (shippingData.fullName && shippingData.phone && shippingData.province && assignedBranch);
   const isFormValid = isNhsoValid && isShippingValid && isPickupLocationValid;
 
