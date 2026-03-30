@@ -71,24 +71,31 @@ export function LocationCapture({ location, onLocationCaptured }: LocationCaptur
 
       <p className="text-xs text-muted-foreground">
         {language === 'th'
-          ? 'กดปุ่มด้านล่างเพื่อบันทึกตำแหน่งปัจจุบันของคุณ'
-          : 'Tap the button below to record your current location.'}
+          ? 'แนะนำให้กดบันทึกตำแหน่งปัจจุบัน เพื่อช่วยให้ทีมประสานงานได้สะดวกขึ้น แต่ไม่บังคับ'
+          : 'We recommend sharing your location to help our team coordinate, but it\'s optional.'}
       </p>
 
       {!isCaptured ? (
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full gap-2"
-          onClick={requestLocation}
-          disabled={loading}
-        >
-          {loading ? (
-            <><Loader2 className="h-4 w-4 animate-spin" />{language === 'th' ? 'กำลังระบุตำแหน่ง...' : 'Getting location...'}</>
-          ) : (
-            <><MapPin className="h-4 w-4" />{language === 'th' ? 'กดพิกัด / ระบุตำแหน่ง' : 'Use Current Location'}</>
-          )}
-        </Button>
+        <>
+          <Button
+            type="button"
+            variant="default"
+            className="w-full gap-2 shadow-md"
+            onClick={requestLocation}
+            disabled={loading}
+          >
+            {loading ? (
+              <><Loader2 className="h-4 w-4 animate-spin" />{language === 'th' ? 'กำลังระบุตำแหน่ง...' : 'Getting location...'}</>
+            ) : (
+              <><MapPin className="h-4 w-4" />{language === 'th' ? 'กดพิกัด / ระบุตำแหน่ง' : 'Use Current Location'}</>
+            )}
+          </Button>
+          <p className="text-xs text-center text-muted-foreground">
+            {language === 'th'
+              ? 'หากไม่สะดวกแชร์ตำแหน่ง สามารถข้ามขั้นตอนนี้ได้'
+              : 'You can skip this step if you prefer not to share your location.'}
+          </p>
+        </>
       ) : (
         <div className="flex items-center gap-2 p-3 rounded-md bg-success/10 border border-success/30">
           <Check className="h-4 w-4 text-success shrink-0" />
