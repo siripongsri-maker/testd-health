@@ -148,7 +148,38 @@ export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onS
   // Welcome screen for new requests - guest-friendly
   return (
     <div className="space-y-4 animate-fade-in">
-      {/* Statistics - show community usage to build confidence */}
+      {/* Delivery method selection - ACTION FIRST */}
+      <Card className="p-4 space-y-3">
+        <h3 className="text-base font-bold text-foreground text-center">
+          {language === 'th' ? 'เลือกวิธีรับชุดตรวจ' : 'Choose How to Get Your Kit'}
+        </h3>
+        <Button 
+          className="w-full gap-2 h-12 text-base" 
+          size="lg"
+          onClick={() => onStartRequest('ship')}
+        >
+          {language === 'th' ? '🚚 จัดส่งถึงบ้าน' : '🚚 Ship to Home'}
+          <ArrowRight className="h-5 w-5" />
+        </Button>
+
+        <Button 
+          variant="outline"
+          className="w-full gap-2 h-12 text-base" 
+          size="lg"
+          onClick={() => onStartRequest('pickup')}
+        >
+          <Store className="h-5 w-5" />
+          {language === 'th' ? 'รับชุดตรวจที่หน้างาน' : 'Pickup at Venue'}
+        </Button>
+
+        <p className="text-xs text-center text-muted-foreground">
+          {language === 'th' 
+            ? '🚚 จัดส่งฟรีทั่วประเทศ • ไม่มีค่าใช้จ่าย'
+            : '🚚 Free shipping nationwide • No cost'}
+        </p>
+      </Card>
+
+      {/* Statistics - total count only */}
       <TestStatistics />
 
       {/* Abbott HIV Self-Test Kit Image */}
@@ -207,31 +238,6 @@ export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onS
           </div>
         </div>
       </Card>
-
-      <Button 
-        className="w-full gap-2 h-12 text-base" 
-        size="lg"
-        onClick={() => onStartRequest('ship')}
-      >
-        {language === 'th' ? '🚚 จัดส่งถึงบ้าน' : '🚚 Ship to Home'}
-        <ArrowRight className="h-5 w-5" />
-      </Button>
-
-      <Button 
-        variant="outline"
-        className="w-full gap-2 h-12 text-base" 
-        size="lg"
-        onClick={() => onStartRequest('pickup')}
-      >
-        <Store className="h-5 w-5" />
-        {language === 'th' ? 'รับชุดตรวจที่หน้างาน' : 'Pickup at Venue'}
-      </Button>
-
-      <p className="text-xs text-center text-muted-foreground">
-        {language === 'th' 
-          ? '🚚 จัดส่งฟรีทั่วประเทศ • ไม่มีค่าใช้จ่าย'
-          : '🚚 Free shipping nationwide • No cost'}
-      </p>
 
 
 
