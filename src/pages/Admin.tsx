@@ -54,6 +54,7 @@ const AdminFrontDeskContent = lazy(() => import("@/components/admin/AdminFrontDe
 const AdminPdpaComplianceContent = lazy(() => import("@/components/admin/AdminPdpaComplianceContent"));
 const AdminAttributionContent = lazy(() => import("@/components/admin/AdminAttributionContent"));
 const AdminFeedbackOutcomesContent = lazy(() => import("@/components/admin/AdminFeedbackOutcomesContent"));
+const AdminCRMContent = lazy(() => import("@/components/admin/crm/AdminCRMContent"));
 
 // MEL modules
 const MelServiceLedgerContent = lazy(() => import("@/components/admin/mel/MelServiceLedgerContent"));
