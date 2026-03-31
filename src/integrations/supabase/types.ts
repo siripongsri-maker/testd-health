@@ -1071,6 +1071,84 @@ export type Database = {
           },
         ]
       }
+      case_notes: {
+        Row: {
+          anonymous_token: string | null
+          branch_id: string | null
+          client_id: string | null
+          content: string
+          created_at: string
+          id: string
+          is_sensitive: boolean
+          linked_appointment_id: string | null
+          linked_service_event_id: string | null
+          note_type: string
+          staff_id: string
+        }
+        Insert: {
+          anonymous_token?: string | null
+          branch_id?: string | null
+          client_id?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          is_sensitive?: boolean
+          linked_appointment_id?: string | null
+          linked_service_event_id?: string | null
+          note_type?: string
+          staff_id: string
+        }
+        Update: {
+          anonymous_token?: string | null
+          branch_id?: string | null
+          client_id?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_sensitive?: boolean
+          linked_appointment_id?: string | null
+          linked_service_event_id?: string | null
+          note_type?: string
+          staff_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "case_notes_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "case_notes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "leaderboard_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "case_notes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "case_notes_linked_appointment_id_fkey"
+            columns: ["linked_appointment_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "case_notes_linked_service_event_id_fkey"
+            columns: ["linked_service_event_id"]
+            isOneToOne: false
+            referencedRelation: "service_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_canned_responses: {
         Row: {
           category: string

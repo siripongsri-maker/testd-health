@@ -67,6 +67,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "schedule", icon: Clock, labelKey: "admin.schedule" },
       { tab: "queue-board", icon: ListOrdered, labelKey: "admin.queueBoard" },
       { tab: "front-desk", icon: ClipboardList, labelKey: "admin.frontDesk", meAnalyst: true },
+      { tab: "client-crm", icon: Users, labelKey: "admin.clientCRM", adminOnly: true },
       { tab: "service-pathways", icon: HeartHandshake, labelKey: "admin.servicePathways", adminOnly: true, meAnalyst: true },
       { tab: "clinic-settings", icon: Stethoscope, labelKey: "admin.clinicSettings", adminOnly: true },
       { tab: "kit-orders", icon: Package, labelKey: "admin.kitOrders", meAnalyst: true },
