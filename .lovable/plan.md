@@ -1,144 +1,116 @@
 
 
-# Link Attribution + User Journey Analytics System
+# Client CRM / Case Management System
 
 ## Summary
 
-Add a full-funnel tracked link generation, visitor attribution, and journey analytics system. This builds on the existing `analytics_events` table and `trackEvent` helper, adding campaign link management, persistent anonymous visitor IDs, UTM/attribution capture on landing, and a new admin dashboard tab.
+Build an internal staff-facing CRM that aggregates each client's full journey — appointments, service events, counseling, follow-ups, feedback, and self-test requests — into a single timeline view per client. Staff can add case notes, set follow-up reminders, and track outcomes across visits.
+
+This system does NOT duplicate data. It reads from existing canonical tables and adds only a lightweight `case_notes` table for staff observations.
 
 ---
 
-## New Database Tables
+## What Already Exists (No Duplication)
 
-### 1. `tracked_links`
-Stores generated campaign/share links with metadata.
+The platform already has the building blocks:
+
+| Data | Source Table | Status |
+|------|-------------|--------|
+| Identity | `profiles` + `hr_user_profile` | Canonical |
+| Appointments | `appointments` | Canonical |
+| Service journey | `service_pathways` → `service_events` | Canonical |
+| Clinical visits | `clinic_encounters` | Canonical |
+| Counseling | `counseling_sessions` | Canonical |
+| Follow-ups | `followup_events` | Canonical |
+| Feedback | `client_feedback` | Canonical |
+| Self-test kits | `selftest_requests` | Canonical |
+| Queue visits | `client_visit_flows` | Canonical |
+
+The CRM is a **read layer** on top of these, plus one new table for case notes.
+
+---
+
+## New Database Table
+
+### `case_notes`
 
 | Column | Type | Notes |
 |--------|------|-------|
 | id | uuid PK | |
-| slug | text UNIQUE | Short code for clean URLs, e.g. `/go/abc123` |
-| destination_path | text | Internal route, e.g. `/booking` |
-| campaign | text | Campaign name |
-| channel | text | facebook, instagram, line, qr, etc. |
-| source | text | |
-| medium | text | |
-| content | text | |
-| term | text | |
-| partner_name | text | KOL / outreach worker name |
-| service_focus | text | e.g. "hiv-testing" |
-| branch_focus | text | e.g. "silom" |
-| label | text | Custom note |
-| expires_at | timestamptz | Optional expiration |
-| click_count | integer DEFAULT 0 | Incremented on redirect |
-| created_by | uuid FK profiles | |
+| client_id | uuid | References `profiles.id` |
+| anonymous_token | text | For non-authenticated clients |
+| staff_id | uuid | Who wrote the note |
+| branch_id | uuid | Context branch |
+| note_type | text | `observation`, `follow_up`, `risk_flag`, `referral`, `general` |
+| content | text | The note itself |
+| is_sensitive | boolean | Extra access control |
+| linked_appointment_id | uuid | Optional link |
+| linked_service_event_id | uuid | Optional link |
 | created_at | timestamptz | |
 
-RLS: Admin-only read/write.
-
-### 2. `visitor_attribution`
-Stores first-touch and last-touch attribution per anonymous visitor, linked to user_id when identified.
-
-| Column | Type | Notes |
-|--------|------|-------|
-| id | uuid PK | |
-| anonymous_id | text | Persistent localStorage ID |
-| user_id | uuid | Linked on signup/login |
-| first_touch_* | (campaign, channel, source, medium, content, term, partner, link_id, landing_page, referrer, landed_at) | Set once |
-| last_touch_* | Same set | Updated on each new tracked entry |
-| device_type | text | |
-| user_agent | text | |
-| first_seen_at | timestamptz | |
-| last_seen_at | timestamptz | |
-| total_sessions | integer | |
-
-RLS: Insert by anon/authenticated; select by admin only.
-
-### 3. Extend `analytics_events`
-Add columns to existing table:
-
-- `anonymous_id` (text) — persistent visitor ID
-- `event_category` (text) — acquisition, engagement, booking, etc.
-- `campaign` (text)
-- `channel` (text)
-- `source` (text)
-- `medium` (text)
-- `link_id` (uuid) — FK to tracked_links
-- `service_id` (text)
-- `branch_id` (text)
-- `booking_id` (uuid)
+**RLS**: Staff can insert/select notes for their branch. Admins see all. No client access.
 
 ---
 
-## Frontend Implementation
+## Frontend Components
 
-### A. Anonymous Visitor ID (`src/lib/visitorId.ts`)
-- Generate a persistent ID in `localStorage` (survives sessions)
-- Separate from `sessionStorage` session ID
+### A. Client List View (`AdminCRMContent.tsx`)
 
-### B. Attribution Capture (`src/lib/attribution.ts`)
-- On app load, parse URL for UTM params (`utm_campaign`, `utm_source`, etc.) and custom params (`channel`, `partner`, `link_id`)
-- Store in `sessionStorage` for current session
-- Upsert into `visitor_attribution` table (first-touch on first visit, last-touch always)
-- On auth state change (signup/login), update `visitor_attribution.user_id`
+New admin tab "client-crm" under **Services & Care** group.
 
-### C. Enhanced `trackEvent` 
-- Automatically attach `anonymous_id`, attribution context (campaign/channel/source/medium), and `event_category` to every event
-- Add typed helper: `trackJourneyEvent(category, eventType, meta)`
+- Searchable table of clients (from `profiles` + recent `appointments`)
+- Columns: Name, Last Visit, Branch, Services Used, Follow-up Status
+- Filters: branch, date range, has-pending-followup
+- Click row → opens Client Detail view
+- Branch-scoped for moderators, global for admins
 
-### D. Tracked Link Redirect Route (`/go/:slug`)
-- New page that:
-  1. Looks up `tracked_links` by slug
-  2. Increments `click_count` via RPC
-  3. Sets attribution in session
-  4. Redirects to `destination_path` with tracking params
+### B. Client Detail / Timeline (`ClientTimeline.tsx`)
 
-### E. Add Journey Event Calls
-Sprinkle `trackJourneyEvent` calls in key places:
-- **Booking flow**: `booking_page_view`, `branch_selected`, `service_selected`, `booking_created`, etc. (in `src/pages/Booking.tsx`)
-- **Auth**: `signup_started`, `signup_completed`, `login` (in auth page)
-- **Virtual/Story**: already has some; add `story_started`, `story_completed`
-- **Harm Reduction**: `factsheet_view`, `safer_use_content_view`
-- **Service cards**: `service_card_view`, `service_detail_view`
+Single-client view aggregating data from all canonical tables into a chronological timeline:
 
-### F. Link Generator Admin UI (`AdminAttributionContent.tsx`)
-New admin tab "attribution" with three sub-sections:
+- **Header**: Client name, anonymous ID, branch, first/last visit dates
+- **Timeline entries** (newest first):
+  - Appointments (status, service, branch)
+  - Service events (type, outcome, referrals)
+  - Counseling sessions (summary, action plan)
+  - Follow-up events (status, due date)
+  - Feedback submissions (scores)
+  - Case notes (staff-written)
+  - Self-test requests (if any)
+- Each entry shows icon, date, type badge, and summary
+- PII masking follows existing reveal-with-reason pattern
 
-#### F1. Link Generator
-- Form to create tracked links with all fields (campaign, channel, source, partner, destination, etc.)
-- Auto-generate slug or allow custom
-- Show generated URL + QR code
-- List of existing links with click counts
-- Clone/edit/expire actions
+### C. Case Note Form (`CaseNoteForm.tsx`)
 
-#### F2. Attribution Dashboard
-- **Acquisition cards**: Total visits, unique visitors, attributed visitors, top channels, top campaigns, top partners
-- **Channel performance chart**: Bar chart by channel showing visits → signups → bookings → completed
-- **Campaign table**: Each campaign with funnel metrics
-- **First-touch vs last-touch toggle**
+- Inline form within timeline to add notes
+- Fields: note type (dropdown), content (textarea), link to appointment (optional), sensitive flag
+- Validates staff auth before insert
 
-#### F3. Journey Analytics
-- **Conversion funnel**: visit → signup → booking → completed (with drop-off %)
-- **Top paths**: Most common page sequences
-- **Service performance**: Which services get viewed vs booked vs completed
-- **Branch comparison**: Attribution by branch
-- **Date range filter + CSV export**
+### D. Follow-up Tracker (`FollowUpTracker.tsx`)
 
-### G. Admin Navigation
-Add "Attribution" tab to admin sidebar under Reports group, accessible by admin and me_analyst roles.
+- Panel within client detail showing pending `followup_events`
+- Quick actions: mark complete, reschedule, add note
+- Overdue items highlighted in red
 
 ---
 
-## Edge Function: `track-link-click`
-Simple function to increment click count and return destination (avoids needing anon write access to `tracked_links`).
+## Admin Navigation
+
+Add to **Services & Care** group in sidebar:
+```
+{ tab: "client-crm", icon: Users, labelKey: "admin.clientCRM", adminOnly: true }
+```
 
 ---
 
-## Privacy Considerations
-- Anonymous ID is a random string, not fingerprinting
-- No health-specific data in attribution tables
-- Event metadata keeps only structural info (service_id, not health details)
-- Attribution dashboard shows aggregates only
-- Follows existing PDPA retention rules (analytics_events = 1 year)
+## Privacy & Security
+
+- All queries are branch-scoped via RLS for moderator role
+- PII (name, phone, Thai ID) uses existing masking/reveal pattern
+- `case_notes.is_sensitive` adds extra gate for flagged content
+- No health details stored in case_notes — only operational observations
+- Audit trail via existing `pii_access_log` for reveals
+- PDPA-compliant: notes are operational records, not medical records
 
 ---
 
@@ -146,29 +118,22 @@ Simple function to increment click count and return destination (avoids needing 
 
 | Action | File |
 |--------|------|
-| Create | `src/lib/visitorId.ts` |
-| Create | `src/lib/attribution.ts` |
-| Create | `src/lib/journeyTracker.ts` |
-| Create | `src/components/admin/AdminAttributionContent.tsx` |
-| Create | `src/components/admin/attribution/LinkGenerator.tsx` |
-| Create | `src/components/admin/attribution/AttributionDashboard.tsx` |
-| Create | `src/components/admin/attribution/JourneyFunnel.tsx` |
-| Create | `src/pages/LinkRedirect.tsx` |
-| Create | `supabase/functions/track-link-click/index.ts` |
-| Create | DB migration for tables + columns |
-| Modify | `src/hooks/useAnalytics.ts` — attach anonymous_id + attribution |
-| Modify | `src/components/AnalyticsProvider.tsx` — init attribution capture |
-| Modify | `src/App.tsx` — add `/go/:slug` route + admin tab |
-| Modify | `src/pages/Admin.tsx` — register new tab |
-| Modify | `src/pages/Booking.tsx` — add journey events |
-| Modify | `src/components/AdminLayout.tsx` — add sidebar item |
+| Create | `src/components/admin/crm/AdminCRMContent.tsx` |
+| Create | `src/components/admin/crm/ClientTimeline.tsx` |
+| Create | `src/components/admin/crm/CaseNoteForm.tsx` |
+| Create | `src/components/admin/crm/FollowUpTracker.tsx` |
+| Create | `src/components/admin/crm/ClientListTable.tsx` |
+| Create | DB migration: `case_notes` table + RLS |
+| Modify | `src/components/AdminSidebar.tsx` — add CRM tab |
+| Modify | `src/pages/Admin.tsx` — register CRM content |
+| Modify | `src/lib/i18n.ts` — add translation keys |
 
 ---
 
 ## Estimated Scope
-- 1 migration (3 table operations)
-- 1 edge function
-- ~8 new files
-- ~6 modified files
-- No breaking changes to existing features
+- 1 migration (1 new table + RLS policies)
+- ~5 new files
+- ~3 modified files
+- No changes to existing tables or logic
+- No breaking changes
 
