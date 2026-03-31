@@ -39,18 +39,9 @@ export default function CaseNoteForm({ clientId, onSaved }: CaseNoteFormProps) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
 
-      // Get staff branch
-      const { data: staffBranch } = await supabase
-        .from("branch_staff")
-        .select("branch_id")
-        .eq("user_id", user.id)
-        .limit(1)
-        .maybeSingle();
-
-      const { error } = await supabase.from("case_notes").insert({
+      const { error } = await (supabase as any).from("case_notes").insert({
         client_id: clientId,
         staff_id: user.id,
-        branch_id: staffBranch?.branch_id || null,
         note_type: noteType,
         content: content.trim(),
         is_sensitive: isSensitive,

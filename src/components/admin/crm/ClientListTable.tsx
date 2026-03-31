@@ -15,7 +15,7 @@ interface ClientListTableProps {
 }
 
 export default function ClientListTable({ onSelectClient }: ClientListTableProps) {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const [search, setSearch] = useState("");
   const [branchFilter, setBranchFilter] = useState<string>("all");
 
@@ -30,7 +30,6 @@ export default function ClientListTable({ onSelectClient }: ClientListTableProps
   const { data: clients, isLoading } = useQuery({
     queryKey: ["crm-clients", search, branchFilter],
     queryFn: async () => {
-      // Get profiles with their most recent appointment info
       let query = supabase
         .from("profiles")
         .select("id, display_name, created_at")
@@ -53,23 +52,25 @@ export default function ClientListTable({ onSelectClient }: ClientListTableProps
         .in("user_id", profileIds)
         .order("appointment_date", { ascending: false });
 
-      // Get pending followups
+      // Get pending followups (scheduled_at, not due_date)
       const { data: followups } = await supabase
         .from("followup_events")
-        .select("user_id, status, due_date")
+        .select("user_id, status, scheduled_at")
         .in("user_id", profileIds)
         .eq("status", "pending");
 
       const appointmentMap = new Map<string, any>();
       appointments?.forEach((a) => {
-        if (!appointmentMap.has(a.user_id!)) {
-          appointmentMap.set(a.user_id!, a);
+        if (a.user_id && !appointmentMap.has(a.user_id)) {
+          appointmentMap.set(a.user_id, a);
         }
       });
 
       const followupMap = new Map<string, number>();
       followups?.forEach((f) => {
-        followupMap.set(f.user_id!, (followupMap.get(f.user_id!) || 0) + 1);
+        if (f.user_id) {
+          followupMap.set(f.user_id, (followupMap.get(f.user_id) || 0) + 1);
+        }
       });
 
       let results = profiles.map((p) => {

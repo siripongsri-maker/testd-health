@@ -4,8 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Calendar, Stethoscope, MessageSquare, ClipboardList, FileText, Package, StickyNote, Loader2 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { ArrowLeft, Calendar, Stethoscope, MessageSquare, ClipboardList, Package, StickyNote, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import CaseNoteForm from "./CaseNoteForm";
 import FollowUpTracker from "./FollowUpTracker";
@@ -59,40 +59,40 @@ export default function ClientTimeline({ clientId, onBack }: ClientTimelineProps
         });
       });
 
-      // Service events
+      // Service events (service_date, not event_date)
       const { data: events } = await supabase
         .from("service_events")
-        .select("id, event_date, event_type, outcome, notes")
+        .select("id, service_date, event_type, outcome, description_en")
         .eq("user_id", clientId)
-        .order("event_date", { ascending: false })
+        .order("service_date", { ascending: false })
         .limit(50);
 
       events?.forEach((e) => {
         entries.push({
-          date: e.event_date,
+          date: e.service_date,
           type: "service_event",
           icon: Stethoscope,
           title: e.event_type || (language === "th" ? "บริการ" : "Service"),
-          detail: e.outcome || e.notes || "",
+          detail: e.outcome || e.description_en || "",
           status: e.outcome,
         });
       });
 
-      // Counseling sessions
+      // Counseling sessions (created_at as date, guidance_notes as summary)
       const { data: sessions } = await supabase
         .from("counseling_sessions")
-        .select("id, session_date, session_type, action_plan, summary")
+        .select("id, created_at, session_type, session_outcome, guidance_notes")
         .eq("user_id", clientId)
-        .order("session_date", { ascending: false })
+        .order("created_at", { ascending: false })
         .limit(50);
 
       sessions?.forEach((s) => {
         entries.push({
-          date: s.session_date,
+          date: s.created_at,
           type: "counseling",
           icon: MessageSquare,
           title: language === "th" ? "ให้คำปรึกษา" : "Counseling",
-          detail: s.summary || s.action_plan || s.session_type || "",
+          detail: s.guidance_notes || s.session_outcome || s.session_type || "",
         });
       });
 
@@ -114,10 +114,10 @@ export default function ClientTimeline({ clientId, onBack }: ClientTimelineProps
         });
       });
 
-      // Self-test requests
+      // HIV self-test requests (hiv_selftest_requests, delivery_mode)
       const { data: selftests } = await supabase
-        .from("selftest_requests")
-        .select("id, created_at, delivery_method, status")
+        .from("hiv_selftest_requests")
+        .select("id, created_at, delivery_mode, status")
         .eq("user_id", clientId)
         .order("created_at", { ascending: false })
         .limit(50);
@@ -128,30 +128,31 @@ export default function ClientTimeline({ clientId, onBack }: ClientTimelineProps
           type: "selftest",
           icon: Package,
           title: language === "th" ? "ชุดตรวจ" : "Self-test Kit",
-          detail: `${s.delivery_method} — ${s.status}`,
+          detail: `${s.delivery_mode || "—"} — ${s.status}`,
           status: s.status,
         });
       });
 
-      // Case notes
-      const { data: notes } = await supabase
-        .from("case_notes")
-        .select("id, created_at, note_type, content, is_sensitive")
-        .eq("client_id", clientId)
-        .order("created_at", { ascending: false })
-        .limit(50);
+      // Case notes (table may not be in generated types yet, use any)
+      try {
+        const { data: notes } = await (supabase as any)
+          .from("case_notes")
+          .select("id, created_at, note_type, content, is_sensitive")
+          .eq("client_id", clientId)
+          .order("created_at", { ascending: false })
+          .limit(50);
 
-      notes?.forEach((n: any) => {
-        entries.push({
-          date: n.created_at,
-          type: "case_note",
-          icon: StickyNote,
-          title: `${language === "th" ? "บันทึก" : "Note"}: ${n.note_type}`,
-          detail: n.is_sensitive ? (language === "th" ? "[ข้อมูลอ่อนไหว]" : "[Sensitive]") : n.content,
+        (notes || []).forEach((n: any) => {
+          entries.push({
+            date: n.created_at,
+            type: "case_note",
+            icon: StickyNote,
+            title: `${language === "th" ? "บันทึก" : "Note"}: ${n.note_type}`,
+            detail: n.is_sensitive ? (language === "th" ? "[ข้อมูลอ่อนไหว]" : "[Sensitive]") : n.content,
+          });
         });
-      });
+      } catch {}
 
-      // Sort all entries by date descending
       entries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
       return entries;
     },
@@ -169,7 +170,6 @@ export default function ClientTimeline({ clientId, onBack }: ClientTimelineProps
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" onClick={onBack}>
           <ArrowLeft className="h-4 w-4" />
@@ -184,7 +184,6 @@ export default function ClientTimeline({ clientId, onBack }: ClientTimelineProps
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Timeline - 2 cols */}
         <div className="lg:col-span-2 space-y-4">
           <CaseNoteForm clientId={clientId} onSaved={refetch} />
 
@@ -195,7 +194,7 @@ export default function ClientTimeline({ clientId, onBack }: ClientTimelineProps
           ) : (
             <div className="space-y-3">
               {timeline?.map((entry, i) => (
-                <Card key={i} className="border-l-4" style={{ borderLeftColor: `var(--${entry.type === "appointment" ? "primary" : "muted-foreground"})` }}>
+                <Card key={i} className="border-l-4 border-l-primary/30">
                   <CardContent className="p-4">
                     <div className="flex items-start gap-3">
                       <entry.icon className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
@@ -206,9 +205,7 @@ export default function ClientTimeline({ clientId, onBack }: ClientTimelineProps
                             {entry.type.replace("_", " ")}
                           </Badge>
                           {entry.status && (
-                            <Badge variant="outline" className="text-[10px]">
-                              {entry.status}
-                            </Badge>
+                            <Badge variant="outline" className="text-[10px]">{entry.status}</Badge>
                           )}
                         </div>
                         <p className="text-sm text-muted-foreground mt-1 break-words">{entry.detail}</p>
@@ -229,7 +226,6 @@ export default function ClientTimeline({ clientId, onBack }: ClientTimelineProps
           )}
         </div>
 
-        {/* Follow-up sidebar */}
         <div>
           <FollowUpTracker clientId={clientId} />
         </div>

@@ -19,9 +19,9 @@ export default function FollowUpTracker({ clientId }: FollowUpTrackerProps) {
     queryFn: async () => {
       const { data } = await supabase
         .from("followup_events")
-        .select("id, due_date, status, followup_type, notes")
+        .select("id, scheduled_at, status, followup_type, notes")
         .eq("user_id", clientId)
-        .order("due_date", { ascending: true });
+        .order("scheduled_at", { ascending: true });
       return data || [];
     },
   });
@@ -54,7 +54,7 @@ export default function FollowUpTracker({ clientId }: FollowUpTrackerProps) {
             )}
 
             {pending.map((f) => {
-              const overdue = f.due_date && isPast(new Date(f.due_date)) && !isToday(new Date(f.due_date));
+              const overdue = f.scheduled_at && isPast(new Date(f.scheduled_at)) && !isToday(new Date(f.scheduled_at));
               return (
                 <div
                   key={f.id}
@@ -69,9 +69,9 @@ export default function FollowUpTracker({ clientId }: FollowUpTrackerProps) {
                       </Badge>
                     )}
                   </div>
-                  {f.due_date && (
+                  {f.scheduled_at && (
                     <p className="text-xs text-muted-foreground">
-                      {language === "th" ? "กำหนด" : "Due"}: {format(new Date(f.due_date), "dd/MM/yyyy")}
+                      {language === "th" ? "กำหนด" : "Due"}: {format(new Date(f.scheduled_at), "dd/MM/yyyy")}
                     </p>
                   )}
                   {f.notes && <p className="text-xs mt-1 text-muted-foreground">{f.notes}</p>}
@@ -86,7 +86,7 @@ export default function FollowUpTracker({ clientId }: FollowUpTrackerProps) {
                 </p>
                 {completed.slice(0, 3).map((f) => (
                   <div key={f.id} className="text-xs text-muted-foreground py-1">
-                    {f.followup_type} — {f.due_date ? format(new Date(f.due_date), "dd/MM/yyyy") : ""} ✓
+                    {f.followup_type} — {f.scheduled_at ? format(new Date(f.scheduled_at), "dd/MM/yyyy") : ""} ✓
                   </div>
                 ))}
               </div>
