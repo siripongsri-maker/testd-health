@@ -224,6 +224,7 @@ export default function Admin() {
           {renderTab("clinic-settings", <AdminClinicSettingsContent />)}
           {renderTab("service-pathways", <AdminServicePathwaysContent />)}
           {renderTab("front-desk", <AdminFrontDeskContent userBranch={userBranch} />)}
+          {renderTab("client-crm", <AdminCRMContent />)}
 
           {/* Compliance */}
           {renderTab("pdpa-compliance", <AdminPdpaComplianceContent />)}
