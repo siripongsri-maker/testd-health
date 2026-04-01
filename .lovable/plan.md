@@ -1,139 +1,68 @@
 
 
-# Client CRM / Case Management System
+# อัพเดทหน้าข้อมูลประชากร HR — ดึงข้อมูลจากทุกแหล่งหลัก
 
-## Summary
+## สรุป
 
-Build an internal staff-facing CRM that aggregates each client's full journey — appointments, service events, counseling, follow-ups, feedback, and self-test requests — into a single timeline view per client. Staff can add case notes, set follow-up reminders, and track outcomes across visits.
-
-This system does NOT duplicate data. It reads from existing canonical tables and adds only a lightweight `case_notes` table for staff observations.
+หน้า "ข้อมูลประชากร HR" ปัจจุบันดึงข้อมูลจาก `hr_user_profile` เพียงตารางเดียว จะอัพเดทให้รวมสถิติจากทุก HR table หลักๆ ได้แก่ check-ins, screenings, AI conversations, self-test requests และ peer posts เพื่อให้เห็นภาพรวมการใช้ HR ทั้งระบบ
 
 ---
 
-## What Already Exists (No Duplication)
+## สิ่งที่จะเปลี่ยน
 
-The platform already has the building blocks:
+### 1. อัพเดท Database Function `get_hr_demographic_stats`
 
-| Data | Source Table | Status |
-|------|-------------|--------|
-| Identity | `profiles` + `hr_user_profile` | Canonical |
-| Appointments | `appointments` | Canonical |
-| Service journey | `service_pathways` → `service_events` | Canonical |
-| Clinical visits | `clinic_encounters` | Canonical |
-| Counseling | `counseling_sessions` | Canonical |
-| Follow-ups | `followup_events` | Canonical |
-| Feedback | `client_feedback` | Canonical |
-| Self-test kits | `selftest_requests` | Canonical |
-| Queue visits | `client_visit_flows` | Canonical |
+เพิ่มข้อมูลใหม่จากตาราง:
+- `hr_checkins` — จำนวน check-ins ทั้งหมด
+- `hr_screenings` — จำนวน screenings ทั้งหมด
+- `hr_ai_conversations` — จำนวนการใช้ AI companion
+- `hiv_selftest_requests` — จำนวนคำขอชุดตรวจ
+- `hr_peer_posts` — จำนวนโพสต์ peer support
+- `hr_distress_alerts` — จำนวน distress alerts
+- `hr_safer_plans` — จำนวน safer use plans
+- `hr_referrals` — จำนวน referrals
 
-The CRM is a **read layer** on top of these, plus one new table for case notes.
+Function จะ return ข้อมูลเดิม (profiles, MSM/MSW, age/gender/behavior) **บวก** KPI ใหม่ทั้งหมด + สถิติรายเดือน (trend)
 
----
+### 2. อัพเดท `AdminDemographicsContent.tsx`
 
-## New Database Table
+เพิ่ม sections ใหม่:
 
-### `case_notes`
+**A. Summary KPI cards (แถวบน)**
+- Total Profiles | MSM | MSW (เดิม)
+- Total Check-ins | Total Screenings | Self-test Requests (ใหม่)
 
-| Column | Type | Notes |
-|--------|------|-------|
-| id | uuid PK | |
-| client_id | uuid | References `profiles.id` |
-| anonymous_token | text | For non-authenticated clients |
-| staff_id | uuid | Who wrote the note |
-| branch_id | uuid | Context branch |
-| note_type | text | `observation`, `follow_up`, `risk_flag`, `referral`, `general` |
-| content | text | The note itself |
-| is_sensitive | boolean | Extra access control |
-| linked_appointment_id | uuid | Optional link |
-| linked_service_event_id | uuid | Optional link |
-| created_at | timestamptz | |
+**B. HR Usage Overview (แถวกลาง)**
+- AI Conversations count
+- Peer Posts count  
+- Distress Alerts count
+- Safer Plans count
+- Referrals count
 
-**RLS**: Staff can insert/select notes for their branch. Admins see all. No client access.
+**C. Demographic Breakdowns (เดิม — คงไว้)**
+- Age / Gender / Sexual Behavior charts
+
+**D. Monthly Trend (ใหม่)**
+- แสดงจำนวน check-ins และ screenings ย้อนหลัง 6 เดือน (bar/simple chart)
 
 ---
 
-## Frontend Components
-
-### A. Client List View (`AdminCRMContent.tsx`)
-
-New admin tab "client-crm" under **Services & Care** group.
-
-- Searchable table of clients (from `profiles` + recent `appointments`)
-- Columns: Name, Last Visit, Branch, Services Used, Follow-up Status
-- Filters: branch, date range, has-pending-followup
-- Click row → opens Client Detail view
-- Branch-scoped for moderators, global for admins
-
-### B. Client Detail / Timeline (`ClientTimeline.tsx`)
-
-Single-client view aggregating data from all canonical tables into a chronological timeline:
-
-- **Header**: Client name, anonymous ID, branch, first/last visit dates
-- **Timeline entries** (newest first):
-  - Appointments (status, service, branch)
-  - Service events (type, outcome, referrals)
-  - Counseling sessions (summary, action plan)
-  - Follow-up events (status, due date)
-  - Feedback submissions (scores)
-  - Case notes (staff-written)
-  - Self-test requests (if any)
-- Each entry shows icon, date, type badge, and summary
-- PII masking follows existing reveal-with-reason pattern
-
-### C. Case Note Form (`CaseNoteForm.tsx`)
-
-- Inline form within timeline to add notes
-- Fields: note type (dropdown), content (textarea), link to appointment (optional), sensitive flag
-- Validates staff auth before insert
-
-### D. Follow-up Tracker (`FollowUpTracker.tsx`)
-
-- Panel within client detail showing pending `followup_events`
-- Quick actions: mark complete, reschedule, add note
-- Overdue items highlighted in red
-
----
-
-## Admin Navigation
-
-Add to **Services & Care** group in sidebar:
-```
-{ tab: "client-crm", icon: Users, labelKey: "admin.clientCRM", adminOnly: true }
-```
-
----
-
-## Privacy & Security
-
-- All queries are branch-scoped via RLS for moderator role
-- PII (name, phone, Thai ID) uses existing masking/reveal pattern
-- `case_notes.is_sensitive` adds extra gate for flagged content
-- No health details stored in case_notes — only operational observations
-- Audit trail via existing `pii_access_log` for reveals
-- PDPA-compliant: notes are operational records, not medical records
-
----
-
-## Files to Create/Modify
+## ไฟล์ที่เปลี่ยน
 
 | Action | File |
 |--------|------|
-| Create | `src/components/admin/crm/AdminCRMContent.tsx` |
-| Create | `src/components/admin/crm/ClientTimeline.tsx` |
-| Create | `src/components/admin/crm/CaseNoteForm.tsx` |
-| Create | `src/components/admin/crm/FollowUpTracker.tsx` |
-| Create | `src/components/admin/crm/ClientListTable.tsx` |
-| Create | DB migration: `case_notes` table + RLS |
-| Modify | `src/components/AdminSidebar.tsx` — add CRM tab |
-| Modify | `src/pages/Admin.tsx` — register CRM content |
-| Modify | `src/lib/i18n.ts` — add translation keys |
+| Migration | อัพเดท function `get_hr_demographic_stats` เพิ่ม return columns |
+| Modify | `src/components/admin/AdminDemographicsContent.tsx` — เพิ่ม KPI cards + usage section + trend |
 
 ---
 
-## Estimated Scope
-- 1 migration (1 new table + RLS policies)
-- ~5 new files
-- ~3 modified files
-- No changes to existing tables or logic
-- No breaking changes
+## สิ่งที่จะไม่แตะ
+- ไม่แก้ routes, auth, booking, notifications, อะไรทั้งนั้น
+- ไม่สร้างตารางใหม่ — อ่านจากที่มีอยู่แล้วทั้งหมด
+- RLS เดิมทำงานอยู่แล้ว (admin read all)
+
+## Scope
+- 1 migration (replace function)
+- 1 file modified
+- ไม่มี breaking changes
 
