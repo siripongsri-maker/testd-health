@@ -9598,9 +9598,18 @@ export type Database = {
           age_stats: Json
           behavior_stats: Json
           gender_stats: Json
+          monthly_trend: Json
           msm_count: number
           msw_count: number
+          total_ai_conversations: number
+          total_checkins: number
+          total_distress_alerts: number
+          total_peer_posts: number
           total_profiles: number
+          total_referrals: number
+          total_safer_plans: number
+          total_screenings: number
+          total_selftest_requests: number
         }[]
       }
       get_milestone_completed_count: {
