@@ -119,6 +119,7 @@ function AppShell() {
               <Route path="/surveys" element={<Surveys />} />
               <Route path="/surveys/:id" element={<SurveyTake />} />
               <Route path="/surveys/:id/builder" element={<SurveyBuilder />} />
+              <Route path="/surveys/youth-hiv" element={<YouthHivSurvey />} />
               <Route path="/health-profile" element={<HealthProfile />} />
               <Route path="/consultation" element={<ConsultationForm />} />
               <Route path="/admin" element={<Admin />} />
