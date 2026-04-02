@@ -767,6 +767,36 @@ export default function Surveys() {
           </TabsList>
 
           <TabsContent value="all" className="space-y-3">
+            {/* Featured: Youth HIV Survey */}
+            <Card
+              className="p-4 cursor-pointer hover:shadow-md transition-all border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5"
+              onClick={() => navigate('/surveys/youth-hiv')}
+            >
+              <div className="flex items-start gap-3">
+                <div className="h-12 w-12 rounded-xl bg-primary/15 flex items-center justify-center flex-shrink-0 text-xl">
+                  🌿
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+                    <h3 className="font-semibold text-foreground text-sm leading-tight">
+                      {language === 'th' ? 'แบบสำรวจเยาวชนไทย เรื่อง HIV' : 'Youth HIV Knowledge Survey'}
+                    </h3>
+                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-primary/15 text-primary text-[10px] font-bold rounded-full">
+                      <Sparkles className="h-2.5 w-2.5" /> NEW
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground line-clamp-2 mb-1">
+                    {language === 'th'
+                      ? 'ไม่ระบุตัวตน · 5–7 นาที · ช่วยพัฒนาบริการสุขภาพสำหรับเยาวชน'
+                      : 'Anonymous · 5–7 min · Help improve health services for youth'}
+                  </p>
+                  <span className="flex items-center gap-1 text-[11px] text-primary font-medium">
+                    <Eye className="h-3 w-3" /> {language === 'th' ? 'เริ่มทำแบบสำรวจ' : 'Take Survey'}
+                  </span>
+                </div>
+              </div>
+            </Card>
+
             {loading ? (
               <div className="flex justify-center py-12">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />

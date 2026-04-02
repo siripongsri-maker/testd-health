@@ -115,6 +115,7 @@ const menuGroups: MenuGroup[] = [
     items: [
       { tab: "blog", icon: FileText, labelKey: "admin.blog", adminOnly: true },
       { tab: "surveys", icon: ClipboardList, labelKey: "admin.surveys", adminOnly: true },
+      { tab: "youth-survey", icon: ClipboardList, labelKey: "admin.youthSurvey", adminOnly: true, meAnalyst: true },
       { tab: "rewards", icon: Gift, labelKey: "admin.rewards", adminOnly: true },
       { tab: "milestones", icon: Target, labelKey: "admin.milestones", adminOnly: true },
       { tab: "notifications", icon: Bell, labelKey: "admin.notifications", adminOnly: true },

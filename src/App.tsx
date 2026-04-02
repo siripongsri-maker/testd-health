@@ -78,6 +78,7 @@ const OutreachForm = lazy(() => import("./pages/OutreachForm"));
 const PrivacyCenter = lazy(() => import("./pages/PrivacyCenter"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
+const YouthHivSurvey = lazy(() => import("./pages/YouthHivSurvey"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -118,6 +119,7 @@ function AppShell() {
               <Route path="/surveys" element={<Surveys />} />
               <Route path="/surveys/:id" element={<SurveyTake />} />
               <Route path="/surveys/:id/builder" element={<SurveyBuilder />} />
+              <Route path="/surveys/youth-hiv" element={<YouthHivSurvey />} />
               <Route path="/health-profile" element={<HealthProfile />} />
               <Route path="/consultation" element={<ConsultationForm />} />
               <Route path="/admin" element={<Admin />} />
