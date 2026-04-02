@@ -9090,6 +9090,75 @@ export type Database = {
           },
         ]
       }
+      youth_hiv_survey_responses: {
+        Row: {
+          age_group: string | null
+          barriers: string[] | null
+          comfort_talking: string | null
+          consent: string
+          created_at: string
+          gender_identities: string[] | null
+          id: string
+          knowledge_level: string | null
+          open_feedback: string | null
+          platforms: string[] | null
+          prevention_methods: string[] | null
+          region: string | null
+          role: string | null
+          school_hiv: string | null
+          session_id: string | null
+          stigma_avoidance: string | null
+          taught_hiv: string | null
+          teach_barriers: string[] | null
+          tested_12m: string | null
+          use_ai_interest: string | null
+        }
+        Insert: {
+          age_group?: string | null
+          barriers?: string[] | null
+          comfort_talking?: string | null
+          consent: string
+          created_at?: string
+          gender_identities?: string[] | null
+          id?: string
+          knowledge_level?: string | null
+          open_feedback?: string | null
+          platforms?: string[] | null
+          prevention_methods?: string[] | null
+          region?: string | null
+          role?: string | null
+          school_hiv?: string | null
+          session_id?: string | null
+          stigma_avoidance?: string | null
+          taught_hiv?: string | null
+          teach_barriers?: string[] | null
+          tested_12m?: string | null
+          use_ai_interest?: string | null
+        }
+        Update: {
+          age_group?: string | null
+          barriers?: string[] | null
+          comfort_talking?: string | null
+          consent?: string
+          created_at?: string
+          gender_identities?: string[] | null
+          id?: string
+          knowledge_level?: string | null
+          open_feedback?: string | null
+          platforms?: string[] | null
+          prevention_methods?: string[] | null
+          region?: string | null
+          role?: string | null
+          school_hiv?: string | null
+          session_id?: string | null
+          stigma_avoidance?: string | null
+          taught_hiv?: string | null
+          teach_barriers?: string[] | null
+          tested_12m?: string | null
+          use_ai_interest?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       feedback_summary: {
