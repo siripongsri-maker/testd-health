@@ -93,6 +93,7 @@ const ME_ANALYST_TABS = new Set([
   "mel-services", "mel-indicators", "mel-outreach", "mel-training",
   "mel-safe-spaces", "mel-partners", "mel-policy", "mel-evaluation", "mel-reporting",
   "youth-survey",
+  "virtual-stories",
   // HR Service System
   "service-pathways",
   // System

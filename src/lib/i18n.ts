@@ -1034,6 +1034,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.frontDesk': 'Front Desk',
     'admin.clientCRM': 'Client CRM',
     'admin.youthSurvey': 'Youth HIV Survey',
+    'admin.virtualStories': 'Virtual Stories',
     'admin.clinicOps': 'Clinic Operations',
     'admin.mel': 'MEL',
     'admin.melServices': 'Service Ledger',
