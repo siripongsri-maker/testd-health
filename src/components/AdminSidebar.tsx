@@ -27,6 +27,7 @@ import {
   Activity, Wrench, Monitor, FileDown, Target, Fingerprint, ListOrdered,
   Network, Sparkles, Globe, BookOpen, HeartHandshake,
   Stethoscope,
+  Play,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
