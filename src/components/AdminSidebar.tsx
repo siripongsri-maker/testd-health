@@ -27,6 +27,7 @@ import {
   Activity, Wrench, Monitor, FileDown, Target, Fingerprint, ListOrdered,
   Network, Sparkles, Globe, BookOpen, HeartHandshake,
   Stethoscope,
+  Play,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -116,6 +117,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "blog", icon: FileText, labelKey: "admin.blog", adminOnly: true },
       { tab: "surveys", icon: ClipboardList, labelKey: "admin.surveys", adminOnly: true },
       { tab: "youth-survey", icon: ClipboardList, labelKey: "admin.youthSurvey", adminOnly: true, meAnalyst: true },
+      { tab: "virtual-stories", icon: Play, labelKey: "admin.virtualStories", adminOnly: true, meAnalyst: true },
       { tab: "rewards", icon: Gift, labelKey: "admin.rewards", adminOnly: true },
       { tab: "milestones", icon: Target, labelKey: "admin.milestones", adminOnly: true },
       { tab: "notifications", icon: Bell, labelKey: "admin.notifications", adminOnly: true },

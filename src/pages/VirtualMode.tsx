@@ -5,42 +5,64 @@ import { PixelWorld } from "@/components/virtual/PixelWorld";
 import { VirtualGuide } from "@/components/virtual/VirtualGuide";
 import { VirtualIntroOverlay } from "@/components/virtual/VirtualIntroOverlay";
 import { DateStoryExperience } from "@/components/virtual/DateStoryExperience";
+import { Episode2Player } from "@/components/virtual/Episode2Player";
+import { VirtualStoryHub } from "@/components/virtual/VirtualStoryHub";
 
 interface Props {
   forceClinic?: boolean;
+  forceEp2?: boolean;
 }
 
-export default function VirtualMode({ forceClinic }: Props) {
+export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const [showClinic, setShowClinic] = useState(!!forceClinic);
+  const [view, setView] = useState<'hub' | 'ep1' | 'ep2'>(forceEp2 ? 'ep2' : 'hub');
 
   const displayName =
     user?.user_metadata?.display_name ||
     user?.email?.split("@")[0] ||
     (language === "th" ? "ฉัน" : "Me");
 
-  if (!showClinic) {
+  if (showClinic) {
     return (
-      <div style={{
-        height: "calc(100dvh - 3.5rem)",
-        paddingBottom: "env(safe-area-inset-bottom, 0px)",
-      }}>
-        <DateStoryExperience />
-      </div>
+      <>
+        <VirtualIntroOverlay />
+        <div style={{
+          height: "calc(100dvh - 3.5rem)",
+          paddingBottom: "env(safe-area-inset-bottom, 0px)",
+        }}>
+          <PixelWorld displayName={displayName} />
+        </div>
+        <VirtualGuide />
+      </>
     );
   }
 
   return (
-    <>
-      <VirtualIntroOverlay />
-      <div style={{
-        height: "calc(100dvh - 3.5rem)",
-        paddingBottom: "env(safe-area-inset-bottom, 0px)",
-      }}>
-        <PixelWorld displayName={displayName} />
-      </div>
-      <VirtualGuide />
-    </>
+    <div style={{
+      height: "calc(100dvh - 3.5rem)",
+      paddingBottom: "env(safe-area-inset-bottom, 0px)",
+    }}>
+      {view === 'hub' && (
+        <VirtualStoryHub
+          onSelectEp1={() => setView('ep1')}
+          onSelectEp2={() => setView('ep2')}
+        />
+      )}
+      {view === 'ep1' && (
+        <div className="h-full relative">
+          <button onClick={() => setView('hub')}
+            className="absolute top-3 left-3 z-50 p-2 rounded-lg bg-black/50 text-white"
+            style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 8 }}>
+            ← BACK
+          </button>
+          <DateStoryExperience />
+        </div>
+      )}
+      {view === 'ep2' && (
+        <Episode2Player onBack={() => setView('hub')} />
+      )}
+    </div>
   );
 }
