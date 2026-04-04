@@ -509,6 +509,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.frontDesk': 'แผนกต้อนรับ',
     'admin.clientCRM': 'จัดการผู้รับบริการ',
     'admin.youthSurvey': 'แบบสำรวจเยาวชน HIV',
+    'admin.virtualStories': 'Virtual Stories',
     'admin.clinicOps': 'ปฏิบัติการคลินิก',
     'admin.mel': 'MEL',
     'admin.melServices': 'บันทึกบริการ',
