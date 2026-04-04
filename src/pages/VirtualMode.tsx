@@ -51,7 +51,14 @@ export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
         />
       )}
       {view === 'ep1' && (
-        <DateStoryExperience onBack={() => setView('hub')} />
+        <div className="h-full relative">
+          <button onClick={() => setView('hub')}
+            className="absolute top-3 left-3 z-50 p-2 rounded-lg bg-black/50 text-white"
+            style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 8 }}>
+            ← BACK
+          </button>
+          <DateStoryExperience />
+        </div>
       )}
       {view === 'ep2' && (
         <Episode2Player onBack={() => setView('hub')} />
