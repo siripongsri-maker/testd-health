@@ -8976,6 +8976,125 @@ export type Database = {
         }
         Relationships: []
       }
+      virtual_story_events: {
+        Row: {
+          choice_key: string | null
+          choice_text: string | null
+          created_at: string
+          cta_target: string | null
+          event_name: string
+          id: string
+          payload: Json | null
+          scene_id: string | null
+          scene_label: string | null
+          session_id: string
+          story_id: string
+          topic: string | null
+        }
+        Insert: {
+          choice_key?: string | null
+          choice_text?: string | null
+          created_at?: string
+          cta_target?: string | null
+          event_name: string
+          id?: string
+          payload?: Json | null
+          scene_id?: string | null
+          scene_label?: string | null
+          session_id: string
+          story_id: string
+          topic?: string | null
+        }
+        Update: {
+          choice_key?: string | null
+          choice_text?: string | null
+          created_at?: string
+          cta_target?: string | null
+          event_name?: string
+          id?: string
+          payload?: Json | null
+          scene_id?: string | null
+          scene_label?: string | null
+          session_id?: string
+          story_id?: string
+          topic?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "virtual_story_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "virtual_story_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      virtual_story_sessions: {
+        Row: {
+          anonymous_id: string | null
+          community_score: number
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          current_scene: string | null
+          device_type: string | null
+          episode_number: number
+          exited_at: string | null
+          id: string
+          knowledge_score: number
+          language: string | null
+          path_selected: string | null
+          readiness_score: number
+          result_type: string | null
+          source_page: string | null
+          started_at: string
+          story_id: string
+          user_id: string | null
+        }
+        Insert: {
+          anonymous_id?: string | null
+          community_score?: number
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          current_scene?: string | null
+          device_type?: string | null
+          episode_number?: number
+          exited_at?: string | null
+          id?: string
+          knowledge_score?: number
+          language?: string | null
+          path_selected?: string | null
+          readiness_score?: number
+          result_type?: string | null
+          source_page?: string | null
+          started_at?: string
+          story_id: string
+          user_id?: string | null
+        }
+        Update: {
+          anonymous_id?: string | null
+          community_score?: number
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          current_scene?: string | null
+          device_type?: string | null
+          episode_number?: number
+          exited_at?: string | null
+          id?: string
+          knowledge_score?: number
+          language?: string | null
+          path_selected?: string | null
+          readiness_score?: number
+          result_type?: string | null
+          source_page?: string | null
+          started_at?: string
+          story_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       visitor_attribution: {
         Row: {
           anonymous_id: string
