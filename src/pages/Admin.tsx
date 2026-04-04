@@ -229,6 +229,7 @@ export default function Admin() {
           {renderTab("front-desk", <AdminFrontDeskContent userBranch={userBranch} />)}
           {renderTab("client-crm", <AdminCRMContent />)}
           {renderTab("youth-survey", <AdminYouthSurveyContent />)}
+          {renderTab("virtual-stories", <AdminVirtualStoriesContent />)}
 
           {/* Compliance */}
           {renderTab("pdpa-compliance", <AdminPdpaComplianceContent />)}
