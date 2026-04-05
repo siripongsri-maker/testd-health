@@ -30,10 +30,10 @@ const BASE_URL = "https://testd-health.lovable.app";
 
 /** Default fallback for unknown/new pages */
 export const SEO_FALLBACK: RouteSEO = {
-  titleTh: "testD — แพลตฟอร์มสุขภาพและการดูแลตัวเอง",
-  titleEn: "testD — Health & Self-Care Platform",
-  descTh: "แพลตฟอร์มสุขภาพสำหรับชุมชน รับชุดตรวจ HIV ฟรี จองตรวจ และปรึกษาผู้เชี่ยวชาญ",
-  descEn: "Community health platform. Free HIV test kits, clinic booking, and counseling support.",
+  titleTh: "testD — ตรวจ HIV ฟรี จองคลินิก ดูแลสุขภาพครบวงจร",
+  titleEn: "testD — Free HIV Testing, Clinic Booking & Health Tools",
+  descTh: "ตรวจ HIV ฟรีถึงบ้าน จองนัดคลินิก ปรึกษาผู้เชี่ยวชาญ ดูแลสุขภาพอย่างเป็นส่วนตัว ปลอดภัย",
+  descEn: "Free HIV self-test kits, clinic booking, expert counseling, and comprehensive health tools.",
   routeClass: "public_indexable",
 };
 
