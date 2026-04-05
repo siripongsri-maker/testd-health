@@ -30,10 +30,10 @@ const BASE_URL = "https://testd-health.lovable.app";
 
 /** Default fallback for unknown/new pages */
 export const SEO_FALLBACK: RouteSEO = {
-  titleTh: "testD — แพลตฟอร์มสุขภาพและการดูแลตัวเอง",
-  titleEn: "testD — Health & Self-Care Platform",
-  descTh: "แพลตฟอร์มสุขภาพสำหรับชุมชน รับชุดตรวจ HIV ฟรี จองตรวจ และปรึกษาผู้เชี่ยวชาญ",
-  descEn: "Community health platform. Free HIV test kits, clinic booking, and counseling support.",
+  titleTh: "testD — ตรวจ HIV ฟรี จองคลินิก ดูแลสุขภาพครบวงจร",
+  titleEn: "testD — Free HIV Testing, Clinic Booking & Health Tools",
+  descTh: "ตรวจ HIV ฟรีถึงบ้าน จองนัดคลินิก ปรึกษาผู้เชี่ยวชาญ ดูแลสุขภาพอย่างเป็นส่วนตัว ปลอดภัย",
+  descEn: "Free HIV self-test kits, clinic booking, expert counseling, and comprehensive health tools.",
   routeClass: "public_indexable",
 };
 
@@ -44,10 +44,10 @@ export const SEO_FALLBACK: RouteSEO = {
  */
 export const SEO_MAP: Record<string, RouteSEO> = {
   "/": {
-    titleTh: "testD — แพลตฟอร์มสุขภาพชุมชน",
-    titleEn: "testD — Community Health Platform",
-    descTh: "ชุมชนที่ปลอดภัยสำหรับการดูแลสุขภาพ รับชุดตรวจ HIV ฟรีถึงบ้าน จองคลินิก ปรึกษาผู้เชี่ยวชาญ",
-    descEn: "A safe community for your health. Free HIV test kits, clinic booking, and expert counseling.",
+    titleTh: "testD — ตรวจ HIV ฟรี จองคลินิก ดูแลสุขภาพครบวงจร",
+    titleEn: "testD — Free HIV Testing, Clinic Booking & Health Tools",
+    descTh: "ตรวจ HIV ฟรีถึงบ้าน จองนัดคลินิก ปรึกษาผู้เชี่ยวชาญ PrEP/PEP ดูแลสุขภาพอย่างเป็นส่วนตัว ปลอดภัย",
+    descEn: "Free HIV self-test delivered home, clinic booking, PrEP/PEP support, and expert health counseling.",
     routeClass: "public_indexable",
     canonicalPath: "/",
   },
@@ -422,6 +422,22 @@ export const SEO_MAP: Record<string, RouteSEO> = {
     descEn: "How to use an HIV self-test, read results, and next steps.",
     routeClass: "public_indexable",
     canonicalPath: "/hiv-self-test-guide",
+  },
+  "/virtual": {
+    titleTh: "Virtual Stories — เรียนรู้สุขภาพผ่านเรื่องเล่าแบบเลือกเส้นทาง | testD",
+    titleEn: "Virtual Stories — Interactive Health Stories | testD",
+    descTh: "เรียนรู้เรื่อง HIV, PrEP, Lenacapavir และการดูแลตัวเองผ่านเรื่องเล่าแบบเลือกได้ เล่นฟรี ไม่ต้องสมัคร",
+    descEn: "Learn about HIV prevention, PrEP, and self-care through interactive choose-your-path stories. Free to play.",
+    routeClass: "public_indexable",
+    canonicalPath: "/virtual",
+  },
+  "/virtual/ep2": {
+    titleTh: "มาร์คกับเข็มที่เขายังไม่รู้ว่ามีอยู่ — PrEP & Lenacapavir | testD",
+    titleEn: "Marc & The Injection He Didn't Know Existed — PrEP Story | testD",
+    descTh: "เรื่องราวของมาร์คกับการค้นพบ PrEP และ Lenacapavir ทางเลือกใหม่ในการป้องกัน HIV ฉีดปีละ 2 ครั้ง",
+    descEn: "Marc's journey discovering PrEP and Lenacapavir — a new twice-yearly HIV prevention option.",
+    routeClass: "public_indexable",
+    canonicalPath: "/virtual/ep2",
   },
 };
 
