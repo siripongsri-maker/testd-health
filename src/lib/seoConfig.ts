@@ -423,6 +423,22 @@ export const SEO_MAP: Record<string, RouteSEO> = {
     routeClass: "public_indexable",
     canonicalPath: "/hiv-self-test-guide",
   },
+  "/virtual": {
+    titleTh: "Virtual Stories — เรียนรู้สุขภาพผ่านเรื่องเล่าแบบเลือกเส้นทาง | testD",
+    titleEn: "Virtual Stories — Interactive Health Stories | testD",
+    descTh: "เรียนรู้เรื่อง HIV, PrEP, Lenacapavir และการดูแลตัวเองผ่านเรื่องเล่าแบบเลือกได้ เล่นฟรี ไม่ต้องสมัคร",
+    descEn: "Learn about HIV prevention, PrEP, and self-care through interactive choose-your-path stories. Free to play.",
+    routeClass: "public_indexable",
+    canonicalPath: "/virtual",
+  },
+  "/virtual/ep2": {
+    titleTh: "มาร์คกับเข็มที่เขายังไม่รู้ว่ามีอยู่ — PrEP & Lenacapavir | testD",
+    titleEn: "Marc & The Injection He Didn't Know Existed — PrEP Story | testD",
+    descTh: "เรื่องราวของมาร์คกับการค้นพบ PrEP และ Lenacapavir ทางเลือกใหม่ในการป้องกัน HIV ฉีดปีละ 2 ครั้ง",
+    descEn: "Marc's journey discovering PrEP and Lenacapavir — a new twice-yearly HIV prevention option.",
+    routeClass: "public_indexable",
+    canonicalPath: "/virtual/ep2",
+  },
 };
 
 /**
