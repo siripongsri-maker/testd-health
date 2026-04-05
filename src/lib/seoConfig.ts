@@ -44,10 +44,10 @@ export const SEO_FALLBACK: RouteSEO = {
  */
 export const SEO_MAP: Record<string, RouteSEO> = {
   "/": {
-    titleTh: "testD — แพลตฟอร์มสุขภาพชุมชน",
-    titleEn: "testD — Community Health Platform",
-    descTh: "ชุมชนที่ปลอดภัยสำหรับการดูแลสุขภาพ รับชุดตรวจ HIV ฟรีถึงบ้าน จองคลินิก ปรึกษาผู้เชี่ยวชาญ",
-    descEn: "A safe community for your health. Free HIV test kits, clinic booking, and expert counseling.",
+    titleTh: "testD — ตรวจ HIV ฟรี จองคลินิก ดูแลสุขภาพครบวงจร",
+    titleEn: "testD — Free HIV Testing, Clinic Booking & Health Tools",
+    descTh: "ตรวจ HIV ฟรีถึงบ้าน จองนัดคลินิก ปรึกษาผู้เชี่ยวชาญ PrEP/PEP ดูแลสุขภาพอย่างเป็นส่วนตัว ปลอดภัย",
+    descEn: "Free HIV self-test delivered home, clinic booking, PrEP/PEP support, and expert health counseling.",
     routeClass: "public_indexable",
     canonicalPath: "/",
   },
