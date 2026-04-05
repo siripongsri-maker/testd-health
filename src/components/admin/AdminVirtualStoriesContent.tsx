@@ -3,15 +3,31 @@ import { useLanguage } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, BarChart3, Users, CheckCircle, TrendingUp, Play, RefreshCw } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Download, BarChart3, Users, CheckCircle, TrendingUp, Play, RefreshCw, Lightbulb, AlertTriangle, Sparkles, Target } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { generateSmartInsights, type StatsInput, type SmartInsightsResult, type InsightSeverity } from "@/lib/virtualStoryInsights";
 
 const COLORS = ['#ff4da6', '#00e5ff', '#ffe600', '#7fffd4', '#9b30ff', '#00cc70'];
+
+const SEVERITY_STYLES: Record<InsightSeverity, string> = {
+  success: 'border-green-500/30 bg-green-500/10',
+  info: 'border-primary/30 bg-primary/10',
+  warning: 'border-yellow-500/30 bg-yellow-500/10',
+  danger: 'border-destructive/30 bg-destructive/10',
+};
+
+const FLAG_VARIANT: Record<InsightSeverity, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+  success: 'default',
+  info: 'secondary',
+  warning: 'outline',
+  danger: 'destructive',
+};
 
 export default function AdminVirtualStoriesContent() {
   const { language } = useLanguage();
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState<any>({
+  const [stats, setStats] = useState<StatsInput>({
     totalStarts: 0, totalCompletions: 0, completionRate: 0,
     replayCount: 0, pathDistribution: [], resultDistribution: [],
     sceneDropoff: [], ctaClicks: [], monthlyTrend: [],
@@ -20,17 +36,10 @@ export default function AdminVirtualStoriesContent() {
   const fetchStats = async () => {
     setLoading(true);
     try {
-      // Fetch sessions
       const { data: sessions } = await supabase
-        .from('virtual_story_sessions')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      // Fetch events
+        .from('virtual_story_sessions').select('*').order('created_at', { ascending: false });
       const { data: events } = await supabase
-        .from('virtual_story_events')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .from('virtual_story_events').select('*').order('created_at', { ascending: false });
 
       if (!sessions) { setLoading(false); return; }
 
@@ -39,7 +48,6 @@ export default function AdminVirtualStoriesContent() {
       const totalCompletions = completed.length;
       const completionRate = totalStarts > 0 ? Math.round((totalCompletions / totalStarts) * 100) : 0;
 
-      // Replay count (same anonymous_id with multiple sessions)
       const idCounts: Record<string, number> = {};
       sessions.forEach((s: any) => {
         const key = s.user_id || s.anonymous_id || 'unknown';
@@ -47,44 +55,25 @@ export default function AdminVirtualStoriesContent() {
       });
       const replayCount = Object.values(idCounts).filter(c => c > 1).reduce((a, b) => a + b - 1, 0);
 
-      // Path distribution
       const pathCounts: Record<string, number> = {};
-      completed.forEach((s: any) => {
-        const p = s.path_selected || 'unknown';
-        pathCounts[p] = (pathCounts[p] || 0) + 1;
-      });
+      completed.forEach((s: any) => { const p = s.path_selected || 'unknown'; pathCounts[p] = (pathCounts[p] || 0) + 1; });
       const pathDistribution = Object.entries(pathCounts).map(([name, value]) => ({ name, value }));
 
-      // Result distribution
       const resultCounts: Record<string, number> = {};
-      completed.forEach((s: any) => {
-        const r = s.result_type || 'unknown';
-        resultCounts[r] = (resultCounts[r] || 0) + 1;
-      });
+      completed.forEach((s: any) => { const r = s.result_type || 'unknown'; resultCounts[r] = (resultCounts[r] || 0) + 1; });
       const resultDistribution = Object.entries(resultCounts).map(([name, value]) => ({ name, value }));
 
-      // Scene dropoff from events
       const sceneViews: Record<string, number> = {};
       (events || []).filter((e: any) => e.event_name === 'virtual_story_scene_viewed' || e.event_name === 'virtual_story_choice_selected')
-        .forEach((e: any) => {
-          const scene = e.scene_id || 'unknown';
-          sceneViews[scene] = (sceneViews[scene] || 0) + 1;
-        });
-      const sceneDropoff = Object.entries(sceneViews)
-        .map(([scene, count]) => ({ scene, count }))
+        .forEach((e: any) => { const scene = e.scene_id || 'unknown'; sceneViews[scene] = (sceneViews[scene] || 0) + 1; });
+      const sceneDropoff = Object.entries(sceneViews).map(([scene, count]) => ({ scene, count }))
         .sort((a, b) => Number(a.scene) - Number(b.scene));
 
-      // CTA clicks
       const ctaCounts: Record<string, number> = {};
       (events || []).filter((e: any) => e.event_name === 'virtual_story_cta_clicked')
-        .forEach((e: any) => {
-          const target = e.cta_target || e.choice_text || 'unknown';
-          ctaCounts[target] = (ctaCounts[target] || 0) + 1;
-        });
-      const ctaClicks = Object.entries(ctaCounts).map(([name, value]) => ({ name, value }))
-        .sort((a, b) => b.value - a.value);
+        .forEach((e: any) => { const target = e.cta_target || e.choice_text || 'unknown'; ctaCounts[target] = (ctaCounts[target] || 0) + 1; });
+      const ctaClicks = Object.entries(ctaCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
 
-      // Monthly trend
       const monthlyMap: Record<string, { starts: number; completions: number }> = {};
       sessions.forEach((s: any) => {
         const month = (s.created_at || '').substring(0, 7);
@@ -92,15 +81,10 @@ export default function AdminVirtualStoriesContent() {
         monthlyMap[month].starts++;
         if (s.completed) monthlyMap[month].completions++;
       });
-      const monthlyTrend = Object.entries(monthlyMap)
-        .map(([month, data]) => ({ month, ...data }))
-        .sort((a, b) => a.month.localeCompare(b.month))
-        .slice(-6);
+      const monthlyTrend = Object.entries(monthlyMap).map(([month, data]) => ({ month, ...data }))
+        .sort((a, b) => a.month.localeCompare(b.month)).slice(-6);
 
-      setStats({
-        totalStarts, totalCompletions, completionRate, replayCount,
-        pathDistribution, resultDistribution, sceneDropoff, ctaClicks, monthlyTrend,
-      });
+      setStats({ totalStarts, totalCompletions, completionRate, replayCount, pathDistribution, resultDistribution, sceneDropoff, ctaClicks, monthlyTrend });
     } catch (err) {
       console.error('Virtual stories stats error:', err);
     }
@@ -109,13 +93,20 @@ export default function AdminVirtualStoriesContent() {
 
   useEffect(() => { fetchStats(); }, []);
 
+  const smartInsights: SmartInsightsResult = generateSmartInsights(stats);
+
   const exportCSV = async () => {
     try {
       const { data: sessions } = await supabase.from('virtual_story_sessions').select('*').order('created_at', { ascending: false });
       if (!sessions?.length) return;
       const headers = Object.keys(sessions[0]);
+      // Add insight summary row
+      const insightHeaders = Object.keys(smartInsights.csvSummary);
+      const allHeaders = [...new Set([...headers, ...insightHeaders])];
       const bom = '\uFEFF';
-      const csv = bom + [headers.join(','), ...sessions.map(r => headers.map(h => `"${(r as any)[h] ?? ''}"`).join(','))].join('\n');
+      const dataRows = sessions.map(r => allHeaders.map(h => `"${(r as any)[h] ?? ''}"`).join(','));
+      const summaryRow = allHeaders.map(h => `"${smartInsights.csvSummary[h] ?? ''}"`).join(',');
+      const csv = bom + [allHeaders.join(','), ...dataRows, '', '"--- INSIGHT SUMMARY ---"', summaryRow].join('\n');
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a'); a.href = url; a.download = `virtual_stories_${new Date().toISOString().split('T')[0]}.csv`;
@@ -127,16 +118,99 @@ export default function AdminVirtualStoriesContent() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold flex items-center gap-2">
           <Play className="h-5 w-5 text-primary" />
-          {th ? 'Virtual Stories Analytics' : 'Virtual Stories Analytics'}
+          Virtual Stories Analytics
         </h2>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={fetchStats}><RefreshCw className="h-4 w-4 mr-1" />{th ? 'รีเฟรช' : 'Refresh'}</Button>
           <Button variant="outline" size="sm" onClick={exportCSV}><Download className="h-4 w-4 mr-1" />CSV</Button>
         </div>
       </div>
+
+      {/* ═══ SMART INSIGHTS PANEL ═══ */}
+      {!loading && (
+        <Card className="border-primary/20">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              {th ? 'Smart Insights' : 'Smart Insights'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Executive Summary */}
+            <div className="rounded-xl bg-muted/50 p-4 space-y-2">
+              <div className="flex items-start gap-2">
+                <Lightbulb className="h-4 w-4 text-yellow-500 mt-0.5 shrink-0" />
+                <div className="space-y-1 text-sm">
+                  <p><span className="font-semibold">{th ? 'เกิดอะไรขึ้น:' : 'What happened:'}</span> {smartInsights.summary.whatHappened}</p>
+                  <p><span className="font-semibold">{th ? 'นัยสำคัญ:' : 'What it means:'}</span> {smartInsights.summary.whatItMeans}</p>
+                  <p><span className="font-semibold">{th ? 'ควรทำอะไรต่อ:' : 'Recommended:'}</span> {smartInsights.summary.recommendedAction}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Flags */}
+            {smartInsights.flags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {smartInsights.flags.map((flag, i) => (
+                  <Badge key={i} variant={FLAG_VARIANT[flag.severity]} className="text-xs">
+                    {flag.severity === 'danger' && <AlertTriangle className="h-3 w-3 mr-1" />}
+                    {flag.label}
+                  </Badge>
+                ))}
+              </div>
+            )}
+
+            {/* Top Insights */}
+            {smartInsights.insights.length > 0 && (
+              <div className="grid gap-2">
+                {smartInsights.insights.slice(0, 5).map((insight) => (
+                  <div key={insight.id} className={`rounded-lg border p-3 text-sm ${SEVERITY_STYLES[insight.severity]}`}>
+                    <p className="font-medium">{insight.finding}</p>
+                    <p className="text-muted-foreground mt-1">{insight.meaning}</p>
+                    <p className="mt-1 flex items-center gap-1">
+                      <Target className="h-3 w-3 shrink-0" />
+                      <span className="font-medium">{insight.action}</span>
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Recommended Actions */}
+            {smartInsights.actions.length > 0 && (
+              <div>
+                <p className="text-sm font-semibold mb-2">{th ? '📋 Action Items' : '📋 Action Items'}</p>
+                <ul className="space-y-1">
+                  {smartInsights.actions.slice(0, 3).map((a, i) => (
+                    <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                      <span className="text-primary font-bold">{i + 1}.</span> {a}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Content Opportunities */}
+            {smartInsights.contentOpportunities.length > 0 && (
+              <div>
+                <p className="text-sm font-semibold mb-2">{th ? '🎯 Content Opportunities' : '🎯 Content Opportunities'}</p>
+                <div className="grid gap-2">
+                  {smartInsights.contentOpportunities.map((opp, i) => (
+                    <div key={i} className="rounded-lg bg-muted/30 p-2 text-sm">
+                      <p className="font-medium">{opp.label}</p>
+                      <p className="text-muted-foreground text-xs">{opp.detail}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -145,7 +219,7 @@ export default function AdminVirtualStoriesContent() {
           { label: th ? 'เล่นจบ' : 'Completions', value: stats.totalCompletions, icon: CheckCircle, color: 'text-green-500' },
           { label: th ? 'อัตราจบ' : 'Completion %', value: `${stats.completionRate}%`, icon: TrendingUp, color: 'text-yellow-500' },
           { label: th ? 'เล่นซ้ำ' : 'Replays', value: stats.replayCount, icon: RefreshCw, color: 'text-purple-500' },
-          { label: th ? 'CTA Clicks' : 'CTA Clicks', value: stats.ctaClicks.reduce((a: number, c: any) => a + c.value, 0), icon: BarChart3, color: 'text-cyan-500' },
+          { label: 'CTA Clicks', value: stats.ctaClicks.reduce((a, c) => a + c.value, 0), icon: BarChart3, color: 'text-cyan-500' },
         ].map((kpi, i) => (
           <Card key={i}>
             <CardContent className="p-4 text-center">
@@ -159,7 +233,6 @@ export default function AdminVirtualStoriesContent() {
 
       {/* Charts Row */}
       <div className="grid md:grid-cols-2 gap-4">
-        {/* Path Distribution */}
         <Card>
           <CardHeader><CardTitle className="text-sm">{th ? 'Path ที่เลือก' : 'Path Distribution'}</CardTitle></CardHeader>
           <CardContent>
@@ -167,9 +240,7 @@ export default function AdminVirtualStoriesContent() {
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
                   <Pie data={stats.pathDistribution} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label>
-                    {stats.pathDistribution.map((_: any, i: number) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                    ))}
+                    {stats.pathDistribution.map((_: any, i: number) => (<Cell key={i} fill={COLORS[i % COLORS.length]} />))}
                   </Pie>
                   <Tooltip />
                 </PieChart>
@@ -177,8 +248,6 @@ export default function AdminVirtualStoriesContent() {
             ) : <p className="text-center text-muted-foreground py-8">{th ? 'ยังไม่มีข้อมูล' : 'No data yet'}</p>}
           </CardContent>
         </Card>
-
-        {/* Result Type */}
         <Card>
           <CardHeader><CardTitle className="text-sm">{th ? 'ผลลัพธ์' : 'Result Types'}</CardTitle></CardHeader>
           <CardContent>
@@ -186,9 +255,7 @@ export default function AdminVirtualStoriesContent() {
               <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
                   <Pie data={stats.resultDistribution} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label>
-                    {stats.resultDistribution.map((_: any, i: number) => (
-                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                    ))}
+                    {stats.resultDistribution.map((_: any, i: number) => (<Cell key={i} fill={COLORS[i % COLORS.length]} />))}
                   </Pie>
                   <Tooltip />
                 </PieChart>
@@ -241,7 +308,7 @@ export default function AdminVirtualStoriesContent() {
         <CardContent>
           {stats.ctaClicks.length > 0 ? (
             <div className="space-y-2">
-              {stats.ctaClicks.slice(0, 10).map((cta: any, i: number) => (
+              {stats.ctaClicks.slice(0, 10).map((cta, i) => (
                 <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
                   <span className="text-sm truncate flex-1">{cta.name}</span>
                   <span className="text-sm font-bold ml-2">{cta.value}</span>
@@ -249,29 +316,6 @@ export default function AdminVirtualStoriesContent() {
               ))}
             </div>
           ) : <p className="text-center text-muted-foreground py-8">{th ? 'ยังไม่มีข้อมูล' : 'No data yet'}</p>}
-        </CardContent>
-      </Card>
-
-      {/* Insights */}
-      <Card>
-        <CardHeader><CardTitle className="text-sm">💡 {th ? 'Insights' : 'Insights'}</CardTitle></CardHeader>
-        <CardContent>
-          <div className="space-y-3 text-sm text-muted-foreground">
-            {stats.totalStarts > 0 && (
-              <>
-                <p>• {th ? `มีผู้เริ่มเล่นทั้งหมด ${stats.totalStarts} ครั้ง เล่นจบ ${stats.totalCompletions} ครั้ง (${stats.completionRate}%)` : `${stats.totalStarts} total starts, ${stats.totalCompletions} completions (${stats.completionRate}%)`}</p>
-                {stats.pathDistribution.length > 0 && (
-                  <p>• {th ? 'Path ที่นิยม:' : 'Popular paths:'} {stats.pathDistribution.map((p: any) => `${p.name} (${p.value})`).join(', ')}</p>
-                )}
-                {stats.replayCount > 0 && (
-                  <p>• {th ? `มีผู้เล่นซ้ำ ${stats.replayCount} ครั้ง — แสดงว่าเนื้อหาน่าสนใจ` : `${stats.replayCount} replays — good engagement signal`}</p>
-                )}
-              </>
-            )}
-            {stats.totalStarts === 0 && (
-              <p>{th ? 'ยังไม่มีข้อมูล — รอผู้เล่นเข้ามาใช้งาน' : 'No data yet — waiting for players'}</p>
-            )}
-          </div>
         </CardContent>
       </Card>
     </div>
