@@ -374,6 +374,23 @@ export default function AdminVirtualStoriesContent() {
           ) : <p className="text-center text-muted-foreground py-8">{th ? 'ยังไม่มีข้อมูล' : 'No data yet'}</p>}
         </CardContent>
       </Card>
+
+      {/* Knowledge Opens */}
+      {stats.knowledgeOpens && stats.knowledgeOpens.length > 0 && (
+        <Card>
+          <CardHeader><CardTitle className="text-sm">{th ? '📖 Knowledge Overlay ที่ถูกเปิดบ่อย' : '📖 Knowledge Overlay Opens'}</CardTitle></CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {stats.knowledgeOpens.map((k, i) => (
+                <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
+                  <span className="text-sm">Scene {k.scene}</span>
+                  <span className="text-sm font-bold">{k.count} {th ? 'ครั้ง' : 'opens'}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
