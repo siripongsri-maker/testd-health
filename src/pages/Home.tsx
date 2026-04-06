@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
-// Force rebuild — stale module cache fix
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-
 
 import { HomeLeaderboard } from "@/components/HomeLeaderboard";
 import { CommunityMilestoneCard } from "@/components/CommunityMilestoneCard";
@@ -14,6 +12,9 @@ import { SmartPriorityCard } from "@/components/home/SmartPriorityCard";
 import { MyPreventionJourneyCard } from "@/components/home/MyPreventionJourneyCard";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { VirtualGreetingBubbles } from "@/components/home/VirtualGreetingBubbles";
+import { HeroSection } from "@/components/home/HeroSection";
+import { PrimaryActionCards } from "@/components/home/PrimaryActionCards";
+import { StickyTestCTA } from "@/components/home/StickyTestCTA";
 
 import { Users, Eye } from "lucide-react";
 import swingLogo from "@/assets/swing-logo.png";
@@ -28,7 +29,6 @@ export default function Home() {
   const [totalVisitors, setTotalVisitors] = useState(0);
   const [totalMembers, setTotalMembers] = useState(0);
 
-  // Clear stale localStorage if no authenticated user
   useEffect(() => {
     if (!loading && !user) {
       localStorage.removeItem('isLoggedIn');
@@ -36,7 +36,6 @@ export default function Home() {
     }
   }, [user, loading]);
 
-  // Load stats once on mount
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -52,7 +51,6 @@ export default function Home() {
     fetchStats();
   }, []);
 
-  // Check admin status
   useEffect(() => {
     const checkAdmin = async () => {
       if (!user) return;
@@ -78,48 +76,43 @@ export default function Home() {
 
   return (
     <div className="relative">
-      {/* Fixed background layer */}
       <div className="fixed inset-0 gradient-hero" style={{ zIndex: -1 }} />
 
       <main className="px-4 sm:px-6 py-3 max-w-5xl mx-auto relative">
-        {/* Welcome text */}
-        <div className="text-center mb-4">
-          <div className="flex justify-center mb-2">
-            <img src={testdLogo} alt="testD" className="h-32 w-auto object-contain drop-shadow-[0_4px_24px_rgba(255,100,150,0.4)] animate-scale-in" />
-          </div>
-          <p className="font-medium text-foreground/80 animate-fade-in text-lg text-center">
-            {t('home.welcome')}
-          </p>
-          <p className="text-muted-foreground">
-            {t('home.chooseService')}
-          </p>
+        {/* Logo */}
+        <div className="flex justify-center mb-2">
+          <img src={testdLogo} alt="testD" className="h-24 w-auto object-contain drop-shadow-[0_4px_24px_rgba(255,100,150,0.4)] animate-scale-in" />
         </div>
 
-        {/* ─── Section A: Today / Next Step ──────────────────── */}
+        {/* ─── Hero: Headline + Primary CTAs ──────────────── */}
+        <HeroSection />
+
+        {/* ─── Primary Action Cards ───────────────────────── */}
+        <PrimaryActionCards />
+
+        {/* ─── Smart Priority (contextual nudge) ─────────── */}
         <div className="mb-5">
           <SmartPriorityCard />
         </div>
 
-        {/* ─── Section B: My Prevention Journey ──────────────── */}
+        {/* ─── My Prevention Journey ─────────────────────── */}
         <div className="mb-5">
           <MyPreventionJourneyCard />
         </div>
 
-        {/* ─── Section B: Care Journey ───────────────────────── */}
+        {/* ─── Secondary: Learn & Assess + Support ───────── */}
         <div className="mb-5">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold px-1 mb-2">
-            {language === 'th' ? '🩺 บริการสุขภาพ' : '🩺 Health Services'}
+            {language === 'th' ? '📚 ดูตัวเลือกที่เหมาะกับคุณ' : '📚 Find what suits you'}
           </p>
           <HomeActionGrid />
         </div>
 
-        {/* ─── Section C: Community & Motivation ─────────────── */}
+        {/* ─── Community & Motivation ─────────────────────── */}
         <div className="space-y-4 mb-4">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold px-1">
             {language === 'th' ? '🏆 ชุมชน & แรงบันดาลใจ' : '🏆 Community & Motivation'}
           </p>
-
-          {/* Top row: Rewards + Milestone (equal height) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col [&>*]:flex-1 [&>section]:flex [&>section]:flex-col">
               <HomeRewards />
@@ -128,12 +121,10 @@ export default function Home() {
               <CommunityMilestoneCard />
             </div>
           </div>
-
-          {/* Bottom row: Full-width leaderboard */}
           <HomeLeaderboard />
         </div>
 
-        {/* Stats: Members and Total Visitors */}
+        {/* Stats */}
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
           {totalMembers > 0 && (
             <div className="flex items-center gap-2 glass-sm rounded-full py-2 px-4">
@@ -172,11 +163,13 @@ export default function Home() {
       {/* Rainbow bottom bar */}
       <div className="fixed bottom-16 left-0 right-0 h-1 bg-gradient-to-r from-[hsl(0,85%,65%)] via-[hsl(50,95%,55%)] via-[hsl(120,65%,50%)] via-[hsl(200,85%,55%)] to-[hsl(280,70%,60%)] z-30" />
 
+      {/* Sticky CTA */}
+      <StickyTestCTA />
+
       {/* Virtual greeting bubbles */}
       <VirtualGreetingBubbles />
 
       {/* Popups */}
-      
       <AdminRequestsPopup open={adminPopupOpen} onOpenChange={setAdminPopupOpen} />
     </div>
   );
