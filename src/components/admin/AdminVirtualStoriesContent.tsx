@@ -36,55 +36,111 @@ export default function AdminVirtualStoriesContent() {
   const fetchStats = async () => {
     setLoading(true);
     try {
+      // Primary source: analytics_events (reliable, no RLS insert issues)
+      const { data: analyticsEvents } = await supabase
+        .from('analytics_events')
+        .select('event_type, metadata, created_at, anonymous_id, session_id')
+        .like('event_type', 'virtual_story_%')
+        .order('created_at', { ascending: false })
+        .limit(5000);
+
+      // Secondary source: virtual_story_sessions (may have fewer due to RLS)
       const { data: sessions } = await supabase
         .from('virtual_story_sessions').select('*').order('created_at', { ascending: false });
-      const { data: events } = await supabase
-        .from('virtual_story_events').select('*').order('created_at', { ascending: false });
 
-      if (!sessions) { setLoading(false); return; }
+      const events = analyticsEvents || [];
+      const getMeta = (e: any, key: string) => {
+        try {
+          const m = typeof e.metadata === 'string' ? JSON.parse(e.metadata) : e.metadata;
+          return m?.[key];
+        } catch { return undefined; }
+      };
 
-      const totalStarts = sessions.length;
-      const completed = sessions.filter((s: any) => s.completed);
-      const totalCompletions = completed.length;
+      // Count from analytics_events (most reliable)
+      const startEvents = events.filter((e: any) => e.event_type === 'virtual_story_started');
+      const completeEvents = events.filter((e: any) => e.event_type === 'virtual_story_completed');
+      const replayEvents = events.filter((e: any) => e.event_type === 'virtual_story_replayed');
+      const sceneEvents = events.filter((e: any) => e.event_type === 'virtual_story_scene_viewed' || e.event_type === 'virtual_story_choice_selected');
+      const ctaEvents = events.filter((e: any) => e.event_type === 'virtual_story_cta_clicked');
+      const knowledgeEvents = events.filter((e: any) => e.event_type === 'virtual_story_knowledge_opened');
+
+      const totalStarts = startEvents.length;
+      const totalCompletions = completeEvents.length;
       const completionRate = totalStarts > 0 ? Math.round((totalCompletions / totalStarts) * 100) : 0;
+      const replayCount = replayEvents.length;
 
-      const idCounts: Record<string, number> = {};
-      sessions.forEach((s: any) => {
-        const key = s.user_id || s.anonymous_id || 'unknown';
-        idCounts[key] = (idCounts[key] || 0) + 1;
-      });
-      const replayCount = Object.values(idCounts).filter(c => c > 1).reduce((a, b) => a + b - 1, 0);
-
+      // Path distribution from completed events metadata
       const pathCounts: Record<string, number> = {};
-      completed.forEach((s: any) => { const p = s.path_selected || 'unknown'; pathCounts[p] = (pathCounts[p] || 0) + 1; });
+      completeEvents.forEach((e: any) => {
+        const p = getMeta(e, 'path_selected') || getMeta(e, 'path') || 'unknown';
+        pathCounts[p] = (pathCounts[p] || 0) + 1;
+      });
+      // Supplement from sessions if analytics has less data
+      (sessions || []).filter((s: any) => s.completed).forEach((s: any) => {
+        if (completeEvents.length === 0) {
+          const p = s.path_selected || 'unknown';
+          pathCounts[p] = (pathCounts[p] || 0) + 1;
+        }
+      });
       const pathDistribution = Object.entries(pathCounts).map(([name, value]) => ({ name, value }));
 
+      // Result distribution
       const resultCounts: Record<string, number> = {};
-      completed.forEach((s: any) => { const r = s.result_type || 'unknown'; resultCounts[r] = (resultCounts[r] || 0) + 1; });
+      completeEvents.forEach((e: any) => {
+        const r = getMeta(e, 'result_type') || 'unknown';
+        resultCounts[r] = (resultCounts[r] || 0) + 1;
+      });
+      (sessions || []).filter((s: any) => s.completed && completeEvents.length === 0).forEach((s: any) => {
+        const r = s.result_type || 'unknown';
+        resultCounts[r] = (resultCounts[r] || 0) + 1;
+      });
       const resultDistribution = Object.entries(resultCounts).map(([name, value]) => ({ name, value }));
 
+      // Scene drop-off from analytics
       const sceneViews: Record<string, number> = {};
-      (events || []).filter((e: any) => e.event_name === 'virtual_story_scene_viewed' || e.event_name === 'virtual_story_choice_selected')
-        .forEach((e: any) => { const scene = e.scene_id || 'unknown'; sceneViews[scene] = (sceneViews[scene] || 0) + 1; });
+      sceneEvents.forEach((e: any) => {
+        const scene = getMeta(e, 'scene_id') || 'unknown';
+        sceneViews[scene] = (sceneViews[scene] || 0) + 1;
+      });
       const sceneDropoff = Object.entries(sceneViews).map(([scene, count]) => ({ scene, count }))
-        .sort((a, b) => Number(a.scene) - Number(b.scene));
+        .sort((a, b) => {
+          const numA = parseInt(a.scene); const numB = parseInt(b.scene);
+          if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+          return a.scene.localeCompare(b.scene);
+        });
 
+      // CTA clicks
       const ctaCounts: Record<string, number> = {};
-      (events || []).filter((e: any) => e.event_name === 'virtual_story_cta_clicked')
-        .forEach((e: any) => { const target = e.cta_target || e.choice_text || 'unknown'; ctaCounts[target] = (ctaCounts[target] || 0) + 1; });
+      ctaEvents.forEach((e: any) => {
+        const target = getMeta(e, 'cta_target') || getMeta(e, 'choice_text') || 'unknown';
+        ctaCounts[target] = (ctaCounts[target] || 0) + 1;
+      });
       const ctaClicks = Object.entries(ctaCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
 
+      // Knowledge opens
+      const knowledgeCounts: Record<string, number> = {};
+      knowledgeEvents.forEach((e: any) => {
+        const scene = getMeta(e, 'scene_id') || getMeta(e, 'topic') || 'unknown';
+        knowledgeCounts[scene] = (knowledgeCounts[scene] || 0) + 1;
+      });
+      const knowledgeOpens = Object.entries(knowledgeCounts).map(([scene, count]) => ({ scene, count })).sort((a, b) => b.count - a.count);
+
+      // Monthly trend from analytics start events
       const monthlyMap: Record<string, { starts: number; completions: number }> = {};
-      sessions.forEach((s: any) => {
-        const month = (s.created_at || '').substring(0, 7);
+      startEvents.forEach((e: any) => {
+        const month = (e.created_at || '').substring(0, 7);
         if (!monthlyMap[month]) monthlyMap[month] = { starts: 0, completions: 0 };
         monthlyMap[month].starts++;
-        if (s.completed) monthlyMap[month].completions++;
+      });
+      completeEvents.forEach((e: any) => {
+        const month = (e.created_at || '').substring(0, 7);
+        if (!monthlyMap[month]) monthlyMap[month] = { starts: 0, completions: 0 };
+        monthlyMap[month].completions++;
       });
       const monthlyTrend = Object.entries(monthlyMap).map(([month, data]) => ({ month, ...data }))
         .sort((a, b) => a.month.localeCompare(b.month)).slice(-6);
 
-      setStats({ totalStarts, totalCompletions, completionRate, replayCount, pathDistribution, resultDistribution, sceneDropoff, ctaClicks, monthlyTrend });
+      setStats({ totalStarts, totalCompletions, completionRate, replayCount, pathDistribution, resultDistribution, sceneDropoff, ctaClicks, monthlyTrend, knowledgeOpens });
     } catch (err) {
       console.error('Virtual stories stats error:', err);
     }
@@ -318,6 +374,23 @@ export default function AdminVirtualStoriesContent() {
           ) : <p className="text-center text-muted-foreground py-8">{th ? 'ยังไม่มีข้อมูล' : 'No data yet'}</p>}
         </CardContent>
       </Card>
+
+      {/* Knowledge Opens */}
+      {stats.knowledgeOpens && stats.knowledgeOpens.length > 0 && (
+        <Card>
+          <CardHeader><CardTitle className="text-sm">{th ? '📖 Knowledge Overlay ที่ถูกเปิดบ่อย' : '📖 Knowledge Overlay Opens'}</CardTitle></CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {stats.knowledgeOpens.map((k, i) => (
+                <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
+                  <span className="text-sm">Scene {k.scene}</span>
+                  <span className="text-sm font-bold">{k.count} {th ? 'ครั้ง' : 'opens'}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
