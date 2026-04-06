@@ -23,7 +23,7 @@ export function HeroSection() {
           onClick={() => navigate('/booking')}
         >
           <Calendar className="h-5 w-5" />
-          จองตรวจที่คลินิก
+          จองตรวจ HIV ฟรี วันนี้
         </Button>
         <Button
           variant="hero-outline"
@@ -31,8 +31,15 @@ export function HeroSection() {
           onClick={() => navigate('/hiv-selftest')}
         >
           <TestTube className="h-5 w-5" />
-          รับชุดตรวจฟรี
+          รับชุดตรวจ HIV ฟรี ส่งถึงบ้าน
         </Button>
+      </div>
+
+      {/* Trust microcopy */}
+      <div className="flex flex-wrap justify-center gap-3 text-xs text-muted-foreground">
+        <span>✅ ฟรี ไม่มีค่าใช้จ่าย</span>
+        <span>🔒 ไม่ต้องใช้ชื่อจริง</span>
+        <span>⏱ ใช้เวลาไม่นาน</span>
       </div>
 
       {/* Secondary CTA */}
@@ -41,7 +48,7 @@ export function HeroSection() {
         className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
       >
         <MessageCircle className="h-4 w-4" />
-        ขอคำปรึกษาก่อน
+        คุยกับเจ้าหน้าที่ (ไม่ระบุตัวตน)
       </button>
     </section>
   );

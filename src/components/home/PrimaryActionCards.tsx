@@ -3,20 +3,20 @@ import { Calendar, TestTube, MessageCircle, ArrowRight } from 'lucide-react';
 
 const actions = [
   {
-    icon: Calendar,
-    title: 'ตรวจที่คลินิก',
-    desc: 'จองนัดตรวจ HIV ฟรีที่คลินิกใกล้คุณ',
-    path: '/booking',
-  },
-  {
     icon: TestTube,
-    title: 'รับชุดตรวจฟรี',
+    title: 'รับชุดตรวจ HIV ฟรี ส่งถึงบ้าน',
     desc: 'รับชุดตรวจ HIV ส่งถึงบ้าน ตรวจเองได้',
     path: '/hiv-selftest',
   },
   {
+    icon: Calendar,
+    title: 'จองตรวจ HIV ฟรี วันนี้',
+    desc: 'จองนัดตรวจ HIV ฟรีที่คลินิกใกล้คุณ',
+    path: '/booking',
+  },
+  {
     icon: MessageCircle,
-    title: 'ปรึกษาเจ้าหน้าที่',
+    title: 'คุยกับเจ้าหน้าที่ (ไม่ระบุตัวตน)',
     desc: 'คุยกับทีมงานก่อน ไม่ต้องเปิดเผยตัวตน',
     path: '/support-chat',
   },
