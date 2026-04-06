@@ -123,27 +123,7 @@ export function HomeActionGrid() {
 
   return (
     <div className="space-y-0">
-      {/* Row 1 */}
-      <RowLabel>
-        {language === 'th' ? '🩺 บริการตรวจ' : '🩺 Testing Services'}
-      </RowLabel>
-      <div className="grid grid-cols-3 gap-2 sm:gap-3">
-        {row1.map((item, i) => (
-          <MenuCard
-            key={i}
-            icon={item.icon}
-            titleTh={t(item.titleKey)}
-            titleEn=""
-            onClick={() => navigate(item.path)}
-            variant={i === 0 ? 'featured' : 'default'}
-          />
-        ))}
-      </div>
-
-      {/* Row 2 */}
-      <RowLabel>
-        {language === 'th' ? '📚 เรียนรู้ & ประเมิน' : '📚 Learn & Assess'}
-      </RowLabel>
+      {/* Row 2 — Learn & Assess (primary testing CTAs moved to hero) */}
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3">
         {row2.map((item, i) => (
           <MenuCard
