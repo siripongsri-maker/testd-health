@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Calendar, TestTube, MessageCircle, ArrowRight } from 'lucide-react';
+import { trackEvent } from '@/hooks/useAnalytics';
 
 const actions = [
   {
