@@ -21,22 +21,53 @@ export function HeroSection() {
 
       {/* Primary CTAs */}
       <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-        <Button
-          variant="hero"
-          className="flex-1 sm:flex-none sm:min-w-[180px]"
-          onClick={() => { trackEvent('homepage_cta_booking_click', { source: 'homepage', section: 'hero' }); navigate('/booking'); }}
-        >
-          <Calendar className="h-5 w-5" />
-          จองตรวจ HIV ฟรี วันนี้
-        </Button>
-        <Button
-          variant="hero-outline"
-          className="flex-1 sm:flex-none sm:min-w-[180px]"
-          onClick={() => { trackEvent('homepage_cta_selftest_click', { source: 'homepage', section: 'hero' }); navigate('/hiv-selftest'); }}
-        >
-          <TestTube className="h-5 w-5" />
-          รับชุดตรวจ HIV ฟรี ส่งถึงบ้าน
-        </Button>
+        {priority === 'support' ? (
+          <>
+            <Button
+              variant="hero"
+              className="flex-1 sm:flex-none sm:min-w-[180px]"
+              onClick={() => { trackEvent('homepage_cta_support_click', { source: 'homepage', section: 'hero' }); navigate('/support-chat'); }}
+            >
+              <MessageCircle className="h-5 w-5" />
+              คุยกับเจ้าหน้าที่ (ไม่ระบุตัวตน)
+            </Button>
+            <Button
+              variant="hero-outline"
+              className="flex-1 sm:flex-none sm:min-w-[180px]"
+              onClick={() => { trackEvent('homepage_cta_selftest_click', { source: 'homepage', section: 'hero' }); navigate('/hiv-selftest'); }}
+            >
+              <TestTube className="h-5 w-5" />
+              รับชุดตรวจ HIV ฟรี ส่งถึงบ้าน
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              variant="hero"
+              className="flex-1 sm:flex-none sm:min-w-[180px]"
+              onClick={() => {
+                const ev = bookingFirst ? 'homepage_cta_booking_click' : 'homepage_cta_selftest_click';
+                trackEvent(ev, { source: 'homepage', section: 'hero' });
+                navigate(bookingFirst ? '/booking' : '/hiv-selftest');
+              }}
+            >
+              {bookingFirst ? <Calendar className="h-5 w-5" /> : <TestTube className="h-5 w-5" />}
+              {bookingFirst ? 'จองตรวจ HIV ฟรี วันนี้' : 'รับชุดตรวจ HIV ฟรี ส่งถึงบ้าน'}
+            </Button>
+            <Button
+              variant="hero-outline"
+              className="flex-1 sm:flex-none sm:min-w-[180px]"
+              onClick={() => {
+                const ev = bookingFirst ? 'homepage_cta_selftest_click' : 'homepage_cta_booking_click';
+                trackEvent(ev, { source: 'homepage', section: 'hero' });
+                navigate(bookingFirst ? '/hiv-selftest' : '/booking');
+              }}
+            >
+              {bookingFirst ? <TestTube className="h-5 w-5" /> : <Calendar className="h-5 w-5" />}
+              {bookingFirst ? 'รับชุดตรวจ HIV ฟรี ส่งถึงบ้าน' : 'จองตรวจ HIV ฟรี วันนี้'}
+            </Button>
+          </>
+        )}
       </div>
 
       {/* Trust microcopy */}

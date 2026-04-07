@@ -97,6 +97,7 @@ export const useAnalytics = () => {
       return;
     }
     lastTrackedPath.current = location.pathname;
+    recordPageSignal(location.pathname);
 
     const trackPageView = async () => {
       try {

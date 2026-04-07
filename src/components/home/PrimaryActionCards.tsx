@@ -27,6 +27,7 @@ const baseActions = [
 
 export function PrimaryActionCards() {
   const navigate = useNavigate();
+  const actions = useMemo(() => getOrderedActions(baseActions), []);
 
   return (
     <section className="mb-6">
