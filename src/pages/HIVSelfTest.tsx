@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { trackEvent } from "@/hooks/useAnalytics";
 import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
 import { useLanguage } from "@/lib/i18n";

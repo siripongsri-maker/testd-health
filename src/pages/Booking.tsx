@@ -505,6 +505,7 @@ export default function Booking() {
       } catch {}
 
       setStep('success');
+      trackEvent('booking_submitted', { source: 'booking', branch_id: selectedBranch?.id });
       toast.success(t('booking.successTitle'));
     } catch (err: any) {
       console.error('Booking error:', err);
