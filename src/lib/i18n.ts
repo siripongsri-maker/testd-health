@@ -1000,6 +1000,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.analytics': 'Analytics',
     'admin.analyticsOverview': 'Period Overview',
     'admin.attribution': 'Attribution',
+    'admin.conversionInsights': 'Conversion Insights',
     'admin.feedbackOutcomes': 'Feedback & Outcomes',
     'admin.import': 'Import',
     'admin.abuseLogs': 'Anti-spam',
