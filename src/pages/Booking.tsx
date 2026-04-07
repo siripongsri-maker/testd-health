@@ -330,6 +330,7 @@ export default function Booking() {
     if (!selectedBranch || selectedServices.length === 0 || !selectedDate || !selectedTime) return;
 
     setSubmitting(true);
+    trackEvent('booking_started', { source: 'booking', branch_id: selectedBranch?.id });
     try {
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
 
