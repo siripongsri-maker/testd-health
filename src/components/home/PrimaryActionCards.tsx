@@ -1,8 +1,10 @@
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, TestTube, MessageCircle, ArrowRight } from 'lucide-react';
 import { trackEvent } from '@/hooks/useAnalytics';
+import { getOrderedActions } from '@/lib/ctaPriority';
 
-const actions = [
+const baseActions = [
   {
     icon: TestTube,
     title: 'รับชุดตรวจ HIV ฟรี ส่งถึงบ้าน',
