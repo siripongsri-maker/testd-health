@@ -232,6 +232,7 @@ export default function Admin() {
           {renderTab("client-crm", <AdminCRMContent />)}
           {renderTab("youth-survey", <AdminYouthSurveyContent />)}
           {renderTab("virtual-stories", <AdminVirtualStoriesContent />)}
+          {renderTab("conversion-insights", <AdminConversionInsightsContent />)}
 
           {/* Compliance */}
           {renderTab("pdpa-compliance", <AdminPdpaComplianceContent />)}
