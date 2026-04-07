@@ -15,6 +15,7 @@ import { VirtualGreetingBubbles } from "@/components/home/VirtualGreetingBubbles
 import { HeroSection } from "@/components/home/HeroSection";
 import { PrimaryActionCards } from "@/components/home/PrimaryActionCards";
 import { StickyTestCTA } from "@/components/home/StickyTestCTA";
+import { ExitIntentNudge } from "@/components/ExitIntentNudge";
 
 import { Users, Eye } from "lucide-react";
 import swingLogo from "@/assets/swing-logo.png";
