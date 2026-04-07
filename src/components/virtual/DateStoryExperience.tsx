@@ -480,7 +480,7 @@ export function DateStoryExperience() {
               {SWING_SERVICES.map((svc, i) => (
                 <button
                   key={i}
-                  onClick={() => navigate(svc.route)}
+                  onClick={() => { trackEvent('virtual_cta_click', { source: 'virtual', target: svc.route }); navigate(svc.route); }}
                   style={{
                     background: "rgba(255,255,255,0.06)",
                     border: "1px solid rgba(255,255,255,0.08)",
