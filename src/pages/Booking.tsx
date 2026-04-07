@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getInviteAttribution, clearInviteAttribution } from '@/lib/inviteAttribution';
+import { trackEvent } from '@/hooks/useAnalytics';
 import {
   MapPin, Clock, ChevronRight, ChevronLeft, Calendar as CalendarIcon,
   Check, Loader2, AlertCircle, CreditCard, Globe, Info, HelpCircle, ShieldAlert,
