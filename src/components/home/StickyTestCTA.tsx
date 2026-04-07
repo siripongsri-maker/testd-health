@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { TestTube } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { trackEvent } from '@/hooks/useAnalytics';
 
 export function StickyTestCTA() {
   const navigate = useNavigate();
