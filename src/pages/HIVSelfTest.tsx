@@ -167,6 +167,10 @@ export default function HIVSelfTest() {
 
   // Fetch user data and requests on mount
   useEffect(() => {
+    trackEvent('page_view_selftest', { source: document.referrer.includes(window.location.origin) ? 'internal' : 'external' });
+  }, []);
+
+  useEffect(() => {
     if (user) {
       fetchRequests();
       fetchSavedUserData();
