@@ -29,7 +29,7 @@ export function HeroSection() {
         <Button
           variant="hero-outline"
           className="flex-1 sm:flex-none sm:min-w-[180px]"
-          onClick={() => navigate('/hiv-selftest')}
+          onClick={() => { trackEvent('homepage_cta_selftest_click', { source: 'homepage', section: 'hero' }); navigate('/hiv-selftest'); }}
         >
           <TestTube className="h-5 w-5" />
           รับชุดตรวจ HIV ฟรี ส่งถึงบ้าน
