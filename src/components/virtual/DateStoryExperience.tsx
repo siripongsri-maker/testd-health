@@ -341,7 +341,7 @@ export function DateStoryExperience() {
           </button>
 
           <button
-            onClick={() => navigate("/virtual/clinic")}
+            onClick={() => { trackEvent('virtual_cta_click', { source: 'virtual', target: '/virtual/clinic' }); navigate("/virtual/clinic"); }}
             style={{
               fontFamily: "'Inter', 'Noto Sans Thai', sans-serif",
               fontSize: 13,
