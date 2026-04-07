@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { getVisitorId } from '@/lib/visitorId';
 import { getSessionAttribution } from '@/lib/attribution';
+import { recordPageSignal } from '@/lib/ctaPriority';
 
 // Generate or get session ID
 const getSessionId = (): string => {
@@ -96,6 +97,7 @@ export const useAnalytics = () => {
       return;
     }
     lastTrackedPath.current = location.pathname;
+    recordPageSignal(location.pathname);
 
     const trackPageView = async () => {
       try {
