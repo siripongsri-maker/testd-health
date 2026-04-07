@@ -73,7 +73,7 @@ export function HeroSection() {
       {/* Trust microcopy */}
       <div className="flex flex-wrap justify-center gap-3 text-xs text-muted-foreground">
         <span>✅ ฟรี ไม่มีค่าใช้จ่าย</span>
-        <span>🔒 ไม่ต้องใช้ชื่อจริง</span>
+        <span>🔒 ข้อมูลของคุณจะถูกเก็บเป็นความลับ ปลอดภัย และใช้เพื่อการให้บริการเท่านั้น</span>
         <span>⏱ ใช้เวลาไม่นาน</span>
       </div>
 

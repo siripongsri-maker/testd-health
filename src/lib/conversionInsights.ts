@@ -99,7 +99,7 @@ export function generateInsights(c: FunnelCounts, r: ConversionRates): Insight[]
       severity: 'warning',
       title: 'Drop-off สูงในขั้นตอน Self-test',
       description: `เริ่มกรอก ${c.selftestStarted} ครั้ง แต่ส่งสำเร็จ ${c.selftestSubmitted} (${r.selftestStartToSubmit}%)`,
-      action: 'ลดจำนวนข้อมูลที่ต้องกรอก หรือเพิ่มข้อความว่า "ไม่ต้องใช้ชื่อจริง"',
+      action: 'ลดจำนวนข้อมูลที่ต้องกรอก หรือเพิ่มข้อความว่า "ข้อมูลของคุณจะถูกเก็บเป็นความลับ"',
     });
   } else if (r.selftestStartToSubmit >= 70) {
     insights.push({
