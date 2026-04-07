@@ -2,9 +2,12 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Calendar, TestTube, MessageCircle } from 'lucide-react';
 import { trackEvent } from '@/hooks/useAnalytics';
+import { getCtaPriority } from '@/lib/ctaPriority';
 
 export function HeroSection() {
   const navigate = useNavigate();
+  const priority = getCtaPriority();
+  const bookingFirst = priority === 'booking';
 
   return (
     <section className="text-center space-y-4 mb-6">
