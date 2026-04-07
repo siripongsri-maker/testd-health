@@ -202,6 +202,7 @@ export function Episode2Player({ onBack }: { onBack: () => void }) {
 
   const handleCta = useCallback((target: string, label: string) => {
     trackEvent('virtual_story_cta_clicked', { cta_target: target, choice_text: label });
+    trackEvent('virtual_cta_click', { source: 'virtual', target });
     navigate(target);
   }, [navigate, trackEvent]);
 

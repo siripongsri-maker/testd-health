@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Calendar, TestTube, MessageCircle, ArrowRight } from 'lucide-react';
+import { trackEvent } from '@/hooks/useAnalytics';
 
 const actions = [
   {
@@ -34,7 +35,15 @@ export function PrimaryActionCards() {
         {actions.map((a) => (
           <button
             key={a.path}
-            onClick={() => navigate(a.path)}
+            onClick={() => {
+              const eventMap: Record<string, string> = {
+                '/hiv-selftest': 'homepage_cta_selftest_click',
+                '/booking': 'homepage_cta_booking_click',
+                '/support-chat': 'homepage_cta_support_click',
+              };
+              trackEvent(eventMap[a.path] || 'homepage_cta_click', { source: 'homepage', section: 'primary_cards', target: a.path });
+              navigate(a.path);
+            }}
             className="glass glass-shine rounded-2xl p-4 text-left flex items-start gap-3 hover:shadow-soft hover:scale-[1.01] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 group"
           >
             <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">

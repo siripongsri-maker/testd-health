@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Calendar, TestTube, MessageCircle } from 'lucide-react';
+import { trackEvent } from '@/hooks/useAnalytics';
 
 export function HeroSection() {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ export function HeroSection() {
         <Button
           variant="hero"
           className="flex-1 sm:flex-none sm:min-w-[180px]"
-          onClick={() => navigate('/booking')}
+          onClick={() => { trackEvent('homepage_cta_booking_click', { source: 'homepage', section: 'hero' }); navigate('/booking'); }}
         >
           <Calendar className="h-5 w-5" />
           จองตรวจ HIV ฟรี วันนี้
@@ -28,7 +29,7 @@ export function HeroSection() {
         <Button
           variant="hero-outline"
           className="flex-1 sm:flex-none sm:min-w-[180px]"
-          onClick={() => navigate('/hiv-selftest')}
+          onClick={() => { trackEvent('homepage_cta_selftest_click', { source: 'homepage', section: 'hero' }); navigate('/hiv-selftest'); }}
         >
           <TestTube className="h-5 w-5" />
           รับชุดตรวจ HIV ฟรี ส่งถึงบ้าน
@@ -44,7 +45,7 @@ export function HeroSection() {
 
       {/* Secondary CTA */}
       <button
-        onClick={() => navigate('/support-chat')}
+        onClick={() => { trackEvent('homepage_cta_support_click', { source: 'homepage', section: 'hero' }); navigate('/support-chat'); }}
         className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
       >
         <MessageCircle className="h-4 w-4" />

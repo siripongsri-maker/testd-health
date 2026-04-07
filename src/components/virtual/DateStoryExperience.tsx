@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { trackEvent } from "@/hooks/useAnalytics";
 import {
   STORY_NODES,
   SCENES,
@@ -340,7 +341,7 @@ export function DateStoryExperience() {
           </button>
 
           <button
-            onClick={() => navigate("/virtual/clinic")}
+            onClick={() => { trackEvent('virtual_cta_click', { source: 'virtual', target: '/virtual/clinic' }); navigate("/virtual/clinic"); }}
             style={{
               fontFamily: "'Inter', 'Noto Sans Thai', sans-serif",
               fontSize: 13,
@@ -479,7 +480,7 @@ export function DateStoryExperience() {
               {SWING_SERVICES.map((svc, i) => (
                 <button
                   key={i}
-                  onClick={() => navigate(svc.route)}
+                  onClick={() => { trackEvent('virtual_cta_click', { source: 'virtual', target: svc.route }); navigate(svc.route); }}
                   style={{
                     background: "rgba(255,255,255,0.06)",
                     border: "1px solid rgba(255,255,255,0.08)",

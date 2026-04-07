@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getInviteAttribution, clearInviteAttribution } from '@/lib/inviteAttribution';
+import { trackEvent } from '@/hooks/useAnalytics';
 import {
   MapPin, Clock, ChevronRight, ChevronLeft, Calendar as CalendarIcon,
   Check, Loader2, AlertCircle, CreditCard, Globe, Info, HelpCircle, ShieldAlert,
@@ -125,6 +126,7 @@ export default function Booking() {
 
   // Load branches and services
   useEffect(() => {
+    trackEvent('page_view_booking', { source: document.referrer.includes(window.location.origin) ? 'internal' : 'external' });
     const load = async () => {
       setLoading(true);
       const [branchRes, serviceRes] = await Promise.all([
@@ -328,6 +330,7 @@ export default function Booking() {
     if (!selectedBranch || selectedServices.length === 0 || !selectedDate || !selectedTime) return;
 
     setSubmitting(true);
+    trackEvent('booking_started', { source: 'booking', branch_id: selectedBranch?.id });
     try {
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
 
@@ -502,6 +505,7 @@ export default function Booking() {
       } catch {}
 
       setStep('success');
+      trackEvent('booking_submitted', { source: 'booking', branch_id: selectedBranch?.id });
       toast.success(t('booking.successTitle'));
     } catch (err: any) {
       console.error('Booking error:', err);

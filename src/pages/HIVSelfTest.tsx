@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { trackEvent } from "@/hooks/useAnalytics";
 import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
 import { useLanguage } from "@/lib/i18n";
@@ -165,6 +166,10 @@ export default function HIVSelfTest() {
   } | null>(null);
 
   // Fetch user data and requests on mount
+  useEffect(() => {
+    trackEvent('page_view_selftest', { source: document.referrer.includes(window.location.origin) ? 'internal' : 'external' });
+  }, []);
+
   useEffect(() => {
     if (user) {
       fetchRequests();
@@ -415,6 +420,7 @@ export default function HIVSelfTest() {
       );
     }
 
+    trackEvent('selftest_started', { source: 'selftest', delivery_mode: deliveryMode });
     setLoading(true);
 
     try {
@@ -529,6 +535,7 @@ export default function HIVSelfTest() {
             : '🎉 Confirmed received! Ready to start testing.'
         );
         setCurrentStep('video');
+        trackEvent('selftest_submitted', { source: 'selftest', delivery_mode: deliveryMode, step: 'pickup_confirmed' });
       } else {
         toast.success(
           language === 'th' 
@@ -536,6 +543,7 @@ export default function HIVSelfTest() {
             : '🎉 Request submitted! Staff will contact you.'
         );
         setCurrentStep('intro');
+        trackEvent('selftest_submitted', { source: 'selftest', delivery_mode: deliveryMode, step: 'request_sent' });
       }
       
       // Reset shipping form
