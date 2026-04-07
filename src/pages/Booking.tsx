@@ -126,6 +126,7 @@ export default function Booking() {
 
   // Load branches and services
   useEffect(() => {
+    trackEvent('page_view_booking', { source: document.referrer.includes(window.location.origin) ? 'internal' : 'external' });
     const load = async () => {
       setLoading(true);
       const [branchRes, serviceRes] = await Promise.all([
