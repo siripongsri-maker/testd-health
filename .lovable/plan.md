@@ -1,43 +1,38 @@
 
 
-# Smart CTA Prioritization
+# Exit-Intent Nudge Modal
 
 ## Summary
-
-Create a lightweight helper (`src/lib/ctaPriority.ts`) that reads signals from `sessionStorage`/`localStorage` to determine which CTA should be first, then use it in both `HeroSection` and `PrimaryActionCards` to reorder buttons dynamically.
-
-## Signal Logic
-
-| Signal | Detection | Priority |
-|--------|-----------|----------|
-| Came from `/virtual` | Check `document.referrer` or store a flag in `sessionStorage` when navigating from virtual story pages | **booking** first |
-| Viewed info pages (`/learn`, `/harm-reduction`, `/prevention-match`, etc.) | Count info page views in `sessionStorage` | **selftest** first |
-| Multiple visits, no action taken | Check `localStorage` visit counter + no `booking_started`/`selftest_started` events in `sessionStorage` | **support-chat** first |
-| Default (new user) | No signals | Keep current order (selftest → booking → support) |
+Create a modal that appears after 20–30 seconds of inactivity (no clicks/scrolls/mouse moves) or on mouse-leave (desktop). Shows once per session only. Mobile-friendly.
 
 ## Files
 
-| Action | File | What |
-|--------|------|------|
-| Create | `src/lib/ctaPriority.ts` | Pure function: reads signals, returns ordered priority `['booking', 'selftest', 'support']` + a `recordPageSignal(path)` helper to stamp sessionStorage on navigation |
-| Modify | `src/components/home/PrimaryActionCards.tsx` | Import priority, reorder `actions` array at render time based on returned priority |
-| Modify | `src/components/home/HeroSection.tsx` | Swap primary/secondary button order based on priority (if booking is top → booking gets `variant="hero"`, selftest gets `variant="hero-outline"`, and vice versa) |
-| Modify | `src/hooks/useAnalytics.ts` | In `useAnalytics` hook's `useEffect`, call `recordPageSignal(location.pathname)` to stamp info-page visits and increment visit counter |
+| Action | File |
+|--------|------|
+| Create | `src/components/ExitIntentNudge.tsx` |
+| Modify | `src/pages/Home.tsx` — render `<ExitIntentNudge />` |
 
-## Implementation Details
+## Implementation
 
-**`ctaPriority.ts`**:
-- `recordPageSignal(path)`: increments `localStorage` visit count; if path matches info pages, stamps `sessionStorage` flag; if path starts with `/virtual`, stamps virtual flag
-- `getCtaPriority()`: returns `'booking' | 'selftest' | 'support'` based on: virtual flag → booking; info flag → selftest; visits ≥ 3 with no action flag → support; else default
-- `markActionTaken()`: called when user starts booking/selftest, clears "no action" signal
+### `ExitIntentNudge.tsx`
+- Uses `sessionStorage` flag (`testd_exit_nudge_shown`) to show only once per session
+- Listens for:
+  - **Desktop**: `mouseleave` on `document.documentElement` (cursor exits viewport top)
+  - **All devices**: Idle timer — no `click`, `scroll`, `touchstart`, `mousemove` for 25 seconds
+- On trigger: show a Dialog with:
+  - Headline: "ยังไม่แน่ใจใช่ไหม?"
+  - Subtext: "คุยกับเจ้าหน้าที่ได้ฟรี ไม่ต้องระบุตัวตน"
+  - Two buttons:
+    - "คุยตอนนี้" → `navigate('/support-chat')` (primary)
+    - "ตรวจเลย" → `navigate('/booking')` (outline)
+  - Close X to dismiss
+- Tracks `exit_intent_nudge_shown` and `exit_intent_nudge_click` events via `trackEvent`
+- Uses existing `Dialog` component, styled mobile-friendly
 
-**HeroSection**: call `getCtaPriority()`, if result is `'booking'` keep current layout, if `'selftest'` swap button variants/order, if `'support'` elevate support button to primary row.
-
-**PrimaryActionCards**: sort the 3 action objects so the priority target is index 0.
+### `Home.tsx`
+- Add `<ExitIntentNudge />` at the bottom of the page, alongside existing popups
 
 ## What won't change
-- No layout/structure changes — same components, same grid, same styling
-- No backend changes
-- No new routes or tables
-- Existing analytics tracking untouched
+- No layout changes, no new routes, no backend changes
+- Only fires on homepage
 
