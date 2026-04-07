@@ -420,6 +420,7 @@ export default function HIVSelfTest() {
       );
     }
 
+    trackEvent('selftest_started', { source: 'selftest', delivery_mode: deliveryMode });
     setLoading(true);
 
     try {
