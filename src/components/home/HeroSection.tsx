@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Calendar, TestTube, MessageCircle } from 'lucide-react';
+import { trackEvent } from '@/hooks/useAnalytics';
 
 export function HeroSection() {
   const navigate = useNavigate();
