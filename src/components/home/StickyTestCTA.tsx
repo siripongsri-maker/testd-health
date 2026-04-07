@@ -12,7 +12,7 @@ export function StickyTestCTA() {
         variant="default"
         size="lg"
         className="shadow-xl shadow-primary/30 rounded-full px-6"
-        onClick={() => navigate('/booking')}
+        onClick={() => { trackEvent('sticky_cta_click', { source: 'homepage', target: '/booking' }); navigate('/booking'); }}
       >
         <TestTube className="h-5 w-5" />
         ตรวจ HIV ฟรี

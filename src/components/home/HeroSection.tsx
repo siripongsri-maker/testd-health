@@ -45,7 +45,7 @@ export function HeroSection() {
 
       {/* Secondary CTA */}
       <button
-        onClick={() => navigate('/support-chat')}
+        onClick={() => { trackEvent('homepage_cta_support_click', { source: 'homepage', section: 'hero' }); navigate('/support-chat'); }}
         className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
       >
         <MessageCircle className="h-4 w-4" />
