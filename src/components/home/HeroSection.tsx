@@ -21,7 +21,7 @@ export function HeroSection() {
         <Button
           variant="hero"
           className="flex-1 sm:flex-none sm:min-w-[180px]"
-          onClick={() => navigate('/booking')}
+          onClick={() => { trackEvent('homepage_cta_booking_click', { source: 'homepage', section: 'hero' }); navigate('/booking'); }}
         >
           <Calendar className="h-5 w-5" />
           จองตรวจ HIV ฟรี วันนี้
