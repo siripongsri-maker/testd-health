@@ -1,60 +1,43 @@
 
 
-# Conversion Insights Panel — Admin Dashboard
+# Smart CTA Prioritization
 
 ## Summary
 
-Add a new "Conversion Insights" tab to the Admin dashboard that queries `analytics_events` for funnel events (CTA clicks → page views → started → submitted), computes conversion rates, and auto-generates rule-based insights with warnings and recommendations. No new tables needed.
+Create a lightweight helper (`src/lib/ctaPriority.ts`) that reads signals from `sessionStorage`/`localStorage` to determine which CTA should be first, then use it in both `HeroSection` and `PrimaryActionCards` to reorder buttons dynamically.
 
-## What gets built
+## Signal Logic
 
-### 1. Insight Logic Helper
-**Create**: `src/lib/conversionInsights.ts`
-
-A pure function that takes funnel counts and returns:
-- **Conversion rates** (booking funnel, selftest funnel, CTA→page view)
-- **Flags**: high drop-off (>50%), zero conversions, strong interest signals
-- **Recommended actions**: 1–2 line suggestions in Thai
-
-Thresholds:
-- Started→Submitted < 50% = high drop-off warning
-- CTA clicks > 0 but started = 0 = "interest but no follow-through"
-- Submitted/Started > 70% = strong completion signal
-
-### 2. Dashboard Component
-**Create**: `src/components/admin/AdminConversionInsightsContent.tsx`
-
-Queries `analytics_events` for these event types:
-- `homepage_cta_booking_click`, `homepage_cta_selftest_click`, `homepage_cta_support_click`, `sticky_cta_click`
-- `page_view_booking`, `page_view_selftest`
-- `booking_started`, `booking_submitted`
-- `selftest_started`, `selftest_submitted`
-
-UI sections:
-- **KPI cards** (4-col grid): Total CTA clicks, Booking conversion %, Selftest conversion %, Support clicks
-- **Funnel visualization**: Simple horizontal bars showing drop-off at each stage
-- **Auto-generated insights panel**: 3–5 insight cards with finding + recommendation
-- **Empty state**: Friendly message when no events exist yet ("ยังไม่มีข้อมูล funnel — ข้อมูลจะเริ่มปรากฏเมื่อมีผู้ใช้คลิก CTA บนหน้าแรก")
-
-Date range filter using existing `AdminDateRangeFilter` component.
-
-### 3. Register in Admin
-**Modify**: `src/pages/Admin.tsx` — add lazy import + renderTab for `"conversion-insights"`
-**Modify**: `src/components/AdminSidebar.tsx` — add sidebar item under MEL & Reporting group
-**Modify**: `src/lib/i18n.ts` — add translation key
+| Signal | Detection | Priority |
+|--------|-----------|----------|
+| Came from `/virtual` | Check `document.referrer` or store a flag in `sessionStorage` when navigating from virtual story pages | **booking** first |
+| Viewed info pages (`/learn`, `/harm-reduction`, `/prevention-match`, etc.) | Count info page views in `sessionStorage` | **selftest** first |
+| Multiple visits, no action taken | Check `localStorage` visit counter + no `booking_started`/`selftest_started` events in `sessionStorage` | **support-chat** first |
+| Default (new user) | No signals | Keep current order (selftest → booking → support) |
 
 ## Files
 
-| Action | File |
-|--------|------|
-| Create | `src/lib/conversionInsights.ts` |
-| Create | `src/components/admin/AdminConversionInsightsContent.tsx` |
-| Modify | `src/pages/Admin.tsx` |
-| Modify | `src/components/AdminSidebar.tsx` |
-| Modify | `src/lib/i18n.ts` |
+| Action | File | What |
+|--------|------|------|
+| Create | `src/lib/ctaPriority.ts` | Pure function: reads signals, returns ordered priority `['booking', 'selftest', 'support']` + a `recordPageSignal(path)` helper to stamp sessionStorage on navigation |
+| Modify | `src/components/home/PrimaryActionCards.tsx` | Import priority, reorder `actions` array at render time based on returned priority |
+| Modify | `src/components/home/HeroSection.tsx` | Swap primary/secondary button order based on priority (if booking is top → booking gets `variant="hero"`, selftest gets `variant="hero-outline"`, and vice versa) |
+| Modify | `src/hooks/useAnalytics.ts` | In `useAnalytics` hook's `useEffect`, call `recordPageSignal(location.pathname)` to stamp info-page visits and increment visit counter |
+
+## Implementation Details
+
+**`ctaPriority.ts`**:
+- `recordPageSignal(path)`: increments `localStorage` visit count; if path matches info pages, stamps `sessionStorage` flag; if path starts with `/virtual`, stamps virtual flag
+- `getCtaPriority()`: returns `'booking' | 'selftest' | 'support'` based on: virtual flag → booking; info flag → selftest; visits ≥ 3 with no action flag → support; else default
+- `markActionTaken()`: called when user starts booking/selftest, clears "no action" signal
+
+**HeroSection**: call `getCtaPriority()`, if result is `'booking'` keep current layout, if `'selftest'` swap button variants/order, if `'support'` elevate support button to primary row.
+
+**PrimaryActionCards**: sort the 3 action objects so the priority target is index 0.
 
 ## What won't change
-- No new DB tables or migrations
-- No changes to existing tracking, auth, routes, or UI components
-- Uses only existing `analytics_events` table with simple SELECT queries
+- No layout/structure changes — same components, same grid, same styling
+- No backend changes
+- No new routes or tables
+- Existing analytics tracking untouched
 
