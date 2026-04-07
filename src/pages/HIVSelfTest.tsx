@@ -535,6 +535,7 @@ export default function HIVSelfTest() {
             : '🎉 Confirmed received! Ready to start testing.'
         );
         setCurrentStep('video');
+        trackEvent('selftest_submitted', { source: 'selftest', delivery_mode: deliveryMode, step: 'pickup_confirmed' });
       } else {
         toast.success(
           language === 'th' 
@@ -542,6 +543,7 @@ export default function HIVSelfTest() {
             : '🎉 Request submitted! Staff will contact you.'
         );
         setCurrentStep('intro');
+        trackEvent('selftest_submitted', { source: 'selftest', delivery_mode: deliveryMode, step: 'request_sent' });
       }
       
       // Reset shipping form
