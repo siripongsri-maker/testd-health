@@ -1211,6 +1211,68 @@ export default function Booking() {
                 <span>{t('booking.idUploadHint')}</span>
               </div>
 
+              {/* Active booking replacement warning */}
+              {(activeBookingDetected || replacingAppointmentId) && (
+                <Card className="p-3 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 rounded-2xl">
+                  <div className="flex items-start gap-2 text-amber-700 dark:text-amber-400 text-sm">
+                    <ShieldAlert className="h-4 w-4 shrink-0 mt-0.5" />
+                    <div className="space-y-1">
+                      <p className="font-medium">
+                        {language === 'th'
+                          ? 'คุณมีนัดหมายที่ยังใช้งานอยู่'
+                          : 'You have an active booking'}
+                      </p>
+                      {activeBookingDetected && (
+                        <p className="text-xs">
+                          {activeBookingDetected.branch_name} — {activeBookingDetected.date} {activeBookingDetected.time?.slice(0, 5)}
+                        </p>
+                      )}
+                      <p className="text-xs">
+                        {language === 'th'
+                          ? 'การจองนี้จะยกเลิกนัดเดิมและสร้างนัดใหม่แทน'
+                          : 'This will cancel your existing booking and replace it with a new one.'}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {/* Replacement confirmation dialog */}
+              {showReplaceConfirm && (
+                <Card className="p-4 border-2 border-destructive/30 bg-destructive/5 rounded-2xl space-y-3">
+                  <p className="text-sm font-semibold text-foreground">
+                    {language === 'th'
+                      ? 'ยืนยันการเปลี่ยนนัดหมาย?'
+                      : 'Confirm booking replacement?'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {language === 'th'
+                      ? 'นัดหมายเดิมจะถูกยกเลิก และสร้างนัดใหม่ตามที่คุณเลือก หากสร้างนัดใหม่ไม่สำเร็จ นัดเดิมจะไม่ถูกเปลี่ยนแปลง'
+                      : 'Your current booking will be cancelled and replaced. If the new booking fails, your original booking will remain unchanged.'}
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => setShowReplaceConfirm(false)}
+                    >
+                      {language === 'th' ? 'ยกเลิก' : 'Cancel'}
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="flex-1"
+                      onClick={handleBook}
+                      disabled={submitting}
+                    >
+                      {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                      {language === 'th' ? 'ยืนยันเปลี่ยนนัด' : 'Confirm Replace'}
+                    </Button>
+                  </div>
+                </Card>
+              )}
+
               <Button
                 onClick={handleBook}
                 disabled={submitting}
@@ -1222,7 +1284,9 @@ export default function Booking() {
                 ) : (
                   <Check className="h-4 w-4" />
                 )}
-                {t('booking.confirm')}
+                {(activeBookingDetected || replacingAppointmentId)
+                  ? (language === 'th' ? 'เปลี่ยนนัดหมาย' : 'Replace Booking')
+                  : t('booking.confirm')}
               </Button>
             </div>
           )}
