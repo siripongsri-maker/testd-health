@@ -1,6 +1,6 @@
 import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
-import { trackEvent } from "@/hooks/useAnalytics";
+import { trackHrCta } from "@/hooks/useHarmReductionTracking";
 import {
   BookOpen, ClipboardCheck, Shield, HeartHandshake, Building2,
   ChevronRight,
