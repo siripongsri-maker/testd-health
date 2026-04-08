@@ -6,6 +6,7 @@ import { EP2_TOPICS } from "@/config/ep2StoryData";
 interface Props {
   onSelectEp1: () => void;
   onSelectEp2: () => void;
+  onSelectPrepHunt?: () => void;
   onBack?: () => void;
 }
 
