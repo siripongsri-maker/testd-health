@@ -1325,7 +1325,8 @@ export default function Booking() {
                     <Check className="h-4 w-4" />
                   )}
                   {t('booking.confirm')}
-              </Button>
+                </Button>
+              )}
             </div>
           )}
 
