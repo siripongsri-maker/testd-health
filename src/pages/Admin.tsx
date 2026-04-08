@@ -58,6 +58,7 @@ const AdminCRMContent = lazy(() => import("@/components/admin/crm/AdminCRMConten
 const AdminYouthSurveyContent = lazy(() => import("@/components/admin/AdminYouthSurveyContent"));
 const AdminVirtualStoriesContent = lazy(() => import("@/components/admin/AdminVirtualStoriesContent"));
 const AdminConversionInsightsContent = lazy(() => import("@/components/admin/AdminConversionInsightsContent"));
+const AdminHarmReductionReportContent = lazy(() => import("@/components/admin/AdminHarmReductionReportContent"));
 
 // MEL modules
 const MelServiceLedgerContent = lazy(() => import("@/components/admin/mel/MelServiceLedgerContent"));
