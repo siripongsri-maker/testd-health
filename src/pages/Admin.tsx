@@ -235,6 +235,7 @@ export default function Admin() {
           {renderTab("youth-survey", <AdminYouthSurveyContent />)}
           {renderTab("virtual-stories", <AdminVirtualStoriesContent />)}
           {renderTab("conversion-insights", <AdminConversionInsightsContent />)}
+          {renderTab("hr-report", <AdminHarmReductionReportContent />)}
 
           {/* Compliance */}
           {renderTab("pdpa-compliance", <AdminPdpaComplianceContent />)}
