@@ -105,7 +105,7 @@ export default function HrZoneTrust({ userId, onResetAge }: Props) {
             variant="destructive"
             size="sm"
             className="rounded-full h-8 text-xs shrink-0"
-            onClick={() => window.open("tel:1669")}
+            onClick={() => { trackHrOutbound('tel:1669', 'Emergency 1669', 'trust_zone'); window.open("tel:1669"); }}
           >
             {isEn ? "Call" : "โทร"}
           </Button>
