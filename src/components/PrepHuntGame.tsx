@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { trackEvent } from "@/hooks/useAnalytics";
+import { setHarmReductionSource } from "@/hooks/useHarmReductionTracking";
 
 /* ═══════════════════════════════════════════════════════════════
    PREP HUNT  —  drag / tap objects to reveal hidden pills
