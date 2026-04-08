@@ -20,6 +20,7 @@ import { getActiveNudges, type Nudge } from "@/lib/SafetyNudges";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ChevronRight } from "lucide-react";
 import { trackEvent } from "@/hooks/useAnalytics";
+import { useHarmReductionPageTracking, trackHrCta, trackHrContentExpand } from "@/hooks/useHarmReductionTracking";
 import { SEOHead, buildMedicalPageJsonLd } from "@/components/seo";
 import { createServicePathway, recordServiceEvent } from "@/lib/servicePathway";
 
@@ -128,14 +129,16 @@ export default function HarmReduction() {
 
   const handleNavigate = (target: string) => {
     if (target === "clinic") {
-      trackEvent("hr_section_enter", { section: "clinic" });
+      trackHrCta("booking", { cta_position: "pathway", target_path: "/booking", content_section: "clinic" });
       navigate("/booking");
       return;
     }
     if (target === "service-entry") {
+      trackHrContentExpand("service-entry");
       setSection("service-entry");
       return;
     }
+    trackHrContentExpand(target);
     setSection(target as Section);
     trackEvent("hr_section_enter", { section: target });
   };
@@ -223,6 +226,9 @@ export default function HarmReduction() {
     );
   }
 
+  // Activate page-level tracking (scroll, engaged read, page view)
+  useHarmReductionPageTracking();
+
   // ─── Landing: 5 clear zones + service pathway ───
   return (
     <PageContainer className="pb-24">
@@ -263,7 +269,7 @@ export default function HarmReduction() {
 
         {/* Factsheet CTA */}
         <button
-          onClick={() => setSection("factsheet")}
+          onClick={() => { trackHrContentExpand("factsheet", "factsheet_cta"); setSection("factsheet"); }}
           className="w-full rounded-2xl p-4 text-left transition-all active:scale-[0.98]"
           style={{
             background: "linear-gradient(135deg, hsl(340 60% 45%), hsl(270 50% 40%))",

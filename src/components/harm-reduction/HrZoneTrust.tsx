@@ -2,7 +2,7 @@ import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { trackEvent } from "@/hooks/useAnalytics";
+import { trackHrCta, trackHrOutbound } from "@/hooks/useHarmReductionTracking";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Building2, CalendarDays, Phone, MessageCircle,
@@ -20,7 +20,8 @@ export default function HrZoneTrust({ userId, onResetAge }: Props) {
   const isEn = language === "en";
 
   const trackReferral = async (type: string) => {
-    trackEvent("hr_swing_referral", { type, source: "trust_zone" });
+    const ctaMap: Record<string, string> = { booking: 'booking', chat: 'support', phone: 'hotline' };
+    trackHrCta(ctaMap[type] || type, { cta_position: 'trust_zone', target_path: type === 'booking' ? '/booking' : type === 'chat' ? '/support-chat' : 'tel:+6626329501' });
     try {
       await supabase.from("hr_referral_events").insert({
         user_id: userId || null,
@@ -104,7 +105,7 @@ export default function HrZoneTrust({ userId, onResetAge }: Props) {
             variant="destructive"
             size="sm"
             className="rounded-full h-8 text-xs shrink-0"
-            onClick={() => window.open("tel:1669")}
+            onClick={() => { trackHrOutbound('tel:1669', 'Emergency 1669', 'trust_zone'); window.open("tel:1669"); }}
           >
             {isEn ? "Call" : "โทร"}
           </Button>

@@ -1,6 +1,6 @@
 import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
-import { trackEvent } from "@/hooks/useAnalytics";
+import { trackHrCta } from "@/hooks/useHarmReductionTracking";
 import {
   BookOpen, ClipboardCheck, Shield, HeartHandshake, Building2,
   ChevronRight,
@@ -81,7 +81,13 @@ export default function HrZonePathways({ onNavigate }: Props) {
               key={path.id}
               className="overflow-hidden cursor-pointer hover:shadow-lg transition-all active:scale-[0.98] border border-border/40"
               onClick={() => {
-                trackEvent("hr_pathway_click", { pathway: path.id });
+                const ctaMap: Record<string, string> = { check: 'selftest', learn: 'support', plan: 'support', support: 'support', clinic: 'booking' };
+                trackHrCta(ctaMap[path.id] || path.id, {
+                  cta_label: isEn ? path.titleEn : path.titleTh,
+                  cta_position: 'pathways',
+                  target_path: path.id === 'clinic' ? '/booking' : `/harm-reduction#${path.id}`,
+                  content_section: 'pathway_cards',
+                });
                 onNavigate(path.id);
               }}
             >

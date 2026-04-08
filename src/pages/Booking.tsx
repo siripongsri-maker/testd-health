@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { getSourcePageMeta } from '@/hooks/useHarmReductionTracking';
 import { PageContainer } from '@/components/PageContainer';
 import { BottomNav } from '@/components/BottomNav';
 import { Card } from '@/components/ui/card';
@@ -377,7 +378,7 @@ export default function Booking() {
 
     setSubmitting(true);
     setShowReplaceConfirm(false);
-    trackEvent('booking_started', { source: 'booking', branch_id: selectedBranch?.id, is_replacement: !!replaceId });
+    trackEvent('booking_started', { source: 'booking', branch_id: selectedBranch?.id, is_replacement: !!replaceId, ...getSourcePageMeta() });
     try {
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
 
@@ -586,7 +587,7 @@ export default function Booking() {
       } catch {}
 
       setStep('success');
-      trackEvent('booking_submitted', { source: 'booking', branch_id: selectedBranch?.id });
+      trackEvent('booking_submitted', { source: 'booking', branch_id: selectedBranch?.id, ...getSourcePageMeta() });
       toast.success(t('booking.successTitle'));
     } catch (err: any) {
       console.error('Booking error:', err);
