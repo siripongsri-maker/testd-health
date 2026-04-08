@@ -475,6 +475,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.analyticsOverview': 'ภาพรวมช่วงเวลา',
     'admin.attribution': 'Attribution',
     'admin.conversionInsights': 'Conversion Insights',
+    'admin.hrReport': 'รายงาน Harm Reduction',
     'admin.feedbackOutcomes': 'Feedback & Outcomes',
     'admin.import': 'นำเข้า',
     'admin.abuseLogs': 'Anti-spam',
