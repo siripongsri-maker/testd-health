@@ -70,7 +70,13 @@ export default function HrZoneHero({ onNavigate }: Props) {
             <button
               key={action.id}
               onClick={() => {
-                trackEvent("hr_quick_action", { action: action.id });
+                const ctaMap: Record<string, string> = { check: 'selftest', plan: 'support', support: 'support', clinic: 'booking' };
+                trackHrCta(ctaMap[action.id] || action.id, {
+                  cta_label: isEn ? action.labelEn : action.labelTh,
+                  cta_position: 'hero',
+                  target_path: action.section === 'clinic' ? '/booking' : `/harm-reduction#${action.section}`,
+                  content_section: 'hero_quick_actions',
+                });
                 onNavigate(action.section);
               }}
               className="flex items-center gap-3 rounded-2xl bg-card/80 backdrop-blur-sm border border-border/50 p-3.5 text-left transition-all hover:shadow-md active:scale-[0.97] group"
