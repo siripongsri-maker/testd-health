@@ -10,7 +10,7 @@ interface Props {
   onBack?: () => void;
 }
 
-export function VirtualStoryHub({ onSelectEp1, onSelectEp2, onBack }: Props) {
+export function VirtualStoryHub({ onSelectEp1, onSelectEp2, onSelectPrepHunt, onBack }: Props) {
   const navigate = useNavigate();
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
 
