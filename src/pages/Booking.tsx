@@ -111,6 +111,13 @@ export default function Booking() {
   const [confirmedCode, setConfirmedCode] = useState<string | null>(null);
   const [guestToken, setGuestToken] = useState<string | null>(null);
 
+  // Booking replacement state
+  const [replacingAppointmentId, setReplacingAppointmentId] = useState<string | null>(
+    searchParams.get('replace') || null
+  );
+  const [showReplaceConfirm, setShowReplaceConfirm] = useState(false);
+  const [activeBookingDetected, setActiveBookingDetected] = useState<{ id: string; date: string; time: string; branch_name: string } | null>(null);
+
   // Risk assessment state
   const [showRiskAssessment, setShowRiskAssessment] = useState(false);
   const [riskQuestions, setRiskQuestions] = useState<RiskQuestion[]>([]);
