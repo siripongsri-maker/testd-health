@@ -269,7 +269,7 @@ export default function HarmReduction() {
 
         {/* Factsheet CTA */}
         <button
-          onClick={() => setSection("factsheet")}
+          onClick={() => { trackHrContentExpand("factsheet", "factsheet_cta"); setSection("factsheet"); }}
           className="w-full rounded-2xl p-4 text-left transition-all active:scale-[0.98]"
           style={{
             background: "linear-gradient(135deg, hsl(340 60% 45%), hsl(270 50% 40%))",
