@@ -749,6 +749,21 @@ export default function PrepHuntGame({ onBack }: { onBack?: () => void }) {
   if (screen === "title") return (
     <div style={WRAP}>
       <style>{CSS}</style>
+      {/* Top header + skip */}
+      <div style={{ padding:"12px 16px", display:"flex", justifyContent:"space-between", alignItems:"center",
+        background:"rgba(0,0,0,0.5)", borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+          {onBack && <button onClick={onBack} style={{ background:"none", border:"none", color:"rgba(255,255,255,0.5)", cursor:"pointer", fontSize:16 }}>←</button>}
+          <span style={{ fontSize:13, color:"rgba(255,255,255,0.7)", fontFamily:"'Sarabun',sans-serif" }}>
+            💊 เล่นเกมสั้น ๆ เพื่อเรียนรู้เรื่อง PrEP
+          </span>
+        </div>
+        <button onClick={() => navigate("/booking")} style={{ background:"none", border:"1px solid rgba(255,255,255,0.15)",
+          color:"rgba(255,255,255,0.45)", borderRadius:20, padding:"4px 14px", fontSize:11, cursor:"pointer", fontFamily:"'Sarabun',sans-serif" }}>
+          ข้ามเกม →
+        </button>
+      </div>
+
       <div style={{ flex:1,display:"flex",flexDirection:"column",alignItems:"center",
         justifyContent:"center",padding:"28px 22px",gap:14,textAlign:"center",
         background:"radial-gradient(ellipse at 50% -10%,#0e2a48 0%,#0d1117 60%)" }}>
