@@ -1095,17 +1095,24 @@ export default function PrepHuntGame({ onBack }: { onBack?: () => void }) {
 }
 
 // ─── Service cards ──────────────────────────────────────────────
-function ServiceCards({ lose, all }) {
+function ServiceCards({ lose, all }: { lose?: boolean; all?: boolean }) {
+  const navigate = useNavigate();
+  const handleClick = (route: string, ctaType: string, label: string) => {
+    setHarmReductionSource();
+    trackEvent(`virtual_cta_${ctaType}_click`, { source_page: "/virtual", cta_label: label });
+    navigate(route);
+  };
+
   const win_items = [
-    { icon:"💊", th:"จองนัดรับ PrEP",           en:"Book PrEP appointment",   sub:"ฟรีบางกลุ่ม · Free for eligible" },
-    { icon:"🧪", th:"นัดตรวจ HIV",              en:"Book HIV test",            sub:"Walk-in หรือนัดล่วงหน้า" },
-    { icon:"📦", th:"ขอชุดตรวจที่บ้าน",        en:"Home self-test kit",        sub:"ส่งฟรี ไม่ระบุชื่อ" },
-    ...(all ? [{ icon:"💬", th:"ปรึกษาออนไลน์นิรนาม", en:"Anonymous consultation", sub:"100% Anonymous" }] : []),
+    { icon:"💊", th:"จองนัดรับ PrEP",           en:"Book PrEP appointment",   sub:"ฟรีบางกลุ่ม · Free for eligible", route:"/booking", cta:"booking" },
+    { icon:"🧪", th:"นัดตรวจ HIV",              en:"Book HIV test",            sub:"Walk-in หรือนัดล่วงหน้า", route:"/booking", cta:"booking" },
+    { icon:"📦", th:"ขอชุดตรวจที่บ้าน",        en:"Home self-test kit",        sub:"ส่งฟรี ไม่ระบุชื่อ", route:"/self-test", cta:"selftest" },
+    ...(all ? [{ icon:"💬", th:"ปรึกษาออนไลน์นิรนาม", en:"Anonymous consultation", sub:"100% Anonymous", route:"/support-chat", cta:"support" }] : []),
   ];
   const lose_items = [
-    { icon:"📍", th:"หาคลินิก PrEP ใกล้ฉัน",  en:"Find PrEP clinic near me",  sub:"ง่าย รวดเร็ว · Fast" },
-    { icon:"💬", th:"ปรึกษาเจ้าหน้าที่นิรนาม", en:"Anonymous counselor chat",  sub:"ไม่ระบุชื่อ · No name needed" },
-    { icon:"📦", th:"ขอชุดตรวจที่บ้าน",        en:"Request home test kit",      sub:"ส่งถึงบ้าน · Delivered" },
+    { icon:"📍", th:"หาคลินิก PrEP ใกล้ฉัน",  en:"Find PrEP clinic near me",  sub:"ง่าย รวดเร็ว · Fast", route:"/booking", cta:"booking" },
+    { icon:"💬", th:"ปรึกษาเจ้าหน้าที่นิรนาม", en:"Anonymous counselor chat",  sub:"ไม่ระบุชื่อ · No name needed", route:"/support-chat", cta:"support" },
+    { icon:"📦", th:"ขอชุดตรวจที่บ้าน",        en:"Request home test kit",      sub:"ส่งถึงบ้าน · Delivered", route:"/self-test", cta:"selftest" },
   ];
   const items = lose ? lose_items : win_items;
   return (
@@ -1114,7 +1121,7 @@ function ServiceCards({ lose, all }) {
       borderRadius:18,padding:"14px 12px",width:"100%",maxWidth:360 }}>
       {items.map((item,i)=>(
         <button key={i}
-          onClick={()=>alert(`🔗 ${item.th}\n${item.en}\n\n→ Coming soon in testD!`)}
+          onClick={() => handleClick(item.route, item.cta, item.th)}
           style={{ background:"rgba(255,255,255,0.03)",
             border:"1px solid rgba(255,255,255,0.065)",
             borderRadius:12,padding:"11px 14px",
