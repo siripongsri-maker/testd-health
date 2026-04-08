@@ -448,6 +448,7 @@ export type Database = {
           notes: string | null
           rating: number | null
           referral_code: string | null
+          replaced_by_id: string | null
           review_email_sent_at: string | null
           service_id: string | null
           source: string
@@ -481,6 +482,7 @@ export type Database = {
           notes?: string | null
           rating?: number | null
           referral_code?: string | null
+          replaced_by_id?: string | null
           review_email_sent_at?: string | null
           service_id?: string | null
           source?: string
@@ -514,6 +516,7 @@ export type Database = {
           notes?: string | null
           rating?: number | null
           referral_code?: string | null
+          replaced_by_id?: string | null
           review_email_sent_at?: string | null
           service_id?: string | null
           source?: string
@@ -530,6 +533,13 @@ export type Database = {
             columns: ["branch_id"]
             isOneToOne: false
             referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "appointments_replaced_by_id_fkey"
+            columns: ["replaced_by_id"]
+            isOneToOne: false
+            referencedRelation: "appointments"
             referencedColumns: ["id"]
           },
           {
@@ -9985,6 +9995,21 @@ export type Database = {
       }
       register_queue_visit: {
         Args: { p_appointment_id?: string; p_branch_id: string }
+        Returns: Json
+      }
+      replace_appointment: {
+        Args: {
+          p_appointment_date: string
+          p_branch_id: string
+          p_contact_email?: string
+          p_contact_line?: string
+          p_contact_phone?: string
+          p_notes?: string
+          p_old_appointment_id: string
+          p_services: string[]
+          p_start_time: string
+          p_user_id?: string
+        }
         Returns: Json
       }
       revoke_partner_invite: {

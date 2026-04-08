@@ -111,6 +111,13 @@ export default function Booking() {
   const [confirmedCode, setConfirmedCode] = useState<string | null>(null);
   const [guestToken, setGuestToken] = useState<string | null>(null);
 
+  // Booking replacement state
+  const [replacingAppointmentId, setReplacingAppointmentId] = useState<string | null>(
+    searchParams.get('replace') || null
+  );
+  const [showReplaceConfirm, setShowReplaceConfirm] = useState(false);
+  const [activeBookingDetected, setActiveBookingDetected] = useState<{ id: string; date: string; time: string; branch_name: string } | null>(null);
+
   // Risk assessment state
   const [showRiskAssessment, setShowRiskAssessment] = useState(false);
   const [riskQuestions, setRiskQuestions] = useState<RiskQuestion[]>([]);
@@ -159,7 +166,42 @@ export default function Booking() {
     load();
   }, [searchParams]);
 
-  // Load availability for selected date from the single source of truth RPC
+  // Auto-detect active booking for the selected branch (for replacement)
+  useEffect(() => {
+    if (!selectedBranch || replacingAppointmentId) return;
+    const detectActive = async () => {
+      let query = supabase
+        .from('appointments')
+        .select('id, appointment_date, start_time, booking_branches(name_th, name_en)')
+        .eq('branch_id', selectedBranch.id)
+        .in('status', ['booked', 'confirmed']);
+
+      if (user) {
+        query = query.eq('user_id', user.id);
+      } else if (contactPhone.trim()) {
+        query = query.eq('contact_phone', contactPhone.replace(/[-\s]/g, '').trim());
+      } else {
+        setActiveBookingDetected(null);
+        return;
+      }
+
+      const { data } = await query.limit(1).single();
+      if (data) {
+        const branch = data.booking_branches as any;
+        setActiveBookingDetected({
+          id: data.id,
+          date: data.appointment_date,
+          time: data.start_time,
+          branch_name: language === 'th' ? branch?.name_th : branch?.name_en || '',
+        });
+      } else {
+        setActiveBookingDetected(null);
+      }
+    };
+    detectActive();
+  }, [selectedBranch, user, contactPhone, replacingAppointmentId, language]);
+
+
   useEffect(() => {
     if (!selectedBranch || !selectedDate) return;
     const loadSlots = async () => {
@@ -323,17 +365,55 @@ export default function Booking() {
       toast.error(language === 'th' ? 'กรุณากรอกเบอร์โทรศัพท์' : 'Please enter a valid phone number');
       return;
     }
-    if (!contactPhone.trim() || !/^[0+]\d{8,13}$/.test(contactPhone.replace(/[-\s]/g, ''))) {
-      toast.error(language === 'th' ? 'กรุณากรอกเบอร์โทรศัพท์' : 'Please enter a valid phone number');
-      return;
-    }
     if (!selectedBranch || selectedServices.length === 0 || !selectedDate || !selectedTime) return;
 
+    // If there's an active booking to replace and user hasn't confirmed yet
+    const replaceId = replacingAppointmentId || activeBookingDetected?.id;
+    if (replaceId && !showReplaceConfirm) {
+      setShowReplaceConfirm(true);
+      return;
+    }
+
     setSubmitting(true);
-    trackEvent('booking_started', { source: 'booking', branch_id: selectedBranch?.id });
+    setShowReplaceConfirm(false);
+    trackEvent('booking_started', { source: 'booking', branch_id: selectedBranch?.id, is_replacement: !!replaceId });
     try {
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
 
+      // === REPLACEMENT FLOW ===
+      if (replaceId) {
+        const { data, error } = await supabase.rpc('replace_appointment', {
+          p_old_appointment_id: replaceId,
+          p_branch_id: selectedBranch.id,
+          p_appointment_date: dateStr,
+          p_start_time: selectedTime + ':00',
+          p_services: selectedServices.map(s => s.id),
+          p_contact_email: (user?.email || contactEmail.trim()) || null,
+          p_contact_phone: contactPhone.replace(/[-\s]/g, '').trim(),
+          p_contact_line: contactLine.trim() || null,
+          p_notes: notes || null,
+          p_user_id: user?.id || null,
+        });
+
+        if (error) throw error;
+        const result = data as any;
+        setConfirmedCode(result.referral_code);
+        setReplacingAppointmentId(null);
+        setActiveBookingDetected(null);
+
+        trackEvent('booking_replaced', {
+          source: 'booking',
+          old_appointment_id: replaceId,
+          new_appointment_id: result.id,
+        });
+
+        setStep('success');
+        toast.success(language === 'th' ? 'เปลี่ยนนัดหมายสำเร็จ' : 'Booking replaced successfully');
+        setSubmitting(false);
+        return;
+      }
+
+      // === NORMAL FLOW ===
       if (!user) {
         const { data, error } = await supabase.rpc('create_anonymous_appointment', {
           p_branch_id: selectedBranch.id,
@@ -520,9 +600,10 @@ export default function Booking() {
           ? 'คุณจองถี่เกินไป กรุณารอสักครู่แล้วลองอีกครั้ง'
           : 'Too many bookings. Please wait a moment and try again.');
       } else if (msg.includes('duplicate_active')) {
+        // Auto-detect the active booking for replacement
         toast.error(language === 'th'
-          ? 'คุณมีนัดหมายที่ยังไม่เสร็จสิ้นอยู่แล้วที่สาขานี้'
-          : 'You already have an active appointment at this branch.');
+          ? 'คุณมีนัดหมายอยู่แล้ว — กดปุ่ม "เปลี่ยนนัดหมาย" เพื่อจองใหม่แทน'
+          : 'You already have an active booking — use "Replace Booking" to reschedule.');
       } else if (msg.includes('slot_blocked')) {
         toast.error(t('booking.slotBlocked'));
       } else if (msg.includes('slot_full')) {
@@ -1131,6 +1212,68 @@ export default function Booking() {
                 <span>{t('booking.idUploadHint')}</span>
               </div>
 
+              {/* Active booking replacement warning */}
+              {(activeBookingDetected || replacingAppointmentId) && (
+                <Card className="p-3 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 rounded-2xl">
+                  <div className="flex items-start gap-2 text-amber-700 dark:text-amber-400 text-sm">
+                    <ShieldAlert className="h-4 w-4 shrink-0 mt-0.5" />
+                    <div className="space-y-1">
+                      <p className="font-medium">
+                        {language === 'th'
+                          ? 'คุณมีนัดหมายที่ยังใช้งานอยู่'
+                          : 'You have an active booking'}
+                      </p>
+                      {activeBookingDetected && (
+                        <p className="text-xs">
+                          {activeBookingDetected.branch_name} — {activeBookingDetected.date} {activeBookingDetected.time?.slice(0, 5)}
+                        </p>
+                      )}
+                      <p className="text-xs">
+                        {language === 'th'
+                          ? 'การจองนี้จะยกเลิกนัดเดิมและสร้างนัดใหม่แทน'
+                          : 'This will cancel your existing booking and replace it with a new one.'}
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {/* Replacement confirmation dialog */}
+              {showReplaceConfirm && (
+                <Card className="p-4 border-2 border-destructive/30 bg-destructive/5 rounded-2xl space-y-3">
+                  <p className="text-sm font-semibold text-foreground">
+                    {language === 'th'
+                      ? 'ยืนยันการเปลี่ยนนัดหมาย?'
+                      : 'Confirm booking replacement?'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {language === 'th'
+                      ? 'นัดหมายเดิมจะถูกยกเลิก และสร้างนัดใหม่ตามที่คุณเลือก หากสร้างนัดใหม่ไม่สำเร็จ นัดเดิมจะไม่ถูกเปลี่ยนแปลง'
+                      : 'Your current booking will be cancelled and replaced. If the new booking fails, your original booking will remain unchanged.'}
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => setShowReplaceConfirm(false)}
+                    >
+                      {language === 'th' ? 'ยกเลิก' : 'Cancel'}
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      className="flex-1"
+                      onClick={handleBook}
+                      disabled={submitting}
+                    >
+                      {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                      {language === 'th' ? 'ยืนยันเปลี่ยนนัด' : 'Confirm Replace'}
+                    </Button>
+                  </div>
+                </Card>
+              )}
+
               <Button
                 onClick={handleBook}
                 disabled={submitting}
@@ -1142,7 +1285,9 @@ export default function Booking() {
                 ) : (
                   <Check className="h-4 w-4" />
                 )}
-                {t('booking.confirm')}
+                {(activeBookingDetected || replacingAppointmentId)
+                  ? (language === 'th' ? 'เปลี่ยนนัดหมาย' : 'Replace Booking')
+                  : t('booking.confirm')}
               </Button>
             </div>
           )}
