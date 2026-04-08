@@ -101,6 +101,8 @@ type GuardState = "ok" | "updating" | "stuck";
 
 export function ForceUpdateGuard({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<GuardState>(() => {
+    // Skip version guard in development / preview environments
+    if (import.meta.env.DEV || window.location.hostname.includes('preview')) return "ok";
     // Synchronous pre-check to avoid flash of content
     if (needsVersionUpdate()) return "updating";
     if (needsSessionCheck()) return "updating";
