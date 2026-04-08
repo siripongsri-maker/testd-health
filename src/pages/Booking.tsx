@@ -166,26 +166,26 @@ export default function Booking() {
     load();
   }, [searchParams]);
 
-  // Auto-detect active booking for the selected branch (for replacement)
+  // Auto-detect active booking (any branch) for replacement
   useEffect(() => {
-    if (!selectedBranch || replacingAppointmentId) return;
+    if (replacingAppointmentId) return;
     const detectActive = async () => {
       let query = supabase
         .from('appointments')
         .select('id, appointment_date, start_time, booking_branches(name_th, name_en)')
-        .eq('branch_id', selectedBranch.id)
         .in('status', ['booked', 'confirmed']);
 
       if (user) {
         query = query.eq('user_id', user.id);
-      } else if (contactPhone.trim()) {
+      } else if (contactPhone.trim() && /^[0+]\d{8,13}$/.test(contactPhone.replace(/[-\s]/g, ''))) {
         query = query.eq('contact_phone', contactPhone.replace(/[-\s]/g, '').trim());
       } else {
         setActiveBookingDetected(null);
+        setShowReplaceConfirm(false);
         return;
       }
 
-      const { data } = await query.limit(1).single();
+      const { data } = await query.order('appointment_date', { ascending: false }).limit(1).single();
       if (data) {
         const branch = data.booking_branches as any;
         setActiveBookingDetected({
@@ -196,10 +196,11 @@ export default function Booking() {
         });
       } else {
         setActiveBookingDetected(null);
+        setShowReplaceConfirm(false);
       }
     };
     detectActive();
-  }, [selectedBranch, user, contactPhone, replacingAppointmentId, language]);
+  }, [user, contactPhone, replacingAppointmentId, language]);
 
 
   useEffect(() => {
