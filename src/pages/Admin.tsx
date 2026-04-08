@@ -58,6 +58,7 @@ const AdminCRMContent = lazy(() => import("@/components/admin/crm/AdminCRMConten
 const AdminYouthSurveyContent = lazy(() => import("@/components/admin/AdminYouthSurveyContent"));
 const AdminVirtualStoriesContent = lazy(() => import("@/components/admin/AdminVirtualStoriesContent"));
 const AdminConversionInsightsContent = lazy(() => import("@/components/admin/AdminConversionInsightsContent"));
+const AdminHarmReductionReportContent = lazy(() => import("@/components/admin/AdminHarmReductionReportContent"));
 
 // MEL modules
 const MelServiceLedgerContent = lazy(() => import("@/components/admin/mel/MelServiceLedgerContent"));
@@ -95,7 +96,7 @@ const ME_ANALYST_TABS = new Set([
   "mel-safe-spaces", "mel-partners", "mel-policy", "mel-evaluation", "mel-reporting",
   "youth-survey",
   "virtual-stories",
-  "conversion-insights",
+  "conversion-insights", "hr-report",
   // HR Service System
   "service-pathways",
   // System
@@ -234,6 +235,7 @@ export default function Admin() {
           {renderTab("youth-survey", <AdminYouthSurveyContent />)}
           {renderTab("virtual-stories", <AdminVirtualStoriesContent />)}
           {renderTab("conversion-insights", <AdminConversionInsightsContent />)}
+          {renderTab("hr-report", <AdminHarmReductionReportContent />)}
 
           {/* Compliance */}
           {renderTab("pdpa-compliance", <AdminPdpaComplianceContent />)}
