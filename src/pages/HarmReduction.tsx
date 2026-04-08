@@ -129,14 +129,16 @@ export default function HarmReduction() {
 
   const handleNavigate = (target: string) => {
     if (target === "clinic") {
-      trackEvent("hr_section_enter", { section: "clinic" });
+      trackHrCta("booking", { cta_position: "pathway", target_path: "/booking", content_section: "clinic" });
       navigate("/booking");
       return;
     }
     if (target === "service-entry") {
+      trackHrContentExpand("service-entry");
       setSection("service-entry");
       return;
     }
+    trackHrContentExpand(target);
     setSection(target as Section);
     trackEvent("hr_section_enter", { section: target });
   };
