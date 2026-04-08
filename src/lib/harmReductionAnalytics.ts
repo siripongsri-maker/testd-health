@@ -600,86 +600,20 @@ export async function fetchHrAnalytics(filters: HrFilters): Promise<HrAnalyticsD
     (firstLegacyEventRes.data?.[0] as AnalyticsRow | undefined)?.created_at || null,
   ].filter(Boolean) as string[];
 
-  const lastAccessAt = [...combinedPageViews, ...legacyEvents, ...trackedEvents]
+  const accessDates = [...combinedPageViews, ...legacyEvents, ...trackedEvents]
     .map((row) => row.created_at)
     .filter(Boolean)
-    .sort()
-    .at(-1) || null;
-
-  const dataSources: HrDataSources = {
-    hasLegacyBackfill: legacyPageViews.length > 0 || legacyEvents.length > 0,
-    trackedPageViews: trackedPageViews.length,
-    legacyPageViews: legacyPageViews.length,
-    trackedSessions,
-    legacySessions,
-    trackedServiceStarts: trackedStarts.length,
-    legacyEstimatedStarts: legacyEstimatedStarts.length,
-    trackedCompletedConversions: trackedCompletes.length,
-    legacyEstimatedCompletedConversions: legacyEstimatedCompletes.length,
-    firstAccessAt: firstDates.length > 0 ? firstDates.sort()[0] : null,
-    lastAccessAt,
-  };
-
-  const insights: HrInsight[] = [];
-  if (dataSources.hasLegacyBackfill) {
-    insights.push({
-      severity: 'info',
-      title: 'รวมข้อมูลจากระบบเดิมแล้ว',
-      description: `เพิ่ม historical backfill ${dataSources.legacyPageViews} page views เพื่อให้รายงานสะท้อนการใช้งานก่อนมี analytics tracking`,
-    });
-  }
-  if (pages.length > 0) {
-    insights.push({
-      severity: 'info',
-      title: 'หน้าที่มีคนเข้ามามากที่สุด',
-      description: `${pages[0].page_path} มี ${pages[0].views} views`,
-    });
-  }
-  if (ctas.length > 0) {
-    insights.push({
-      severity: 'info',
-      title: 'CTA ที่ทำงานดีที่สุด',
-      description: `${ctas[0].cta_label} ถูกคลิก ${ctas[0].clicks} ครั้ง`,
-    });
-  }
-  const topDestination = [...destinations].sort((a, b) => b.starts - a.starts)[0];
-  if (topDestination && topDestination.starts > 0) {
-    insights.push({
-      severity: 'success',
-      title: 'เส้นทางบริการที่เด่นที่สุด',
-      description: `${topDestination.target} มี ${topDestination.starts} starts และ ${topDestination.completed} completed`,
-    });
-  }
-  if (kpis.serviceStarts > 0 && kpis.completedConversions / Math.max(kpis.serviceStarts, 1) < 0.5) {
-    insights.push({
-      severity: 'warning',
-      title: 'มี drop-off หลังคลิกเข้าสู่บริการ',
-      description: `เริ่มบริการ ${kpis.serviceStarts} ครั้ง แต่จบเพียง ${kpis.completedConversions} ครั้ง`,
-    });
-  }
-  if (kpis.engagementRate >= 50) {
-    insights.push({
-      severity: 'success',
-      title: 'Engagement แข็งแรง',
-      description: `${kpis.engagementRate}% ของ sessions มีการอ่านหรือโต้ตอบกับเนื้อหา`,
-    });
-  }
-  if (kpis.totalCtaClicks > 0 && kpis.serviceStarts === 0) {
-    insights.push({
-      severity: 'warning',
-      title: 'มีความสนใจแต่ยังไม่ไปต่อ',
-      description: 'มี CTA clicks แล้ว แต่ยังไม่เห็น service start — ควรตรวจสอบหน้าปลายทางหรือข้อความนำทาง',
-    });
-  }
-
-  const trackedRawEvents = [...trackedEvents, ...trackedServiceEvents].map((row) => ({
-    ...row,
+    .sort();
+  const lastAccessAt = accessDates.length > 0 ? accessDates[accessDates.length - 1] : null;
+...
+  const trackedRawEvents: any[] = [...trackedEvents, ...trackedServiceEvents].map((row: any) => ({
+    ...(row || {}),
     data_source: 'tracked',
     normalized_event_name: row.event_type,
   }));
 
-  const legacyRawEvents = [...legacyPageViews, ...legacyEvents].map((row) => ({
-    ...row,
+  const legacyRawEvents: any[] = [...legacyPageViews, ...legacyEvents].map((row: any) => ({
+    ...(row || {}),
     data_source: 'legacy',
     normalized_event_name: normalizeLegacyEventName(row),
     metadata: {
@@ -692,7 +626,7 @@ export async function fetchHrAnalytics(filters: HrFilters): Promise<HrAnalyticsD
     },
   }));
 
-  const rawEvents = [...trackedRawEvents, ...legacyRawEvents].sort((a, b) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
+  const rawEvents: any[] = [...trackedRawEvents, ...legacyRawEvents].sort((a: any, b: any) => String(b.created_at || '').localeCompare(String(a.created_at || '')));
 
   return {
     kpis,
