@@ -226,6 +226,9 @@ export default function HarmReduction() {
     );
   }
 
+  // Activate page-level tracking (scroll, engaged read, page view)
+  useHarmReductionPageTracking();
+
   // ─── Landing: 5 clear zones + service pathway ───
   return (
     <PageContainer className="pb-24">
