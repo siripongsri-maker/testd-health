@@ -600,10 +600,29 @@ export default function Booking() {
           ? 'คุณจองถี่เกินไป กรุณารอสักครู่แล้วลองอีกครั้ง'
           : 'Too many bookings. Please wait a moment and try again.');
       } else if (msg.includes('duplicate_active')) {
-        // Auto-detect the active booking for replacement
-        toast.error(language === 'th'
-          ? 'คุณมีนัดหมายอยู่แล้ว — กดปุ่ม "เปลี่ยนนัดหมาย" เพื่อจองใหม่แทน'
-          : 'You already have an active booking — use "Replace Booking" to reschedule.');
+        // Auto-detect active booking so the UI shows replacement option
+        if (selectedBranch) {
+          let q = supabase
+            .from('appointments')
+            .select('id, appointment_date, start_time, booking_branches(name_th, name_en)')
+            .eq('branch_id', selectedBranch.id)
+            .in('status', ['booked', 'confirmed']);
+          if (user) q = q.eq('user_id', user.id);
+          else q = q.eq('contact_phone', contactPhone.replace(/[-\s]/g, '').trim());
+          const { data: activeData } = await q.limit(1).single();
+          if (activeData) {
+            const br = activeData.booking_branches as any;
+            setActiveBookingDetected({
+              id: activeData.id,
+              date: activeData.appointment_date,
+              time: activeData.start_time,
+              branch_name: language === 'th' ? br?.name_th : br?.name_en || '',
+            });
+          }
+        }
+        toast.info(language === 'th'
+          ? 'พบนัดหมายเดิม — กรุณายืนยันการเปลี่ยนนัดด้านล่าง'
+          : 'Existing booking found — please confirm replacement below.');
       } else if (msg.includes('slot_blocked')) {
         toast.error(t('booking.slotBlocked'));
       } else if (msg.includes('slot_full')) {
