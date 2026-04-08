@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { getSourcePageMeta } from '@/hooks/useHarmReductionTracking';
 import { PageContainer } from '@/components/PageContainer';
 import { BottomNav } from '@/components/BottomNav';
 import { Card } from '@/components/ui/card';
