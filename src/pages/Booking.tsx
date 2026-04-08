@@ -380,6 +380,40 @@ export default function Booking() {
     try {
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
 
+      // === REPLACEMENT FLOW ===
+      if (replaceId) {
+        const { data, error } = await supabase.rpc('replace_appointment', {
+          p_old_appointment_id: replaceId,
+          p_branch_id: selectedBranch.id,
+          p_appointment_date: dateStr,
+          p_start_time: selectedTime + ':00',
+          p_services: selectedServices.map(s => s.id),
+          p_contact_email: (user?.email || contactEmail.trim()) || null,
+          p_contact_phone: contactPhone.replace(/[-\s]/g, '').trim(),
+          p_contact_line: contactLine.trim() || null,
+          p_notes: notes || null,
+          p_user_id: user?.id || null,
+        });
+
+        if (error) throw error;
+        const result = data as any;
+        setConfirmedCode(result.referral_code);
+        setReplacingAppointmentId(null);
+        setActiveBookingDetected(null);
+
+        trackEvent('booking_replaced', {
+          source: 'booking',
+          old_appointment_id: replaceId,
+          new_appointment_id: result.id,
+        });
+
+        setStep('success');
+        toast.success(language === 'th' ? 'เปลี่ยนนัดหมายสำเร็จ' : 'Booking replaced successfully');
+        setSubmitting(false);
+        return;
+      }
+
+      // === NORMAL FLOW ===
       if (!user) {
         const { data, error } = await supabase.rpc('create_anonymous_appointment', {
           p_branch_id: selectedBranch.id,
