@@ -166,7 +166,42 @@ export default function Booking() {
     load();
   }, [searchParams]);
 
-  // Load availability for selected date from the single source of truth RPC
+  // Auto-detect active booking for the selected branch (for replacement)
+  useEffect(() => {
+    if (!selectedBranch || replacingAppointmentId) return;
+    const detectActive = async () => {
+      let query = supabase
+        .from('appointments')
+        .select('id, appointment_date, start_time, booking_branches(name_th, name_en)')
+        .eq('branch_id', selectedBranch.id)
+        .in('status', ['booked', 'confirmed']);
+
+      if (user) {
+        query = query.eq('user_id', user.id);
+      } else if (contactPhone.trim()) {
+        query = query.eq('contact_phone', contactPhone.replace(/[-\s]/g, '').trim());
+      } else {
+        setActiveBookingDetected(null);
+        return;
+      }
+
+      const { data } = await query.limit(1).single();
+      if (data) {
+        const branch = data.booking_branches as any;
+        setActiveBookingDetected({
+          id: data.id,
+          date: data.appointment_date,
+          time: data.start_time,
+          branch_name: language === 'th' ? branch?.name_th : branch?.name_en || '',
+        });
+      } else {
+        setActiveBookingDetected(null);
+      }
+    };
+    detectActive();
+  }, [selectedBranch, user, contactPhone, replacingAppointmentId, language]);
+
+
   useEffect(() => {
     if (!selectedBranch || !selectedDate) return;
     const loadSlots = async () => {
