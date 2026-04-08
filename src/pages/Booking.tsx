@@ -600,9 +600,10 @@ export default function Booking() {
           ? 'คุณจองถี่เกินไป กรุณารอสักครู่แล้วลองอีกครั้ง'
           : 'Too many bookings. Please wait a moment and try again.');
       } else if (msg.includes('duplicate_active')) {
+        // Auto-detect the active booking for replacement
         toast.error(language === 'th'
-          ? 'คุณมีนัดหมายที่ยังไม่เสร็จสิ้นอยู่แล้วที่สาขานี้'
-          : 'You already have an active appointment at this branch.');
+          ? 'คุณมีนัดหมายอยู่แล้ว — กดปุ่ม "เปลี่ยนนัดหมาย" เพื่อจองใหม่แทน'
+          : 'You already have an active booking — use "Replace Booking" to reschedule.');
       } else if (msg.includes('slot_blocked')) {
         toast.error(t('booking.slotBlocked'));
       } else if (msg.includes('slot_full')) {
