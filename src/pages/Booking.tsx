@@ -600,10 +600,29 @@ export default function Booking() {
           ? 'คุณจองถี่เกินไป กรุณารอสักครู่แล้วลองอีกครั้ง'
           : 'Too many bookings. Please wait a moment and try again.');
       } else if (msg.includes('duplicate_active')) {
-        // Auto-detect the active booking for replacement
-        toast.error(language === 'th'
-          ? 'คุณมีนัดหมายอยู่แล้ว — กดปุ่ม "เปลี่ยนนัดหมาย" เพื่อจองใหม่แทน'
-          : 'You already have an active booking — use "Replace Booking" to reschedule.');
+        // Auto-detect active booking so the UI shows replacement option
+        if (selectedBranch) {
+          let q = supabase
+            .from('appointments')
+            .select('id, appointment_date, start_time, booking_branches(name_th, name_en)')
+            .eq('branch_id', selectedBranch.id)
+            .in('status', ['booked', 'confirmed']);
+          if (user) q = q.eq('user_id', user.id);
+          else q = q.eq('contact_phone', contactPhone.replace(/[-\s]/g, '').trim());
+          const { data: activeData } = await q.limit(1).single();
+          if (activeData) {
+            const br = activeData.booking_branches as any;
+            setActiveBookingDetected({
+              id: activeData.id,
+              date: activeData.appointment_date,
+              time: activeData.start_time,
+              branch_name: language === 'th' ? br?.name_th : br?.name_en || '',
+            });
+          }
+        }
+        toast.info(language === 'th'
+          ? 'พบนัดหมายเดิม — กรุณายืนยันการเปลี่ยนนัดด้านล่าง'
+          : 'Existing booking found — please confirm replacement below.');
       } else if (msg.includes('slot_blocked')) {
         toast.error(t('booking.slotBlocked'));
       } else if (msg.includes('slot_full')) {
@@ -1212,45 +1231,65 @@ export default function Booking() {
                 <span>{t('booking.idUploadHint')}</span>
               </div>
 
-              {/* Active booking replacement warning */}
-              {(activeBookingDetected || replacingAppointmentId) && (
-                <Card className="p-3 bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 rounded-2xl">
-                  <div className="flex items-start gap-2 text-amber-700 dark:text-amber-400 text-sm">
-                    <ShieldAlert className="h-4 w-4 shrink-0 mt-0.5" />
-                    <div className="space-y-1">
-                      <p className="font-medium">
-                        {language === 'th'
-                          ? 'คุณมีนัดหมายที่ยังใช้งานอยู่'
-                          : 'You have an active booking'}
-                      </p>
-                      {activeBookingDetected && (
-                        <p className="text-xs">
-                          {activeBookingDetected.branch_name} — {activeBookingDetected.date} {activeBookingDetected.time?.slice(0, 5)}
-                        </p>
-                      )}
-                      <p className="text-xs">
-                        {language === 'th'
-                          ? 'การจองนี้จะยกเลิกนัดเดิมและสร้างนัดใหม่แทน'
-                          : 'This will cancel your existing booking and replace it with a new one.'}
-                      </p>
-                    </div>
+              {/* Active booking — show old details + confirm replace */}
+              {activeBookingDetected && !showReplaceConfirm && (
+                <Card className="p-4 rounded-2xl border-2 border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 space-y-3">
+                  <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+                    <ShieldAlert className="h-5 w-5 shrink-0" />
+                    <p className="text-sm font-semibold">
+                      {language === 'th' ? 'คุณมีนัดหมายที่ยังใช้งานอยู่' : 'You have an active booking'}
+                    </p>
                   </div>
+
+                  <Card className="p-3 rounded-xl bg-background/80 space-y-1.5">
+                    <div className="flex items-center gap-2 text-sm">
+                      <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="font-medium">{activeBookingDetected.branch_name}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <CalendarIcon className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span>{activeBookingDetected.date}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="font-bold">{activeBookingDetected.time?.slice(0, 5)}</span>
+                    </div>
+                  </Card>
+
+                  <p className="text-xs text-muted-foreground">
+                    {language === 'th'
+                      ? 'กดปุ่มด้านล่างเพื่อยกเลิกนัดเดิมและจองนัดใหม่แทน (หากจองใหม่ไม่สำเร็จ นัดเดิมจะไม่ถูกเปลี่ยนแปลง)'
+                      : 'Press the button below to cancel the old booking and create a new one. If the new booking fails, the old one stays unchanged.'}
+                  </p>
                 </Card>
               )}
 
-              {/* Replacement confirmation dialog */}
+              {/* Replacement confirmation inline */}
               {showReplaceConfirm && (
-                <Card className="p-4 border-2 border-destructive/30 bg-destructive/5 rounded-2xl space-y-3">
-                  <p className="text-sm font-semibold text-foreground">
-                    {language === 'th'
-                      ? 'ยืนยันการเปลี่ยนนัดหมาย?'
-                      : 'Confirm booking replacement?'}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {language === 'th'
-                      ? 'นัดหมายเดิมจะถูกยกเลิก และสร้างนัดใหม่ตามที่คุณเลือก หากสร้างนัดใหม่ไม่สำเร็จ นัดเดิมจะไม่ถูกเปลี่ยนแปลง'
-                      : 'Your current booking will be cancelled and replaced. If the new booking fails, your original booking will remain unchanged.'}
-                  </p>
+                <Card className="p-4 border-2 border-destructive/40 bg-destructive/5 rounded-2xl space-y-3 animate-in fade-in-0 slide-in-from-bottom-2">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5 text-destructive" />
+                    <p className="text-sm font-semibold text-foreground">
+                      {language === 'th' ? 'ยืนยันการเปลี่ยนนัดหมาย?' : 'Confirm booking replacement?'}
+                    </p>
+                  </div>
+
+                  {activeBookingDetected && (
+                    <div className="flex items-center gap-3 p-2 rounded-lg bg-muted/50 text-xs text-muted-foreground">
+                      <span>🗑️</span>
+                      <span>
+                        {language === 'th' ? 'ยกเลิก:' : 'Cancel:'} {activeBookingDetected.branch_name} — {activeBookingDetected.date} {activeBookingDetected.time?.slice(0, 5)}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-3 p-2 rounded-lg bg-primary/5 text-xs text-foreground">
+                    <span>✅</span>
+                    <span>
+                      {language === 'th' ? 'จองใหม่:' : 'New:'} {selectedBranch && loc(selectedBranch.name_th, selectedBranch.name_en)} — {selectedDate && format(selectedDate, 'd MMM yyyy')} {selectedTime}
+                    </span>
+                  </div>
+
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
@@ -1263,11 +1302,11 @@ export default function Booking() {
                     <Button
                       variant="destructive"
                       size="sm"
-                      className="flex-1"
+                      className="flex-1 gap-1"
                       onClick={handleBook}
                       disabled={submitting}
                     >
-                      {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                      {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
                       {language === 'th' ? 'ยืนยันเปลี่ยนนัด' : 'Confirm Replace'}
                     </Button>
                   </div>
@@ -1285,7 +1324,7 @@ export default function Booking() {
                 ) : (
                   <Check className="h-4 w-4" />
                 )}
-                {(activeBookingDetected || replacingAppointmentId)
+                {activeBookingDetected
                   ? (language === 'th' ? 'เปลี่ยนนัดหมาย' : 'Replace Booking')
                   : t('booking.confirm')}
               </Button>
