@@ -2,7 +2,7 @@ import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { trackEvent } from "@/hooks/useAnalytics";
+import { trackHrCta, trackHrOutbound } from "@/hooks/useHarmReductionTracking";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Building2, CalendarDays, Phone, MessageCircle,
