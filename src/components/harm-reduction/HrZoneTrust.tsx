@@ -20,7 +20,8 @@ export default function HrZoneTrust({ userId, onResetAge }: Props) {
   const isEn = language === "en";
 
   const trackReferral = async (type: string) => {
-    trackEvent("hr_swing_referral", { type, source: "trust_zone" });
+    const ctaMap: Record<string, string> = { booking: 'booking', chat: 'support', phone: 'hotline' };
+    trackHrCta(ctaMap[type] || type, { cta_position: 'trust_zone', target_path: type === 'booking' ? '/booking' : type === 'chat' ? '/support-chat' : 'tel:+6626329501' });
     try {
       await supabase.from("hr_referral_events").insert({
         user_id: userId || null,
