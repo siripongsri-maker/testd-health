@@ -6,10 +6,11 @@ import { EP2_TOPICS } from "@/config/ep2StoryData";
 interface Props {
   onSelectEp1: () => void;
   onSelectEp2: () => void;
+  onSelectPrepHunt?: () => void;
   onBack?: () => void;
 }
 
-export function VirtualStoryHub({ onSelectEp1, onSelectEp2, onBack }: Props) {
+export function VirtualStoryHub({ onSelectEp1, onSelectEp2, onSelectPrepHunt, onBack }: Props) {
   const navigate = useNavigate();
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
 
@@ -63,8 +64,64 @@ export function VirtualStoryHub({ onSelectEp1, onSelectEp2, onBack }: Props) {
           </div>
         </div>
 
-        {/* Episode Cards */}
+        {/* Game & Episode Cards */}
         <div className="flex flex-col gap-4">
+          {/* PrEP Hunt Game */}
+          {onSelectPrepHunt && (
+            <button onClick={onSelectPrepHunt}
+              className="text-left relative overflow-hidden"
+              style={{
+                background: 'linear-gradient(135deg, rgba(41,182,246,0.1), rgba(124,58,237,0.1))',
+                border: '1.5px solid rgba(41,182,246,0.3)',
+                borderRadius: 16, padding: 16, cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}>
+              <div style={{
+                position: 'absolute', top: 12, right: 12,
+                background: 'linear-gradient(135deg, #29b6f6, #7c3aed)',
+                borderRadius: 12, padding: '3px 10px',
+                fontFamily: "'Press Start 2P', monospace", fontSize: 6,
+                color: 'white', letterSpacing: 1,
+              }}>
+                🎮 GAME
+              </div>
+              <div className="flex items-start gap-3">
+                <div style={{
+                  width: 56, height: 56, borderRadius: 12,
+                  background: 'linear-gradient(135deg, #29b6f620, #7c3aed20)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 28, flexShrink: 0,
+                }}>
+                  💊
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div style={{ fontFamily: "'Press Start 2P', monospace", fontSize: 7, color: '#29b6f6', letterSpacing: 1, marginBottom: 4 }}>
+                    PREP HUNT
+                  </div>
+                  <h3 style={{ fontSize: 15, fontWeight: 800, color: '#f0eeff', lineHeight: 1.4, marginBottom: 6 }}>
+                    หา PrEP ให้เจอ!
+                  </h3>
+                  <p style={{ fontSize: 12, color: 'rgba(240,238,255,0.55)', lineHeight: 1.5, marginBottom: 8 }}>
+                    เล่นเกมสั้น ๆ เรียนรู้เรื่อง PrEP — ลากของเพื่อหายาที่ซ่อนอยู่
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {['PrEP', 'Interactive', '3 ฉาก'].map(tag => (
+                      <span key={tag} style={{
+                        background: 'rgba(41,182,246,0.1)', border: '1px solid rgba(41,182,246,0.2)',
+                        borderRadius: 8, padding: '2px 8px', fontSize: 10, color: '#29b6f6',
+                      }}>{tag}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 6, marginTop: 12,
+                fontFamily: "'Press Start 2P', monospace", fontSize: 8, color: '#29b6f6',
+              }}>
+                <Play size={12} /> PLAY PREP HUNT
+              </div>
+            </button>
+          )}
           {/* Episode 2 — NEW */}
           <button onClick={onSelectEp2}
             className="text-left relative overflow-hidden"

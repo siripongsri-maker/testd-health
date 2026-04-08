@@ -7,6 +7,7 @@ import { VirtualIntroOverlay } from "@/components/virtual/VirtualIntroOverlay";
 import { DateStoryExperience } from "@/components/virtual/DateStoryExperience";
 import { Episode2Player } from "@/components/virtual/Episode2Player";
 import { VirtualStoryHub } from "@/components/virtual/VirtualStoryHub";
+import PrepHuntGame from "@/components/PrepHuntGame";
 
 interface Props {
   forceClinic?: boolean;
@@ -17,7 +18,7 @@ export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
   const { language } = useLanguage();
   const { user } = useAuth();
   const [showClinic, setShowClinic] = useState(!!forceClinic);
-  const [view, setView] = useState<'hub' | 'ep1' | 'ep2'>(forceEp2 ? 'ep2' : 'hub');
+  const [view, setView] = useState<'hub' | 'ep1' | 'ep2' | 'prep-hunt'>(forceEp2 ? 'ep2' : 'hub');
 
   const displayName =
     user?.user_metadata?.display_name ||
@@ -48,6 +49,7 @@ export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
         <VirtualStoryHub
           onSelectEp1={() => setView('ep1')}
           onSelectEp2={() => setView('ep2')}
+          onSelectPrepHunt={() => setView('prep-hunt')}
         />
       )}
       {view === 'ep1' && (
@@ -62,6 +64,9 @@ export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
       )}
       {view === 'ep2' && (
         <Episode2Player onBack={() => setView('hub')} />
+      )}
+      {view === 'prep-hunt' && (
+        <PrepHuntGame onBack={() => setView('hub')} />
       )}
     </div>
   );
