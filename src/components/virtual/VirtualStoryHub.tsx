@@ -64,9 +64,9 @@ export function VirtualStoryHub({ onSelectEp1, onSelectEp2, onSelectPrepHunt, on
           </div>
         </div>
 
-        {/* Game Cards */}
+        {/* Game & Episode Cards */}
         <div className="flex flex-col gap-4">
-          {/* PrEP Hunt Game — NEW */}
+          {/* PrEP Hunt Game */}
           {onSelectPrepHunt && (
             <button onClick={onSelectPrepHunt}
               className="text-left relative overflow-hidden"
@@ -85,7 +85,6 @@ export function VirtualStoryHub({ onSelectEp1, onSelectEp2, onSelectPrepHunt, on
               }}>
                 🎮 GAME
               </div>
-
               <div className="flex items-start gap-3">
                 <div style={{
                   width: 56, height: 56, borderRadius: 12,
@@ -115,7 +114,6 @@ export function VirtualStoryHub({ onSelectEp1, onSelectEp2, onSelectPrepHunt, on
                   </div>
                 </div>
               </div>
-
               <div style={{
                 display: 'flex', alignItems: 'center', gap: 6, marginTop: 12,
                 fontFamily: "'Press Start 2P', monospace", fontSize: 8, color: '#29b6f6',
@@ -124,9 +122,6 @@ export function VirtualStoryHub({ onSelectEp1, onSelectEp2, onSelectPrepHunt, on
               </div>
             </button>
           )}
-
-          {/* Episode Cards */}
-        <div className="flex flex-col gap-4">
           {/* Episode 2 — NEW */}
           <button onClick={onSelectEp2}
             className="text-left relative overflow-hidden"
