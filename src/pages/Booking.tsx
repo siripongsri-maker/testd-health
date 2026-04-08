@@ -365,14 +365,18 @@ export default function Booking() {
       toast.error(language === 'th' ? 'กรุณากรอกเบอร์โทรศัพท์' : 'Please enter a valid phone number');
       return;
     }
-    if (!contactPhone.trim() || !/^[0+]\d{8,13}$/.test(contactPhone.replace(/[-\s]/g, ''))) {
-      toast.error(language === 'th' ? 'กรุณากรอกเบอร์โทรศัพท์' : 'Please enter a valid phone number');
-      return;
-    }
     if (!selectedBranch || selectedServices.length === 0 || !selectedDate || !selectedTime) return;
 
+    // If there's an active booking to replace and user hasn't confirmed yet
+    const replaceId = replacingAppointmentId || activeBookingDetected?.id;
+    if (replaceId && !showReplaceConfirm) {
+      setShowReplaceConfirm(true);
+      return;
+    }
+
     setSubmitting(true);
-    trackEvent('booking_started', { source: 'booking', branch_id: selectedBranch?.id });
+    setShowReplaceConfirm(false);
+    trackEvent('booking_started', { source: 'booking', branch_id: selectedBranch?.id, is_replacement: !!replaceId });
     try {
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
 
