@@ -582,7 +582,8 @@ const SCENES = [
 // ═══════════════════════════════════════════════════════════════
 //  MAIN
 // ═══════════════════════════════════════════════════════════════
-export default function PrepHuntGame() {
+export default function PrepHuntGame({ onBack }: { onBack?: () => void }) {
+  const navigate = useNavigate();
   const [screen,   setScreen]   = useState("title");
   const [sceneIdx, setSceneIdx] = useState(0);
   const [objects,  setObjects]  = useState([]);
@@ -633,12 +634,16 @@ export default function PrepHuntGame() {
         const n = t - 1;
         if (n === 20 && !urgRef.current[20]) { urgRef.current[20]=true; flash2("⚡ เหลือ 20 วิ! เร็วเข้า! · 20 sec left!"); }
         if (n === 10 && !urgRef.current[10]) { urgRef.current[10]=true; flash2("🚨 10 วินาที!! ด่วน!! · 10 sec HURRY!!"); }
-        if (n <= 0) { clearInterval(timerRef.current); setScreen("lose"); }
+        if (n <= 0) {
+          clearInterval(timerRef.current);
+          setScreen("lose");
+          trackEvent("virtual_game_lost", { source_page: "/virtual", game_scene: sceneIdx, time_remaining: 0 });
+        }
         return n;
       });
     }, 1000);
     return () => clearInterval(timerRef.current);
-  }, [paused, screen]);
+  }, [paused, screen, sceneIdx]);
 
   const flash2 = (msg, dur=2800) => { setBanner(msg); setTimeout(()=>setBanner(null),dur); };
 
@@ -657,15 +662,19 @@ export default function PrepHuntGame() {
     setFound(prev => {
       const next = new Set(prev).add(id);
       setFlash(true); setTimeout(()=>setFlash(false),240);
+      trackEvent("virtual_pill_found", { source_page: "/virtual", game_scene: sceneIdx, pill_count: next.size });
       const msgs=["","🔍 เจอ 1 เม็ด! Found 1!","🔥 เจอ 2 เม็ด! 2 down!","⭐ ครบ 3 เม็ด!! All 3!!"];
       flash2(msgs[next.size]||"✅", 1700);
       if (next.size >= totalPills) {
         clearInterval(timerRef.current);
         setPaused(true);
         setXp(p=>p+33);
+        trackEvent("virtual_scene_completed", { source_page: "/virtual", game_scene: sceneIdx, time_remaining: time });
         setTimeout(()=>{
-          if (sceneIdx >= 2) { setScreen("win"); }
-          else {
+          if (sceneIdx >= 2) {
+            setScreen("win");
+            trackEvent("virtual_game_completed", { source_page: "/virtual" });
+          } else {
             setSceneIdx(i=>i+1);
             setTime(SCENES[sceneIdx+1].time);
             setPaused(true);
@@ -675,14 +684,19 @@ export default function PrepHuntGame() {
       }
       return next;
     });
-  }, [totalPills, sceneIdx]);
+  }, [totalPills, sceneIdx, time]);
 
-  const startScene = () => { setIntro(false); setPaused(false); };
+  const startScene = () => {
+    setIntro(false);
+    setPaused(false);
+    trackEvent("virtual_scene_started", { source_page: "/virtual", game_scene: sceneIdx });
+  };
 
   const beginGame = () => {
     clearInterval(timerRef.current);
     setSceneIdx(0); setXp(0); setTime(SCENES[0].time);
     setPaused(true); setIntro(true); setScreen("game");
+    trackEvent("virtual_game_started", { source_page: "/virtual" });
   };
 
   const resetGame = () => {
