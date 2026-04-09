@@ -8,7 +8,8 @@ import { HomeActionGrid } from "@/components/home/HomeActionGrid";
 import { SmartPriorityCard } from "@/components/home/SmartPriorityCard";
 import { MyPreventionJourneyCard } from "@/components/home/MyPreventionJourneyCard";
 import { HeroSection } from "@/components/home/HeroSection";
-import { PrimaryActionCards } from "@/components/home/PrimaryActionCards";
+import { QuickActionStrip } from "@/components/home/QuickActionStrip";
+import { FeaturedJourneySection } from "@/components/home/FeaturedJourneySection";
 import { StickyTestCTA } from "@/components/home/StickyTestCTA";
 import { ExitIntentNudge } from "@/components/ExitIntentNudge";
 
@@ -58,31 +59,34 @@ export default function Home() {
 
       <main className="px-5 sm:px-6 py-4 max-w-lg mx-auto relative">
         {/* Logo */}
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center mb-3">
           <img
             src={testdLogo}
             alt="testD"
-            className="h-20 w-auto object-contain drop-shadow-[0_4px_24px_rgba(255,100,150,0.3)] animate-scale-in"
+            className="h-16 w-auto object-contain drop-shadow-[0_4px_24px_rgba(255,100,150,0.3)] animate-scale-in"
           />
         </div>
 
-        {/* Hero */}
+        {/* 1) Hero — emotional hook + primary CTAs */}
         <HeroSection />
 
-        {/* Action Cards */}
-        <PrimaryActionCards />
+        {/* 2) Quick Actions — 3 icon pills */}
+        <QuickActionStrip />
 
-        {/* Smart Priority (contextual nudge) */}
+        {/* 3) Featured /virtual Journey — centerpiece */}
+        <FeaturedJourneySection />
+
+        {/* 4) Smart Priority (contextual nudge) */}
         <div className="mb-6">
           <SmartPriorityCard />
         </div>
 
-        {/* Prevention Journey (logged-in only) */}
+        {/* 5) Prevention Journey (logged-in) */}
         <div className="mb-6">
           <MyPreventionJourneyCard />
         </div>
 
-        {/* Explore more */}
+        {/* 6) Explore services */}
         <div className="mb-6">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold px-1 mb-2">
             {language === 'th' ? '📚 เพิ่มเติม' : '📚 Explore'}
@@ -90,12 +94,12 @@ export default function Home() {
           <HomeActionGrid />
         </div>
 
-        {/* Motivational micro-copy */}
-        <div className="text-center py-4">
-          <p className="text-sm text-muted-foreground italic">
+        {/* Motivational */}
+        <div className="text-center py-3">
+          <p className="text-sm text-muted-foreground">
             {language === 'th'
-              ? '✨ ดูแลตัวเอง = 1 ก้าวที่สำคัญ'
-              : '✨ Taking care of yourself = one important step'}
+              ? '✨ เริ่มจากจุดที่คุณพร้อม'
+              : '✨ Start from wherever you are'}
           </p>
         </div>
 

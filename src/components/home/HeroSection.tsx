@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, ArrowRight } from 'lucide-react';
+import { ArrowRight, Compass } from 'lucide-react';
 import { trackEvent } from '@/hooks/useAnalytics';
 import { useLanguage } from '@/lib/i18n';
 
@@ -9,24 +9,24 @@ export function HeroSection() {
   const { language } = useLanguage();
 
   return (
-    <section className="text-center space-y-5 mb-8 pt-2">
-      {/* Headline */}
+    <section className="text-center space-y-5 mb-6 pt-2">
+      {/* Headline — warm & empowering */}
       <div className="space-y-2">
         <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight tracking-tight">
           {language === 'th' ? (
-            <>ตรวจ HIV ฟรี<br /><span className="text-primary">ใกล้คุณ</span></>
+            <>ดูแลตัวเอง<br /><span className="text-primary">เริ่มได้แบบไม่กดดัน</span></>
           ) : (
-            <>Free HIV Testing<br /><span className="text-primary">Near You</span></>
+            <>Take care of yourself<br /><span className="text-primary">at your own pace</span></>
           )}
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground max-w-[260px] mx-auto">
           {language === 'th'
-            ? 'ง่าย • เป็นส่วนตัว • ไม่ต้องเปิดเผยตัวตน'
-            : 'Easy • Private • Anonymous'}
+            ? 'ตรวจ คุย รับข้อมูล — ในแบบที่คุณสบายใจ'
+            : 'Test, talk, learn — in a way that feels right for you'}
         </p>
       </div>
 
-      {/* Primary CTA */}
+      {/* CTAs */}
       <div className="flex flex-col items-center gap-3 pt-1">
         <Button
           variant="hero"
@@ -46,20 +46,20 @@ export function HeroSection() {
           size="lg"
           className="w-full max-w-[280px] h-12 text-sm rounded-2xl gap-2"
           onClick={() => {
-            trackEvent('homepage_cta_support_click', { source: 'homepage', section: 'hero' });
-            navigate('/support-chat');
+            trackEvent('homepage_cta_journey_click', { source: 'homepage', section: 'hero' });
+            navigate('/virtual');
           }}
         >
-          <MessageCircle className="h-4 w-4" />
-          {language === 'th' ? 'คุยกับเจ้าหน้าที่' : 'Talk to Support'}
+          <Compass className="h-4 w-4" />
+          {language === 'th' ? 'สำรวจเส้นทางของคุณ' : 'Explore Your Path'}
         </Button>
       </div>
 
       {/* Trust strip */}
       <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground pt-1">
-        <span className="flex items-center gap-1">🔒 {language === 'th' ? 'เป็นความลับ' : 'Confidential'}</span>
-        <span className="flex items-center gap-1">✅ {language === 'th' ? 'ฟรี' : 'Free'}</span>
-        <span className="flex items-center gap-1">⚡ {language === 'th' ? 'ใช้เวลาไม่นาน' : 'Quick'}</span>
+        <span>🔒 {language === 'th' ? 'เป็นความลับ' : 'Confidential'}</span>
+        <span>✅ {language === 'th' ? 'ฟรี' : 'Free'}</span>
+        <span>⚡ {language === 'th' ? 'ใช้เวลาไม่นาน' : 'Quick'}</span>
       </div>
     </section>
   );
