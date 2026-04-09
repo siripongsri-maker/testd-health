@@ -11,6 +11,7 @@ import { HeroSection } from "@/components/home/HeroSection";
 import { QuickActionStrip } from "@/components/home/QuickActionStrip";
 import { FeaturedJourneySection } from "@/components/home/FeaturedJourneySection";
 import { StickyTestCTA } from "@/components/home/StickyTestCTA";
+import { PixelStadiumWidget } from "@/components/home/PixelStadiumWidget";
 import { ExitIntentNudge } from "@/components/ExitIntentNudge";
 
 import swingLogo from "@/assets/swing-logo.png";
@@ -76,17 +77,25 @@ export default function Home() {
         {/* 3) Featured /virtual Journey — centerpiece */}
         <FeaturedJourneySection />
 
-        {/* 4) Smart Priority (contextual nudge) */}
+        {/* 4) Pixel Stadium — community engagement */}
+        <div className="mb-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold px-1 mb-2">
+            {language === 'th' ? '🏟️ ชุมชน testD' : '🏟️ testD Community'}
+          </p>
+          <PixelStadiumWidget />
+        </div>
+
+        {/* 5) Smart Priority (contextual nudge) */}
         <div className="mb-6">
           <SmartPriorityCard />
         </div>
 
-        {/* 5) Prevention Journey (logged-in) */}
+        {/* 6) Prevention Journey (logged-in) */}
         <div className="mb-6">
           <MyPreventionJourneyCard />
         </div>
 
-        {/* 6) Explore services */}
+        {/* 7) Explore services */}
         <div className="mb-6">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold px-1 mb-2">
             {language === 'th' ? '📚 เพิ่มเติม' : '📚 Explore'}
