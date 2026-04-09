@@ -31,19 +31,25 @@ export function PixelStadiumWidget() {
     const fetchStats = async () => {
       try {
         const today = new Date().toISOString().split('T')[0];
-        const { count: todayBookings } = await supabase
-          .from('appointments')
+
+        // Today's events from analytics_events
+        const { count: todayEvents } = await supabase
+          .from('analytics_events')
           .select('*', { count: 'exact', head: true })
           .gte('created_at', today);
-        const { count: totalBookings } = await supabase
-          .from('appointments')
+
+        // All-time total events from analytics_events
+        const { count: allTimeEvents } = await supabase
+          .from('analytics_events')
           .select('*', { count: 'exact', head: true });
+
+        // Members from profiles
         const { count: profiles } = await supabase
           .from('profiles')
           .select('*', { count: 'exact', head: true });
 
-        setTodayCount(todayBookings || 0);
-        setTotalCount(totalBookings || 0);
+        setTodayCount(todayEvents || 0);
+        setTotalCount(allTimeEvents || 0);
         setViewerCount(profiles || 0);
       } catch { /* fallback to 0 */ }
     };
