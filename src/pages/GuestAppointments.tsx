@@ -185,6 +185,16 @@ export default function GuestAppointments() {
         prev.map(a => a.referral_code === checkoutApt.referral_code ? { ...a, status: 'checked_out' } : a)
       );
       toast.success('ขอบคุณที่ใช้บริการ 💜');
+      
+      // Check if services_summary mentions PrEP/PEP/HIV → show medication setup
+      const summary = checkoutApt.services_summary || '';
+      if (/prep|pep|hiv/i.test(summary) && localStorage.getItem('medReminderEnabled') !== 'true') {
+        const slug = /pep/i.test(summary) ? 'pep' : 'prep-consultation';
+        setMedServiceSlug(slug);
+        setMedServiceName(summary);
+        setTimeout(() => setMedSetupOpen(true), 500);
+      }
+
       setCheckoutApt(null);
       setCheckoutCode('');
       setCheckoutRating(null);
@@ -674,6 +684,13 @@ export default function GuestAppointments() {
           )}
         </DialogContent>
       </Dialog>
+
+      <MedicationSetupDialog
+        open={medSetupOpen}
+        onOpenChange={setMedSetupOpen}
+        serviceSlug={medServiceSlug}
+        serviceName={medServiceName}
+      />
     </>
   );
 }
