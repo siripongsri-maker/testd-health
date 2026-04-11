@@ -29,6 +29,7 @@ import {
   selfCheckoutRPC,
 } from '@/lib/appointments';
 import { VisitProgressCard } from '@/components/VisitProgressCard';
+import { MedicationSetupDialog, isMedicationService } from '@/components/MedicationSetupDialog';
 
 const STATUS_CONFIG: Record<string, { labelTh: string; labelEn: string; color: string; icon: typeof CheckCircle2 }> = {
   booked: { labelTh: 'จองแล้ว', labelEn: 'Booked', color: 'text-blue-600 bg-blue-100 dark:bg-blue-900/30', icon: Calendar },
@@ -60,6 +61,11 @@ export default function MyAppointments() {
   const [checkoutRating, setCheckoutRating] = useState<number | null>(null);
   const [checkoutFeedback, setCheckoutFeedback] = useState('');
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  // Medication setup dialog state
+  const [medSetupOpen, setMedSetupOpen] = useState(false);
+  const [medServiceSlug, setMedServiceSlug] = useState<string | undefined>();
+  const [medServiceName, setMedServiceName] = useState<string | undefined>();
 
   const load = useCallback(async () => {
     if (!user) return;
