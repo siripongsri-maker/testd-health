@@ -19,6 +19,7 @@ import { BookingCardImage } from '@/components/BookingCardImage';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog';
+import { MedicationSetupDialog, isMedicationService } from '@/components/MedicationSetupDialog';
 
 interface GuestAppointment {
   appointment_id: string;
@@ -85,6 +86,11 @@ export default function GuestAppointments() {
   const [checkoutRating, setCheckoutRating] = useState<number | null>(null);
   const [checkoutFeedback, setCheckoutFeedback] = useState('');
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  // Medication setup dialog state
+  const [medSetupOpen, setMedSetupOpen] = useState(false);
+  const [medServiceSlug, setMedServiceSlug] = useState<string | undefined>();
+  const [medServiceName, setMedServiceName] = useState<string | undefined>();
 
   // Bangkok time helper
   const getBangkokNow = () => {
@@ -179,6 +185,16 @@ export default function GuestAppointments() {
         prev.map(a => a.referral_code === checkoutApt.referral_code ? { ...a, status: 'checked_out' } : a)
       );
       toast.success('ขอบคุณที่ใช้บริการ 💜');
+      
+      // Check if services_summary mentions PrEP/PEP/HIV → show medication setup
+      const summary = checkoutApt.services_summary || '';
+      if (/prep|pep|hiv/i.test(summary) && localStorage.getItem('medReminderEnabled') !== 'true') {
+        const slug = /pep/i.test(summary) ? 'pep' : 'prep-consultation';
+        setMedServiceSlug(slug);
+        setMedServiceName(summary);
+        setTimeout(() => setMedSetupOpen(true), 500);
+      }
+
       setCheckoutApt(null);
       setCheckoutCode('');
       setCheckoutRating(null);
@@ -668,6 +684,13 @@ export default function GuestAppointments() {
           )}
         </DialogContent>
       </Dialog>
+
+      <MedicationSetupDialog
+        open={medSetupOpen}
+        onOpenChange={setMedSetupOpen}
+        serviceSlug={medServiceSlug}
+        serviceName={medServiceName}
+      />
     </>
   );
 }

@@ -29,6 +29,7 @@ import {
   selfCheckoutRPC,
 } from '@/lib/appointments';
 import { VisitProgressCard } from '@/components/VisitProgressCard';
+import { MedicationSetupDialog, isMedicationService } from '@/components/MedicationSetupDialog';
 
 const STATUS_CONFIG: Record<string, { labelTh: string; labelEn: string; color: string; icon: typeof CheckCircle2 }> = {
   booked: { labelTh: 'จองแล้ว', labelEn: 'Booked', color: 'text-blue-600 bg-blue-100 dark:bg-blue-900/30', icon: Calendar },
@@ -60,6 +61,11 @@ export default function MyAppointments() {
   const [checkoutRating, setCheckoutRating] = useState<number | null>(null);
   const [checkoutFeedback, setCheckoutFeedback] = useState('');
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+
+  // Medication setup dialog state
+  const [medSetupOpen, setMedSetupOpen] = useState(false);
+  const [medServiceSlug, setMedServiceSlug] = useState<string | undefined>();
+  const [medServiceName, setMedServiceName] = useState<string | undefined>();
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -150,6 +156,27 @@ export default function MyAppointments() {
         }
       }
       toast.success('ขอบคุณที่ใช้บริการ 💜');
+      
+      // Check if appointment had medication-related services → show setup dialog
+      const services = getDisplayServices(checkoutApt);
+      const medService = services.find(s => {
+        // Match by checking service slug from booking_services
+        const slug = (s as any).slug;
+        return isMedicationService(slug);
+      });
+      // Also check by name pattern
+      const medByName = services.find(s => 
+        /prep|pep|hiv/i.test(s.name_en || '') || /prep|pep|hiv/i.test(s.name_th || '')
+      );
+      const matchedService = medService || medByName;
+      if (matchedService && localStorage.getItem('medReminderEnabled') !== 'true') {
+        const slug = (matchedService as any).slug || 
+          (/pep/i.test(matchedService.name_en || '') ? 'pep' : 'prep-consultation');
+        setMedServiceSlug(slug);
+        setMedServiceName(language === 'th' ? matchedService.name_th : matchedService.name_en);
+        setTimeout(() => setMedSetupOpen(true), 500);
+      }
+
       setCheckoutApt(null);
       setCheckoutCode('');
       setCheckoutRating(null);
@@ -688,6 +715,13 @@ export default function MyAppointments() {
           )}
         </DialogContent>
       </Dialog>
+
+      <MedicationSetupDialog
+        open={medSetupOpen}
+        onOpenChange={setMedSetupOpen}
+        serviceSlug={medServiceSlug}
+        serviceName={medServiceName}
+      />
     </>
   );
 }

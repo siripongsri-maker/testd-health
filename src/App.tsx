@@ -14,6 +14,7 @@ import { FloatingMedClock } from "@/components/FloatingMedClock";
 import { AppLayout } from "@/components/AppLayout";
 import { ForceUpdateGuard } from "@/components/ForceUpdateGuard";
 import { VersionAnnouncementBanner } from "@/components/VersionAnnouncementBanner";
+import { useMedicationReminder } from "@/hooks/useMedicationReminder";
 
 // Lazy load all pages for code-splitting
 const Home = lazy(() => import("./pages/Home"));
@@ -85,6 +86,7 @@ const queryClient = new QueryClient();
 
 /** Inner shell — lives inside BrowserRouter so children can useNavigate */
 function AppShell() {
+  useMedicationReminder();
   return (
     <>
       <VersionAnnouncementBanner />
