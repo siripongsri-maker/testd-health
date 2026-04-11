@@ -11,150 +11,105 @@ import {
   Headphones,
   Sparkles,
   ShieldHalf,
+  ChevronRight,
 } from 'lucide-react';
 import { MedicationTrackerWidget } from './MedicationTrackerWidget';
 
-interface MenuCardProps {
+interface ServiceItemProps {
   icon: React.ReactNode;
-  titleTh: string;
-  titleEn: string;
+  label: string;
   onClick: () => void;
-  variant?: 'default' | 'featured';
 }
 
-function MenuCard({ icon, titleTh, titleEn, onClick, variant = 'default' }: MenuCardProps) {
+function ServiceItem({ icon, label, onClick }: ServiceItemProps) {
   return (
     <button
       onClick={onClick}
-      className={`
-        group relative w-full aspect-square rounded-2xl sm:rounded-3xl 
-        glass glass-shine hover:shadow-soft
-        transition-all duration-300 
-        hover:scale-[1.02] hover:-translate-y-1 active:scale-[0.98]
-        flex flex-col items-center justify-center gap-1.5 sm:gap-2 p-2 sm:p-3
-        ${variant === 'featured' ? 'ring-2 ring-primary/30' : ''}
-      `}
+      className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl bg-card/80 border border-border/30 hover:bg-accent/50 hover:border-primary/20 transition-all duration-200 active:scale-[0.98] group"
     >
-      <div className="h-10 w-10 sm:h-14 md:h-16 sm:w-14 md:w-16 flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
+      <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 text-primary group-hover:bg-primary/15 transition-colors">
         {icon}
       </div>
-      <div className="text-center space-y-0">
-        <p className="text-xs sm:text-sm font-bold text-foreground leading-tight">{titleTh}</p>
-        {titleEn && (
-          <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wide">{titleEn}</p>
-        )}
-      </div>
+      <span className="text-sm font-medium text-foreground flex-1 text-left truncate">{label}</span>
+      <ChevronRight className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" />
     </button>
-  );
-}
-
-// Row section label
-function RowLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold px-1 mt-4 mb-1.5">
-      {children}
-    </p>
   );
 }
 
 export function HomeActionGrid() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
+  const isEn = language === 'en';
 
-  // Row 1 — Primary Health Actions
-  const row1 = [
+  const services = [
     {
-      icon: <TestTube className="h-full w-full" strokeWidth={1.5} />,
-      titleKey: 'home.selfTest',
-      path: '/hiv-selftest',
-    },
-    {
-      icon: <Calendar className="h-full w-full" strokeWidth={1.5} />,
-      titleKey: 'home.bookAppointment',
-      path: '/booking',
-    },
-    {
-      icon: <Users className="h-full w-full" strokeWidth={1.5} />,
-      titleKey: 'home.inviteTest',
-      path: '/invite',
-    },
-  ];
-
-  // Row 2 — Learning & Self Assessment
-  const row2 = [
-    {
-      icon: <ClipboardList className="h-full w-full" strokeWidth={1.5} />,
-      titleKey: 'home.surveys',
+      icon: <ClipboardList className="h-4 w-4" />,
+      label: isEn ? 'Self-Assessment' : 'แบบประเมิน',
       path: '/surveys',
     },
     {
-      icon: <BookOpen className="h-full w-full" strokeWidth={1.5} />,
-      titleKey: 'home.didYouKnow',
+      icon: <BookOpen className="h-4 w-4" />,
+      label: isEn ? 'Health Info' : 'เรื่องน่ารู้',
       path: '/info',
     },
     {
-      icon: <Heart className="h-full w-full" strokeWidth={1.5} />,
-      titleKey: 'home.selfCare',
+      icon: <Heart className="h-4 w-4" />,
+      label: isEn ? 'Self-Care' : 'ดูแลตัวเอง',
       path: '/self-care',
     },
     {
-      icon: <Sparkles className="h-full w-full" strokeWidth={1.5} />,
-      titleKey: 'home.preventionMatch',
+      icon: <Sparkles className="h-4 w-4" />,
+      label: isEn ? 'Prevention Match' : 'วิธีป้องกันที่ใช่',
       path: '/prevention-match',
     },
     {
-      icon: <ShieldHalf className="h-full w-full" strokeWidth={1.5} />,
-      titleTh: language === 'th' ? 'Harm Reduction' : 'Harm Reduction',
+      icon: <ShieldHalf className="h-4 w-4" />,
+      label: 'Harm Reduction',
       path: '/harm-reduction',
     },
   ];
 
-  // Row 3 — Support (counselor + support chat + wide medication widget)
-  const row3Counselor = {
-    icon: <MessageCircle className="h-full w-full" strokeWidth={1.5} />,
-    titleKey: 'home.onlineCounselor',
-    path: '/community',
-  };
-  const row3SupportChat = {
-    icon: <Headphones className="h-full w-full" strokeWidth={1.5} />,
-    titleTh: language === 'th' ? 'ติดต่อแอดมิน' : 'Contact Admin',
-    path: '/support-chat',
-  };
+  const support = [
+    {
+      icon: <MessageCircle className="h-4 w-4" />,
+      label: isEn ? 'Online Counselor' : 'ขอคำปรึกษา',
+      path: '/community',
+    },
+    {
+      icon: <Headphones className="h-4 w-4" />,
+      label: isEn ? 'Contact Admin' : 'ติดต่อแอดมิน',
+      path: '/support-chat',
+    },
+  ];
 
   return (
-    <div className="space-y-0">
-      {/* Row 2 — Learn & Assess (primary testing CTAs moved to hero) */}
-      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 sm:gap-3">
-        {row2.map((item, i) => (
-          <MenuCard
+    <div className="space-y-4">
+      {/* Services list */}
+      <div className="space-y-1.5">
+        {services.map((item, i) => (
+          <ServiceItem
             key={i}
             icon={item.icon}
-            titleTh={'titleKey' in item ? t(item.titleKey) : item.titleTh}
-            titleEn=""
+            label={item.label}
             onClick={() => navigate(item.path)}
           />
         ))}
       </div>
 
-      {/* Row 3 */}
-      <RowLabel>
-        {language === 'th' ? '💬 สนับสนุน & ยา' : '💬 Support & Medication'}
-      </RowLabel>
-      <div className="grid grid-cols-4 gap-2 sm:gap-3">
-        <MenuCard
-          icon={row3Counselor.icon}
-          titleTh={t(row3Counselor.titleKey)}
-          titleEn=""
-          onClick={() => navigate(row3Counselor.path)}
-        />
-        <MenuCard
-          icon={row3SupportChat.icon}
-          titleTh={row3SupportChat.titleTh}
-          titleEn=""
-          onClick={() => navigate(row3SupportChat.path)}
-        />
-        {/* Wide medication widget spanning 2 columns */}
-        <div className="col-span-2">
+      {/* Support & Medication */}
+      <div>
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold px-1 mb-2">
+          {isEn ? '💬 Support & Medication' : '💬 สนับสนุน & ยา'}
+        </p>
+        <div className="space-y-1.5">
+          {support.map((item, i) => (
+            <ServiceItem
+              key={i}
+              icon={item.icon}
+              label={item.label}
+              onClick={() => navigate(item.path)}
+            />
+          ))}
           <MedicationTrackerWidget />
         </div>
       </div>
