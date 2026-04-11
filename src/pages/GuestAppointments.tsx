@@ -19,6 +19,7 @@ import { BookingCardImage } from '@/components/BookingCardImage';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog';
+import { MedicationSetupDialog, isMedicationService } from '@/components/MedicationSetupDialog';
 
 interface GuestAppointment {
   appointment_id: string;
