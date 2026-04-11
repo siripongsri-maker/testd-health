@@ -166,11 +166,13 @@ export default function InfoArticle() {
       if (articleData) {
         setArticle(articleData as Article);
         
-        // Increment view count
-        await supabase
-          .from('blog_articles')
-          .update({ view_count: articleData.view_count + 1 })
-          .eq('id', articleData.id);
+        // Increment view count (atomic, deduplicated per session)
+        const viewKey = `article_viewed_${articleData.id}`;
+        if (!sessionStorage.getItem(viewKey)) {
+          sessionStorage.setItem(viewKey, '1');
+          await supabase.rpc('increment_article_view', { p_article_id: articleData.id });
+          setArticle(prev => prev ? { ...prev, view_count: prev.view_count + 1 } : prev);
+        }
 
         // Fetch category if exists
         if (articleData.category_id) {
