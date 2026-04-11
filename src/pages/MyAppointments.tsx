@@ -156,6 +156,27 @@ export default function MyAppointments() {
         }
       }
       toast.success('ขอบคุณที่ใช้บริการ 💜');
+      
+      // Check if appointment had medication-related services → show setup dialog
+      const services = getDisplayServices(checkoutApt);
+      const medService = services.find(s => {
+        // Match by checking service slug from booking_services
+        const slug = (s as any).slug;
+        return isMedicationService(slug);
+      });
+      // Also check by name pattern
+      const medByName = services.find(s => 
+        /prep|pep|hiv/i.test(s.name_en || '') || /prep|pep|hiv/i.test(s.name_th || '')
+      );
+      const matchedService = medService || medByName;
+      if (matchedService && localStorage.getItem('medReminderEnabled') !== 'true') {
+        const slug = (matchedService as any).slug || 
+          (/pep/i.test(matchedService.name_en || '') ? 'pep' : 'prep-consultation');
+        setMedServiceSlug(slug);
+        setMedServiceName(language === 'th' ? matchedService.name_th : matchedService.name_en);
+        setTimeout(() => setMedSetupOpen(true), 500);
+      }
+
       setCheckoutApt(null);
       setCheckoutCode('');
       setCheckoutRating(null);
