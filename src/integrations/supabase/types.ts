@@ -9929,6 +9929,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_article_view: {
+        Args: { p_article_id: string }
+        Returns: undefined
+      }
       increment_link_click: { Args: { p_slug: string }; Returns: Json }
       increment_survey_view: { Args: { p_survey_id: string }; Returns: number }
       is_booking_branch_admin: {
