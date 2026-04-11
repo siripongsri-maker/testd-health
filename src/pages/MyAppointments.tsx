@@ -715,6 +715,13 @@ export default function MyAppointments() {
           )}
         </DialogContent>
       </Dialog>
+
+      <MedicationSetupDialog
+        open={medSetupOpen}
+        onOpenChange={setMedSetupOpen}
+        serviceSlug={medServiceSlug}
+        serviceName={medServiceName}
+      />
     </>
   );
 }
