@@ -87,6 +87,11 @@ export default function GuestAppointments() {
   const [checkoutFeedback, setCheckoutFeedback] = useState('');
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
+  // Medication setup dialog state
+  const [medSetupOpen, setMedSetupOpen] = useState(false);
+  const [medServiceSlug, setMedServiceSlug] = useState<string | undefined>();
+  const [medServiceName, setMedServiceName] = useState<string | undefined>();
+
   // Bangkok time helper
   const getBangkokNow = () => {
     const now = new Date();
