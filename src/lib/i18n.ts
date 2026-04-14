@@ -483,6 +483,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.settings': 'ตั้งค่า',
     'admin.appUpdates': 'อัปเดตแอป',
     'admin.rewards': 'รางวัล/สิทธิพิเศษ',
+    'admin.monthlyDraw': 'จับรางวัลรายเดือน',
     'admin.milestones': 'เป้าหมายชุมชน',
     'admin.userChats': 'แชทกับผู้ใช้',
     'admin.partnerInvites': 'ชวนตรวจคู่',
