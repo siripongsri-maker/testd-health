@@ -119,6 +119,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "youth-survey", icon: ClipboardList, labelKey: "admin.youthSurvey", adminOnly: true, meAnalyst: true },
       { tab: "virtual-stories", icon: Play, labelKey: "admin.virtualStories", adminOnly: true, meAnalyst: true },
       { tab: "rewards", icon: Gift, labelKey: "admin.rewards", adminOnly: true },
+      { tab: "monthly-draw", icon: Gift, labelKey: "admin.monthlyDraw", adminOnly: true },
       { tab: "milestones", icon: Target, labelKey: "admin.milestones", adminOnly: true },
       { tab: "notifications", icon: Bell, labelKey: "admin.notifications", adminOnly: true },
       { tab: "user-chats", icon: MessageSquare, labelKey: "admin.userChats", adminOnly: true },
