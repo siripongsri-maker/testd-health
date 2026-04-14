@@ -191,7 +191,29 @@ export default function Settings() {
           </div>
         )}
 
-        {/* Account */}
+        {/* My Rewards */}
+        {user && (
+          <div className="mb-8">
+            <h2 className="mb-4 text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+              <Gift className="h-4 w-4" />
+              {language === 'th' ? 'รางวัลของฉัน' : 'My Rewards'}
+            </h2>
+            <div
+              className="rounded-2xl glass p-5 flex items-center gap-4 cursor-pointer hover:bg-muted/50 transition-colors"
+              onClick={() => navigate('/my-rewards')}
+            >
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 shadow-lg shadow-amber-500/20">
+                <Gift className="h-6 w-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-foreground">{language === 'th' ? 'คะแนนสะสมของฉัน' : 'My Points & Rewards'}</p>
+                <p className="text-xs text-muted-foreground">{language === 'th' ? 'ดูคะแนน อันดับ และลุ้นรางวัลประจำเดือน' : 'View points, rank & monthly draw'}</p>
+              </div>
+              <ArrowLeft className="h-4 w-4 text-muted-foreground rotate-180" />
+            </div>
+          </div>
+        )}
+
         {user && (
           <div className="mb-8">
             <h2 className="mb-4 text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
