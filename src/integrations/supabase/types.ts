@@ -7240,6 +7240,173 @@ export type Database = {
         }
         Relationships: []
       }
+      reward_config: {
+        Row: {
+          config_key: string
+          config_value: Json
+          id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          config_key: string
+          config_value?: Json
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          config_key?: string
+          config_value?: Json
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      reward_cycles: {
+        Row: {
+          created_at: string
+          cycle_label: string | null
+          draw_date: string | null
+          drawn_at: string | null
+          drawn_by: string | null
+          id: string
+          month_key: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          cycle_label?: string | null
+          draw_date?: string | null
+          drawn_at?: string | null
+          drawn_by?: string | null
+          id?: string
+          month_key: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          cycle_label?: string | null
+          draw_date?: string | null
+          drawn_at?: string | null
+          drawn_by?: string | null
+          id?: string
+          month_key?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      reward_points_monthly: {
+        Row: {
+          created_at: string
+          entries: number
+          id: string
+          is_eligible: boolean
+          month_key: string
+          rank: number | null
+          total_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entries?: number
+          id?: string
+          is_eligible?: boolean
+          month_key: string
+          rank?: number | null
+          total_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entries?: number
+          id?: string
+          is_eligible?: boolean
+          month_key?: string
+          rank?: number | null
+          total_points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reward_transactions: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          month_key: string
+          points: number
+          source: string
+          source_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          month_key: string
+          points: number
+          source: string
+          source_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          month_key?: string
+          points?: number
+          source?: string
+          source_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reward_winners: {
+        Row: {
+          claimed_at: string | null
+          created_at: string
+          cycle_id: string
+          id: string
+          month_key: string
+          reward_type: string
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string | null
+          created_at?: string
+          cycle_id: string
+          id?: string
+          month_key: string
+          reward_type: string
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string | null
+          created_at?: string
+          cycle_id?: string
+          id?: string
+          month_key?: string
+          reward_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_winners_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "reward_cycles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       risk_assessment_questions: {
         Row: {
           created_at: string
@@ -9518,6 +9685,16 @@ export type Database = {
       }
     }
     Functions: {
+      add_reward_points: {
+        Args: {
+          p_description?: string
+          p_points: number
+          p_source: string
+          p_source_id?: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
       add_staff_note: {
         Args: { p_appointment_id: string; p_note: string }
         Returns: undefined
@@ -9812,6 +9989,14 @@ export type Database = {
       }
       get_milestone_completed_count: {
         Args: { p_month: string }
+        Returns: number
+      }
+      get_monthly_participants: {
+        Args: { p_month_key: string }
+        Returns: number
+      }
+      get_my_monthly_rank: {
+        Args: { p_month_key: string; p_user_id: string }
         Returns: number
       }
       get_or_create_chat_thread: {
