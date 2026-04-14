@@ -59,6 +59,7 @@ const AdminYouthSurveyContent = lazy(() => import("@/components/admin/AdminYouth
 const AdminVirtualStoriesContent = lazy(() => import("@/components/admin/AdminVirtualStoriesContent"));
 const AdminConversionInsightsContent = lazy(() => import("@/components/admin/AdminConversionInsightsContent"));
 const AdminHarmReductionReportContent = lazy(() => import("@/components/admin/AdminHarmReductionReportContent"));
+const AdminMonthlyDrawContent = lazy(() => import("@/components/admin/AdminMonthlyDrawContent").then(m => ({ default: m.AdminMonthlyDrawContent })));
 
 // MEL modules
 const MelServiceLedgerContent = lazy(() => import("@/components/admin/mel/MelServiceLedgerContent"));
@@ -201,6 +202,7 @@ export default function Admin() {
           {renderTab("blog", <AdminBlogContent />)}
           {renderTab("surveys", <AdminSurveysContent />)}
           {renderTab("rewards", <AdminRewardsContent />)}
+          {renderTab("monthly-draw", <AdminMonthlyDrawContent />)}
           {renderTab("milestones", <AdminMilestonesContent />)}
           {renderTab("user-chats", <AdminUserChatsContent />)}
           {renderTab("notifications", <AdminNotificationsContent />)}
