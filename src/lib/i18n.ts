@@ -1011,6 +1011,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.settings': 'Settings',
     'admin.appUpdates': 'App Updates',
     'admin.rewards': 'Rewards / Incentives',
+    'admin.monthlyDraw': 'Monthly Draw',
     'admin.milestones': 'Community Milestones',
     'admin.userChats': 'User Chats',
     'admin.partnerInvites': 'Partner Invites',
