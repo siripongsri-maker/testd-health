@@ -226,8 +226,7 @@ export default function HarmReduction() {
     );
   }
 
-  // Activate page-level tracking (scroll, engaged read, page view)
-  useHarmReductionPageTracking();
+  // Page tracking hook moved above conditional returns
 
   // ─── Landing: 5 clear zones + service pathway ───
   return (
