@@ -66,6 +66,9 @@ export default function HarmReduction() {
   const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
   const [distressLevel, setDistressLevel] = useState<string | undefined>();
 
+  // Activate page-level tracking — must be before conditional returns
+  useHarmReductionPageTracking();
+
   const handleDemoDismiss = () => {
     setDemoDismissed(true);
     localStorage.setItem(DEMO_DISMISSED_KEY, "true");
