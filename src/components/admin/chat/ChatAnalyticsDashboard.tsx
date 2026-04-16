@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { ChatNotificationSettings } from "./ChatNotificationSettings";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -258,6 +259,9 @@ export function ChatAnalyticsDashboard() {
           </CardContent>
         </Card>
       )}
+
+      {/* Notification Settings */}
+      <ChatNotificationSettings />
     </div>
   );
 }
