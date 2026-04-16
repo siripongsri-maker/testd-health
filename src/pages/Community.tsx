@@ -81,8 +81,8 @@ export default function Community() {
     const ch = supabase
       .channel("community-posts")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "hr_peer_posts" }, (payload) => {
-        const row = payload.new as Post;
-        if (row.is_approved !== undefined && !(row as any).is_approved) return;
+        const row = payload.new as Post & { is_approved?: boolean };
+        if (row.is_approved === false) return;
         setPosts((prev) => [row, ...prev]);
       })
       .subscribe();
