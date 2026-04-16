@@ -63,10 +63,6 @@ export function WhatsNewModal({ open, onOpenChange }: Props) {
 
   const handleViewFull = () => {
     onOpenChange(false);
-    navigate("/whats-new");
-    try {
-      window.dispatchEvent(new CustomEvent("testd-analytics", { detail: { event: "release_cta_clicked", action: "view_full_notes" } }));
-    } catch {}
   };
 
   return (
