@@ -26,18 +26,18 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const SetupPrepDaily = lazy(() => import("./pages/SetupPrepDaily"));
 const SetupPrepOnDemand = lazy(() => import("./pages/SetupPrepOnDemand"));
 const PEPEmergency = lazy(() => import("./pages/PEPEmergency"));
-const PEPTracker = lazy(() => import("./pages/PEPTracker"));
+
 const Progress = lazy(() => import("./pages/Progress"));
 const Info = lazy(() => import("./pages/Info"));
 const InfoArticle = lazy(() => import("./pages/InfoArticle"));
-const Swing = lazy(() => import("./pages/Swing"));
+
 const Settings = lazy(() => import("./pages/Settings"));
 const Community = lazy(() => import("./pages/Community"));
 const ChatRoom = lazy(() => import("./pages/ChatRoom"));
 const Interests = lazy(() => import("./pages/Interests"));
 const SelfCare = lazy(() => import("./pages/SelfCare"));
 const HIVSelfTest = lazy(() => import("./pages/HIVSelfTest"));
-const Quests = lazy(() => import("./pages/Quests"));
+
 const ShareAchievements = lazy(() => import("./pages/ShareAchievements"));
 const Surveys = lazy(() => import("./pages/Surveys"));
 const SurveyTake = lazy(() => import("./pages/SurveyTake"));
@@ -46,7 +46,7 @@ const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const HealthProfile = lazy(() => import("./pages/HealthProfile"));
 const ConsultationForm = lazy(() => import("./pages/ConsultationForm"));
 const Admin = lazy(() => import("./pages/Admin"));
-const TrackOrder = lazy(() => import("./pages/TrackOrder"));
+
 const WriteArticle = lazy(() => import("./pages/WriteArticle"));
 const PersonalInfo = lazy(() => import("./pages/PersonalInfo"));
 const AvatarCustomization = lazy(() => import("./pages/AvatarCustomization"));
