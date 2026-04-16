@@ -115,12 +115,19 @@ export default function SupportChat() {
       setThreadId(tid);
     }
 
+    const msgText = composerText.trim();
     const { error } = await supabase.rpc("send_chat_message", {
       p_thread_id: tid,
-      p_message: composerText.trim(),
+      p_message: msgText,
     });
     if (error) toast.error(error.message);
-    else setComposerText("");
+    else {
+      setComposerText("");
+      // Notify admins (fire-and-forget)
+      supabase.functions.invoke("chat-notify-admin", {
+        body: { thread_id: tid, message_preview: msgText.slice(0, 100) },
+      }).catch(() => {});
+    }
     setSending(false);
   };
 
