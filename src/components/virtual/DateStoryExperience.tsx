@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { trackEvent } from "@/hooks/useAnalytics";
+import { trackJourneyEvent } from "@/lib/journeyTracker";
 import {
   STORY_NODES,
   SCENES,
