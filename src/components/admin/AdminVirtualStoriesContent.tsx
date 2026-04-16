@@ -4,9 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Download, BarChart3, Users, CheckCircle, TrendingUp, Play, RefreshCw, Lightbulb, AlertTriangle, Sparkles, Target } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { generateSmartInsights, type StatsInput, type SmartInsightsResult, type InsightSeverity } from "@/lib/virtualStoryInsights";
+import { VirtualFunnelDashboard } from "./attribution/VirtualFunnelDashboard";
 
 const COLORS = ['#ff4da6', '#00e5ff', '#ffe600', '#7fffd4', '#9b30ff', '#00cc70'];
 
@@ -172,6 +174,8 @@ export default function AdminVirtualStoriesContent() {
 
   const th = language === 'th';
 
+  const [activeTab, setActiveTab] = useState('funnel');
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -185,6 +189,24 @@ export default function AdminVirtualStoriesContent() {
           <Button variant="outline" size="sm" onClick={exportCSV}><Download className="h-4 w-4 mr-1" />CSV</Button>
         </div>
       </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid grid-cols-2 w-full max-w-sm">
+          <TabsTrigger value="funnel" className="flex items-center gap-1.5">
+            <TrendingUp className="h-3.5 w-3.5" />
+            {th ? 'Funnel' : 'Funnel'}
+          </TabsTrigger>
+          <TabsTrigger value="engagement" className="flex items-center gap-1.5">
+            <BarChart3 className="h-3.5 w-3.5" />
+            {th ? 'Engagement' : 'Engagement'}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="funnel" className="mt-4">
+          <VirtualFunnelDashboard />
+        </TabsContent>
+
+        <TabsContent value="engagement" className="mt-4 space-y-6">
 
       {/* ═══ SMART INSIGHTS PANEL ═══ */}
       {!loading && (
