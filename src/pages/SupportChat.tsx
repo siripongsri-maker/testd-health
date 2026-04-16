@@ -6,7 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageCircle, Send, ArrowLeft, Headphones } from "lucide-react";
+import { MessageCircle, Send, ArrowLeft, Headphones, HelpCircle } from "lucide-react";
+import { SupportFAQ } from "@/components/support/SupportFAQ";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -151,16 +152,23 @@ export default function SupportChat() {
         </div>
       </div>
 
+      {/* FAQ section when no messages yet */}
+      {messages.length === 0 && !threadId && (
+        <div className="mb-3">
+          <SupportFAQ language={language} compact />
+        </div>
+      )}
+
       {/* Messages */}
       <ScrollArea className="flex-1 border rounded-xl bg-card p-4 mb-3">
         <div className="space-y-3">
           {messages.length === 0 && (
-            <div className="text-center py-12">
-              <MessageCircle className="h-12 w-12 mx-auto mb-3 text-muted-foreground/30" />
-              <p className="text-sm text-muted-foreground">
+            <div className="text-center py-8">
+              <MessageCircle className="h-10 w-10 mx-auto mb-2 text-muted-foreground/30" />
+              <p className="text-[12px] text-muted-foreground">
                 {language === "th"
-                  ? "ยังไม่มีข้อความ — พิมพ์ข้อความเพื่อเริ่มสนทนากับแอดมิน"
-                  : "No messages yet — type a message to start chatting with admin"}
+                  ? "พิมพ์ข้อความเพื่อเริ่มสนทนากับแอดมิน"
+                  : "Type a message to start chatting with admin"}
               </p>
             </div>
           )}
