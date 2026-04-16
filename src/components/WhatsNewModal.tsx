@@ -1,5 +1,5 @@
 import { useLanguage } from "@/lib/i18n";
-import { useNavigate } from "react-router-dom";
+
 import { APP_VERSION } from "@/config/appVersion";
 import {
   Dialog,
@@ -58,12 +58,7 @@ const cards = [
 
 export function WhatsNewModal({ open, onOpenChange }: Props) {
   const { language } = useLanguage();
-  const navigate = useNavigate();
   const t = (th: string, en: string) => (language === "th" ? th : en);
-
-  const handleViewFull = () => {
-    onOpenChange(false);
-  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -115,16 +110,7 @@ export function WhatsNewModal({ open, onOpenChange }: Props) {
         </div>
 
         {/* Actions */}
-        <div className="px-6 pb-6 space-y-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full rounded-xl justify-between"
-            onClick={handleViewFull}
-          >
-            {t("ดู Release Notes ทั้งหมด", "Read Full Release Notes")}
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Button>
+        <div className="px-6 pb-6">
           <Button
             className="w-full rounded-xl font-semibold"
             onClick={() => onOpenChange(false)}
