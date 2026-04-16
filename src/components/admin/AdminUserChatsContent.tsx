@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
@@ -27,8 +27,10 @@ import {
   RotateCcw, User, Clock, ChevronLeft, Sparkles,
   AlertTriangle, StickyNote, Zap, MoreVertical,
   UserPlus, ArrowUpCircle, ArrowDownCircle,
-  BookOpen, Loader2,
+  BookOpen, Loader2, BarChart3,
 } from "lucide-react";
+
+const ChatAnalyticsDashboard = lazy(() => import("./chat/ChatAnalyticsDashboard").then(m => ({ default: m.ChatAnalyticsDashboard })));
 import { cn } from "@/lib/utils";
 import { format, formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
@@ -108,6 +110,7 @@ export default function AdminUserChatsContent() {
   } = useAdminMessages();
 
   const [selectedThread, setSelectedThread] = useState<EnrichedThread | null>(null);
+  const [adminView, setAdminView] = useState<"inbox" | "analytics">("inbox");
   const [messages, setMessages] = useState<Message[]>([]);
   const [composerText, setComposerText] = useState("");
   const [sending, setSending] = useState(false);
@@ -277,9 +280,25 @@ export default function AdminUserChatsContent() {
           {metrics.unread > 0 && (
             <Badge className="bg-destructive text-destructive-foreground text-xs">{metrics.unread}</Badge>
           )}
+          {/* View toggle */}
+          <div className="flex gap-1 ml-3">
+            <Button variant={adminView === "inbox" ? "default" : "outline"} size="sm" className="h-7 text-xs gap-1" onClick={() => setAdminView("inbox")}>
+              <MessageCircle className="h-3 w-3" /> {language === "th" ? "กล่องจดหมาย" : "Inbox"}
+            </Button>
+            <Button variant={adminView === "analytics" ? "default" : "outline"} size="sm" className="h-7 text-xs gap-1" onClick={() => setAdminView("analytics")}>
+              <BarChart3 className="h-3 w-3" /> {language === "th" ? "วิเคราะห์" : "Analytics"}
+            </Button>
+          </div>
         </div>
-        <InboxMetricsBar metrics={metrics} language={language} />
+        {adminView === "inbox" && <InboxMetricsBar metrics={metrics} language={language} />}
       </div>
+
+      {adminView === "analytics" ? (
+        <Suspense fallback={<div className="animate-pulse text-center py-8 text-muted-foreground">Loading...</div>}>
+          <ChatAnalyticsDashboard />
+        </Suspense>
+      ) : (
+      <>
 
       {/* Filter tabs */}
       <div className="flex gap-1 flex-wrap">
