@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Bot, Send, X, Navigation } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { trackJourneyEvent } from "@/lib/journeyTracker";
 
 interface Message {
   role: "user" | "assistant";
@@ -35,6 +36,7 @@ export function VirtualGuide() {
     const userMsg: Message = { role: "user", content: text };
     setMessages((prev) => [...prev, userMsg]);
     setLoading(true);
+    trackJourneyEvent('virtual', 'virtual_guide_message_sent', { message_length: text.length });
 
     try {
       const { data, error } = await supabase.functions.invoke("virtual-guide", {

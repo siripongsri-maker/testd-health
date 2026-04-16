@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { trackEvent } from "@/hooks/useAnalytics";
+import { trackJourneyEvent } from "@/lib/journeyTracker";
 import {
   STORY_NODES,
   SCENES,
@@ -212,7 +213,23 @@ export function DateStoryExperience() {
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [currentId]);
 
-  // Auto-advance for nodes without choices
+  // Track completion when ending is reached
+  const completionTracked = useRef(false);
+  useEffect(() => {
+    if (currentNode?.isEnding && !completionTracked.current) {
+      completionTracked.current = true;
+      const endType = currentNode.endingType || "risky";
+      trackJourneyEvent('virtual', 'virtual_story_completed', {
+        story_id: 'ep1_date_story',
+        episode_number: 1,
+        result_type: endType,
+        safe_score: safeScore,
+        risk_score: riskScore,
+      });
+    }
+    if (!currentNode?.isEnding) completionTracked.current = false;
+  }, [currentNode, safeScore, riskScore]);
+
   useEffect(() => {
     if (!currentNode || currentNode.choices || currentNode.isEnding) return;
     if (currentNode.id === "check_ending") {
@@ -238,6 +255,12 @@ export function DateStoryExperience() {
     if (choice.effect.risk) setRiskScore((s) => s + choice.effect.risk!);
     setHistory((p) => [...p, choice.nextId]);
     setCurrentId(choice.nextId);
+    trackJourneyEvent('virtual', 'virtual_story_choice_selected', {
+      story_id: 'ep1_date_story',
+      episode_number: 1,
+      scene_id: choice.nextId,
+      choice_text: choice.text,
+    });
   }, []);
 
   const handleRestart = useCallback(() => {
@@ -245,11 +268,19 @@ export function DateStoryExperience() {
     setSafeScore(0);
     setRiskScore(0);
     setHistory([]);
+    trackJourneyEvent('virtual', 'virtual_story_replayed', {
+      story_id: 'ep1_date_story',
+      episode_number: 1,
+    });
   }, []);
 
   const handleStart = useCallback(() => {
     setCurrentId("start");
     setHistory(["start"]);
+    trackJourneyEvent('virtual', 'virtual_story_started', {
+      story_id: 'ep1_date_story',
+      episode_number: 1,
+    });
   }, []);
 
   // ─── Title Screen ───
