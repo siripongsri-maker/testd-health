@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Sparkles, Play } from "lucide-react";
 import { EP2_TOPICS } from "@/config/ep2StoryData";
+import { trackJourneyEvent } from "@/lib/journeyTracker";
 
 interface Props {
   onSelectEp1: () => void;
@@ -16,6 +17,11 @@ export function VirtualStoryHub({ onSelectEp1, onSelectEp2, onSelectPrepHunt, on
 
   const handleTopicClick = (topic: typeof EP2_TOPICS[0]) => {
     setSelectedTopic(topic.id);
+    trackJourneyEvent('virtual', 'virtual_hub_topic_click', {
+      topic_id: topic.id,
+      topic_label: topic.labelTh,
+      episode: topic.episode,
+    });
     setTimeout(() => {
       if (topic.episode === 1) onSelectEp1();
       else onSelectEp2();
