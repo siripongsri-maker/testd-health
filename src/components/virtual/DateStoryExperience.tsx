@@ -213,7 +213,23 @@ export function DateStoryExperience() {
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [currentId]);
 
-  // Auto-advance for nodes without choices
+  // Track completion when ending is reached
+  const completionTracked = useRef(false);
+  useEffect(() => {
+    if (currentNode?.isEnding && !completionTracked.current) {
+      completionTracked.current = true;
+      const endType = currentNode.endingType || "risky";
+      trackJourneyEvent('virtual', 'virtual_story_completed', {
+        story_id: 'ep1_date_story',
+        episode_number: 1,
+        result_type: endType,
+        safe_score: safeScore,
+        risk_score: riskScore,
+      });
+    }
+    if (!currentNode?.isEnding) completionTracked.current = false;
+  }, [currentNode, safeScore, riskScore]);
+
   useEffect(() => {
     if (!currentNode || currentNode.choices || currentNode.isEnding) return;
     if (currentNode.id === "check_ending") {
