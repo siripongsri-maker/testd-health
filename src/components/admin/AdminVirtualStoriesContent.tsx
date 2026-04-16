@@ -413,6 +413,9 @@ export default function AdminVirtualStoriesContent() {
           </CardContent>
         </Card>
       )}
+
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
