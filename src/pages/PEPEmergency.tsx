@@ -44,7 +44,7 @@ export default function PEPEmergency() {
     });
     
     addBadge("PEP Warrior");
-    navigate("/pep-tracker");
+    navigate("/dashboard");
   };
 
   const urgencyStyles = {

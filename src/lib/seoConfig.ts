@@ -102,13 +102,6 @@ export const SEO_MAP: Record<string, RouteSEO> = {
     routeClass: "public_indexable",
     canonicalPath: "/pep",
   },
-  "/pep-tracker": {
-    titleTh: "ติดตาม PEP | testD",
-    titleEn: "PEP Tracker | testD",
-    descTh: "ติดตามการกินยา PEP และตั้งเวลาเตือน",
-    descEn: "Track your PEP medication intake with reminders.",
-    routeClass: "private_noindex",
-  },
   "/progress": {
     titleTh: "ความก้าวหน้า | testD",
     titleEn: "My Progress | testD",
@@ -130,14 +123,6 @@ export const SEO_MAP: Record<string, RouteSEO> = {
     descTh: "เขียนและแชร์บทความสุขภาพกับชุมชน testD",
     descEn: "Write and share health articles with the testD community.",
     routeClass: "private_noindex",
-  },
-  "/swing": {
-    titleTh: "เกี่ยวกับ SWING | testD",
-    titleEn: "About SWING | testD",
-    descTh: "เรียนรู้เกี่ยวกับมูลนิธิ SWING และบริการสุขภาพชุมชน",
-    descEn: "Learn about SWING Foundation and community health services.",
-    routeClass: "public_indexable",
-    canonicalPath: "/swing",
   },
   "/settings": {
     titleTh: "ตั้งค่า | testD",
@@ -169,13 +154,6 @@ export const SEO_MAP: Record<string, RouteSEO> = {
     descEn: "Order a free HIV self-test kit delivered to your home. Easy, private, and safe.",
     routeClass: "public_indexable",
     canonicalPath: "/hiv-selftest",
-  },
-  "/quests": {
-    titleTh: "ภารกิจสุขภาพ | testD",
-    titleEn: "Health Quests | testD",
-    descTh: "ทำภารกิจสุขภาพ สะสมแต้ม XP และรับรางวัล",
-    descEn: "Complete health quests, earn XP, and get rewards.",
-    routeClass: "private_noindex",
   },
   "/leaderboard": {
     titleTh: "กระดานอันดับ | testD",
@@ -220,13 +198,6 @@ export const SEO_MAP: Record<string, RouteSEO> = {
     descTh: "แดชบอร์ดบริหารจัดการ testD สำหรับเจ้าหน้าที่",
     descEn: "testD administration dashboard for staff.",
     routeClass: "admin_restricted",
-  },
-  "/track-order": {
-    titleTh: "ติดตามคำสั่งซื้อ | testD",
-    titleEn: "Track Order | testD",
-    descTh: "ติดตามสถานะการจัดส่งชุดตรวจ HIV",
-    descEn: "Track your HIV test kit delivery status.",
-    routeClass: "private_noindex",
   },
   "/personal-info": {
     titleTh: "ข้อมูลส่วนตัว | testD",

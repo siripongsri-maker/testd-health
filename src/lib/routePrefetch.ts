@@ -11,19 +11,19 @@ const routeImports: Record<string, () => Promise<unknown>> = {
   '/setup/prep-daily': () => import('@/pages/SetupPrepDaily'),
   '/setup/prep-ondemand': () => import('@/pages/SetupPrepOnDemand'),
   '/pep': () => import('@/pages/PEPEmergency'),
-  '/pep-tracker': () => import('@/pages/PEPTracker'),
+  
   '/progress': () => import('@/pages/Progress'),
-  '/swing': () => import('@/pages/Swing'),
+  
   '/community': () => import('@/pages/Community'),
   '/hiv-selftest': () => import('@/pages/HIVSelfTest'),
-  '/quests': () => import('@/pages/Quests'),
+  
   '/leaderboard': () => import('@/pages/Leaderboard'),
   '/share-achievements': () => import('@/pages/ShareAchievements'),
   '/surveys': () => import('@/pages/Surveys'),
   '/health-profile': () => import('@/pages/HealthProfile'),
   '/consultation': () => import('@/pages/ConsultationForm'),
   '/admin': () => import('@/pages/Admin'),
-  '/track-order': () => import('@/pages/TrackOrder'),
+  
   '/personal-info': () => import('@/pages/PersonalInfo'),
   '/avatar': () => import('@/pages/AvatarCustomization'),
   '/medication-tracker': () => import('@/pages/MedicationTracker'),

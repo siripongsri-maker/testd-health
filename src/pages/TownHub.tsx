@@ -320,8 +320,8 @@ export default function TownHub() {
                   <TownBuilding
                     icon={<Trophy className="h-full w-full" />}
                     name={language === 'th' ? '🏆 กิลด์ผจญภัย' : '🏆 Adventure Guild'}
-                    description={language === 'th' ? 'ทำภารกิจ' : 'Quests'}
-                    onClick={() => navigate("/quests")}
+                    description={language === 'th' ? 'ดูอันดับ' : 'Leaderboard'}
+                    onClick={() => navigate("/leaderboard")}
                     roofColor="bg-amber-500"
                     wallColor="bg-amber-50"
                     size="lg"
@@ -390,8 +390,8 @@ export default function TownHub() {
                 <TownBuilding
                   icon={<Shield className="h-full w-full" />}
                   name="🛡️ SWING HQ"
-                  description={language === 'th' ? 'เกี่ยวกับเรา' : 'About Us'}
-                  onClick={() => navigate("/swing")}
+                  description={language === 'th' ? 'จองนัดหมาย' : 'Book Appointment'}
+                  onClick={() => navigate("/booking")}
                   roofColor="bg-emerald-500"
                   wallColor="bg-emerald-50"
                   size="lg"

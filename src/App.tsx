@@ -26,18 +26,18 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const SetupPrepDaily = lazy(() => import("./pages/SetupPrepDaily"));
 const SetupPrepOnDemand = lazy(() => import("./pages/SetupPrepOnDemand"));
 const PEPEmergency = lazy(() => import("./pages/PEPEmergency"));
-const PEPTracker = lazy(() => import("./pages/PEPTracker"));
+
 const Progress = lazy(() => import("./pages/Progress"));
 const Info = lazy(() => import("./pages/Info"));
 const InfoArticle = lazy(() => import("./pages/InfoArticle"));
-const Swing = lazy(() => import("./pages/Swing"));
+
 const Settings = lazy(() => import("./pages/Settings"));
 const Community = lazy(() => import("./pages/Community"));
 const ChatRoom = lazy(() => import("./pages/ChatRoom"));
 const Interests = lazy(() => import("./pages/Interests"));
 const SelfCare = lazy(() => import("./pages/SelfCare"));
 const HIVSelfTest = lazy(() => import("./pages/HIVSelfTest"));
-const Quests = lazy(() => import("./pages/Quests"));
+
 const ShareAchievements = lazy(() => import("./pages/ShareAchievements"));
 const Surveys = lazy(() => import("./pages/Surveys"));
 const SurveyTake = lazy(() => import("./pages/SurveyTake"));
@@ -46,7 +46,7 @@ const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const HealthProfile = lazy(() => import("./pages/HealthProfile"));
 const ConsultationForm = lazy(() => import("./pages/ConsultationForm"));
 const Admin = lazy(() => import("./pages/Admin"));
-const TrackOrder = lazy(() => import("./pages/TrackOrder"));
+
 const WriteArticle = lazy(() => import("./pages/WriteArticle"));
 const PersonalInfo = lazy(() => import("./pages/PersonalInfo"));
 const AvatarCustomization = lazy(() => import("./pages/AvatarCustomization"));
@@ -72,7 +72,7 @@ const HarmReduction = lazy(() => import("./pages/HarmReduction"));
 const SEOLanding = lazy(() => import("./pages/SEOLanding"));
 const InteractionPage = lazy(() => import("./pages/InteractionPage"));
 const Partners = lazy(() => import("./pages/Partners"));
-const WhatsNew = lazy(() => import("./pages/WhatsNew"));
+
 const ClientFeedbackForm = lazy(() => import("./pages/ClientFeedbackForm"));
 const HarmReductionGuide = lazy(() => import("./pages/HarmReductionGuide"));
 const VirtualMode = lazy(() => import("./pages/VirtualMode"));
@@ -104,20 +104,20 @@ function AppShell() {
               <Route path="/setup/prep-daily" element={<SetupPrepDaily />} />
               <Route path="/setup/prep-ondemand" element={<SetupPrepOnDemand />} />
               <Route path="/pep" element={<PEPEmergency />} />
-              <Route path="/pep-tracker" element={<PEPTracker />} />
+              
               <Route path="/progress" element={<Progress />} />
               <Route path="/info" element={<Info />} />
               <Route path="/info/:id" element={<InfoArticle />} />
               <Route path="/info/article/:slug" element={<InfoArticle />} />
               <Route path="/info/write" element={<WriteArticle />} />
-              <Route path="/swing" element={<Swing />} />
+              
               <Route path="/settings" element={<Settings />} />
               <Route path="/community" element={<Community />} />
               <Route path="/community/chat/:slug" element={<ChatRoom />} />
               <Route path="/community/interests" element={<Interests />} />
               <Route path="/self-care" element={<SelfCare />} />
               <Route path="/hiv-selftest" element={<HIVSelfTest />} />
-              <Route path="/quests" element={<Quests />} />
+              
               <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/share-achievements" element={<ShareAchievements />} />
               <Route path="/surveys" element={<Surveys />} />
@@ -127,7 +127,7 @@ function AppShell() {
               <Route path="/health-profile" element={<HealthProfile />} />
               <Route path="/consultation" element={<ConsultationForm />} />
               <Route path="/admin" element={<Admin />} />
-              <Route path="/track-order" element={<TrackOrder />} />
+              
               <Route path="/personal-info" element={<PersonalInfo />} />
               <Route path="/avatar" element={<AvatarCustomization />} />
               <Route path="/medication-tracker" element={<MedicationTracker />} />
@@ -156,7 +156,7 @@ function AppShell() {
               <Route path="/hiv-self-test-guide" element={<SEOLanding />} />
               <Route path="/interaction/:slug" element={<InteractionPage />} />
               <Route path="/partners" element={<Partners />} />
-              <Route path="/whats-new" element={<WhatsNew />} />
+              
               <Route path="/admin/docs/harm-reduction-guide" element={<HarmReductionGuide />} />
               <Route path="/privacy-center" element={<PrivacyCenter />} />
               <Route path="/outreach-form" element={<OutreachForm />} />
