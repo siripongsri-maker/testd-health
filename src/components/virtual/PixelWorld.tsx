@@ -12,6 +12,7 @@ import { useVirtualGreetings } from "@/hooks/useVirtualGreetings";
 import { VirtualChatInput } from "./VirtualChatInput";
 import { SpeechBubble } from "./SpeechBubble";
 import { Activity } from "lucide-react";
+import { trackJourneyEvent } from "@/lib/journeyTracker";
 
 interface Props { displayName?: string }
 
@@ -309,7 +310,14 @@ export function PixelWorld({ displayName }: Props) {
 
           {/* ── Booths (desks) ── */}
           {BOOTHS.map((b) => (
-            <PixelBooth key={b.id} booth={b} language={language} onClick={() => navigate(b.targetRoute)} nearby={nearbyBooth === b.id} />
+            <PixelBooth key={b.id} booth={b} language={language} onClick={() => {
+              trackJourneyEvent('virtual', 'virtual_clinic_booth_click', {
+                booth_id: b.id,
+                booth_label: b.labelEn || b.id,
+                target_route: b.targetRoute,
+              });
+              navigate(b.targetRoute);
+            }} nearby={nearbyBooth === b.id} />
           ))}
 
           {/* ── NPC bot avatars ── */}
