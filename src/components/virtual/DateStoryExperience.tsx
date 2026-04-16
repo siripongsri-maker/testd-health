@@ -239,6 +239,12 @@ export function DateStoryExperience() {
     if (choice.effect.risk) setRiskScore((s) => s + choice.effect.risk!);
     setHistory((p) => [...p, choice.nextId]);
     setCurrentId(choice.nextId);
+    trackJourneyEvent('virtual', 'virtual_story_choice_selected', {
+      story_id: 'ep1_date_story',
+      episode_number: 1,
+      scene_id: choice.nextId,
+      choice_text: choice.text,
+    });
   }, []);
 
   const handleRestart = useCallback(() => {
@@ -246,11 +252,19 @@ export function DateStoryExperience() {
     setSafeScore(0);
     setRiskScore(0);
     setHistory([]);
+    trackJourneyEvent('virtual', 'virtual_story_replayed', {
+      story_id: 'ep1_date_story',
+      episode_number: 1,
+    });
   }, []);
 
   const handleStart = useCallback(() => {
     setCurrentId("start");
     setHistory(["start"]);
+    trackJourneyEvent('virtual', 'virtual_story_started', {
+      story_id: 'ep1_date_story',
+      episode_number: 1,
+    });
   }, []);
 
   // ─── Title Screen ───
