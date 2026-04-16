@@ -667,6 +667,8 @@ export default function AdminUserChatsContent() {
           )}
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 }
