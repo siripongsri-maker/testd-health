@@ -381,6 +381,17 @@ export function DateStoryExperience() {
     const endType = currentNode.endingType || "risky";
     const details = ENDING_DETAILS[endType];
 
+    // Track completion once
+    useEffect(() => {
+      trackJourneyEvent('virtual', 'virtual_story_completed', {
+        story_id: 'ep1_date_story',
+        episode_number: 1,
+        result_type: endType,
+        safe_score: safeScore,
+        risk_score: riskScore,
+      });
+    }, []);
+
     return (
       <div style={{
         minHeight: "100%",
