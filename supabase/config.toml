@@ -40,3 +40,5 @@ project_id = "tzerhfvlrssrashrcbeg"
     verify_jwt = false
   [functions.appointment-email-actions]
     verify_jwt = false
+  [functions.moderate-community-post]
+    verify_jwt = false
