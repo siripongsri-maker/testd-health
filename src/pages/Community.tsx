@@ -9,13 +9,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import {
   MessageCircle, Send, Shield, ChevronDown, ChevronUp,
-  Users, RefreshCw, Clock,
+  Users, RefreshCw, Clock, Sparkles,
 } from "lucide-react";
+import {
+  CommunitySuggestionsDialog, type FaqSuggestion,
+} from "@/components/community/CommunitySuggestionsDialog";
 
-/* ── blocked-keyword filter ── */
+/* ── client-side hard block (mirrors edge function) ── */
 const BLOCKED_KEYWORDS = [
-  "ขาย", "sell", "selling", "dealer", "ซื้อ", "buy", "source", "หาของ",
-  "connect", "plug", "wickr", "telegram", "signal group",
+  "ขาย", "sell", "selling", "dealer", "ซื้อยา", "buy drug",
+  "wickr", "telegram group", "signal group",
 ];
 const blocked = (t: string) => BLOCKED_KEYWORDS.some((k) => t.toLowerCase().includes(k));
 
@@ -30,11 +33,9 @@ function getAnonToken(): string {
   return token;
 }
 
-/* ── types ── */
 interface Post { id: string; content: string; created_at: string; anonymous_token: string; }
 interface Reply { id: string; content: string; created_at: string; anonymous_token: string; }
 
-/* ── time helper ── */
 function timeAgo(dateStr: string, isEn: boolean) {
   const diff = Date.now() - new Date(dateStr).getTime();
   const mins = Math.floor(diff / 60000);
@@ -46,7 +47,6 @@ function timeAgo(dateStr: string, isEn: boolean) {
   return isEn ? `${days}d ago` : `${days} วันที่แล้ว`;
 }
 
-/* ── main page ── */
 export default function Community() {
   const { language } = useLanguage();
   const isEn = language === "en";
@@ -61,7 +61,11 @@ export default function Community() {
   const [replies, setReplies] = useState<Record<string, Reply[]>>({});
   const [replyText, setReplyText] = useState<Record<string, string>>({});
 
-  /* ── load posts ── */
+  // Suggestions popup
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const [suggestions, setSuggestions] = useState<FaqSuggestion[]>([]);
+  const [lastApproved, setLastApproved] = useState(true);
+
   const loadPosts = useCallback(async () => {
     setLoading(true);
     const { data } = await supabase
@@ -76,20 +80,24 @@ export default function Community() {
 
   useEffect(() => { loadPosts(); }, [loadPosts]);
 
-  /* ── realtime ── */
+  /* realtime: pick up newly approved posts */
   useEffect(() => {
     const ch = supabase
       .channel("community-posts")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "hr_peer_posts" }, (payload) => {
         const row = payload.new as Post & { is_approved?: boolean };
-        if (row.is_approved === false) return;
-        setPosts((prev) => [row, ...prev]);
+        if (row.is_approved !== true) return;
+        setPosts((prev) => prev.find((p) => p.id === row.id) ? prev : [row, ...prev]);
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "hr_peer_posts" }, (payload) => {
+        const row = payload.new as Post & { is_approved?: boolean };
+        if (row.is_approved !== true) return;
+        setPosts((prev) => prev.find((p) => p.id === row.id) ? prev : [row, ...prev]);
       })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, []);
 
-  /* ── load replies ── */
   const loadReplies = async (postId: string) => {
     const { data } = await supabase
       .from("hr_peer_replies")
@@ -100,31 +108,53 @@ export default function Community() {
     setReplies((prev) => ({ ...prev, [postId]: data || [] }));
   };
 
-  /* ── submit post ── */
+  /* ── submit post via edge function (handles insert + auto-approve + suggestions) ── */
   const submitPost = async () => {
-    if (!newPost.trim()) return;
-    if (blocked(newPost)) {
+    const text = newPost.trim();
+    if (!text) return;
+    if (blocked(text)) {
       toast.error(isEn ? "This content is not allowed." : "เนื้อหานี้ไม่ได้รับอนุญาต");
       return;
     }
+
     setSubmitting(true);
     try {
-      const { error } = await supabase.from("hr_peer_posts").insert({
-        anonymous_token: myToken,
-        content: newPost.trim(),
+      const { data: mod, error: modErr } = await supabase.functions.invoke("moderate-community-post", {
+        body: { content: text, anonymous_token: myToken, kind: "post" },
       });
-      if (error) throw error;
+      if (modErr) throw modErr;
+
+      const decision = mod?.decision as "approve" | "reject" | "review" | undefined;
+      const sugg: FaqSuggestion[] = Array.isArray(mod?.suggestions) ? mod.suggestions : [];
+
+      if (decision === "reject") {
+        toast.error(
+          isEn
+            ? "Your post wasn't published — it may violate our rules."
+            : "โพสต์ไม่ถูกเผยแพร่ — อาจขัดกับกติกาของเรา"
+        );
+      } else if (decision === "approve") {
+        toast.success(isEn ? "Posted!" : "โพสต์แล้ว!");
+      } else {
+        toast.success(isEn ? "Posted! Awaiting review." : "โพสต์แล้ว! รอการตรวจสอบ");
+      }
+
       setNewPost("");
-      toast.success(isEn ? "Posted! Awaiting moderator review." : "โพสต์แล้ว! รอการตรวจสอบ");
-      trackEvent("community_post_created");
-    } catch {
+      trackEvent("community_post_created", { decision: decision || "review", suggestions: sugg.length });
+
+      if (sugg.length > 0 && decision !== "reject") {
+        setSuggestions(sugg);
+        setLastApproved(decision === "approve");
+        setSuggestOpen(true);
+      }
+    } catch (e) {
+      console.error(e);
       toast.error(isEn ? "Failed to post" : "โพสต์ไม่สำเร็จ");
     } finally {
       setSubmitting(false);
     }
   };
 
-  /* ── submit reply ── */
   const submitReply = async (postId: string) => {
     const text = replyText[postId]?.trim();
     if (!text) return;
@@ -133,15 +163,32 @@ export default function Community() {
       return;
     }
     try {
-      const { error } = await supabase.from("hr_peer_replies").insert({
-        post_id: postId,
-        anonymous_token: myToken,
-        content: text,
+      const { data: mod, error: modErr } = await supabase.functions.invoke("moderate-community-post", {
+        body: { content: text, anonymous_token: myToken, kind: "reply", post_id: postId },
       });
-      if (error) throw error;
-      setReplyText((prev) => ({ ...prev, [postId]: "" }));
-      toast.success(isEn ? "Reply submitted for review" : "ส่งตอบแล้ว รอการตรวจสอบ");
-      trackEvent("community_reply_created");
+      if (modErr) throw modErr;
+
+      const decision = mod?.decision as "approve" | "reject" | "review" | undefined;
+      const sugg: FaqSuggestion[] = Array.isArray(mod?.suggestions) ? mod.suggestions : [];
+
+      if (decision === "reject") {
+        toast.error(isEn ? "Reply not published." : "ตอบไม่ถูกเผยแพร่");
+      } else {
+        setReplyText((prev) => ({ ...prev, [postId]: "" }));
+        toast.success(
+          decision === "approve"
+            ? (isEn ? "Reply posted!" : "ตอบแล้ว!")
+            : (isEn ? "Reply submitted for review" : "ส่งตอบแล้ว รอการตรวจสอบ")
+        );
+        trackEvent("community_reply_created", { decision: decision || "review" });
+        if (decision === "approve") loadReplies(postId);
+      }
+
+      if (sugg.length > 0 && decision !== "reject") {
+        setSuggestions(sugg);
+        setLastApproved(decision === "approve");
+        setSuggestOpen(true);
+      }
     } catch {
       toast.error(isEn ? "Failed to reply" : "ตอบไม่สำเร็จ");
     }
@@ -168,10 +215,11 @@ export default function Community() {
               <Users className="h-5 w-5 text-primary" />
               {isEn ? "Community" : "ชุมชน"}
             </h1>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5">
+              <Sparkles className="h-3 w-3 text-primary/70" />
               {isEn
-                ? "Ask & share anonymously. All posts are moderated."
-                : "ถาม-ตอบ แบบไม่ระบุตัวตน โพสต์ทั้งหมดผ่านการตรวจสอบ"}
+                ? "Anonymous Q&A · auto-moderated · instant smart links"
+                : "ถาม-ตอบไม่ระบุตัวตน · ตรวจอัตโนมัติ · แนะนำลิงก์ทันที"}
             </p>
           </div>
           <Button variant="ghost" size="icon" onClick={loadPosts} className="rounded-full">
@@ -256,7 +304,6 @@ export default function Community() {
                     </Button>
                   </div>
 
-                  {/* Replies */}
                   {expandedPost === post.id && (
                     <div className="pt-2 space-y-2 animate-in fade-in slide-in-from-top-1 duration-200 border-t border-border/30">
                       {(replies[post.id] || []).map((reply) => (
@@ -305,11 +352,19 @@ export default function Community() {
           <Shield className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
           <p className="text-[10px] text-muted-foreground leading-relaxed">
             {isEn
-              ? "All posts are anonymous and moderated. No selling, sourcing, or illegal content."
-              : "โพสต์ทั้งหมดเป็นแบบไม่ระบุตัวตนและมีผู้ดูแล ไม่อนุญาตให้ขาย หาแหล่ง หรือเนื้อหาผิดกฎหมาย"}
+              ? "Posts are anonymous. AI auto-moderation removes selling, sourcing, or illegal content. A human reviews flagged posts."
+              : "โพสต์ไม่ระบุตัวตน AI กรองเนื้อหาขายของ-หาแหล่ง-ผิดกฎหมายอัตโนมัติ ทีมงานจะรีวิวโพสต์ที่ถูกตั้งสถานะรอตรวจ"}
           </p>
         </div>
       </div>
+
+      <CommunitySuggestionsDialog
+        open={suggestOpen}
+        onOpenChange={setSuggestOpen}
+        suggestions={suggestions}
+        isEn={isEn}
+        approved={lastApproved}
+      />
     </div>
   );
 }
