@@ -28,7 +28,7 @@ export function NudgeCard({ nudge, onDismiss }: Props) {
     dismissNudge(nudge.id);
     trackEvent("hr_nudge_dismissed", { nudge_type: nudge.type });
     // Log to db anonymously
-    supabase.from("hr_nudge_events").insert({ nudge_type: nudge.type, action: "dismissed" }).then();
+    supabase.from("hr_nudge_events").insert({ nudge_type: nudge.type, action: "dismissed" }).then().catch(() => {});
     onDismiss();
   };
 

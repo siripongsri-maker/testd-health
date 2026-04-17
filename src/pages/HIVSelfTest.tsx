@@ -100,28 +100,40 @@ export default function HIVSelfTest() {
   const [timerSeconds, setTimerSeconds] = useState(() => {
     const stored = localStorage.getItem(TIMER_STORAGE_KEY);
     if (stored) {
-      const { startedAt, duration } = JSON.parse(stored);
-      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
-      const remaining = Math.max(0, duration - elapsed);
-      return remaining;
+      try {
+        const { startedAt, duration } = JSON.parse(stored);
+        const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+        const remaining = Math.max(0, duration - elapsed);
+        return remaining;
+      } catch {
+        localStorage.removeItem(TIMER_STORAGE_KEY);
+      }
     }
     return 15 * 60;
   });
   const [timerActive, setTimerActive] = useState(() => {
     const stored = localStorage.getItem(TIMER_STORAGE_KEY);
     if (stored) {
-      const { startedAt, duration } = JSON.parse(stored);
-      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
-      return elapsed < duration;
+      try {
+        const { startedAt, duration } = JSON.parse(stored);
+        const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+        return elapsed < duration;
+      } catch {
+        localStorage.removeItem(TIMER_STORAGE_KEY);
+      }
     }
     return false;
   });
   const [timerFinished, setTimerFinished] = useState(() => {
     const stored = localStorage.getItem(TIMER_STORAGE_KEY);
     if (stored) {
-      const { startedAt, duration } = JSON.parse(stored);
-      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
-      return elapsed >= duration;
+      try {
+        const { startedAt, duration } = JSON.parse(stored);
+        const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+        return elapsed >= duration;
+      } catch {
+        localStorage.removeItem(TIMER_STORAGE_KEY);
+      }
     }
     return false;
   });

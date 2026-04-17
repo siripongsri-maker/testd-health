@@ -77,10 +77,15 @@ export default function InviteSession() {
       }
     }
 
+    if (!sess?.id) {
+      setLoading(false);
+      return;
+    }
+
     const { data: parts } = await supabase
       .from('partner_test_session_participants')
       .select('id, participant_session_id, joined_at')
-      .eq('session_id', sess?.id);
+      .eq('session_id', sess.id);
     if (parts) {
       setParticipants(parts);
       const mySid = getParticipantSessionId();
@@ -112,9 +117,9 @@ export default function InviteSession() {
           clearInterval(intervalRef.current);
           setTimerActive(false);
           if (session?.id) {
-            supabase.from('partner_test_sessions').update({ status: 'completed', completed_at: new Date().toISOString() }).eq('id', session.id).then();
+            supabase.from('partner_test_sessions').update({ status: 'completed', completed_at: new Date().toISOString() }).eq('id', session.id).then().catch(() => {});
             if (inviteCode) {
-              supabase.rpc('record_partner_invite_event', { p_code: inviteCode, p_visitor_session_id: getParticipantSessionId(), p_event_type: 'timer_complete' }).then();
+              supabase.rpc('record_partner_invite_event', { p_code: inviteCode, p_visitor_session_id: getParticipantSessionId(), p_event_type: 'timer_complete' }).then().catch(() => {});
             }
           }
           return 0;
@@ -188,7 +193,7 @@ export default function InviteSession() {
 
   const handleGoToBooking = () => {
     if (inviteCode) {
-      supabase.rpc('record_partner_invite_event', { p_code: inviteCode, p_visitor_session_id: getParticipantSessionId(), p_event_type: 'booking_started' }).then();
+      supabase.rpc('record_partner_invite_event', { p_code: inviteCode, p_visitor_session_id: getParticipantSessionId(), p_event_type: 'booking_started' }).then().catch(() => {});
     }
     navigate('/booking');
   };
