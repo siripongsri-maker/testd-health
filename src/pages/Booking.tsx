@@ -1529,6 +1529,15 @@ export default function Booking() {
         </div>
       </PageContainer>
       <BottomNav />
+
+      {notifyBranch && (
+        <NotifyMeDialog
+          open={!!notifyBranch}
+          onOpenChange={(open) => { if (!open) setNotifyBranch(null); }}
+          branchId={notifyBranch.id}
+          branchName={loc(notifyBranch.name_th, notifyBranch.name_en)}
+        />
+      )}
     </>
   );
 }
