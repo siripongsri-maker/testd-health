@@ -41,6 +41,9 @@ interface Branch {
   google_rating?: number | null;
   google_review_count?: number | null;
   google_photo_url?: string | null;
+  status?: string | null;
+  coming_soon_message_th?: string | null;
+  coming_soon_message_en?: string | null;
 }
 
 interface Service {
