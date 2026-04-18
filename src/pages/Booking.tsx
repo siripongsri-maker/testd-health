@@ -157,7 +157,7 @@ export default function Booking() {
       const branchSlug = searchParams.get('branch');
       if (branchSlug && branchRes.data) {
         const found = (branchRes.data as Branch[]).find(b => b.slug === branchSlug);
-        if (found) {
+        if (found && found.status !== 'coming_soon') {
           setSelectedBranch(found);
           setStep('service');
         }
