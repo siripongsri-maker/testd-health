@@ -20,14 +20,14 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     // Landing
     'app.name': 'testD',
     'app.tagline': 'เพื่อนคู่ใจด้านสุขภาพทางเพศ',
-    'app.description': 'ติดตาม เรียนรู้ และดูแลการป้องกัน — ในแบบของคุณ ส่วนตัว สนับสนุน และไม่ตัดสิน',
-    'landing.startAnonymous': 'เริ่มต้นแบบไม่ระบุตัวตน',
+    'app.description': 'ติดตาม เรียนรู้ และดูแลการป้องกันในแบบของคุณเอง เป็นส่วนตัว อบอุ่น และไม่ตัดสินใคร',
+    'landing.startAnonymous': 'เริ่มต้นแบบไม่บอกชื่อ',
     'landing.loginEmail': 'เข้าสู่ระบบด้วยอีเมล',
     'landing.anonymous': 'ไม่ระบุตัวตน',
     'landing.secure': 'ปลอดภัย',
     'landing.free': 'ฟรี',
-    'landing.disclaimer': 'testD เป็นเครื่องมือสนับสนุนสุขภาพ ไม่ใช่คำแนะนำทางการแพทย์',
-    'landing.consult': 'โปรดปรึกษาผู้ให้บริการด้านสุขภาพเสมอ',
+    'landing.disclaimer': 'testD เป็นเครื่องมือช่วยดูแลสุขภาพ ไม่ใช่คำแนะนำทางการแพทย์',
+    'landing.consult': 'หากมีข้อสงสัยเรื่องสุขภาพ แนะนำให้ปรึกษาผู้ให้บริการเสมอ',
 
     // Onboarding
     'onboarding.q1': 'คุณอยู่ในสถานะไหนตอนนี้?',
@@ -116,7 +116,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'pep.emergency.remaining': 'ชั่วโมงที่เหลือ',
     'pep.emergency.exceeded': 'เกินเวลาแล้ว',
     'pep.emergency.safe': 'PEP มีประสิทธิภาพสูงสุดเมื่อเริ่มเร็ว',
-    'pep.emergency.warning': 'เวลาใกล้หมด — รีบดำเนินการ',
+    'pep.emergency.warning': 'เวลาใกล้หมดแล้ว รีบดำเนินการนะ',
     'pep.emergency.urgent': 'หน้าต่าง 72 ชั่วโมงผ่านไปแล้ว',
     'pep.emergency.whatIs': 'PEP คืออะไร?',
     'pep.emergency.whatIsDesc': 'PEP (Post-Exposure Prophylaxis) คือยาป้องกัน HIV ฉุกเฉินที่ใช้หลังจากอาจสัมผัสเชื้อ ต้องเริ่มภายใน 72 ชั่วโมงหลังสัมผัสและกินต่อเนื่อง 28 วัน',
@@ -137,7 +137,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'pep.tracker.encouragement1': 'เริ่มต้นได้ดี! สัปดาห์แรกสำคัญมาก',
     'pep.tracker.encouragement2': 'คุณผ่านมาครึ่งทางแล้ว!',
     'pep.tracker.encouragement3': 'ใกล้เสร็จแล้ว สู้ต่อไป!',
-    'pep.tracker.encouragement4': 'โค้งสุดท้าย — คุณทำได้!',
+    'pep.tracker.encouragement4': 'โค้งสุดท้ายแล้ว คุณทำได้แน่!',
 
     // Progress
     'progress.title': 'ความคืบหน้าของคุณ',
@@ -370,8 +370,8 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'consultation.saved': 'บันทึกแบบฟอร์มแล้ว',
 
     // Booking
-    'booking.title': '📅 จองนัดหมาย',
-    'booking.subtitle': 'บริการตรวจและปรึกษาฟรีสำหรับคนไทยภายใต้ สปสช. และชาวต่างชาติภายใต้กองทุนโลก (เมียนมา เวียดนาม ลาว กัมพูชา) สำหรับสัญชาติอื่นอาจมีค่าใช้จ่าย',
+    'booking.title': 'จองนัดหมาย',
+    'booking.subtitle': 'บริการตรวจและให้คำปรึกษาฟรีสำหรับคนไทย (สิทธิ สปสช.) และผู้ที่อยู่ในประเทศไทยจากเมียนมา เวียดนาม ลาว และกัมพูชา (ภายใต้กองทุนโลก) สัญชาติอื่นอาจมีค่าบริการ',
     'booking.selectBranch': 'เลือกสาขา',
     'booking.selectServices': 'เลือกบริการ',
     'booking.selectDateTime': 'เลือกวันและเวลา',
@@ -398,7 +398,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'booking.freeInfo': 'ฟรีสำหรับคนไทย (สปสช.) และกองทุนโลก (CLVM) ยกเว้น PEP ที่ฟรีเฉพาะคนไทย',
     'booking.notesLabel': 'หมายเหตุ (ไม่บังคับ)',
     'booking.notesPlaceholder': 'เช่น ต้องการล่ามภาษาอังกฤษ',
-    'booking.anonNotice': 'จองโดยไม่ต้องสมัครสมาชิก — กรอกอีเมลเพื่อรับรหัสจอง',
+    'booking.anonNotice': 'จองได้โดยไม่ต้องสมัครสมาชิก แค่ใส่อีเมลไว้ เราจะส่งรหัสจองให้',
     'booking.contactEmail': 'อีเมลติดต่อ *',
     'booking.idUploadHint': 'คุณสามารถอัปโหลดบัตรประชาชนล่วงหน้าในหน้า "ข้อมูลส่วนตัว" เพื่อความสะดวกในการลงทะเบียน',
     'booking.confirm': 'ยืนยันจอง',
@@ -548,14 +548,14 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     // Landing
     'app.name': 'testD',
     'app.tagline': 'Your sexual health companion',
-    'app.description': 'Track, learn, and stay on prevention — your way. Private, supportive, and judgment-free.',
+    'app.description': 'Track, learn, and stay on prevention your way. Private, supportive, and judgment-free.',
     'landing.startAnonymous': 'Start anonymously',
-    'landing.loginEmail': 'Login with email',
+    'landing.loginEmail': 'Sign in with email',
     'landing.anonymous': 'Anonymous',
     'landing.secure': 'Secure',
     'landing.free': 'Free',
-    'landing.disclaimer': 'testD is a health support tool, not medical advice.',
-    'landing.consult': 'Always consult healthcare providers.',
+    'landing.disclaimer': 'testD is a health-support tool, not medical advice.',
+    'landing.consult': 'For health concerns, please talk with a healthcare provider.',
 
     // Onboarding
     'onboarding.q1': 'Which best describes you right now?',
@@ -644,7 +644,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'pep.emergency.remaining': 'hours remaining',
     'pep.emergency.exceeded': 'Time exceeded',
     'pep.emergency.safe': 'PEP is most effective when started early',
-    'pep.emergency.warning': 'Time is running short — act now',
+    'pep.emergency.warning': 'Time is running short. Take action now.',
     'pep.emergency.urgent': '72-hour window has passed',
     'pep.emergency.whatIs': 'What is PEP?',
     'pep.emergency.whatIsDesc': 'PEP (Post-Exposure Prophylaxis) is emergency HIV prevention medication taken after potential exposure. It must be started within 72 hours and taken for 28 days.',
@@ -665,7 +665,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'pep.tracker.encouragement1': 'Great start! The first week is crucial.',
     'pep.tracker.encouragement2': "You're halfway there!",
     'pep.tracker.encouragement3': 'Almost done, keep pushing!',
-    'pep.tracker.encouragement4': "Final stretch — you've got this!",
+    'pep.tracker.encouragement4': "Final stretch. You've got this!",
 
     // Progress
     'progress.title': 'Your Progress',
@@ -926,7 +926,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'booking.freeInfo': 'Free for Thai (NHSO) & Global Fund (CLVM), except PEP which is free for Thai only',
     'booking.notesLabel': 'Notes (optional)',
     'booking.notesPlaceholder': 'e.g., Need English interpreter',
-    'booking.anonNotice': 'Booking without an account — enter your email to receive a booking code',
+    'booking.anonNotice': "Booking without an account? Just enter your email and we'll send your booking code.",
     'booking.contactEmail': 'Contact Email *',
     'booking.idUploadHint': 'You can upload your ID card in advance via "Personal Info" page for easier registration',
     'booking.confirm': 'Confirm Booking',
