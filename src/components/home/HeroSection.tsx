@@ -10,19 +10,18 @@ export function HeroSection() {
 
   return (
     <section className="text-center space-y-5 mb-6 pt-2">
-      {/* Headline — warm & empowering */}
       <div className="space-y-2">
         <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight tracking-tight">
           {language === 'th' ? (
-            <>ดูแลตัวเอง<br /><span className="text-primary">เริ่มได้แบบไม่กดดัน</span></>
+            <>ดูแลตัวเอง<br /><span className="text-primary">ในจังหวะของคุณเอง</span></>
           ) : (
-            <>Take care of yourself<br /><span className="text-primary">at your own pace</span></>
+            <>Take care of yourself,<br /><span className="text-primary">on your own time</span></>
           )}
         </h1>
         <p className="text-sm text-muted-foreground max-w-[260px] mx-auto">
           {language === 'th'
-            ? 'ตรวจ คุย รับข้อมูล — ในแบบที่คุณสบายใจ'
-            : 'Test, talk, learn — in a way that feels right for you'}
+            ? 'ตรวจ พูดคุย และเรียนรู้ ในแบบที่คุณสบายใจ'
+            : 'Test, chat, and learn in a way that feels right for you.'}
         </p>
       </div>
 
@@ -37,7 +36,7 @@ export function HeroSection() {
             navigate('/booking');
           }}
         >
-          {language === 'th' ? 'เริ่มตรวจ' : 'Get Tested'}
+          {language === 'th' ? 'เริ่มตรวจเลย' : 'Get Tested'}
           <ArrowRight className="h-5 w-5" />
         </Button>
 
@@ -51,15 +50,14 @@ export function HeroSection() {
           }}
         >
           <Compass className="h-4 w-4" />
-          {language === 'th' ? 'สำรวจเส้นทางของคุณ' : 'Explore Your Path'}
+          {language === 'th' ? 'ลองดูเส้นทางของคุณ' : 'Find what works for you'}
         </Button>
       </div>
 
-      {/* Trust strip */}
       <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground pt-1">
         <span>🔒 {language === 'th' ? 'เป็นความลับ' : 'Confidential'}</span>
-        <span>✅ {language === 'th' ? 'ฟรี' : 'Free'}</span>
-        <span>⚡ {language === 'th' ? 'ใช้เวลาไม่นาน' : 'Quick'}</span>
+        <span>{language === 'th' ? 'ฟรี' : 'Free'}</span>
+        <span>{language === 'th' ? 'ใช้เวลาไม่นาน' : 'Quick'}</span>
       </div>
     </section>
   );

@@ -45,9 +45,8 @@ export function CommunityTestimonial() {
         "{language === "th" ? testimonial.textTh : testimonial.textEn}"
       </p>
 
-      {/* Author */}
       <p className="text-xs text-muted-foreground text-center">
-        — {language === "th" ? testimonial.authorTh : testimonial.authorEn}
+        {language === "th" ? testimonial.authorTh : testimonial.authorEn}
       </p>
     </div>
   );

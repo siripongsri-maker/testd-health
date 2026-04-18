@@ -56,13 +56,13 @@ export function FeaturedJourneySection() {
           <div className="flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-primary" />
             <h2 className="text-sm font-bold text-foreground">
-              {language === 'th' ? 'เริ่มภารกิจดูแลตัวเอง' : 'Start Your Journey'}
+              {language === 'th' ? 'มาเริ่มดูแลตัวเองกัน' : 'Start your journey'}
             </h2>
           </div>
           <p className="text-xs text-muted-foreground">
             {hasVisited
-              ? (language === 'th' ? 'เล่นต่อจากที่ค้างไว้' : 'Continue where you left off')
-              : (language === 'th' ? 'เล่น เรียนรู้ เลือกการดูแลที่ตรงกับคุณ' : 'Play, learn, choose what fits you')
+              ? (language === 'th' ? 'เล่นต่อจากที่ค้างไว้' : 'Pick up where you left off')
+              : (language === 'th' ? 'เล่น เรียนรู้ และเลือกวิธีที่ใช่สำหรับคุณ' : 'Play, learn, and find what suits you')
             }
           </p>
         </div>
@@ -80,7 +80,6 @@ export function FeaturedJourneySection() {
         </Button>
       </div>
 
-      {/* Cards — horizontal scroll on mobile */}
       <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide -mx-1 px-1">
         {journeyCards.map((card, i) => (
           <button

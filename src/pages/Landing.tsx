@@ -52,8 +52,8 @@ export default function Landing() {
         {/* Description */}
         <p className="mb-5 max-w-xs text-sm text-muted-foreground leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
           {language === 'th' 
-            ? 'ชุมชนที่ปลอดภัยสำหรับการดูแลสุขภาพของคุณ รับชุดตรวจ HIV ฟรีถึงบ้าน'
-            : 'A safe community for your health. Get free HIV test kits delivered home.'}
+            ? 'ชุมชนอบอุ่นที่อยู่ข้างคุณเรื่องสุขภาพ ขอชุดตรวจ HIV ฟรีส่งถึงบ้านได้เลย'
+            : 'A warm community that has your back on health. Request a free HIV test kit, sent to your door.'}
         </p>
 
         {/* Community Stats - Live animated counters */}

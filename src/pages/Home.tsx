@@ -68,47 +68,39 @@ export default function Home() {
           />
         </div>
 
-        {/* 1) Hero — emotional hook + primary CTAs */}
         <HeroSection />
 
-        {/* 2) Quick Actions — 3 icon pills */}
         <QuickActionStrip />
 
-        {/* 3) Featured /virtual Journey — centerpiece */}
         <FeaturedJourneySection />
 
-        {/* 4) Pixel Stadium — community engagement */}
         <div className="mb-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold px-1 mb-2">
-            {language === 'th' ? '🏟️ ชุมชน testD' : '🏟️ testD Community'}
+            {language === 'th' ? 'ชุมชน testD' : 'testD Community'}
           </p>
           <PixelStadiumWidget />
         </div>
 
-        {/* 5) Smart Priority (contextual nudge) */}
         <div className="mb-6">
           <SmartPriorityCard />
         </div>
 
-        {/* 6) Prevention Journey (logged-in) */}
         <div className="mb-6">
           <MyPreventionJourneyCard />
         </div>
 
-        {/* 7) Explore services */}
         <div className="mb-6">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold px-1 mb-2">
-            {language === 'th' ? '📚 เพิ่มเติม' : '📚 Explore'}
+            {language === 'th' ? 'บริการอื่น ๆ' : 'More services'}
           </p>
           <HomeActionGrid />
         </div>
 
-        {/* Motivational */}
         <div className="text-center py-3">
           <p className="text-sm text-muted-foreground">
             {language === 'th'
-              ? '✨ เริ่มจากจุดที่คุณพร้อม'
-              : '✨ Start from wherever you are'}
+              ? 'เริ่มจากตรงไหนก็ได้ที่คุณพร้อม'
+              : "Start wherever you're ready."}
           </p>
         </div>
 
