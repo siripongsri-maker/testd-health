@@ -248,8 +248,8 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     // Auth
     'auth.login': 'เข้าสู่ระบบ',
     'auth.signup': 'สมัครสมาชิก',
-    'auth.loginSubtitle': 'เข้าสู่ระบบเพื่อซิงค์ความคืบหน้าของคุณ',
-    'auth.signupSubtitle': 'สร้างบัญชีเพื่อบันทึกความคืบหน้า',
+    'auth.loginSubtitle': 'ยินดีต้อนรับกลับมา เข้าสู่ระบบเพื่อให้ความคืบหน้าของคุณซิงก์ต่อได้',
+    'auth.signupSubtitle': 'สร้างบัญชีไว้ เพื่อเก็บความคืบหน้าและการตั้งค่าของคุณ',
     'auth.email': 'อีเมล',
     'auth.emailPlaceholder': 'กรอกอีเมลของคุณ',
     'auth.password': 'รหัสผ่าน',
@@ -258,7 +258,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'auth.displayNamePlaceholder': 'ชื่อของคุณ',
     'auth.loginButton': 'เข้าสู่ระบบ',
     'auth.signupButton': 'สมัครสมาชิก',
-    'auth.noAccount': 'ยังไม่มีบัญชี?',
+    'auth.noAccount': 'ยังไม่มีบัญชีใช่ไหม?',
     'auth.hasAccount': 'มีบัญชีอยู่แล้ว?',
     'auth.signupLink': 'สมัครสมาชิก',
     'auth.loginLink': 'เข้าสู่ระบบ',
@@ -266,9 +266,9 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'auth.passwordTooShort': 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร',
     'auth.invalidCredentials': 'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
     'auth.userExists': 'อีเมลนี้ถูกใช้งานแล้ว',
-    'auth.loginSuccess': 'เข้าสู่ระบบสำเร็จ!',
-    'auth.signupSuccess': 'สมัครสมาชิกสำเร็จ!',
-    'auth.privacyNote': 'ข้อมูลของคุณถูกเข้ารหัสและปลอดภัย',
+    'auth.loginSuccess': 'เข้าสู่ระบบสำเร็จ ยินดีต้อนรับ!',
+    'auth.signupSuccess': 'สมัครสมาชิกสำเร็จ ยินดีต้อนรับสู่ testD!',
+    'auth.privacyNote': 'ข้อมูลของคุณถูกเข้ารหัสและเก็บเป็นความลับ',
 
     // Navigation
     'nav.home': 'หน้าแรก',
