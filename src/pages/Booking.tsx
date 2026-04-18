@@ -19,6 +19,9 @@ import {
   Copy, Camera, UserPlus, Star, ExternalLink, Mail, Phone,
 } from 'lucide-react';
 import { DensityTimeSelector } from '@/components/booking/DensityTimeSelector';
+import { NotifyMeDialog } from '@/components/booking/NotifyMeDialog';
+import { Badge } from '@/components/ui/badge';
+import { Bell, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { WalkinPressure } from '@/lib/waitTimeEstimator';
 import { format, addDays, startOfDay, getDay } from 'date-fns';
@@ -41,6 +44,9 @@ interface Branch {
   google_rating?: number | null;
   google_review_count?: number | null;
   google_photo_url?: string | null;
+  status?: string | null;
+  coming_soon_message_th?: string | null;
+  coming_soon_message_en?: string | null;
 }
 
 interface Service {
@@ -124,6 +130,9 @@ export default function Booking() {
   const [riskQuestions, setRiskQuestions] = useState<RiskQuestion[]>([]);
   const [riskAnswers, setRiskAnswers] = useState<Record<string, string>>({});
 
+  // Notify-me dialog for coming-soon branches
+  const [notifyBranch, setNotifyBranch] = useState<Branch | null>(null);
+
   // Helper for bilingual DB fields (branch name, service name, etc.)
   const loc = (th: string | null | undefined, en: string | null | undefined) => {
     if (language === 'th') return th || en || '';
@@ -148,7 +157,7 @@ export default function Booking() {
       const branchSlug = searchParams.get('branch');
       if (branchSlug && branchRes.data) {
         const found = (branchRes.data as Branch[]).find(b => b.slug === branchSlug);
-        if (found) {
+        if (found && found.status !== 'coming_soon') {
           setSelectedBranch(found);
           setStep('service');
         }
@@ -728,97 +737,166 @@ export default function Booking() {
           {/* STEP: Branch */}
           {step === 'branch' && (
             <div className="space-y-3">
-              {branches.map(branch => (
-                <Card
-                  key={branch.id}
-                  className="overflow-hidden cursor-pointer transition-all hover:shadow-lg rounded-3xl border-2 border-transparent hover:border-primary/30"
-                  onClick={() => {
-                    setSelectedBranch(branch);
-                    setSelectedDate(null);
-                    setSelectedTime(null);
-                    setSelectedServices([]);
-                    setStep('service');
-                  }}
-                >
-                  {(branch.hero_image_url || branch.google_photo_url) ? (
-                    <img
-                      src={branch.hero_image_url || branch.google_photo_url!}
-                      alt={loc(branch.name_th, branch.name_en)}
-                      className="w-full h-32 object-cover"
-                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                    />
-                  ) : null}
-                  <div className="p-5">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-start gap-3">
-                        {!branch.hero_image_url && !branch.google_photo_url && (
-                          <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center">
-                            <MapPin className="h-5 w-5 text-primary" />
+              {branches.map(branch => {
+                const isComingSoon = branch.status === 'coming_soon';
+                const comingSoonMsg = loc(branch.coming_soon_message_th, branch.coming_soon_message_en)
+                  || (language === 'en'
+                    ? 'Opening soon – booking will be available shortly'
+                    : 'เปิดให้บริการเร็ว ๆ นี้ — การจองจะเปิดใช้งานในอีกไม่ช้า');
+
+                return (
+                  <Card
+                    key={branch.id}
+                    className={cn(
+                      "overflow-hidden transition-all rounded-3xl border-2",
+                      isComingSoon
+                        ? "border-dashed border-primary/30 bg-muted/30 cursor-default"
+                        : "cursor-pointer hover:shadow-lg border-transparent hover:border-primary/30"
+                    )}
+                    onClick={() => {
+                      if (isComingSoon) return;
+                      setSelectedBranch(branch);
+                      setSelectedDate(null);
+                      setSelectedTime(null);
+                      setSelectedServices([]);
+                      setStep('service');
+                    }}
+                    aria-disabled={isComingSoon}
+                  >
+                    {(branch.hero_image_url || branch.google_photo_url) ? (
+                      <div className="relative">
+                        <img
+                          src={branch.hero_image_url || branch.google_photo_url!}
+                          alt={loc(branch.name_th, branch.name_en)}
+                          className={cn(
+                            "w-full h-32 object-cover",
+                            isComingSoon && "opacity-60 grayscale"
+                          )}
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                        />
+                        {isComingSoon && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-background/40 backdrop-blur-[2px]">
+                            <Badge className="gap-1.5 px-3 py-1.5 text-sm shadow-lg bg-primary text-primary-foreground">
+                              <Sparkles className="h-3.5 w-3.5" />
+                              {language === 'en' ? 'Open Soon' : 'เปิดเร็ว ๆ นี้'}
+                            </Badge>
                           </div>
                         )}
-                        <div>
-                          <h3 className="font-bold text-foreground">
-                            {loc(branch.name_th, branch.name_en)}
-                          </h3>
-                          {branch.google_rating != null && (
-                            <div className="flex items-center gap-1 mt-0.5">
-                              <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500" />
-                              <span className="text-xs font-bold">{branch.google_rating}</span>
-                              {branch.google_review_count != null && (
-                                <span className="text-xs text-muted-foreground">
-                                  ({branch.google_review_count.toLocaleString()} {t('booking.reviews')})
-                                </span>
-                              )}
+                      </div>
+                    ) : isComingSoon ? (
+                      <div className="w-full h-32 flex items-center justify-center bg-gradient-to-br from-primary/15 via-primary/5 to-background">
+                        <Badge className="gap-1.5 px-3 py-1.5 text-sm shadow-lg bg-primary text-primary-foreground">
+                          <Sparkles className="h-3.5 w-3.5" />
+                          {language === 'en' ? 'Open Soon' : 'เปิดเร็ว ๆ นี้'}
+                        </Badge>
+                      </div>
+                    ) : null}
+                    <div className="p-5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-start gap-3">
+                          {!branch.hero_image_url && !branch.google_photo_url && !isComingSoon && (
+                            <div className="h-10 w-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+                              <MapPin className="h-5 w-5 text-primary" />
                             </div>
                           )}
-                          {loc(branch.address_th, branch.address_en) && (
-                            <p className="text-xs text-muted-foreground mt-1 flex items-start gap-1">
-                              <MapPin className="h-3 w-3 mt-0.5 shrink-0" />
-                              <span>{loc(branch.address_th, branch.address_en)}</span>
-                            </p>
-                          )}
-                          <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                            <Clock className="h-3 w-3" />
-                            <span>{branch.open_time.slice(0, 5)} - {branch.close_time.slice(0, 5)}</span>
-                            <span>•</span>
-                            <span>{formatDays(branch.open_days)}</span>
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="font-bold text-foreground">
+                                {loc(branch.name_th, branch.name_en)}
+                              </h3>
+                              {isComingSoon && (
+                                <Badge variant="outline" className="text-[10px] px-1.5 py-0 border-primary/40 text-primary">
+                                  {language === 'en' ? 'Open Soon' : 'เปิดเร็ว ๆ นี้'}
+                                </Badge>
+                              )}
+                            </div>
+                            {!isComingSoon && branch.google_rating != null && (
+                              <div className="flex items-center gap-1 mt-0.5">
+                                <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500" />
+                                <span className="text-xs font-bold">{branch.google_rating}</span>
+                                {branch.google_review_count != null && (
+                                  <span className="text-xs text-muted-foreground">
+                                    ({branch.google_review_count.toLocaleString()} {t('booking.reviews')})
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                            {loc(branch.address_th, branch.address_en) && (
+                              <p className="text-xs text-muted-foreground mt-1 flex items-start gap-1">
+                                <MapPin className="h-3 w-3 mt-0.5 shrink-0" />
+                                <span>{loc(branch.address_th, branch.address_en)}</span>
+                              </p>
+                            )}
+                            {!isComingSoon && (
+                              <>
+                                <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                                  <Clock className="h-3 w-3" />
+                                  <span>{branch.open_time.slice(0, 5)} - {branch.close_time.slice(0, 5)}</span>
+                                  <span>•</span>
+                                  <span>{formatDays(branch.open_days)}</span>
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-0.5">
+                                  {language === 'th'
+                                    ? `ที่ปรึกษา ${branch.counselor_count} คน`
+                                    : `${branch.counselor_count} counselor${branch.counselor_count > 1 ? 's' : ''}`}
+                                </p>
+                              </>
+                            )}
                           </div>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {language === 'th'
-                              ? `ที่ปรึกษา ${branch.counselor_count} คน`
-                              : `${branch.counselor_count} counselor${branch.counselor_count > 1 ? 's' : ''}`}
-                          </p>
                         </div>
+                        {!isComingSoon && <ChevronRight className="h-5 w-5 text-muted-foreground" />}
                       </div>
-                      <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                    {(branch.google_maps_url || (branch.google_photo_url && branch.hero_image_url && branch.hero_image_url !== branch.google_photo_url)) && (
-                      <div className="mt-3 flex gap-2 items-end">
-                        {branch.google_photo_url && branch.hero_image_url && branch.hero_image_url !== branch.google_photo_url && (
-                          <img
-                            src={branch.google_photo_url}
-                            alt="Google"
-                            className="h-12 w-16 object-cover rounded-md border shrink-0"
-                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                          />
-                        )}
-                        {branch.google_maps_url && (
-                          <a
-                            href={branch.google_maps_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+
+                      {isComingSoon && (
+                        <div className="mt-3 space-y-3">
+                          <p className="text-xs text-muted-foreground italic">
+                            {comingSoonMsg}
+                          </p>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="w-full gap-2 border-primary/40 text-primary hover:bg-primary/10"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              trackEvent('branch_notify_clicked', { branch_id: branch.id, branch_slug: branch.slug });
+                              setNotifyBranch(branch);
+                            }}
                           >
-                            <ExternalLink className="h-3 w-3" />
-                            {t('booking.openGoogleMaps')}
-                          </a>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </Card>
-              ))}
+                            <Bell className="h-4 w-4" />
+                            {language === 'en' ? 'Notify me when it opens' : 'สนใจรับแจ้งเตือน'}
+                          </Button>
+                        </div>
+                      )}
+
+                      {!isComingSoon && (branch.google_maps_url || (branch.google_photo_url && branch.hero_image_url && branch.hero_image_url !== branch.google_photo_url)) && (
+                        <div className="mt-3 flex gap-2 items-end">
+                          {branch.google_photo_url && branch.hero_image_url && branch.hero_image_url !== branch.google_photo_url && (
+                            <img
+                              src={branch.google_photo_url}
+                              alt="Google"
+                              className="h-12 w-16 object-cover rounded-md border shrink-0"
+                              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                            />
+                          )}
+                          {branch.google_maps_url && (
+                            <a
+                              href={branch.google_maps_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                            >
+                              <ExternalLink className="h-3 w-3" />
+                              {t('booking.openGoogleMaps')}
+                            </a>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </Card>
+                );
+              })}
             </div>
           )}
 
@@ -1451,6 +1529,15 @@ export default function Booking() {
         </div>
       </PageContainer>
       <BottomNav />
+
+      {notifyBranch && (
+        <NotifyMeDialog
+          open={!!notifyBranch}
+          onOpenChange={(open) => { if (!open) setNotifyBranch(null); }}
+          branchId={notifyBranch.id}
+          branchName={loc(notifyBranch.name_th, notifyBranch.name_en)}
+        />
+      )}
     </>
   );
 }
