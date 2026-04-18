@@ -866,7 +866,7 @@ export default function Booking() {
                         </div>
                       )}
 
-                      {!isComingSoon && (branch.google_maps_url || (branch.google_photo_url && branch.hero_image_url && branch.hero_image_url !== branch.google_photo_url)) && (
+                      {(branch.google_maps_url || (!isComingSoon && branch.google_photo_url && branch.hero_image_url && branch.hero_image_url !== branch.google_photo_url)) && (
                         <div className="mt-3 flex gap-2 items-end">
                           {branch.google_photo_url && branch.hero_image_url && branch.hero_image_url !== branch.google_photo_url && (
                             <img
