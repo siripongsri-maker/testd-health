@@ -130,6 +130,9 @@ export default function Booking() {
   const [riskQuestions, setRiskQuestions] = useState<RiskQuestion[]>([]);
   const [riskAnswers, setRiskAnswers] = useState<Record<string, string>>({});
 
+  // Notify-me dialog for coming-soon branches
+  const [notifyBranch, setNotifyBranch] = useState<Branch | null>(null);
+
   // Helper for bilingual DB fields (branch name, service name, etc.)
   const loc = (th: string | null | undefined, en: string | null | undefined) => {
     if (language === 'th') return th || en || '';
