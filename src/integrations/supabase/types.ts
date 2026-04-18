@@ -861,6 +861,8 @@ export type Database = {
           address_en: string | null
           address_th: string | null
           close_time: string
+          coming_soon_message_en: string | null
+          coming_soon_message_th: string | null
           counselor_count: number
           created_at: string
           google_maps_url: string | null
@@ -878,12 +880,15 @@ export type Database = {
           phone: string | null
           slot_duration_minutes: number
           slug: string
+          status: string
           updated_at: string
         }
         Insert: {
           address_en?: string | null
           address_th?: string | null
           close_time?: string
+          coming_soon_message_en?: string | null
+          coming_soon_message_th?: string | null
           counselor_count?: number
           created_at?: string
           google_maps_url?: string | null
@@ -901,12 +906,15 @@ export type Database = {
           phone?: string | null
           slot_duration_minutes?: number
           slug: string
+          status?: string
           updated_at?: string
         }
         Update: {
           address_en?: string | null
           address_th?: string | null
           close_time?: string
+          coming_soon_message_en?: string | null
+          coming_soon_message_th?: string | null
           counselor_count?: number
           created_at?: string
           google_maps_url?: string | null
@@ -924,6 +932,7 @@ export type Database = {
           phone?: string | null
           slot_duration_minutes?: number
           slug?: string
+          status?: string
           updated_at?: string
         }
         Relationships: []
@@ -1025,6 +1034,47 @@ export type Database = {
           slug?: string
         }
         Relationships: []
+      }
+      branch_interest_signups: {
+        Row: {
+          branch_id: string
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          language: string
+          notified_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          branch_id: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          language?: string
+          notified_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          branch_id?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          language?: string
+          notified_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "branch_interest_signups_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       branch_queue_settings: {
         Row: {
