@@ -768,10 +768,7 @@ export default function Booking() {
                         <img
                           src={branch.hero_image_url || branch.google_photo_url!}
                           alt={loc(branch.name_th, branch.name_en)}
-                          className={cn(
-                            "w-full h-32 object-cover",
-                            isComingSoon && "opacity-60 grayscale"
-                          )}
+                          className="w-full h-32 object-cover"
                           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                         />
                         {isComingSoon && (
