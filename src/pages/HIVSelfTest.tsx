@@ -415,8 +415,8 @@ export default function HIVSelfTest() {
     if (daysSinceRisk < 30 && shippingData.lastRiskDate) {
       toast.warning(
         language === 'th' 
-          ? `ผ่านมา ${daysSinceRisk} วันเท่านั้น — แนะนำให้รอครบ 30 วัน หรือตรวจที่คลินิก`
-          : `Only ${daysSinceRisk} days — we recommend waiting 30 days or visiting a clinic`
+          ? `ผ่านมาแค่ ${daysSinceRisk} วัน เราแนะนำให้รอครบ 30 วันก่อนตรวจ หรือเข้ามาตรวจที่คลินิกได้เลย`
+          : `Only ${daysSinceRisk} days have passed. We suggest waiting 30 days, or visiting a clinic for testing.`
       );
     }
 
@@ -1321,8 +1321,8 @@ export default function HIVSelfTest() {
                       </p>
                       <p className="text-xs text-destructive/60 mb-3">
                         {language === 'th' 
-                          ? 'ผลจากชุดตรวจเบื้องต้นไม่ถือเป็นการวินิจฉัย — ต้องตรวจยืนยันในห้องปฏิบัติการเสมอ'
-                          : 'A self-test result is not a diagnosis — lab confirmation is always required.'
+                          ? 'ผลจากชุดตรวจเบื้องต้นไม่ใช่การวินิจฉัยขั้นสุดท้าย ควรตรวจยืนยันในห้องปฏิบัติการอีกครั้งเสมอ'
+                          : 'A self-test result is not a final diagnosis. Lab confirmation is always recommended.'
                         }
                       </p>
                       <Button
@@ -1431,8 +1431,8 @@ export default function HIVSelfTest() {
                       {analysisDetails.confidence !== 'high' && (
                         <p className="text-xs text-muted-foreground mt-2">
                           {language === 'th'
-                            ? '⚠️ ผลวิเคราะห์ยังไม่ชัดเจน กรุณาส่งให้เจ้าหน้าที่ตรวจสอบ'
-                            : '⚠️ Analysis uncertain — please submit for staff verification'
+                            ? 'ผลวิเคราะห์ยังไม่ชัดเจน รบกวนส่งให้เจ้าหน้าที่ช่วยตรวจสอบอีกครั้ง'
+                            : "The result isn't fully clear. Please send it for our team to double-check."
                           }
                         </p>
                       )}
