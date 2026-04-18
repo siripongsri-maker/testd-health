@@ -15,7 +15,7 @@ export function StickyTestCTA() {
         onClick={() => { trackEvent('sticky_cta_click', { source: 'homepage', target: '/booking' }); navigate('/booking'); }}
       >
         <TestTube className="h-5 w-5" />
-        ตรวจ HIV ฟรี
+        จองตรวจ HIV ฟรี
       </Button>
     </div>
   );

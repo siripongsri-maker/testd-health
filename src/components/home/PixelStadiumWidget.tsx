@@ -24,7 +24,7 @@ export function PixelStadiumWidget() {
   const [todayCount, setTodayCount] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [viewerCount, setViewerCount] = useState(0);
-  const [ticker, setTicker] = useState(language === 'th' ? 'LIVE — ยินดีต้อนรับสู่ testD' : 'LIVE — Welcome to testD');
+  const [ticker, setTicker] = useState(language === 'th' ? 'LIVE · ยินดีต้อนรับสู่ testD' : 'LIVE · Welcome to testD');
 
   // Fetch real stats
   useEffect(() => {
@@ -185,7 +185,7 @@ export function PixelStadiumWidget() {
         setTodayCount(p => p + 1);
         setTotalCount(p => p + 1);
         const act = acts[Math.floor(Math.random() * acts.length)];
-        setTicker(`LIVE — ${language === 'th' ? 'ผู้ใช้ใหม่' : 'Someone'} ${act}`);
+        setTicker(`LIVE · ${language === 'th' ? 'ผู้ใช้ใหม่' : 'Someone'} ${act}`);
       }
     }, 7000);
 

@@ -8,7 +8,6 @@ export function QuickTestCTA() {
 
   return (
     <div className="w-full max-w-sm mx-auto space-y-3">
-      {/* Primary CTA - One-tap to HIV test */}
       <Button
         asChild
         size="lg"
@@ -19,13 +18,12 @@ export function QuickTestCTA() {
             <TestTube className="h-5 w-5" />
           </div>
           <span className="flex-1 text-left">
-            {language === "th" ? "รับชุดตรวจ HIV ฟรี" : "Get Free HIV Test Kit"}
+            {language === "th" ? "ขอชุดตรวจ HIV ฟรี" : "Get a free HIV test kit"}
           </span>
           <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
         </Link>
       </Button>
 
-      {/* Secondary CTA */}
       <Button
         asChild
         variant="outline"
@@ -34,15 +32,14 @@ export function QuickTestCTA() {
       >
         <Link to="/onboarding" className="gap-3">
           <Sparkles className="h-5 w-5 text-primary" />
-          {language === "th" ? "เริ่มต้นใช้งาน" : "Get Started"}
+          {language === "th" ? "เริ่มต้นใช้งาน" : "Get started"}
         </Link>
       </Button>
 
-      {/* Trust text */}
       <p className="text-center text-xs text-muted-foreground pt-1">
-        {language === "th" 
-          ? "✓ ไม่ต้องสมัคร • ส่งฟรีทั่วไทย • รักษาความลับ" 
-          : "✓ No signup required • Free shipping • 100% confidential"}
+        {language === "th"
+          ? "ไม่ต้องสมัครสมาชิก • ส่งฟรีทั่วไทย • เก็บเป็นความลับ"
+          : "No signup needed • Free delivery in Thailand • Fully confidential"}
       </p>
     </div>
   );

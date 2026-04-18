@@ -56,17 +56,17 @@ export function ExitIntentNudge() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-w-sm mx-auto rounded-2xl">
         <DialogHeader className="text-center">
-          <DialogTitle className="text-xl">ยังไม่แน่ใจใช่ไหม? 💬</DialogTitle>
+          <DialogTitle className="text-xl">ยังไม่แน่ใจใช่ไหม?</DialogTitle>
           <DialogDescription className="text-base mt-2">
-            คุยกับเจ้าหน้าที่ได้ฟรี ไม่ต้องระบุตัวตน
+            คุยกับเจ้าหน้าที่ได้ฟรี ไม่ต้องบอกชื่อก็ได้นะ
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-3 mt-2">
           <Button size="lg" className="w-full gap-2" onClick={() => handleClick("/support-chat")}>
-            <MessageCircle className="h-5 w-5" /> คุยตอนนี้
+            <MessageCircle className="h-5 w-5" /> คุยกับเจ้าหน้าที่
           </Button>
           <Button size="lg" variant="outline" className="w-full gap-2" onClick={() => handleClick("/booking")}>
-            <Calendar className="h-5 w-5" /> ตรวจเลย
+            <Calendar className="h-5 w-5" /> จองตรวจเลย
           </Button>
         </div>
       </DialogContent>
