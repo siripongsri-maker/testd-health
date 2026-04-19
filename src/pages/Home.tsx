@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
 import { AdminRequestsPopup } from "@/components/AdminRequestsPopup";
-import { HomeActionGrid } from "@/components/home/HomeActionGrid";
+import { HomeMenuGrid } from "@/components/home/HomeMenuGrid";
 import { SmartPriorityCard } from "@/components/home/SmartPriorityCard";
 import { MyPreventionJourneyCard } from "@/components/home/MyPreventionJourneyCard";
 import { HeroSection } from "@/components/home/HeroSection";
@@ -99,10 +99,10 @@ export default function Home() {
         </div>
 
         <div className="mb-6">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold px-1 mb-2">
-            {language === 'th' ? 'บริการอื่น ๆ' : 'More services'}
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold px-1 mb-3">
+            {language === 'th' ? 'เลือกสิ่งที่ต้องการ' : 'Choose what you need'}
           </p>
-          <HomeActionGrid />
+          <HomeMenuGrid />
         </div>
 
         <div className="text-center py-3">
