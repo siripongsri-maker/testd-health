@@ -59,21 +59,25 @@ export default function Home() {
     <div className="relative">
       <div className="fixed inset-0 gradient-hero" style={{ zIndex: -1 }} />
 
-      <main className="px-5 sm:px-6 py-4 max-w-lg mx-auto relative">
+      <main className="px-5 sm:px-6 py-4 max-w-lg sm:max-w-5xl mx-auto relative">
         {/* Logo */}
-        <div className="flex justify-center mb-3">
+        <div className="flex justify-center sm:justify-start mb-4">
           <img
             src={testdLogo}
             alt="testD"
-            className="h-16 w-auto object-contain drop-shadow-[0_4px_24px_rgba(255,100,150,0.3)] animate-scale-in"
+            className="h-14 sm:h-16 w-auto object-contain drop-shadow-[0_4px_24px_rgba(255,100,150,0.3)] animate-scale-in"
           />
         </div>
 
-        <div className="mb-5 -mx-1 sm:mx-0">
-          <HeroLivingScene />
+        {/* Hero — split layout on desktop, stacked on mobile */}
+        <div className="mb-8 grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-10 sm:items-center">
+          <div className="order-2 sm:order-1">
+            <HeroSection />
+          </div>
+          <div className="order-1 sm:order-2 -mx-1 sm:mx-0">
+            <HeroLivingScene />
+          </div>
         </div>
-
-        <HeroSection />
 
         <QuickActionStrip />
 

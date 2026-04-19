@@ -7,57 +7,67 @@ import { useLanguage } from '@/lib/i18n';
 export function HeroSection() {
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const isTh = language === 'th';
 
   return (
-    <section className="text-center space-y-5 mb-6 pt-2">
-      <div className="space-y-2">
-        <h1 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight tracking-tight">
-          {language === 'th' ? (
-            <>ดูแลตัวเอง<br /><span className="text-primary">ในจังหวะของคุณเอง</span></>
+    <section className="text-center sm:text-left space-y-4 mb-6">
+      <div className="space-y-2.5">
+        <h1 className="text-[28px] leading-[1.15] sm:text-4xl font-bold text-foreground tracking-tight">
+          {isTh ? (
+            <>อยากรู้ เอชไอวี<br /><span className="text-primary">ตรวจได้ฟรี</span></>
           ) : (
-            <>Take care of yourself,<br /><span className="text-primary">on your own time</span></>
+            <>Want to know your status?<br /><span className="text-primary">Test free, anytime.</span></>
           )}
         </h1>
-        <p className="text-sm text-muted-foreground max-w-[260px] mx-auto">
-          {language === 'th'
-            ? 'ตรวจ พูดคุย และเรียนรู้ ในแบบที่คุณสบายใจ'
-            : 'Test, chat, and learn in a way that feels right for you.'}
+        <p className="text-sm sm:text-base text-muted-foreground max-w-[320px] mx-auto sm:mx-0 leading-relaxed">
+          {isTh
+            ? 'รู้ผลเร็ว ปลอดภัย เป็นความลับ'
+            : 'Quick results. Safe. Confidential.'}
         </p>
       </div>
 
-      {/* CTAs */}
-      <div className="flex flex-col items-center gap-3 pt-1">
+      {/* CTAs — primary stands out, secondary lighter */}
+      <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5 pt-1">
         <Button
-          variant="hero"
-          size="lg"
-          className="w-full max-w-[280px] h-14 text-base font-bold rounded-2xl gap-2"
+          variant="default"
+          className="h-12 px-6 rounded-full text-sm font-semibold gap-2 shadow-md shadow-primary/20 sm:min-w-[160px]"
           onClick={() => {
             trackEvent('homepage_cta_primary_click', { source: 'homepage', section: 'hero' });
             navigate('/booking');
           }}
         >
-          {language === 'th' ? 'เริ่มตรวจเลย' : 'Get Tested'}
-          <ArrowRight className="h-5 w-5" />
+          {isTh ? 'เริ่มตรวจเลย' : 'Get Tested'}
+          <ArrowRight className="h-4 w-4" />
         </Button>
 
         <Button
-          variant="hero-outline"
-          size="lg"
-          className="w-full max-w-[280px] h-12 text-sm rounded-2xl gap-2"
+          variant="outline"
+          className="h-12 px-5 rounded-full text-sm font-medium gap-2 bg-card/70 backdrop-blur border-border/60 text-foreground hover:bg-card hover:border-primary/40"
+          onClick={() => {
+            trackEvent('homepage_cta_book_click', { source: 'homepage', section: 'hero' });
+            navigate('/booking');
+          }}
+        >
+          {isTh ? 'จองตรวจ HIV ฟรี' : 'Book Free HIV Test'}
+        </Button>
+
+        <Button
+          variant="ghost"
+          className="h-12 px-4 rounded-full text-sm font-medium gap-2 text-muted-foreground hover:text-foreground hover:bg-card/60"
           onClick={() => {
             trackEvent('homepage_cta_journey_click', { source: 'homepage', section: 'hero' });
-            navigate('/virtual');
+            navigate('/support-chat');
           }}
         >
           <Compass className="h-4 w-4" />
-          {language === 'th' ? 'ลองดูเส้นทางของคุณ' : 'Find what works for you'}
+          {isTh ? 'ปรึกษาออนไลน์' : 'Chat online'}
         </Button>
       </div>
 
-      <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground pt-1">
-        <span>🔒 {language === 'th' ? 'เป็นความลับ' : 'Confidential'}</span>
-        <span>{language === 'th' ? 'ฟรี' : 'Free'}</span>
-        <span>{language === 'th' ? 'ใช้เวลาไม่นาน' : 'Quick'}</span>
+      <div className="flex items-center justify-center sm:justify-start gap-4 text-xs text-muted-foreground pt-1">
+        <span>🔒 {isTh ? 'เป็นความลับ' : 'Confidential'}</span>
+        <span>{isTh ? 'ฟรี' : 'Free'}</span>
+        <span>{isTh ? 'ใช้เวลาไม่นาน' : 'Quick'}</span>
       </div>
     </section>
   );
