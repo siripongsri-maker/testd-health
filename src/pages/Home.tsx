@@ -8,6 +8,7 @@ import { HomeActionGrid } from "@/components/home/HomeActionGrid";
 import { SmartPriorityCard } from "@/components/home/SmartPriorityCard";
 import { MyPreventionJourneyCard } from "@/components/home/MyPreventionJourneyCard";
 import { HeroSection } from "@/components/home/HeroSection";
+import { HeroLivingScene } from "@/components/landing/HeroLivingScene";
 import { QuickActionStrip } from "@/components/home/QuickActionStrip";
 import { FeaturedJourneySection } from "@/components/home/FeaturedJourneySection";
 import { StickyTestCTA } from "@/components/home/StickyTestCTA";
@@ -66,6 +67,10 @@ export default function Home() {
             alt="testD"
             className="h-16 w-auto object-contain drop-shadow-[0_4px_24px_rgba(255,100,150,0.3)] animate-scale-in"
           />
+        </div>
+
+        <div className="mb-5 -mx-1 sm:mx-0">
+          <HeroLivingScene />
         </div>
 
         <HeroSection />
