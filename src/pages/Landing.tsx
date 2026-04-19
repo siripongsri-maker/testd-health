@@ -1,4 +1,4 @@
-import { Shield, Heart, CheckCircle, Star, Sparkles } from "lucide-react";
+import { Shield, Heart, CheckCircle, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/lib/i18n";
@@ -6,6 +6,7 @@ import swingLogo from "@/assets/swing-logo.png";
 import { CommunityStats } from "@/components/landing/CommunityStats";
 import { QuickTestCTA } from "@/components/landing/QuickTestCTA";
 import { CommunityTestimonial } from "@/components/landing/CommunityTestimonial";
+import { HeroLivingScene } from "@/components/landing/HeroLivingScene";
 
 export default function Landing() {
   const { t, language } = useLanguage();
@@ -30,43 +31,40 @@ export default function Landing() {
       </div>
 
       {/* Hero Section */}
-      <main id="main-content" className="flex-1 flex flex-col items-center justify-center px-5 py-6 text-center safe-top relative z-10">
-        {/* Logo & Icon with Animation */}
-        <div className="mb-4 animate-fade-in">
-          <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-primary via-primary to-accent shadow-xl shadow-primary/25">
-            <Shield className="h-10 w-10 text-white" />
-            <Sparkles className="absolute -top-2 -right-2 h-5 w-5 text-warning animate-pulse" />
-          </div>
+      <main id="main-content" className="flex-1 flex flex-col items-center px-4 pt-4 pb-6 safe-top relative z-10">
+        {/* Wordmark */}
+        <div className="text-center mb-3 animate-fade-in">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            test<span className="text-primary">D</span>
+          </h1>
+          <p className="mt-0.5 text-sm font-medium text-muted-foreground">
+            {t('app.tagline')}
+          </p>
         </div>
-        
-        {/* Title */}
-        <h1 className="mb-1 text-4xl font-bold tracking-tight text-foreground animate-fade-in" style={{ animationDelay: '0.1s' }}>
-          test<span className="text-primary">D</span>
-        </h1>
-        
-        {/* Tagline */}
-        <p className="mb-1 text-lg font-semibold text-foreground animate-fade-in" style={{ animationDelay: '0.15s' }}>
-          {t('app.tagline')}
-        </p>
-        
-        {/* Description */}
-        <p className="mb-5 max-w-xs text-sm text-muted-foreground leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
-          {language === 'th' 
-            ? 'ชุมชนอบอุ่นที่อยู่ข้างคุณเรื่องสุขภาพ ขอชุดตรวจ HIV ฟรีส่งถึงบ้านได้เลย'
-            : 'A warm community that has your back on health. Request a free HIV test kit, sent to your door.'}
+
+        {/* Living photograph hero — interactive looping clinic scene */}
+        <div className="w-full max-w-md animate-fade-in" style={{ animationDelay: '0.1s' }}>
+          <HeroLivingScene />
+        </div>
+
+        {/* Warm one-line invitation */}
+        <p className="mt-4 mb-4 max-w-sm text-center text-sm text-muted-foreground leading-relaxed animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          {language === 'th'
+            ? 'ที่นี่คือพื้นที่ปลอดภัย เป็นกันเอง สำหรับทุกคน เริ่มดูแลตัวเองได้เลย'
+            : 'A safe, friendly space for everyone. Start taking care of yourself today.'}
         </p>
 
-        {/* Community Stats - Live animated counters */}
-        <div className="w-full max-w-sm mb-5 animate-fade-in" style={{ animationDelay: '0.25s' }}>
+        {/* Community Stats */}
+        <div className="w-full max-w-md mb-4 animate-fade-in" style={{ animationDelay: '0.25s' }}>
           <CommunityStats />
         </div>
 
         {/* Testimonial */}
-        <div className="w-full max-w-sm mb-5 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+        <div className="w-full max-w-md mb-4 animate-fade-in" style={{ animationDelay: '0.3s' }}>
           <CommunityTestimonial />
         </div>
-        
-        {/* One-tap CTA */}
+
+        {/* Secondary one-tap CTA (kit-by-mail) */}
         <div className="animate-fade-in" style={{ animationDelay: '0.35s' }}>
           <QuickTestCTA />
         </div>
