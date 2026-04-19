@@ -83,25 +83,25 @@ export function HomeMenuGrid() {
   const isTh = language === 'th';
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-2.5">
       {items.map((item) => (
         <button
           key={item.path}
           onClick={() => navigate(item.path)}
           aria-label={isTh ? item.labelTh : item.labelEn}
-          className="group flex flex-col items-center text-center rounded-3xl bg-card/70 backdrop-blur-sm border border-border/40 shadow-sm hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 overflow-hidden p-2.5 sm:p-3"
+          className="group flex flex-col items-center text-center rounded-2xl bg-card/40 backdrop-blur-sm border border-border/30 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 overflow-hidden p-1 sm:p-1.5"
         >
           <div
-            className={`relative w-full aspect-square rounded-2xl overflow-hidden bg-gradient-to-br ${item.tint}`}
+            className={`relative w-full aspect-square rounded-xl overflow-hidden bg-gradient-to-br ${item.tint}`}
           >
             <img
               src={item.img}
               alt=""
               loading="lazy"
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-300"
+              className="absolute inset-0 w-full h-full object-cover scale-[1.08] group-hover:scale-[1.14] transition-transform duration-300"
             />
           </div>
-          <span className="mt-2.5 text-[13px] sm:text-sm font-medium text-foreground leading-tight px-1 pb-1">
+          <span className="mt-1 sm:mt-1.5 text-[11px] sm:text-xs font-medium text-foreground/90 leading-tight px-0.5 pb-1">
             {isTh ? item.labelTh : item.labelEn}
           </span>
         </button>
