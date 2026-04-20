@@ -604,7 +604,14 @@ export default function Booking() {
       } catch {}
 
       setStep('success');
-      trackEvent('booking_submitted', { source: 'booking', branch_id: selectedBranch?.id, ...getSourcePageMeta() });
+      trackEvent('booking_submitted', {
+        source: 'booking',
+        branch_id: selectedBranch?.id,
+        service_id: selectedServices[0]?.id,
+        service_ids: selectedServices.map(s => s.id),
+        service_slugs: selectedServices.map(s => s.slug),
+        ...getSourcePageMeta(),
+      });
       toast.success(t('booking.successTitle'));
     } catch (err: any) {
       console.error('Booking error:', err);
