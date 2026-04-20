@@ -4,8 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
 import { toast } from "sonner";
 import { trackJourneyEvent } from "@/lib/journeyTracker";
+import { trackSeedEvent, fetchUicVisitStats, getClientSeedId, isValidUic, type UicVisitStats } from "@/lib/clientSeed";
 import { ProgressIndicator } from "@/components/ProgressIndicator";
 import { FeedbackIntroCard } from "@/components/feedback/FeedbackIntroCard";
+import { UicHnidField } from "@/components/feedback/UicHnidField";
 import { CounsellingQualitySection } from "@/components/feedback/CounsellingQualitySection";
 import { SatisfactionSection } from "@/components/feedback/SatisfactionSection";
 import { ServicesReceivedSection } from "@/components/feedback/ServicesReceivedSection";
@@ -19,6 +21,7 @@ export interface FeedbackFormData {
   channel: string;
   service_date: string;
   branch_id: string | null;
+  uic_hnid: string;
   // Section 1
   q1: number | null; q2: number | null; q3: number | null; q4: number | null; q5: number | null;
   // Section 2-3
@@ -45,6 +48,7 @@ export interface FeedbackFormData {
 
 const defaultData: FeedbackFormData = {
   channel: 'clinic', service_date: new Date().toISOString().split('T')[0], branch_id: null,
+  uic_hnid: '',
   q1: null, q2: null, q3: null, q4: null, q5: null,
   satisfaction: null, self_efficacy: null,
   services: [],
@@ -64,9 +68,12 @@ export default function ClientFeedbackForm() {
   const [data, setData] = useState<FeedbackFormData>(defaultData);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [uicStats, setUicStats] = useState<UicVisitStats | null>(null);
 
   useEffect(() => {
     trackJourneyEvent('engagement', 'feedback_form_viewed');
+    // First-party seed tracking
+    trackSeedEvent('assessment_viewed', { language });
     const ch = searchParams.get('channel');
     const bid = searchParams.get('branch_id');
     if (ch) setData(d => ({ ...d, channel: ch }));
@@ -92,7 +99,12 @@ export default function ClientFeedbackForm() {
   const totalSteps = steps.length;
   const currentStep = steps[step] || 'intro';
 
+  const uicRequired = data.channel === 'clinic' || data.channel === 'outreach';
+  const uicValid = isValidUic(data.uic_hnid);
+  const uicOk = !uicRequired || uicValid;
+
   const canProceed = () => {
+    if (currentStep === 'intro') return uicOk;
     if (currentStep === 'counselling') return data.q1 !== null && data.q2 !== null && data.q3 !== null && data.q4 !== null && data.q5 !== null;
     if (currentStep === 'satisfaction') return data.satisfaction !== null && data.self_efficacy !== null;
     if (currentStep === 'services') return data.services.length > 0;
@@ -100,9 +112,19 @@ export default function ClientFeedbackForm() {
   };
 
   const handleSubmit = async () => {
+    if (uicRequired && !uicValid) {
+      toast.error(language === 'th' ? 'กรุณากรอกเลข 13 หลักให้ครบ' : 'Please enter the full 13-digit ID');
+      return;
+    }
     setSubmitting(true);
     try {
       const { data: user } = await supabase.auth.getUser();
+      const seed = getClientSeedId();
+      const uicValue = uicValid ? data.uic_hnid : null;
+
+      // Get latest stats right before insert
+      const stats = await fetchUicVisitStats(uicValue, seed);
+
       const payload = {
         service_date: data.service_date,
         channel: data.channel,
@@ -111,6 +133,12 @@ export default function ClientFeedbackForm() {
         user_id: user?.user?.id || null,
         created_by: user?.user?.id || null,
         appointment_id: searchParams.get('appointment_id') || null,
+        uic_hnid: uicValue,
+        client_seed_id: seed,
+        visit_count_before: stats.visit_count,
+        assessment_count_before: stats.assessment_count,
+        is_repeat_assessment: stats.is_repeat,
+        last_assessment_at: stats.last_assessment_at,
         q1_respect: data.q1,
         q2_open_discussion: data.q2,
         q3_info_clarity: data.q3,
@@ -155,9 +183,19 @@ export default function ClientFeedbackForm() {
       const { error } = await supabase.from('client_feedback_responses').insert(payload as any);
       if (error) throw error;
 
+      // Log first-party seed events
+      await trackSeedEvent('assessment_submitted', {
+        channel: data.channel,
+        branch_id: data.branch_id,
+        language,
+        uic_hnid: uicValue,
+        extra: { is_repeat: stats.is_repeat, assessment_number: stats.assessment_count + 1 },
+      });
+
       trackJourneyEvent('engagement', 'feedback_form_submitted', {
         channel: data.channel,
         is_anonymous: !user?.user?.id,
+        is_repeat: stats.is_repeat,
       });
 
       setSubmitted(true);
@@ -200,7 +238,17 @@ export default function ClientFeedbackForm() {
         </p>
 
         {/* Steps */}
-        {currentStep === 'intro' && <FeedbackIntroCard data={data} update={update} />}
+        {currentStep === 'intro' && (
+          <>
+            <FeedbackIntroCard data={data} update={update} />
+            <UicHnidField
+              channel={data.channel}
+              value={data.uic_hnid}
+              onChange={(uic) => update({ uic_hnid: uic })}
+              onStatsLoaded={setUicStats}
+            />
+          </>
+        )}
         {currentStep === 'counselling' && <CounsellingQualitySection data={data} update={update} />}
         {currentStep === 'satisfaction' && <SatisfactionSection data={data} update={update} />}
         {currentStep === 'services' && <ServicesReceivedSection data={data} update={update} />}

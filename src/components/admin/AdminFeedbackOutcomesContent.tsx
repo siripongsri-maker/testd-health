@@ -4,7 +4,7 @@ import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2, Download, Star, Heart, Brain, Shield, TrendingUp } from "lucide-react";
+import { Loader2, Download, Star, Heart, Brain, Shield, TrendingUp, Repeat, Eye, Users } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
 
 interface FeedbackRow {
@@ -34,6 +34,12 @@ interface FeedbackRow {
   status: string;
   open_feedback_text: string | null;
   submitted_at: string;
+  uic_hnid: string | null;
+  client_seed_id: string | null;
+  visit_count_before: number | null;
+  assessment_count_before: number | null;
+  is_repeat_assessment: boolean | null;
+  last_assessment_at: string | null;
 }
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--accent))', '#f59e0b', '#10b981', '#8b5cf6', '#ec4899'];
@@ -45,6 +51,8 @@ export default function AdminFeedbackOutcomesContent() {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [channelFilter, setChannelFilter] = useState('');
+  const [repeatFilter, setRepeatFilter] = useState<'all' | 'first' | 'repeat'>('all');
+  const [uicSearch, setUicSearch] = useState('');
 
   useEffect(() => { fetchData(); }, []);
 
@@ -64,24 +72,40 @@ export default function AdminFeedbackOutcomesContent() {
     return valid.length ? Math.round((valid.reduce((a, b) => a + b, 0) / valid.length) * 10) / 10 : 0;
   };
 
-  const totalResponses = rows.length;
-  const avgQuality = avg(rows.map(r => r.counselling_quality_percent));
-  const avgSatisfaction = avg(rows.map(r => r.satisfaction_score));
-  const avgEfficacy = avg(rows.map(r => r.self_efficacy_score));
-  const mhImproved = rows.filter(r => r.mh_outcome === 'much_better' || r.mh_outcome === 'slightly_better').length;
-  const mhTotal = rows.filter(r => r.received_mental_health).length;
-  const hrPositive = rows.filter(r => (r.hr_intention_count || 0) > 0 && r.received_harm_reduction).length;
-  const hrTotal = rows.filter(r => r.received_harm_reduction).length;
+  // Apply client-side filters (repeat + UIC search)
+  const filteredRows = rows.filter(r => {
+    if (repeatFilter === 'first' && r.is_repeat_assessment) return false;
+    if (repeatFilter === 'repeat' && !r.is_repeat_assessment) return false;
+    if (uicSearch.trim() && !(r.uic_hnid || '').includes(uicSearch.trim())) return false;
+    return true;
+  });
+
+  const totalResponses = filteredRows.length;
+  const avgQuality = avg(filteredRows.map(r => r.counselling_quality_percent));
+  const avgSatisfaction = avg(filteredRows.map(r => r.satisfaction_score));
+  const avgEfficacy = avg(filteredRows.map(r => r.self_efficacy_score));
+  const mhImproved = filteredRows.filter(r => r.mh_outcome === 'much_better' || r.mh_outcome === 'slightly_better').length;
+  const mhTotal = filteredRows.filter(r => r.received_mental_health).length;
+  const hrPositive = filteredRows.filter(r => (r.hr_intention_count || 0) > 0 && r.received_harm_reduction).length;
+  const hrTotal = filteredRows.filter(r => r.received_harm_reduction).length;
+
+  // Repeat / UIC metrics
+  const withUic = filteredRows.filter(r => r.uic_hnid).length;
+  const repeatCount = filteredRows.filter(r => r.is_repeat_assessment).length;
+  const firstTimeCount = filteredRows.filter(r => r.uic_hnid && !r.is_repeat_assessment).length;
+  const uniqueUics = new Set(filteredRows.filter(r => r.uic_hnid).map(r => r.uic_hnid)).size;
+  const visitsBefore = filteredRows.filter(r => r.visit_count_before != null).map(r => r.visit_count_before as number);
+  const avgVisitsBefore = visitsBefore.length ? Math.round((visitsBefore.reduce((a, b) => a + b, 0) / visitsBefore.length) * 10) / 10 : 0;
 
   // Channel breakdown
   const channelData = ['clinic', 'outreach', 'online'].map(ch => ({
     name: ch,
-    count: rows.filter(r => r.channel === ch).length,
+    count: filteredRows.filter(r => r.channel === ch).length,
   }));
 
   // Monthly trend
   const monthMap = new Map<string, { count: number; satSum: number; qualSum: number; satN: number; qualN: number }>();
-  rows.forEach(r => {
+  filteredRows.forEach(r => {
     const m = r.service_date?.slice(0, 7) || 'unknown';
     const e = monthMap.get(m) || { count: 0, satSum: 0, qualSum: 0, satN: 0, qualN: 0 };
     e.count++;
@@ -98,18 +122,31 @@ export default function AdminFeedbackOutcomesContent() {
 
   // Knowledge scores
   const knowledgeData = [
-    { name: 'STI', score: avg(rows.filter(r => r.received_sti).map(r => r.sti_knowledge_score)), max: 3 },
-    { name: 'PrEP', score: avg(rows.filter(r => r.received_prep).map(r => r.prep_knowledge_score)), max: 3 },
-    { name: 'PEP', score: avg(rows.filter(r => r.received_pep).map(r => r.pep_knowledge_score)), max: 3 },
-    { name: 'ART', score: avg(rows.filter(r => r.received_art).map(r => r.art_knowledge_score)), max: 3 },
-    { name: 'HR', score: avg(rows.filter(r => r.received_harm_reduction).map(r => r.hr_knowledge_score)), max: 3 },
+    { name: 'STI', score: avg(filteredRows.filter(r => r.received_sti).map(r => r.sti_knowledge_score)), max: 3 },
+    { name: 'PrEP', score: avg(filteredRows.filter(r => r.received_prep).map(r => r.prep_knowledge_score)), max: 3 },
+    { name: 'PEP', score: avg(filteredRows.filter(r => r.received_pep).map(r => r.pep_knowledge_score)), max: 3 },
+    { name: 'ART', score: avg(filteredRows.filter(r => r.received_art).map(r => r.art_knowledge_score)), max: 3 },
+    { name: 'HR', score: avg(filteredRows.filter(r => r.received_harm_reduction).map(r => r.hr_knowledge_score)), max: 3 },
   ];
+
+  const maskUic = (u: string | null): string => {
+    if (!u) return '—';
+    return `${u.slice(0, 1)}-xxxx-xxxxx-${u.slice(-2)}`;
+  };
 
   const exportCSV = () => {
     const BOM = '\uFEFF';
-    const headers = ['unique_id','service_date','channel','satisfaction','self_efficacy','quality_pct','mh_outcome','is_anonymous'];
-    const csv = BOM + headers.join(',') + '\n' + rows.map(r =>
-      [r.unique_id, r.service_date, r.channel, r.satisfaction_score, r.self_efficacy_score, r.counselling_quality_percent, r.mh_outcome || '', r.is_anonymous].join(',')
+    const headers = ['unique_id','service_date','channel','uic_hnid','client_seed_id','is_repeat','assessment_number','visits_before','satisfaction','self_efficacy','quality_pct','mh_outcome','is_anonymous'];
+    const csv = BOM + headers.join(',') + '\n' + filteredRows.map(r =>
+      [
+        r.unique_id, r.service_date, r.channel,
+        r.uic_hnid || '', r.client_seed_id || '',
+        r.is_repeat_assessment ? 'yes' : 'no',
+        (r.assessment_count_before || 0) + 1,
+        r.visit_count_before ?? 0,
+        r.satisfaction_score, r.self_efficacy_score, r.counselling_quality_percent,
+        r.mh_outcome || '', r.is_anonymous,
+      ].join(',')
     ).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -135,6 +172,18 @@ export default function AdminFeedbackOutcomesContent() {
             <option value="outreach">Outreach</option>
             <option value="online">Online</option>
           </select>
+          <select value={repeatFilter} onChange={e => setRepeatFilter(e.target.value as any)} className="rounded-md border border-input bg-background px-3 py-2 text-sm">
+            <option value="all">{language === 'th' ? 'ทุกการประเมิน' : 'All assessments'}</option>
+            <option value="first">{language === 'th' ? 'ครั้งแรก' : 'First-time'}</option>
+            <option value="repeat">{language === 'th' ? 'ทำซ้ำ' : 'Repeat'}</option>
+          </select>
+          <Input
+            placeholder={language === 'th' ? 'ค้น UIC/HN' : 'Search UIC/HN'}
+            value={uicSearch}
+            onChange={e => setUicSearch(e.target.value.replace(/\D/g, '').slice(0, 13))}
+            className="w-40 font-mono"
+            inputMode="numeric"
+          />
           <Button size="sm" onClick={fetchData}>🔄</Button>
           <Button size="sm" variant="outline" onClick={exportCSV}><Download className="h-4 w-4 mr-1" />CSV</Button>
         </div>
@@ -148,6 +197,15 @@ export default function AdminFeedbackOutcomesContent() {
         <SummaryCard icon={<Shield />} label={language === 'th' ? 'Self-Efficacy' : 'Self-Efficacy'} value={`${avgEfficacy}/5`} />
         <SummaryCard icon={<Brain />} label={language === 'th' ? 'MH ดีขึ้น' : 'MH Improved'} value={mhTotal ? `${Math.round(mhImproved / mhTotal * 100)}%` : 'N/A'} />
         <SummaryCard icon={<Heart />} label={language === 'th' ? 'HR ตั้งใจเปลี่ยน' : 'HR Positive'} value={hrTotal ? `${Math.round(hrPositive / hrTotal * 100)}%` : 'N/A'} />
+      </div>
+
+      {/* UIC / Repeat metrics */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <SummaryCard icon={<Users />} label={language === 'th' ? 'มี UIC/HN' : 'With UIC/HN'} value={`${withUic}/${totalResponses}`} />
+        <SummaryCard icon={<Users />} label={language === 'th' ? 'คนไม่ซ้ำ (UIC)' : 'Unique people'} value={uniqueUics} />
+        <SummaryCard icon={<Star />} label={language === 'th' ? 'ครั้งแรก' : 'First-time'} value={firstTimeCount} />
+        <SummaryCard icon={<Repeat />} label={language === 'th' ? 'กลับมาทำซ้ำ' : 'Repeat'} value={repeatCount} />
+        <SummaryCard icon={<Eye />} label={language === 'th' ? 'Visit เฉลี่ยก่อนตอบ' : 'Avg visits before'} value={avgVisitsBefore} />
       </div>
 
       {/* Charts */}
@@ -209,12 +267,12 @@ export default function AdminFeedbackOutcomesContent() {
               <PieChart>
                 <Pie
                   data={[
-                    { name: 'STI', value: rows.filter(r => r.received_sti).length },
-                    { name: 'PrEP', value: rows.filter(r => r.received_prep).length },
-                    { name: 'PEP', value: rows.filter(r => r.received_pep).length },
-                    { name: 'ART', value: rows.filter(r => r.received_art).length },
-                    { name: 'HR', value: rows.filter(r => r.received_harm_reduction).length },
-                    { name: 'MH', value: rows.filter(r => r.received_mental_health).length },
+                    { name: 'STI', value: filteredRows.filter(r => r.received_sti).length },
+                    { name: 'PrEP', value: filteredRows.filter(r => r.received_prep).length },
+                    { name: 'PEP', value: filteredRows.filter(r => r.received_pep).length },
+                    { name: 'ART', value: filteredRows.filter(r => r.received_art).length },
+                    { name: 'HR', value: filteredRows.filter(r => r.received_harm_reduction).length },
+                    { name: 'MH', value: filteredRows.filter(r => r.received_mental_health).length },
                   ].filter(d => d.value > 0)}
                   cx="50%" cy="50%" outerRadius={80} dataKey="value" label={({ name, value }) => `${name}: ${value}`}
                 >
@@ -238,6 +296,9 @@ export default function AdminFeedbackOutcomesContent() {
                   <th className="text-left py-2 px-2">ID</th>
                   <th className="text-left py-2 px-2">{language === 'th' ? 'วันที่' : 'Date'}</th>
                   <th className="text-left py-2 px-2">{language === 'th' ? 'ช่องทาง' : 'Channel'}</th>
+                  <th className="text-left py-2 px-2">UIC/HN</th>
+                  <th className="text-center py-2 px-2">{language === 'th' ? 'รอบที่' : '#'}</th>
+                  <th className="text-center py-2 px-2">{language === 'th' ? 'Visit ก่อน' : 'Visits'}</th>
                   <th className="text-center py-2 px-2">{language === 'th' ? 'คุณภาพ' : 'Quality'}</th>
                   <th className="text-center py-2 px-2">{language === 'th' ? 'พึงพอใจ' : 'Sat.'}</th>
                   <th className="text-center py-2 px-2">{language === 'th' ? 'มั่นใจ' : 'Eff.'}</th>
@@ -245,11 +306,28 @@ export default function AdminFeedbackOutcomesContent() {
                 </tr>
               </thead>
               <tbody>
-                {rows.slice(0, 50).map(r => (
+                {filteredRows.slice(0, 50).map(r => (
                   <tr key={r.id} className="border-b border-border/50 hover:bg-muted/30">
                     <td className="py-2 px-2 font-mono">{r.unique_id}</td>
                     <td className="py-2 px-2">{r.service_date}</td>
                     <td className="py-2 px-2">{r.channel}</td>
+                    <td className="py-2 px-2 font-mono text-[11px]" title={r.uic_hnid || ''}>
+                      {maskUic(r.uic_hnid)}
+                    </td>
+                    <td className="py-2 px-2 text-center">
+                      {r.uic_hnid ? (
+                        r.is_repeat_assessment ? (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-warning/15 text-warning text-[10px] font-medium">
+                            🔁 #{(r.assessment_count_before || 0) + 1}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-success/15 text-success text-[10px] font-medium">
+                            ⭐ 1st
+                          </span>
+                        )
+                      ) : '—'}
+                    </td>
+                    <td className="py-2 px-2 text-center">{r.visit_count_before ?? '-'}</td>
                     <td className="py-2 px-2 text-center">{r.counselling_quality_percent != null ? `${r.counselling_quality_percent}%` : '-'}</td>
                     <td className="py-2 px-2 text-center">{r.satisfaction_score ?? '-'}</td>
                     <td className="py-2 px-2 text-center">{r.self_efficacy_score ?? '-'}</td>
@@ -258,7 +336,7 @@ export default function AdminFeedbackOutcomesContent() {
                 ))}
               </tbody>
             </table>
-            {rows.length > 50 && <p className="text-xs text-muted-foreground mt-2 text-center">Showing 50 of {rows.length}</p>}
+            {filteredRows.length > 50 && <p className="text-xs text-muted-foreground mt-2 text-center">Showing 50 of {filteredRows.length}</p>}
           </div>
         </CardContent>
       </Card>
