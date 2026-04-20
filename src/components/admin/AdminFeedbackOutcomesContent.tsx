@@ -296,6 +296,9 @@ export default function AdminFeedbackOutcomesContent() {
                   <th className="text-left py-2 px-2">ID</th>
                   <th className="text-left py-2 px-2">{language === 'th' ? 'วันที่' : 'Date'}</th>
                   <th className="text-left py-2 px-2">{language === 'th' ? 'ช่องทาง' : 'Channel'}</th>
+                  <th className="text-left py-2 px-2">UIC/HN</th>
+                  <th className="text-center py-2 px-2">{language === 'th' ? 'รอบที่' : '#'}</th>
+                  <th className="text-center py-2 px-2">{language === 'th' ? 'Visit ก่อน' : 'Visits'}</th>
                   <th className="text-center py-2 px-2">{language === 'th' ? 'คุณภาพ' : 'Quality'}</th>
                   <th className="text-center py-2 px-2">{language === 'th' ? 'พึงพอใจ' : 'Sat.'}</th>
                   <th className="text-center py-2 px-2">{language === 'th' ? 'มั่นใจ' : 'Eff.'}</th>
@@ -303,11 +306,28 @@ export default function AdminFeedbackOutcomesContent() {
                 </tr>
               </thead>
               <tbody>
-                {rows.slice(0, 50).map(r => (
+                {filteredRows.slice(0, 50).map(r => (
                   <tr key={r.id} className="border-b border-border/50 hover:bg-muted/30">
                     <td className="py-2 px-2 font-mono">{r.unique_id}</td>
                     <td className="py-2 px-2">{r.service_date}</td>
                     <td className="py-2 px-2">{r.channel}</td>
+                    <td className="py-2 px-2 font-mono text-[11px]" title={r.uic_hnid || ''}>
+                      {maskUic(r.uic_hnid)}
+                    </td>
+                    <td className="py-2 px-2 text-center">
+                      {r.uic_hnid ? (
+                        r.is_repeat_assessment ? (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-warning/15 text-warning text-[10px] font-medium">
+                            🔁 #{(r.assessment_count_before || 0) + 1}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-success/15 text-success text-[10px] font-medium">
+                            ⭐ 1st
+                          </span>
+                        )
+                      ) : '—'}
+                    </td>
+                    <td className="py-2 px-2 text-center">{r.visit_count_before ?? '-'}</td>
                     <td className="py-2 px-2 text-center">{r.counselling_quality_percent != null ? `${r.counselling_quality_percent}%` : '-'}</td>
                     <td className="py-2 px-2 text-center">{r.satisfaction_score ?? '-'}</td>
                     <td className="py-2 px-2 text-center">{r.self_efficacy_score ?? '-'}</td>
@@ -316,7 +336,7 @@ export default function AdminFeedbackOutcomesContent() {
                 ))}
               </tbody>
             </table>
-            {rows.length > 50 && <p className="text-xs text-muted-foreground mt-2 text-center">Showing 50 of {rows.length}</p>}
+            {filteredRows.length > 50 && <p className="text-xs text-muted-foreground mt-2 text-center">Showing 50 of {filteredRows.length}</p>}
           </div>
         </CardContent>
       </Card>
