@@ -21,6 +21,7 @@ export interface FeedbackFormData {
   channel: string;
   service_date: string;
   branch_id: string | null;
+  uic_hnid: string;
   // Section 1
   q1: number | null; q2: number | null; q3: number | null; q4: number | null; q5: number | null;
   // Section 2-3
@@ -47,6 +48,7 @@ export interface FeedbackFormData {
 
 const defaultData: FeedbackFormData = {
   channel: 'clinic', service_date: new Date().toISOString().split('T')[0], branch_id: null,
+  uic_hnid: '',
   q1: null, q2: null, q3: null, q4: null, q5: null,
   satisfaction: null, self_efficacy: null,
   services: [],
