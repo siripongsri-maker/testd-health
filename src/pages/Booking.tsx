@@ -387,7 +387,15 @@ export default function Booking() {
 
     setSubmitting(true);
     setShowReplaceConfirm(false);
-    trackEvent('booking_started', { source: 'booking', branch_id: selectedBranch?.id, is_replacement: !!replaceId, ...getSourcePageMeta() });
+    trackEvent('booking_started', {
+      source: 'booking',
+      branch_id: selectedBranch?.id,
+      service_id: selectedServices[0]?.id,
+      service_ids: selectedServices.map(s => s.id),
+      service_slugs: selectedServices.map(s => s.slug),
+      is_replacement: !!replaceId,
+      ...getSourcePageMeta(),
+    });
     try {
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
 
