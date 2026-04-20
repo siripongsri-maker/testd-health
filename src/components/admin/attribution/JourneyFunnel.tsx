@@ -64,28 +64,48 @@ export function JourneyFunnel() {
     },
   });
 
-  // Service views
+  // Service performance: View → Started → Submitted, joined with booking_services for names
   const { data: serviceViews } = useQuery({
-    queryKey: ['service-views'],
+    queryKey: ['service-views-v2'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Pull events that carry service_id
+      const { data: events, error } = await supabase
         .from('analytics_events')
         .select('service_id, event_type')
         .not('service_id', 'is', null)
-        .in('event_type', ['service_card_view', 'service_detail_view', 'booking_created', 'completed']);
+        .in('event_type', [
+          'page_view_booking',
+          'service_card_view',
+          'service_detail_view',
+          'booking_started',
+          'booking_submitted',
+          'booking_created',
+          'completed',
+        ]);
       if (error) throw error;
 
-      const grouped: Record<string, { views: number; booked: number; completed: number }> = {};
-      (data as any[])?.forEach((r: any) => {
+      const grouped: Record<string, { views: number; started: number; booked: number; completed: number }> = {};
+      (events as any[])?.forEach((r: any) => {
         const s = r.service_id;
-        if (!grouped[s]) grouped[s] = { views: 0, booked: 0, completed: 0 };
-        if (r.event_type.includes('view')) grouped[s].views++;
-        if (r.event_type === 'booking_created') grouped[s].booked++;
+        if (!grouped[s]) grouped[s] = { views: 0, started: 0, booked: 0, completed: 0 };
+        if (r.event_type === 'page_view_booking' || r.event_type.includes('view')) grouped[s].views++;
+        if (r.event_type === 'booking_started') grouped[s].started++;
+        if (r.event_type === 'booking_submitted' || r.event_type === 'booking_created') grouped[s].booked++;
         if (r.event_type === 'completed') grouped[s].completed++;
       });
 
+      const ids = Object.keys(grouped);
+      if (ids.length === 0) return [];
+
+      // Resolve service names
+      const { data: svcRows } = await supabase
+        .from('booking_services')
+        .select('id, name_th, name_en, slug')
+        .in('id', ids);
+      const nameMap = new Map((svcRows as any[] | null)?.map((s) => [s.id, language === 'th' ? s.name_th : s.name_en]) || []);
+
       return Object.entries(grouped)
-        .map(([service, stats]) => ({ service, ...stats }))
+        .map(([id, stats]) => ({ service: nameMap.get(id) || id.slice(0, 8), ...stats }))
         .sort((a, b) => b.views - a.views)
         .slice(0, 10);
     },
