@@ -99,13 +99,13 @@ export function UicHnidField({ channel, value, onChange, onStatsLoaded }: Props)
       {stats && valid && !checking && (
         <div className="flex flex-wrap gap-2 pt-1">
           {stats.is_repeat ? (
-            <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+            <Badge className="bg-warning/15 text-warning border border-warning/30">
               🔁 {language === 'th'
                 ? `ทำครั้งที่ ${stats.assessment_count + 1}`
                 : `Assessment #${stats.assessment_count + 1}`}
             </Badge>
           ) : (
-            <Badge className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+            <Badge className="bg-success/15 text-success border border-success/30">
               <CheckCircle2 className="h-3 w-3 mr-1" />
               {language === 'th' ? 'ประเมินครั้งแรก' : 'First-time assessment'}
             </Badge>
