@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2, Download, Star, Heart, Brain, Shield, TrendingUp, Repeat, Eye, Users } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
+import { maskUic } from "@/lib/uic";
 
 interface FeedbackRow {
   id: string;
@@ -34,7 +35,7 @@ interface FeedbackRow {
   status: string;
   open_feedback_text: string | null;
   submitted_at: string;
-  uic_hnid: string | null;
+  uic: string | null;
   client_seed_id: string | null;
   visit_count_before: number | null;
   assessment_count_before: number | null;
@@ -76,7 +77,7 @@ export default function AdminFeedbackOutcomesContent() {
   const filteredRows = rows.filter(r => {
     if (repeatFilter === 'first' && r.is_repeat_assessment) return false;
     if (repeatFilter === 'repeat' && !r.is_repeat_assessment) return false;
-    if (uicSearch.trim() && !(r.uic_hnid || '').includes(uicSearch.trim())) return false;
+    if (uicSearch.trim() && !(r.uic || '').toLowerCase().includes(uicSearch.trim().toLowerCase())) return false;
     return true;
   });
 
@@ -90,10 +91,10 @@ export default function AdminFeedbackOutcomesContent() {
   const hrTotal = filteredRows.filter(r => r.received_harm_reduction).length;
 
   // Repeat / UIC metrics
-  const withUic = filteredRows.filter(r => r.uic_hnid).length;
+  const withUic = filteredRows.filter(r => r.uic).length;
   const repeatCount = filteredRows.filter(r => r.is_repeat_assessment).length;
-  const firstTimeCount = filteredRows.filter(r => r.uic_hnid && !r.is_repeat_assessment).length;
-  const uniqueUics = new Set(filteredRows.filter(r => r.uic_hnid).map(r => r.uic_hnid)).size;
+  const firstTimeCount = filteredRows.filter(r => r.uic && !r.is_repeat_assessment).length;
+  const uniqueUics = new Set(filteredRows.filter(r => r.uic).map(r => r.uic)).size;
   const visitsBefore = filteredRows.filter(r => r.visit_count_before != null).map(r => r.visit_count_before as number);
   const avgVisitsBefore = visitsBefore.length ? Math.round((visitsBefore.reduce((a, b) => a + b, 0) / visitsBefore.length) * 10) / 10 : 0;
 
@@ -129,18 +130,13 @@ export default function AdminFeedbackOutcomesContent() {
     { name: 'HR', score: avg(filteredRows.filter(r => r.received_harm_reduction).map(r => r.hr_knowledge_score)), max: 3 },
   ];
 
-  const maskUic = (u: string | null): string => {
-    if (!u) return '—';
-    return `${u.slice(0, 1)}-xxxx-xxxxx-${u.slice(-2)}`;
-  };
-
   const exportCSV = () => {
     const BOM = '\uFEFF';
-    const headers = ['unique_id','service_date','channel','uic_hnid','client_seed_id','is_repeat','assessment_number','visits_before','satisfaction','self_efficacy','quality_pct','mh_outcome','is_anonymous'];
+    const headers = ['unique_id','service_date','channel','uic','client_seed_id','is_repeat','assessment_number','visits_before','satisfaction','self_efficacy','quality_pct','mh_outcome','is_anonymous'];
     const csv = BOM + headers.join(',') + '\n' + filteredRows.map(r =>
       [
         r.unique_id, r.service_date, r.channel,
-        r.uic_hnid || '', r.client_seed_id || '',
+        r.uic || '', r.client_seed_id || '',
         r.is_repeat_assessment ? 'yes' : 'no',
         (r.assessment_count_before || 0) + 1,
         r.visit_count_before ?? 0,
@@ -178,11 +174,10 @@ export default function AdminFeedbackOutcomesContent() {
             <option value="repeat">{language === 'th' ? 'ทำซ้ำ' : 'Repeat'}</option>
           </select>
           <Input
-            placeholder={language === 'th' ? 'ค้น UIC/HN' : 'Search UIC/HN'}
+            placeholder={language === 'th' ? 'ค้น UIC' : 'Search UIC'}
             value={uicSearch}
-            onChange={e => setUicSearch(e.target.value.replace(/\D/g, '').slice(0, 13))}
+            onChange={e => setUicSearch(e.target.value.slice(0, 12))}
             className="w-40 font-mono"
-            inputMode="numeric"
           />
           <Button size="sm" onClick={fetchData}>🔄</Button>
           <Button size="sm" variant="outline" onClick={exportCSV}><Download className="h-4 w-4 mr-1" />CSV</Button>
@@ -201,7 +196,7 @@ export default function AdminFeedbackOutcomesContent() {
 
       {/* UIC / Repeat metrics */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <SummaryCard icon={<Users />} label={language === 'th' ? 'มี UIC/HN' : 'With UIC/HN'} value={`${withUic}/${totalResponses}`} />
+        <SummaryCard icon={<Users />} label={language === 'th' ? 'มี UIC' : 'With UIC'} value={`${withUic}/${totalResponses}`} />
         <SummaryCard icon={<Users />} label={language === 'th' ? 'คนไม่ซ้ำ (UIC)' : 'Unique people'} value={uniqueUics} />
         <SummaryCard icon={<Star />} label={language === 'th' ? 'ครั้งแรก' : 'First-time'} value={firstTimeCount} />
         <SummaryCard icon={<Repeat />} label={language === 'th' ? 'กลับมาทำซ้ำ' : 'Repeat'} value={repeatCount} />
@@ -296,7 +291,7 @@ export default function AdminFeedbackOutcomesContent() {
                   <th className="text-left py-2 px-2">ID</th>
                   <th className="text-left py-2 px-2">{language === 'th' ? 'วันที่' : 'Date'}</th>
                   <th className="text-left py-2 px-2">{language === 'th' ? 'ช่องทาง' : 'Channel'}</th>
-                  <th className="text-left py-2 px-2">UIC/HN</th>
+                  <th className="text-left py-2 px-2">UIC</th>
                   <th className="text-center py-2 px-2">{language === 'th' ? 'รอบที่' : '#'}</th>
                   <th className="text-center py-2 px-2">{language === 'th' ? 'Visit ก่อน' : 'Visits'}</th>
                   <th className="text-center py-2 px-2">{language === 'th' ? 'คุณภาพ' : 'Quality'}</th>
@@ -311,11 +306,11 @@ export default function AdminFeedbackOutcomesContent() {
                     <td className="py-2 px-2 font-mono">{r.unique_id}</td>
                     <td className="py-2 px-2">{r.service_date}</td>
                     <td className="py-2 px-2">{r.channel}</td>
-                    <td className="py-2 px-2 font-mono text-[11px]" title={r.uic_hnid || ''}>
-                      {maskUic(r.uic_hnid)}
+                    <td className="py-2 px-2 font-mono text-[11px]" title={r.uic || ''}>
+                      {maskUic(r.uic)}
                     </td>
                     <td className="py-2 px-2 text-center">
-                      {r.uic_hnid ? (
+                      {r.uic ? (
                         r.is_repeat_assessment ? (
                           <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-warning/15 text-warning text-[10px] font-medium">
                             🔁 #{(r.assessment_count_before || 0) + 1}
