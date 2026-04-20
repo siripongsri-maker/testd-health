@@ -71,10 +71,35 @@ export function JourneyFunnel() {
   });
 
   // Service performance: View → Started → Submitted, joined with booking_services for names.
-  // Falls back to aggregate (all services combined) when no event has service_id yet.
+  // Uses HEAD count queries for accurate aggregate totals (no row limit), then a
+  // smaller sample for per-service breakdown.
   const { data: serviceViews } = useQuery({
-    queryKey: ['service-views-v3'],
+    queryKey: ['service-views-v4'],
     queryFn: async () => {
+      // 1. Aggregate counts via HEAD queries — accurate, no row limit
+      const countOf = async (types: string[]) => {
+        const { count } = await supabase
+          .from('analytics_events')
+          .select('*', { count: 'exact', head: true })
+          .in('event_type', types);
+        return count || 0;
+      };
+
+      const [viewsCount, startedCount, bookedCount, completedCount] = await Promise.all([
+        countOf(['page_view_booking', 'service_card_view', 'service_detail_view']),
+        countOf(['booking_started']),
+        countOf(['booking_submitted', 'booking_created']),
+        countOf(['completed']),
+      ]);
+
+      const aggregate = {
+        views: viewsCount,
+        started: startedCount,
+        booked: bookedCount,
+        completed: completedCount,
+      };
+
+      // 2. Per-service breakdown — only events that have service_id at column level
       const eventTypes = [
         'page_view_booking',
         'service_card_view',
@@ -85,41 +110,29 @@ export function JourneyFunnel() {
         'completed',
       ];
 
-      // Pull events that carry service_id at the column level
-      const { data: events, error } = await supabase
+      const { data: events } = await supabase
         .from('analytics_events')
-        .select('service_id, event_type, metadata')
+        .select('service_id, event_type')
         .in('event_type', eventTypes)
+        .not('service_id', 'is', null)
         .limit(5000);
-      if (error) throw error;
 
       const grouped: Record<string, { views: number; started: number; booked: number; completed: number }> = {};
-      const aggregate = { views: 0, started: 0, booked: 0, completed: 0 };
-
-      const addToBucket = (
-        bucket: { views: number; started: number; booked: number; completed: number },
-        eventType: string
-      ) => {
-        if (eventType === 'page_view_booking' || eventType.includes('view')) bucket.views++;
-        if (eventType === 'booking_started') bucket.started++;
-        if (eventType === 'booking_submitted' || eventType === 'booking_created') bucket.booked++;
-        if (eventType === 'completed') bucket.completed++;
-      };
 
       (events as any[])?.forEach((r: any) => {
-        const sid =
-          r.service_id ||
-          (r.metadata && typeof r.metadata === 'object' ? r.metadata.service_id : null);
-        if (sid) {
-          if (!grouped[sid]) grouped[sid] = { views: 0, started: 0, booked: 0, completed: 0 };
-          addToBucket(grouped[sid], r.event_type);
-        }
-        addToBucket(aggregate, r.event_type);
+        const sid = r.service_id;
+        if (!sid) return;
+        if (!grouped[sid]) grouped[sid] = { views: 0, started: 0, booked: 0, completed: 0 };
+        const b = grouped[sid];
+        const t = r.event_type;
+        if (t === 'page_view_booking' || t === 'service_card_view' || t === 'service_detail_view') b.views++;
+        else if (t === 'booking_started') b.started++;
+        else if (t === 'booking_submitted' || t === 'booking_created') b.booked++;
+        else if (t === 'completed') b.completed++;
       });
 
       const ids = Object.keys(grouped);
 
-      // Resolve service names if we have any tagged events
       let perService: { service: string; views: number; started: number; booked: number; completed: number }[] = [];
       if (ids.length > 0) {
         const { data: svcRows } = await supabase
@@ -135,8 +148,6 @@ export function JourneyFunnel() {
           .slice(0, 10);
       }
 
-      // Always include an "All services (aggregate)" row at the top so historical
-      // data without service_id is still visible.
       const aggregateRow = {
         service: language === 'th' ? '🌐 ทุกบริการรวม (ย้อนหลัง)' : '🌐 All services (historical)',
         ...aggregate,
