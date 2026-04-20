@@ -1392,9 +1392,11 @@ export type Database = {
           art_knowledge_3: boolean | null
           art_knowledge_score: number | null
           art_status: string | null
+          assessment_count_before: number | null
           booking_id: string | null
           branch_id: string | null
           channel: string
+          client_seed_id: string | null
           counselling_quality_percent: number | null
           counselling_quality_score: number | null
           created_at: string | null
@@ -1407,7 +1409,9 @@ export type Database = {
           hr_knowledge_score: number | null
           id: string
           is_anonymous: boolean
+          is_repeat_assessment: boolean | null
           language: string | null
+          last_assessment_at: string | null
           mh_outcome: string | null
           mh_referral_uptake: string | null
           no_additional_service: boolean | null
@@ -1447,9 +1451,11 @@ export type Database = {
           sti_knowledge_score: number | null
           sti_status: string | null
           submitted_at: string | null
+          uic_hnid: string | null
           unique_id: string
           updated_at: string | null
           user_id: string | null
+          visit_count_before: number | null
         }
         Insert: {
           appointment_id?: string | null
@@ -1458,9 +1464,11 @@ export type Database = {
           art_knowledge_3?: boolean | null
           art_knowledge_score?: number | null
           art_status?: string | null
+          assessment_count_before?: number | null
           booking_id?: string | null
           branch_id?: string | null
           channel?: string
+          client_seed_id?: string | null
           counselling_quality_percent?: number | null
           counselling_quality_score?: number | null
           created_at?: string | null
@@ -1473,7 +1481,9 @@ export type Database = {
           hr_knowledge_score?: number | null
           id?: string
           is_anonymous?: boolean
+          is_repeat_assessment?: boolean | null
           language?: string | null
+          last_assessment_at?: string | null
           mh_outcome?: string | null
           mh_referral_uptake?: string | null
           no_additional_service?: boolean | null
@@ -1513,9 +1523,11 @@ export type Database = {
           sti_knowledge_score?: number | null
           sti_status?: string | null
           submitted_at?: string | null
+          uic_hnid?: string | null
           unique_id?: string
           updated_at?: string | null
           user_id?: string | null
+          visit_count_before?: number | null
         }
         Update: {
           appointment_id?: string | null
@@ -1524,9 +1536,11 @@ export type Database = {
           art_knowledge_3?: boolean | null
           art_knowledge_score?: number | null
           art_status?: string | null
+          assessment_count_before?: number | null
           booking_id?: string | null
           branch_id?: string | null
           channel?: string
+          client_seed_id?: string | null
           counselling_quality_percent?: number | null
           counselling_quality_score?: number | null
           created_at?: string | null
@@ -1539,7 +1553,9 @@ export type Database = {
           hr_knowledge_score?: number | null
           id?: string
           is_anonymous?: boolean
+          is_repeat_assessment?: boolean | null
           language?: string | null
+          last_assessment_at?: string | null
           mh_outcome?: string | null
           mh_referral_uptake?: string | null
           no_additional_service?: boolean | null
@@ -1579,9 +1595,11 @@ export type Database = {
           sti_knowledge_score?: number | null
           sti_status?: string | null
           submitted_at?: string | null
+          uic_hnid?: string | null
           unique_id?: string
           updated_at?: string | null
           user_id?: string | null
+          visit_count_before?: number | null
         }
         Relationships: [
           {
@@ -1599,6 +1617,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      client_seed_visits: {
+        Row: {
+          branch_id: string | null
+          channel: string | null
+          client_seed_id: string
+          created_at: string
+          event_type: string
+          id: string
+          language: string | null
+          metadata: Json | null
+          page_path: string | null
+          uic_hnid: string | null
+          user_id: string | null
+        }
+        Insert: {
+          branch_id?: string | null
+          channel?: string | null
+          client_seed_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          language?: string | null
+          metadata?: Json | null
+          page_path?: string | null
+          uic_hnid?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          branch_id?: string | null
+          channel?: string | null
+          client_seed_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          language?: string | null
+          metadata?: Json | null
+          page_path?: string | null
+          uic_hnid?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       client_visit_flow_steps: {
         Row: {
@@ -9766,6 +9826,21 @@ export type Database = {
         }
         Relationships: []
       }
+      v_uic_assessment_summary: {
+        Row: {
+          assessment_count: number | null
+          avg_quality_pct: number | null
+          avg_satisfaction: number | null
+          branches: string[] | null
+          channels: string[] | null
+          first_assessment_date: string | null
+          first_submitted_at: string | null
+          last_assessment_date: string | null
+          last_submitted_at: string | null
+          uic_hnid: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       add_reward_points: {
@@ -10147,6 +10222,15 @@ export type Database = {
         }[]
       }
       get_sms_credit_balance: { Args: never; Returns: number }
+      get_uic_visit_stats: {
+        Args: { _seed: string; _uic: string }
+        Returns: {
+          assessment_count: number
+          is_repeat: boolean
+          last_assessment_at: string
+          visit_count: number
+        }[]
+      }
       get_walkin_pressure: {
         Args: { p_branch_id: string; p_date?: string }
         Returns: Json
