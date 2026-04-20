@@ -55,7 +55,7 @@ export function HeroLivingScene() {
       onMouseLeave={() => setIsHovered(false)}
       onFocus={() => setIsHovered(true)}
       onBlur={() => setIsHovered(false)}
-      aria-label={isTh ? "เริ่มจองตรวจ HIV ฟรี ที่คลินิก SWING" : "Start booking a free HIV test at the SWING clinic"}
+      aria-label={isTh ? "เริ่มจองตรวจฟรี ที่คลินิก SWING" : "Start booking a free test at the SWING clinic"}
       className={cn(
         "group relative block w-full overflow-hidden rounded-3xl",
         "bg-gradient-to-br from-[hsl(170_40%_92%)] via-[hsl(160_35%_94%)] to-[hsl(30_45%_95%)]",
