@@ -9,16 +9,16 @@ import { Download, ArrowDown } from 'lucide-react';
 export function JourneyFunnel() {
   const { language } = useLanguage();
 
-  // Funnel data from analytics_events — using events that actually exist in the system
+  // Funnel data — analytics_events for top of funnel, appointments table for check-in/checkout
+  // (because check_in/check_out aren't tracked as analytics_events; they live as timestamps on appointments).
   const { data: funnelData } = useQuery({
-    queryKey: ['journey-funnel-v2'],
+    queryKey: ['journey-funnel-v3'],
     queryFn: async () => {
       const eventGroups: { key: string; events: string[] }[] = [
         { key: 'pageview', events: ['pageview'] },
         { key: 'service_view', events: ['page_view_booking', 'page_view_selftest'] },
         { key: 'started', events: ['booking_started', 'selftest_started'] },
         { key: 'submitted', events: ['booking_submitted', 'selftest_submitted', 'booking_created'] },
-        { key: 'confirmed', events: ['booking_confirmed', 'check_in', 'completed'] },
         { key: 'review', events: ['review_submitted'] },
       ];
 
@@ -35,14 +35,27 @@ export function JourneyFunnel() {
         .from('visitor_attribution')
         .select('*', { count: 'exact', head: true });
 
+      // Pull check-in / check-out / completion counts directly from appointments table
+      const [arrivedRes, completedRes, checkedOutRes] = await Promise.all([
+        supabase.from('appointments').select('*', { count: 'exact', head: true }).not('arrived_at', 'is', null),
+        supabase.from('appointments').select('*', { count: 'exact', head: true }).not('completed_at', 'is', null),
+        supabase.from('appointments').select('*', { count: 'exact', head: true }).not('checked_out_at', 'is', null),
+      ]);
+      const arrivedCount = arrivedRes.count || 0;
+      const completedCount = completedRes.count || 0;
+      const checkedOutCount = checkedOutRes.count || 0;
+      // "Success" = either explicitly completed or checked_out (per Admin Booking standard)
+      const successCount = Math.max(completedCount, checkedOutCount);
+
       return [
         { step: language === 'th' ? 'ผู้เข้าชมไม่ซ้ำ' : 'Unique Visitors', count: uniqueVisitors || 0, fill: 'hsl(var(--primary))' },
-        { step: language === 'th' ? 'เข้าชมหน้า' : 'Page Views', count: counts.pageview || 0, fill: 'hsl(var(--primary) / 0.85)' },
-        { step: language === 'th' ? 'ดูบริการ' : 'Viewed Service', count: counts.service_view || 0, fill: 'hsl(var(--primary) / 0.7)' },
-        { step: language === 'th' ? 'เริ่มทำ' : 'Started', count: counts.started || 0, fill: 'hsl(var(--primary) / 0.55)' },
-        { step: language === 'th' ? 'ส่งสำเร็จ' : 'Submitted', count: counts.submitted || 0, fill: 'hsl(var(--primary) / 0.4)' },
-        { step: language === 'th' ? 'ยืนยัน/Check-in' : 'Confirmed', count: counts.confirmed || 0, fill: 'hsl(var(--primary) / 0.3)' },
-        { step: language === 'th' ? 'รีวิว' : 'Review', count: counts.review || 0, fill: 'hsl(var(--primary) / 0.2)' },
+        { step: language === 'th' ? 'เข้าชมหน้า' : 'Page Views', count: counts.pageview || 0, fill: 'hsl(var(--primary) / 0.9)' },
+        { step: language === 'th' ? 'ดูบริการ' : 'Viewed Service', count: counts.service_view || 0, fill: 'hsl(var(--primary) / 0.75)' },
+        { step: language === 'th' ? 'เริ่มทำ' : 'Started', count: counts.started || 0, fill: 'hsl(var(--primary) / 0.6)' },
+        { step: language === 'th' ? 'ส่งสำเร็จ' : 'Submitted', count: counts.submitted || 0, fill: 'hsl(var(--primary) / 0.45)' },
+        { step: language === 'th' ? 'Check-in (มาถึง)' : 'Check-in (Arrived)', count: arrivedCount, fill: 'hsl(var(--primary) / 0.35)' },
+        { step: language === 'th' ? 'สำเร็จ/Check-out' : 'Success/Check-out', count: successCount, fill: 'hsl(var(--primary) / 0.25)' },
+        { step: language === 'th' ? 'รีวิว' : 'Review', count: counts.review || 0, fill: 'hsl(var(--primary) / 0.18)' },
       ];
     },
   });
