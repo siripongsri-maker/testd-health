@@ -98,12 +98,15 @@ export function JourneyFunnel() {
         return count || 0;
       };
 
-      const [viewsCount, startedCount, bookedCount, completedCount] = await Promise.all([
+      // Completed comes from appointments (completed_at OR checked_out_at), not analytics_events
+      const [viewsCount, startedCount, bookedCount, completedRes, checkedOutRes] = await Promise.all([
         countOf(['page_view_booking', 'service_card_view', 'service_detail_view']),
         countOf(['booking_started']),
         countOf(['booking_submitted', 'booking_created']),
-        countOf(['completed']),
+        supabase.from('appointments').select('*', { count: 'exact', head: true }).not('completed_at', 'is', null),
+        supabase.from('appointments').select('*', { count: 'exact', head: true }).not('checked_out_at', 'is', null),
       ]);
+      const completedCount = Math.max(completedRes.count || 0, checkedOutRes.count || 0);
 
       const aggregate = {
         views: viewsCount,
