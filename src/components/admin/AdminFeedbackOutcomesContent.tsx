@@ -100,12 +100,12 @@ export default function AdminFeedbackOutcomesContent() {
   // Channel breakdown
   const channelData = ['clinic', 'outreach', 'online'].map(ch => ({
     name: ch,
-    count: rows.filter(r => r.channel === ch).length,
+    count: filteredRows.filter(r => r.channel === ch).length,
   }));
 
   // Monthly trend
   const monthMap = new Map<string, { count: number; satSum: number; qualSum: number; satN: number; qualN: number }>();
-  rows.forEach(r => {
+  filteredRows.forEach(r => {
     const m = r.service_date?.slice(0, 7) || 'unknown';
     const e = monthMap.get(m) || { count: 0, satSum: 0, qualSum: 0, satN: 0, qualN: 0 };
     e.count++;
@@ -122,18 +122,31 @@ export default function AdminFeedbackOutcomesContent() {
 
   // Knowledge scores
   const knowledgeData = [
-    { name: 'STI', score: avg(rows.filter(r => r.received_sti).map(r => r.sti_knowledge_score)), max: 3 },
-    { name: 'PrEP', score: avg(rows.filter(r => r.received_prep).map(r => r.prep_knowledge_score)), max: 3 },
-    { name: 'PEP', score: avg(rows.filter(r => r.received_pep).map(r => r.pep_knowledge_score)), max: 3 },
-    { name: 'ART', score: avg(rows.filter(r => r.received_art).map(r => r.art_knowledge_score)), max: 3 },
-    { name: 'HR', score: avg(rows.filter(r => r.received_harm_reduction).map(r => r.hr_knowledge_score)), max: 3 },
+    { name: 'STI', score: avg(filteredRows.filter(r => r.received_sti).map(r => r.sti_knowledge_score)), max: 3 },
+    { name: 'PrEP', score: avg(filteredRows.filter(r => r.received_prep).map(r => r.prep_knowledge_score)), max: 3 },
+    { name: 'PEP', score: avg(filteredRows.filter(r => r.received_pep).map(r => r.pep_knowledge_score)), max: 3 },
+    { name: 'ART', score: avg(filteredRows.filter(r => r.received_art).map(r => r.art_knowledge_score)), max: 3 },
+    { name: 'HR', score: avg(filteredRows.filter(r => r.received_harm_reduction).map(r => r.hr_knowledge_score)), max: 3 },
   ];
+
+  const maskUic = (u: string | null): string => {
+    if (!u) return '—';
+    return `${u.slice(0, 1)}-xxxx-xxxxx-${u.slice(-2)}`;
+  };
 
   const exportCSV = () => {
     const BOM = '\uFEFF';
-    const headers = ['unique_id','service_date','channel','satisfaction','self_efficacy','quality_pct','mh_outcome','is_anonymous'];
-    const csv = BOM + headers.join(',') + '\n' + rows.map(r =>
-      [r.unique_id, r.service_date, r.channel, r.satisfaction_score, r.self_efficacy_score, r.counselling_quality_percent, r.mh_outcome || '', r.is_anonymous].join(',')
+    const headers = ['unique_id','service_date','channel','uic_hnid','client_seed_id','is_repeat','assessment_number','visits_before','satisfaction','self_efficacy','quality_pct','mh_outcome','is_anonymous'];
+    const csv = BOM + headers.join(',') + '\n' + filteredRows.map(r =>
+      [
+        r.unique_id, r.service_date, r.channel,
+        r.uic_hnid || '', r.client_seed_id || '',
+        r.is_repeat_assessment ? 'yes' : 'no',
+        (r.assessment_count_before || 0) + 1,
+        r.visit_count_before ?? 0,
+        r.satisfaction_score, r.self_efficacy_score, r.counselling_quality_percent,
+        r.mh_outcome || '', r.is_anonymous,
+      ].join(',')
     ).join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
