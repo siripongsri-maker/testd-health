@@ -48,7 +48,7 @@ export function HeroSection() {
             navigate('/booking');
           }}
         >
-          {isTh ? 'จองตรวจ HIV ฟรี' : 'Book Free HIV Test'}
+          {isTh ? 'จองตรวจฟรี' : 'Book Free HIV Test'}
         </Button>
 
         <Button
