@@ -337,6 +337,47 @@ export default function Booking() {
     return dates;
   }, [selectedBranch]);
 
+  // Smart Forecast: public-safe demand hints (cached client-side)
+  const { data: demandRaw, loading: demandLoading } = usePublicDemandHints(
+    selectedBranch?.id ?? null,
+    30
+  );
+
+  // Day-level hints for the date picker (calendar dots)
+  const dayHints = useMemo(() => {
+    if (availableDates.length === 0) return new Map();
+    const dailyCapacity =
+      selectedBranch
+        ? Math.max(1, selectedBranch.counselor_count) *
+          Math.max(
+            1,
+            Math.floor(
+              (parseInt(selectedBranch.close_time.split(':')[0]) -
+                parseInt(selectedBranch.open_time.split(':')[0])) *
+                (60 / Math.max(1, selectedBranch.slot_duration_minutes))
+            )
+          )
+        : 0;
+    return buildDayHints(demandRaw, availableDates, dailyCapacity);
+  }, [demandRaw, availableDates, selectedBranch]);
+
+  // Slot-level hints + guidance for the chosen date
+  const { slotHints, dayGuidance } = useMemo(() => {
+    if (!selectedDate || !selectedBranch || rpcSlotTimes.length === 0) {
+      return { slotHints: [], dayGuidance: null };
+    }
+    const dateStr = format(selectedDate, 'yyyy-MM-dd');
+    const result = buildSlotHints(
+      demandRaw,
+      dateStr,
+      rpcSlotTimes,
+      bookedSlots,
+      selectedBranch.counselor_count
+    );
+    return { slotHints: result.slots, dayGuidance: result.guidance };
+  }, [demandRaw, selectedDate, selectedBranch, rpcSlotTimes, bookedSlots]);
+
+
   // Pre-fetch day-level closures
   useEffect(() => {
     if (!selectedBranch || availableDates.length === 0) {
