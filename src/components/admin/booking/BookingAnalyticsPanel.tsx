@@ -140,17 +140,25 @@ export function BookingAnalyticsPanel({ branches, branchFilter }: Props) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         <Card className="p-3">
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
-            {language === 'th' ? 'จองล่วงหน้าเฉลี่ย' : 'Avg Lead Time'}
+            {language === 'th' ? 'ระยะเวลาจองล่วงหน้า' : 'Lead Time'}
           </p>
           <p className="text-2xl font-bold text-primary">
             {data.lead_time?.avg_lead?.toFixed(1) ?? '–'}
             <span className="text-xs ml-1 font-normal text-muted-foreground">
-              {language === 'th' ? 'วัน' : 'days'}
+              {language === 'th' ? 'วัน เฉลี่ย' : 'd avg'}
             </span>
           </p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
-            {language === 'th' ? 'มัธยฐาน' : 'Median'} {data.lead_time?.median_lead?.toFixed(0) ?? '–'} · P90 {data.lead_time?.p90_lead?.toFixed(0) ?? '–'}
-          </p>
+          <div className="text-[10px] text-muted-foreground mt-0.5 space-y-0.5">
+            <div>
+              {language === 'th' ? 'ต่ำสุด' : 'Min'} <span className="font-bold text-foreground">{data.lead_time?.min_lead ?? '–'}</span>
+              {' · '}
+              {language === 'th' ? 'สูงสุด' : 'Max'} <span className="font-bold text-foreground">{data.lead_time?.max_lead ?? '–'}</span>
+              {' '}{language === 'th' ? 'วัน' : 'd'}
+            </div>
+            <div>
+              {language === 'th' ? 'มัธยฐาน' : 'Median'} {data.lead_time?.median_lead?.toFixed(0) ?? '–'} · P90 {data.lead_time?.p90_lead?.toFixed(0) ?? '–'}
+            </div>
+          </div>
         </Card>
 
         <Card className="p-3">
