@@ -20,10 +20,13 @@ import {
 } from 'lucide-react';
 import { DensityTimeSelector } from '@/components/booking/DensityTimeSelector';
 import { NotifyMeDialog } from '@/components/booking/NotifyMeDialog';
+import { DemandSuggestionBanner } from '@/components/booking/DemandSuggestionBanner';
 import { Badge } from '@/components/ui/badge';
 import { Bell, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { WalkinPressure } from '@/lib/waitTimeEstimator';
+import { usePublicDemandHints } from '@/hooks/usePublicDemandHints';
+import { buildDayHints, buildSlotHints, levelClasses } from '@/lib/forecast/publicDemand';
 import { format, addDays, startOfDay, getDay } from 'date-fns';
 
 interface Branch {
@@ -333,6 +336,47 @@ export default function Booking() {
     }
     return dates;
   }, [selectedBranch]);
+
+  // Smart Forecast: public-safe demand hints (cached client-side)
+  const { data: demandRaw, loading: demandLoading } = usePublicDemandHints(
+    selectedBranch?.id ?? null,
+    30
+  );
+
+  // Day-level hints for the date picker (calendar dots)
+  const dayHints = useMemo(() => {
+    if (availableDates.length === 0) return new Map();
+    const dailyCapacity =
+      selectedBranch
+        ? Math.max(1, selectedBranch.counselor_count) *
+          Math.max(
+            1,
+            Math.floor(
+              (parseInt(selectedBranch.close_time.split(':')[0]) -
+                parseInt(selectedBranch.open_time.split(':')[0])) *
+                (60 / Math.max(1, selectedBranch.slot_duration_minutes))
+            )
+          )
+        : 0;
+    return buildDayHints(demandRaw, availableDates, dailyCapacity);
+  }, [demandRaw, availableDates, selectedBranch]);
+
+  // Slot-level hints + guidance for the chosen date
+  const { slotHints, dayGuidance } = useMemo(() => {
+    if (!selectedDate || !selectedBranch || rpcSlotTimes.length === 0) {
+      return { slotHints: [], dayGuidance: null };
+    }
+    const dateStr = format(selectedDate, 'yyyy-MM-dd');
+    const result = buildSlotHints(
+      demandRaw,
+      dateStr,
+      rpcSlotTimes,
+      bookedSlots,
+      selectedBranch.counselor_count
+    );
+    return { slotHints: result.slots, dayGuidance: result.guidance };
+  }, [demandRaw, selectedDate, selectedBranch, rpcSlotTimes, bookedSlots]);
+
 
   // Pre-fetch day-level closures
   useEffect(() => {
@@ -1062,6 +1106,8 @@ export default function Booking() {
                     const isToday = format(date, 'yyyy-MM-dd') === format(startOfDay(bangkokToday), 'yyyy-MM-dd');
                     const blackoutInfo = blackedOutDates[dateStr];
                     const isBlackedOut = !!blackoutInfo;
+                    const hint = dayHints.get(dateStr);
+                    const hintCls = hint && !isBlackedOut ? levelClasses(hint.level) : null;
                     return (
                       <button
                         key={date.toISOString()}
@@ -1085,7 +1131,15 @@ export default function Booking() {
                             ? 'bg-primary text-primary-foreground border-primary shadow-md'
                             : 'bg-card border-border hover:border-primary/50'
                         )}
-                        title={isBlackedOut ? blackoutInfo.title : undefined}
+                        title={
+                          isBlackedOut
+                            ? blackoutInfo.title
+                            : hint
+                            ? language === 'th'
+                              ? hint.label_th
+                              : hint.label_en
+                            : undefined
+                        }
                       >
                         {isBlackedOut && (
                           <div className="absolute inset-0 flex items-center justify-center">
@@ -1101,6 +1155,15 @@ export default function Booking() {
                         </p>
                         {isToday && !isBlackedOut && (
                           <div className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-primary animate-pulse" />
+                        )}
+                        {hintCls && !isSelected && !isBlackedOut && (
+                          <span
+                            className={cn(
+                              "absolute bottom-1 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full",
+                              hintCls.dot
+                            )}
+                            aria-hidden
+                          />
                         )}
                       </button>
                     );
@@ -1141,10 +1204,29 @@ export default function Booking() {
 
               {/* Time slots grid */}
               {selectedDate && !dayClosureInfo && (
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-3">
+                <div className="space-y-3">
+                  <p className="text-sm font-medium text-muted-foreground">
                     {format(selectedDate, 'EEEE, d MMMM yyyy')}
                   </p>
+
+                  {/* Smart Forecast suggestion banner */}
+                  {(dayGuidance || demandLoading) && (
+                    <DemandSuggestionBanner
+                      guidance={
+                        dayGuidance ?? {
+                          bannerHeadline_th: '',
+                          bannerHeadline_en: '',
+                          bannerSub_th: '',
+                          bannerSub_en: '',
+                          peakWindow: null,
+                          quietWindows: [],
+                          recommendedSlots: [],
+                        }
+                      }
+                      loading={demandLoading && !dayGuidance}
+                    />
+                  )}
+
                   <DensityTimeSelector
                     openTime={selectedBranch.open_time}
                     closeTime={selectedBranch.close_time}
@@ -1163,6 +1245,7 @@ export default function Booking() {
                     }}
                     serviceSlugs={selectedServices.map(s => s.slug)}
                     walkinPressure={walkinPressure}
+                    slotHints={slotHints}
                   />
                 </div>
               )}
