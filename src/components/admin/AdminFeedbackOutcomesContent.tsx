@@ -4,7 +4,7 @@ import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Loader2, Download, Star, Heart, Brain, Shield, TrendingUp } from "lucide-react";
+import { Loader2, Download, Star, Heart, Brain, Shield, TrendingUp, Repeat, Eye, Users } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
 
 interface FeedbackRow {
