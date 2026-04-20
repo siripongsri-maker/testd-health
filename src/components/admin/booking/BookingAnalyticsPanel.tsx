@@ -57,7 +57,7 @@ const CHECKOUT_LABELS: Record<string, { th: string; en: string; color: string; i
 
 export function BookingAnalyticsPanel({ branches, branchFilter }: Props) {
   const { language } = useLanguage();
-  const [days, setDays] = useState<number>(30);
+  const [days, setDays] = useState<number>(7);
   const [data, setData] = useState<AnalyticsResult | null>(null);
   const [loading, setLoading] = useState(true);
 
