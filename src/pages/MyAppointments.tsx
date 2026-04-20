@@ -30,6 +30,7 @@ import {
 } from '@/lib/appointments';
 import { VisitProgressCard } from '@/components/VisitProgressCard';
 import { MedicationSetupDialog, isMedicationService } from '@/components/MedicationSetupDialog';
+import { GeofenceCheckinBanner } from '@/components/appointments/GeofenceCheckinBanner';
 
 const STATUS_CONFIG: Record<string, { labelTh: string; labelEn: string; color: string; icon: typeof CheckCircle2 }> = {
   booked: { labelTh: 'จองแล้ว', labelEn: 'Booked', color: 'text-blue-600 bg-blue-100 dark:bg-blue-900/30', icon: Calendar },
@@ -357,6 +358,20 @@ export default function MyAppointments() {
                   <Copy className="h-4 w-4" />
                 </button>
               </div>
+            )}
+
+            {/* Geofence-based auto check-in (also surfaces QR fallback) */}
+            {(apt.status === 'booked' || apt.status === 'confirmed') && (
+              <GeofenceCheckinBanner
+                appointmentId={apt.id}
+                branchId={apt.branch_id}
+                branchNameTh={apt.booking_branches?.name_th}
+                branchNameEn={apt.booking_branches?.name_en}
+                referralCode={apt.referral_code}
+                canCheckin={canCheckin}
+                onCheckedIn={load}
+                userId={user?.id}
+              />
             )}
 
             {/* Helper text for booked/confirmed */}
