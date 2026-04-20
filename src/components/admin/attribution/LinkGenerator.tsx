@@ -21,6 +21,7 @@ export function LinkGenerator() {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [showQR, setShowQR] = useState<string | null>(null);
+  const [expandedCascade, setExpandedCascade] = useState<string | null>(null);
   const [form, setForm] = useState({
     slug: generateSlug(),
     destination_path: '/booking',
