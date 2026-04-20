@@ -237,35 +237,11 @@ export function BookingAnalyticsPanel({ branches, branchFilter }: Props) {
         </div>
       </Card>
 
-      {/* Weekday distribution */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <Card className="p-3">
-          <p className="text-xs font-semibold mb-2 flex items-center gap-1">
-            <CalendarDays className="h-3 w-3" />
-            {language === 'th' ? 'ตามวันในสัปดาห์ (วันที่นัด)' : 'By Weekday (appointment date)'}
-          </p>
-          <div className="flex items-end gap-2 h-24">
-            {[1, 2, 3, 4, 5, 6, 7].map(dow => {
-              const bucket = data.by_appointment_weekday.find(b => b.dow === dow);
-              const n = bucket?.n || 0;
-              const pct = (n / maxDowN) * 100;
-              const isPeak = sortedDow.some(p => p.dow === dow);
-              return (
-                <div key={dow} className="flex-1 flex flex-col items-center gap-1" title={`${dowLabels[dow]} — ${n}`}>
-                  <div className="w-full flex-1 flex items-end">
-                    <div
-                      className={cn("w-full rounded-t transition-all", isPeak ? 'bg-primary' : 'bg-primary/30')}
-                      style={{ height: `${pct}%`, minHeight: n > 0 ? '2px' : '0' }}
-                    />
-                  </div>
-                  <span className="text-[10px] text-muted-foreground font-medium">{dowLabels[dow]}</span>
-                  <span className="text-[10px] font-bold">{n}</span>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
+      {/* Monthly calendar of appointment dates */}
+      <CalendarHeatmap data={data.by_appointment_date} language={language} />
 
+      {/* Checkout method (full width) */}
+      <div className="grid grid-cols-1 gap-3">
         {/* Checkout method breakdown */}
         <Card className="p-3">
           <p className="text-xs font-semibold mb-2 flex items-center gap-1">
