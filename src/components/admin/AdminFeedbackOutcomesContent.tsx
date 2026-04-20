@@ -51,6 +51,8 @@ export default function AdminFeedbackOutcomesContent() {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [channelFilter, setChannelFilter] = useState('');
+  const [repeatFilter, setRepeatFilter] = useState<'all' | 'first' | 'repeat'>('all');
+  const [uicSearch, setUicSearch] = useState('');
 
   useEffect(() => { fetchData(); }, []);
 
@@ -70,14 +72,30 @@ export default function AdminFeedbackOutcomesContent() {
     return valid.length ? Math.round((valid.reduce((a, b) => a + b, 0) / valid.length) * 10) / 10 : 0;
   };
 
-  const totalResponses = rows.length;
-  const avgQuality = avg(rows.map(r => r.counselling_quality_percent));
-  const avgSatisfaction = avg(rows.map(r => r.satisfaction_score));
-  const avgEfficacy = avg(rows.map(r => r.self_efficacy_score));
-  const mhImproved = rows.filter(r => r.mh_outcome === 'much_better' || r.mh_outcome === 'slightly_better').length;
-  const mhTotal = rows.filter(r => r.received_mental_health).length;
-  const hrPositive = rows.filter(r => (r.hr_intention_count || 0) > 0 && r.received_harm_reduction).length;
-  const hrTotal = rows.filter(r => r.received_harm_reduction).length;
+  // Apply client-side filters (repeat + UIC search)
+  const filteredRows = rows.filter(r => {
+    if (repeatFilter === 'first' && r.is_repeat_assessment) return false;
+    if (repeatFilter === 'repeat' && !r.is_repeat_assessment) return false;
+    if (uicSearch.trim() && !(r.uic_hnid || '').includes(uicSearch.trim())) return false;
+    return true;
+  });
+
+  const totalResponses = filteredRows.length;
+  const avgQuality = avg(filteredRows.map(r => r.counselling_quality_percent));
+  const avgSatisfaction = avg(filteredRows.map(r => r.satisfaction_score));
+  const avgEfficacy = avg(filteredRows.map(r => r.self_efficacy_score));
+  const mhImproved = filteredRows.filter(r => r.mh_outcome === 'much_better' || r.mh_outcome === 'slightly_better').length;
+  const mhTotal = filteredRows.filter(r => r.received_mental_health).length;
+  const hrPositive = filteredRows.filter(r => (r.hr_intention_count || 0) > 0 && r.received_harm_reduction).length;
+  const hrTotal = filteredRows.filter(r => r.received_harm_reduction).length;
+
+  // Repeat / UIC metrics
+  const withUic = filteredRows.filter(r => r.uic_hnid).length;
+  const repeatCount = filteredRows.filter(r => r.is_repeat_assessment).length;
+  const firstTimeCount = filteredRows.filter(r => r.uic_hnid && !r.is_repeat_assessment).length;
+  const uniqueUics = new Set(filteredRows.filter(r => r.uic_hnid).map(r => r.uic_hnid)).size;
+  const visitsBefore = filteredRows.filter(r => r.visit_count_before != null).map(r => r.visit_count_before as number);
+  const avgVisitsBefore = visitsBefore.length ? Math.round((visitsBefore.reduce((a, b) => a + b, 0) / visitsBefore.length) * 10) / 10 : 0;
 
   // Channel breakdown
   const channelData = ['clinic', 'outreach', 'online'].map(ch => ({
