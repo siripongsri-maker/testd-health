@@ -34,6 +34,12 @@ interface FeedbackRow {
   status: string;
   open_feedback_text: string | null;
   submitted_at: string;
+  uic_hnid: string | null;
+  client_seed_id: string | null;
+  visit_count_before: number | null;
+  assessment_count_before: number | null;
+  is_repeat_assessment: boolean | null;
+  last_assessment_at: string | null;
 }
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--accent))', '#f59e0b', '#10b981', '#8b5cf6', '#ec4899'];
