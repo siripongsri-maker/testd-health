@@ -467,6 +467,7 @@ export type Database = {
           cancellation_reason: string | null
           cancelled_at: string | null
           checked_out_at: string | null
+          checkout_method: string | null
           completed_at: string | null
           contact_email: string | null
           contact_line: string | null
@@ -501,6 +502,7 @@ export type Database = {
           cancellation_reason?: string | null
           cancelled_at?: string | null
           checked_out_at?: string | null
+          checkout_method?: string | null
           completed_at?: string | null
           contact_email?: string | null
           contact_line?: string | null
@@ -535,6 +537,7 @@ export type Database = {
           cancellation_reason?: string | null
           cancelled_at?: string | null
           checked_out_at?: string | null
+          checkout_method?: string | null
           completed_at?: string | null
           contact_email?: string | null
           contact_line?: string | null
@@ -10099,6 +10102,10 @@ export type Database = {
           is_available: boolean
           slot_time: string
         }[]
+      }
+      get_booking_analytics: {
+        Args: { p_branch_id?: string; p_days?: number }
+        Returns: Json
       }
       get_branch_today_board: {
         Args: { p_branch_id: string; p_date: string }

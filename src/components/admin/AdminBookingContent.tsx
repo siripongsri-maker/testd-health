@@ -7,7 +7,7 @@ import { useLanguage } from '@/lib/i18n';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import {
-  Loader2, RefreshCcw, Wifi, WifiOff, Search, LayoutGrid, CalendarDays, ChevronLeft, ChevronRight,
+  Loader2, RefreshCcw, Wifi, WifiOff, Search, LayoutGrid, CalendarDays, ChevronLeft, ChevronRight, BarChart3,
 } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, addMonths, subMonths } from 'date-fns';
 import {
@@ -20,6 +20,7 @@ import { BentoDashboard } from './booking/BentoDashboard';
 import { BranchTimeline } from './booking/BranchTimeline';
 import { TimeBlockDrawer } from './booking/TimeBlockDrawer';
 import { CalendarView } from './booking/CalendarView';
+import { BookingAnalyticsPanel } from './booking/BookingAnalyticsPanel';
 import { AppointmentDetailDrawer } from './booking/AppointmentDetailDrawer';
 import type { EnrichedAppointment, DensityDay, BranchOption, ViewMode } from './booking/types';
 import { STATUS_OPTIONS } from './booking/types';
@@ -216,6 +217,13 @@ export default function AdminBookingContent({ userBranch }: Props) {
                 <CalendarDays className="h-3.5 w-3.5" />
                 {language === 'th' ? 'ปฏิทิน' : 'Calendar'}
               </button>
+              <button
+                onClick={() => { setViewMode('analytics' as any); setDrillBranchId(null); }}
+                className={`px-3 py-1.5 text-xs font-medium flex items-center gap-1 transition-colors ${(viewMode as any) === 'analytics' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+              >
+                <BarChart3 className="h-3.5 w-3.5" />
+                {language === 'th' ? 'วิเคราะห์' : 'Insights'}
+              </button>
             </div>
 
             <div className="relative flex-1 min-w-[140px]">
@@ -315,6 +323,8 @@ export default function AdminBookingContent({ userBranch }: Props) {
           onBack={() => setDrillBranchId(null)}
           onRefresh={handleRefresh}
         />
+      ) : (viewMode as any) === 'analytics' ? (
+        <BookingAnalyticsPanel branches={branches} branchFilter={branchFilter} />
       ) : viewMode === 'calendar' ? (
         <CalendarView
           year={calYear}
