@@ -152,19 +152,34 @@ export const trackEvent = async (eventType: string, metadata?: Record<string, un
     const anonymousId = getVisitorId();
     const attribution = getSessionAttribution();
 
+    // Promote known IDs to top-level columns so they can be queried/aggregated.
+    const serviceId = (metadata?.service_id as string) || null;
+    const branchId = (metadata?.branch_id as string) || null;
+    const bookingId = (metadata?.booking_id as string) || null;
+
+    // Strip promoted keys from metadata to avoid duplication
+    const restMeta = metadata
+      ? Object.fromEntries(
+          Object.entries(metadata).filter(([k]) => !['service_id', 'branch_id', 'booking_id'].includes(k))
+        )
+      : null;
+
     const eventData = {
       event_type: eventType,
       page_path: window.location.pathname,
       user_id: user?.id || null,
       session_id: getSessionId(),
       device_type: getDeviceType(),
-      metadata: metadata && Object.keys(metadata).length > 0 ? (metadata as any) : null,
+      metadata: restMeta && Object.keys(restMeta).length > 0 ? (restMeta as any) : null,
       anonymous_id: anonymousId,
       campaign: attribution?.campaign || null,
       channel: attribution?.channel || null,
       source: attribution?.source || null,
       medium: attribution?.medium || null,
       link_id: attribution?.link_id || null,
+      service_id: serviceId,
+      branch_id: branchId,
+      booking_id: bookingId,
     };
 
     const { error } = await supabase

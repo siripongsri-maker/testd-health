@@ -9,34 +9,40 @@ import { Download, ArrowDown } from 'lucide-react';
 export function JourneyFunnel() {
   const { language } = useLanguage();
 
-  // Funnel data from analytics_events
+  // Funnel data from analytics_events — using events that actually exist in the system
   const { data: funnelData } = useQuery({
-    queryKey: ['journey-funnel'],
+    queryKey: ['journey-funnel-v2'],
     queryFn: async () => {
-      const events = ['pageview', 'signup_completed', 'booking_created', 'booking_confirmed', 'check_in', 'completed', 'review_submitted'];
+      const eventGroups: { key: string; events: string[] }[] = [
+        { key: 'pageview', events: ['pageview'] },
+        { key: 'service_view', events: ['page_view_booking', 'page_view_selftest'] },
+        { key: 'started', events: ['booking_started', 'selftest_started'] },
+        { key: 'submitted', events: ['booking_submitted', 'selftest_submitted', 'booking_created'] },
+        { key: 'confirmed', events: ['booking_confirmed', 'check_in', 'completed'] },
+        { key: 'review', events: ['review_submitted'] },
+      ];
+
       const counts: Record<string, number> = {};
-      
-      for (const evt of events) {
+      for (const g of eventGroups) {
         const { count } = await supabase
           .from('analytics_events')
           .select('*', { count: 'exact', head: true })
-          .eq('event_type', evt);
-        counts[evt] = count || 0;
+          .in('event_type', g.events);
+        counts[g.key] = count || 0;
       }
 
-      // Also count unique sessions for pageview
       const { count: uniqueVisitors } = await supabase
         .from('visitor_attribution')
         .select('*', { count: 'exact', head: true });
-      
+
       return [
-        { step: language === 'th' ? 'เข้าชม' : 'Visits', count: uniqueVisitors || counts.pageview || 0, fill: 'hsl(var(--primary))' },
-        { step: language === 'th' ? 'สมัครสมาชิก' : 'Signup', count: counts.signup_completed || 0, fill: 'hsl(var(--primary) / 0.8)' },
-        { step: language === 'th' ? 'สร้างการจอง' : 'Booking', count: counts.booking_created || 0, fill: 'hsl(var(--primary) / 0.6)' },
-        { step: language === 'th' ? 'ยืนยัน' : 'Confirmed', count: counts.booking_confirmed || 0, fill: 'hsl(var(--primary) / 0.5)' },
-        { step: language === 'th' ? 'เช็คอิน' : 'Check-in', count: counts.check_in || 0, fill: 'hsl(var(--primary) / 0.4)' },
-        { step: language === 'th' ? 'สำเร็จ' : 'Completed', count: counts.completed || 0, fill: 'hsl(var(--primary) / 0.3)' },
-        { step: language === 'th' ? 'รีวิว' : 'Review', count: counts.review_submitted || 0, fill: 'hsl(var(--primary) / 0.2)' },
+        { step: language === 'th' ? 'ผู้เข้าชมไม่ซ้ำ' : 'Unique Visitors', count: uniqueVisitors || 0, fill: 'hsl(var(--primary))' },
+        { step: language === 'th' ? 'เข้าชมหน้า' : 'Page Views', count: counts.pageview || 0, fill: 'hsl(var(--primary) / 0.85)' },
+        { step: language === 'th' ? 'ดูบริการ' : 'Viewed Service', count: counts.service_view || 0, fill: 'hsl(var(--primary) / 0.7)' },
+        { step: language === 'th' ? 'เริ่มทำ' : 'Started', count: counts.started || 0, fill: 'hsl(var(--primary) / 0.55)' },
+        { step: language === 'th' ? 'ส่งสำเร็จ' : 'Submitted', count: counts.submitted || 0, fill: 'hsl(var(--primary) / 0.4)' },
+        { step: language === 'th' ? 'ยืนยัน/Check-in' : 'Confirmed', count: counts.confirmed || 0, fill: 'hsl(var(--primary) / 0.3)' },
+        { step: language === 'th' ? 'รีวิว' : 'Review', count: counts.review || 0, fill: 'hsl(var(--primary) / 0.2)' },
       ];
     },
   });
@@ -64,28 +70,48 @@ export function JourneyFunnel() {
     },
   });
 
-  // Service views
+  // Service performance: View → Started → Submitted, joined with booking_services for names
   const { data: serviceViews } = useQuery({
-    queryKey: ['service-views'],
+    queryKey: ['service-views-v2'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Pull events that carry service_id
+      const { data: events, error } = await supabase
         .from('analytics_events')
         .select('service_id, event_type')
         .not('service_id', 'is', null)
-        .in('event_type', ['service_card_view', 'service_detail_view', 'booking_created', 'completed']);
+        .in('event_type', [
+          'page_view_booking',
+          'service_card_view',
+          'service_detail_view',
+          'booking_started',
+          'booking_submitted',
+          'booking_created',
+          'completed',
+        ]);
       if (error) throw error;
 
-      const grouped: Record<string, { views: number; booked: number; completed: number }> = {};
-      (data as any[])?.forEach((r: any) => {
+      const grouped: Record<string, { views: number; started: number; booked: number; completed: number }> = {};
+      (events as any[])?.forEach((r: any) => {
         const s = r.service_id;
-        if (!grouped[s]) grouped[s] = { views: 0, booked: 0, completed: 0 };
-        if (r.event_type.includes('view')) grouped[s].views++;
-        if (r.event_type === 'booking_created') grouped[s].booked++;
+        if (!grouped[s]) grouped[s] = { views: 0, started: 0, booked: 0, completed: 0 };
+        if (r.event_type === 'page_view_booking' || r.event_type.includes('view')) grouped[s].views++;
+        if (r.event_type === 'booking_started') grouped[s].started++;
+        if (r.event_type === 'booking_submitted' || r.event_type === 'booking_created') grouped[s].booked++;
         if (r.event_type === 'completed') grouped[s].completed++;
       });
 
+      const ids = Object.keys(grouped);
+      if (ids.length === 0) return [];
+
+      // Resolve service names
+      const { data: svcRows } = await supabase
+        .from('booking_services')
+        .select('id, name_th, name_en, slug')
+        .in('id', ids);
+      const nameMap = new Map((svcRows as any[] | null)?.map((s) => [s.id, language === 'th' ? s.name_th : s.name_en]) || []);
+
       return Object.entries(grouped)
-        .map(([service, stats]) => ({ service, ...stats }))
+        .map(([id, stats]) => ({ service: nameMap.get(id) || id.slice(0, 8), ...stats }))
         .sort((a, b) => b.views - a.views)
         .slice(0, 10);
     },
@@ -189,7 +215,7 @@ export function JourneyFunnel() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base">
-              {language === 'th' ? '🩺 บริการ: ดู → จอง → สำเร็จ' : '🩺 Service: View → Book → Complete'}
+              {language === 'th' ? '🩺 บริการ: ดู → เริ่ม → จอง → สำเร็จ' : '🩺 Service: View → Start → Book → Complete'}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -199,15 +225,23 @@ export function JourneyFunnel() {
                   <div key={i} className="text-sm">
                     <p className="font-medium truncate">{s.service}</p>
                     <div className="flex gap-3 text-xs text-muted-foreground">
-                      <span>👁 {s.views}</span>
-                      <span>📅 {s.booked}</span>
-                      <span>✅ {s.completed}</span>
+                      <span title="Viewed">👁 {s.views}</span>
+                      <span title="Started">▶ {s.started}</span>
+                      <span title="Booked">📅 {s.booked}</span>
+                      <span title="Completed">✅ {s.completed}</span>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-4">No service data</p>
+              <div className="text-sm text-muted-foreground text-center py-4 space-y-1">
+                <p>{language === 'th' ? 'ยังไม่มีข้อมูลรายบริการ' : 'No per-service data yet'}</p>
+                <p className="text-[11px]">
+                  {language === 'th'
+                    ? 'การจองตั้งแต่ตอนนี้จะแยกตามบริการอัตโนมัติ'
+                    : 'Bookings from now on will be tagged by service automatically'}
+                </p>
+              </div>
             )}
           </CardContent>
         </Card>
