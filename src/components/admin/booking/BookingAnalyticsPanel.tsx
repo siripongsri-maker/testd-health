@@ -311,7 +311,7 @@ export function BookingAnalyticsPanel({ branches, branchFilter }: Props) {
                     {b.avg_lead != null ? `${b.avg_lead}d lead` : '–'}
                   </span>
                   {isAnomaly && (
-                    <AlertCircle className="h-3 w-3 text-amber-500" titleAccess={language === 'th' ? 'สูงผิดปกติ' : 'Anomaly'} />
+                    <AlertCircle className="h-3 w-3 text-amber-500"><title>{language === 'th' ? 'สูงผิดปกติ' : 'Anomaly'}</title></AlertCircle>
                   )}
                 </div>
               );
