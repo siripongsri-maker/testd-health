@@ -238,7 +238,17 @@ export default function ClientFeedbackForm() {
         </p>
 
         {/* Steps */}
-        {currentStep === 'intro' && <FeedbackIntroCard data={data} update={update} />}
+        {currentStep === 'intro' && (
+          <>
+            <FeedbackIntroCard data={data} update={update} />
+            <UicHnidField
+              channel={data.channel}
+              value={data.uic_hnid}
+              onChange={(uic) => update({ uic_hnid: uic })}
+              onStatsLoaded={setUicStats}
+            />
+          </>
+        )}
         {currentStep === 'counselling' && <CounsellingQualitySection data={data} update={update} />}
         {currentStep === 'satisfaction' && <SatisfactionSection data={data} update={update} />}
         {currentStep === 'services' && <ServicesReceivedSection data={data} update={update} />}
