@@ -68,9 +68,12 @@ export default function ClientFeedbackForm() {
   const [data, setData] = useState<FeedbackFormData>(defaultData);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [uicStats, setUicStats] = useState<UicVisitStats | null>(null);
 
   useEffect(() => {
     trackJourneyEvent('engagement', 'feedback_form_viewed');
+    // First-party seed tracking
+    trackSeedEvent('assessment_viewed', { language });
     const ch = searchParams.get('channel');
     const bid = searchParams.get('branch_id');
     if (ch) setData(d => ({ ...d, channel: ch }));
@@ -96,7 +99,12 @@ export default function ClientFeedbackForm() {
   const totalSteps = steps.length;
   const currentStep = steps[step] || 'intro';
 
+  const uicRequired = data.channel === 'clinic' || data.channel === 'outreach';
+  const uicValid = isValidUic(data.uic_hnid);
+  const uicOk = !uicRequired || uicValid;
+
   const canProceed = () => {
+    if (currentStep === 'intro') return uicOk;
     if (currentStep === 'counselling') return data.q1 !== null && data.q2 !== null && data.q3 !== null && data.q4 !== null && data.q5 !== null;
     if (currentStep === 'satisfaction') return data.satisfaction !== null && data.self_efficacy !== null;
     if (currentStep === 'services') return data.services.length > 0;
