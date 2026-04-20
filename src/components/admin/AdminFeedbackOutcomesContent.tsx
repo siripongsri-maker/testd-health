@@ -267,12 +267,12 @@ export default function AdminFeedbackOutcomesContent() {
               <PieChart>
                 <Pie
                   data={[
-                    { name: 'STI', value: rows.filter(r => r.received_sti).length },
-                    { name: 'PrEP', value: rows.filter(r => r.received_prep).length },
-                    { name: 'PEP', value: rows.filter(r => r.received_pep).length },
-                    { name: 'ART', value: rows.filter(r => r.received_art).length },
-                    { name: 'HR', value: rows.filter(r => r.received_harm_reduction).length },
-                    { name: 'MH', value: rows.filter(r => r.received_mental_health).length },
+                    { name: 'STI', value: filteredRows.filter(r => r.received_sti).length },
+                    { name: 'PrEP', value: filteredRows.filter(r => r.received_prep).length },
+                    { name: 'PEP', value: filteredRows.filter(r => r.received_pep).length },
+                    { name: 'ART', value: filteredRows.filter(r => r.received_art).length },
+                    { name: 'HR', value: filteredRows.filter(r => r.received_harm_reduction).length },
+                    { name: 'MH', value: filteredRows.filter(r => r.received_mental_health).length },
                   ].filter(d => d.value > 0)}
                   cx="50%" cy="50%" outerRadius={80} dataKey="value" label={({ name, value }) => `${name}: ${value}`}
                 >
