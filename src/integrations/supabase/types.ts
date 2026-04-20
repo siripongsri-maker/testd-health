@@ -10111,6 +10111,14 @@ export type Database = {
         Args: { p_branch_id: string; p_date: string }
         Returns: Json
       }
+      get_forecast_signals: {
+        Args: {
+          p_branch_id?: string
+          p_history_days?: number
+          p_source_filter?: string
+        }
+        Returns: Json
+      }
       get_guest_appointments_by_token: {
         Args: { p_token: string }
         Returns: {
