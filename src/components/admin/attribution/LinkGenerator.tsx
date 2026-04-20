@@ -196,6 +196,15 @@ export function LinkGenerator() {
                   </div>
                 </div>
                 <div className="flex gap-1 shrink-0">
+                  <Button
+                    variant={expandedCascade === link.id ? 'default' : 'ghost'}
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => setExpandedCascade(expandedCascade === link.id ? null : link.id)}
+                    title={language === 'th' ? 'ดูเส้นทาง (Cascade)' : 'View cascade'}
+                  >
+                    {expandedCascade === link.id ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                  </Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyLink(link.slug)}>
                     <Copy className="h-3.5 w-3.5" />
                   </Button>
@@ -211,6 +220,13 @@ export function LinkGenerator() {
                 <div className="mt-3 flex justify-center p-4 bg-white rounded-lg">
                   <QRCodeSVG value={getFullUrl(link.slug)} size={160} />
                 </div>
+              )}
+              {expandedCascade === link.id && (
+                <LinkCascade
+                  linkId={link.id}
+                  clickCount={link.click_count || 0}
+                  destinationPath={link.destination_path}
+                />
               )}
             </CardContent>
           </Card>
