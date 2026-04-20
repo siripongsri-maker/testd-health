@@ -3,12 +3,13 @@
  *
  * - Generates a persistent anonymous ID stored in localStorage (cookie-free)
  * - Logs visit/event entries to `client_seed_visits` table
- * - Allows binding the seed to a UIC/HNID later when the user provides one
+ * - Allows binding the seed to a UIC later when the user provides one
  */
 import { supabase } from '@/integrations/supabase/client';
+import { isValidUic } from './uic';
 
 const SEED_KEY = 'testd_client_seed_id';
-const UIC_KEY = 'testd_uic_hnid';
+const UIC_KEY = 'testd_uic';
 
 export const getClientSeedId = (): string => {
   let id = localStorage.getItem(SEED_KEY);
@@ -22,15 +23,12 @@ export const getClientSeedId = (): string => {
 export const getStoredUic = (): string | null => localStorage.getItem(UIC_KEY);
 
 export const setStoredUic = (uic: string | null) => {
-  if (uic && /^[0-9]{13}$/.test(uic)) {
+  if (uic && isValidUic(uic)) {
     localStorage.setItem(UIC_KEY, uic);
   } else if (!uic) {
     localStorage.removeItem(UIC_KEY);
   }
 };
-
-export const normalizeUic = (raw: string): string => raw.replace(/\D/g, '').slice(0, 13);
-export const isValidUic = (raw: string): boolean => /^[0-9]{13}$/.test(raw.trim());
 
 export type SeedEventType =
   | 'visit_started'
@@ -45,18 +43,18 @@ export const trackSeedEvent = async (
     channel?: string;
     branch_id?: string | null;
     language?: string;
-    uic_hnid?: string | null;
+    uic?: string | null;
     extra?: Record<string, unknown>;
   }
 ) => {
   try {
     const seed = getClientSeedId();
-    const uic = meta?.uic_hnid ?? getStoredUic();
+    const uic = meta?.uic ?? getStoredUic();
     const { data: { user } } = await supabase.auth.getUser();
 
     await supabase.from('client_seed_visits').insert({
       client_seed_id: seed,
-      uic_hnid: uic && isValidUic(uic) ? uic : null,
+      uic: uic && isValidUic(uic) ? uic : null,
       event_type: eventType,
       page_path: window.location.pathname,
       channel: meta?.channel || null,
