@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/lib/i18n';
 import { cn } from '@/lib/utils';
 import type { BranchOption } from './types';
+import { CalendarHeatmap } from './CalendarHeatmap';
 
 interface HourBucket { hour: number; n: number; }
 interface DowBucket { dow: number; n: number; }
