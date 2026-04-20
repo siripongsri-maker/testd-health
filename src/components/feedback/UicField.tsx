@@ -138,18 +138,11 @@ export function UicField({
         )}
       </Label>
 
-      {/* Bilingual helper */}
-      <div className="space-y-1 text-[11px] text-muted-foreground leading-relaxed">
-        <p>
-          <span className="font-medium text-foreground/80">TH:</span>{' '}
-          UIC สร้างจากอักษรแรกของชื่อ + อักษรแรกของนามสกุล + วันเดือนปีเกิด
-          <span className="block pl-5 text-muted-foreground/80">คนไทยใช้ พ.ศ. · ชาวต่างชาติใช้ ค.ศ.</span>
-        </p>
-        <p>
-          <span className="font-medium text-foreground/80">EN:</span>{' '}
-          UIC is generated from the first letter of the first name + first letter of the last name + date of birth
-          <span className="block pl-5 text-muted-foreground/80">Thai uses Buddhist year (BE) · Foreigners use Gregorian year (AD)</span>
-        </p>
+      {/* Compact example box */}
+      <div className="rounded-lg border border-primary/20 bg-background/60 px-3 py-2 text-[11px] text-muted-foreground">
+        {language === 'th'
+          ? <>เช่น <span className="font-mono font-semibold text-primary">ศศ310835</span> (ศิริพงษ์ ศรีเชื้อ · 31/08/2535)</>
+          : <>e.g. <span className="font-mono font-semibold text-primary">JS140895</span> (John Smith · 14/08/1995)</>}
       </div>
 
       {/* Nationality selector */}
