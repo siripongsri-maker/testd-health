@@ -5,13 +5,15 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Fingerprint, CheckCircle2, AlertCircle, RefreshCw, User, Calendar as CalIcon } from "lucide-react";
 import { fetchUicVisitStats, getClientSeedId, setStoredUic, type UicVisitStats } from "@/lib/clientSeed";
-import { generateUic, isValidUic, detectNationality } from "@/lib/uic";
+import { generateUic, isValidUic, detectNationality, isYearPlausibleForMode, type UicNationality } from "@/lib/uic";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Props {
   channel: string;
   firstName: string;
   lastName: string;
-  dob: string; // YYYY-MM-DD (Gregorian)
+  /** Stored as "DD/MM/YYYY" — YYYY is BE for Thai, CE for foreign (no conversion applied). */
+  dob: string;
   uic: string;
   onFirstNameChange: (v: string) => void;
   onLastNameChange: (v: string) => void;
@@ -19,6 +21,17 @@ interface Props {
   onUicChange: (uic: string) => void;
   onStatsLoaded?: (stats: UicVisitStats) => void;
 }
+
+const parseDob = (dob: string): { day: string; month: string; year: string } => {
+  const m = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/.exec((dob || '').trim());
+  if (!m) return { day: '', month: '', year: '' };
+  return { day: m[1], month: m[2], year: m[3] };
+};
+
+const composeDob = (day: string, month: string, year: string) => {
+  if (!day && !month && !year) return '';
+  return `${day}/${month}/${year}`;
+};
 
 export function UicField({
   channel,
@@ -36,19 +49,57 @@ export function UicField({
   const [stats, setStats] = useState<UicVisitStats | null>(null);
   const [checking, setChecking] = useState(false);
 
-  const required = channel === 'clinic' || channel === 'outreach';
-  const nationality = useMemo(() => detectNationality(firstName, lastName), [firstName, lastName]);
+  // Manual nationality override; defaults to auto-detect from name
+  const detected = useMemo(() => detectNationality(firstName, lastName), [firstName, lastName]);
+  const [nationalityOverride, setNationalityOverride] = useState<UicNationality | 'auto'>('auto');
+  const nationality: UicNationality = nationalityOverride === 'auto' ? detected : nationalityOverride;
 
-  // Auto-generate UIC whenever inputs change
+  const required = channel === 'clinic' || channel === 'outreach';
+
+  // Local D/M/Y state, parsed from `dob` string ("DD/MM/YYYY")
+  const initial = parseDob(dob);
+  const [day, setDay] = useState(initial.day);
+  const [month, setMonth] = useState(initial.month);
+  const [year, setYear] = useState(initial.year);
+
+  // When parent dob changes externally (rare), sync down
   useEffect(() => {
-    const result = generateUic({ firstName, lastName, dob });
-    if (result.uic !== uic) {
+    const p = parseDob(dob);
+    if (p.day !== day) setDay(p.day);
+    if (p.month !== month) setMonth(p.month);
+    if (p.year !== year) setYear(p.year);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dob]);
+
+  // Push composed DOB up
+  useEffect(() => {
+    const composed = composeDob(day, month, year);
+    if (composed !== dob) onDobChange(composed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [day, month, year]);
+
+  // Auto-generate UIC whenever inputs or mode change
+  useEffect(() => {
+    const dNum = parseInt(day, 10);
+    const mNum = parseInt(month, 10);
+    const yNum = parseInt(year, 10);
+    const result = generateUic({
+      firstName,
+      lastName,
+      day: Number.isFinite(dNum) ? dNum : null,
+      month: Number.isFinite(mNum) ? mNum : null,
+      year: Number.isFinite(yNum) ? yNum : null,
+      nationality,
+    });
+    if ((result.uic ?? '') !== uic) {
       onUicChange(result.uic ?? '');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [firstName, lastName, dob]);
+  }, [firstName, lastName, day, month, year, nationality]);
 
   const valid = isValidUic(uic);
+  const yNum = parseInt(year, 10);
+  const yearOkForMode = !year || (Number.isFinite(yNum) && isYearPlausibleForMode(yNum, nationality));
 
   // Lookup stats when UIC becomes valid
   useEffect(() => {
@@ -68,9 +119,15 @@ export function UicField({
     return () => { cancelled = true; };
   }, [uic, valid]);
 
+  const isThai = nationality === 'thai';
+  const yearPlaceholder = isThai ? '2535' : '1995';
+  const yearLabel = isThai
+    ? (language === 'th' ? 'ปีเกิด (พ.ศ.)' : 'Year (BE)')
+    : (language === 'th' ? 'ปีเกิด (ค.ศ.)' : 'Year (AD)');
+
   return (
     <div className="space-y-3 rounded-xl border border-primary/20 bg-primary/5 p-4">
-      <Label className="text-sm font-medium flex items-center gap-2">
+      <Label className="text-sm font-medium flex items-center gap-2 flex-wrap">
         <Fingerprint className="h-4 w-4 text-primary" />
         {language === 'th' ? 'รหัสประจำตัวผู้รับบริการ (UIC)' : 'Unique Identification Code (UIC)'}
         {required && <span className="text-destructive">*</span>}
@@ -81,11 +138,38 @@ export function UicField({
         )}
       </Label>
 
-      <p className="text-[11px] text-muted-foreground leading-relaxed">
-        {language === 'th'
-          ? 'UIC สร้างจาก: อักษรแรกของชื่อ + อักษรแรกของนามสกุล + วัน/เดือน/ปีเกิด (คนไทยใช้ พ.ศ. / ต่างชาติใช้ ค.ศ.)'
-          : 'UIC = first letter of first name + first letter of last name + DDMMYY of birth (Thai uses Buddhist year / Foreign uses Gregorian year)'}
-      </p>
+      {/* Bilingual helper */}
+      <div className="space-y-1 text-[11px] text-muted-foreground leading-relaxed">
+        <p>
+          <span className="font-medium text-foreground/80">TH:</span>{' '}
+          UIC สร้างจากอักษรแรกของชื่อ + อักษรแรกของนามสกุล + วันเดือนปีเกิด
+          <span className="block pl-5 text-muted-foreground/80">คนไทยใช้ พ.ศ. · ชาวต่างชาติใช้ ค.ศ.</span>
+        </p>
+        <p>
+          <span className="font-medium text-foreground/80">EN:</span>{' '}
+          UIC is generated from the first letter of the first name + first letter of the last name + date of birth
+          <span className="block pl-5 text-muted-foreground/80">Thai uses Buddhist year (BE) · Foreigners use Gregorian year (AD)</span>
+        </p>
+      </div>
+
+      {/* Nationality selector */}
+      <div className="flex items-center gap-2">
+        <Label className="text-[11px] text-muted-foreground shrink-0">
+          {language === 'th' ? 'สัญชาติ' : 'Nationality'}
+        </Label>
+        <Select value={nationalityOverride} onValueChange={(v) => setNationalityOverride(v as any)}>
+          <SelectTrigger className="h-8 rounded-lg text-xs flex-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="auto">
+              {language === 'th' ? `อัตโนมัติ (${detected === 'thai' ? 'ไทย' : 'ต่างชาติ'})` : `Auto (${detected === 'thai' ? 'Thai' : 'Foreign'})`}
+            </SelectItem>
+            <SelectItem value="thai">{language === 'th' ? 'ไทย (พ.ศ.)' : 'Thai (BE)'}</SelectItem>
+            <SelectItem value="foreign">{language === 'th' ? 'ต่างชาติ (ค.ศ.)' : 'Foreign (AD)'}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
       <div className="grid grid-cols-2 gap-2">
         <div>
@@ -96,7 +180,7 @@ export function UicField({
           <Input
             value={firstName}
             onChange={e => onFirstNameChange(e.target.value)}
-            placeholder={language === 'th' ? 'สมชาย' : 'John'}
+            placeholder={language === 'th' ? 'เช่น ศิริพงษ์' : 'e.g. John'}
             className="rounded-lg mt-1"
             autoComplete="off"
           />
@@ -109,25 +193,63 @@ export function UicField({
           <Input
             value={lastName}
             onChange={e => onLastNameChange(e.target.value)}
-            placeholder={language === 'th' ? 'ใจดี' : 'Smith'}
+            placeholder={language === 'th' ? 'เช่น ศรีเชื้อ' : 'e.g. Smith'}
             className="rounded-lg mt-1"
             autoComplete="off"
           />
         </div>
       </div>
 
+      {/* DOB — separate D / M / Y so the year stays as-typed */}
       <div>
         <Label className="text-[11px] text-muted-foreground flex items-center gap-1">
           <CalIcon className="h-3 w-3" />
-          {language === 'th' ? 'วันเดือนปีเกิด (ค.ศ.)' : 'Date of birth'}
+          {language === 'th'
+            ? `วันเดือนปีเกิด (${isThai ? 'พ.ศ.' : 'ค.ศ.'})`
+            : `Date of birth (${isThai ? 'BE' : 'AD'})`}
         </Label>
-        <Input
-          type="date"
-          value={dob}
-          onChange={e => onDobChange(e.target.value)}
-          max={new Date().toISOString().slice(0, 10)}
-          className="rounded-lg mt-1"
-        />
+        <div className="grid grid-cols-3 gap-2 mt-1">
+          <Input
+            inputMode="numeric"
+            maxLength={2}
+            value={day}
+            onChange={e => setDay(e.target.value.replace(/\D/g, '').slice(0, 2))}
+            placeholder={language === 'th' ? 'วัน' : 'DD'}
+            className="rounded-lg text-center"
+            aria-label={language === 'th' ? 'วัน' : 'Day'}
+          />
+          <Input
+            inputMode="numeric"
+            maxLength={2}
+            value={month}
+            onChange={e => setMonth(e.target.value.replace(/\D/g, '').slice(0, 2))}
+            placeholder={language === 'th' ? 'เดือน' : 'MM'}
+            className="rounded-lg text-center"
+            aria-label={language === 'th' ? 'เดือน' : 'Month'}
+          />
+          <Input
+            inputMode="numeric"
+            maxLength={4}
+            value={year}
+            onChange={e => setYear(e.target.value.replace(/\D/g, '').slice(0, 4))}
+            placeholder={yearPlaceholder}
+            className="rounded-lg text-center"
+            aria-label={yearLabel}
+          />
+        </div>
+        <p className="text-[10px] text-muted-foreground mt-1">
+          {language === 'th'
+            ? `เช่น 31 / 08 / ${yearPlaceholder}`
+            : `e.g. 14 / 08 / ${yearPlaceholder}`}
+        </p>
+        {!yearOkForMode && (
+          <p className="text-[11px] text-destructive mt-1 flex items-center gap-1">
+            <AlertCircle className="h-3 w-3" />
+            {isThai
+              ? (language === 'th' ? 'ปีต้องเป็น พ.ศ. (เช่น 2535)' : 'Year must be Buddhist year (e.g. 2535)')
+              : (language === 'th' ? 'ปีต้องเป็น ค.ศ. (เช่น 1995)' : 'Year must be Gregorian (e.g. 1995)')}
+          </p>
+        )}
       </div>
 
       {/* Generated UIC preview */}
@@ -135,7 +257,7 @@ export function UicField({
         <div className="text-[11px] text-muted-foreground">
           {language === 'th' ? 'UIC ของคุณ' : 'Your UIC'}
           <span className="ml-2 text-[10px] uppercase tracking-wide text-primary/70">
-            {nationality === 'thai' ? 'TH · พ.ศ.' : 'EN · CE'}
+            {isThai ? 'TH · พ.ศ.' : 'EN · CE'}
           </span>
         </div>
         <div className={`font-mono text-base font-bold ${valid ? 'text-primary' : 'text-muted-foreground/60'}`}>
@@ -149,11 +271,11 @@ export function UicField({
           : 'Used only to link service history & repeat assessments. Kept confidential.'}
       </p>
 
-      {!valid && (firstName || lastName || dob) && (
+      {!valid && (firstName || lastName || day || month || year) && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <AlertCircle className="h-3.5 w-3.5" />
           {language === 'th'
-            ? 'กรอก ชื่อ + นามสกุล + วันเกิด ให้ครบเพื่อสร้าง UIC'
+            ? 'กรอก ชื่อ + นามสกุล + วันเดือนปีเกิด ให้ครบเพื่อสร้าง UIC'
             : 'Enter first name, last name, and date of birth to generate UIC'}
         </div>
       )}
