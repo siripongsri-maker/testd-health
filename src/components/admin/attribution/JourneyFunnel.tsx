@@ -9,34 +9,40 @@ import { Download, ArrowDown } from 'lucide-react';
 export function JourneyFunnel() {
   const { language } = useLanguage();
 
-  // Funnel data from analytics_events
+  // Funnel data from analytics_events — using events that actually exist in the system
   const { data: funnelData } = useQuery({
-    queryKey: ['journey-funnel'],
+    queryKey: ['journey-funnel-v2'],
     queryFn: async () => {
-      const events = ['pageview', 'signup_completed', 'booking_created', 'booking_confirmed', 'check_in', 'completed', 'review_submitted'];
+      const eventGroups: { key: string; events: string[] }[] = [
+        { key: 'pageview', events: ['pageview'] },
+        { key: 'service_view', events: ['page_view_booking', 'page_view_selftest'] },
+        { key: 'started', events: ['booking_started', 'selftest_started'] },
+        { key: 'submitted', events: ['booking_submitted', 'selftest_submitted', 'booking_created'] },
+        { key: 'confirmed', events: ['booking_confirmed', 'check_in', 'completed'] },
+        { key: 'review', events: ['review_submitted'] },
+      ];
+
       const counts: Record<string, number> = {};
-      
-      for (const evt of events) {
+      for (const g of eventGroups) {
         const { count } = await supabase
           .from('analytics_events')
           .select('*', { count: 'exact', head: true })
-          .eq('event_type', evt);
-        counts[evt] = count || 0;
+          .in('event_type', g.events);
+        counts[g.key] = count || 0;
       }
 
-      // Also count unique sessions for pageview
       const { count: uniqueVisitors } = await supabase
         .from('visitor_attribution')
         .select('*', { count: 'exact', head: true });
-      
+
       return [
-        { step: language === 'th' ? 'เข้าชม' : 'Visits', count: uniqueVisitors || counts.pageview || 0, fill: 'hsl(var(--primary))' },
-        { step: language === 'th' ? 'สมัครสมาชิก' : 'Signup', count: counts.signup_completed || 0, fill: 'hsl(var(--primary) / 0.8)' },
-        { step: language === 'th' ? 'สร้างการจอง' : 'Booking', count: counts.booking_created || 0, fill: 'hsl(var(--primary) / 0.6)' },
-        { step: language === 'th' ? 'ยืนยัน' : 'Confirmed', count: counts.booking_confirmed || 0, fill: 'hsl(var(--primary) / 0.5)' },
-        { step: language === 'th' ? 'เช็คอิน' : 'Check-in', count: counts.check_in || 0, fill: 'hsl(var(--primary) / 0.4)' },
-        { step: language === 'th' ? 'สำเร็จ' : 'Completed', count: counts.completed || 0, fill: 'hsl(var(--primary) / 0.3)' },
-        { step: language === 'th' ? 'รีวิว' : 'Review', count: counts.review_submitted || 0, fill: 'hsl(var(--primary) / 0.2)' },
+        { step: language === 'th' ? 'ผู้เข้าชมไม่ซ้ำ' : 'Unique Visitors', count: uniqueVisitors || 0, fill: 'hsl(var(--primary))' },
+        { step: language === 'th' ? 'เข้าชมหน้า' : 'Page Views', count: counts.pageview || 0, fill: 'hsl(var(--primary) / 0.85)' },
+        { step: language === 'th' ? 'ดูบริการ' : 'Viewed Service', count: counts.service_view || 0, fill: 'hsl(var(--primary) / 0.7)' },
+        { step: language === 'th' ? 'เริ่มทำ' : 'Started', count: counts.started || 0, fill: 'hsl(var(--primary) / 0.55)' },
+        { step: language === 'th' ? 'ส่งสำเร็จ' : 'Submitted', count: counts.submitted || 0, fill: 'hsl(var(--primary) / 0.4)' },
+        { step: language === 'th' ? 'ยืนยัน/Check-in' : 'Confirmed', count: counts.confirmed || 0, fill: 'hsl(var(--primary) / 0.3)' },
+        { step: language === 'th' ? 'รีวิว' : 'Review', count: counts.review || 0, fill: 'hsl(var(--primary) / 0.2)' },
       ];
     },
   });
