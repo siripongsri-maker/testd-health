@@ -9,6 +9,7 @@ import type { BranchOption } from './types';
 
 interface HourBucket { hour: number; n: number; }
 interface DowBucket { dow: number; n: number; }
+interface DateBucket { date: string; n: number; }
 interface LeadStats {
   avg_lead: number | null;
   median_lead: number | null;
@@ -33,6 +34,7 @@ interface AnalyticsResult {
   by_booking_weekday: DowBucket[];
   by_appointment_hour: HourBucket[];
   by_appointment_weekday: DowBucket[];
+  by_appointment_date: DateBucket[];
   lead_time: LeadStats | null;
   by_source: SourceBucket[];
   by_branch: BranchStat[];
