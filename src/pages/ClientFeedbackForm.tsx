@@ -112,9 +112,19 @@ export default function ClientFeedbackForm() {
   };
 
   const handleSubmit = async () => {
+    if (uicRequired && !uicValid) {
+      toast.error(language === 'th' ? 'กรุณากรอกเลข 13 หลักให้ครบ' : 'Please enter the full 13-digit ID');
+      return;
+    }
     setSubmitting(true);
     try {
       const { data: user } = await supabase.auth.getUser();
+      const seed = getClientSeedId();
+      const uicValue = uicValid ? data.uic_hnid : null;
+
+      // Get latest stats right before insert
+      const stats = await fetchUicVisitStats(uicValue, seed);
+
       const payload = {
         service_date: data.service_date,
         channel: data.channel,
@@ -123,6 +133,12 @@ export default function ClientFeedbackForm() {
         user_id: user?.user?.id || null,
         created_by: user?.user?.id || null,
         appointment_id: searchParams.get('appointment_id') || null,
+        uic_hnid: uicValue,
+        client_seed_id: seed,
+        visit_count_before: stats.visit_count,
+        assessment_count_before: stats.assessment_count,
+        is_repeat_assessment: stats.is_repeat,
+        last_assessment_at: stats.last_assessment_at,
         q1_respect: data.q1,
         q2_open_discussion: data.q2,
         q3_info_clarity: data.q3,
@@ -167,9 +183,19 @@ export default function ClientFeedbackForm() {
       const { error } = await supabase.from('client_feedback_responses').insert(payload as any);
       if (error) throw error;
 
+      // Log first-party seed events
+      await trackSeedEvent('assessment_submitted', {
+        channel: data.channel,
+        branch_id: data.branch_id,
+        language,
+        uic_hnid: uicValue,
+        extra: { is_repeat: stats.is_repeat, assessment_number: stats.assessment_count + 1 },
+      });
+
       trackJourneyEvent('engagement', 'feedback_form_submitted', {
         channel: data.channel,
         is_anonymous: !user?.user?.id,
+        is_repeat: stats.is_repeat,
       });
 
       setSubmitted(true);
