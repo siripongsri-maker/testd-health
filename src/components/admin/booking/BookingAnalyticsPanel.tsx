@@ -262,6 +262,16 @@ export function BookingAnalyticsPanel({ branches, branchFilter }: Props) {
             <UserCheck className="h-3 w-3" />
             {language === 'th' ? 'วิธีการเช็คเอาท์' : 'Checkout Method'}
           </p>
+          {days >= 30 && (
+            <p className="text-[10px] text-amber-600 dark:text-amber-400 mb-2 flex items-start gap-1 leading-tight">
+              <AlertCircle className="h-3 w-3 shrink-0 mt-px" />
+              <span>
+                {language === 'th'
+                  ? 'หมายเหตุ: ตัวเลข no-show ในช่วง 30/90 วัน อาจสูงผิดปกติจาก backfill ครั้งเดียวของระบบ auto no-show — ดู 7 วันเพื่อภาพปัจจุบัน'
+                  : 'Note: 30/90-day no-show counts include a one-time backfill — view 7 days for current behavior'}
+              </span>
+            </p>
+          )}
           <div className="space-y-1.5">
             {data.checkout_breakdown.length === 0 ? (
               <p className="text-xs text-muted-foreground text-center py-4">–</p>
