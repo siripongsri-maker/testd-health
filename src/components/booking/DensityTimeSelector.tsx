@@ -7,6 +7,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { estimateWaitTime, getWaitLabel, type WaitEstimate, type WalkinPressure } from '@/lib/waitTimeEstimator';
+import type { SlotHint } from '@/lib/forecast/publicDemand';
+import { levelClasses } from '@/lib/forecast/publicDemand';
 
 interface Props {
   openTime: string;
@@ -20,6 +22,8 @@ interface Props {
   onSelectTime: (time: string) => void;
   serviceSlugs?: string[];
   walkinPressure?: WalkinPressure;
+  /** Optional per-slot demand hints from Smart Forecast engine */
+  slotHints?: SlotHint[];
 }
 
 interface TimeBlock {
