@@ -20,10 +20,13 @@ import {
 } from 'lucide-react';
 import { DensityTimeSelector } from '@/components/booking/DensityTimeSelector';
 import { NotifyMeDialog } from '@/components/booking/NotifyMeDialog';
+import { DemandSuggestionBanner } from '@/components/booking/DemandSuggestionBanner';
 import { Badge } from '@/components/ui/badge';
 import { Bell, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { WalkinPressure } from '@/lib/waitTimeEstimator';
+import { usePublicDemandHints } from '@/hooks/usePublicDemandHints';
+import { buildDayHints, buildSlotHints, levelClasses } from '@/lib/forecast/publicDemand';
 import { format, addDays, startOfDay, getDay } from 'date-fns';
 
 interface Branch {
