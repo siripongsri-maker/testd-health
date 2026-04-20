@@ -172,6 +172,18 @@ export default function AdminFeedbackOutcomesContent() {
             <option value="outreach">Outreach</option>
             <option value="online">Online</option>
           </select>
+          <select value={repeatFilter} onChange={e => setRepeatFilter(e.target.value as any)} className="rounded-md border border-input bg-background px-3 py-2 text-sm">
+            <option value="all">{language === 'th' ? 'ทุกการประเมิน' : 'All assessments'}</option>
+            <option value="first">{language === 'th' ? 'ครั้งแรก' : 'First-time'}</option>
+            <option value="repeat">{language === 'th' ? 'ทำซ้ำ' : 'Repeat'}</option>
+          </select>
+          <Input
+            placeholder={language === 'th' ? 'ค้น UIC/HN' : 'Search UIC/HN'}
+            value={uicSearch}
+            onChange={e => setUicSearch(e.target.value.replace(/\D/g, '').slice(0, 13))}
+            className="w-40 font-mono"
+            inputMode="numeric"
+          />
           <Button size="sm" onClick={fetchData}>🔄</Button>
           <Button size="sm" variant="outline" onClick={exportCSV}><Download className="h-4 w-4 mr-1" />CSV</Button>
         </div>
@@ -185,6 +197,15 @@ export default function AdminFeedbackOutcomesContent() {
         <SummaryCard icon={<Shield />} label={language === 'th' ? 'Self-Efficacy' : 'Self-Efficacy'} value={`${avgEfficacy}/5`} />
         <SummaryCard icon={<Brain />} label={language === 'th' ? 'MH ดีขึ้น' : 'MH Improved'} value={mhTotal ? `${Math.round(mhImproved / mhTotal * 100)}%` : 'N/A'} />
         <SummaryCard icon={<Heart />} label={language === 'th' ? 'HR ตั้งใจเปลี่ยน' : 'HR Positive'} value={hrTotal ? `${Math.round(hrPositive / hrTotal * 100)}%` : 'N/A'} />
+      </div>
+
+      {/* UIC / Repeat metrics */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <SummaryCard icon={<Users />} label={language === 'th' ? 'มี UIC/HN' : 'With UIC/HN'} value={`${withUic}/${totalResponses}`} />
+        <SummaryCard icon={<Users />} label={language === 'th' ? 'คนไม่ซ้ำ (UIC)' : 'Unique people'} value={uniqueUics} />
+        <SummaryCard icon={<Star />} label={language === 'th' ? 'ครั้งแรก' : 'First-time'} value={firstTimeCount} />
+        <SummaryCard icon={<Repeat />} label={language === 'th' ? 'กลับมาทำซ้ำ' : 'Repeat'} value={repeatCount} />
+        <SummaryCard icon={<Eye />} label={language === 'th' ? 'Visit เฉลี่ยก่อนตอบ' : 'Avg visits before'} value={avgVisitsBefore} />
       </div>
 
       {/* Charts */}
