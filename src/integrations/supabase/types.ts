@@ -10196,6 +10196,10 @@ export type Database = {
           unique_opens: number
         }[]
       }
+      get_public_demand_hints: {
+        Args: { p_branch_id: string; p_horizon_days?: number }
+        Returns: Json
+      }
       get_public_site_stats: {
         Args: never
         Returns: {
