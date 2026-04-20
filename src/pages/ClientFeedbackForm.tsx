@@ -8,6 +8,7 @@ import { trackSeedEvent, fetchUicVisitStats, getClientSeedId, isValidUic, type U
 import { ProgressIndicator } from "@/components/ProgressIndicator";
 import { FeedbackIntroCard } from "@/components/feedback/FeedbackIntroCard";
 import { UicHnidField } from "@/components/feedback/UicHnidField";
+import { VisitStatusBanner } from "@/components/feedback/VisitStatusBanner";
 import { CounsellingQualitySection } from "@/components/feedback/CounsellingQualitySection";
 import { SatisfactionSection } from "@/components/feedback/SatisfactionSection";
 import { ServicesReceivedSection } from "@/components/feedback/ServicesReceivedSection";
