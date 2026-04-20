@@ -1106,6 +1106,8 @@ export default function Booking() {
                     const isToday = format(date, 'yyyy-MM-dd') === format(startOfDay(bangkokToday), 'yyyy-MM-dd');
                     const blackoutInfo = blackedOutDates[dateStr];
                     const isBlackedOut = !!blackoutInfo;
+                    const hint = dayHints.get(dateStr);
+                    const hintCls = hint && !isBlackedOut ? levelClasses(hint.level) : null;
                     return (
                       <button
                         key={date.toISOString()}
@@ -1129,7 +1131,15 @@ export default function Booking() {
                             ? 'bg-primary text-primary-foreground border-primary shadow-md'
                             : 'bg-card border-border hover:border-primary/50'
                         )}
-                        title={isBlackedOut ? blackoutInfo.title : undefined}
+                        title={
+                          isBlackedOut
+                            ? blackoutInfo.title
+                            : hint
+                            ? language === 'th'
+                              ? hint.label_th
+                              : hint.label_en
+                            : undefined
+                        }
                       >
                         {isBlackedOut && (
                           <div className="absolute inset-0 flex items-center justify-center">
@@ -1145,6 +1155,15 @@ export default function Booking() {
                         </p>
                         {isToday && !isBlackedOut && (
                           <div className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-primary animate-pulse" />
+                        )}
+                        {hintCls && !isSelected && !isBlackedOut && (
+                          <span
+                            className={cn(
+                              "absolute bottom-1 left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full",
+                              hintCls.dot
+                            )}
+                            aria-hidden
+                          />
                         )}
                       </button>
                     );
@@ -1185,10 +1204,29 @@ export default function Booking() {
 
               {/* Time slots grid */}
               {selectedDate && !dayClosureInfo && (
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-3">
+                <div className="space-y-3">
+                  <p className="text-sm font-medium text-muted-foreground">
                     {format(selectedDate, 'EEEE, d MMMM yyyy')}
                   </p>
+
+                  {/* Smart Forecast suggestion banner */}
+                  {(dayGuidance || demandLoading) && (
+                    <DemandSuggestionBanner
+                      guidance={
+                        dayGuidance ?? {
+                          bannerHeadline_th: '',
+                          bannerHeadline_en: '',
+                          bannerSub_th: '',
+                          bannerSub_en: '',
+                          peakWindow: null,
+                          quietWindows: [],
+                          recommendedSlots: [],
+                        }
+                      }
+                      loading={demandLoading && !dayGuidance}
+                    />
+                  )}
+
                   <DensityTimeSelector
                     openTime={selectedBranch.open_time}
                     closeTime={selectedBranch.close_time}
@@ -1207,6 +1245,7 @@ export default function Booking() {
                     }}
                     serviceSlugs={selectedServices.map(s => s.slug)}
                     walkinPressure={walkinPressure}
+                    slotHints={slotHints}
                   />
                 </div>
               )}
