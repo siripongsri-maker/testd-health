@@ -215,7 +215,7 @@ export function JourneyFunnel() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base">
-              {language === 'th' ? '🩺 บริการ: ดู → จอง → สำเร็จ' : '🩺 Service: View → Book → Complete'}
+              {language === 'th' ? '🩺 บริการ: ดู → เริ่ม → จอง → สำเร็จ' : '🩺 Service: View → Start → Book → Complete'}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -225,15 +225,23 @@ export function JourneyFunnel() {
                   <div key={i} className="text-sm">
                     <p className="font-medium truncate">{s.service}</p>
                     <div className="flex gap-3 text-xs text-muted-foreground">
-                      <span>👁 {s.views}</span>
-                      <span>📅 {s.booked}</span>
-                      <span>✅ {s.completed}</span>
+                      <span title="Viewed">👁 {s.views}</span>
+                      <span title="Started">▶ {s.started}</span>
+                      <span title="Booked">📅 {s.booked}</span>
+                      <span title="Completed">✅ {s.completed}</span>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-4">No service data</p>
+              <div className="text-sm text-muted-foreground text-center py-4 space-y-1">
+                <p>{language === 'th' ? 'ยังไม่มีข้อมูลรายบริการ' : 'No per-service data yet'}</p>
+                <p className="text-[11px]">
+                  {language === 'th'
+                    ? 'การจองตั้งแต่ตอนนี้จะแยกตามบริการอัตโนมัติ'
+                    : 'Bookings from now on will be tagged by service automatically'}
+                </p>
+              </div>
             )}
           </CardContent>
         </Card>
