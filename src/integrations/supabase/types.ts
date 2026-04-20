@@ -1451,7 +1451,7 @@ export type Database = {
           sti_knowledge_score: number | null
           sti_status: string | null
           submitted_at: string | null
-          uic_hnid: string | null
+          uic: string | null
           unique_id: string
           updated_at: string | null
           user_id: string | null
@@ -1523,7 +1523,7 @@ export type Database = {
           sti_knowledge_score?: number | null
           sti_status?: string | null
           submitted_at?: string | null
-          uic_hnid?: string | null
+          uic?: string | null
           unique_id?: string
           updated_at?: string | null
           user_id?: string | null
@@ -1595,7 +1595,7 @@ export type Database = {
           sti_knowledge_score?: number | null
           sti_status?: string | null
           submitted_at?: string | null
-          uic_hnid?: string | null
+          uic?: string | null
           unique_id?: string
           updated_at?: string | null
           user_id?: string | null
@@ -1629,7 +1629,7 @@ export type Database = {
           language: string | null
           metadata: Json | null
           page_path: string | null
-          uic_hnid: string | null
+          uic: string | null
           user_id: string | null
         }
         Insert: {
@@ -1642,7 +1642,7 @@ export type Database = {
           language?: string | null
           metadata?: Json | null
           page_path?: string | null
-          uic_hnid?: string | null
+          uic?: string | null
           user_id?: string | null
         }
         Update: {
@@ -1655,7 +1655,7 @@ export type Database = {
           language?: string | null
           metadata?: Json | null
           page_path?: string | null
-          uic_hnid?: string | null
+          uic?: string | null
           user_id?: string | null
         }
         Relationships: []
@@ -9829,15 +9829,9 @@ export type Database = {
       v_uic_assessment_summary: {
         Row: {
           assessment_count: number | null
-          avg_quality_pct: number | null
-          avg_satisfaction: number | null
-          branches: string[] | null
-          channels: string[] | null
-          first_assessment_date: string | null
-          first_submitted_at: string | null
           last_assessment_date: string | null
           last_submitted_at: string | null
-          uic_hnid: string | null
+          uic: string | null
         }
         Relationships: []
       }
