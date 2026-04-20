@@ -70,50 +70,79 @@ export function JourneyFunnel() {
     },
   });
 
-  // Service performance: View → Started → Submitted, joined with booking_services for names
+  // Service performance: View → Started → Submitted, joined with booking_services for names.
+  // Falls back to aggregate (all services combined) when no event has service_id yet.
   const { data: serviceViews } = useQuery({
-    queryKey: ['service-views-v2'],
+    queryKey: ['service-views-v3'],
     queryFn: async () => {
-      // Pull events that carry service_id
+      const eventTypes = [
+        'page_view_booking',
+        'service_card_view',
+        'service_detail_view',
+        'booking_started',
+        'booking_submitted',
+        'booking_created',
+        'completed',
+      ];
+
+      // Pull events that carry service_id at the column level
       const { data: events, error } = await supabase
         .from('analytics_events')
-        .select('service_id, event_type')
-        .not('service_id', 'is', null)
-        .in('event_type', [
-          'page_view_booking',
-          'service_card_view',
-          'service_detail_view',
-          'booking_started',
-          'booking_submitted',
-          'booking_created',
-          'completed',
-        ]);
+        .select('service_id, event_type, metadata')
+        .in('event_type', eventTypes)
+        .limit(5000);
       if (error) throw error;
 
       const grouped: Record<string, { views: number; started: number; booked: number; completed: number }> = {};
+      const aggregate = { views: 0, started: 0, booked: 0, completed: 0 };
+
+      const addToBucket = (
+        bucket: { views: number; started: number; booked: number; completed: number },
+        eventType: string
+      ) => {
+        if (eventType === 'page_view_booking' || eventType.includes('view')) bucket.views++;
+        if (eventType === 'booking_started') bucket.started++;
+        if (eventType === 'booking_submitted' || eventType === 'booking_created') bucket.booked++;
+        if (eventType === 'completed') bucket.completed++;
+      };
+
       (events as any[])?.forEach((r: any) => {
-        const s = r.service_id;
-        if (!grouped[s]) grouped[s] = { views: 0, started: 0, booked: 0, completed: 0 };
-        if (r.event_type === 'page_view_booking' || r.event_type.includes('view')) grouped[s].views++;
-        if (r.event_type === 'booking_started') grouped[s].started++;
-        if (r.event_type === 'booking_submitted' || r.event_type === 'booking_created') grouped[s].booked++;
-        if (r.event_type === 'completed') grouped[s].completed++;
+        const sid =
+          r.service_id ||
+          (r.metadata && typeof r.metadata === 'object' ? r.metadata.service_id : null);
+        if (sid) {
+          if (!grouped[sid]) grouped[sid] = { views: 0, started: 0, booked: 0, completed: 0 };
+          addToBucket(grouped[sid], r.event_type);
+        }
+        addToBucket(aggregate, r.event_type);
       });
 
       const ids = Object.keys(grouped);
-      if (ids.length === 0) return [];
 
-      // Resolve service names
-      const { data: svcRows } = await supabase
-        .from('booking_services')
-        .select('id, name_th, name_en, slug')
-        .in('id', ids);
-      const nameMap = new Map((svcRows as any[] | null)?.map((s) => [s.id, language === 'th' ? s.name_th : s.name_en]) || []);
+      // Resolve service names if we have any tagged events
+      let perService: { service: string; views: number; started: number; booked: number; completed: number }[] = [];
+      if (ids.length > 0) {
+        const { data: svcRows } = await supabase
+          .from('booking_services')
+          .select('id, name_th, name_en, slug')
+          .in('id', ids);
+        const nameMap = new Map(
+          (svcRows as any[] | null)?.map((s) => [s.id, language === 'th' ? s.name_th : s.name_en]) || []
+        );
+        perService = Object.entries(grouped)
+          .map(([id, stats]) => ({ service: nameMap.get(id) || id.slice(0, 8), ...stats }))
+          .sort((a, b) => b.views - a.views)
+          .slice(0, 10);
+      }
 
-      return Object.entries(grouped)
-        .map(([id, stats]) => ({ service: nameMap.get(id) || id.slice(0, 8), ...stats }))
-        .sort((a, b) => b.views - a.views)
-        .slice(0, 10);
+      // Always include an "All services (aggregate)" row at the top so historical
+      // data without service_id is still visible.
+      const aggregateRow = {
+        service: language === 'th' ? '🌐 ทุกบริการรวม (ย้อนหลัง)' : '🌐 All services (historical)',
+        ...aggregate,
+      };
+
+      return [aggregateRow, ...perService];
     },
   });
 
