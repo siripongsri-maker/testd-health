@@ -360,6 +360,20 @@ export default function MyAppointments() {
               </div>
             )}
 
+            {/* Geofence-based auto check-in (also surfaces QR fallback) */}
+            {(apt.status === 'booked' || apt.status === 'confirmed') && (
+              <GeofenceCheckinBanner
+                appointmentId={apt.id}
+                branchId={apt.branch_id}
+                branchNameTh={apt.booking_branches?.name_th}
+                branchNameEn={apt.booking_branches?.name_en}
+                referralCode={apt.referral_code}
+                canCheckin={canCheckin}
+                onCheckedIn={load}
+                userId={user?.id}
+              />
+            )}
+
             {/* Helper text for booked/confirmed */}
             {(apt.status === 'booked' || apt.status === 'confirmed') && (
               <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-2">
