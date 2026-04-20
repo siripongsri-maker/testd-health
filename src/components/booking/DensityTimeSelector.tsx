@@ -293,19 +293,25 @@ export function DensityTimeSelector({
                     {block.slots.map(slot => {
                       const isSelected = selectedTime === slot.time;
                       const lowAvail = !slot.isFull && slot.available === 1;
+                      const hint = slotHintMap.get(slot.time);
+                      const showHintBadge = hint && !slot.isFull && (hint.isRecommended || hint.level === 'popular' || hint.level === 'peak');
+                      const hintCls = hint ? levelClasses(hint.level) : null;
                       return (
                         <button
                           key={slot.time}
                           disabled={slot.isFull}
                           onClick={() => onSelectTime(slot.time)}
                           className={cn(
-                            "relative py-2.5 px-1 rounded-full text-center transition-all border-2",
+                            "relative py-2.5 px-1 rounded-2xl text-center transition-all border-2",
                             slot.isFull
                               ? "bg-muted/50 text-muted-foreground border-transparent cursor-not-allowed opacity-40"
                               : isSelected
                               ? "bg-primary text-primary-foreground border-primary shadow-md scale-105"
+                              : hint?.isRecommended
+                              ? "bg-card border-primary/40 hover:border-primary/60 hover:shadow-sm ring-1 ring-primary/20"
                               : "bg-card border-border hover:border-primary/40 hover:shadow-sm"
                           )}
+                          title={hint ? (language === 'th' ? hint.label_th : hint.label_en) : undefined}
                         >
                           <span className="text-sm font-semibold">{slot.time}</span>
                           {!slot.isFull && (
@@ -317,6 +323,16 @@ export function DensityTimeSelector({
                                 ? (language === 'th' ? 'เหลือ 1' : '1 left')
                                 : `${slot.available}/${counselorCount}`}
                             </p>
+                          )}
+                          {showHintBadge && hintCls && !isSelected && (
+                            <span
+                              className={cn(
+                                "absolute -top-1.5 left-1/2 -translate-x-1/2 px-1.5 py-px rounded-full text-[8.5px] font-bold border whitespace-nowrap",
+                                hintCls.badge
+                              )}
+                            >
+                              {language === 'th' ? hint!.label_th : hint!.label_en}
+                            </span>
                           )}
                         </button>
                       );
