@@ -876,6 +876,8 @@ export type Database = {
           hero_image_url: string | null
           id: string
           is_active: boolean
+          latitude: number | null
+          longitude: number | null
           name_en: string
           name_th: string
           open_days: number[]
@@ -902,6 +904,8 @@ export type Database = {
           hero_image_url?: string | null
           id?: string
           is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
           name_en: string
           name_th: string
           open_days?: number[]
@@ -928,6 +932,8 @@ export type Database = {
           hero_image_url?: string | null
           id?: string
           is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
           name_en?: string
           name_th?: string
           open_days?: number[]
