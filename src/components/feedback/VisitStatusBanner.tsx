@@ -97,8 +97,8 @@ export function VisitStatusBanner({ uicStats, uicValue, className }: Props) {
             {source === 'seed' && !uicValue && (
               <div className="text-[11px] text-muted-foreground mt-1">
                 {language === 'th'
-                  ? 'พบจากอุปกรณ์นี้ — กรอก UIC/HN เพื่อดูประวัติเต็ม'
-                  : 'Detected from this device — enter UIC/HN to see full history'}
+                  ? 'พบจากอุปกรณ์นี้ — กรอก UIC เพื่อดูประวัติเต็ม'
+                  : 'Detected from this device — enter UIC to see full history'}
               </div>
             )}
           </div>
