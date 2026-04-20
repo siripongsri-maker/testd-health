@@ -63,9 +63,15 @@ function generateSlots(openTime: string, closeTime: string, durationMin: number)
 export function DensityTimeSelector({
   openTime, closeTime, slotDurationMin, counselorCount, slotTimes,
   bookedSlots, blockedSlots, selectedTime, onSelectTime, serviceSlugs, walkinPressure,
+  slotHints,
 }: Props) {
   const { language } = useLanguage();
   const [expandedBlock, setExpandedBlock] = useState<number | null>(null);
+  const slotHintMap = useMemo(() => {
+    const m = new Map<string, SlotHint>();
+    (slotHints || []).forEach((h) => m.set(h.time, h));
+    return m;
+  }, [slotHints]);
 
   const hasWalkinPressure = walkinPressure && (walkinPressure.activeWalkins > 0 || walkinPressure.recentWalkins90min > 0);
 
