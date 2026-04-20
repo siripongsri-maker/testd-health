@@ -27,7 +27,7 @@ export interface BranchOption {
   google_photo_url?: string | null;
 }
 
-export type ViewMode = 'bento' | 'calendar';
+export type ViewMode = 'bento' | 'calendar' | 'analytics' | 'forecast';
 export type DateRange = 'today' | 'week' | 'custom';
 
 export const STATUS_OPTIONS = [
