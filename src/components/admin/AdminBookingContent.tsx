@@ -7,7 +7,7 @@ import { useLanguage } from '@/lib/i18n';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import {
-  Loader2, RefreshCcw, Wifi, WifiOff, Search, LayoutGrid, CalendarDays, ChevronLeft, ChevronRight, BarChart3,
+  Loader2, RefreshCcw, Wifi, WifiOff, Search, LayoutGrid, CalendarDays, ChevronLeft, ChevronRight, BarChart3, Sparkles,
 } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, addMonths, subMonths } from 'date-fns';
 import {
@@ -21,6 +21,7 @@ import { BranchTimeline } from './booking/BranchTimeline';
 import { TimeBlockDrawer } from './booking/TimeBlockDrawer';
 import { CalendarView } from './booking/CalendarView';
 import { BookingAnalyticsPanel } from './booking/BookingAnalyticsPanel';
+import { ForecastPanel } from './booking/ForecastPanel';
 import { AppointmentDetailDrawer } from './booking/AppointmentDetailDrawer';
 import type { EnrichedAppointment, DensityDay, BranchOption, ViewMode } from './booking/types';
 import { STATUS_OPTIONS } from './booking/types';
@@ -224,6 +225,13 @@ export default function AdminBookingContent({ userBranch }: Props) {
                 <BarChart3 className="h-3.5 w-3.5" />
                 {language === 'th' ? 'วิเคราะห์' : 'Insights'}
               </button>
+              <button
+                onClick={() => { setViewMode('forecast' as any); setDrillBranchId(null); }}
+                className={`px-3 py-1.5 text-xs font-medium flex items-center gap-1 transition-colors ${(viewMode as any) === 'forecast' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                {language === 'th' ? 'Forecast' : 'Forecast'}
+              </button>
             </div>
 
             <div className="relative flex-1 min-w-[140px]">
@@ -325,6 +333,8 @@ export default function AdminBookingContent({ userBranch }: Props) {
         />
       ) : (viewMode as any) === 'analytics' ? (
         <BookingAnalyticsPanel branches={branches} branchFilter={branchFilter} />
+      ) : (viewMode as any) === 'forecast' ? (
+        <ForecastPanel branches={branches} branchFilter={branchFilter} />
       ) : viewMode === 'calendar' ? (
         <CalendarView
           year={calYear}
