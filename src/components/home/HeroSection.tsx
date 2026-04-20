@@ -14,7 +14,7 @@ export function HeroSection() {
       <div className="space-y-2.5">
         <h1 className="text-[28px] leading-[1.15] sm:text-4xl font-bold text-foreground tracking-tight">
           {isTh ? (
-            <>อยากรู้ เอชไอวี<br /><span className="text-primary">ตรวจได้ฟรี</span></>
+            <>อยากรู้<br /><span className="text-primary">ตรวจได้ฟรี</span></>
           ) : (
             <>Want to know your status?<br /><span className="text-primary">Test free, anytime.</span></>
           )}
