@@ -8,6 +8,7 @@ import { trackSeedEvent, fetchUicVisitStats, getClientSeedId, isValidUic, type U
 import { ProgressIndicator } from "@/components/ProgressIndicator";
 import { FeedbackIntroCard } from "@/components/feedback/FeedbackIntroCard";
 import { UicHnidField } from "@/components/feedback/UicHnidField";
+import { VisitStatusBanner } from "@/components/feedback/VisitStatusBanner";
 import { CounsellingQualitySection } from "@/components/feedback/CounsellingQualitySection";
 import { SatisfactionSection } from "@/components/feedback/SatisfactionSection";
 import { ServicesReceivedSection } from "@/components/feedback/ServicesReceivedSection";
@@ -231,6 +232,9 @@ export default function ClientFeedbackForm() {
   return (
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-lg mx-auto px-4 pt-6 space-y-4">
+        {/* Returning-client / first-visit status banner (shown on every step) */}
+        <VisitStatusBanner uicStats={uicStats} uicValue={data.uic_hnid} />
+
         {/* Progress */}
         <ProgressIndicator current={step + 1} total={totalSteps} className="mb-2" />
         <p className="text-xs text-muted-foreground text-center">
