@@ -2,7 +2,7 @@ import { useLanguage } from '@/lib/i18n';
 import { getDisplayServices } from '@/lib/appointments';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Hash, Bot, Zap } from 'lucide-react';
+import { Hash, Bot, Zap, User, UserCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { EnrichedAppointment } from './types';
 import { getStatusInfo } from './types';
@@ -62,12 +62,34 @@ export function AppointmentPill({ appointment: apt, selected, onToggleSelect, on
       {/* Status dot + New/Return badge + Auto badge */}
       <div className="flex items-center gap-1.5 shrink-0">
         <div className={cn("h-2 w-2 rounded-full", statusInfo.color.split(' ')[0])} title={language === 'th' ? statusInfo.labelTh : statusInfo.labelEn} />
-        {(apt as any).auto_checked_out_at && (
-          <span className="text-[8px] font-bold px-1 py-0.5 rounded-full leading-none bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 flex items-center gap-0.5">
-            <Bot className="h-2 w-2" />
-            Auto
-          </span>
-        )}
+        {(() => {
+          const method = (apt as any).checkout_method as string | null;
+          if (method === 'auto' || (apt as any).auto_checked_out_at) {
+            return (
+              <span className="text-[8px] font-bold px-1 py-0.5 rounded-full leading-none bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 flex items-center gap-0.5" title={language === 'th' ? 'เช็คเอาท์อัตโนมัติ' : 'Auto checkout'}>
+                <Bot className="h-2 w-2" />
+                Auto
+              </span>
+            );
+          }
+          if (method === 'self') {
+            return (
+              <span className="text-[8px] font-bold px-1 py-0.5 rounded-full leading-none bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 flex items-center gap-0.5" title={language === 'th' ? 'เช็คเอาท์เอง' : 'Self check-out'}>
+                <User className="h-2 w-2" />
+                Self
+              </span>
+            );
+          }
+          if (method === 'staff') {
+            return (
+              <span className="text-[8px] font-bold px-1 py-0.5 rounded-full leading-none bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 flex items-center gap-0.5" title={language === 'th' ? 'เจ้าหน้าที่' : 'By staff'}>
+                <UserCheck className="h-2 w-2" />
+                Staff
+              </span>
+            );
+          }
+          return null;
+        })()}
         <span className={cn(
           "text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none",
           apt.is_returning
