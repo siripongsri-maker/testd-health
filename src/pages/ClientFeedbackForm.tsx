@@ -232,6 +232,9 @@ export default function ClientFeedbackForm() {
   return (
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-lg mx-auto px-4 pt-6 space-y-4">
+        {/* Returning-client / first-visit status banner (shown on every step) */}
+        <VisitStatusBanner uicStats={uicStats} uicValue={data.uic_hnid} />
+
         {/* Progress */}
         <ProgressIndicator current={step + 1} total={totalSteps} className="mb-2" />
         <p className="text-xs text-muted-foreground text-center">
