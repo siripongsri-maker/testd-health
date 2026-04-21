@@ -369,7 +369,20 @@ export default function MyAppointments() {
                 branchNameEn={apt.booking_branches?.name_en}
                 referralCode={apt.referral_code}
                 canCheckin={canCheckin}
-                onCheckedIn={load}
+                onCheckedIn={(newStatus) => {
+                  // Optimistic update so UI reflects new status immediately
+                  setAppointments(prev =>
+                    prev.map(a => a.id === apt.id
+                      ? {
+                          ...a,
+                          status: newStatus,
+                          arrived_at: newStatus === 'arrived' ? new Date().toISOString() : a.arrived_at,
+                        }
+                      : a)
+                  );
+                  // Re-sync from backend (realtime will also fire, but this guarantees freshness)
+                  load();
+                }}
                 userId={user?.id}
               />
             )}
