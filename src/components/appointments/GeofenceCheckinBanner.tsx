@@ -16,8 +16,8 @@ interface GeofenceCheckinBannerProps {
   referralCode: string | null;
   /** Eligible per existing time-window rules. */
   canCheckin: boolean;
-  /** Called after a successful check-in so the parent can update local state. */
-  onCheckedIn: () => void;
+  /** Called after a successful check-in (or undo) so the parent can update local state. Passes the new status. */
+  onCheckedIn: (newStatus: 'arrived' | 'booked') => void;
   userId?: string | null;
 }
 
@@ -67,7 +67,7 @@ export function GeofenceCheckinBanner({
         await selfCheckinRPC(appointmentId);
         if (undoneRef.current) return; // user undid before RPC settled
         setAutoCheckedIn(true);
-        onCheckedIn();
+        onCheckedIn('arrived');
 
         // Award XP (mirrors manual check-in path)
         if (userId) {
@@ -97,7 +97,7 @@ export function GeofenceCheckinBanner({
                   setAutoCheckedIn(false);
                   triggeredRef.current = false;
                   toast.info(isTh ? 'ยกเลิกการเช็คอินแล้ว' : 'Check-in undone');
-                  onCheckedIn(); // refresh
+                  onCheckedIn('booked'); // refresh
                 } catch {
                   toast.error(isTh ? 'ยกเลิกไม่สำเร็จ' : 'Could not undo');
                 }
