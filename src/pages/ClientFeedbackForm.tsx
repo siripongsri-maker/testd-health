@@ -87,16 +87,12 @@ export default function ClientFeedbackForm() {
 
   const update = (partial: Partial<FeedbackFormData>) => setData(d => ({ ...d, ...partial }));
 
-  // Compute steps dynamically based on selected services
+  // Compute steps dynamically based on selected services (no UIC step)
   const getSteps = () => {
     const steps = ['intro', 'counselling', 'satisfaction', 'services'];
     if (data.services.includes('sti') || data.services.includes('prep') ||
         data.services.includes('pep') || data.services.includes('art')) {
       steps.push('service_detail');
-    }
-    // UIC step appears only when Harm Reduction or Mental Health is selected
-    if (data.services.includes('harm_reduction') || data.services.includes('mental_health')) {
-      steps.push('uic');
     }
     if (data.services.includes('harm_reduction')) steps.push('harm_reduction');
     if (data.services.includes('mental_health')) steps.push('mental_health');
