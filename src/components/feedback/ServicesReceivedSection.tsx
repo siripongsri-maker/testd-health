@@ -11,7 +11,7 @@ const serviceOptions = [
   { value: 'prep', th: '🛡️ ยาป้องกันก่อนสัมผัสเชื้อ (PrEP)', en: '🛡️ PrEP' },
   { value: 'pep', th: '⚡ ยาป้องกันหลังสัมผัสเชื้อ (PEP)', en: '⚡ PEP' },
   { value: 'art', th: '💜 ยาต้านไวรัสเอชไอวี (ART)', en: '💜 ART' },
-  { value: 'harm_reduction', th: '🧡 ลดอันตรายจากการใช้สาร / ข้อมูลเคมเซ็กซ์ (Harm Reduction / Chemsex)', en: '🧡 Harm Reduction / Chemsex info' },
+  { value: 'harm_reduction', th: '🧡 การลดอันตราย / ข้อมูลเคมเซ็กซ์ (Harm Reduction / Chemsex)', en: '🧡 Harm Reduction / Chemsex info' },
   { value: 'mental_health', th: '🧠 สุขภาพจิตและจิตสังคม (Mental Health / Psychosocial)', en: '🧠 Mental Health / Psychosocial' },
   { value: 'none', th: '❌ ไม่ได้รับบริการเพิ่มเติม', en: '❌ No additional services' },
 ];

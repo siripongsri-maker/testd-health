@@ -50,11 +50,13 @@ export interface FeedbackFormData {
   mh_referral: string; mh_outcome: string;
   // Open
   open_feedback: string;
+  // UIC bypass — when true, skip UIC step even if HR/MH selected
+  skip_uic: boolean;
 }
 
 const defaultData: FeedbackFormData = {
   channel: 'clinic', service_date: new Date().toISOString().split('T')[0], branch_id: null,
-  first_name: '', last_name: '', dob: '', uic: '',
+  first_name: '', last_name: '', dob: '', uic: '', skip_uic: false,
   q1: null, q2: null, q3: null, q4: null, q5: null,
   satisfaction: null, self_efficacy: null,
   services: [],
@@ -97,7 +99,7 @@ export default function ClientFeedbackForm() {
       steps.push('service_detail');
     }
     const needsUic = data.services.includes('harm_reduction') || data.services.includes('mental_health');
-    if (needsUic) steps.push('uic');
+    if (needsUic && !data.skip_uic) steps.push('uic');
     if (data.services.includes('harm_reduction')) steps.push('harm_reduction');
     if (data.services.includes('mental_health')) steps.push('mental_health');
     steps.push('open_feedback');
