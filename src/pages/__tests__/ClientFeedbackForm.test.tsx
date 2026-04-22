@@ -74,15 +74,14 @@ describe("ClientFeedbackForm — submit without UIC", () => {
     // Step 1: intro — just go next
     await clickNext();
 
-    // Step 2: counselling — answer all 5 questions with 'Strongly Agree' (or 'เห็นด้วยอย่างยิ่ง')
-    for (let i = 0; i < 5; i++) {
-      const buttons = await screen.findAllByRole("button", {
-        name: /เห็นด้วยอย่างยิ่ง|Strongly Agree/i,
-      });
-      // Each question card contains its own set; the first unanswered card is at index 0
-      // because answered ones get the 'font-medium' style but remain in DOM. Click index i.
-      fireEvent.click(buttons[i]);
-    }
+    // Step 2: counselling — answer all 5 questions with 'Strongly Agree' (เห็นด้วยอย่างยิ่ง)
+    // Use exact match to avoid colliding with 'ไม่เห็นด้วยอย่างยิ่ง' (Strongly Disagree).
+    const stronglyAgreeExact = /^เห็นด้วยอย่างยิ่ง$|^Strongly Agree$/;
+    const agreeButtons = await screen.findAllByRole("button", {
+      name: stronglyAgreeExact,
+    });
+    expect(agreeButtons).toHaveLength(5);
+    agreeButtons.forEach((b) => fireEvent.click(b));
     await clickNext();
 
     // Step 3: satisfaction — pick 5 for both sliders
