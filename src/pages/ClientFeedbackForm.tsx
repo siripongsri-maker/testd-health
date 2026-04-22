@@ -94,6 +94,10 @@ export default function ClientFeedbackForm() {
         data.services.includes('pep') || data.services.includes('art')) {
       steps.push('service_detail');
     }
+    // UIC step appears only when Harm Reduction or Mental Health is selected
+    if (data.services.includes('harm_reduction') || data.services.includes('mental_health')) {
+      steps.push('uic');
+    }
     if (data.services.includes('harm_reduction')) steps.push('harm_reduction');
     if (data.services.includes('mental_health')) steps.push('mental_health');
     steps.push('open_feedback');
