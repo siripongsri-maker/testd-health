@@ -52,6 +52,8 @@ export interface FeedbackFormData {
   open_feedback: string;
   // UIC bypass — when true, skip UIC step even if HR/MH selected
   skip_uic: boolean;
+  // Skip the satisfaction assessment block (counselling Q1–Q5 + satisfaction + self-efficacy)
+  skip_satisfaction: boolean;
 }
 
 const defaultData: FeedbackFormData = {
