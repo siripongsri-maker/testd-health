@@ -129,7 +129,7 @@ export default function ClientFeedbackForm() {
         user_id: user?.user?.id || null,
         created_by: user?.user?.id || null,
         appointment_id: searchParams.get('appointment_id') || null,
-        uic: null,
+        uic: data.uic?.trim() || null,
         client_seed_id: seed,
         q1_respect: data.q1,
         q2_open_discussion: data.q2,
