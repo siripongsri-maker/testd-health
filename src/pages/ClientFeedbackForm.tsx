@@ -214,9 +214,6 @@ export default function ClientFeedbackForm() {
   return (
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-lg mx-auto px-4 pt-6 space-y-4">
-        {/* Returning-client / first-visit status banner (shown on every step) */}
-        <VisitStatusBanner uicStats={uicStats} uicValue={data.uic} />
-
         {/* Progress */}
         <ProgressIndicator current={step + 1} total={totalSteps} className="mb-2" />
         <p className="text-xs text-muted-foreground text-center">
@@ -224,23 +221,7 @@ export default function ClientFeedbackForm() {
         </p>
 
         {/* Steps */}
-        {currentStep === 'intro' && (
-          <>
-            <FeedbackIntroCard data={data} update={update} />
-            <UicField
-              channel={data.channel}
-              firstName={data.first_name}
-              lastName={data.last_name}
-              dob={data.dob}
-              uic={data.uic}
-              onFirstNameChange={(v) => update({ first_name: v })}
-              onLastNameChange={(v) => update({ last_name: v })}
-              onDobChange={(v) => update({ dob: v })}
-              onUicChange={(v) => update({ uic: v })}
-              onStatsLoaded={setUicStats}
-            />
-          </>
-        )}
+        {currentStep === 'intro' && <FeedbackIntroCard data={data} update={update} />}
         {currentStep === 'counselling' && <CounsellingQualitySection data={data} update={update} />}
         {currentStep === 'satisfaction' && <SatisfactionSection data={data} update={update} />}
         {currentStep === 'services' && <ServicesReceivedSection data={data} update={update} />}
