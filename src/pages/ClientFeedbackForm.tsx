@@ -183,7 +183,7 @@ export default function ClientFeedbackForm() {
       });
 
       setSubmitted(true);
-      toast.success(language === 'th' ? 'ขอบคุณสำหรับการตอบแบบประเมิน!' : 'Thank you for your feedback!');
+      toast.success(language === 'th' ? '🎉 ส่งแบบประเมินสำเร็จ! ขอบคุณค่ะ / ครับ' : '🎉 Feedback submitted successfully! Thank you!');
     } catch (err) {
       console.error(err);
       toast.error(language === 'th' ? 'เกิดข้อผิดพลาด กรุณาลองใหม่' : 'Something went wrong. Please try again.');

@@ -140,5 +140,12 @@ describe("ClientFeedbackForm — submit without UIC", () => {
 
     // Service date should default to today's ISO date
     expect(payload.service_date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+
+    // Success screen should appear after submission
+    await waitFor(() => {
+      expect(
+        screen.getByText(/ส่งแบบประเมินสำเร็จ|Feedback submitted successfully/i)
+      ).toBeInTheDocument();
+    });
   });
 });
