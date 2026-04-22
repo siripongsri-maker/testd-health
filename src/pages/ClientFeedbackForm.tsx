@@ -109,18 +109,10 @@ export default function ClientFeedbackForm() {
   };
 
   const handleSubmit = async () => {
-    if (uicRequired && !uicValid) {
-      toast.error(language === 'th' ? 'กรุณากรอก ชื่อ + นามสกุล + วันเกิด เพื่อสร้าง UIC' : 'Please complete name and date of birth to generate UIC');
-      return;
-    }
     setSubmitting(true);
     try {
       const { data: user } = await supabase.auth.getUser();
       const seed = getClientSeedId();
-      const uicValue = uicValid ? data.uic : null;
-
-      // Get latest stats right before insert
-      const stats = await fetchUicVisitStats(uicValue, seed);
 
       const payload = {
         service_date: data.service_date,
@@ -130,12 +122,8 @@ export default function ClientFeedbackForm() {
         user_id: user?.user?.id || null,
         created_by: user?.user?.id || null,
         appointment_id: searchParams.get('appointment_id') || null,
-        uic: uicValue,
+        uic: null,
         client_seed_id: seed,
-        visit_count_before: stats.visit_count,
-        assessment_count_before: stats.assessment_count,
-        is_repeat_assessment: stats.is_repeat,
-        last_assessment_at: stats.last_assessment_at,
         q1_respect: data.q1,
         q2_open_discussion: data.q2,
         q3_info_clarity: data.q3,
