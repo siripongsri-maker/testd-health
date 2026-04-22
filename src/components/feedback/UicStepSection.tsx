@@ -43,7 +43,7 @@ export function UicStepSection({ data, update, onSkip, onStatsLoaded, stats }: P
       />
 
       {stats && (
-        <VisitStatusBanner stats={stats} />
+        <VisitStatusBanner uicStats={stats} uicValue={data.uic} />
       )}
 
       {/* Skip button */}
