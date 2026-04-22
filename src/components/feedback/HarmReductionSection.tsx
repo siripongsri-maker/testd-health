@@ -39,7 +39,7 @@ export function HarmReductionSection({ data, update }: Props) {
     <div className="space-y-5">
       <div className="text-center space-y-1">
         <h2 className="text-lg font-bold text-foreground">
-          🧡 {language === 'th' ? 'Harm Reduction' : 'Harm Reduction'}
+          🧡 {language === 'th' ? 'การลดอันตราย (Harm Reduction)' : 'Harm Reduction'}
         </h2>
       </div>
 

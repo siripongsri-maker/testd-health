@@ -13,6 +13,8 @@ import { ServicesReceivedSection } from "@/components/feedback/ServicesReceivedS
 import { HarmReductionSection } from "@/components/feedback/HarmReductionSection";
 import { MentalHealthSection } from "@/components/feedback/MentalHealthSection";
 import { OpenFeedbackSection } from "@/components/feedback/OpenFeedbackSection";
+import { UicStepSection } from "@/components/feedback/UicStepSection";
+import type { UicVisitStats } from "@/lib/clientSeed";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Send, CheckCircle2 } from "lucide-react";
 
@@ -71,6 +73,7 @@ export default function ClientFeedbackForm() {
   const [data, setData] = useState<FeedbackFormData>(defaultData);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [uicStats, setUicStats] = useState<UicVisitStats | null>(null);
 
   useEffect(() => {
     trackJourneyEvent('engagement', 'feedback_form_viewed');
@@ -90,6 +93,10 @@ export default function ClientFeedbackForm() {
     if (data.services.includes('sti') || data.services.includes('prep') ||
         data.services.includes('pep') || data.services.includes('art')) {
       steps.push('service_detail');
+    }
+    // UIC step appears only when Harm Reduction or Mental Health is selected
+    if (data.services.includes('harm_reduction') || data.services.includes('mental_health')) {
+      steps.push('uic');
     }
     if (data.services.includes('harm_reduction')) steps.push('harm_reduction');
     if (data.services.includes('mental_health')) steps.push('mental_health');
@@ -122,7 +129,7 @@ export default function ClientFeedbackForm() {
         user_id: user?.user?.id || null,
         created_by: user?.user?.id || null,
         appointment_id: searchParams.get('appointment_id') || null,
-        uic: null,
+        uic: data.uic?.trim() || null,
         client_seed_id: seed,
         q1_respect: data.q1,
         q2_open_discussion: data.q2,
@@ -173,7 +180,7 @@ export default function ClientFeedbackForm() {
         channel: data.channel,
         branch_id: data.branch_id,
         language,
-        uic: null,
+        uic: data.uic?.trim() || null,
       });
 
       trackJourneyEvent('engagement', 'feedback_form_submitted', {
@@ -232,6 +239,15 @@ export default function ClientFeedbackForm() {
             {data.services.includes('pep') && <ServiceSubSection type="pep" data={data} update={update} />}
             {data.services.includes('art') && <ServiceSubSection type="art" data={data} update={update} />}
           </div>
+        )}
+        {currentStep === 'uic' && (
+          <UicStepSection
+            data={data}
+            update={update}
+            onSkip={() => setStep(s => s + 1)}
+            onStatsLoaded={setUicStats}
+            stats={uicStats}
+          />
         )}
         {currentStep === 'harm_reduction' && <HarmReductionSection data={data} update={update} />}
         {currentStep === 'mental_health' && <MentalHealthSection data={data} update={update} />}

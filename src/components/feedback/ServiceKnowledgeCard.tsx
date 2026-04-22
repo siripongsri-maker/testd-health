@@ -9,7 +9,7 @@ interface Props {
 
 const config = {
   sti: {
-    title: { th: 'STI — การรักษาและความรู้', en: 'STI — Treatment & Knowledge' },
+    title: { th: 'โรคติดต่อทางเพศสัมพันธ์ (STI) — การรักษาและความรู้', en: 'STI — Treatment & Knowledge' },
     icon: '💊',
     statusKey: 'sti_status' as const,
     statusOptions: [
@@ -25,7 +25,7 @@ const config = {
     ],
   },
   prep: {
-    title: { th: 'PrEP — สถานะและความรู้', en: 'PrEP — Status & Knowledge' },
+    title: { th: 'ยาป้องกันก่อนสัมผัสเชื้อ (PrEP) — สถานะและความรู้', en: 'PrEP — Status & Knowledge' },
     icon: '🛡️',
     statusKey: 'prep_status' as const,
     statusOptions: [
@@ -41,7 +41,7 @@ const config = {
     ],
   },
   pep: {
-    title: { th: 'PEP — สถานะและความรู้', en: 'PEP — Status & Knowledge' },
+    title: { th: 'ยาป้องกันหลังสัมผัสเชื้อ (PEP) — สถานะและความรู้', en: 'PEP — Status & Knowledge' },
     icon: '⚡',
     statusKey: 'pep_status' as const,
     statusOptions: [
@@ -56,7 +56,7 @@ const config = {
     ],
   },
   art: {
-    title: { th: 'ART — สถานะและความรู้', en: 'ART — Status & Knowledge' },
+    title: { th: 'ยาต้านไวรัสเอชไอวี (ART) — สถานะและความรู้', en: 'ART — Status & Knowledge' },
     icon: '💜',
     statusKey: 'art_status' as const,
     statusOptions: [
