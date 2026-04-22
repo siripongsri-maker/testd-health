@@ -173,14 +173,12 @@ export default function ClientFeedbackForm() {
         channel: data.channel,
         branch_id: data.branch_id,
         language,
-        uic: uicValue,
-        extra: { is_repeat: stats.is_repeat, assessment_number: stats.assessment_count + 1 },
+        uic: null,
       });
 
       trackJourneyEvent('engagement', 'feedback_form_submitted', {
         channel: data.channel,
         is_anonymous: !user?.user?.id,
-        is_repeat: stats.is_repeat,
       });
 
       setSubmitted(true);
