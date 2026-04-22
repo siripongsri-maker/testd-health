@@ -278,10 +278,6 @@ export default function ClientFeedbackForm() {
             update={update}
             stats={uicStats}
             onStatsLoaded={setUicStats}
-            onSkip={() => {
-              update({ uic: '' });
-              setStep(s => s + 1);
-            }}
           />
         )}
         {currentStep === 'harm_reduction' && <HarmReductionSection data={data} update={update} />}
