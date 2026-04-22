@@ -240,6 +240,15 @@ export default function ClientFeedbackForm() {
             {data.services.includes('art') && <ServiceSubSection type="art" data={data} update={update} />}
           </div>
         )}
+        {currentStep === 'uic' && (
+          <UicStepSection
+            data={data}
+            update={update}
+            onSkip={() => setStep(s => s + 1)}
+            onStatsLoaded={setUicStats}
+            stats={uicStats}
+          />
+        )}
         {currentStep === 'harm_reduction' && <HarmReductionSection data={data} update={update} />}
         {currentStep === 'mental_health' && <MentalHealthSection data={data} update={update} />}
         {currentStep === 'open_feedback' && <OpenFeedbackSection data={data} update={update} />}
