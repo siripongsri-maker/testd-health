@@ -4,12 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
 import { toast } from "sonner";
 import { trackJourneyEvent } from "@/lib/journeyTracker";
-import { trackSeedEvent, fetchUicVisitStats, getClientSeedId, type UicVisitStats } from "@/lib/clientSeed";
-import { isValidUic } from "@/lib/uic";
+import { trackSeedEvent, getClientSeedId } from "@/lib/clientSeed";
 import { ProgressIndicator } from "@/components/ProgressIndicator";
 import { FeedbackIntroCard } from "@/components/feedback/FeedbackIntroCard";
-import { UicField } from "@/components/feedback/UicField";
-import { VisitStatusBanner } from "@/components/feedback/VisitStatusBanner";
 import { CounsellingQualitySection } from "@/components/feedback/CounsellingQualitySection";
 import { SatisfactionSection } from "@/components/feedback/SatisfactionSection";
 import { ServicesReceivedSection } from "@/components/feedback/ServicesReceivedSection";
@@ -74,7 +71,6 @@ export default function ClientFeedbackForm() {
   const [data, setData] = useState<FeedbackFormData>(defaultData);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [uicStats, setUicStats] = useState<UicVisitStats | null>(null);
 
   useEffect(() => {
     trackJourneyEvent('engagement', 'feedback_form_viewed');
@@ -105,12 +101,7 @@ export default function ClientFeedbackForm() {
   const totalSteps = steps.length;
   const currentStep = steps[step] || 'intro';
 
-  const uicRequired = data.channel === 'clinic' || data.channel === 'outreach';
-  const uicValid = isValidUic(data.uic);
-  const uicOk = !uicRequired || uicValid;
-
   const canProceed = () => {
-    if (currentStep === 'intro') return uicOk;
     if (currentStep === 'counselling') return data.q1 !== null && data.q2 !== null && data.q3 !== null && data.q4 !== null && data.q5 !== null;
     if (currentStep === 'satisfaction') return data.satisfaction !== null && data.self_efficacy !== null;
     if (currentStep === 'services') return data.services.length > 0;
@@ -118,18 +109,10 @@ export default function ClientFeedbackForm() {
   };
 
   const handleSubmit = async () => {
-    if (uicRequired && !uicValid) {
-      toast.error(language === 'th' ? 'กรุณากรอก ชื่อ + นามสกุล + วันเกิด เพื่อสร้าง UIC' : 'Please complete name and date of birth to generate UIC');
-      return;
-    }
     setSubmitting(true);
     try {
       const { data: user } = await supabase.auth.getUser();
       const seed = getClientSeedId();
-      const uicValue = uicValid ? data.uic : null;
-
-      // Get latest stats right before insert
-      const stats = await fetchUicVisitStats(uicValue, seed);
 
       const payload = {
         service_date: data.service_date,
@@ -139,12 +122,8 @@ export default function ClientFeedbackForm() {
         user_id: user?.user?.id || null,
         created_by: user?.user?.id || null,
         appointment_id: searchParams.get('appointment_id') || null,
-        uic: uicValue,
+        uic: null,
         client_seed_id: seed,
-        visit_count_before: stats.visit_count,
-        assessment_count_before: stats.assessment_count,
-        is_repeat_assessment: stats.is_repeat,
-        last_assessment_at: stats.last_assessment_at,
         q1_respect: data.q1,
         q2_open_discussion: data.q2,
         q3_info_clarity: data.q3,
@@ -194,14 +173,12 @@ export default function ClientFeedbackForm() {
         channel: data.channel,
         branch_id: data.branch_id,
         language,
-        uic: uicValue,
-        extra: { is_repeat: stats.is_repeat, assessment_number: stats.assessment_count + 1 },
+        uic: null,
       });
 
       trackJourneyEvent('engagement', 'feedback_form_submitted', {
         channel: data.channel,
         is_anonymous: !user?.user?.id,
-        is_repeat: stats.is_repeat,
       });
 
       setSubmitted(true);
@@ -237,9 +214,6 @@ export default function ClientFeedbackForm() {
   return (
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-lg mx-auto px-4 pt-6 space-y-4">
-        {/* Returning-client / first-visit status banner (shown on every step) */}
-        <VisitStatusBanner uicStats={uicStats} uicValue={data.uic} />
-
         {/* Progress */}
         <ProgressIndicator current={step + 1} total={totalSteps} className="mb-2" />
         <p className="text-xs text-muted-foreground text-center">
@@ -247,23 +221,7 @@ export default function ClientFeedbackForm() {
         </p>
 
         {/* Steps */}
-        {currentStep === 'intro' && (
-          <>
-            <FeedbackIntroCard data={data} update={update} />
-            <UicField
-              channel={data.channel}
-              firstName={data.first_name}
-              lastName={data.last_name}
-              dob={data.dob}
-              uic={data.uic}
-              onFirstNameChange={(v) => update({ first_name: v })}
-              onLastNameChange={(v) => update({ last_name: v })}
-              onDobChange={(v) => update({ dob: v })}
-              onUicChange={(v) => update({ uic: v })}
-              onStatsLoaded={setUicStats}
-            />
-          </>
-        )}
+        {currentStep === 'intro' && <FeedbackIntroCard data={data} update={update} />}
         {currentStep === 'counselling' && <CounsellingQualitySection data={data} update={update} />}
         {currentStep === 'satisfaction' && <SatisfactionSection data={data} update={update} />}
         {currentStep === 'services' && <ServicesReceivedSection data={data} update={update} />}
