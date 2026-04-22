@@ -60,7 +60,7 @@ export function UicStepSection({ data, update, onSkip, onStatsLoaded, stats }: P
           className="w-full"
         >
           <SkipForward className="h-4 w-4 mr-2" />
-          {language === 'th' ? 'ข้าม (Skip)' : 'Skip'}
+          {language === 'th' ? 'ข้ามขั้นตอนนี้ (Skip)' : 'Skip this step'}
         </Button>
       </div>
     </div>
