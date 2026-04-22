@@ -58,7 +58,7 @@ export interface FeedbackFormData {
 
 const defaultData: FeedbackFormData = {
   channel: 'clinic', service_date: new Date().toISOString().split('T')[0], branch_id: null,
-  first_name: '', last_name: '', dob: '', uic: '', skip_uic: false,
+  first_name: '', last_name: '', dob: '', uic: '', skip_uic: false, skip_satisfaction: false,
   q1: null, q2: null, q3: null, q4: null, q5: null,
   satisfaction: null, self_efficacy: null,
   services: [],
