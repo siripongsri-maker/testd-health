@@ -13,6 +13,8 @@ import { ServicesReceivedSection } from "@/components/feedback/ServicesReceivedS
 import { HarmReductionSection } from "@/components/feedback/HarmReductionSection";
 import { MentalHealthSection } from "@/components/feedback/MentalHealthSection";
 import { OpenFeedbackSection } from "@/components/feedback/OpenFeedbackSection";
+import { UicStepSection } from "@/components/feedback/UicStepSection";
+import type { UicVisitStats } from "@/lib/clientSeed";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Send, CheckCircle2, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -72,6 +74,7 @@ export default function ClientFeedbackForm() {
   const [data, setData] = useState<FeedbackFormData>(defaultData);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [uicStats, setUicStats] = useState<UicVisitStats | null>(null);
 
   useEffect(() => {
     trackJourneyEvent('engagement', 'feedback_form_viewed');
@@ -85,13 +88,16 @@ export default function ClientFeedbackForm() {
 
   const update = (partial: Partial<FeedbackFormData>) => setData(d => ({ ...d, ...partial }));
 
-  // Compute steps dynamically based on selected services (no UIC step)
+  // Compute steps dynamically based on selected services
+  // UIC step appears only when Harm Reduction or Mental Health is selected
   const getSteps = () => {
     const steps = ['intro', 'counselling', 'satisfaction', 'services'];
     if (data.services.includes('sti') || data.services.includes('prep') ||
         data.services.includes('pep') || data.services.includes('art')) {
       steps.push('service_detail');
     }
+    const needsUic = data.services.includes('harm_reduction') || data.services.includes('mental_health');
+    if (needsUic) steps.push('uic');
     if (data.services.includes('harm_reduction')) steps.push('harm_reduction');
     if (data.services.includes('mental_health')) steps.push('mental_health');
     steps.push('open_feedback');
@@ -257,6 +263,18 @@ export default function ClientFeedbackForm() {
             {data.services.includes('pep') && <ServiceSubSection type="pep" data={data} update={update} />}
             {data.services.includes('art') && <ServiceSubSection type="art" data={data} update={update} />}
           </div>
+        )}
+        {currentStep === 'uic' && (
+          <UicStepSection
+            data={data}
+            update={update}
+            stats={uicStats}
+            onStatsLoaded={setUicStats}
+            onSkip={() => {
+              update({ uic: '' });
+              setStep(s => s + 1);
+            }}
+          />
         )}
         {currentStep === 'harm_reduction' && <HarmReductionSection data={data} update={update} />}
         {currentStep === 'mental_health' && <MentalHealthSection data={data} update={update} />}
