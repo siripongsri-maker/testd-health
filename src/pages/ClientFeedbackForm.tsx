@@ -13,6 +13,8 @@ import { ServicesReceivedSection } from "@/components/feedback/ServicesReceivedS
 import { HarmReductionSection } from "@/components/feedback/HarmReductionSection";
 import { MentalHealthSection } from "@/components/feedback/MentalHealthSection";
 import { OpenFeedbackSection } from "@/components/feedback/OpenFeedbackSection";
+import { UicStepSection } from "@/components/feedback/UicStepSection";
+import type { UicVisitStats } from "@/lib/clientSeed";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Send, CheckCircle2 } from "lucide-react";
 
