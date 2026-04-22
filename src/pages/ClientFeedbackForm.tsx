@@ -95,7 +95,11 @@ export default function ClientFeedbackForm() {
   // Compute steps dynamically based on selected services
   // UIC step appears only when Harm Reduction or Mental Health is selected
   const getSteps = () => {
-    const steps = ['intro', 'counselling', 'satisfaction', 'services'];
+    const steps = ['intro'];
+    if (!data.skip_satisfaction) {
+      steps.push('counselling', 'satisfaction');
+    }
+    steps.push('services');
     if (data.services.includes('sti') || data.services.includes('prep') ||
         data.services.includes('pep') || data.services.includes('art')) {
       steps.push('service_detail');
