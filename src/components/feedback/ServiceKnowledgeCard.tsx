@@ -9,7 +9,7 @@ interface Props {
 
 const config = {
   sti: {
-    title: { th: 'STI — การรักษาและความรู้', en: 'STI — Treatment & Knowledge' },
+    title: { th: 'โรคติดต่อทางเพศสัมพันธ์ (STI) — การรักษาและความรู้', en: 'STI — Treatment & Knowledge' },
     icon: '💊',
     statusKey: 'sti_status' as const,
     statusOptions: [
