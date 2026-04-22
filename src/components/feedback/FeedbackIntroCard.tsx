@@ -1,7 +1,8 @@
 import { useLanguage } from "@/lib/i18n";
-import { Shield, Lock } from "lucide-react";
+import { Shield, Lock, SkipForward } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import type { FeedbackFormData } from "@/pages/ClientFeedbackForm";
 
@@ -21,10 +22,12 @@ export function FeedbackIntroCard({ data, update }: Props) {
           <Shield className="h-6 w-6 text-primary" />
         </div>
         <h1 className="text-xl font-bold text-foreground">
-          {language === 'th' ? 'แบบประเมินความพึงพอใจ' : 'Client Feedback & Outcome Form'}
+          {language === 'th' ? 'แบบประเมินความพึงพอใจและผลลัพธ์การบริการ' : 'Client Feedback & Outcome Form'}
         </h1>
-        <p className="text-sm text-foreground/80">
-          {language === 'th' ? 'และผลลัพธ์การบริการ' : ''}
+        <p className="text-xs text-foreground/70">
+          {language === 'th'
+            ? 'ใช้เวลาประมาณ 2–3 นาที · ขอบคุณที่ช่วยพัฒนาบริการของเรา'
+            : 'Takes about 2–3 minutes · Thank you for helping us improve'}
         </p>
       </div>
 
@@ -36,7 +39,7 @@ export function FeedbackIntroCard({ data, update }: Props) {
         </div>
         <ul className="text-xs text-muted-foreground space-y-1 ml-6">
           <li>🔒 {language === 'th' ? 'ข้อมูลทุกอย่างถูกเก็บเป็นความลับ' : 'All data is kept confidential'}</li>
-          <li>👤 {language === 'th' ? 'ไม่ระบุตัวตน' : 'Anonymous'}</li>
+          <li>👤 {language === 'th' ? 'ไม่ระบุตัวตน (Anonymous)' : 'Anonymous'}</li>
           <li>✋ {language === 'th' ? 'การตอบเป็นความสมัครใจ' : 'Voluntary participation'}</li>
         </ul>
       </div>
@@ -62,8 +65,8 @@ export function FeedbackIntroCard({ data, update }: Props) {
         <RadioGroup value={data.channel} onValueChange={v => update({ channel: v })} className="grid grid-cols-3 gap-2">
           {[
             { value: 'clinic', th: '🏥 คลินิก', en: '🏥 Clinic' },
-            { value: 'outreach', th: '🚐 Outreach', en: '🚐 Outreach' },
-            { value: 'online', th: '💻 Online', en: '💻 Online' },
+            { value: 'outreach', th: '🚐 ลงพื้นที่ (Outreach)', en: '🚐 Outreach' },
+            { value: 'online', th: '💻 ออนไลน์ (Online)', en: '💻 Online' },
           ].map(opt => (
             <Label
               key={opt.value}
@@ -75,6 +78,34 @@ export function FeedbackIntroCard({ data, update }: Props) {
             </Label>
           ))}
         </RadioGroup>
+      </div>
+
+      {/* Skip UIC option */}
+      <div className="rounded-xl border border-dashed border-border bg-muted/30 p-4 space-y-2">
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          {language === 'th'
+            ? '💡 หากคุณเลือกบริการ การลดอันตราย (Harm Reduction) หรือ สุขภาพจิต (Mental Health) ระบบจะขอรหัสประจำตัวผู้รับบริการ (UIC) ในขั้นตอนถัดไป — คุณสามารถเลือก ข้าม ขั้นตอนนั้นได้ตั้งแต่ตอนนี้ โดยไม่ต้องกรอกอะไรเลย'
+            : '💡 If you select Harm Reduction or Mental Health services, the next step will ask for a UIC — you can choose to skip it now without entering anything.'}
+        </p>
+        <Button
+          type="button"
+          variant={data.skip_uic ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => update({ skip_uic: !data.skip_uic, uic: data.skip_uic ? data.uic : '' })}
+          className="w-full"
+        >
+          <SkipForward className="h-4 w-4 mr-2" />
+          {data.skip_uic
+            ? (language === 'th' ? 'จะข้ามขั้นตอน UIC ✓' : 'Will skip UIC step ✓')
+            : (language === 'th' ? 'ข้ามขั้นตอน UIC (Skip UIC)' : 'Skip UIC step')}
+        </Button>
+        {data.skip_uic && (
+          <p className="text-[11px] text-muted-foreground text-center">
+            {language === 'th'
+              ? 'ระบบจะไม่ถาม UIC และส่งฟอร์มได้ตามปกติ'
+              : 'UIC will not be requested and the form will submit normally.'}
+          </p>
+        )}
       </div>
     </div>
   );
