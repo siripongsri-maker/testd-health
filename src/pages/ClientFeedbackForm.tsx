@@ -99,7 +99,7 @@ export default function ClientFeedbackForm() {
       steps.push('service_detail');
     }
     const needsUic = data.services.includes('harm_reduction') || data.services.includes('mental_health');
-    if (needsUic) steps.push('uic');
+    if (needsUic && !data.skip_uic) steps.push('uic');
     if (data.services.includes('harm_reduction')) steps.push('harm_reduction');
     if (data.services.includes('mental_health')) steps.push('mental_health');
     steps.push('open_feedback');
