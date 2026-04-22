@@ -80,9 +80,9 @@ export function FeedbackIntroCard({ data, update }: Props) {
         </RadioGroup>
       </div>
 
-      {/* Skip UIC option — prominent */}
+      {/* Skip Satisfaction Assessment — prominent */}
       <div className={`rounded-2xl border-2 p-5 space-y-3 transition-all ${
-        data.skip_uic
+        data.skip_satisfaction
           ? 'border-primary bg-primary/10'
           : 'border-primary/40 bg-primary/5'
       }`}>
@@ -93,35 +93,35 @@ export function FeedbackIntroCard({ data, update }: Props) {
           <div className="flex-1 space-y-1">
             <p className="text-sm font-semibold text-foreground">
               {language === 'th'
-                ? 'ไม่อยากกรอก รหัสประจำตัวผู้รับบริการ (UIC)?'
-                : "Don't want to enter a UIC?"}
+                ? 'ไม่อยากตอบคำถาม ความพึงพอใจ?'
+                : "Don't want to answer satisfaction questions?"}
             </p>
             <p className="text-xs text-foreground/70 leading-relaxed">
               {language === 'th'
-                ? 'ถ้าคุณเลือกบริการ การลดอันตราย (Harm Reduction) หรือ สุขภาพจิต (Mental Health) ระบบจะขอ UIC ในขั้นตอนถัดไป — กดปุ่มด้านล่างเพื่อ ข้าม ขั้นตอนนั้นได้เลย'
-                : 'If you pick Harm Reduction or Mental Health, the next step asks for a UIC — tap below to skip it.'}
+                ? 'คุณสามารถ ข้ามขั้นตอนการประเมินความพึงพอใจ (คำถามคุณภาพการให้คำปรึกษา และความพึงพอใจ) แล้วไปต่อที่ส่วน บริการที่ได้รับ ได้เลย'
+                : 'You can skip the satisfaction assessment (counselling quality + satisfaction questions) and jump straight to the services section.'}
             </p>
           </div>
         </div>
 
         <Button
           type="button"
-          variant={data.skip_uic ? 'default' : 'outline'}
+          variant={data.skip_satisfaction ? 'default' : 'outline'}
           size="lg"
-          onClick={() => update({ skip_uic: !data.skip_uic, uic: data.skip_uic ? data.uic : '' })}
+          onClick={() => update({ skip_satisfaction: !data.skip_satisfaction })}
           className="w-full font-semibold"
         >
           <SkipForward className="h-5 w-5 mr-2" />
-          {data.skip_uic
-            ? (language === 'th' ? '✓ จะข้ามขั้นตอน UIC แล้ว (แตะอีกครั้งเพื่อยกเลิก)' : '✓ Will skip UIC (tap to undo)')
-            : (language === 'th' ? 'ข้ามขั้นตอน UIC' : 'Skip UIC step')}
+          {data.skip_satisfaction
+            ? (language === 'th' ? '✓ จะข้ามขั้นตอนความพึงพอใจแล้ว (แตะอีกครั้งเพื่อยกเลิก)' : '✓ Will skip satisfaction (tap to undo)')
+            : (language === 'th' ? 'ข้ามขั้นตอนการประเมินความพึงพอใจ' : 'Skip satisfaction assessment')}
         </Button>
 
-        {data.skip_uic && (
+        {data.skip_satisfaction && (
           <p className="text-xs text-foreground/70 text-center font-medium">
             {language === 'th'
-              ? '🎉 เรียบร้อย! ระบบจะไม่ถาม UIC และส่งฟอร์มได้ตามปกติ'
-              : '🎉 Done! UIC will be skipped and the form will submit normally.'}
+              ? '🎉 เรียบร้อย! ระบบจะข้ามคำถามความพึงพอใจและพาคุณไปยังส่วนบริการที่ได้รับเลย'
+              : '🎉 Done! Satisfaction questions will be skipped and you’ll go straight to the services section.'}
           </p>
         )}
       </div>

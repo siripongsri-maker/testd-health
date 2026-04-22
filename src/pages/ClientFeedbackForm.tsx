@@ -52,11 +52,13 @@ export interface FeedbackFormData {
   open_feedback: string;
   // UIC bypass — when true, skip UIC step even if HR/MH selected
   skip_uic: boolean;
+  // Skip the satisfaction assessment block (counselling Q1–Q5 + satisfaction + self-efficacy)
+  skip_satisfaction: boolean;
 }
 
 const defaultData: FeedbackFormData = {
   channel: 'clinic', service_date: new Date().toISOString().split('T')[0], branch_id: null,
-  first_name: '', last_name: '', dob: '', uic: '', skip_uic: false,
+  first_name: '', last_name: '', dob: '', uic: '', skip_uic: false, skip_satisfaction: false,
   q1: null, q2: null, q3: null, q4: null, q5: null,
   satisfaction: null, self_efficacy: null,
   services: [],
@@ -93,7 +95,11 @@ export default function ClientFeedbackForm() {
   // Compute steps dynamically based on selected services
   // UIC step appears only when Harm Reduction or Mental Health is selected
   const getSteps = () => {
-    const steps = ['intro', 'counselling', 'satisfaction', 'services'];
+    const steps = ['intro'];
+    if (!data.skip_satisfaction) {
+      steps.push('counselling', 'satisfaction');
+    }
+    steps.push('services');
     if (data.services.includes('sti') || data.services.includes('prep') ||
         data.services.includes('pep') || data.services.includes('art')) {
       steps.push('service_detail');
