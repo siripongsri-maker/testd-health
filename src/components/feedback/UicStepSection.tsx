@@ -1,20 +1,18 @@
 import { useLanguage } from "@/lib/i18n";
 import { UicField } from "./UicField";
 import { VisitStatusBanner } from "./VisitStatusBanner";
-import { Button } from "@/components/ui/button";
-import { SkipForward, Fingerprint } from "lucide-react";
+import { Fingerprint } from "lucide-react";
 import type { FeedbackFormData } from "@/pages/ClientFeedbackForm";
 import type { UicVisitStats } from "@/lib/clientSeed";
 
 interface Props {
   data: FeedbackFormData;
   update: (p: Partial<FeedbackFormData>) => void;
-  onSkip: () => void;
   onStatsLoaded?: (stats: UicVisitStats) => void;
   stats: UicVisitStats | null;
 }
 
-export function UicStepSection({ data, update, onSkip, onStatsLoaded, stats }: Props) {
+export function UicStepSection({ data, update, onStatsLoaded, stats }: Props) {
   const { language } = useLanguage();
 
   return (
@@ -45,24 +43,6 @@ export function UicStepSection({ data, update, onSkip, onStatsLoaded, stats }: P
       {stats && (
         <VisitStatusBanner uicStats={stats} uicValue={data.uic} />
       )}
-
-      {/* Skip button */}
-      <div className="rounded-xl border border-dashed border-border bg-muted/20 p-4 text-center space-y-2">
-        <p className="text-xs text-muted-foreground">
-          {language === 'th'
-            ? 'ไม่สะดวกกรอก UIC ตอนนี้? ข้ามไปยังคำถามถัดไปได้เลย'
-            : "Don't want to enter your UIC right now? You can skip ahead."}
-        </p>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onSkip}
-          className="w-full"
-        >
-          <SkipForward className="h-4 w-4 mr-2" />
-          {language === 'th' ? 'ข้ามขั้นตอนนี้ (Skip)' : 'Skip this step'}
-        </Button>
-      </div>
     </div>
   );
 }
