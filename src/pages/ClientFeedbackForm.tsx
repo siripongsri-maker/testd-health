@@ -180,7 +180,7 @@ export default function ClientFeedbackForm() {
         channel: data.channel,
         branch_id: data.branch_id,
         language,
-        uic: null,
+        uic: data.uic?.trim() || null,
       });
 
       trackJourneyEvent('engagement', 'feedback_form_submitted', {
