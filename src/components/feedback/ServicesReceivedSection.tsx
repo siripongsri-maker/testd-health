@@ -7,12 +7,12 @@ interface Props {
 }
 
 const serviceOptions = [
-  { value: 'sti', th: '💊 STI treatment / care', en: '💊 STI treatment / care' },
-  { value: 'prep', th: '🛡️ PrEP', en: '🛡️ PrEP' },
-  { value: 'pep', th: '⚡ PEP', en: '⚡ PEP' },
-  { value: 'art', th: '💜 ART', en: '💜 ART' },
-  { value: 'harm_reduction', th: '🧡 Harm Reduction / ข้อมูล Chemsex', en: '🧡 Harm Reduction / Chemsex info' },
-  { value: 'mental_health', th: '🧠 สุขภาพจิต / Psychosocial', en: '🧠 Mental Health / Psychosocial' },
+  { value: 'sti', th: '💊 รักษา/ดูแลโรคติดต่อทางเพศสัมพันธ์ (STI)', en: '💊 STI treatment / care' },
+  { value: 'prep', th: '🛡️ ยาป้องกันก่อนสัมผัสเชื้อ (PrEP)', en: '🛡️ PrEP' },
+  { value: 'pep', th: '⚡ ยาป้องกันหลังสัมผัสเชื้อ (PEP)', en: '⚡ PEP' },
+  { value: 'art', th: '💜 ยาต้านไวรัสเอชไอวี (ART)', en: '💜 ART' },
+  { value: 'harm_reduction', th: '🧡 ลดอันตรายจากการใช้สาร / ข้อมูลเคมเซ็กซ์ (Harm Reduction / Chemsex)', en: '🧡 Harm Reduction / Chemsex info' },
+  { value: 'mental_health', th: '🧠 สุขภาพจิตและจิตสังคม (Mental Health / Psychosocial)', en: '🧠 Mental Health / Psychosocial' },
   { value: 'none', th: '❌ ไม่ได้รับบริการเพิ่มเติม', en: '❌ No additional services' },
 ];
 
