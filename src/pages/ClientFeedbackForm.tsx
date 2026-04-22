@@ -13,10 +13,9 @@ import { ServicesReceivedSection } from "@/components/feedback/ServicesReceivedS
 import { HarmReductionSection } from "@/components/feedback/HarmReductionSection";
 import { MentalHealthSection } from "@/components/feedback/MentalHealthSection";
 import { OpenFeedbackSection } from "@/components/feedback/OpenFeedbackSection";
-import { UicStepSection } from "@/components/feedback/UicStepSection";
-import type { UicVisitStats } from "@/lib/clientSeed";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, Send, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Send, CheckCircle2, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export interface FeedbackFormData {
   channel: string;
@@ -73,7 +72,6 @@ export default function ClientFeedbackForm() {
   const [data, setData] = useState<FeedbackFormData>(defaultData);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [uicStats, setUicStats] = useState<UicVisitStats | null>(null);
 
   useEffect(() => {
     trackJourneyEvent('engagement', 'feedback_form_viewed');
@@ -197,18 +195,42 @@ export default function ClientFeedbackForm() {
   if (submitted) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-        <div className="max-w-md w-full text-center space-y-6">
-          <div className="mx-auto w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-            <CheckCircle2 className="h-10 w-10 text-primary" />
+        <div className="max-w-md w-full text-center space-y-6 rounded-3xl border border-primary/20 bg-card shadow-lg p-8">
+          <div className="relative mx-auto w-24 h-24">
+            <div className="absolute inset-0 rounded-full bg-primary/10 animate-pulse" />
+            <div className="absolute inset-2 rounded-full bg-primary/15 flex items-center justify-center">
+              <CheckCircle2 className="h-12 w-12 text-primary" strokeWidth={2.25} />
+            </div>
+            <Sparkles className="absolute -top-1 -right-1 h-5 w-5 text-primary/70" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">
-            {language === 'th' ? 'ขอบคุณค่ะ / ครับ 🙏' : 'Thank you! 🙏'}
-          </h1>
-          <p className="text-muted-foreground">
-            {language === 'th'
-              ? 'ความคิดเห็นของคุณจะช่วยให้เราพัฒนาบริการให้ดียิ่งขึ้น'
-              : 'Your feedback helps us improve our services.'}
-          </p>
+
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold text-foreground">
+              {language === 'th' ? '🎉 ส่งแบบประเมินสำเร็จ!' : '🎉 Feedback submitted successfully!'}
+            </h1>
+            <p className="text-sm text-foreground/80">
+              {language === 'th' ? 'ขอบคุณค่ะ / ครับ 🙏' : 'Thank you for your time! 🙏'}
+            </p>
+          </div>
+
+          <div className="rounded-xl bg-muted/40 border border-border p-4 text-left space-y-2">
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              ✅ {language === 'th'
+                ? 'ข้อมูลของคุณถูกบันทึกอย่างปลอดภัยแล้ว'
+                : 'Your responses have been saved securely.'}
+            </p>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              💡 {language === 'th'
+                ? 'ความคิดเห็นของคุณจะช่วยให้เราพัฒนาบริการให้ดียิ่งขึ้น'
+                : 'Your feedback helps us improve our services for everyone.'}
+            </p>
+          </div>
+
+          <Button asChild className="w-full">
+            <Link to="/">
+              {language === 'th' ? 'กลับสู่หน้าหลัก' : 'Back to home'}
+            </Link>
+          </Button>
         </div>
       </div>
     );
@@ -235,15 +257,6 @@ export default function ClientFeedbackForm() {
             {data.services.includes('pep') && <ServiceSubSection type="pep" data={data} update={update} />}
             {data.services.includes('art') && <ServiceSubSection type="art" data={data} update={update} />}
           </div>
-        )}
-        {currentStep === 'uic' && (
-          <UicStepSection
-            data={data}
-            update={update}
-            onSkip={() => setStep(s => s + 1)}
-            onStatsLoaded={setUicStats}
-            stats={uicStats}
-          />
         )}
         {currentStep === 'harm_reduction' && <HarmReductionSection data={data} update={update} />}
         {currentStep === 'mental_health' && <MentalHealthSection data={data} update={update} />}
