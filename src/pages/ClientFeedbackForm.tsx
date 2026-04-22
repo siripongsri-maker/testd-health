@@ -15,6 +15,7 @@ import { MentalHealthSection } from "@/components/feedback/MentalHealthSection";
 import { OpenFeedbackSection } from "@/components/feedback/OpenFeedbackSection";
 import { UicStepSection } from "@/components/feedback/UicStepSection";
 import type { UicVisitStats } from "@/lib/clientSeed";
+import { isValidUic } from "@/lib/uic";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, Send, CheckCircle2, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -120,6 +121,7 @@ export default function ClientFeedbackForm() {
     if (currentStep === 'counselling') return data.q1 !== null && data.q2 !== null && data.q3 !== null && data.q4 !== null && data.q5 !== null;
     if (currentStep === 'satisfaction') return data.satisfaction !== null && data.self_efficacy !== null;
     if (currentStep === 'services') return data.services.length > 0;
+    if (currentStep === 'uic') return isValidUic(data.uic);
     return true;
   };
 
