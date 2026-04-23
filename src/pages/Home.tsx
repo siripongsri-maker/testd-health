@@ -13,7 +13,7 @@ import { QuickActionStrip } from "@/components/home/QuickActionStrip";
 import { FeaturedJourneySection } from "@/components/home/FeaturedJourneySection";
 import { StickyTestCTA } from "@/components/home/StickyTestCTA";
 import { PixelStadiumWidget } from "@/components/home/PixelStadiumWidget";
-import { ExitIntentNudge } from "@/components/ExitIntentNudge";
+
 
 import swingLogo from "@/assets/swing-logo.png";
 import testdLogo from "@/assets/testd-logo.png";
@@ -139,7 +139,6 @@ export default function Home() {
 
       {/* Popups */}
       <AdminRequestsPopup open={adminPopupOpen} onOpenChange={setAdminPopupOpen} />
-      <ExitIntentNudge />
     </div>
   );
 }
