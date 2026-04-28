@@ -22,6 +22,9 @@ export function AutoSEO() {
     // Set title
     document.title = title;
 
+    // Sync <html lang> so crawlers and assistive tech see the active language
+    document.documentElement.lang = isEn ? "en" : "th";
+
     // Helper
     const setMeta = (attr: string, key: string, content: string) => {
       let el = document.querySelector(`meta[${attr}="${key}"]`) as HTMLMetaElement | null;
