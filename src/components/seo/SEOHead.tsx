@@ -168,3 +168,30 @@ export function buildFaqJsonLd(faqs: { question: string; answer: string }[]) {
     })),
   };
 }
+
+/**
+ * Build BreadcrumbList JSON-LD for nested routes.
+ * Pass an ordered list of crumbs from root → current page.
+ * Paths are resolved against BASE_URL.
+ *
+ * Example:
+ *   buildBreadcrumbJsonLd([
+ *     { name: "Home", path: "/" },
+ *     { name: "Harm Reduction", path: "/harm-reduction" },
+ *     { name: "Chemsex Safety", path: "/chemsex-safety" },
+ *   ])
+ */
+export function buildBreadcrumbJsonLd(
+  crumbs: { name: string; path: string }[]
+) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: crumbs.map((crumb, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: crumb.name,
+      item: `${BASE_URL}${crumb.path.startsWith("/") ? crumb.path : `/${crumb.path}`}`,
+    })),
+  };
+}
