@@ -200,7 +200,8 @@ export default function Info() {
                   {article.cover_url ? (
                     <img 
                       src={article.cover_url} 
-                      alt="" 
+                      alt={language === 'th' ? `ภาพประกอบบทความ: ${article.title_th}` : `Cover image for article: ${article.title_en}`}
+                      loading="lazy"
                       className="w-full h-24 object-cover"
                     />
                   ) : (
@@ -288,7 +289,8 @@ export default function Info() {
                   {article.cover_url ? (
                     <img 
                       src={article.cover_url} 
-                      alt="" 
+                      alt={language === 'th' ? `ภาพประกอบบทความ: ${article.title_th}` : `Cover image for article: ${article.title_en}`}
+                      loading="lazy"
                       className="w-20 h-20 rounded-xl object-cover flex-shrink-0"
                     />
                   ) : (
@@ -391,7 +393,8 @@ export default function Info() {
                           {article.cover_url ? (
                             <img 
                               src={article.cover_url} 
-                              alt="" 
+                              alt={language === 'th' ? `ภาพประกอบบทความ: ${article.title_th}` : `Cover image for article: ${article.title_en}`}
+                              loading="lazy"
                               className="w-14 h-14 rounded-lg object-cover flex-shrink-0"
                             />
                           ) : (
