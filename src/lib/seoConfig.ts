@@ -24,9 +24,25 @@ export interface RouteSEO {
   routeClass: RouteClass;
   ogType?: string;
   canonicalPath?: string;
+  /** Optional route-specific social share image (absolute URL). */
+  ogImage?: string;
 }
 
 const BASE_URL = "https://testd-health.lovable.app";
+
+/**
+ * Category-specific OG images. Use these when a route doesn't override `ogImage`.
+ * Keep in sync with public/og/*.png assets.
+ */
+export const OG_IMAGES = {
+  default: "https://storage.googleapis.com/gpt-engineer-file-uploads/KT2ExYhzQvVnbWOZrapb2296DWu1/social-images/social-1770910470399-testD_logo.png",
+  clinic: `${BASE_URL}/og/og-clinic.png`,
+  harmReduction: `${BASE_URL}/og/og-harm-reduction.png`,
+  substance: `${BASE_URL}/og/og-substance.png`,
+  selftest: `${BASE_URL}/og/og-selftest.png`,
+  prevention: `${BASE_URL}/og/og-prevention.png`,
+  virtual: `${BASE_URL}/og/og-virtual.png`,
+} as const;
 
 /** Default fallback for unknown/new pages */
 export const SEO_FALLBACK: RouteSEO = {
@@ -35,6 +51,7 @@ export const SEO_FALLBACK: RouteSEO = {
   descTh: "ตรวจ HIV ฟรีถึงบ้าน จองนัดคลินิก ปรึกษาผู้เชี่ยวชาญ ดูแลสุขภาพอย่างเป็นส่วนตัว ปลอดภัย",
   descEn: "Free HIV self-test kits, clinic booking, expert counseling, and comprehensive health tools.",
   routeClass: "public_indexable",
+  ogImage: OG_IMAGES.default,
 };
 
 /**
@@ -101,6 +118,7 @@ export const SEO_MAP: Record<string, RouteSEO> = {
     descEn: "Emergency PEP information — post-exposure HIV prevention.",
     routeClass: "public_indexable",
     canonicalPath: "/pep",
+    ogImage: OG_IMAGES.clinic,
   },
   "/progress": {
     titleTh: "ความก้าวหน้า | testD",
@@ -154,6 +172,7 @@ export const SEO_MAP: Record<string, RouteSEO> = {
     descEn: "Order a free HIV self-test kit delivered to your home. Easy, private, and safe.",
     routeClass: "public_indexable",
     canonicalPath: "/hiv-selftest",
+    ogImage: OG_IMAGES.selftest,
   },
   "/leaderboard": {
     titleTh: "กระดานอันดับ | testD",
@@ -227,6 +246,7 @@ export const SEO_MAP: Record<string, RouteSEO> = {
     descEn: "Book HIV, PrEP, PEP, and health service appointments at SWING clinics.",
     routeClass: "public_indexable",
     canonicalPath: "/booking",
+    ogImage: OG_IMAGES.clinic,
   },
   "/my-appointments": {
     titleTh: "นัดหมายของฉัน | testD",
@@ -299,6 +319,7 @@ export const SEO_MAP: Record<string, RouteSEO> = {
     descEn: "Take a quiz to find the HIV prevention method that fits your lifestyle.",
     routeClass: "public_indexable",
     canonicalPath: "/prevention-match",
+    ogImage: OG_IMAGES.prevention,
   },
   "/harm-reduction": {
     titleTh: "Harm Reduction — คู่มือลดอันตรายและความปลอดภัย Chemsex | testD",
@@ -307,6 +328,7 @@ export const SEO_MAP: Record<string, RouteSEO> = {
     descEn: "Check drug combination risks, substance knowledge library, and health tools.",
     routeClass: "public_indexable",
     canonicalPath: "/harm-reduction",
+    ogImage: OG_IMAGES.harmReduction,
   },
   "/partners": {
     titleTh: "พาร์ทเนอร์และนักการศึกษา | testD",
@@ -361,6 +383,7 @@ export const SEO_MAP: Record<string, RouteSEO> = {
     descEn: "Chemsex harm reduction guide, safer substance use, and health care.",
     routeClass: "public_indexable",
     canonicalPath: "/chemsex-safety",
+    ogImage: OG_IMAGES.harmReduction,
   },
   "/drug-combination-risk": {
     titleTh: "ตรวจสอบความเสี่ยงจากการผสมสาร | testD",
@@ -369,6 +392,7 @@ export const SEO_MAP: Record<string, RouteSEO> = {
     descEn: "Check the risks of mixing different substances for safety and harm reduction.",
     routeClass: "public_indexable",
     canonicalPath: "/drug-combination-risk",
+    ogImage: OG_IMAGES.substance,
   },
   "/ghb-overdose": {
     titleTh: "GHB Overdose — สัญญาณอันตรายและการช่วยเหลือ | testD",
@@ -377,6 +401,7 @@ export const SEO_MAP: Record<string, RouteSEO> = {
     descEn: "Recognize GHB overdose signs, first aid, and how to get help.",
     routeClass: "public_indexable",
     canonicalPath: "/ghb-overdose",
+    ogImage: OG_IMAGES.substance,
   },
   "/meth-harm-reduction": {
     titleTh: "ลดอันตรายจากยาไอซ์ | testD",
@@ -385,6 +410,7 @@ export const SEO_MAP: Record<string, RouteSEO> = {
     descEn: "Meth harm reduction information, health care, and support resources.",
     routeClass: "public_indexable",
     canonicalPath: "/meth-harm-reduction",
+    ogImage: OG_IMAGES.substance,
   },
   "/hiv-self-test-guide": {
     titleTh: "คู่มือตรวจ HIV ด้วยตนเอง | testD",
@@ -393,6 +419,7 @@ export const SEO_MAP: Record<string, RouteSEO> = {
     descEn: "How to use an HIV self-test, read results, and next steps.",
     routeClass: "public_indexable",
     canonicalPath: "/hiv-self-test-guide",
+    ogImage: OG_IMAGES.selftest,
   },
   "/virtual": {
     titleTh: "Virtual Stories — เรียนรู้สุขภาพผ่านเรื่องเล่าแบบเลือกเส้นทาง | testD",
@@ -401,6 +428,7 @@ export const SEO_MAP: Record<string, RouteSEO> = {
     descEn: "Learn about HIV prevention, PrEP, and self-care through interactive choose-your-path stories. Free to play.",
     routeClass: "public_indexable",
     canonicalPath: "/virtual",
+    ogImage: OG_IMAGES.virtual,
   },
   "/virtual/ep2": {
     titleTh: "มาร์คกับเข็มที่เขายังไม่รู้ว่ามีอยู่ — PrEP & Lenacapavir | testD",
@@ -409,6 +437,7 @@ export const SEO_MAP: Record<string, RouteSEO> = {
     descEn: "Marc's journey discovering PrEP and Lenacapavir — a new twice-yearly HIV prevention option.",
     routeClass: "public_indexable",
     canonicalPath: "/virtual/ep2",
+    ogImage: OG_IMAGES.virtual,
   },
 };
 
@@ -509,6 +538,7 @@ export function getRouteSEO(pathname: string): RouteSEO {
       descTh: "ข้อมูลความเสี่ยงจากการใช้สารร่วมกัน คำแนะนำลดอันตราย",
       descEn: "Drug interaction risk information and harm reduction advice.",
       routeClass: "public_indexable",
+      ogImage: OG_IMAGES.substance,
     };
   }
 
