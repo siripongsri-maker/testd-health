@@ -45,6 +45,12 @@ export function AutoSEO() {
     setMeta("name", "twitter:title", title);
     setMeta("name", "twitter:description", desc);
 
+    // Per-route social share image (falls back to default in seoConfig)
+    if (seo.ogImage) {
+      setMeta("property", "og:image", seo.ogImage);
+      setMeta("name", "twitter:image", seo.ogImage);
+    }
+
     // Canonical
     if (seo.canonicalPath) {
       let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
