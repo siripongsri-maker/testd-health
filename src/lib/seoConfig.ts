@@ -24,9 +24,25 @@ export interface RouteSEO {
   routeClass: RouteClass;
   ogType?: string;
   canonicalPath?: string;
+  /** Optional route-specific social share image (absolute URL). */
+  ogImage?: string;
 }
 
 const BASE_URL = "https://testd-health.lovable.app";
+
+/**
+ * Category-specific OG images. Use these when a route doesn't override `ogImage`.
+ * Keep in sync with public/og/*.png assets.
+ */
+export const OG_IMAGES = {
+  default: "https://storage.googleapis.com/gpt-engineer-file-uploads/KT2ExYhzQvVnbWOZrapb2296DWu1/social-images/social-1770910470399-testD_logo.png",
+  clinic: `${BASE_URL}/og/og-clinic.png`,
+  harmReduction: `${BASE_URL}/og/og-harm-reduction.png`,
+  substance: `${BASE_URL}/og/og-substance.png`,
+  selftest: `${BASE_URL}/og/og-selftest.png`,
+  prevention: `${BASE_URL}/og/og-prevention.png`,
+  virtual: `${BASE_URL}/og/og-virtual.png`,
+} as const;
 
 /** Default fallback for unknown/new pages */
 export const SEO_FALLBACK: RouteSEO = {
@@ -35,6 +51,7 @@ export const SEO_FALLBACK: RouteSEO = {
   descTh: "ตรวจ HIV ฟรีถึงบ้าน จองนัดคลินิก ปรึกษาผู้เชี่ยวชาญ ดูแลสุขภาพอย่างเป็นส่วนตัว ปลอดภัย",
   descEn: "Free HIV self-test kits, clinic booking, expert counseling, and comprehensive health tools.",
   routeClass: "public_indexable",
+  ogImage: OG_IMAGES.default,
 };
 
 /**
