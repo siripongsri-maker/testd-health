@@ -1,4 +1,4 @@
-export { SEOHead, buildMedicalPageJsonLd, buildFaqJsonLd } from "./SEOHead";
+export { SEOHead, buildMedicalPageJsonLd, buildFaqJsonLd, buildBreadcrumbJsonLd } from "./SEOHead";
 export { AutoSEO } from "./AutoSEO";
 export { AISummaryBlock } from "./AISummaryBlock";
 export { QuickFactsCard } from "./QuickFactsCard";
