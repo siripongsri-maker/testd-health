@@ -538,6 +538,7 @@ export function getRouteSEO(pathname: string): RouteSEO {
       descTh: "ข้อมูลความเสี่ยงจากการใช้สารร่วมกัน คำแนะนำลดอันตราย",
       descEn: "Drug interaction risk information and harm reduction advice.",
       routeClass: "public_indexable",
+      ogImage: OG_IMAGES.substance,
     };
   }
 
