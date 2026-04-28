@@ -42,3 +42,5 @@ project_id = "tzerhfvlrssrashrcbeg"
     verify_jwt = false
   [functions.moderate-community-post]
     verify_jwt = false
+  [functions.sitemap-xml]
+    verify_jwt = false
