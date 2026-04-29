@@ -196,6 +196,103 @@ export default function AdminDiagnosticsContent() {
       results.push({ name: 'Branch hours check', status: 'warn', detail: 'Unable to check', category: 'consistency' });
     }
 
+    // ─── Sitemap Coverage ───
+    try {
+      const sitemapUrl = `https://tzerhfvlrssrashrcbeg.supabase.co/functions/v1/sitemap-xml?cb=${Date.now()}`;
+      const res = await fetch(sitemapUrl, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const xml = await res.text();
+      // Parse <loc>...</loc> entries
+      const locRegex = /<loc>([^<]+)<\/loc>/g;
+      const urls = new Set<string>();
+      let m: RegExpExecArray | null;
+      while ((m = locRegex.exec(xml)) !== null) {
+        try {
+          const u = new URL(m[1].trim());
+          urls.add(u.pathname);
+        } catch { /* skip */ }
+      }
+
+      // Build expected from DB (mirror sitemap-xml logic)
+      const expected: { kind: 'substance' | 'interaction' | 'article'; path: string; label?: string }[] = [];
+
+      const { data: subs } = await supabase
+        .from('hr_substances' as any)
+        .select('id, slug, is_active')
+        .eq('is_active', true);
+      const slugById = new Map<string, string>();
+      for (const s of (subs as any[]) ?? []) {
+        if (!s.slug) continue;
+        slugById.set(s.id, s.slug);
+        expected.push({ kind: 'substance', path: `/substance/${s.slug}`, label: s.slug });
+      }
+
+      const { data: ix } = await supabase
+        .from('hr_substance_interactions' as any)
+        .select('substance_a_id, substance_b_id');
+      const seenIx = new Set<string>();
+      for (const row of (ix as any[]) ?? []) {
+        const a = slugById.get(row.substance_a_id);
+        const b = slugById.get(row.substance_b_id);
+        if (!a || !b) continue;
+        const [s1, s2] = [a, b].sort();
+        const slug = `${s1}-${s2}`;
+        if (seenIx.has(slug)) continue;
+        seenIx.add(slug);
+        expected.push({ kind: 'interaction', path: `/interaction/${slug}`, label: slug });
+      }
+
+      const { data: arts } = await supabase
+        .from('blog_articles' as any)
+        .select('id, slug, status')
+        .eq('status', 'published')
+        .limit(2000);
+      for (const a of (arts as any[]) ?? []) {
+        const path = a.slug ? `/info/article/${a.slug}` : `/info/${a.id}`;
+        expected.push({ kind: 'article', path, label: a.slug || a.id });
+      }
+
+      const missing = expected.filter(e => !urls.has(e.path));
+      const expectedSet = new Set(expected.map(e => e.path));
+      // Count "extra" only among the dynamic url namespaces we own
+      let extra = 0;
+      urls.forEach(p => {
+        if ((p.startsWith('/substance/') || p.startsWith('/interaction/') || p.startsWith('/info/article/') || /^\/info\/[^/]+$/.test(p)) && !expectedSet.has(p)) {
+          extra++;
+        }
+      });
+
+      setSitemapCoverage({
+        fetchedAt: new Date().toISOString(),
+        sitemapUrlCount: urls.size,
+        expectedCount: expected.length,
+        missing,
+        extra,
+      });
+
+      results.push({
+        name: 'Sitemap coverage',
+        status: missing.length === 0 ? 'ok' : (missing.length > 10 ? 'error' : 'warn'),
+        detail: `${urls.size} URLs in sitemap, ${expected.length} expected dynamic, ${missing.length} missing${extra ? `, ${extra} stale` : ''}`,
+        category: 'consistency',
+      });
+    } catch (e: any) {
+      setSitemapCoverage({
+        fetchedAt: new Date().toISOString(),
+        sitemapUrlCount: 0,
+        expectedCount: 0,
+        missing: [],
+        extra: 0,
+        error: e?.message || 'Fetch failed',
+      });
+      results.push({
+        name: 'Sitemap coverage',
+        status: 'error',
+        detail: `Unable to fetch sitemap: ${e?.message || 'unknown error'}`,
+        category: 'consistency',
+      });
+    }
+
     setChecks(results);
     setLoading(false);
   };
