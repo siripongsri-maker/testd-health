@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Monitor, RefreshCw, CheckCircle, XCircle, AlertTriangle, Loader2, Wrench, Database, FileText } from "lucide-react";
+import { Monitor, RefreshCw, CheckCircle, XCircle, AlertTriangle, Loader2, Wrench, Database, FileText, Map as MapIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
