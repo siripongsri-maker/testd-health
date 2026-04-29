@@ -20,6 +20,14 @@ export default function AdminDiagnosticsContent() {
   const [checks, setChecks] = useState<DiagCheck[]>([]);
   const [loading, setLoading] = useState(false);
   const [providerDiag, setProviderDiag] = useState<any>(null);
+  const [sitemapCoverage, setSitemapCoverage] = useState<{
+    fetchedAt: string;
+    sitemapUrlCount: number;
+    expectedCount: number;
+    missing: { kind: 'substance' | 'interaction' | 'article'; path: string; label?: string }[];
+    extra: number;
+    error?: string;
+  } | null>(null);
 
   const runChecks = async () => {
     setLoading(true);
