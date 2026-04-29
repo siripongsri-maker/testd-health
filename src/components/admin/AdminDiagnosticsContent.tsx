@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Monitor, RefreshCw, CheckCircle, XCircle, AlertTriangle, Loader2, Wrench, Database, FileText } from "lucide-react";
+import { Monitor, RefreshCw, CheckCircle, XCircle, AlertTriangle, Loader2, Wrench, Database, FileText, Map as MapIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -20,6 +20,14 @@ export default function AdminDiagnosticsContent() {
   const [checks, setChecks] = useState<DiagCheck[]>([]);
   const [loading, setLoading] = useState(false);
   const [providerDiag, setProviderDiag] = useState<any>(null);
+  const [sitemapCoverage, setSitemapCoverage] = useState<{
+    fetchedAt: string;
+    sitemapUrlCount: number;
+    expectedCount: number;
+    missing: { kind: 'substance' | 'interaction' | 'article'; path: string; label?: string }[];
+    extra: number;
+    error?: string;
+  } | null>(null);
 
   const runChecks = async () => {
     setLoading(true);
@@ -188,6 +196,103 @@ export default function AdminDiagnosticsContent() {
       results.push({ name: 'Branch hours check', status: 'warn', detail: 'Unable to check', category: 'consistency' });
     }
 
+    // ─── Sitemap Coverage ───
+    try {
+      const sitemapUrl = `https://tzerhfvlrssrashrcbeg.supabase.co/functions/v1/sitemap-xml?cb=${Date.now()}`;
+      const res = await fetch(sitemapUrl, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const xml = await res.text();
+      // Parse <loc>...</loc> entries
+      const locRegex = /<loc>([^<]+)<\/loc>/g;
+      const urls = new Set<string>();
+      let m: RegExpExecArray | null;
+      while ((m = locRegex.exec(xml)) !== null) {
+        try {
+          const u = new URL(m[1].trim());
+          urls.add(u.pathname);
+        } catch { /* skip */ }
+      }
+
+      // Build expected from DB (mirror sitemap-xml logic)
+      const expected: { kind: 'substance' | 'interaction' | 'article'; path: string; label?: string }[] = [];
+
+      const { data: subs } = await supabase
+        .from('hr_substances' as any)
+        .select('id, slug, is_active')
+        .eq('is_active', true);
+      const slugById = new Map<string, string>();
+      for (const s of (subs as any[]) ?? []) {
+        if (!s.slug) continue;
+        slugById.set(s.id, s.slug);
+        expected.push({ kind: 'substance', path: `/substance/${s.slug}`, label: s.slug });
+      }
+
+      const { data: ix } = await supabase
+        .from('hr_substance_interactions' as any)
+        .select('substance_a_id, substance_b_id');
+      const seenIx = new Set<string>();
+      for (const row of (ix as any[]) ?? []) {
+        const a = slugById.get(row.substance_a_id);
+        const b = slugById.get(row.substance_b_id);
+        if (!a || !b) continue;
+        const [s1, s2] = [a, b].sort();
+        const slug = `${s1}-${s2}`;
+        if (seenIx.has(slug)) continue;
+        seenIx.add(slug);
+        expected.push({ kind: 'interaction', path: `/interaction/${slug}`, label: slug });
+      }
+
+      const { data: arts } = await supabase
+        .from('blog_articles' as any)
+        .select('id, slug, status')
+        .eq('status', 'published')
+        .limit(2000);
+      for (const a of (arts as any[]) ?? []) {
+        const path = a.slug ? `/info/article/${a.slug}` : `/info/${a.id}`;
+        expected.push({ kind: 'article', path, label: a.slug || a.id });
+      }
+
+      const missing = expected.filter(e => !urls.has(e.path));
+      const expectedSet = new Set(expected.map(e => e.path));
+      // Count "extra" only among the dynamic url namespaces we own
+      let extra = 0;
+      urls.forEach(p => {
+        if ((p.startsWith('/substance/') || p.startsWith('/interaction/') || p.startsWith('/info/article/') || /^\/info\/[^/]+$/.test(p)) && !expectedSet.has(p)) {
+          extra++;
+        }
+      });
+
+      setSitemapCoverage({
+        fetchedAt: new Date().toISOString(),
+        sitemapUrlCount: urls.size,
+        expectedCount: expected.length,
+        missing,
+        extra,
+      });
+
+      results.push({
+        name: 'Sitemap coverage',
+        status: missing.length === 0 ? 'ok' : (missing.length > 10 ? 'error' : 'warn'),
+        detail: `${urls.size} URLs in sitemap, ${expected.length} expected dynamic, ${missing.length} missing${extra ? `, ${extra} stale` : ''}`,
+        category: 'consistency',
+      });
+    } catch (e: any) {
+      setSitemapCoverage({
+        fetchedAt: new Date().toISOString(),
+        sitemapUrlCount: 0,
+        expectedCount: 0,
+        missing: [],
+        extra: 0,
+        error: e?.message || 'Fetch failed',
+      });
+      results.push({
+        name: 'Sitemap coverage',
+        status: 'error',
+        detail: `Unable to fetch sitemap: ${e?.message || 'unknown error'}`,
+        category: 'consistency',
+      });
+    }
+
     setChecks(results);
     setLoading(false);
   };
@@ -263,6 +368,95 @@ export default function AdminDiagnosticsContent() {
             <pre className="text-xs bg-muted/30 rounded-lg p-3 overflow-auto max-h-64 text-muted-foreground">
               {JSON.stringify(providerDiag, null, 2)}
             </pre>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Sitemap Coverage */}
+      {sitemapCoverage && (
+        <Card className="border border-border/50">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <MapIcon className="h-4 w-4" />
+              {isTh ? 'Sitemap Coverage' : 'Sitemap Coverage'}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {sitemapCoverage.error ? (
+              <p className="text-xs text-red-600">{sitemapCoverage.error}</p>
+            ) : (
+              <>
+                <div className="grid grid-cols-3 gap-2 text-xs">
+                  <div className="rounded-lg bg-muted/30 p-2">
+                    <div className="text-muted-foreground">{isTh ? 'URL ใน sitemap' : 'URLs in sitemap'}</div>
+                    <div className="text-base font-semibold text-foreground">{sitemapCoverage.sitemapUrlCount}</div>
+                  </div>
+                  <div className="rounded-lg bg-muted/30 p-2">
+                    <div className="text-muted-foreground">{isTh ? 'คาดหวัง (จาก DB)' : 'Expected (DB)'}</div>
+                    <div className="text-base font-semibold text-foreground">{sitemapCoverage.expectedCount}</div>
+                  </div>
+                  <div className="rounded-lg bg-muted/30 p-2">
+                    <div className="text-muted-foreground">{isTh ? 'ขาดหาย' : 'Missing'}</div>
+                    <div className={cn("text-base font-semibold", sitemapCoverage.missing.length === 0 ? 'text-emerald-600' : 'text-amber-600')}>
+                      {sitemapCoverage.missing.length}
+                    </div>
+                  </div>
+                </div>
+
+                {sitemapCoverage.missing.length === 0 ? (
+                  <p className="text-xs text-emerald-600 flex items-center gap-1">
+                    <CheckCircle className="h-3.5 w-3.5" />
+                    {isTh ? 'ครอบคลุมทุก route แบบ dynamic' : 'All dynamic routes covered'}
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {(['substance', 'interaction', 'article'] as const).map(kind => {
+                      const items = sitemapCoverage.missing.filter(m => m.kind === kind);
+                      if (items.length === 0) return null;
+                      const label = kind === 'substance'
+                        ? (isTh ? 'สาร (substance)' : 'Substances')
+                        : kind === 'interaction'
+                          ? (isTh ? 'ปฏิกิริยา (interaction)' : 'Interactions')
+                          : (isTh ? 'บทความ (article)' : 'Articles');
+                      return (
+                        <div key={kind}>
+                          <div className="text-xs font-semibold text-foreground mb-1">{label} — {items.length}</div>
+                          <div className="max-h-40 overflow-auto rounded-lg border border-border/40 bg-muted/20 p-2 space-y-0.5">
+                            {items.slice(0, 50).map((m, i) => (
+                              <div key={i} className="text-[11px] font-mono text-muted-foreground truncate">{m.path}</div>
+                            ))}
+                            {items.length > 50 && (
+                              <div className="text-[11px] text-muted-foreground italic">+{items.length - 50} more…</div>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {sitemapCoverage.extra > 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    {isTh
+                      ? `พบ ${sitemapCoverage.extra} URL ใน sitemap ที่ไม่ตรงกับ DB (อาจเป็นข้อมูลค้าง)`
+                      : `${sitemapCoverage.extra} sitemap URLs no longer match DB (possibly stale cache)`}
+                  </p>
+                )}
+
+                <p className="text-[11px] text-muted-foreground">
+                  {isTh ? 'อัปเดตเมื่อ' : 'Fetched'}: {new Date(sitemapCoverage.fetchedAt).toLocaleString()}
+                  {' · '}
+                  <a
+                    href={`https://tzerhfvlrssrashrcbeg.supabase.co/functions/v1/sitemap-xml`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline hover:text-foreground"
+                  >
+                    {isTh ? 'เปิด sitemap.xml' : 'Open sitemap.xml'}
+                  </a>
+                </p>
+              </>
+            )}
           </CardContent>
         </Card>
       )}
