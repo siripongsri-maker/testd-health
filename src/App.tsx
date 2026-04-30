@@ -191,8 +191,10 @@ const App = () => {
           <Sonner position="top-center" />
           <BrowserRouter>
             <ScrollToTop />
-            <AutoSEO />
-            <AppShell />
+            <LocaleRedirector>
+              <AutoSEO />
+              <AppShell />
+            </LocaleRedirector>
           </BrowserRouter>
         </TooltipProvider>
       </QueryClientProvider>
