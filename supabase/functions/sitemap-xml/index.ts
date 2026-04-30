@@ -187,7 +187,7 @@ Deno.serve(async (req) => {
         : undefined;
       const path = a.slug ? `/info/article/${a.slug}` : `/info/${a.id}`;
       entries.push(
-        urlEntry({
+        ...seoUrlEntries({
           path,
           changefreq: "weekly",
           priority: 0.6,
