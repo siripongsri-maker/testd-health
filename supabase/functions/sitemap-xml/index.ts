@@ -120,8 +120,8 @@ Deno.serve(async (req) => {
 
     const entries: string[] = [];
 
-    // 1) Static routes
-    for (const r of STATIC_ROUTES) entries.push(urlEntry(r));
+    // 1) Static routes — split into /th and /en variants
+    for (const r of STATIC_ROUTES) entries.push(...seoUrlEntries(r));
 
     // 2) Substances → /substance/:slug
     const { data: substances } = await supabase
