@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { LocaleRedirector, useStrippedLocation } from "@/components/seo/LocaleRouter";
 import { RainbowSwingBackground, ThemedBackground } from "@/components/ThemedBackground";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { OfflineBanner } from "@/components/OfflineBanner";
