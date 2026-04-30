@@ -132,7 +132,7 @@ Deno.serve(async (req) => {
     for (const s of substances ?? []) {
       if (!s.slug) continue;
       entries.push(
-        urlEntry({
+        ...seoUrlEntries({
           path: `/substance/${s.slug}`,
           changefreq: "monthly",
           priority: 0.7,
