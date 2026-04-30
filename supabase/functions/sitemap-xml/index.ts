@@ -164,7 +164,7 @@ Deno.serve(async (req) => {
       if (seenInteraction.has(slug)) continue;
       seenInteraction.add(slug);
       entries.push(
-        urlEntry({
+        ...seoUrlEntries({
           path: `/interaction/${slug}`,
           changefreq: "monthly",
           priority: 0.7,
