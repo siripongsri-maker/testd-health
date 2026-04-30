@@ -1,4 +1,9 @@
 import { useEffect } from "react";
+import {
+  alternateLanguagePaths,
+  canonicalPathFor,
+  isSeoPath,
+} from "@/lib/seoLocalePrefix";
 
 interface SEOHeadProps {
   title: string;
