@@ -90,13 +90,14 @@ const queryClient = new QueryClient();
 /** Inner shell — lives inside BrowserRouter so children can useNavigate */
 function AppShell() {
   useMedicationReminder();
+  const strippedLocation = useStrippedLocation();
   return (
     <>
       <VersionAnnouncementBanner />
       <AnalyticsProvider>
         <Suspense fallback={<PageLoader />}>
           <AppLayout>
-            <Routes>
+            <Routes location={strippedLocation}>
               <Route path="/" element={<Home />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/onboarding" element={<Onboarding />} />
