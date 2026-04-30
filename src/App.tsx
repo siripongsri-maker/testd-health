@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { LocaleRedirector, useStrippedLocation } from "@/components/seo/LocaleRouter";
 import { RainbowSwingBackground, ThemedBackground } from "@/components/ThemedBackground";
 import { AnalyticsProvider } from "@/components/AnalyticsProvider";
 import { OfflineBanner } from "@/components/OfflineBanner";
@@ -89,13 +90,14 @@ const queryClient = new QueryClient();
 /** Inner shell — lives inside BrowserRouter so children can useNavigate */
 function AppShell() {
   useMedicationReminder();
+  const strippedLocation = useStrippedLocation();
   return (
     <>
       <VersionAnnouncementBanner />
       <AnalyticsProvider>
         <Suspense fallback={<PageLoader />}>
           <AppLayout>
-            <Routes>
+            <Routes location={strippedLocation}>
               <Route path="/" element={<Home />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/onboarding" element={<Onboarding />} />
@@ -189,8 +191,10 @@ const App = () => {
           <Sonner position="top-center" />
           <BrowserRouter>
             <ScrollToTop />
-            <AutoSEO />
-            <AppShell />
+            <LocaleRedirector>
+              <AutoSEO />
+              <AppShell />
+            </LocaleRedirector>
           </BrowserRouter>
         </TooltipProvider>
       </QueryClientProvider>

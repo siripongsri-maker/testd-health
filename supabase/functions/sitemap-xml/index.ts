@@ -41,6 +41,59 @@ function escapeXml(s: string): string {
   );
 }
 
+const LOCALES = ["th", "en"] as const;
+const DEFAULT_LOCALE = "th";
+
+/** Strip a leading /th or /en if present. */
+function stripLocale(path: string): string {
+  const m = path.match(/^\/(th|en)(\/|$)/);
+  if (!m) return path;
+  return path.slice(3) || "/";
+}
+
+function withLocale(path: string, locale: string): string {
+  const p = stripLocale(path);
+  if (p === "/") return `/${locale}`;
+  return `/${locale}${p}`;
+}
+
+/**
+ * Emit one <url> entry per locale for a SEO path. Each entry includes
+ * xhtml:link alternates pointing to the locale-specific URLs so each
+ * language has a truly distinct alternate.
+ */
+function seoUrlEntries(opts: {
+  path: string;
+  changefreq: string;
+  priority: number;
+  lastmod?: string;
+}): string[] {
+  const stripped = stripLocale(opts.path);
+  const lastmod = opts.lastmod
+    ? `\n    <lastmod>${escapeXml(opts.lastmod)}</lastmod>`
+    : "";
+
+  const alternates = LOCALES.map(
+    (l) =>
+      `\n    <xhtml:link rel="alternate" hreflang="${l}" href="${escapeXml(
+        BASE_URL + withLocale(stripped, l),
+      )}" />`,
+  ).join("");
+  const xDefault = `\n    <xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(
+    BASE_URL + withLocale(stripped, DEFAULT_LOCALE),
+  )}" />`;
+
+  return LOCALES.map((l) => {
+    const loc = BASE_URL + withLocale(stripped, l);
+    return `  <url>
+    <loc>${escapeXml(loc)}</loc>${lastmod}
+    <changefreq>${opts.changefreq}</changefreq>
+    <priority>${opts.priority.toFixed(1)}</priority>${alternates}${xDefault}
+  </url>`;
+  });
+}
+
+/** Backwards-compat single-URL entry (no locale split). */
 function urlEntry(opts: {
   path: string;
   changefreq: string;
@@ -49,15 +102,10 @@ function urlEntry(opts: {
 }): string {
   const loc = `${BASE_URL}${opts.path}`;
   const lastmod = opts.lastmod ? `\n    <lastmod>${escapeXml(opts.lastmod)}</lastmod>` : "";
-  // hreflang alternates — site auto-detects language; same URL serves both
-  const alternates = `
-    <xhtml:link rel="alternate" hreflang="th" href="${escapeXml(loc)}" />
-    <xhtml:link rel="alternate" hreflang="en" href="${escapeXml(loc)}" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(loc)}" />`;
   return `  <url>
     <loc>${escapeXml(loc)}</loc>${lastmod}
     <changefreq>${opts.changefreq}</changefreq>
-    <priority>${opts.priority.toFixed(1)}</priority>${alternates}
+    <priority>${opts.priority.toFixed(1)}</priority>
   </url>`;
 }
 
@@ -72,8 +120,8 @@ Deno.serve(async (req) => {
 
     const entries: string[] = [];
 
-    // 1) Static routes
-    for (const r of STATIC_ROUTES) entries.push(urlEntry(r));
+    // 1) Static routes — split into /th and /en variants
+    for (const r of STATIC_ROUTES) entries.push(...seoUrlEntries(r));
 
     // 2) Substances → /substance/:slug
     const { data: substances } = await supabase
@@ -84,7 +132,7 @@ Deno.serve(async (req) => {
     for (const s of substances ?? []) {
       if (!s.slug) continue;
       entries.push(
-        urlEntry({
+        ...seoUrlEntries({
           path: `/substance/${s.slug}`,
           changefreq: "monthly",
           priority: 0.7,
@@ -116,7 +164,7 @@ Deno.serve(async (req) => {
       if (seenInteraction.has(slug)) continue;
       seenInteraction.add(slug);
       entries.push(
-        urlEntry({
+        ...seoUrlEntries({
           path: `/interaction/${slug}`,
           changefreq: "monthly",
           priority: 0.7,
@@ -139,7 +187,7 @@ Deno.serve(async (req) => {
         : undefined;
       const path = a.slug ? `/info/article/${a.slug}` : `/info/${a.id}`;
       entries.push(
-        urlEntry({
+        ...seoUrlEntries({
           path,
           changefreq: "weekly",
           priority: 0.6,

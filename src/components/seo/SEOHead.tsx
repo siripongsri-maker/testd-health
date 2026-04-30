@@ -1,4 +1,9 @@
 import { useEffect } from "react";
+import {
+  alternateLanguagePaths,
+  canonicalPathFor,
+  isSeoPath,
+} from "@/lib/seoLocalePrefix";
 
 interface SEOHeadProps {
   title: string;
@@ -69,21 +74,31 @@ export function SEOHead({
     setMeta("name", "twitter:image", ogImage || DEFAULT_OG_IMAGE);
     setMeta("name", "twitter:card", "summary_large_image");
 
-    // Canonical link
+    // Canonical link — for SEO routes, use the locale-prefixed canonical.
     if (canonicalPath) {
+      const canonicalHref = isSeoPath(canonicalPath)
+        ? canonicalPathFor(canonicalPath)
+        : canonicalPath;
       let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
       if (!link) {
         link = document.createElement("link");
         link.setAttribute("rel", "canonical");
         document.head.appendChild(link);
       }
-      link.setAttribute("href", `${BASE_URL}${canonicalPath}`);
+      link.setAttribute("href", `${BASE_URL}${canonicalHref}`);
     }
 
-    // hreflang alternate links
+    // hreflang alternates. If caller didn't pass any but it's a SEO route,
+    // auto-derive distinct /th and /en URLs.
     document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(el => el.remove());
-    if (alternateLanguages) {
-      alternateLanguages.forEach(({ lang: hrefLang, path }) => {
+    const alts =
+      alternateLanguages && alternateLanguages.length > 0
+        ? alternateLanguages
+        : canonicalPath && isSeoPath(canonicalPath)
+          ? alternateLanguagePaths(canonicalPath)
+          : [];
+    if (alts.length > 0) {
+      alts.forEach(({ lang: hrefLang, path }) => {
         const link = document.createElement("link");
         link.setAttribute("rel", "alternate");
         link.setAttribute("hreflang", hrefLang);
