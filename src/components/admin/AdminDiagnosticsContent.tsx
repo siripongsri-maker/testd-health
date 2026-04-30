@@ -213,8 +213,19 @@ export default function AdminDiagnosticsContent() {
         } catch { /* skip */ }
       }
 
-      // Build expected from DB (mirror sitemap-xml logic)
+      // Build expected from DB (mirror sitemap-xml logic).
+      // Sitemap now emits /th/<path> and /en/<path> variants per SEO URL.
+      const LOCALES = ['th', 'en'] as const;
       const expected: { kind: 'substance' | 'interaction' | 'article'; path: string; label?: string }[] = [];
+      const pushBoth = (
+        kind: 'substance' | 'interaction' | 'article',
+        path: string,
+        label?: string,
+      ) => {
+        for (const l of LOCALES) {
+          expected.push({ kind, path: `/${l}${path}`, label });
+        }
+      };
 
       const { data: subs } = await supabase
         .from('hr_substances' as any)
@@ -224,7 +235,7 @@ export default function AdminDiagnosticsContent() {
       for (const s of (subs as any[]) ?? []) {
         if (!s.slug) continue;
         slugById.set(s.id, s.slug);
-        expected.push({ kind: 'substance', path: `/substance/${s.slug}`, label: s.slug });
+        pushBoth('substance', `/substance/${s.slug}`, s.slug);
       }
 
       const { data: ix } = await supabase
@@ -239,7 +250,7 @@ export default function AdminDiagnosticsContent() {
         const slug = `${s1}-${s2}`;
         if (seenIx.has(slug)) continue;
         seenIx.add(slug);
-        expected.push({ kind: 'interaction', path: `/interaction/${slug}`, label: slug });
+        pushBoth('interaction', `/interaction/${slug}`, slug);
       }
 
       const { data: arts } = await supabase
@@ -249,15 +260,20 @@ export default function AdminDiagnosticsContent() {
         .limit(2000);
       for (const a of (arts as any[]) ?? []) {
         const path = a.slug ? `/info/article/${a.slug}` : `/info/${a.id}`;
-        expected.push({ kind: 'article', path, label: a.slug || a.id });
+        pushBoth('article', path, a.slug || a.id);
       }
 
       const missing = expected.filter(e => !urls.has(e.path));
       const expectedSet = new Set(expected.map(e => e.path));
-      // Count "extra" only among the dynamic url namespaces we own
+      // Count "extra" only among the dynamic url namespaces we own (locale-prefixed)
       let extra = 0;
       urls.forEach(p => {
-        if ((p.startsWith('/substance/') || p.startsWith('/interaction/') || p.startsWith('/info/article/') || /^\/info\/[^/]+$/.test(p)) && !expectedSet.has(p)) {
+        const isOurDynamic =
+          /^\/(th|en)\/substance\//.test(p) ||
+          /^\/(th|en)\/interaction\//.test(p) ||
+          /^\/(th|en)\/info\/article\//.test(p) ||
+          /^\/(th|en)\/info\/[^/]+$/.test(p);
+        if (isOurDynamic && !expectedSet.has(p)) {
           extra++;
         }
       });
