@@ -21,7 +21,7 @@ interface Props {
   forceEp2?: boolean;
 }
 
-type View = 'hub' | 'ep1' | 'ep2' | 'prep-hunt';
+type View = 'hub' | 'ep1' | 'ep2' | 'prep-hunt' | 'prep-boys';
 
 const missions = [
   {
