@@ -52,7 +52,7 @@ export default defineConfig(({ mode }) => ({
         skipWaiting: true,
         clientsClaim: true,
         cleanupOutdatedCaches: true,
-        navigateFallbackDenylist: [/^\/~oauth/, /^\/docs\/.+\.html$/],
+        navigateFallbackDenylist: [/^\/~oauth/, /^\/docs\/.+\.html$/, /^\/virtual\/.+\.html$/],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
