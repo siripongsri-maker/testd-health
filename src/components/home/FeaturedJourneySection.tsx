@@ -105,7 +105,11 @@ export function FeaturedJourneySection() {
                 card_title: card.titleEn,
               });
               localStorage.setItem('virtualVisited', '1');
-              navigate('/virtual');
+              if ((card as any).external && (card as any).href) {
+                window.location.href = (card as any).href;
+              } else {
+                navigate('/virtual');
+              }
             }}
             className={`
               group flex-shrink-0 w-[220px] snap-start
