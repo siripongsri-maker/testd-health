@@ -68,6 +68,22 @@ const missions = [
     isGame: true,
     duration: '3 นาที',
   },
+  {
+    id: 'prep-boys',
+    emoji: '💕',
+    titleTh: 'PrEP Boys: เลือกหนุ่มในฝัน',
+    titleEn: 'PrEP Boys: Pick Your Crush',
+    descTh: 'จีบหนุ่ม 4 สไตล์ แล้วหา PrEP ที่เหมาะกับเขา',
+    descEn: 'Date 4 guys & match the right PrEP',
+    tags: ['Dating Sim', 'PrEP Match'],
+    accentFrom: 'hsl(333, 80%, 62%)',
+    borderColor: 'hsl(333, 80%, 62%)',
+    badge: '🎮 NEW EPISODE',
+    badgeIcon: '💕',
+    isGame: true,
+    isNew: true,
+    duration: '5 นาที',
+  },
 ];
 
 export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
