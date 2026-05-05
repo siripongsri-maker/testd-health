@@ -21,7 +21,7 @@ interface Props {
   forceEp2?: boolean;
 }
 
-type View = 'hub' | 'ep1' | 'ep2' | 'prep-hunt';
+type View = 'hub' | 'ep1' | 'ep2' | 'prep-hunt' | 'prep-boys';
 
 const missions = [
   {
@@ -67,6 +67,22 @@ const missions = [
     badgeIcon: '🎮',
     isGame: true,
     duration: '3 นาที',
+  },
+  {
+    id: 'prep-boys',
+    emoji: '💕',
+    titleTh: 'PrEP Boys: เลือกหนุ่มในฝัน',
+    titleEn: 'PrEP Boys: Pick Your Crush',
+    descTh: 'จีบหนุ่ม 4 สไตล์ แล้วหา PrEP ที่เหมาะกับเขา',
+    descEn: 'Date 4 guys & match the right PrEP',
+    tags: ['Dating Sim', 'PrEP Match'],
+    accentFrom: 'hsl(333, 80%, 62%)',
+    borderColor: 'hsl(333, 80%, 62%)',
+    badge: '🎮 NEW EPISODE',
+    badgeIcon: '💕',
+    isGame: true,
+    isNew: true,
+    duration: '5 นาที',
   },
 ];
 
@@ -124,6 +140,26 @@ export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
 
   if (view === 'prep-hunt') {
     return <PrepHuntGame onBack={() => setView('hub')} />;
+  }
+
+  if (view === 'prep-boys') {
+    return (
+      <div className="h-[calc(100dvh-3.5rem)] relative bg-background" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
+        <button
+          onClick={() => setView('hub')}
+          className="absolute top-3 left-3 z-50 p-2 rounded-lg bg-background/80 backdrop-blur-sm text-foreground border border-border/30 shadow-sm"
+          aria-label="Back"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </button>
+        <iframe
+          src="/virtual/prep-boys/index.html"
+          title="PrEP Boys"
+          className="w-full h-full border-0"
+          allow="autoplay; fullscreen"
+        />
+      </div>
+    );
   }
 
   // Hub view — V5 mission-based design
