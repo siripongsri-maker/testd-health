@@ -142,6 +142,26 @@ export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
     return <PrepHuntGame onBack={() => setView('hub')} />;
   }
 
+  if (view === 'prep-boys') {
+    return (
+      <div className="h-[calc(100dvh-3.5rem)] relative bg-background" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
+        <button
+          onClick={() => setView('hub')}
+          className="absolute top-3 left-3 z-50 p-2 rounded-lg bg-background/80 backdrop-blur-sm text-foreground border border-border/30 shadow-sm"
+          aria-label="Back"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </button>
+        <iframe
+          src="/virtual/prep-boys/index.html"
+          title="PrEP Boys"
+          className="w-full h-full border-0"
+          allow="autoplay; fullscreen"
+        />
+      </div>
+    );
+  }
+
   // Hub view — V5 mission-based design
   return (
     <div className="min-h-[calc(100dvh-3.5rem)] bg-background" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
