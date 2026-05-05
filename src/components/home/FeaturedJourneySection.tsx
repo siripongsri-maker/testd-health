@@ -39,6 +39,20 @@ const journeyCards = [
     tagColor: 'text-[hsl(280,70%,60%)] bg-[hsl(280,70%,60%)]/10 border-[hsl(280,70%,60%)]/20',
     isGame: true,
   },
+  {
+    emoji: '💕',
+    titleTh: 'PrEP Boys: เลือกหนุ่มในฝัน',
+    titleEn: 'PrEP Boys: Pick Your Crush',
+    descTh: 'จีบหนุ่ม 4 สไตล์ แล้วหา PrEP ที่ใช่',
+    descEn: 'Date 4 guys & match the right PrEP',
+    tags: ['Dating Sim', 'NEW'],
+    color: 'from-[hsl(333,80%,62%)]/15 to-[hsl(333,80%,62%)]/5',
+    border: 'border-[hsl(333,80%,62%)]/30',
+    tagColor: 'text-[hsl(333,80%,62%)] bg-[hsl(333,80%,62%)]/10 border-[hsl(333,80%,62%)]/25',
+    isGame: true,
+    href: '/virtual/prep-boys/',
+    external: true,
+  },
 ];
 
 export function FeaturedJourneySection() {
