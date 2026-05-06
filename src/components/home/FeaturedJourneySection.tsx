@@ -50,7 +50,21 @@ const journeyCards = [
     border: 'border-[hsl(333,80%,62%)]/30',
     tagColor: 'text-[hsl(333,80%,62%)] bg-[hsl(333,80%,62%)]/10 border-[hsl(333,80%,62%)]/25',
     isGame: true,
-    href: '/virtual/prep-boys/',
+    href: '/virtual?play=prep-boys',
+    external: true,
+  },
+  {
+    emoji: '🔮',
+    titleTh: 'ดวงโดน PrEP',
+    titleEn: 'PrEP Fortune',
+    descTh: 'ซินแสไซเบอร์ทำนายดวงคุณจากวันเกิด',
+    descEn: 'Cyber Saju fortune from your birth date',
+    tags: ['Fortune', 'NEW'],
+    color: 'from-[hsl(0,72%,51%)]/15 to-[hsl(45,65%,52%)]/5',
+    border: 'border-[hsl(45,65%,52%)]/30',
+    tagColor: 'text-[hsl(0,72%,51%)] bg-[hsl(0,72%,51%)]/10 border-[hsl(45,65%,52%)]/25',
+    isGame: true,
+    href: '/virtual?play=prep-fortune',
     external: true,
   },
 ];
@@ -105,8 +119,13 @@ export function FeaturedJourneySection() {
                 card_title: card.titleEn,
               });
               localStorage.setItem('virtualVisited', '1');
-              if ((card as any).external && (card as any).href) {
-                window.location.href = (card as any).href;
+              const href = (card as any).href as string | undefined;
+              if ((card as any).external && href) {
+                if (href.startsWith('/virtual?') || href.startsWith('/virtual#')) {
+                  navigate(href);
+                } else {
+                  window.location.href = href;
+                }
               } else {
                 navigate('/virtual');
               }

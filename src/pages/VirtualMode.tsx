@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { PixelWorld } from "@/components/virtual/PixelWorld";
@@ -8,6 +8,7 @@ import { VirtualIntroOverlay } from "@/components/virtual/VirtualIntroOverlay";
 import { DateStoryExperience } from "@/components/virtual/DateStoryExperience";
 import { Episode2Player } from "@/components/virtual/Episode2Player";
 import PrepHuntGame from "@/components/PrepHuntGame";
+import PrepFortuneGame from "@/components/virtual/PrepFortuneGame";
 import { Button } from "@/components/ui/button";
 import { trackEvent } from "@/hooks/useAnalytics";
 import {
@@ -21,7 +22,7 @@ interface Props {
   forceEp2?: boolean;
 }
 
-type View = 'hub' | 'ep1' | 'ep2' | 'prep-hunt' | 'prep-boys';
+type View = 'hub' | 'ep1' | 'ep2' | 'prep-hunt' | 'prep-boys' | 'prep-fortune';
 
 const missions = [
   {
@@ -84,6 +85,22 @@ const missions = [
     isNew: true,
     duration: '5 นาที',
   },
+  {
+    id: 'prep-fortune',
+    emoji: '🔮',
+    titleTh: 'ดวงโดน PrEP (ซินแสไซเบอร์)',
+    titleEn: 'PrEP Fortune (Cyber Saju)',
+    descTh: 'ดูดวงสนุกๆ ผูกวันเกิด+เวลาตกฟาก',
+    descEn: 'Fun fortune-telling tied to your birth date',
+    tags: ['Saju', 'Fortune'],
+    accentFrom: 'hsl(0, 72%, 51%)',
+    borderColor: 'hsl(45, 65%, 52%)',
+    badge: '🔮 NEW GAME',
+    badgeIcon: '🔮',
+    isGame: true,
+    isNew: true,
+    duration: '2 นาที',
+  },
 ];
 
 export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
@@ -92,6 +109,16 @@ export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
   const { user } = useAuth();
   const [showClinic, setShowClinic] = useState(!!forceClinic);
   const [view, setView] = useState<View>(forceEp2 ? 'ep2' : 'hub');
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    const play = searchParams.get('play');
+    if (play && ['ep1', 'ep2', 'prep-hunt', 'prep-boys', 'prep-fortune'].includes(play)) {
+      setView(play as View);
+      searchParams.delete('play');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const completed = useMemo(() => {
     const raw = localStorage.getItem('virtualCompleted');
@@ -140,6 +167,14 @@ export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
 
   if (view === 'prep-hunt') {
     return <PrepHuntGame onBack={() => setView('hub')} />;
+  }
+
+  if (view === 'prep-fortune') {
+    return (
+      <div className="h-[calc(100dvh-3.5rem)] relative overflow-hidden" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
+        <PrepFortuneGame onBack={() => setView('hub')} />
+      </div>
+    );
   }
 
   if (view === 'prep-boys') {
