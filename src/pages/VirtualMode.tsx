@@ -101,6 +101,7 @@ const missions = [
     isNew: true,
     duration: '2 นาที',
   },
+];
 
 export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
   const navigate = useNavigate();
