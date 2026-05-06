@@ -66,16 +66,6 @@ const journeyCards = [
     isGame: true,
     href: '/virtual?play=prep-fortune',
     external: true,
-    emoji: '🔮',
-    titleTh: 'ดวงโดน PrEP',
-    titleEn: 'PrEP Fortune',
-    descTh: 'ซินแสไซเบอร์ทำนายดวงคุณจากวันเกิด',
-    descEn: 'Cyber Saju fortune from your birth date',
-    tags: ['Fortune', 'NEW'],
-    color: 'from-[hsl(0,72%,51%)]/15 to-[hsl(45,65%,52%)]/5',
-    border: 'border-[hsl(45,65%,52%)]/30',
-    tagColor: 'text-[hsl(0,72%,51%)] bg-[hsl(0,72%,51%)]/10 border-[hsl(45,65%,52%)]/25',
-    isGame: true,
   },
 ];
 
