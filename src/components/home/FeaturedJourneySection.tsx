@@ -119,8 +119,13 @@ export function FeaturedJourneySection() {
                 card_title: card.titleEn,
               });
               localStorage.setItem('virtualVisited', '1');
-              if ((card as any).external && (card as any).href) {
-                window.location.href = (card as any).href;
+              const href = (card as any).href as string | undefined;
+              if ((card as any).external && href) {
+                if (href.startsWith('/virtual?') || href.startsWith('/virtual#')) {
+                  navigate(href);
+                } else {
+                  window.location.href = href;
+                }
               } else {
                 navigate('/virtual');
               }
