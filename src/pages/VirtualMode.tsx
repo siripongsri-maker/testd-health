@@ -85,7 +85,22 @@ const missions = [
     isNew: true,
     duration: '5 นาที',
   },
-];
+  {
+    id: 'prep-fortune',
+    emoji: '🔮',
+    titleTh: 'ดวงโดน PrEP (ซินแสไซเบอร์)',
+    titleEn: 'PrEP Fortune (Cyber Saju)',
+    descTh: 'ดูดวงสนุกๆ ผูกวันเกิด+เวลาตกฟาก',
+    descEn: 'Fun fortune-telling tied to your birth date',
+    tags: ['Saju', 'Fortune'],
+    accentFrom: 'hsl(0, 72%, 51%)',
+    borderColor: 'hsl(45, 65%, 52%)',
+    badge: '🔮 NEW GAME',
+    badgeIcon: '🔮',
+    isGame: true,
+    isNew: true,
+    duration: '2 นาที',
+  },
 
 export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
   const navigate = useNavigate();
