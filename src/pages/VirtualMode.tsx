@@ -8,6 +8,7 @@ import { VirtualIntroOverlay } from "@/components/virtual/VirtualIntroOverlay";
 import { DateStoryExperience } from "@/components/virtual/DateStoryExperience";
 import { Episode2Player } from "@/components/virtual/Episode2Player";
 import PrepHuntGame from "@/components/PrepHuntGame";
+import PrepFortuneGame from "@/components/virtual/PrepFortuneGame";
 import { Button } from "@/components/ui/button";
 import { trackEvent } from "@/hooks/useAnalytics";
 import {
@@ -21,7 +22,7 @@ interface Props {
   forceEp2?: boolean;
 }
 
-type View = 'hub' | 'ep1' | 'ep2' | 'prep-hunt' | 'prep-boys';
+type View = 'hub' | 'ep1' | 'ep2' | 'prep-hunt' | 'prep-boys' | 'prep-fortune';
 
 const missions = [
   {
