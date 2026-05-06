@@ -159,6 +159,14 @@ export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
     return <PrepHuntGame onBack={() => setView('hub')} />;
   }
 
+  if (view === 'prep-fortune') {
+    return (
+      <div className="h-[calc(100dvh-3.5rem)] relative overflow-hidden" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
+        <PrepFortuneGame onBack={() => setView('hub')} />
+      </div>
+    );
+  }
+
   if (view === 'prep-boys') {
     return (
       <div className="h-[calc(100dvh-3.5rem)] relative bg-background" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
