@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { PixelWorld } from "@/components/virtual/PixelWorld";
@@ -109,6 +109,16 @@ export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
   const { user } = useAuth();
   const [showClinic, setShowClinic] = useState(!!forceClinic);
   const [view, setView] = useState<View>(forceEp2 ? 'ep2' : 'hub');
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    const play = searchParams.get('play');
+    if (play && ['ep1', 'ep2', 'prep-hunt', 'prep-boys', 'prep-fortune'].includes(play)) {
+      setView(play as View);
+      searchParams.delete('play');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const completed = useMemo(() => {
     const raw = localStorage.getItem('virtualCompleted');
