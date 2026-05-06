@@ -50,7 +50,7 @@ const journeyCards = [
     border: 'border-[hsl(333,80%,62%)]/30',
     tagColor: 'text-[hsl(333,80%,62%)] bg-[hsl(333,80%,62%)]/10 border-[hsl(333,80%,62%)]/25',
     isGame: true,
-    href: '/virtual/prep-boys/',
+    href: '/virtual?play=prep-boys',
     external: true,
   },
   {
