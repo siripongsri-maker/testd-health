@@ -337,7 +337,7 @@ export default function PrepFortuneGame({ onBack }: Props) {
                   <TestTube className="h-4 w-4" /> รับชุดตรวจ
                 </button>
                 <button
-                  onClick={() => { trackEvent('virtual_prep_fortune_cta_support', {}); navigate('/support-chat'); }}
+                  onClick={() => { trackEvent('virtual_prep_fortune_cta_support', {}); trackEpisodeCtaClick({ slug: 'prep-fortune', title: 'PrEP Fortune' }, { cta_type: 'support', cta_target: '/support-chat' }); navigate('/support-chat'); }}
                   style={{ ...(styles.secondaryBtn as any), marginTop: 0, gridColumn: 'span 2', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
                 >
                   <MessageCircle className="h-4 w-4" /> คุยกับเจ้าหน้าที่แบบไม่ระบุตัวตน
