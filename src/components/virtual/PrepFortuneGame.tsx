@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, TestTube, MessageCircle } from 'lucide-react';
 import { trackEvent } from '@/hooks/useAnalytics';
-import { trackEpisodeComplete, trackEpisodeShare } from '@/lib/virtualEpisodeAnalytics';
+import { trackEpisodeComplete, trackEpisodeShare, trackEpisodeCtaClick } from '@/lib/virtualEpisodeAnalytics';
 import { VirtualShareCard } from '@/components/virtual/VirtualShareCard';
 
 interface Props {
