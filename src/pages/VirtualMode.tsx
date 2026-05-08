@@ -245,7 +245,7 @@ export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
                 key={m.slug}
                 onClick={() => {
                   trackEvent('virtual_mission_start', { mission: m.slug, source: '/virtual' });
-                  navigate(`/virtual/${m.slug}`);
+                  navigate(`/virtual/${m.slug}?ref=hub`);
                 }}
                 className="group w-full text-left relative overflow-hidden rounded-2xl border p-4 hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] transition-all duration-200"
                 style={{
