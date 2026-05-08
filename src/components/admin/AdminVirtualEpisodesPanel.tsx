@@ -1,19 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RefreshCw, Download, Play, Gamepad2 } from "lucide-react";
 import { getVirtualEpisodesSorted } from "@/config/virtualEpisodes";
 import { useLanguage } from "@/lib/i18n";
-
-type EvRow = {
-  event_type: string;
-  metadata: any;
-  anonymous_id: string | null;
-  session_id: string | null;
-  created_at: string;
-};
+import type { VirtualAdminAnalytics } from "@/lib/virtualAdminAnalytics";
 
 type EpisodeAgg = {
   slug: string;
@@ -37,57 +29,16 @@ type EpisodeAgg = {
   lastActivity: string | null;
 };
 
-const EVENT_TYPES = [
-  'virtual_episode_view',
-  'virtual_episode_start',
-  'virtual_episode_complete',
-  'virtual_cta_click',
-  'virtual_share_impression',
-  'virtual_result_share',
-  'virtual_result_download',
-];
+interface Props {
+  analyticsData: VirtualAdminAnalytics | null;
+  loading: boolean;
+  error: string | null;
+  onRefresh: () => void;
+}
 
-const getMeta = (e: EvRow, key: string) => {
-  try {
-    const m = typeof e.metadata === 'string' ? JSON.parse(e.metadata) : e.metadata;
-    return m?.[key];
-  } catch {
-    return undefined;
-  }
-};
-
-const topN = (counts: Record<string, number>, n = 5) =>
-  Object.entries(counts)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, n)
-    .map(([name, count]) => ({ name, count }));
-
-export default function AdminVirtualEpisodesPanel() {
+export default function AdminVirtualEpisodesPanel({ analyticsData, loading, error, onRefresh }: Props) {
   const { language } = useLanguage();
   const th = language === 'th';
-  const [loading, setLoading] = useState(true);
-  const [rows, setRows] = useState<EvRow[]>([]);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase
-        .from('analytics_events')
-        .select('event_type, metadata, anonymous_id, session_id, created_at')
-        .in('event_type', EVENT_TYPES)
-        .order('created_at', { ascending: false })
-        .limit(10000);
-      if (error) throw error;
-      setRows((data as any) || []);
-    } catch (err) {
-      console.error('Failed to load episode analytics', err);
-      setRows([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => { fetchData(); }, []);
 
   const episodes = useMemo(() => getVirtualEpisodesSorted(), []);
 
