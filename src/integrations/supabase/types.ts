@@ -10250,6 +10250,10 @@ export type Database = {
           visit_count: number
         }[]
       }
+      get_virtual_admin_analytics: {
+        Args: { p_from?: string; p_to?: string }
+        Returns: Json
+      }
       get_virtual_share_stats: {
         Args: { p_from?: string; p_to?: string }
         Returns: {
