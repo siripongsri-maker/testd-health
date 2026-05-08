@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Share2, Check } from 'lucide-react';
 import { trackEvent } from '@/hooks/useAnalytics';
+import { trackEpisodeShare } from '@/lib/virtualEpisodeAnalytics';
 import { toast } from '@/hooks/use-toast';
 
 interface Props {
@@ -10,28 +11,35 @@ interface Props {
 
 export function ShareEpisodeButton({ slug, title }: Props) {
   const [copied, setCopied] = useState(false);
-  const url = `${typeof window !== 'undefined' ? window.location.origin : 'https://testd.website'}/virtual/${slug}`;
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://testd.website';
+  const url = `${origin}/virtual/${slug}?ref=share`;
 
   const handle = async () => {
+    const ctx = { slug, title };
     trackEvent('virtual_share_click', { slug, title });
+    trackEpisodeShare(ctx, 'click');
     const navAny = navigator as any;
     if (navAny.share) {
       try {
         await navAny.share({ title, text: title, url });
         trackEvent('virtual_share_native', { slug, title, method: 'web_share_api' });
+        trackEpisodeShare(ctx, 'web_share');
         return;
       } catch {
         trackEvent('virtual_share_cancelled', { slug, title });
+        trackEpisodeShare(ctx, 'cancelled');
       }
     }
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
       trackEvent('virtual_share_copy', { slug, title, method: 'clipboard' });
+      trackEpisodeShare(ctx, 'clipboard');
       toast({ title: 'คัดลอกลิงก์แล้ว', description: url });
       setTimeout(() => setCopied(false), 2000);
     } catch {
       trackEvent('virtual_share_failed', { slug, title });
+      trackEpisodeShare(ctx, 'failed');
       toast({ title: 'แชร์ไม่สำเร็จ', variant: 'destructive' });
     }
   };
