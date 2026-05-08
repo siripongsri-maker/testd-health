@@ -155,7 +155,7 @@ export default function AdminVirtualStoriesContent() {
         </TabsList>
 
         <TabsContent value="funnel" className="mt-4">
-          <VirtualFunnelDashboard analyticsData={analyticsData} loading={loading} error={queryError} />
+          <VirtualFunnelDashboard analyticsData={analyticsData} loading={loading} error={queryError} onRefresh={fetchStats} />
         </TabsContent>
 
         <TabsContent value="episodes" className="mt-4">
