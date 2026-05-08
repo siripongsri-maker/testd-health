@@ -2,7 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import { Share2, Check } from 'lucide-react';
 import { trackEvent } from '@/hooks/useAnalytics';
 import { trackEpisodeShare, trackEpisodeShareImpression } from '@/lib/virtualEpisodeAnalytics';
+import { debugSharePayload } from '@/lib/virtualShareDebug';
 import { toast } from '@/hooks/use-toast';
+
+const emit = (event: string, payload: Record<string, unknown>) => {
+  debugSharePayload(event, payload);
+  trackEvent(event, payload);
+};
 
 interface Props {
   slug: string;
@@ -26,29 +32,29 @@ export function ShareEpisodeButton({ slug, title, surface = 'episode_screen' }: 
 
   const handle = async () => {
     const ctx = { slug, title };
-    trackEvent('virtual_share_click', { slug, title });
+    emit('virtual_share_click', { slug, title, surface });
     trackEpisodeShare(ctx, 'click');
     const navAny = navigator as any;
     if (navAny.share) {
       try {
         await navAny.share({ title, text: title, url });
-        trackEvent('virtual_share_native', { slug, title, method: 'web_share_api' });
+        emit('virtual_share_native', { slug, title, surface, method: 'web_share_api', url });
         trackEpisodeShare(ctx, 'web_share');
         return;
       } catch {
-        trackEvent('virtual_share_cancelled', { slug, title });
+        emit('virtual_share_cancelled', { slug, title, surface });
         trackEpisodeShare(ctx, 'cancelled');
       }
     }
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
-      trackEvent('virtual_share_copy', { slug, title, method: 'clipboard' });
+      emit('virtual_share_copy', { slug, title, surface, method: 'clipboard', url });
       trackEpisodeShare(ctx, 'clipboard');
       toast({ title: 'คัดลอกลิงก์แล้ว', description: url });
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      trackEvent('virtual_share_failed', { slug, title });
+      emit('virtual_share_failed', { slug, title, surface });
       trackEpisodeShare(ctx, 'failed');
       toast({ title: 'แชร์ไม่สำเร็จ', variant: 'destructive' });
     }
