@@ -331,7 +331,7 @@ export default function PrepFortuneGame({ onBack }: Props) {
                   <Calendar className="h-4 w-4" /> นัดรับ PrEP
                 </button>
                 <button
-                  onClick={() => { trackEvent('virtual_prep_fortune_cta_selftest', {}); navigate('/hiv-selftest'); }}
+                  onClick={() => { trackEvent('virtual_prep_fortune_cta_selftest', {}); trackEpisodeCtaClick({ slug: 'prep-fortune', title: 'PrEP Fortune' }, { cta_type: 'selftest', cta_target: '/hiv-selftest' }); navigate('/hiv-selftest'); }}
                   style={{ ...(styles.secondaryBtn as any), marginTop: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
                 >
                   <TestTube className="h-4 w-4" /> รับชุดตรวจ
