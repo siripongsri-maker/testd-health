@@ -280,7 +280,7 @@ export default function AdminVirtualEpisodesPanel() {
                   { l: 'Starts', v: a.starts },
                   { l: 'Done', v: `${a.completes} (${a.completionRate}%)` },
                   { l: 'CTA', v: `${a.ctaClicks} (${a.ctaRate}%)` },
-                  { l: 'Share', v: `${a.shares} (${a.shareRate}%)` },
+                  { l: th ? `Share (${a.shareImpressions} seen)` : `Share (${a.shareImpressions} seen)`, v: `${a.shares} (${a.shareRate}%)` },
                   { l: th ? 'Unique' : 'Unique', v: a.uniqueVisitors },
                 ].map((k, i) => (
                   <div key={i} className="rounded-lg bg-muted/30 p-2">
