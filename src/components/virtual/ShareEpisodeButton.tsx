@@ -13,20 +13,25 @@ export function ShareEpisodeButton({ slug, title }: Props) {
   const url = `${typeof window !== 'undefined' ? window.location.origin : 'https://testd.website'}/virtual/${slug}`;
 
   const handle = async () => {
-    trackEvent('virtual_share_link', { slug });
+    trackEvent('virtual_share_click', { slug, title });
     const navAny = navigator as any;
     if (navAny.share) {
       try {
         await navAny.share({ title, text: title, url });
+        trackEvent('virtual_share_native', { slug, title, method: 'web_share_api' });
         return;
-      } catch { /* user cancelled */ }
+      } catch {
+        trackEvent('virtual_share_cancelled', { slug, title });
+      }
     }
     try {
       await navigator.clipboard.writeText(url);
       setCopied(true);
+      trackEvent('virtual_share_copy', { slug, title, method: 'clipboard' });
       toast({ title: 'คัดลอกลิงก์แล้ว', description: url });
       setTimeout(() => setCopied(false), 2000);
     } catch {
+      trackEvent('virtual_share_failed', { slug, title });
       toast({ title: 'แชร์ไม่สำเร็จ', variant: 'destructive' });
     }
   };
