@@ -34,7 +34,7 @@ export function VirtualFunnelDashboard() {
       const { data: events } = await supabase
         .from('analytics_events')
         .select('event_type, metadata, created_at, anonymous_id, session_id, booking_id')
-        .or('event_type.like.virtual_%,event_type.like.virtual_story_%,event_type.eq.booking_created,event_type.eq.booking_confirmed')
+        .or('event_type.like.virtual_*,event_type.like.virtual_story_*,event_type.eq.booking_created,event_type.eq.booking_confirmed')
         .order('created_at', { ascending: false })
         .limit(10000);
 
