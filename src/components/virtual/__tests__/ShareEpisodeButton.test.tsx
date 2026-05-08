@@ -7,11 +7,11 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 
 // ---- Mocks ----------------------------------------------------------------
 const insertMock = vi.fn().mockResolvedValue({ error: null });
-const fromMock = vi.fn(() => ({ insert: insertMock }));
+const fromMock = vi.fn((_table: string) => ({ insert: insertMock }));
 
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
-    from: (...args: any[]) => fromMock(...(args as [string])),
+    from: (table: string) => fromMock(table),
     auth: { getUser: vi.fn().mockResolvedValue({ data: { user: null } }) },
   },
 }));
