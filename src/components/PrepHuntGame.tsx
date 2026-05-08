@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { trackEvent } from "@/hooks/useAnalytics";
+import { trackEpisodeComplete, trackEpisodeCtaClick } from "@/lib/virtualEpisodeAnalytics";
 import { setHarmReductionSource } from "@/hooks/useHarmReductionTracking";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -674,6 +675,7 @@ export default function PrepHuntGame({ onBack }: { onBack?: () => void }) {
           if (sceneIdx >= 2) {
             setScreen("win");
             trackEvent("virtual_game_completed", { source_page: "/virtual" });
+            trackEpisodeComplete({ slug: 'prep-hunt', title: 'หา PrEP ให้เจอ' }, { result_type: 'win' });
           } else {
             setSceneIdx(i=>i+1);
             setTime(SCENES[sceneIdx+1].time);
@@ -1100,6 +1102,7 @@ function ServiceCards({ lose, all }: { lose?: boolean; all?: boolean }) {
   const handleClick = (route: string, ctaType: string, label: string) => {
     setHarmReductionSource();
     trackEvent(`virtual_cta_${ctaType}_click`, { source_page: "/virtual", cta_label: label });
+    trackEpisodeCtaClick({ slug: 'prep-hunt', title: 'หา PrEP ให้เจอ' }, { cta_type: ctaType, cta_target: route, cta_label: label });
     navigate(route);
   };
 

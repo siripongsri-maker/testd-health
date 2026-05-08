@@ -9,6 +9,7 @@ import { Download, BarChart3, Users, CheckCircle, TrendingUp, Play, RefreshCw, L
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { generateSmartInsights, type StatsInput, type SmartInsightsResult, type InsightSeverity } from "@/lib/virtualStoryInsights";
 import { VirtualFunnelDashboard } from "./attribution/VirtualFunnelDashboard";
+import AdminVirtualEpisodesPanel from "./AdminVirtualEpisodesPanel";
 
 const COLORS = ['#ff4da6', '#00e5ff', '#ffe600', '#7fffd4', '#9b30ff', '#00cc70'];
 
@@ -191,10 +192,14 @@ export default function AdminVirtualStoriesContent() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-2 w-full max-w-sm">
+        <TabsList className="grid grid-cols-3 w-full max-w-md">
           <TabsTrigger value="funnel" className="flex items-center gap-1.5">
             <TrendingUp className="h-3.5 w-3.5" />
             {th ? 'Funnel' : 'Funnel'}
+          </TabsTrigger>
+          <TabsTrigger value="episodes" className="flex items-center gap-1.5">
+            <Play className="h-3.5 w-3.5" />
+            {th ? 'รายตอน' : 'Episodes'}
           </TabsTrigger>
           <TabsTrigger value="engagement" className="flex items-center gap-1.5">
             <BarChart3 className="h-3.5 w-3.5" />
@@ -204,6 +209,10 @@ export default function AdminVirtualStoriesContent() {
 
         <TabsContent value="funnel" className="mt-4">
           <VirtualFunnelDashboard />
+        </TabsContent>
+
+        <TabsContent value="episodes" className="mt-4">
+          <AdminVirtualEpisodesPanel />
         </TabsContent>
 
         <TabsContent value="engagement" className="mt-4 space-y-6">

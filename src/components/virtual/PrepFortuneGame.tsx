@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, TestTube, MessageCircle } from 'lucide-react';
 import { trackEvent } from '@/hooks/useAnalytics';
+import { trackEpisodeComplete, trackEpisodeShare, trackEpisodeCtaClick } from '@/lib/virtualEpisodeAnalytics';
 import { VirtualShareCard } from '@/components/virtual/VirtualShareCard';
 
 interface Props {
@@ -150,6 +151,11 @@ export default function PrepFortuneGame({ onBack }: Props) {
     setPillars(getSajuPillars(birthDate, h));
     setStep('result');
     trackEvent('virtual_prep_fortune_reveal', { source: '/virtual' });
+    const f = generateFortune(seed);
+    trackEpisodeComplete(
+      { slug: 'prep-fortune', title: 'ดวงโดน PrEP' },
+      { result_type: f.title, score: f.score }
+    );
 
     const completedRaw = localStorage.getItem('virtualCompleted');
     const completed = completedRaw ? JSON.parse(completedRaw) as string[] : [];
@@ -177,6 +183,7 @@ export default function PrepFortuneGame({ onBack }: Props) {
       alert('คัดลอกข้อความแล้ว เอาไปแปะลง social ได้เลย ✨');
     }
     trackEvent('virtual_prep_fortune_share', { source: '/virtual' });
+    trackEpisodeShare({ slug: 'prep-fortune', title: 'ดวงโดน PrEP' }, 'click');
   };
 
   return (
@@ -318,19 +325,19 @@ export default function PrepFortuneGame({ onBack }: Props) {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 <button
-                  onClick={() => { trackEvent('virtual_prep_fortune_cta_booking', {}); navigate('/booking?service=prep'); }}
+                  onClick={() => { trackEvent('virtual_prep_fortune_cta_booking', {}); trackEpisodeCtaClick({ slug: 'prep-fortune', title: 'PrEP Fortune' }, { cta_type: 'booking', cta_target: '/booking?service=prep' }); navigate('/booking?service=prep'); }}
                   style={{ ...(styles.secondaryBtn as any), marginTop: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
                 >
                   <Calendar className="h-4 w-4" /> นัดรับ PrEP
                 </button>
                 <button
-                  onClick={() => { trackEvent('virtual_prep_fortune_cta_selftest', {}); navigate('/hiv-selftest'); }}
+                  onClick={() => { trackEvent('virtual_prep_fortune_cta_selftest', {}); trackEpisodeCtaClick({ slug: 'prep-fortune', title: 'PrEP Fortune' }, { cta_type: 'selftest', cta_target: '/hiv-selftest' }); navigate('/hiv-selftest'); }}
                   style={{ ...(styles.secondaryBtn as any), marginTop: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
                 >
                   <TestTube className="h-4 w-4" /> รับชุดตรวจ
                 </button>
                 <button
-                  onClick={() => { trackEvent('virtual_prep_fortune_cta_support', {}); navigate('/support-chat'); }}
+                  onClick={() => { trackEvent('virtual_prep_fortune_cta_support', {}); trackEpisodeCtaClick({ slug: 'prep-fortune', title: 'PrEP Fortune' }, { cta_type: 'support', cta_target: '/support-chat' }); navigate('/support-chat'); }}
                   style={{ ...(styles.secondaryBtn as any), marginTop: 0, gridColumn: 'span 2', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
                 >
                   <MessageCircle className="h-4 w-4" /> คุยกับเจ้าหน้าที่แบบไม่ระบุตัวตน

@@ -18,6 +18,12 @@ import {
 } from "lucide-react";
 import { getVirtualEpisodesSorted, getEpisodeBySlug, type VirtualEpisode } from "@/config/virtualEpisodes";
 import { ShareEpisodeButton } from "@/components/virtual/ShareEpisodeButton";
+import {
+  trackEpisodeView,
+  trackEpisodeStart,
+  trackEpisodeCtaClick,
+  type EpisodeSource,
+} from "@/lib/virtualEpisodeAnalytics";
 
 interface Props {
   forceClinic?: boolean;
@@ -44,6 +50,35 @@ export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
 
   const episodes = useMemo(() => getVirtualEpisodesSorted(), []);
   const activeEpisode: VirtualEpisode | undefined = routeSlug ? getEpisodeBySlug(routeSlug) : undefined;
+
+  // Detect entry source for analytics: ?ref=homepage|hub|share|cta|direct
+  const source: EpisodeSource = useMemo(() => {
+    const ref = (searchParams.get('ref') || '').toLowerCase();
+    if (['homepage', 'hub', 'share', 'cta', 'direct'].includes(ref)) {
+      return ref as EpisodeSource;
+    }
+    if (typeof document !== 'undefined' && document.referrer) {
+      try {
+        const r = new URL(document.referrer);
+        if (r.origin === window.location.origin) {
+          if (r.pathname === '/' || r.pathname === '/home') return 'homepage';
+          if (r.pathname.startsWith('/virtual')) return 'hub';
+        } else {
+          return 'share';
+        }
+      } catch { /* ignore */ }
+    }
+    return 'direct';
+  }, [searchParams, routeSlug]);
+
+  // Fire view + start once per episode visit
+  useEffect(() => {
+    if (!activeEpisode) return;
+    const ctx = { slug: activeEpisode.slug, title: activeEpisode.titleTh, language, source };
+    trackEpisodeView(ctx);
+    trackEpisodeStart(ctx);
+  }, [activeEpisode?.slug, language, source]);
+
 
   const completed = useMemo(() => {
     const raw = localStorage.getItem('virtualCompleted');
@@ -210,7 +245,7 @@ export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
                 key={m.slug}
                 onClick={() => {
                   trackEvent('virtual_mission_start', { mission: m.slug, source: '/virtual' });
-                  navigate(`/virtual/${m.slug}`);
+                  navigate(`/virtual/${m.slug}?ref=hub`);
                 }}
                 className="group w-full text-left relative overflow-hidden rounded-2xl border p-4 hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] transition-all duration-200"
                 style={{
