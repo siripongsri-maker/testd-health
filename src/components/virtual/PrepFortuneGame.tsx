@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Calendar, TestTube, MessageCircle } from 'lucide-react';
 import { trackEvent } from '@/hooks/useAnalytics';
+import { VirtualShareCard } from '@/components/virtual/VirtualShareCard';
 
 interface Props {
   onBack: () => void;
@@ -297,7 +298,17 @@ export default function PrepFortuneGame({ onBack }: Props) {
               <div style={styles.stamp as any}>testD · 真</div>
             </div>
 
-            <button style={styles.primaryBtn as any} onClick={handleShare}>📤 แชร์ดวงโดน</button>
+            <div style={{ marginTop: 16 }}>
+              <VirtualShareCard
+                episodeSlug="prep-fortune"
+                episodeTitle="ดวงโดน PrEP"
+                emoji="🔮"
+                accent="hsl(0, 72%, 51%)"
+                resultTitle={fortune.title}
+                resultDetail={`อีก ${fortune.hours.hours} ชม. → ${fortune.hours.vibe}\nคะแนนดวงโดน: ${fortune.score}/100`}
+                hint="ดวงเปิด ถุงต้องพร้อม กินยาตรงเวลา"
+              />
+            </div>
             <button style={styles.secondaryBtn as any} onClick={handleReset}>🔮 ผูกดวงใหม่</button>
 
             {/* Real-world action bridges */}
