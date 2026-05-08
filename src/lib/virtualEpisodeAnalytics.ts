@@ -33,6 +33,9 @@ const baseMeta = (ctx: EpisodeContext, extra?: Record<string, unknown>) => {
   };
 };
 
+export const trackEpisodeShareImpression = (ctx: EpisodeContext, surface: string = 'episode_screen') =>
+  trackEvent('virtual_share_impression', baseMeta(ctx, { surface }));
+
 export const trackEpisodeView = (ctx: EpisodeContext) =>
   trackEvent('virtual_episode_view', baseMeta(ctx));
 
