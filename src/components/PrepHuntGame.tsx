@@ -1102,6 +1102,7 @@ function ServiceCards({ lose, all }: { lose?: boolean; all?: boolean }) {
   const handleClick = (route: string, ctaType: string, label: string) => {
     setHarmReductionSource();
     trackEvent(`virtual_cta_${ctaType}_click`, { source_page: "/virtual", cta_label: label });
+    trackEpisodeCtaClick({ slug: 'prep-hunt', title: 'หา PrEP ให้เจอ' }, { cta_type: ctaType, cta_target: route, cta_label: label });
     navigate(route);
   };
 
