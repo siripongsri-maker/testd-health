@@ -325,7 +325,7 @@ export default function PrepFortuneGame({ onBack }: Props) {
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 <button
-                  onClick={() => { trackEvent('virtual_prep_fortune_cta_booking', {}); navigate('/booking?service=prep'); }}
+                  onClick={() => { trackEvent('virtual_prep_fortune_cta_booking', {}); trackEpisodeCtaClick({ slug: 'prep-fortune', title: 'PrEP Fortune' }, { cta_type: 'booking', cta_target: '/booking?service=prep' }); navigate('/booking?service=prep'); }}
                   style={{ ...(styles.secondaryBtn as any), marginTop: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
                 >
                   <Calendar className="h-4 w-4" /> นัดรับ PrEP
