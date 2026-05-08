@@ -9,6 +9,7 @@ import { Download, BarChart3, Users, CheckCircle, TrendingUp, Play, RefreshCw, L
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { generateSmartInsights, type StatsInput, type SmartInsightsResult, type InsightSeverity } from "@/lib/virtualStoryInsights";
 import { VirtualFunnelDashboard } from "./attribution/VirtualFunnelDashboard";
+import AdminVirtualEpisodesPanel from "./AdminVirtualEpisodesPanel";
 
 const COLORS = ['#ff4da6', '#00e5ff', '#ffe600', '#7fffd4', '#9b30ff', '#00cc70'];
 
