@@ -1,12 +1,11 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { supabase } from '@/integrations/supabase/client';
-import { useQuery } from '@tanstack/react-query';
 import { useLanguage } from '@/lib/i18n';
 import { Download, ArrowDown, RefreshCw, TrendingUp, Users, MousePointer, CalendarCheck, Filter } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import type { VirtualAdminAnalytics } from '@/lib/virtualAdminAnalytics';
 
 interface FunnelStep {
   label: string;
@@ -22,143 +21,52 @@ interface BoothStat {
   conversionRate: number;
 }
 
-export function VirtualFunnelDashboard() {
+interface VirtualFunnelDashboardProps {
+  analyticsData: VirtualAdminAnalytics | null;
+  loading: boolean;
+  error: string | null;
+  onRefresh: () => void;
+}
+
+export function VirtualFunnelDashboard({ analyticsData, loading, error, onRefresh }: VirtualFunnelDashboardProps) {
   const { language } = useLanguage();
   const th = language === 'th';
   const [episodeFilter, setEpisodeFilter] = useState<string>('all');
 
-  const { data, isLoading, refetch } = useQuery({
-    queryKey: ['virtual-funnel', episodeFilter],
-    queryFn: async () => {
-      // Fetch all virtual-related analytics events
-      const { data: events } = await supabase
-        .from('analytics_events')
-        .select('event_type, metadata, created_at, anonymous_id, session_id, booking_id')
-        .or('event_type.like.virtual_*,event_type.like.virtual_story_*,event_type.eq.booking_created,event_type.eq.booking_confirmed')
-        .order('created_at', { ascending: false })
-        .limit(10000);
-
-      const allEvents = events || [];
-      const getMeta = (e: any, key: string) => {
-        try {
-          const m = typeof e.metadata === 'string' ? JSON.parse(e.metadata) : e.metadata;
-          return m?.[key];
-        } catch { return undefined; }
-      };
-
-      // Filter by episode if needed
-      const virtualEvents = allEvents.filter(e => {
-        if (!e.event_type.startsWith('virtual_')) return false;
-        if (episodeFilter === 'all') return true;
-        const ep = getMeta(e, 'episode_number');
-        const storyId = getMeta(e, 'story_id') || '';
-        if (episodeFilter === 'ep1') return ep === 1 || storyId.includes('ep1');
-        if (episodeFilter === 'ep2') return ep === 2 || storyId.includes('ep2');
-        if (episodeFilter === 'clinic') return e.event_type.includes('clinic') || e.event_type.includes('booth');
-        if (episodeFilter === 'guide') return e.event_type.includes('guide');
-        return true;
-      });
-
-      // Funnel steps
-      const hubViews = virtualEvents.filter(e => e.event_type === 'virtual_hub_topic_click').length;
-      const storyStarts = virtualEvents.filter(e => e.event_type === 'virtual_story_started').length;
-      const sceneViews = virtualEvents.filter(e => e.event_type === 'virtual_story_scene_viewed').length;
-      const completions = virtualEvents.filter(e => e.event_type === 'virtual_story_completed').length;
-      const ctaClicks = virtualEvents.filter(e =>
-        e.event_type === 'virtual_story_cta_clicked' ||
-        e.event_type === 'virtual_cta_click' ||
-        e.event_type === 'virtual_clinic_booth_click'
-      ).length;
-
-      // Get sessions that had virtual events, then check if they led to bookings
-      const virtualSessions = new Set<string>();
-      const virtualAnonymousIds = new Set<string>();
-      virtualEvents.forEach(e => {
-        if (e.session_id) virtualSessions.add(e.session_id);
-        if (e.anonymous_id) virtualAnonymousIds.add(e.anonymous_id);
-      });
-
-      // Count bookings from virtual sessions
-      const bookingEvents = allEvents.filter(e => e.event_type === 'booking_created');
-      const bookingsFromVirtual = bookingEvents.filter(e =>
-        (e.session_id && virtualSessions.has(e.session_id)) ||
-        (e.anonymous_id && virtualAnonymousIds.has(e.anonymous_id))
-      ).length;
-
-      const confirmedEvents = allEvents.filter(e => e.event_type === 'booking_confirmed');
-      const confirmedFromVirtual = confirmedEvents.filter(e =>
-        (e.session_id && virtualSessions.has(e.session_id)) ||
-        (e.anonymous_id && virtualAnonymousIds.has(e.anonymous_id))
-      ).length;
-
-      // Booth/CTA breakdown
-      const boothClicks: Record<string, { label: string; clicks: number; sessions: Set<string> }> = {};
-      virtualEvents.filter(e =>
-        e.event_type === 'virtual_story_cta_clicked' ||
-        e.event_type === 'virtual_cta_click' ||
-        e.event_type === 'virtual_clinic_booth_click'
-      ).forEach(e => {
-        const target = getMeta(e, 'cta_target') || getMeta(e, 'target_route') || getMeta(e, 'target') || 'unknown';
-        const label = getMeta(e, 'booth_label') || getMeta(e, 'choice_text') || target;
-        if (!boothClicks[target]) boothClicks[target] = { label, clicks: 0, sessions: new Set() };
-        boothClicks[target].clicks++;
-        if (e.session_id) boothClicks[target].sessions.add(e.session_id);
-        if (e.anonymous_id) boothClicks[target].sessions.add(e.anonymous_id);
-      });
-
-      // Calculate booth-to-booking conversion
-      const boothStats: BoothStat[] = Object.entries(boothClicks)
-        .map(([id, data]) => {
-          const boothBookings = bookingEvents.filter(e =>
-            (e.session_id && data.sessions.has(e.session_id)) ||
-            (e.anonymous_id && data.sessions.has(e.anonymous_id))
-          ).length;
-          return {
-            booth_id: id,
-            booth_label: data.label,
-            clicks: data.clicks,
-            bookings: boothBookings,
-            conversionRate: data.clicks > 0 ? Math.round((boothBookings / data.clicks) * 100) : 0,
-          };
-        })
-        .sort((a, b) => b.clicks - a.clicks);
-
-      // Episode breakdown
-      const episodeBreakdown: Record<string, { starts: number; completions: number; cta: number }> = {};
-      virtualEvents.forEach(e => {
-        const ep = getMeta(e, 'episode_number') || getMeta(e, 'story_id') || 'other';
-        const key = typeof ep === 'number' ? `Episode ${ep}` : String(ep);
-        if (!episodeBreakdown[key]) episodeBreakdown[key] = { starts: 0, completions: 0, cta: 0 };
-        if (e.event_type === 'virtual_story_started') episodeBreakdown[key].starts++;
-        if (e.event_type === 'virtual_story_completed') episodeBreakdown[key].completions++;
-        if (e.event_type.includes('cta')) episodeBreakdown[key].cta++;
-      });
-
-      // Referral rate: completions → CTA clicks → bookings
-      const referralRate = completions > 0 ? Math.round((bookingsFromVirtual / completions) * 100) : 0;
-      const ctaRate = completions > 0 ? Math.round((ctaClicks / completions) * 100) : 0;
-
-      return {
-        funnel: [
-          { label: th ? '🎮 เริ่มเล่น' : '🎮 Story Started', count: storyStarts, color: 'hsl(var(--primary))' },
-          { label: th ? '📖 ดูซีน' : '📖 Scenes Viewed', count: sceneViews, color: 'hsl(var(--primary) / 0.85)' },
-          { label: th ? '✅ เล่นจบ' : '✅ Completed', count: completions, color: 'hsl(var(--primary) / 0.7)' },
-          { label: th ? '🔗 กด CTA' : '🔗 CTA Clicked', count: ctaClicks, color: 'hsl(var(--primary) / 0.55)' },
-          { label: th ? '📅 สร้างการจอง' : '📅 Booking Created', count: bookingsFromVirtual, color: 'hsl(var(--primary) / 0.4)' },
-          { label: th ? '✔️ ยืนยันการจอง' : '✔️ Booking Confirmed', count: confirmedFromVirtual, color: 'hsl(var(--primary) / 0.3)' },
-        ] as FunnelStep[],
-        boothStats,
-        episodeBreakdown: Object.entries(episodeBreakdown).map(([name, data]) => ({ name, ...data })),
-        referralRate,
-        ctaRate,
-        totalStarts: storyStarts,
-        totalCompletions: completions,
-        totalCTA: ctaClicks,
-        totalBookings: bookingsFromVirtual,
-        totalConfirmed: confirmedFromVirtual,
-      };
-    },
-  });
+  const data = useMemo(() => {
+    if (!analyticsData || error) return null;
+    const filtered = analyticsData.episodes.filter((ep) => episodeFilter === 'all' || ep.slug === episodeFilter);
+    const starts = filtered.reduce((sum, ep) => sum + ep.starts, 0);
+    const views = filtered.reduce((sum, ep) => sum + ep.views, 0);
+    const completions = filtered.reduce((sum, ep) => sum + ep.completes, 0);
+    const ctaClicks = filtered.reduce((sum, ep) => sum + ep.cta_clicks, 0);
+    const boothStats: BoothStat[] = analyticsData.ctaClicks.map((cta) => ({
+      booth_id: cta.name,
+      booth_label: cta.name,
+      clicks: cta.value,
+      bookings: 0,
+      conversionRate: 0,
+    }));
+    return {
+      funnel: [
+        { label: th ? '🎮 เริ่มเล่น' : '🎮 Story Started', count: starts, color: 'hsl(var(--primary))' },
+        { label: th ? '📖 ดูซีน' : '📖 Scenes Viewed', count: views, color: 'hsl(var(--primary) / 0.85)' },
+        { label: th ? '✅ เล่นจบ' : '✅ Completed', count: completions, color: 'hsl(var(--primary) / 0.7)' },
+        { label: th ? '🔗 กด CTA' : '🔗 CTA Clicked', count: ctaClicks, color: 'hsl(var(--primary) / 0.55)' },
+        { label: th ? '📅 สร้างการจอง' : '📅 Booking Created', count: 0, color: 'hsl(var(--primary) / 0.4)' },
+        { label: th ? '✔️ ยืนยันการจอง' : '✔️ Booking Confirmed', count: 0, color: 'hsl(var(--primary) / 0.3)' },
+      ] as FunnelStep[],
+      boothStats,
+      episodeBreakdown: filtered.map((ep) => ({ name: ep.slug, starts: ep.starts, completions: ep.completes, cta: ep.cta_clicks })),
+      referralRate: 0,
+      ctaRate: completions > 0 ? Math.round((ctaClicks / completions) * 100) : 0,
+      totalStarts: starts,
+      totalCompletions: completions,
+      totalCTA: ctaClicks,
+      totalBookings: 0,
+      totalConfirmed: 0,
+    };
+  }, [analyticsData, episodeFilter, error, th]);
 
   const exportCSV = () => {
     if (!data) return;
