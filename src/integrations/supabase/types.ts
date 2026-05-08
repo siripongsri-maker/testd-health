@@ -10250,6 +10250,20 @@ export type Database = {
           visit_count: number
         }[]
       }
+      get_virtual_share_stats: {
+        Args: { p_from?: string; p_to?: string }
+        Returns: {
+          cancelled: number
+          copies: number
+          failed: number
+          last_shared_at: string
+          native_shares: number
+          share_clicks: number
+          slug: string
+          title: string
+          total_success: number
+        }[]
+      }
       get_walkin_pressure: {
         Args: { p_branch_id: string; p_date?: string }
         Returns: Json
