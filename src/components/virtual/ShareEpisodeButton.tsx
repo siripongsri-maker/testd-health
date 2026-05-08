@@ -2,7 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import { Share2, Check } from 'lucide-react';
 import { trackEvent } from '@/hooks/useAnalytics';
 import { trackEpisodeShare, trackEpisodeShareImpression } from '@/lib/virtualEpisodeAnalytics';
+import { debugSharePayload } from '@/lib/virtualShareDebug';
 import { toast } from '@/hooks/use-toast';
+
+const emit = (event: string, payload: Record<string, unknown>) => {
+  debugSharePayload(event, payload);
+  trackEvent(event, payload);
+};
 
 interface Props {
   slug: string;
