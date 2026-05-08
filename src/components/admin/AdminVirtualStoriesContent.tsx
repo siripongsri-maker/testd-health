@@ -10,6 +10,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { generateSmartInsights, type StatsInput, type SmartInsightsResult, type InsightSeverity } from "@/lib/virtualStoryInsights";
 import { VirtualFunnelDashboard } from "./attribution/VirtualFunnelDashboard";
 import AdminVirtualEpisodesPanel from "./AdminVirtualEpisodesPanel";
+import { fetchVirtualAdminAnalytics, type VirtualAdminAnalytics } from "@/lib/virtualAdminAnalytics";
 
 const COLORS = ['#ff4da6', '#00e5ff', '#ffe600', '#7fffd4', '#9b30ff', '#00cc70'];
 
@@ -35,119 +36,38 @@ export default function AdminVirtualStoriesContent() {
     replayCount: 0, pathDistribution: [], resultDistribution: [],
     sceneDropoff: [], ctaClicks: [], monthlyTrend: [],
   });
+  const [analyticsData, setAnalyticsData] = useState<VirtualAdminAnalytics | null>(null);
+  const [queryError, setQueryError] = useState<string | null>(null);
 
   const fetchStats = async () => {
     setLoading(true);
+    setQueryError(null);
     try {
-      // Primary source: analytics_events (reliable, no RLS insert issues)
-      const { data: analyticsEvents } = await supabase
-        .from('analytics_events')
-        .select('event_type, metadata, created_at, anonymous_id, session_id')
-        .like('event_type', 'virtual_story_%')
-        .order('created_at', { ascending: false })
-        .limit(5000);
-
-      // Secondary source: virtual_story_sessions (may have fewer due to RLS)
-      const { data: sessions } = await supabase
-        .from('virtual_story_sessions').select('*').order('created_at', { ascending: false });
-
-      const events = analyticsEvents || [];
-      const getMeta = (e: any, key: string) => {
-        try {
-          const m = typeof e.metadata === 'string' ? JSON.parse(e.metadata) : e.metadata;
-          return m?.[key];
-        } catch { return undefined; }
-      };
-
-      // Count from analytics_events (most reliable)
-      const startEvents = events.filter((e: any) => e.event_type === 'virtual_story_started');
-      const completeEvents = events.filter((e: any) => e.event_type === 'virtual_story_completed');
-      const replayEvents = events.filter((e: any) => e.event_type === 'virtual_story_replayed');
-      const sceneEvents = events.filter((e: any) => e.event_type === 'virtual_story_scene_viewed' || e.event_type === 'virtual_story_choice_selected');
-      const ctaEvents = events.filter((e: any) => e.event_type === 'virtual_story_cta_clicked');
-      const knowledgeEvents = events.filter((e: any) => e.event_type === 'virtual_story_knowledge_opened');
-
-      const totalStarts = startEvents.length;
-      const totalCompletions = completeEvents.length;
+      const data = await fetchVirtualAdminAnalytics();
+      setAnalyticsData(data);
+      const totalStarts = data.totals.starts;
+      const totalCompletions = data.totals.completes;
       const completionRate = totalStarts > 0 ? Math.round((totalCompletions / totalStarts) * 100) : 0;
-      const replayCount = replayEvents.length;
-
-      // Path distribution from completed events metadata
-      const pathCounts: Record<string, number> = {};
-      completeEvents.forEach((e: any) => {
-        const p = getMeta(e, 'path_selected') || getMeta(e, 'path') || 'unknown';
-        pathCounts[p] = (pathCounts[p] || 0) + 1;
+      setStats({
+        totalStarts,
+        totalCompletions,
+        completionRate,
+        replayCount: data.totals.replays,
+        pathDistribution: data.pathDistribution,
+        resultDistribution: data.resultDistribution,
+        sceneDropoff: data.sceneDropoff,
+        ctaClicks: data.ctaClicks,
+        monthlyTrend: data.monthlyTrend,
+        knowledgeOpens: [],
       });
-      // Supplement from sessions if analytics has less data
-      (sessions || []).filter((s: any) => s.completed).forEach((s: any) => {
-        if (completeEvents.length === 0) {
-          const p = s.path_selected || 'unknown';
-          pathCounts[p] = (pathCounts[p] || 0) + 1;
-        }
-      });
-      const pathDistribution = Object.entries(pathCounts).map(([name, value]) => ({ name, value }));
-
-      // Result distribution
-      const resultCounts: Record<string, number> = {};
-      completeEvents.forEach((e: any) => {
-        const r = getMeta(e, 'result_type') || 'unknown';
-        resultCounts[r] = (resultCounts[r] || 0) + 1;
-      });
-      (sessions || []).filter((s: any) => s.completed && completeEvents.length === 0).forEach((s: any) => {
-        const r = s.result_type || 'unknown';
-        resultCounts[r] = (resultCounts[r] || 0) + 1;
-      });
-      const resultDistribution = Object.entries(resultCounts).map(([name, value]) => ({ name, value }));
-
-      // Scene drop-off from analytics
-      const sceneViews: Record<string, number> = {};
-      sceneEvents.forEach((e: any) => {
-        const scene = getMeta(e, 'scene_id') || 'unknown';
-        sceneViews[scene] = (sceneViews[scene] || 0) + 1;
-      });
-      const sceneDropoff = Object.entries(sceneViews).map(([scene, count]) => ({ scene, count }))
-        .sort((a, b) => {
-          const numA = parseInt(a.scene); const numB = parseInt(b.scene);
-          if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
-          return a.scene.localeCompare(b.scene);
-        });
-
-      // CTA clicks
-      const ctaCounts: Record<string, number> = {};
-      ctaEvents.forEach((e: any) => {
-        const target = getMeta(e, 'cta_target') || getMeta(e, 'choice_text') || 'unknown';
-        ctaCounts[target] = (ctaCounts[target] || 0) + 1;
-      });
-      const ctaClicks = Object.entries(ctaCounts).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
-
-      // Knowledge opens
-      const knowledgeCounts: Record<string, number> = {};
-      knowledgeEvents.forEach((e: any) => {
-        const scene = getMeta(e, 'scene_id') || getMeta(e, 'topic') || 'unknown';
-        knowledgeCounts[scene] = (knowledgeCounts[scene] || 0) + 1;
-      });
-      const knowledgeOpens = Object.entries(knowledgeCounts).map(([scene, count]) => ({ scene, count })).sort((a, b) => b.count - a.count);
-
-      // Monthly trend from analytics start events
-      const monthlyMap: Record<string, { starts: number; completions: number }> = {};
-      startEvents.forEach((e: any) => {
-        const month = (e.created_at || '').substring(0, 7);
-        if (!monthlyMap[month]) monthlyMap[month] = { starts: 0, completions: 0 };
-        monthlyMap[month].starts++;
-      });
-      completeEvents.forEach((e: any) => {
-        const month = (e.created_at || '').substring(0, 7);
-        if (!monthlyMap[month]) monthlyMap[month] = { starts: 0, completions: 0 };
-        monthlyMap[month].completions++;
-      });
-      const monthlyTrend = Object.entries(monthlyMap).map(([month, data]) => ({ month, ...data }))
-        .sort((a, b) => a.month.localeCompare(b.month)).slice(-6);
-
-      setStats({ totalStarts, totalCompletions, completionRate, replayCount, pathDistribution, resultDistribution, sceneDropoff, ctaClicks, monthlyTrend, knowledgeOpens });
     } catch (err) {
-      console.error('Virtual stories stats error:', err);
+      const message = err instanceof Error ? err.message : String(err);
+      console.error('[Virtual Analytics] query failed', err);
+      setQueryError(message);
+      setAnalyticsData(null);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => { fetchStats(); }, []);
@@ -156,21 +76,19 @@ export default function AdminVirtualStoriesContent() {
 
   const exportCSV = async () => {
     try {
-      const { data: sessions } = await supabase.from('virtual_story_sessions').select('*').order('created_at', { ascending: false });
-      if (!sessions?.length) return;
-      const headers = Object.keys(sessions[0]);
-      // Add insight summary row
-      const insightHeaders = Object.keys(smartInsights.csvSummary);
-      const allHeaders = [...new Set([...headers, ...insightHeaders])];
+      if (!analyticsData) return;
+      const headers = ['slug', 'views', 'starts', 'completes', 'completion_rate_%', 'cta_clicks', 'shares', 'downloads', 'unique_visitors', 'last_activity'];
       const bom = '\uFEFF';
-      const dataRows = sessions.map(r => allHeaders.map(h => `"${(r as any)[h] ?? ''}"`).join(','));
-      const summaryRow = allHeaders.map(h => `"${smartInsights.csvSummary[h] ?? ''}"`).join(',');
-      const csv = bom + [allHeaders.join(','), ...dataRows, '', '"--- INSIGHT SUMMARY ---"', summaryRow].join('\n');
+      const dataRows = analyticsData.episodes.map(r => [r.slug, r.views, r.starts, r.completes, r.starts ? Math.round((r.completes / r.starts) * 100) : 0, r.cta_clicks, r.shares, r.downloads, r.unique_visitors, r.last_activity || ''].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','));
+      const csv = bom + [headers.join(','), ...dataRows, '', '"--- DEBUG SUMMARY ---"', `"records","${analyticsData.debug.recordCount}"`, `"latest","${analyticsData.debug.latestEventAt || ''}"`].join('\n');
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a'); a.href = url; a.download = `virtual_stories_${new Date().toISOString().split('T')[0]}.csv`;
       a.click(); URL.revokeObjectURL(url);
-    } catch { /* silent */ }
+    } catch (err) {
+      console.error('[Virtual Analytics] CSV export failed', err);
+      setQueryError(err instanceof Error ? err.message : String(err));
+    }
   };
 
   const th = language === 'th';
