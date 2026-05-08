@@ -95,7 +95,7 @@ export default function AdminVirtualEpisodesPanel() {
     return episodes.map((ep) => {
       const epRows = rows.filter((r) => getMeta(r, 'slug') === ep.slug);
       const visitors = new Set<string>();
-      let views = 0, starts = 0, completes = 0, ctaClicks = 0, shares = 0, downloads = 0;
+      let views = 0, starts = 0, completes = 0, ctaClicks = 0, shareImpressions = 0, shares = 0, downloads = 0;
       const resultCounts: Record<string, number> = {};
       const sourceCounts: Record<string, number> = {};
       let lastActivity: string | null = null;
@@ -117,6 +117,7 @@ export default function AdminVirtualEpisodesPanel() {
             break;
           }
           case 'virtual_cta_click': ctaClicks++; break;
+          case 'virtual_share_impression': shareImpressions++; break;
           case 'virtual_result_share': {
             const m = getMeta(r, 'method');
             // Count meaningful share attempts (web_share, clipboard) only
@@ -129,14 +130,15 @@ export default function AdminVirtualEpisodesPanel() {
 
       const completionRate = starts > 0 ? Math.round((completes / starts) * 100) : 0;
       const ctaRate = completes > 0 ? Math.round((ctaClicks / completes) * 100) : 0;
-      const shareRate = completes > 0 ? Math.round((shares / completes) * 100) : 0;
+      // True share rate = shares ÷ impressions (denominator is users who *saw* the share UI)
+      const shareRate = shareImpressions > 0 ? Math.round((shares / shareImpressions) * 100) : 0;
 
       return {
         slug: ep.slug,
         title: th ? ep.titleTh : ep.titleEn,
         kind: ep.kind,
         publishedAt: ep.publishedAt,
-        views, starts, completes, ctaClicks, shares, downloads,
+        views, starts, completes, ctaClicks, shareImpressions, shares, downloads,
         uniqueVisitors: visitors.size,
         completionRate, ctaRate, shareRate,
         topResults: topN(resultCounts, 3),
