@@ -151,6 +151,11 @@ export default function PrepFortuneGame({ onBack }: Props) {
     setPillars(getSajuPillars(birthDate, h));
     setStep('result');
     trackEvent('virtual_prep_fortune_reveal', { source: '/virtual' });
+    const f = generateFortune(seed);
+    trackEpisodeComplete(
+      { slug: 'prep-fortune', title: 'ดวงโดน PrEP' },
+      { result_type: f.title, score: f.score }
+    );
 
     const completedRaw = localStorage.getItem('virtualCompleted');
     const completed = completedRaw ? JSON.parse(completedRaw) as string[] : [];
