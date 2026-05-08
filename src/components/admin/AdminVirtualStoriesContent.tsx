@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/lib/i18n";
-import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -104,10 +103,40 @@ export default function AdminVirtualStoriesContent() {
           Virtual Stories Analytics
         </h2>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={fetchStats}><RefreshCw className="h-4 w-4 mr-1" />{th ? 'รีเฟรช' : 'Refresh'}</Button>
-          <Button variant="outline" size="sm" onClick={exportCSV}><Download className="h-4 w-4 mr-1" />CSV</Button>
+          <Button variant="outline" size="sm" onClick={fetchStats} disabled={loading}><RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />{th ? 'รีเฟรช' : 'Refresh'}</Button>
+          <Button variant="outline" size="sm" onClick={exportCSV} disabled={!analyticsData || loading}><Download className="h-4 w-4 mr-1" />CSV</Button>
         </div>
       </div>
+
+      {queryError && (
+        <Card className="border-destructive/40 bg-destructive/10">
+          <CardContent className="p-4 text-sm">
+            <div className="font-semibold flex items-center gap-2"><AlertTriangle className="h-4 w-4" />Virtual analytics query error</div>
+            <code className="mt-2 block whitespace-pre-wrap text-xs text-muted-foreground">{queryError}</code>
+          </CardContent>
+        </Card>
+      )}
+
+      {analyticsData && (
+        <Card className="border-primary/20 bg-muted/20">
+          <CardHeader className="pb-2"><CardTitle className="text-sm">Debug: database response</CardTitle></CardHeader>
+          <CardContent className="space-y-3 text-xs">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <Badge variant="secondary">status: {analyticsData.debug.status}</Badge>
+              <Badge variant="outline">records: {analyticsData.debug.recordCount}</Badge>
+              <Badge variant="outline">latest: {analyticsData.debug.latestEventAt ? new Date(analyticsData.debug.latestEventAt).toLocaleString() : '—'}</Badge>
+              <Badge variant="outline">source: RPC</Badge>
+            </div>
+            {analyticsData.debug.recordCount === 0 && !loading && (
+              <p className="rounded-md border border-border/40 p-3 text-muted-foreground">{th ? 'ยังไม่มีข้อมูลในช่วงเวลานี้' : 'No data in this time range'}</p>
+            )}
+            <details className="rounded-md border border-border/40 p-3">
+              <summary className="cursor-pointer font-medium">Event types & raw sample</summary>
+              <pre className="mt-2 max-h-80 overflow-auto whitespace-pre-wrap text-[11px] text-muted-foreground">{JSON.stringify({ eventTypes: analyticsData.debug.eventTypes, sample: analyticsData.debug.sample }, null, 2)}</pre>
+            </details>
+          </CardContent>
+        </Card>
+      )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid grid-cols-3 w-full max-w-md">
@@ -126,11 +155,11 @@ export default function AdminVirtualStoriesContent() {
         </TabsList>
 
         <TabsContent value="funnel" className="mt-4">
-          <VirtualFunnelDashboard />
+          <VirtualFunnelDashboard analyticsData={analyticsData} loading={loading} error={queryError} />
         </TabsContent>
 
         <TabsContent value="episodes" className="mt-4">
-          <AdminVirtualEpisodesPanel />
+          <AdminVirtualEpisodesPanel analyticsData={analyticsData} loading={loading} error={queryError} onRefresh={fetchStats} />
         </TabsContent>
 
         <TabsContent value="engagement" className="mt-4 space-y-6">
