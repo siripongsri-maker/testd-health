@@ -116,6 +116,7 @@ export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
         >
           <ArrowLeft className="h-4 w-4" />
         </button>
+        <ShareEpisodeButton slug={activeEpisode.slug} title={activeEpisode.titleTh} />
         <iframe
           src="/virtual/prep-boys/index.html"
           title="PrEP Boys"
