@@ -166,8 +166,8 @@ function AppShell() {
               <Route path="/my-rewards" element={<MyRewards />} />
               <Route path="/feedback" element={<ClientFeedbackForm />} />
               <Route path="/virtual" element={<VirtualMode />} />
-              <Route path="/virtual/ep2" element={<VirtualMode forceEp2 />} />
               <Route path="/virtual/clinic" element={<VirtualMode forceClinic />} />
+              <Route path="/virtual/:slug" element={<VirtualMode />} />
               <Route path="/unsubscribe" element={<Unsubscribe />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
