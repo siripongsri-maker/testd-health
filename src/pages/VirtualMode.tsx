@@ -18,6 +18,12 @@ import {
 } from "lucide-react";
 import { getVirtualEpisodesSorted, getEpisodeBySlug, type VirtualEpisode } from "@/config/virtualEpisodes";
 import { ShareEpisodeButton } from "@/components/virtual/ShareEpisodeButton";
+import {
+  trackEpisodeView,
+  trackEpisodeStart,
+  trackEpisodeCtaClick,
+  type EpisodeSource,
+} from "@/lib/virtualEpisodeAnalytics";
 
 interface Props {
   forceClinic?: boolean;
