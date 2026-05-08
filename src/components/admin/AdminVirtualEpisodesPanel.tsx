@@ -212,12 +212,13 @@ export default function AdminVirtualEpisodesPanel() {
       </div>
 
       {/* Totals */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
+      <div className="grid grid-cols-2 md:grid-cols-7 gap-2">
         {[
           { label: th ? 'Views' : 'Views', value: totals.views },
           { label: th ? 'Starts' : 'Starts', value: totals.starts },
           { label: th ? 'Completes' : 'Completes', value: totals.completes },
           { label: 'CTA', value: totals.ctaClicks },
+          { label: th ? 'Share Impr.' : 'Share Impr.', value: totals.shareImpressions },
           { label: th ? 'Shares' : 'Shares', value: totals.shares },
           { label: th ? 'Downloads' : 'Downloads', value: totals.downloads },
         ].map((k, i) => (
