@@ -106,12 +106,12 @@ export function VirtualFunnelDashboard({ analyticsData, loading, error, onRefres
               <SelectItem value="all">{th ? 'ทั้งหมด' : 'All'}</SelectItem>
               <SelectItem value="ep1">Episode 1</SelectItem>
               <SelectItem value="ep2">Episode 2</SelectItem>
-              <SelectItem value="clinic">Virtual Clinic</SelectItem>
-              <SelectItem value="guide">AI Guide</SelectItem>
+              <SelectItem value="prep-hunt">PrEP Hunt</SelectItem>
+              <SelectItem value="prep-fortune">PrEP Fortune</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
-            <RefreshCw className="h-3.5 w-3.5 mr-1" />
+          <Button variant="outline" size="sm" onClick={onRefresh} disabled={loading}>
+            <RefreshCw className={`h-3.5 w-3.5 mr-1 ${loading ? 'animate-spin' : ''}`} />
           </Button>
           <Button variant="outline" size="sm" onClick={exportCSV}>
             <Download className="h-3.5 w-3.5 mr-1" />CSV
@@ -132,7 +132,7 @@ export function VirtualFunnelDashboard({ analyticsData, loading, error, onRefres
             <Card key={i}>
               <CardContent className="p-3 text-center">
                 <kpi.icon className="h-4 w-4 mx-auto mb-1.5 text-primary" />
-                <div className="text-xl font-bold">{isLoading ? '...' : kpi.value}</div>
+                <div className="text-xl font-bold">{loading ? '...' : kpi.value}</div>
                 <div className="text-[10px] text-muted-foreground mt-0.5">{kpi.label}</div>
               </CardContent>
             </Card>
