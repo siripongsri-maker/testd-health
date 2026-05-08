@@ -55,7 +55,7 @@ export function FeaturedJourneySection() {
                   card_slug: card.slug,
                 });
                 localStorage.setItem('virtualVisited', '1');
-                navigate(`/virtual/${card.slug}`);
+                navigate(`/virtual/${card.slug}?ref=homepage`);
               }}
               className="group flex-shrink-0 w-[220px] snap-start relative overflow-hidden rounded-2xl border p-4 text-left hover:shadow-lg hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200"
               style={{
