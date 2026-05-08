@@ -155,23 +155,26 @@ export default function AdminVirtualEpisodesPanel() {
         starts: acc.starts + a.starts,
         completes: acc.completes + a.completes,
         ctaClicks: acc.ctaClicks + a.ctaClicks,
+        shareImpressions: acc.shareImpressions + a.shareImpressions,
         shares: acc.shares + a.shares,
         downloads: acc.downloads + a.downloads,
       }),
-      { views: 0, starts: 0, completes: 0, ctaClicks: 0, shares: 0, downloads: 0 },
+      { views: 0, starts: 0, completes: 0, ctaClicks: 0, shareImpressions: 0, shares: 0, downloads: 0 },
     );
   }, [aggregates]);
 
   const exportCsv = () => {
     const header = [
       'slug', 'title', 'kind', 'published_at', 'views', 'starts', 'completes',
-      'completion_rate_%', 'cta_clicks', 'cta_rate_%', 'shares', 'share_rate_%',
+      'completion_rate_%', 'cta_clicks', 'cta_rate_%',
+      'share_impressions', 'shares', 'share_rate_%',
       'downloads', 'unique_visitors', 'last_activity', 'top_result', 'top_source',
     ];
     const lines = aggregates.map((a) => [
       a.slug, JSON.stringify(a.title), a.kind, a.publishedAt,
       a.views, a.starts, a.completes, a.completionRate,
-      a.ctaClicks, a.ctaRate, a.shares, a.shareRate, a.downloads,
+      a.ctaClicks, a.ctaRate,
+      a.shareImpressions, a.shares, a.shareRate, a.downloads,
       a.uniqueVisitors, a.lastActivity || '',
       a.topResults[0]?.name || '', a.topSources[0]?.name || '',
     ].join(','));
