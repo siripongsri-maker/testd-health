@@ -84,6 +84,7 @@ export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
         <button onClick={goHub} className="absolute top-3 left-3 z-50 p-2 rounded-lg bg-background/80 backdrop-blur-sm text-foreground border border-border/30 shadow-sm">
           <ArrowLeft className="h-4 w-4" />
         </button>
+        <ShareEpisodeButton slug={activeEpisode.slug} title={activeEpisode.titleTh} />
         <DateStoryExperience />
       </div>
     );
