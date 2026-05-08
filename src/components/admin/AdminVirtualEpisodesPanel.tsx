@@ -24,11 +24,13 @@ type EpisodeAgg = {
   starts: number;
   completes: number;
   ctaClicks: number;
+  shareImpressions: number;
   shares: number;
   downloads: number;
   uniqueVisitors: number;
   completionRate: number;
   ctaRate: number;
+  /** shares ÷ impressions (true share rate) */
   shareRate: number;
   topResults: Array<{ name: string; count: number }>;
   topSources: Array<{ name: string; count: number }>;
@@ -40,6 +42,7 @@ const EVENT_TYPES = [
   'virtual_episode_start',
   'virtual_episode_complete',
   'virtual_cta_click',
+  'virtual_share_impression',
   'virtual_result_share',
   'virtual_result_download',
 ];
@@ -92,7 +95,7 @@ export default function AdminVirtualEpisodesPanel() {
     return episodes.map((ep) => {
       const epRows = rows.filter((r) => getMeta(r, 'slug') === ep.slug);
       const visitors = new Set<string>();
-      let views = 0, starts = 0, completes = 0, ctaClicks = 0, shares = 0, downloads = 0;
+      let views = 0, starts = 0, completes = 0, ctaClicks = 0, shareImpressions = 0, shares = 0, downloads = 0;
       const resultCounts: Record<string, number> = {};
       const sourceCounts: Record<string, number> = {};
       let lastActivity: string | null = null;
@@ -114,6 +117,7 @@ export default function AdminVirtualEpisodesPanel() {
             break;
           }
           case 'virtual_cta_click': ctaClicks++; break;
+          case 'virtual_share_impression': shareImpressions++; break;
           case 'virtual_result_share': {
             const m = getMeta(r, 'method');
             // Count meaningful share attempts (web_share, clipboard) only
@@ -126,14 +130,15 @@ export default function AdminVirtualEpisodesPanel() {
 
       const completionRate = starts > 0 ? Math.round((completes / starts) * 100) : 0;
       const ctaRate = completes > 0 ? Math.round((ctaClicks / completes) * 100) : 0;
-      const shareRate = completes > 0 ? Math.round((shares / completes) * 100) : 0;
+      // True share rate = shares ÷ impressions (denominator is users who *saw* the share UI)
+      const shareRate = shareImpressions > 0 ? Math.round((shares / shareImpressions) * 100) : 0;
 
       return {
         slug: ep.slug,
         title: th ? ep.titleTh : ep.titleEn,
         kind: ep.kind,
         publishedAt: ep.publishedAt,
-        views, starts, completes, ctaClicks, shares, downloads,
+        views, starts, completes, ctaClicks, shareImpressions, shares, downloads,
         uniqueVisitors: visitors.size,
         completionRate, ctaRate, shareRate,
         topResults: topN(resultCounts, 3),
@@ -150,23 +155,26 @@ export default function AdminVirtualEpisodesPanel() {
         starts: acc.starts + a.starts,
         completes: acc.completes + a.completes,
         ctaClicks: acc.ctaClicks + a.ctaClicks,
+        shareImpressions: acc.shareImpressions + a.shareImpressions,
         shares: acc.shares + a.shares,
         downloads: acc.downloads + a.downloads,
       }),
-      { views: 0, starts: 0, completes: 0, ctaClicks: 0, shares: 0, downloads: 0 },
+      { views: 0, starts: 0, completes: 0, ctaClicks: 0, shareImpressions: 0, shares: 0, downloads: 0 },
     );
   }, [aggregates]);
 
   const exportCsv = () => {
     const header = [
       'slug', 'title', 'kind', 'published_at', 'views', 'starts', 'completes',
-      'completion_rate_%', 'cta_clicks', 'cta_rate_%', 'shares', 'share_rate_%',
+      'completion_rate_%', 'cta_clicks', 'cta_rate_%',
+      'share_impressions', 'shares', 'share_rate_%',
       'downloads', 'unique_visitors', 'last_activity', 'top_result', 'top_source',
     ];
     const lines = aggregates.map((a) => [
       a.slug, JSON.stringify(a.title), a.kind, a.publishedAt,
       a.views, a.starts, a.completes, a.completionRate,
-      a.ctaClicks, a.ctaRate, a.shares, a.shareRate, a.downloads,
+      a.ctaClicks, a.ctaRate,
+      a.shareImpressions, a.shares, a.shareRate, a.downloads,
       a.uniqueVisitors, a.lastActivity || '',
       a.topResults[0]?.name || '', a.topSources[0]?.name || '',
     ].join(','));
@@ -204,12 +212,13 @@ export default function AdminVirtualEpisodesPanel() {
       </div>
 
       {/* Totals */}
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
+      <div className="grid grid-cols-2 md:grid-cols-7 gap-2">
         {[
           { label: th ? 'Views' : 'Views', value: totals.views },
           { label: th ? 'Starts' : 'Starts', value: totals.starts },
           { label: th ? 'Completes' : 'Completes', value: totals.completes },
           { label: 'CTA', value: totals.ctaClicks },
+          { label: th ? 'Share Impr.' : 'Share Impr.', value: totals.shareImpressions },
           { label: th ? 'Shares' : 'Shares', value: totals.shares },
           { label: th ? 'Downloads' : 'Downloads', value: totals.downloads },
         ].map((k, i) => (
@@ -271,7 +280,7 @@ export default function AdminVirtualEpisodesPanel() {
                   { l: 'Starts', v: a.starts },
                   { l: 'Done', v: `${a.completes} (${a.completionRate}%)` },
                   { l: 'CTA', v: `${a.ctaClicks} (${a.ctaRate}%)` },
-                  { l: 'Share', v: `${a.shares} (${a.shareRate}%)` },
+                  { l: th ? `Share (${a.shareImpressions} seen)` : `Share (${a.shareImpressions} seen)`, v: `${a.shares} (${a.shareRate}%)` },
                   { l: th ? 'Unique' : 'Unique', v: a.uniqueVisitors },
                 ].map((k, i) => (
                   <div key={i} className="rounded-lg bg-muted/30 p-2">

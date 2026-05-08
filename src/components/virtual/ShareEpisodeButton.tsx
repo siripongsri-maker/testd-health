@@ -1,18 +1,28 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Share2, Check } from 'lucide-react';
 import { trackEvent } from '@/hooks/useAnalytics';
-import { trackEpisodeShare } from '@/lib/virtualEpisodeAnalytics';
+import { trackEpisodeShare, trackEpisodeShareImpression } from '@/lib/virtualEpisodeAnalytics';
 import { toast } from '@/hooks/use-toast';
 
 interface Props {
   slug: string;
   title: string;
+  /** Where this share UI is rendered, e.g. 'episode_screen' | 'result_screen' */
+  surface?: string;
 }
 
-export function ShareEpisodeButton({ slug, title }: Props) {
+export function ShareEpisodeButton({ slug, title, surface = 'episode_screen' }: Props) {
   const [copied, setCopied] = useState(false);
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://testd.website';
   const url = `${origin}/virtual/${slug}?ref=share`;
+
+  // Fire one impression per (slug + surface) per mount so the denominator for share-rate is reliable.
+  const impressionFiredRef = useRef(false);
+  useEffect(() => {
+    if (impressionFiredRef.current) return;
+    impressionFiredRef.current = true;
+    trackEpisodeShareImpression({ slug, title }, surface);
+  }, [slug, title, surface]);
 
   const handle = async () => {
     const ctx = { slug, title };
