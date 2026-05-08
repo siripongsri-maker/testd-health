@@ -675,6 +675,7 @@ export default function PrepHuntGame({ onBack }: { onBack?: () => void }) {
           if (sceneIdx >= 2) {
             setScreen("win");
             trackEvent("virtual_game_completed", { source_page: "/virtual" });
+            trackEpisodeComplete({ slug: 'prep-hunt', title: 'หา PrEP ให้เจอ' }, { result_type: 'win' });
           } else {
             setSceneIdx(i=>i+1);
             setTime(SCENES[sceneIdx+1].time);
