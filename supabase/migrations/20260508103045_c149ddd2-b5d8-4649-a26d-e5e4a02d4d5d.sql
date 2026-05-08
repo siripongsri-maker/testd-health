@@ -1,0 +1,2 @@
+REVOKE ALL ON FUNCTION public.get_virtual_admin_analytics(timestamptz, timestamptz) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.get_virtual_admin_analytics(timestamptz, timestamptz) TO authenticated;
