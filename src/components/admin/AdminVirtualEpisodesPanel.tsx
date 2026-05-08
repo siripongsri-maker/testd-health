@@ -40,6 +40,7 @@ const EVENT_TYPES = [
   'virtual_episode_start',
   'virtual_episode_complete',
   'virtual_cta_click',
+  'virtual_share_impression',
   'virtual_result_share',
   'virtual_result_download',
 ];
