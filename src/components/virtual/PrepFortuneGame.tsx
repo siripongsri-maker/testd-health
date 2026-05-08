@@ -183,6 +183,7 @@ export default function PrepFortuneGame({ onBack }: Props) {
       alert('คัดลอกข้อความแล้ว เอาไปแปะลง social ได้เลย ✨');
     }
     trackEvent('virtual_prep_fortune_share', { source: '/virtual' });
+    trackEpisodeShare({ slug: 'prep-fortune', title: 'ดวงโดน PrEP' }, 'click');
   };
 
   return (
