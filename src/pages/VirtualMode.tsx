@@ -91,16 +91,27 @@ export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
   }
 
   if (activeEpisode?.slug === 'ep2') {
-    return <Episode2Player onBack={goHub} />;
+    return (
+      <div className="h-[calc(100dvh-3.5rem)] relative" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
+        <ShareEpisodeButton slug={activeEpisode.slug} title={activeEpisode.titleTh} />
+        <Episode2Player onBack={goHub} />
+      </div>
+    );
   }
 
   if (activeEpisode?.slug === 'prep-hunt') {
-    return <PrepHuntGame onBack={goHub} />;
+    return (
+      <div className="h-[calc(100dvh-3.5rem)] relative" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
+        <ShareEpisodeButton slug={activeEpisode.slug} title={activeEpisode.titleTh} />
+        <PrepHuntGame onBack={goHub} />
+      </div>
+    );
   }
 
   if (activeEpisode?.slug === 'prep-fortune') {
     return (
       <div className="h-[calc(100dvh-3.5rem)] relative overflow-hidden" style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}>
+        <ShareEpisodeButton slug={activeEpisode.slug} title={activeEpisode.titleTh} />
         <PrepFortuneGame onBack={goHub} />
       </div>
     );
