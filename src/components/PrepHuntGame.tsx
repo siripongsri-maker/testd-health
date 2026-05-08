@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { trackEvent } from "@/hooks/useAnalytics";
+import { trackEpisodeComplete, trackEpisodeCtaClick } from "@/lib/virtualEpisodeAnalytics";
 import { setHarmReductionSource } from "@/hooks/useHarmReductionTracking";
 
 /* ═══════════════════════════════════════════════════════════════
