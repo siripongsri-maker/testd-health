@@ -24,11 +24,13 @@ type EpisodeAgg = {
   starts: number;
   completes: number;
   ctaClicks: number;
+  shareImpressions: number;
   shares: number;
   downloads: number;
   uniqueVisitors: number;
   completionRate: number;
   ctaRate: number;
+  /** shares ÷ impressions (true share rate) */
   shareRate: number;
   topResults: Array<{ name: string; count: number }>;
   topSources: Array<{ name: string; count: number }>;
