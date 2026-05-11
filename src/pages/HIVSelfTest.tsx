@@ -1598,7 +1598,7 @@ export default function HIVSelfTest() {
 
         {magicLinkState.status !== 'error' && renderStepIndicator()}
 
-        {currentStep === 'intro' && (
+        {magicLinkState.status !== 'error' && magicLinkState.status !== 'resolving' && currentStep === 'intro' && (
           <IntroStep 
             activeRequest={activeRequest}
             onStartRequest={(mode) => {
