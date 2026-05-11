@@ -882,6 +882,7 @@ export type Database = {
           name_th: string
           open_days: number[]
           open_time: string
+          opens_on: string | null
           phone: string | null
           slot_duration_minutes: number
           slug: string
@@ -910,6 +911,7 @@ export type Database = {
           name_th: string
           open_days?: number[]
           open_time?: string
+          opens_on?: string | null
           phone?: string | null
           slot_duration_minutes?: number
           slug: string
@@ -938,6 +940,7 @@ export type Database = {
           name_th?: string
           open_days?: number[]
           open_time?: string
+          opens_on?: string | null
           phone?: string | null
           slot_duration_minutes?: number
           slug?: string

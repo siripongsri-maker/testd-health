@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { RefreshCw, Download, Play, Gamepad2 } from "lucide-react";
 import { getVirtualEpisodesSorted } from "@/config/virtualEpisodes";
 import { useLanguage } from "@/lib/i18n";
-import type { VirtualAdminAnalytics } from "@/lib/virtualAdminAnalytics";
+import type { VirtualAdminAnalytics, VirtualAdminEpisode } from "@/lib/virtualAdminAnalytics";
 
 type EpisodeAgg = {
   slug: string;
@@ -22,10 +22,7 @@ type EpisodeAgg = {
   uniqueVisitors: number;
   completionRate: number;
   ctaRate: number;
-  /** shares ÷ impressions (true share rate) */
   shareRate: number;
-  topResults: Array<{ name: string; count: number }>;
-  topSources: Array<{ name: string; count: number }>;
   lastActivity: string | null;
 };
 
@@ -43,61 +40,32 @@ export default function AdminVirtualEpisodesPanel({ analyticsData, loading, erro
   const episodes = useMemo(() => getVirtualEpisodesSorted(), []);
 
   const aggregates: EpisodeAgg[] = useMemo(() => {
+    const bySlug = new Map<string, VirtualAdminEpisode>();
+    (analyticsData?.episodes || []).forEach((e) => bySlug.set(e.slug, e));
     return episodes.map((ep) => {
-      const epRows = rows.filter((r) => getMeta(r, 'slug') === ep.slug);
-      const visitors = new Set<string>();
-      let views = 0, starts = 0, completes = 0, ctaClicks = 0, shareImpressions = 0, shares = 0, downloads = 0;
-      const resultCounts: Record<string, number> = {};
-      const sourceCounts: Record<string, number> = {};
-      let lastActivity: string | null = null;
-
-      for (const r of epRows) {
-        if (!lastActivity || r.created_at > lastActivity) lastActivity = r.created_at;
-        const id = r.anonymous_id || r.session_id;
-        if (id) visitors.add(id);
-        const src = getMeta(r, 'source') || 'unknown';
-        sourceCounts[src] = (sourceCounts[src] || 0) + 1;
-
-        switch (r.event_type) {
-          case 'virtual_episode_view': views++; break;
-          case 'virtual_episode_start': starts++; break;
-          case 'virtual_episode_complete': {
-            completes++;
-            const rt = getMeta(r, 'result_type') || getMeta(r, 'result_label') || 'unknown';
-            resultCounts[rt] = (resultCounts[rt] || 0) + 1;
-            break;
-          }
-          case 'virtual_cta_click': ctaClicks++; break;
-          case 'virtual_share_impression': shareImpressions++; break;
-          case 'virtual_result_share': {
-            const m = getMeta(r, 'method');
-            // Count meaningful share attempts (web_share, clipboard) only
-            if (m === 'web_share' || m === 'clipboard') shares++;
-            break;
-          }
-          case 'virtual_result_download': downloads++; break;
-        }
-      }
-
+      const r = bySlug.get(ep.slug);
+      const views = r?.views ?? 0;
+      const starts = r?.starts ?? 0;
+      const completes = r?.completes ?? 0;
+      const ctaClicks = r?.cta_clicks ?? 0;
+      const shareImpressions = r?.share_impressions ?? 0;
+      const shares = r?.shares ?? 0;
+      const downloads = r?.downloads ?? 0;
+      const uniqueVisitors = r?.unique_visitors ?? 0;
       const completionRate = starts > 0 ? Math.round((completes / starts) * 100) : 0;
       const ctaRate = completes > 0 ? Math.round((ctaClicks / completes) * 100) : 0;
-      // True share rate = shares ÷ impressions (denominator is users who *saw* the share UI)
       const shareRate = shareImpressions > 0 ? Math.round((shares / shareImpressions) * 100) : 0;
-
       return {
         slug: ep.slug,
         title: th ? ep.titleTh : ep.titleEn,
         kind: ep.kind,
         publishedAt: ep.publishedAt,
         views, starts, completes, ctaClicks, shareImpressions, shares, downloads,
-        uniqueVisitors: visitors.size,
-        completionRate, ctaRate, shareRate,
-        topResults: topN(resultCounts, 3),
-        topSources: topN(sourceCounts, 4),
-        lastActivity,
+        uniqueVisitors, completionRate, ctaRate, shareRate,
+        lastActivity: r?.last_activity ?? null,
       };
     });
-  }, [rows, episodes, th]);
+  }, [analyticsData, episodes, th]);
 
   const totals = useMemo(() => {
     return aggregates.reduce(
@@ -119,7 +87,7 @@ export default function AdminVirtualEpisodesPanel({ analyticsData, loading, erro
       'slug', 'title', 'kind', 'published_at', 'views', 'starts', 'completes',
       'completion_rate_%', 'cta_clicks', 'cta_rate_%',
       'share_impressions', 'shares', 'share_rate_%',
-      'downloads', 'unique_visitors', 'last_activity', 'top_result', 'top_source',
+      'downloads', 'unique_visitors', 'last_activity',
     ];
     const lines = aggregates.map((a) => [
       a.slug, JSON.stringify(a.title), a.kind, a.publishedAt,
@@ -127,7 +95,6 @@ export default function AdminVirtualEpisodesPanel({ analyticsData, loading, erro
       a.ctaClicks, a.ctaRate,
       a.shareImpressions, a.shares, a.shareRate, a.downloads,
       a.uniqueVisitors, a.lastActivity || '',
-      a.topResults[0]?.name || '', a.topSources[0]?.name || '',
     ].join(','));
     const csv = '\uFEFF' + [header.join(','), ...lines].join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -150,9 +117,10 @@ export default function AdminVirtualEpisodesPanel({ analyticsData, loading, erro
           <p className="text-xs text-muted-foreground">
             {th ? 'ติดตามผู้ชม / การเล่นจบ / CTA / การแชร์ ในแต่ละตอน' : 'Track views, completions, CTA & shares per episode'}
           </p>
+          {error && <p className="text-xs text-destructive mt-1">{error}</p>}
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={fetchData} disabled={loading}>
+          <Button variant="outline" size="sm" onClick={onRefresh} disabled={loading}>
             <RefreshCw className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} />
             {th ? 'รีเฟรช' : 'Refresh'}
           </Button>
@@ -162,16 +130,15 @@ export default function AdminVirtualEpisodesPanel({ analyticsData, loading, erro
         </div>
       </div>
 
-      {/* Totals */}
       <div className="grid grid-cols-2 md:grid-cols-7 gap-2">
         {[
-          { label: th ? 'Views' : 'Views', value: totals.views },
-          { label: th ? 'Starts' : 'Starts', value: totals.starts },
-          { label: th ? 'Completes' : 'Completes', value: totals.completes },
+          { label: 'Views', value: totals.views },
+          { label: 'Starts', value: totals.starts },
+          { label: 'Completes', value: totals.completes },
           { label: 'CTA', value: totals.ctaClicks },
-          { label: th ? 'Share Impr.' : 'Share Impr.', value: totals.shareImpressions },
-          { label: th ? 'Shares' : 'Shares', value: totals.shares },
-          { label: th ? 'Downloads' : 'Downloads', value: totals.downloads },
+          { label: 'Share Impr.', value: totals.shareImpressions },
+          { label: 'Shares', value: totals.shares },
+          { label: 'Downloads', value: totals.downloads },
         ].map((k, i) => (
           <Card key={i}>
             <CardContent className="p-3 text-center">
@@ -182,7 +149,6 @@ export default function AdminVirtualEpisodesPanel({ analyticsData, loading, erro
         ))}
       </div>
 
-      {/* Top by starts */}
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm">{th ? '🏆 ตอนยอดนิยม (เล่นมากสุด)' : '🏆 Most-Played Episodes'}</CardTitle>
@@ -210,7 +176,6 @@ export default function AdminVirtualEpisodesPanel({ analyticsData, loading, erro
         </CardContent>
       </Card>
 
-      {/* Per-episode table */}
       <div className="space-y-3">
         {aggregates.map((a) => (
           <Card key={a.slug}>
@@ -231,8 +196,8 @@ export default function AdminVirtualEpisodesPanel({ analyticsData, loading, erro
                   { l: 'Starts', v: a.starts },
                   { l: 'Done', v: `${a.completes} (${a.completionRate}%)` },
                   { l: 'CTA', v: `${a.ctaClicks} (${a.ctaRate}%)` },
-                  { l: th ? `Share (${a.shareImpressions} seen)` : `Share (${a.shareImpressions} seen)`, v: `${a.shares} (${a.shareRate}%)` },
-                  { l: th ? 'Unique' : 'Unique', v: a.uniqueVisitors },
+                  { l: `Share (${a.shareImpressions} seen)`, v: `${a.shares} (${a.shareRate}%)` },
+                  { l: 'Unique', v: a.uniqueVisitors },
                 ].map((k, i) => (
                   <div key={i} className="rounded-lg bg-muted/30 p-2">
                     <div className="text-sm font-bold">{k.v}</div>
@@ -240,38 +205,6 @@ export default function AdminVirtualEpisodesPanel({ analyticsData, loading, erro
                   </div>
                 ))}
               </div>
-              {(a.topResults.length > 0 || a.topSources.length > 0) && (
-                <div className="grid md:grid-cols-2 gap-2 text-xs">
-                  {a.topResults.length > 0 && (
-                    <div>
-                      <p className="text-[10px] font-semibold uppercase text-muted-foreground mb-1">
-                        {th ? 'ผลลัพธ์ยอดนิยม' : 'Top Results'}
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {a.topResults.map((r) => (
-                          <Badge key={r.name} variant="secondary" className="text-[10px]">
-                            {r.name} · {r.count}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {a.topSources.length > 0 && (
-                    <div>
-                      <p className="text-[10px] font-semibold uppercase text-muted-foreground mb-1">
-                        {th ? 'มาจากแหล่ง' : 'Top Sources'}
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {a.topSources.map((s) => (
-                          <Badge key={s.name} variant="outline" className="text-[10px]">
-                            {s.name} · {s.count}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
               {a.lastActivity && (
                 <p className="text-[10px] text-muted-foreground">
                   {th ? 'ใช้งานล่าสุด' : 'Last activity'}: {new Date(a.lastActivity).toLocaleString()}
