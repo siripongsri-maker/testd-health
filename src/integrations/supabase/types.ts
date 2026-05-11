@@ -3261,6 +3261,7 @@ export type Database = {
           expected_delivered_at: string | null
           full_name: string | null
           id: string
+          last_postponed_at: string | null
           last_risk_date: string | null
           last_tracking_check_at: string | null
           line_id: string | null
@@ -3275,7 +3276,10 @@ export type Database = {
           pickup_longitude: number | null
           pii_id: string | null
           postal_code: string | null
+          postpone_count: number
           province: string | null
+          reactive_notified_at: string | null
+          reactive_notified_to: string | null
           rejected_at: string | null
           rejected_by: string | null
           rejection_reason: string | null
@@ -3310,6 +3314,7 @@ export type Database = {
           expected_delivered_at?: string | null
           full_name?: string | null
           id?: string
+          last_postponed_at?: string | null
           last_risk_date?: string | null
           last_tracking_check_at?: string | null
           line_id?: string | null
@@ -3324,7 +3329,10 @@ export type Database = {
           pickup_longitude?: number | null
           pii_id?: string | null
           postal_code?: string | null
+          postpone_count?: number
           province?: string | null
+          reactive_notified_at?: string | null
+          reactive_notified_to?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
           rejection_reason?: string | null
@@ -3359,6 +3367,7 @@ export type Database = {
           expected_delivered_at?: string | null
           full_name?: string | null
           id?: string
+          last_postponed_at?: string | null
           last_risk_date?: string | null
           last_tracking_check_at?: string | null
           line_id?: string | null
@@ -3373,7 +3382,10 @@ export type Database = {
           pickup_longitude?: number | null
           pii_id?: string | null
           postal_code?: string | null
+          postpone_count?: number
           province?: string | null
+          reactive_notified_at?: string | null
+          reactive_notified_to?: string | null
           rejected_at?: string | null
           rejected_by?: string | null
           rejection_reason?: string | null
@@ -10476,6 +10488,7 @@ export type Database = {
         Returns: undefined
       }
       increment_link_click: { Args: { p_slug: string }; Returns: Json }
+      increment_postpone: { Args: { req_id: string }; Returns: undefined }
       increment_survey_view: { Args: { p_survey_id: string }; Returns: number }
       is_booking_branch_admin: {
         Args: { p_branch_id: string }
