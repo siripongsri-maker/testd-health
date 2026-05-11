@@ -178,17 +178,28 @@ export default function HIVSelfTest() {
     }
   }, [user]);
 
-  // Magic link resolution: ?token=... lets users re-enter result submission flow
+  // Magic link resolution: ?token=... lets users re-enter the result submission flow
+  // bound to the original kit request (no new request will be created).
+  const [magicLinkState, setMagicLinkState] = useState<
+    | { status: 'idle' }
+    | { status: 'resolving' }
+    | { status: 'ok'; phone: string | null }
+    | { status: 'error'; reason: string }
+  >({ status: 'idle' });
+
   useEffect(() => {
     const token = searchParams.get('token');
     if (!token) return;
+    setMagicLinkState({ status: 'resolving' });
     (async () => {
       try {
         const { data, error } = await supabase.functions.invoke('selftest-magic-resolve', {
           body: { token },
         });
         if (error || !data?.request) {
-          toast.error(language === 'th' ? 'ลิงก์หมดอายุหรือไม่ถูกต้อง' : 'Link expired or invalid');
+          const reason = (data && (data.error as string)) || 'invalid';
+          setMagicLinkState({ status: 'error', reason });
+          trackEvent('selftest_magic_link_failed', { reason });
           return;
         }
         const reqRow = data.request;
@@ -197,13 +208,20 @@ export default function HIVSelfTest() {
           status: reqRow.status,
           tracking_number: null,
           test_result: null,
-          created_at: new Date().toISOString(),
+          created_at: reqRow.created_at || new Date().toISOString(),
           result_photo_url: null,
         });
-        setCurrentStep('confirm-receipt');
-        trackEvent('selftest_magic_link_resolved', { request_id: reqRow.id });
+        if (reqRow.assigned_branch) setAssignedBranch(reqRow.assigned_branch);
+        setMagicLinkState({ status: 'ok', phone: reqRow.phone ?? null });
+        // Jump straight into Lean submission flow — bound to the original request id.
+        setCurrentStep('photo-result');
+        trackEvent('selftest_magic_link_resolved', {
+          request_id: reqRow.id,
+          delivery_mode: reqRow.delivery_mode,
+        });
       } catch (e) {
         console.error('[magic-link]', e);
+        setMagicLinkState({ status: 'error', reason: 'server_error' });
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
