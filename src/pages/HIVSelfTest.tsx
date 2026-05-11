@@ -178,17 +178,28 @@ export default function HIVSelfTest() {
     }
   }, [user]);
 
-  // Magic link resolution: ?token=... lets users re-enter result submission flow
+  // Magic link resolution: ?token=... lets users re-enter the result submission flow
+  // bound to the original kit request (no new request will be created).
+  const [magicLinkState, setMagicLinkState] = useState<
+    | { status: 'idle' }
+    | { status: 'resolving' }
+    | { status: 'ok'; phone: string | null }
+    | { status: 'error'; reason: string }
+  >({ status: 'idle' });
+
   useEffect(() => {
     const token = searchParams.get('token');
     if (!token) return;
+    setMagicLinkState({ status: 'resolving' });
     (async () => {
       try {
         const { data, error } = await supabase.functions.invoke('selftest-magic-resolve', {
           body: { token },
         });
         if (error || !data?.request) {
-          toast.error(language === 'th' ? 'ลิงก์หมดอายุหรือไม่ถูกต้อง' : 'Link expired or invalid');
+          const reason = (data && (data.error as string)) || 'invalid';
+          setMagicLinkState({ status: 'error', reason });
+          trackEvent('selftest_magic_link_failed', { reason });
           return;
         }
         const reqRow = data.request;
@@ -197,13 +208,20 @@ export default function HIVSelfTest() {
           status: reqRow.status,
           tracking_number: null,
           test_result: null,
-          created_at: new Date().toISOString(),
+          created_at: reqRow.created_at || new Date().toISOString(),
           result_photo_url: null,
         });
-        setCurrentStep('confirm-receipt');
-        trackEvent('selftest_magic_link_resolved', { request_id: reqRow.id });
+        if (reqRow.assigned_branch) setAssignedBranch(reqRow.assigned_branch);
+        setMagicLinkState({ status: 'ok', phone: reqRow.phone ?? null });
+        // Jump straight into Lean submission flow — bound to the original request id.
+        setCurrentStep('photo-result');
+        trackEvent('selftest_magic_link_resolved', {
+          request_id: reqRow.id,
+          delivery_mode: reqRow.delivery_mode,
+        });
       } catch (e) {
         console.error('[magic-link]', e);
+        setMagicLinkState({ status: 'error', reason: 'server_error' });
       }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1533,9 +1551,54 @@ export default function HIVSelfTest() {
           </div>
         </div>
 
-        {renderStepIndicator()}
+        {/* Magic-link resolution states (token=...) */}
+        {magicLinkState.status === 'resolving' && (
+          <Card className="p-6 mb-4 text-center animate-fade-in">
+            <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2 text-primary" />
+            <p className="text-sm text-muted-foreground">
+              {language === 'th' ? 'กำลังตรวจสอบลิงก์...' : 'Verifying your link...'}
+            </p>
+          </Card>
+        )}
 
-        {currentStep === 'intro' && (
+        {magicLinkState.status === 'error' && (
+          <Card className="p-6 mb-4 space-y-4 animate-fade-in border-destructive/30 bg-destructive/5">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-6 w-6 text-destructive shrink-0" />
+              <div className="space-y-1">
+                <h3 className="font-semibold text-foreground">
+                  {language === 'th' ? 'ไม่พบข้อมูลชุดตรวจ' : 'Self-test kit not found'}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {language === 'th'
+                    ? 'ลิงก์นี้อาจหมดอายุหรือใช้งานไปแล้ว กรุณาติดต่อทีมงาน'
+                    : 'This link may have expired or already been used. Please contact our team.'}
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button
+                className="flex-1 gap-2"
+                onClick={() => window.open('https://line.me/R/ti/p/@swingthailand', '_blank')}
+              >
+                <MessageCircle className="h-4 w-4" />
+                {language === 'th' ? 'ติดต่อ SWING' : 'Contact SWING'}
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-1 gap-2"
+                onClick={() => navigate('/')}
+              >
+                <ArrowLeft className="h-4 w-4" />
+                {language === 'th' ? 'กลับหน้าหลัก' : 'Back to home'}
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {magicLinkState.status !== 'error' && renderStepIndicator()}
+
+        {magicLinkState.status !== 'error' && magicLinkState.status !== 'resolving' && currentStep === 'intro' && (
           <IntroStep 
             activeRequest={activeRequest}
             onStartRequest={(mode) => {
