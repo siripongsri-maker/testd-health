@@ -63,6 +63,7 @@ const BRANCH_INFO: Record<string, { nameEn: string; nameTh: string; icon: string
   pattaya: { nameEn: "SWING Pattaya", nameTh: "SWING พัทยา", icon: "🏖️" },
   saphankwai: { nameEn: "SWING Saphan Kwai", nameTh: "SWING สะพานควาย", icon: "🏬" },
   petchakasem: { nameEn: "SWING Phetkasem", nameTh: "SWING เพชรเกษม", icon: "🏥" },
+  udomsuk: { nameEn: "SWING Udom Suk", nameTh: "SWING อุดมสุข", icon: "🏙️" },
 };
 
 const JOB_ROLES: { value: string; labelEn: string; labelTh: string }[] = [
