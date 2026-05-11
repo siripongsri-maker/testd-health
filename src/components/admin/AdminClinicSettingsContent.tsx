@@ -213,6 +213,9 @@ export default function AdminClinicSettingsContent() {
         </CardContent>
       </Card>
 
+      {/* Advance Booking Window (per-branch & per-service) */}
+      <AdvanceBookingWindowCard />
+
       {/* Link Audit Log */}
       <Card>
         <CardHeader>
