@@ -1108,6 +1108,13 @@ export default function Booking() {
                 <p className="text-sm font-medium text-muted-foreground mb-2">
                   {t('booking.selectDate')}
                 </p>
+                {isFollowupOnly && (
+                  <div className="mb-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-xs text-primary">
+                    {language === 'th'
+                      ? '📅 นัดติดตามผลสามารถจองล่วงหน้าได้สูงสุด 3 เดือน'
+                      : '📅 Follow-up consultations can be booked up to 3 months in advance.'}
+                  </div>
+                )}
                 <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
                   {availableDates.map(date => {
                     const dateStr = format(date, 'yyyy-MM-dd');
