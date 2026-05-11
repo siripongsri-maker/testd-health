@@ -1551,7 +1551,52 @@ export default function HIVSelfTest() {
           </div>
         </div>
 
-        {renderStepIndicator()}
+        {/* Magic-link resolution states (token=...) */}
+        {magicLinkState.status === 'resolving' && (
+          <Card className="p-6 mb-4 text-center animate-fade-in">
+            <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2 text-primary" />
+            <p className="text-sm text-muted-foreground">
+              {language === 'th' ? 'กำลังตรวจสอบลิงก์...' : 'Verifying your link...'}
+            </p>
+          </Card>
+        )}
+
+        {magicLinkState.status === 'error' && (
+          <Card className="p-6 mb-4 space-y-4 animate-fade-in border-destructive/30 bg-destructive/5">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-6 w-6 text-destructive shrink-0" />
+              <div className="space-y-1">
+                <h3 className="font-semibold text-foreground">
+                  {language === 'th' ? 'ไม่พบข้อมูลชุดตรวจ' : 'Self-test kit not found'}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {language === 'th'
+                    ? 'ลิงก์นี้อาจหมดอายุหรือใช้งานไปแล้ว กรุณาติดต่อทีมงาน'
+                    : 'This link may have expired or already been used. Please contact our team.'}
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button
+                className="flex-1 gap-2"
+                onClick={() => window.open('https://line.me/R/ti/p/@swingthailand', '_blank')}
+              >
+                <MessageCircle className="h-4 w-4" />
+                {language === 'th' ? 'ติดต่อ SWING' : 'Contact SWING'}
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-1 gap-2"
+                onClick={() => navigate('/')}
+              >
+                <ArrowLeft className="h-4 w-4" />
+                {language === 'th' ? 'กลับหน้าหลัก' : 'Back to home'}
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {magicLinkState.status !== 'error' && renderStepIndicator()}
 
         {currentStep === 'intro' && (
           <IntroStep 
