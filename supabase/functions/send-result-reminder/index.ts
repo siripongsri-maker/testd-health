@@ -151,13 +151,13 @@ Deno.serve(async (req) => {
       });
 
       const link = `${APP_BASE_URL}/hiv-selftest?token=${token}`;
-      const body = TEMPLATES[slot.template].sms.replace("{link}", link);
+      const body = TEMPLATES[templateKey].sms.replace("{link}", link);
       const ok = await sendSms(phone, body);
       await supa.from("selftest_result_reminders").insert({
         request_id: r.id,
-        template: slot.template,
+        template: templateKey,
         channel: "sms",
-        meta: { phone_masked: phone.slice(0, 4) + "***" + phone.slice(-3), ok },
+        meta: { phone_masked: phone.slice(0, 4) + "***" + phone.slice(-3), ok, postpone_count: r.postpone_count ?? 0 },
       });
       if (ok) summary.sent++;
       else summary.failed++;
