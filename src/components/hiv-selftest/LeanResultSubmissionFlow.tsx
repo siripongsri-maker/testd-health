@@ -130,6 +130,7 @@ const T = {
     talkTeam: "Talk to the team",
     saveLater: "Save for later",
     careSaved: "Saved. Our team will reach out.",
+    linkedNote: "Your result will be securely linked to your self-test kit request.",
   },
 };
 
