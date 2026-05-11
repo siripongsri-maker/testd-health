@@ -43,11 +43,36 @@ Deno.serve(async (req) => {
 
     const { data: reqRow } = await supa
       .from("hiv_selftest_requests")
-      .select("id, status, delivery_mode, user_id")
+      .select("id, status, delivery_mode, user_id, pii_id, assigned_branch, created_at")
       .eq("id", tk.request_id)
       .maybeSingle();
 
-    return new Response(JSON.stringify({ request: reqRow }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    let phone: string | null = null;
+    if (reqRow?.pii_id) {
+      const { data: pii } = await supa
+        .from("selftest_pii")
+        .select("phone")
+        .eq("id", reqRow.pii_id)
+        .maybeSingle();
+      phone = pii?.phone ?? null;
+    }
+
+    return new Response(
+      JSON.stringify({
+        request: reqRow
+          ? {
+              id: reqRow.id,
+              status: reqRow.status,
+              delivery_mode: reqRow.delivery_mode,
+              user_id: reqRow.user_id,
+              assigned_branch: reqRow.assigned_branch,
+              created_at: reqRow.created_at,
+              phone,
+            }
+          : null,
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   } catch (e) {
     console.error("[magic-resolve]", e);
     return new Response(JSON.stringify({ error: "server_error" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
