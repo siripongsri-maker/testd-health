@@ -863,6 +863,7 @@ export type Database = {
         Row: {
           address_en: string | null
           address_th: string | null
+          advance_booking_days: number
           close_time: string
           coming_soon_message_en: string | null
           coming_soon_message_th: string | null
@@ -892,6 +893,7 @@ export type Database = {
         Insert: {
           address_en?: string | null
           address_th?: string | null
+          advance_booking_days?: number
           close_time?: string
           coming_soon_message_en?: string | null
           coming_soon_message_th?: string | null
@@ -921,6 +923,7 @@ export type Database = {
         Update: {
           address_en?: string | null
           address_th?: string | null
+          advance_booking_days?: number
           close_time?: string
           coming_soon_message_en?: string | null
           coming_soon_message_th?: string | null
@@ -998,6 +1001,7 @@ export type Database = {
       }
       booking_services: {
         Row: {
+          advance_booking_days: number
           created_at: string
           description_en: string | null
           description_th: string | null
@@ -1014,6 +1018,7 @@ export type Database = {
           slug: string
         }
         Insert: {
+          advance_booking_days?: number
           created_at?: string
           description_en?: string | null
           description_th?: string | null
@@ -1030,6 +1035,7 @@ export type Database = {
           slug: string
         }
         Update: {
+          advance_booking_days?: number
           created_at?: string
           description_en?: string | null
           description_th?: string | null
