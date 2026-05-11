@@ -44,6 +44,7 @@ import {
   TESTING_STEPS
 } from "@/components/hiv-selftest";
 import { SelfTestResultExplanation } from "@/components/hiv-selftest/SelfTestResultExplanation";
+import { LeanResultSubmissionFlow } from "@/components/hiv-selftest/LeanResultSubmissionFlow";
 import { useFormAutosave } from "@/hooks/useFormAutosave";
 
 export default function HIVSelfTest() {
