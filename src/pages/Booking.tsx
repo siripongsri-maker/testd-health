@@ -323,12 +323,22 @@ export default function Booking() {
     );
   };
 
+  // Follow-up consultations can be booked up to 3 months (90 days) in advance.
+  // All other services are limited to the standard 30-day window.
+  const isFollowupOnly = useMemo(
+    () =>
+      selectedServices.length > 0 &&
+      selectedServices.every(s => s.slug === 'followup-consultation'),
+    [selectedServices]
+  );
+
   const availableDates = useMemo(() => {
     if (!selectedBranch) return [];
     const dates: Date[] = [];
     const bangkokNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
     const today = startOfDay(bangkokNow);
-    for (let i = 0; i <= 30; i++) {
+    const maxDays = isFollowupOnly ? 90 : 30;
+    for (let i = 0; i <= maxDays; i++) {
       const d = addDays(today, i);
       const dayOfWeek = getDay(d);
       if (selectedBranch.open_days.includes(dayOfWeek)) {
@@ -336,7 +346,7 @@ export default function Booking() {
       }
     }
     return dates;
-  }, [selectedBranch]);
+  }, [selectedBranch, isFollowupOnly]);
 
   // Smart Forecast: public-safe demand hints (cached client-side)
   const { data: demandRaw, loading: demandLoading } = usePublicDemandHints(
