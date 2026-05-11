@@ -178,6 +178,38 @@ export default function HIVSelfTest() {
     }
   }, [user]);
 
+  // Magic link resolution: ?token=... lets users re-enter result submission flow
+  useEffect(() => {
+    const token = searchParams.get('token');
+    if (!token) return;
+    (async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('selftest-magic-resolve', {
+          body: { token },
+        });
+        if (error || !data?.request) {
+          toast.error(language === 'th' ? 'ลิงก์หมดอายุหรือไม่ถูกต้อง' : 'Link expired or invalid');
+          return;
+        }
+        const reqRow = data.request;
+        setActiveRequest({
+          id: reqRow.id,
+          status: reqRow.status,
+          tracking_number: null,
+          test_result: null,
+          created_at: new Date().toISOString(),
+          result_photo_url: null,
+        });
+        setCurrentStep('confirm-receipt');
+        trackEvent('selftest_magic_link_resolved', { request_id: reqRow.id });
+      } catch (e) {
+        console.error('[magic-link]', e);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get('token')]);
+
+
   // Fetch saved user data for auto-fill (reuse on subsequent requests)
   const fetchSavedUserData = async () => {
     if (!user) return;
