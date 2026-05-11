@@ -325,22 +325,26 @@ export default function Booking() {
     );
   };
 
-  // Follow-up consultations can be booked up to 3 months (90 days) in advance.
-  // All other services are limited to the standard 30-day window.
-  const isFollowupOnly = useMemo(
-    () =>
-      selectedServices.length > 0 &&
-      selectedServices.every(s => s.slug === 'followup-consultation'),
-    [selectedServices]
-  );
+  // Advance booking window is configurable per branch and per service.
+  // Effective limit = min(branch cap, min of selected service limits). Default = 30.
+  const DEFAULT_ADVANCE_DAYS = 30;
+  const effectiveAdvanceDays = useMemo(() => {
+    const branchCap = selectedBranch?.advance_booking_days ?? DEFAULT_ADVANCE_DAYS;
+    if (selectedServices.length === 0) return branchCap;
+    const serviceMin = Math.min(
+      ...selectedServices.map(s => s.advance_booking_days ?? DEFAULT_ADVANCE_DAYS)
+    );
+    return Math.max(1, Math.min(branchCap, serviceMin));
+  }, [selectedBranch, selectedServices]);
+
+  const extendedAdvanceDays = effectiveAdvanceDays > DEFAULT_ADVANCE_DAYS;
 
   const availableDates = useMemo(() => {
     if (!selectedBranch) return [];
     const dates: Date[] = [];
     const bangkokNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
     const today = startOfDay(bangkokNow);
-    const maxDays = isFollowupOnly ? 90 : 30;
-    for (let i = 0; i <= maxDays; i++) {
+    for (let i = 0; i <= effectiveAdvanceDays; i++) {
       const d = addDays(today, i);
       const dayOfWeek = getDay(d);
       if (selectedBranch.open_days.includes(dayOfWeek)) {
@@ -348,7 +352,7 @@ export default function Booking() {
       }
     }
     return dates;
-  }, [selectedBranch, isFollowupOnly]);
+  }, [selectedBranch, effectiveAdvanceDays]);
 
   // Smart Forecast: public-safe demand hints (cached client-side)
   const { data: demandRaw, loading: demandLoading } = usePublicDemandHints(
