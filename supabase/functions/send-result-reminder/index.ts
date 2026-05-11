@@ -19,6 +19,9 @@ const TEMPLATES: Record<string, { sms: string }> = {
   final_offer: {
     sms: "testD: ถ้าชุดตรวจยังอยู่ ส่งผลที่นี่ {link} หรือทักเราขอชุดใหม่ก็ได้",
   },
+  soft_check_in: {
+    sms: "testD: พร้อมเมื่อไหร่มาทักได้เลย ไม่มีกำหนดเวลา หรือคุยกับทีม {link}",
+  },
 };
 
 const SCHEDULE = [
@@ -26,6 +29,9 @@ const SCHEDULE = [
   { daysAfter: 7, template: "gentle_nudge" },
   { daysAfter: 14, template: "final_offer" },
 ];
+
+const POSTPONE_COOLDOWN_DAYS = 3;
+const FREQUENT_POSTPONER_THRESHOLD = 3;
 
 const APP_BASE_URL = Deno.env.get("APP_BASE_URL") || "https://testd-health.lovable.app";
 
@@ -93,7 +99,7 @@ Deno.serve(async (req) => {
     // Pull all delivered/shipped requests with no result_submitted_at, with delivered_at present
     const { data: rows, error } = await supa
       .from("hiv_selftest_requests")
-      .select("id, status, delivered_at, phone, callback_phone, result_submitted_at")
+      .select("id, status, delivered_at, phone, callback_phone, result_submitted_at, last_postponed_at, postpone_count")
       .in("status", ["delivered", "shipped", "received", "confirmed"])
       .is("result_submitted_at", null)
       .not("delivered_at", "is", null)
@@ -108,12 +114,26 @@ Deno.serve(async (req) => {
       if (!slot) { summary.skipped++; continue; }
       summary.eligible++;
 
+      // Skip if user just postponed within cooldown window
+      if (r.last_postponed_at) {
+        const daysSincePostpone =
+          (now - new Date(r.last_postponed_at as string).getTime()) / 86400000;
+        if (daysSincePostpone < POSTPONE_COOLDOWN_DAYS) {
+          summary.skipped++;
+          continue;
+        }
+      }
+
+      // Use softer template for frequent postponers
+      const isFrequentPostponer = ((r.postpone_count as number | null) ?? 0) >= FREQUENT_POSTPONER_THRESHOLD;
+      const templateKey = isFrequentPostponer ? "soft_check_in" : slot.template;
+
       // Idempotency
       const { data: existing } = await supa
         .from("selftest_result_reminders")
         .select("id")
         .eq("request_id", r.id)
-        .eq("template", slot.template)
+        .eq("template", templateKey)
         .maybeSingle();
       if (existing) { summary.skipped++; continue; }
 
