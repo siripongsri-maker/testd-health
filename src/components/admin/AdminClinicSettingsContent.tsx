@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Loader2, Save, Building2, Phone, Clock, MapPin, Link2, AlertTriangle, ListChecks, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import AdvanceBookingWindowCard from "./clinic/AdvanceBookingWindowCard";
 
 interface ClinicSettings {
   id: string;
