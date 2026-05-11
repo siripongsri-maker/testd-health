@@ -157,6 +157,12 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, onDone, t
       <Card className="p-6 max-w-md mx-auto space-y-4 animate-fade-in">
         <Badge variant="secondary" className="w-fit">{t.badge}</Badge>
         <h2 className="text-xl font-semibold">{t.readyTitle}</h2>
+        {cameFromMagicLink && (
+          <p className="text-xs text-muted-foreground bg-muted/50 rounded-md px-3 py-2 flex items-start gap-2">
+            <span aria-hidden>🔒</span>
+            <span>{t.linkedNote}</span>
+          </p>
+        )}
         <div className="space-y-2 text-sm text-muted-foreground">
           <p>{t.readyIntro}</p>
           <ul className="list-disc pl-5 space-y-1">
