@@ -50,6 +50,7 @@ interface Branch {
   status?: string | null;
   coming_soon_message_th?: string | null;
   coming_soon_message_en?: string | null;
+  advance_booking_days?: number | null;
 }
 
 interface Service {
@@ -64,6 +65,7 @@ interface Service {
   is_free_pep_thai: boolean;
   external_price_url: string | null;
   icon: string;
+  advance_booking_days?: number | null;
 }
 
 interface RiskQuestion {
