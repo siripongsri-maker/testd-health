@@ -323,12 +323,22 @@ export default function Booking() {
     );
   };
 
+  // Follow-up consultations can be booked up to 3 months (90 days) in advance.
+  // All other services are limited to the standard 30-day window.
+  const isFollowupOnly = useMemo(
+    () =>
+      selectedServices.length > 0 &&
+      selectedServices.every(s => s.slug === 'followup-consultation'),
+    [selectedServices]
+  );
+
   const availableDates = useMemo(() => {
     if (!selectedBranch) return [];
     const dates: Date[] = [];
     const bangkokNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Bangkok' }));
     const today = startOfDay(bangkokNow);
-    for (let i = 0; i <= 30; i++) {
+    const maxDays = isFollowupOnly ? 90 : 30;
+    for (let i = 0; i <= maxDays; i++) {
       const d = addDays(today, i);
       const dayOfWeek = getDay(d);
       if (selectedBranch.open_days.includes(dayOfWeek)) {
@@ -336,7 +346,7 @@ export default function Booking() {
       }
     }
     return dates;
-  }, [selectedBranch]);
+  }, [selectedBranch, isFollowupOnly]);
 
   // Smart Forecast: public-safe demand hints (cached client-side)
   const { data: demandRaw, loading: demandLoading } = usePublicDemandHints(
@@ -1098,6 +1108,13 @@ export default function Booking() {
                 <p className="text-sm font-medium text-muted-foreground mb-2">
                   {t('booking.selectDate')}
                 </p>
+                {isFollowupOnly && (
+                  <div className="mb-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-xs text-primary">
+                    {language === 'th'
+                      ? '📅 นัดติดตามผลสามารถจองล่วงหน้าได้สูงสุด 3 เดือน'
+                      : '📅 Follow-up consultations can be booked up to 3 months in advance.'}
+                  </div>
+                )}
                 <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
                   {availableDates.map(date => {
                     const dateStr = format(date, 'yyyy-MM-dd');
