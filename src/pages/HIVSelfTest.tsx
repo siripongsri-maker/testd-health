@@ -44,6 +44,7 @@ import {
   TESTING_STEPS
 } from "@/components/hiv-selftest";
 import { SelfTestResultExplanation } from "@/components/hiv-selftest/SelfTestResultExplanation";
+import { LeanResultSubmissionFlow } from "@/components/hiv-selftest/LeanResultSubmissionFlow";
 import { useFormAutosave } from "@/hooks/useFormAutosave";
 
 export default function HIVSelfTest() {
@@ -176,6 +177,38 @@ export default function HIVSelfTest() {
       fetchSavedUserData();
     }
   }, [user]);
+
+  // Magic link resolution: ?token=... lets users re-enter result submission flow
+  useEffect(() => {
+    const token = searchParams.get('token');
+    if (!token) return;
+    (async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('selftest-magic-resolve', {
+          body: { token },
+        });
+        if (error || !data?.request) {
+          toast.error(language === 'th' ? 'ลิงก์หมดอายุหรือไม่ถูกต้อง' : 'Link expired or invalid');
+          return;
+        }
+        const reqRow = data.request;
+        setActiveRequest({
+          id: reqRow.id,
+          status: reqRow.status,
+          tracking_number: null,
+          test_result: null,
+          created_at: new Date().toISOString(),
+          result_photo_url: null,
+        });
+        setCurrentStep('confirm-receipt');
+        trackEvent('selftest_magic_link_resolved', { request_id: reqRow.id });
+      } catch (e) {
+        console.error('[magic-link]', e);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get('token')]);
+
 
   // Fetch saved user data for auto-fill (reuse on subsequent requests)
   const fetchSavedUserData = async () => {
@@ -1573,11 +1606,26 @@ export default function HIVSelfTest() {
           />
         )}
         
-        {currentStep === 'confirm-receipt' && renderConfirmReceiptStep()}
-        {currentStep === 'video' && renderVideoStep()}
-        {currentStep === 'testing' && renderTestingStep()}
-        {currentStep === 'timer' && renderTimerStep()}
-        {currentStep === 'photo-result' && renderPhotoResultStep()}
+        {(currentStep === 'confirm-receipt' ||
+          currentStep === 'video' ||
+          currentStep === 'testing' ||
+          currentStep === 'timer' ||
+          currentStep === 'photo-result') && activeRequest && (
+          <LeanResultSubmissionFlow
+            request={{
+              id: activeRequest.id,
+              user_id: user?.id ?? null,
+              delivery_mode: deliveryMode,
+              status: activeRequest.status,
+            }}
+            cameFromMagicLink={searchParams.has('token')}
+            onDone={() => {
+              setCurrentStep('intro');
+              fetchRequests();
+            }}
+            trackEvent={(name, props) => trackEvent(name, props as any)}
+          />
+        )}
       </PageContainer>
       <BottomNav />
     </>

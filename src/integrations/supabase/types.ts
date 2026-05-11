@@ -3253,16 +3253,21 @@ export type Database = {
           address_fp: string | null
           assigned_branch: string | null
           callback_phone: string | null
+          care_action: string | null
           created_at: string
           days_since_risk: number | null
+          delivered_at: string | null
           delivery_mode: string | null
+          expected_delivered_at: string | null
           full_name: string | null
           id: string
           last_risk_date: string | null
+          last_tracking_check_at: string | null
           line_id: string | null
           name_address_fp: string | null
           name_fp: string | null
           phone: string | null
+          photo_provided: boolean
           pickup_latitude: number | null
           pickup_location_captured: boolean | null
           pickup_location_status: string | null
@@ -3275,10 +3280,14 @@ export type Database = {
           rejected_by: string | null
           rejection_reason: string | null
           result_photo_url: string | null
+          result_submitted_at: string | null
+          self_reported_result: string | null
           staff_notes: string | null
           status: string
+          submission_path: string | null
           test_result: string | null
           thai_id: string | null
+          tracking_carrier: string | null
           tracking_number: string | null
           updated_at: string
           user_id: string
@@ -3293,16 +3302,21 @@ export type Database = {
           address_fp?: string | null
           assigned_branch?: string | null
           callback_phone?: string | null
+          care_action?: string | null
           created_at?: string
           days_since_risk?: number | null
+          delivered_at?: string | null
           delivery_mode?: string | null
+          expected_delivered_at?: string | null
           full_name?: string | null
           id?: string
           last_risk_date?: string | null
+          last_tracking_check_at?: string | null
           line_id?: string | null
           name_address_fp?: string | null
           name_fp?: string | null
           phone?: string | null
+          photo_provided?: boolean
           pickup_latitude?: number | null
           pickup_location_captured?: boolean | null
           pickup_location_status?: string | null
@@ -3315,10 +3329,14 @@ export type Database = {
           rejected_by?: string | null
           rejection_reason?: string | null
           result_photo_url?: string | null
+          result_submitted_at?: string | null
+          self_reported_result?: string | null
           staff_notes?: string | null
           status?: string
+          submission_path?: string | null
           test_result?: string | null
           thai_id?: string | null
+          tracking_carrier?: string | null
           tracking_number?: string | null
           updated_at?: string
           user_id: string
@@ -3333,16 +3351,21 @@ export type Database = {
           address_fp?: string | null
           assigned_branch?: string | null
           callback_phone?: string | null
+          care_action?: string | null
           created_at?: string
           days_since_risk?: number | null
+          delivered_at?: string | null
           delivery_mode?: string | null
+          expected_delivered_at?: string | null
           full_name?: string | null
           id?: string
           last_risk_date?: string | null
+          last_tracking_check_at?: string | null
           line_id?: string | null
           name_address_fp?: string | null
           name_fp?: string | null
           phone?: string | null
+          photo_provided?: boolean
           pickup_latitude?: number | null
           pickup_location_captured?: boolean | null
           pickup_location_status?: string | null
@@ -3355,10 +3378,14 @@ export type Database = {
           rejected_by?: string | null
           rejection_reason?: string | null
           result_photo_url?: string | null
+          result_submitted_at?: string | null
+          self_reported_result?: string | null
           staff_notes?: string | null
           status?: string
+          submission_path?: string | null
           test_result?: string | null
           thai_id?: string | null
+          tracking_carrier?: string | null
           tracking_number?: string | null
           updated_at?: string
           user_id?: string
@@ -7869,6 +7896,44 @@ export type Database = {
           },
         ]
       }
+      selftest_magic_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          purpose: string
+          request_id: string
+          token_hash: string
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          purpose?: string
+          request_id: string
+          token_hash: string
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          purpose?: string
+          request_id?: string
+          token_hash?: string
+          used_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "selftest_magic_tokens_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "hiv_selftest_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       selftest_pii: {
         Row: {
           address: string | null
@@ -7922,6 +7987,85 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      selftest_result_reminders: {
+        Row: {
+          channel: string
+          id: string
+          meta: Json | null
+          request_id: string
+          sent_at: string
+          template: string
+        }
+        Insert: {
+          channel: string
+          id?: string
+          meta?: Json | null
+          request_id: string
+          sent_at?: string
+          template: string
+        }
+        Update: {
+          channel?: string
+          id?: string
+          meta?: Json | null
+          request_id?: string
+          sent_at?: string
+          template?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "selftest_result_reminders_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "hiv_selftest_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      selftest_tracking_events: {
+        Row: {
+          carrier: string | null
+          created_at: string
+          event_at: string | null
+          event_code: string | null
+          event_description: string | null
+          id: string
+          raw: Json | null
+          request_id: string
+          tracking_number: string | null
+        }
+        Insert: {
+          carrier?: string | null
+          created_at?: string
+          event_at?: string | null
+          event_code?: string | null
+          event_description?: string | null
+          id?: string
+          raw?: Json | null
+          request_id: string
+          tracking_number?: string | null
+        }
+        Update: {
+          carrier?: string | null
+          created_at?: string
+          event_at?: string | null
+          event_code?: string | null
+          event_description?: string | null
+          id?: string
+          raw?: Json | null
+          request_id?: string
+          tracking_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "selftest_tracking_events_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "hiv_selftest_requests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       service_events: {
         Row: {
