@@ -1574,11 +1574,26 @@ export default function HIVSelfTest() {
           />
         )}
         
-        {currentStep === 'confirm-receipt' && renderConfirmReceiptStep()}
-        {currentStep === 'video' && renderVideoStep()}
-        {currentStep === 'testing' && renderTestingStep()}
-        {currentStep === 'timer' && renderTimerStep()}
-        {currentStep === 'photo-result' && renderPhotoResultStep()}
+        {(currentStep === 'confirm-receipt' ||
+          currentStep === 'video' ||
+          currentStep === 'testing' ||
+          currentStep === 'timer' ||
+          currentStep === 'photo-result') && activeRequest && (
+          <LeanResultSubmissionFlow
+            request={{
+              id: activeRequest.id,
+              user_id: user?.id ?? null,
+              delivery_mode: deliveryMode,
+              status: activeRequest.status,
+            }}
+            cameFromMagicLink={searchParams.has('token')}
+            onDone={() => {
+              setCurrentStep('intro');
+              fetchRequests();
+            }}
+            trackEvent={(name, props) => trackEvent(name, props as any)}
+          />
+        )}
       </PageContainer>
       <BottomNav />
     </>
