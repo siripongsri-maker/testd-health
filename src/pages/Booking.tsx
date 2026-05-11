@@ -82,6 +82,7 @@ const BRANCH_LANDMARKS: Record<string, string> = {
   silom: 'ใกล้ BTS ศาลาแดง / Silom area',
   petchakasem: 'ใกล้ MRT หลักสอง / Petchakasem area',
   saphankwai: 'ใกล้ BTS สะพานควาย / Saphan Kwai area',
+  udomsuk: 'ใกล้ BTS อุดมสุข / Udom Suk area',
   pattaya: 'ใกล้ Walking Street / South Pattaya',
 };
 
