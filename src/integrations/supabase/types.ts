@@ -10323,6 +10323,18 @@ export type Database = {
         Args: { p_branch_id: string; p_date: string }
         Returns: Json
       }
+      get_daily_cap_status: {
+        Args: { p_branch_id: string; p_date: string }
+        Returns: {
+          close_time: string
+          is_open: boolean
+          max_bookings: number
+          open_time: string
+          reason: string
+          remaining: number
+          total_booked: number
+        }[]
+      }
       get_forecast_signals: {
         Args: {
           p_branch_id?: string
