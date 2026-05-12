@@ -120,6 +120,7 @@ export default function Booking() {
   const [dayBlackoutNote, setDayBlackoutNote] = useState<string | null>(null);
   const [dayClosureInfo, setDayClosureInfo] = useState<{ title: string; reason: string | null } | null>(null);
   const [blackedOutDates, setBlackedOutDates] = useState<Record<string, { title: string; reason: string | null }>>({});
+  const [dailyCap, setDailyCap] = useState<{ max: number; total: number; remaining: number; reason: string | null; openTime: string | null; closeTime: string | null } | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [confirmedCode, setConfirmedCode] = useState<string | null>(null);
@@ -224,7 +225,7 @@ export default function Booking() {
     if (!selectedBranch || !selectedDate) return;
     const loadSlots = async () => {
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
-      const [slotsRes, walkinRes] = await Promise.all([
+      const [slotsRes, walkinRes, capRes] = await Promise.all([
         supabase.rpc('get_available_slots', {
           p_branch_id: selectedBranch.id,
           p_date: dateStr,
@@ -233,7 +234,25 @@ export default function Booking() {
           p_branch_id: selectedBranch.id,
           p_date: dateStr,
         }),
+        supabase.rpc('get_daily_cap_status' as any, {
+          p_branch_id: selectedBranch.id,
+          p_date: dateStr,
+        }),
       ]);
+
+      const capRow = (capRes.data as any[] | null)?.[0];
+      if (capRow && capRow.max_bookings != null) {
+        setDailyCap({
+          max: capRow.max_bookings,
+          total: capRow.total_booked || 0,
+          remaining: capRow.remaining || 0,
+          reason: capRow.reason || null,
+          openTime: capRow.open_time ? String(capRow.open_time).slice(0, 5) : null,
+          closeTime: capRow.close_time ? String(capRow.close_time).slice(0, 5) : null,
+        });
+      } else {
+        setDailyCap(null);
+      }
 
       if (slotsRes.error) {
         console.error('get_available_slots error:', slotsRes.error);
@@ -1195,6 +1214,62 @@ export default function Booking() {
                   })}
                 </div>
               </div>
+
+              {/* Daily cap status banner (limited-capacity / dry-run days) */}
+              {selectedDate && dailyCap && !dayClosureInfo && (
+                <Card className={cn(
+                  "p-4 rounded-2xl border-2",
+                  dailyCap.remaining <= 0
+                    ? "bg-destructive/5 border-destructive/30"
+                    : dailyCap.remaining <= 3
+                      ? "bg-amber-500/5 border-amber-500/30"
+                      : "bg-primary/5 border-primary/30"
+                )}>
+                  <div className="flex items-start gap-3">
+                    <div className={cn(
+                      "h-10 w-10 rounded-2xl flex items-center justify-center shrink-0 text-lg",
+                      dailyCap.remaining <= 0 ? "bg-destructive/10" : dailyCap.remaining <= 3 ? "bg-amber-500/10" : "bg-primary/10"
+                    )}>
+                      🎟️
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                        {language === 'en' ? 'Limited capacity' : 'รอบจำกัดจำนวน'}
+                      </p>
+                      <p className="text-base font-bold text-foreground mt-0.5">
+                        {language === 'en'
+                          ? `${dailyCap.remaining} of ${dailyCap.max} slots left`
+                          : `เหลือ ${dailyCap.remaining} / ${dailyCap.max} คิว`}
+                      </p>
+                      {dailyCap.openTime && dailyCap.closeTime && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {language === 'en' ? 'Open ' : 'เปิดจอง '}
+                          <span className="font-semibold text-foreground">
+                            {dailyCap.openTime}–{dailyCap.closeTime}
+                          </span>
+                          {' · '}
+                          {language === 'en'
+                            ? `${dailyCap.total} booked`
+                            : `จองแล้ว ${dailyCap.total} คิว`}
+                        </p>
+                      )}
+                      {dailyCap.reason && (
+                        <p className="text-xs text-muted-foreground mt-1.5 italic">{dailyCap.reason}</p>
+                      )}
+                      {/* Progress bar */}
+                      <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
+                        <div
+                          className={cn(
+                            "h-full transition-all",
+                            dailyCap.remaining <= 0 ? "bg-destructive" : dailyCap.remaining <= 3 ? "bg-amber-500" : "bg-primary"
+                          )}
+                          style={{ width: `${Math.min(100, Math.round((dailyCap.total / dailyCap.max) * 100))}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              )}
 
               {/* Full-day closure notice */}
               {selectedDate && dayClosureInfo && (
