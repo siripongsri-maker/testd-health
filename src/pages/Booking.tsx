@@ -120,6 +120,7 @@ export default function Booking() {
   const [dayBlackoutNote, setDayBlackoutNote] = useState<string | null>(null);
   const [dayClosureInfo, setDayClosureInfo] = useState<{ title: string; reason: string | null } | null>(null);
   const [blackedOutDates, setBlackedOutDates] = useState<Record<string, { title: string; reason: string | null }>>({});
+  const [dailyCap, setDailyCap] = useState<{ max: number; total: number; remaining: number; reason: string | null; openTime: string | null; closeTime: string | null } | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [confirmedCode, setConfirmedCode] = useState<string | null>(null);
