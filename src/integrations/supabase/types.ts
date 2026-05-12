@@ -10437,6 +10437,10 @@ export type Database = {
         Args: { p_branch_id: string; p_date?: string }
         Returns: Json
       }
+      guest_cancel_appointment: {
+        Args: { p_reason?: string; p_referral_code: string }
+        Returns: Json
+      }
       guest_lookup_appointment: {
         Args: { p_email: string; p_referral_code: string }
         Returns: {

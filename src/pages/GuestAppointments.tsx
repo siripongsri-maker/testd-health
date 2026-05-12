@@ -12,7 +12,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Calendar, Clock, MapPin, Loader2, Hash, Copy, Search,
   CheckCircle2, XCircle, AlertCircle, Share2, Smartphone, Trash2,
-  LogIn, LogOut, Star,
+  LogIn, LogOut, Star, Ban,
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { BookingCardImage } from '@/components/BookingCardImage';
@@ -91,6 +91,12 @@ export default function GuestAppointments() {
   const [medSetupOpen, setMedSetupOpen] = useState(false);
   const [medServiceSlug, setMedServiceSlug] = useState<string | undefined>();
   const [medServiceName, setMedServiceName] = useState<string | undefined>();
+
+  // Cancel dialog state
+  const [cancelApt, setCancelApt] = useState<GuestAppointment | null>(null);
+  const [cancelReason, setCancelReason] = useState<string>('');
+  const [cancelNote, setCancelNote] = useState('');
+  const [cancelLoading, setCancelLoading] = useState(false);
 
   // Bangkok time helper
   const getBangkokNow = () => {
@@ -203,6 +209,57 @@ export default function GuestAppointments() {
       toast.error(language === 'th' ? 'เกิดข้อผิดพลาด' : 'Something went wrong');
     } finally {
       setCheckoutLoading(false);
+    }
+  };
+
+  const CANCEL_REASONS = [
+    { id: 'schedule_conflict', th: 'ไม่ว่างตามวันเวลานี้', en: "Can't make this time" },
+    { id: 'change_branch', th: 'อยากเปลี่ยนสาขา', en: 'Want a different branch' },
+    { id: 'change_service', th: 'อยากเปลี่ยนบริการ', en: 'Want a different service' },
+    { id: 'other', th: 'อื่นๆ', en: 'Other' },
+  ];
+
+  const handleGuestCancel = async () => {
+    if (!cancelApt) return;
+    setCancelLoading(true);
+    try {
+      const reasonText = cancelReason
+        ? `${cancelReason}${cancelNote ? `: ${cancelNote.trim()}` : ''}`
+        : (cancelNote.trim() || null);
+      const { error } = await supabase.rpc('guest_cancel_appointment', {
+        p_referral_code: cancelApt.referral_code,
+        p_reason: reasonText,
+      });
+      if (error) throw error;
+      setAppointments(prev =>
+        prev.map(a => a.referral_code === cancelApt.referral_code ? { ...a, status: 'cancelled' } : a)
+      );
+      // best-effort cancellation email
+      try {
+        await supabase.functions.invoke('booking-notification', {
+          body: {
+            appointment_id: cancelApt.appointment_id,
+            notification_type: 'booking_cancelled',
+          },
+        });
+      } catch {}
+      toast.success(language === 'th' ? 'ยกเลิกการนัดหมายแล้ว' : 'Appointment cancelled');
+      setCancelApt(null);
+      setCancelReason('');
+      setCancelNote('');
+    } catch (err: any) {
+      const msg = err?.message || '';
+      if (msg.includes('not_cancellable')) {
+        toast.error(language === 'th'
+          ? 'ไม่สามารถยกเลิกได้ — นัดหมายนี้ผ่านไปแล้วหรือเช็คอินแล้ว'
+          : "Can't cancel — appointment already started or completed");
+      } else if (msg.includes('not_found')) {
+        toast.error(language === 'th' ? 'ไม่พบนัดหมายนี้' : 'Appointment not found');
+      } else {
+        toast.error(language === 'th' ? 'เกิดข้อผิดพลาด กรุณาลองใหม่' : 'Something went wrong');
+      }
+    } finally {
+      setCancelLoading(false);
     }
   };
 
@@ -555,6 +612,23 @@ export default function GuestAppointments() {
                             เช็คเอาท์ (Check-out)
                           </Button>
                         )}
+
+                        {/* Cancel button — only for upcoming bookings */}
+                        {(apt.status === 'booked' || apt.status === 'confirmed') && !eligibility.canCheckin && (
+                          <Button
+                            size="lg"
+                            variant="ghost"
+                            onClick={() => {
+                              setCancelApt(apt);
+                              setCancelReason('');
+                              setCancelNote('');
+                            }}
+                            className="w-full h-12 text-sm font-medium text-destructive hover:text-destructive hover:bg-destructive/10 gap-2"
+                          >
+                            <Ban className="h-4 w-4" />
+                            {language === 'th' ? 'ยกเลิกนัดหมาย' : 'Cancel appointment'}
+                          </Button>
+                        )}
                       </div>
 
                       {/* Save / Share as image */}
@@ -680,6 +754,101 @@ export default function GuestAppointments() {
                 )}
                 ยืนยันเช็คเอาท์
               </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Guest Cancel Dialog */}
+      <Dialog open={!!cancelApt} onOpenChange={(open) => !open && !cancelLoading && setCancelApt(null)}>
+        <DialogContent className="max-w-sm mx-auto">
+          <DialogHeader>
+            <DialogTitle className="text-center">
+              {language === 'th' ? 'ยืนยันการยกเลิก' : 'Cancel appointment'}
+            </DialogTitle>
+            <DialogDescription className="text-center text-xs">
+              {language === 'th'
+                ? 'คุณสามารถจองใหม่ได้ตลอดเวลา'
+                : 'You can book again anytime'}
+            </DialogDescription>
+          </DialogHeader>
+
+          {cancelApt && (
+            <div className="space-y-4">
+              <div className="bg-muted/50 rounded-xl p-3 space-y-1 text-sm">
+                <div className="flex items-center gap-2">
+                  <Hash className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="font-mono font-bold text-primary">{cancelApt.referral_code}</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <MapPin className="h-3.5 w-3.5" />
+                  <span>{language === 'th' ? cancelApt.branch_name_th : cancelApt.branch_name_en}</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Calendar className="h-3.5 w-3.5" />
+                  <span>{cancelApt.appointment_date} • {(cancelApt.start_time as string).slice(0, 5)}</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium block mb-2">
+                  {language === 'th' ? 'เหตุผล' : 'Reason'}
+                  <span className="text-xs opacity-60 ml-1">
+                    ({language === 'th' ? 'ไม่บังคับ' : 'optional'})
+                  </span>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {CANCEL_REASONS.map(r => (
+                    <button
+                      key={r.id}
+                      type="button"
+                      onClick={() => setCancelReason(cancelReason === r.id ? '' : r.id)}
+                      className={`text-xs px-3 py-2 rounded-xl border-2 transition-all text-left ${
+                        cancelReason === r.id
+                          ? 'border-destructive bg-destructive/10 text-destructive font-semibold'
+                          : 'border-border bg-background hover:border-destructive/40'
+                      }`}
+                    >
+                      {language === 'th' ? r.th : r.en}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {cancelReason === 'other' && (
+                <Textarea
+                  placeholder={language === 'th' ? 'บอกเรา (ไม่บังคับ)...' : 'Tell us more (optional)...'}
+                  value={cancelNote}
+                  onChange={(e) => setCancelNote(e.target.value)}
+                  rows={2}
+                  maxLength={200}
+                />
+              )}
+
+              <div className="space-y-2">
+                <Button
+                  size="lg"
+                  variant="destructive"
+                  disabled={cancelLoading}
+                  onClick={handleGuestCancel}
+                  className="w-full h-12 text-base font-bold gap-2"
+                >
+                  {cancelLoading ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <Ban className="h-5 w-5" />
+                  )}
+                  {language === 'th' ? 'ยืนยันยกเลิก' : 'Confirm cancel'}
+                </Button>
+                <Button
+                  variant="ghost"
+                  disabled={cancelLoading}
+                  onClick={() => setCancelApt(null)}
+                  className="w-full h-10 text-sm"
+                >
+                  {language === 'th' ? 'ไม่ใช่ตอนนี้' : 'Not now'}
+                </Button>
+              </div>
             </div>
           )}
         </DialogContent>

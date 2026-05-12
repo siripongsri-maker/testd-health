@@ -22,6 +22,7 @@ import { DensityTimeSelector } from '@/components/booking/DensityTimeSelector';
 import { NotifyMeDialog } from '@/components/booking/NotifyMeDialog';
 import { DemandSuggestionBanner } from '@/components/booking/DemandSuggestionBanner';
 import { Badge } from '@/components/ui/badge';
+import { QRCodeSVG } from 'qrcode.react';
 import { Bell, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { WalkinPressure } from '@/lib/waitTimeEstimator';
@@ -1611,13 +1612,33 @@ export default function Booking() {
                     </Card>
 
                     {guestToken && (
-                      <Button
-                        onClick={() => navigate(`/guest-appointments?token=${guestToken}`)}
-                        className="w-full rounded-full h-12 gap-2"
-                        size="lg"
-                      >
-                        {t('booking.viewMyAppointments')}
-                      </Button>
+                      <Card className="p-5 rounded-3xl border-2 border-primary/20 bg-card">
+                        <div className="text-center space-y-3">
+                          <p className="text-sm font-bold text-foreground">
+                            {language === 'th' ? '📱 สแกนเพื่อจัดการนัดหมาย' : '📱 Scan to manage appointment'}
+                          </p>
+                          <p className="text-[11px] text-muted-foreground -mt-1">
+                            {language === 'th'
+                              ? 'เปิดด้วยอีกเครื่อง — เช็คอิน เลื่อน หรือยกเลิก'
+                              : 'Open on another device — check in, reschedule, or cancel'}
+                          </p>
+                          <div className="bg-white p-3 rounded-2xl inline-block">
+                            <QRCodeSVG
+                              value={`${window.location.origin}/guest-appointments?token=${guestToken}`}
+                              size={160}
+                              level="M"
+                              includeMargin={false}
+                            />
+                          </div>
+                          <Button
+                            onClick={() => navigate(`/guest-appointments?token=${guestToken}`)}
+                            className="w-full rounded-full h-12 gap-2"
+                            size="lg"
+                          >
+                            {t('booking.viewMyAppointments')}
+                          </Button>
+                        </div>
+                      </Card>
                     )}
 
                     <Card className="p-4 rounded-3xl border-2 border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20">
