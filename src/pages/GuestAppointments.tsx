@@ -212,6 +212,57 @@ export default function GuestAppointments() {
     }
   };
 
+  const CANCEL_REASONS = [
+    { id: 'schedule_conflict', th: 'ไม่ว่างตามวันเวลานี้', en: "Can't make this time" },
+    { id: 'change_branch', th: 'อยากเปลี่ยนสาขา', en: 'Want a different branch' },
+    { id: 'change_service', th: 'อยากเปลี่ยนบริการ', en: 'Want a different service' },
+    { id: 'other', th: 'อื่นๆ', en: 'Other' },
+  ];
+
+  const handleGuestCancel = async () => {
+    if (!cancelApt) return;
+    setCancelLoading(true);
+    try {
+      const reasonText = cancelReason
+        ? `${cancelReason}${cancelNote ? `: ${cancelNote.trim()}` : ''}`
+        : (cancelNote.trim() || null);
+      const { error } = await supabase.rpc('guest_cancel_appointment', {
+        p_referral_code: cancelApt.referral_code,
+        p_reason: reasonText,
+      });
+      if (error) throw error;
+      setAppointments(prev =>
+        prev.map(a => a.referral_code === cancelApt.referral_code ? { ...a, status: 'cancelled' } : a)
+      );
+      // best-effort cancellation email
+      try {
+        await supabase.functions.invoke('booking-notification', {
+          body: {
+            appointment_id: cancelApt.appointment_id,
+            notification_type: 'booking_cancelled',
+          },
+        });
+      } catch {}
+      toast.success(language === 'th' ? 'ยกเลิกการนัดหมายแล้ว' : 'Appointment cancelled');
+      setCancelApt(null);
+      setCancelReason('');
+      setCancelNote('');
+    } catch (err: any) {
+      const msg = err?.message || '';
+      if (msg.includes('not_cancellable')) {
+        toast.error(language === 'th'
+          ? 'ไม่สามารถยกเลิกได้ — นัดหมายนี้ผ่านไปแล้วหรือเช็คอินแล้ว'
+          : "Can't cancel — appointment already started or completed");
+      } else if (msg.includes('not_found')) {
+        toast.error(language === 'th' ? 'ไม่พบนัดหมายนี้' : 'Appointment not found');
+      } else {
+        toast.error(language === 'th' ? 'เกิดข้อผิดพลาด กรุณาลองใหม่' : 'Something went wrong');
+      }
+    } finally {
+      setCancelLoading(false);
+    }
+  };
+
   // Load saved appointments from localStorage
   useEffect(() => {
     setSavedItems(getSavedAppointments());
