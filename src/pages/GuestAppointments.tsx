@@ -12,7 +12,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Calendar, Clock, MapPin, Loader2, Hash, Copy, Search,
   CheckCircle2, XCircle, AlertCircle, Share2, Smartphone, Trash2,
-  LogIn, LogOut, Star,
+  LogIn, LogOut, Star, Ban,
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { BookingCardImage } from '@/components/BookingCardImage';
