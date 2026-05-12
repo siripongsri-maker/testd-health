@@ -1203,7 +1203,7 @@ export default function Booking() {
                     <div className="h-10 w-10 rounded-2xl bg-destructive/10 flex items-center justify-center shrink-0">
                       <AlertCircle className="h-5 w-5 text-destructive" />
                     </div>
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-destructive">
                         {t('booking.fullyClosed')}
                       </p>
@@ -1214,6 +1214,24 @@ export default function Booking() {
                       <p className="text-xs text-muted-foreground mt-2">
                         {t('booking.selectAnotherDate')}
                       </p>
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        <Button
+                          size="sm"
+                          variant="default"
+                          onClick={() => setSelectedDate(addDays(selectedDate, 1))}
+                          className="rounded-full"
+                        >
+                          {language === 'en' ? 'View next day' : 'ดูวันถัดไป'}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => navigate('/')}
+                          className="rounded-full"
+                        >
+                          {language === 'en' ? 'Back to home' : 'กลับหน้าแรก'}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </Card>
