@@ -285,16 +285,33 @@ export default function Booking() {
           }
         });
 
-        setRpcSlotTimes(slotTimes);
-        setBookedSlots(counts);
-        setBlockedSlots(blocked);
-        setDayClosureInfo(null);
+        const allBlocked = slotRows.length > 0 && slotRows.every((row) => !!row.blackout_title);
 
-        const hasAnyBlocked = slotRows.some((row) => !!row.blackout_title);
-        setDayBlackoutNote(hasAnyBlocked ? t('booking.partialBlackout') : null);
-
-        if (selectedTime && !slotTimes.includes(selectedTime)) {
+        if (allBlocked) {
+          // Full-day blackout — treat like a closed day so the user gets the
+          // closure card with "View next day / Back to home" actions.
+          const firstTitle = slotRows[0].blackout_title;
+          setRpcSlotTimes([]);
+          setBookedSlots({});
+          setBlockedSlots({});
+          setDayBlackoutNote(t('booking.dayClosed'));
+          setDayClosureInfo({
+            title: firstTitle || t('booking.closedLabel'),
+            reason: null,
+          });
           setSelectedTime(null);
+        } else {
+          setRpcSlotTimes(slotTimes);
+          setBookedSlots(counts);
+          setBlockedSlots(blocked);
+          setDayClosureInfo(null);
+
+          const hasAnyBlocked = slotRows.some((row) => !!row.blackout_title);
+          setDayBlackoutNote(hasAnyBlocked ? t('booking.partialBlackout') : null);
+
+          if (selectedTime && !slotTimes.includes(selectedTime)) {
+            setSelectedTime(null);
+          }
         }
       }
 
