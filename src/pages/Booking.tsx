@@ -225,7 +225,7 @@ export default function Booking() {
     if (!selectedBranch || !selectedDate) return;
     const loadSlots = async () => {
       const dateStr = format(selectedDate, 'yyyy-MM-dd');
-      const [slotsRes, walkinRes] = await Promise.all([
+      const [slotsRes, walkinRes, capRes] = await Promise.all([
         supabase.rpc('get_available_slots', {
           p_branch_id: selectedBranch.id,
           p_date: dateStr,
@@ -234,7 +234,25 @@ export default function Booking() {
           p_branch_id: selectedBranch.id,
           p_date: dateStr,
         }),
+        supabase.rpc('get_daily_cap_status' as any, {
+          p_branch_id: selectedBranch.id,
+          p_date: dateStr,
+        }),
       ]);
+
+      const capRow = (capRes.data as any[] | null)?.[0];
+      if (capRow && capRow.max_bookings != null) {
+        setDailyCap({
+          max: capRow.max_bookings,
+          total: capRow.total_booked || 0,
+          remaining: capRow.remaining || 0,
+          reason: capRow.reason || null,
+          openTime: capRow.open_time ? String(capRow.open_time).slice(0, 5) : null,
+          closeTime: capRow.close_time ? String(capRow.close_time).slice(0, 5) : null,
+        });
+      } else {
+        setDailyCap(null);
+      }
 
       if (slotsRes.error) {
         console.error('get_available_slots error:', slotsRes.error);
