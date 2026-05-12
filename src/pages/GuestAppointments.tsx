@@ -612,6 +612,23 @@ export default function GuestAppointments() {
                             เช็คเอาท์ (Check-out)
                           </Button>
                         )}
+
+                        {/* Cancel button — only for upcoming bookings */}
+                        {(apt.status === 'booked' || apt.status === 'confirmed') && !eligibility.canCheckin && (
+                          <Button
+                            size="lg"
+                            variant="ghost"
+                            onClick={() => {
+                              setCancelApt(apt);
+                              setCancelReason('');
+                              setCancelNote('');
+                            }}
+                            className="w-full h-12 text-sm font-medium text-destructive hover:text-destructive hover:bg-destructive/10 gap-2"
+                          >
+                            <Ban className="h-4 w-4" />
+                            {language === 'th' ? 'ยกเลิกนัดหมาย' : 'Cancel appointment'}
+                          </Button>
+                        )}
                       </div>
 
                       {/* Save / Share as image */}
