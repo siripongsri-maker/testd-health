@@ -92,6 +92,12 @@ export default function GuestAppointments() {
   const [medServiceSlug, setMedServiceSlug] = useState<string | undefined>();
   const [medServiceName, setMedServiceName] = useState<string | undefined>();
 
+  // Cancel dialog state
+  const [cancelApt, setCancelApt] = useState<GuestAppointment | null>(null);
+  const [cancelReason, setCancelReason] = useState<string>('');
+  const [cancelNote, setCancelNote] = useState('');
+  const [cancelLoading, setCancelLoading] = useState(false);
+
   // Bangkok time helper
   const getBangkokNow = () => {
     const now = new Date();
