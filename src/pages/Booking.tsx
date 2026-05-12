@@ -22,6 +22,7 @@ import { DensityTimeSelector } from '@/components/booking/DensityTimeSelector';
 import { NotifyMeDialog } from '@/components/booking/NotifyMeDialog';
 import { DemandSuggestionBanner } from '@/components/booking/DemandSuggestionBanner';
 import { Badge } from '@/components/ui/badge';
+import { QRCodeSVG } from 'qrcode.react';
 import { Bell, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { WalkinPressure } from '@/lib/waitTimeEstimator';
