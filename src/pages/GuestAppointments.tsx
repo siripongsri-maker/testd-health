@@ -759,6 +759,101 @@ export default function GuestAppointments() {
         </DialogContent>
       </Dialog>
 
+      {/* Guest Cancel Dialog */}
+      <Dialog open={!!cancelApt} onOpenChange={(open) => !open && !cancelLoading && setCancelApt(null)}>
+        <DialogContent className="max-w-sm mx-auto">
+          <DialogHeader>
+            <DialogTitle className="text-center">
+              {language === 'th' ? 'ยืนยันการยกเลิก' : 'Cancel appointment'}
+            </DialogTitle>
+            <DialogDescription className="text-center text-xs">
+              {language === 'th'
+                ? 'คุณสามารถจองใหม่ได้ตลอดเวลา'
+                : 'You can book again anytime'}
+            </DialogDescription>
+          </DialogHeader>
+
+          {cancelApt && (
+            <div className="space-y-4">
+              <div className="bg-muted/50 rounded-xl p-3 space-y-1 text-sm">
+                <div className="flex items-center gap-2">
+                  <Hash className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="font-mono font-bold text-primary">{cancelApt.referral_code}</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <MapPin className="h-3.5 w-3.5" />
+                  <span>{language === 'th' ? cancelApt.branch_name_th : cancelApt.branch_name_en}</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Calendar className="h-3.5 w-3.5" />
+                  <span>{cancelApt.appointment_date} • {(cancelApt.start_time as string).slice(0, 5)}</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium block mb-2">
+                  {language === 'th' ? 'เหตุผล' : 'Reason'}
+                  <span className="text-xs opacity-60 ml-1">
+                    ({language === 'th' ? 'ไม่บังคับ' : 'optional'})
+                  </span>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {CANCEL_REASONS.map(r => (
+                    <button
+                      key={r.id}
+                      type="button"
+                      onClick={() => setCancelReason(cancelReason === r.id ? '' : r.id)}
+                      className={`text-xs px-3 py-2 rounded-xl border-2 transition-all text-left ${
+                        cancelReason === r.id
+                          ? 'border-destructive bg-destructive/10 text-destructive font-semibold'
+                          : 'border-border bg-background hover:border-destructive/40'
+                      }`}
+                    >
+                      {language === 'th' ? r.th : r.en}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {cancelReason === 'other' && (
+                <Textarea
+                  placeholder={language === 'th' ? 'บอกเรา (ไม่บังคับ)...' : 'Tell us more (optional)...'}
+                  value={cancelNote}
+                  onChange={(e) => setCancelNote(e.target.value)}
+                  rows={2}
+                  maxLength={200}
+                />
+              )}
+
+              <div className="space-y-2">
+                <Button
+                  size="lg"
+                  variant="destructive"
+                  disabled={cancelLoading}
+                  onClick={handleGuestCancel}
+                  className="w-full h-12 text-base font-bold gap-2"
+                >
+                  {cancelLoading ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : (
+                    <Ban className="h-5 w-5" />
+                  )}
+                  {language === 'th' ? 'ยืนยันยกเลิก' : 'Confirm cancel'}
+                </Button>
+                <Button
+                  variant="ghost"
+                  disabled={cancelLoading}
+                  onClick={() => setCancelApt(null)}
+                  className="w-full h-10 text-sm"
+                >
+                  {language === 'th' ? 'ไม่ใช่ตอนนี้' : 'Not now'}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <MedicationSetupDialog
         open={medSetupOpen}
         onOpenChange={setMedSetupOpen}
