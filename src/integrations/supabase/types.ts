@@ -952,6 +952,47 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_daily_caps: {
+        Row: {
+          branch_id: string
+          cap_date: string
+          created_at: string
+          created_by: string | null
+          id: string
+          max_bookings: number
+          reason: string | null
+          updated_at: string
+        }
+        Insert: {
+          branch_id: string
+          cap_date: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          max_bookings: number
+          reason?: string | null
+          updated_at?: string
+        }
+        Update: {
+          branch_id?: string
+          cap_date?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          max_bookings?: number
+          reason?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_daily_caps_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       booking_rate_logs: {
         Row: {
           action: string
