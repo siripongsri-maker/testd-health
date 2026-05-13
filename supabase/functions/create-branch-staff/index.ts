@@ -76,9 +76,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    if (!["silom", "pattaya", "saphankwai", "petchakasem"].includes(branch)) {
+    if (!["silom", "pattaya", "saphankwai", "petchakasem", "udomsuk"].includes(branch)) {
       return new Response(
-        JSON.stringify({ error: "Invalid branch. Must be 'silom', 'pattaya', 'saphankwai', or 'petchakasem'" }),
+        JSON.stringify({ error: "Invalid branch. Must be 'silom', 'pattaya', 'saphankwai', 'petchakasem', or 'udomsuk'" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
