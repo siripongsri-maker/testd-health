@@ -1,0 +1,21 @@
+# testD by SWING Foundation
+
+> Community health platform for free HIV testing, clinic booking, PrEP/PEP guidance, harm-reduction tools, and confidential expert support — built by SWING Foundation Thailand.
+
+testD offers free HIV self-test kits delivered to your door, online appointment booking at SWING clinics (Bangkok and Pattaya), longitudinal health records, and harm-reduction resources covering chemsex safety, drug interactions, and sexual health. All services are anonymous, free, and offered in Thai and English.
+
+## Pages
+
+- [Home](/): Overview of testD services, free HIV testing, clinic booking, harm-reduction tools.
+- [Book a clinic appointment](/clinic/book): Book a free visit at a SWING clinic — Silom, Pattaya, Phetkasem, Saphankwai, Udomsuk.
+- [HIV self-test kit](/self-test): Order a free HIV self-test kit delivered to your home.
+- [Harm reduction hub](/harm-reduction): Chemsex safety, drug interactions, safer-use guidance.
+- [Health information & articles](/info): Articles on PrEP, PEP, STIs, HIV, and sexual health.
+- [Support FAQ](/support-faq): Common questions about booking, PrEP, PEP, testing, and privacy.
+- [Privacy policy](/privacy-policy): How we protect your data — PDPA-compliant, anonymous by default.
+
+## Optional
+
+- [Community](/community): Peer support and community-led content.
+- [Quests & rewards](/quests): Daily check-ins and harm-reduction quests.
+- [Leaderboard](/leaderboard): Community engagement leaderboard.

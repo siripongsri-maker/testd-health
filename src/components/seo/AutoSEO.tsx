@@ -50,6 +50,7 @@ export function AutoSEO() {
     setMeta("property", "og:description", desc);
     setMeta("property", "og:type", "website");
     setMeta("property", "og:locale", isEn ? "en_US" : "th_TH");
+    setMeta("property", "og:url", `${BASE_URL}${pathname}`);
     setMeta("name", "twitter:title", title);
     setMeta("name", "twitter:description", desc);
 
