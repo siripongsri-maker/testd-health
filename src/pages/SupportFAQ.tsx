@@ -3,6 +3,8 @@ import { useLanguage } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, MessageCircle } from "lucide-react";
 import { SupportFAQ as SupportFAQComponent } from "@/components/support/SupportFAQ";
+import { SEOHead, buildFaqJsonLd } from "@/components/seo/SEOHead";
+import { supportFaqs } from "@/data/supportFaqData";
 
 export default function SupportFAQPage() {
   const { language } = useLanguage();
