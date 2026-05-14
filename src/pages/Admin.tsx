@@ -60,6 +60,8 @@ const AdminVirtualStoriesContent = lazy(() => import("@/components/admin/AdminVi
 const AdminConversionInsightsContent = lazy(() => import("@/components/admin/AdminConversionInsightsContent"));
 const AdminHarmReductionReportContent = lazy(() => import("@/components/admin/AdminHarmReductionReportContent"));
 const AdminMonthlyDrawContent = lazy(() => import("@/components/admin/AdminMonthlyDrawContent").then(m => ({ default: m.AdminMonthlyDrawContent })));
+const AdminSelftestResultsContent = lazy(() => import("@/components/admin/AdminSelftestResultsContent"));
+const AdminSelftestFollowupContent = lazy(() => import("@/components/admin/AdminSelftestFollowupContent"));
 
 // MEL modules
 const MelServiceLedgerContent = lazy(() => import("@/components/admin/mel/MelServiceLedgerContent"));
@@ -85,7 +87,7 @@ const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "quick-register", "bo
 const ME_ANALYST_TABS = new Set([
   "dashboard",
   // Operations (read-only)
-  "kit-orders", "bookings", "pair-sessions", "activity-logs",
+  "kit-orders", "selftest-results", "selftest-followup", "bookings", "pair-sessions", "activity-logs",
   // Partner Network
   "partner-invites", "anonymous-responses",
   // SMS & Credits (read-only)
@@ -177,6 +179,8 @@ export default function Admin() {
 
           {/* Operations */}
           {renderTab("kit-orders", <AdminKitOrdersContent userBranch={userBranch} isModerator={(isModerator && !isAdmin) || isMeAnalyst} />)}
+          {renderTab("selftest-results", <AdminSelftestResultsContent />)}
+          {renderTab("selftest-followup", <AdminSelftestFollowupContent />)}
           {renderTab("bookings", <AdminBookingContent userBranch={userBranch} />)}
           {renderTab("today", <AdminTodayBoard userBranch={userBranch} />)}
           {renderTab("schedule", <AdminScheduleContent />)}
