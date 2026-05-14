@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import { ArticleLikeButton } from "@/components/ArticleLikeButton";
 import { ArticleComments } from "@/components/ArticleComments";
 import { useQuestProgress } from "@/hooks/useQuestProgress";
+import { SEOHead } from "@/components/seo/SEOHead";
 
 // Helper to extract YouTube video ID from various URL formats
 const extractYouTubeVideoId = (url: string): string | null => {
