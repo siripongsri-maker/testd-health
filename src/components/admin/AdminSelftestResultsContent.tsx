@@ -1,0 +1,201 @@
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/lib/i18n";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Loader2, Search, Phone, Image as ImageIcon, RefreshCw } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+interface Row {
+  id: string;
+  created_at: string;
+  result_submitted_at: string | null;
+  status: string;
+  test_result: string | null;
+  self_reported_result: string | null;
+  result_photo_url: string | null;
+  staff_notes: string | null;
+  care_action: string | null;
+  assigned_branch: string | null;
+  full_name: string | null;
+  phone: string | null;
+  pii: { full_name: string | null; phone: string | null } | null;
+}
+
+const RESULT_COLOR: Record<string, string> = {
+  reactive: "bg-rose-500/15 text-rose-600 border-rose-500/30",
+  positive: "bg-rose-500/15 text-rose-600 border-rose-500/30",
+  negative: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30",
+  invalid: "bg-amber-500/15 text-amber-700 border-amber-500/30",
+};
+
+export default function AdminSelftestResultsContent() {
+  const { language } = useLanguage();
+  const t = (th: string, en: string) => (language === "th" ? th : en);
+  const [loading, setLoading] = useState(true);
+  const [rows, setRows] = useState<Row[]>([]);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState<string>("all");
+  const [photo, setPhoto] = useState<string | null>(null);
+
+  const load = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("hiv_selftest_requests")
+      .select(`
+        id, created_at, result_submitted_at, status, test_result, self_reported_result,
+        result_photo_url, staff_notes, care_action, assigned_branch, full_name, phone,
+        pii:selftest_pii ( full_name, phone )
+      `)
+      .or("result_photo_url.not.is.null,self_reported_result.not.is.null,test_result.not.is.null")
+      .order("result_submitted_at", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false })
+      .limit(1000);
+    if (error) console.error(error);
+    setRows((data as any) || []);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
+
+  const filtered = useMemo(() => {
+    return rows.filter((r) => {
+      const result = r.self_reported_result || r.test_result || "";
+      if (filter !== "all" && result !== filter) return false;
+      if (!search.trim()) return true;
+      const q = search.toLowerCase();
+      const name = (r.pii?.full_name || r.full_name || "").toLowerCase();
+      const phone = (r.pii?.phone || r.phone || "").toLowerCase();
+      return name.includes(q) || phone.includes(q) || r.id.toLowerCase().startsWith(q);
+    });
+  }, [rows, search, filter]);
+
+  const counts = useMemo(() => {
+    const c = { total: rows.length, reactive: 0, positive: 0, negative: 0, invalid: 0 };
+    rows.forEach((r) => {
+      const v = r.self_reported_result || r.test_result;
+      if (v && v in c) (c as any)[v]++;
+    });
+    return c;
+  }, [rows]);
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <h2 className="text-2xl font-bold">{t("รายงานผลชุดตรวจ", "Self-test Results")}</h2>
+        <p className="text-sm text-muted-foreground">
+          {t("ทุกผลตรวจที่ส่งเข้ามาในระบบ พร้อมชื่อและเบอร์โทรเพื่อติดต่อ", "All submitted results with name & phone for follow-up contact.")}
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {[
+          { label: t("ทั้งหมด","Total"), value: counts.total, color: "text-foreground" },
+          { label: t("Reactive","Reactive"), value: counts.reactive, color: "text-rose-600" },
+          { label: t("Positive","Positive"), value: counts.positive, color: "text-rose-600" },
+          { label: t("Negative","Negative"), value: counts.negative, color: "text-emerald-600" },
+          { label: t("Invalid","Invalid"), value: counts.invalid, color: "text-amber-600" },
+        ].map((s) => (
+          <Card key={s.label}><CardContent className="p-4">
+            <div className="text-xs text-muted-foreground">{s.label}</div>
+            <div className={`text-2xl font-bold ${s.color}`}>{s.value}</div>
+          </CardContent></Card>
+        ))}
+      </div>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+            <CardTitle className="text-base">{t("รายการผลตรวจ","Result List")}</CardTitle>
+            <div className="flex flex-wrap gap-2">
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input className="pl-8 w-64" placeholder={t("ค้นหา ชื่อ/เบอร์/รหัส","Search name/phone/id")} value={search} onChange={(e)=>setSearch(e.target.value)} />
+              </div>
+              <Select value={filter} onValueChange={setFilter}>
+                <SelectTrigger className="w-40"><SelectValue/></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("ทั้งหมด","All results")}</SelectItem>
+                  <SelectItem value="reactive">Reactive</SelectItem>
+                  <SelectItem value="positive">Positive</SelectItem>
+                  <SelectItem value="negative">Negative</SelectItem>
+                  <SelectItem value="invalid">Invalid</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button variant="outline" size="icon" onClick={load} disabled={loading}>
+                <RefreshCw className={`h-4 w-4 ${loading?"animate-spin":""}`} />
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary"/></div>
+          ) : filtered.length === 0 ? (
+            <div className="text-center py-12 text-sm text-muted-foreground">{t("ไม่มีข้อมูล","No data")}</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("วันที่ส่งผล","Submitted")}</TableHead>
+                    <TableHead>{t("ชื่อ","Name")}</TableHead>
+                    <TableHead>{t("เบอร์โทร","Phone")}</TableHead>
+                    <TableHead>{t("ผลตรวจ","Result")}</TableHead>
+                    <TableHead>{t("สถานะ","Status")}</TableHead>
+                    <TableHead>{t("สาขา","Branch")}</TableHead>
+                    <TableHead>{t("รูป","Photo")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filtered.map((r) => {
+                    const result = r.self_reported_result || r.test_result || "—";
+                    const name = r.pii?.full_name || r.full_name || "—";
+                    const phone = r.pii?.phone || r.phone || "";
+                    const date = r.result_submitted_at || r.created_at;
+                    return (
+                      <TableRow key={r.id}>
+                        <TableCell className="text-xs whitespace-nowrap">{new Date(date).toLocaleString("th-TH",{timeZone:"Asia/Bangkok"})}</TableCell>
+                        <TableCell className="font-medium">{name}</TableCell>
+                        <TableCell>
+                          {phone ? (
+                            <a href={`tel:${phone}`} className="inline-flex items-center gap-1 text-primary hover:underline">
+                              <Phone className="h-3 w-3"/>{phone}
+                            </a>
+                          ) : <span className="text-muted-foreground">—</span>}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className={RESULT_COLOR[result] || ""}>{result}</Badge>
+                        </TableCell>
+                        <TableCell><span className="text-xs text-muted-foreground">{r.status}</span></TableCell>
+                        <TableCell><span className="text-xs">{r.assigned_branch || "—"}</span></TableCell>
+                        <TableCell>
+                          {r.result_photo_url ? (
+                            <Button size="sm" variant="ghost" onClick={()=>setPhoto(r.result_photo_url)}>
+                              <ImageIcon className="h-4 w-4"/>
+                            </Button>
+                          ) : <span className="text-xs text-muted-foreground">—</span>}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog open={!!photo} onOpenChange={(o)=>!o && setPhoto(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader><DialogTitle>{t("รูปผลตรวจ","Result Photo")}</DialogTitle></DialogHeader>
+          {photo && <img src={photo} alt="result" className="w-full rounded" />}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
