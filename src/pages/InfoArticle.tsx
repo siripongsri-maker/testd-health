@@ -227,6 +227,30 @@ export default function InfoArticle() {
 
   const title = language === 'th' ? article.title_th : article.title_en;
   const content = language === 'th' ? article.content_th : article.content_en;
+  const excerpt = (language === 'th' ? article.excerpt_th : article.excerpt_en) || '';
+  const seoTitle = title.length > 57 ? `${title.slice(0, 57)}…` : title;
+  const seoDesc = excerpt
+    ? (excerpt.length > 157 ? `${excerpt.slice(0, 157)}…` : excerpt)
+    : (language === 'th'
+        ? 'อ่านบทความสุขภาพจาก testD โดยมูลนิธิ SWING — ข้อมูลที่เชื่อถือได้ เป็นความลับ'
+        : 'Read trusted, confidential health articles from testD by SWING Foundation.');
+  const canonicalPath = `/info/article/${article.slug}`;
+  const articleJsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: title,
+    description: excerpt || seoDesc,
+    image: article.cover_url ? [article.cover_url] : undefined,
+    datePublished: article.published_at || undefined,
+    author: { "@type": "Person", name: article.author_name || "SWING Foundation" },
+    publisher: {
+      "@type": "Organization",
+      name: "testD by SWING Foundation",
+      url: "https://testd.website",
+    },
+    inLanguage: language === 'th' ? 'th' : 'en',
+    mainEntityOfPage: `https://testd.website${canonicalPath}`,
+  };
 
   return (
     <>
