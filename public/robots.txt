@@ -44,5 +44,4 @@ Allow: /
 Disallow: /admin
 Disallow: /outreach-form
 
-Sitemap: https://testd-health.lovable.app/sitemap.xml
-Sitemap: https://tzerhfvlrssrashrcbeg.supabase.co/functions/v1/sitemap-xml
+Sitemap: https://testd.website/sitemap.xml

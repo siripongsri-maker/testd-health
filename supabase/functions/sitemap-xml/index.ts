@@ -2,7 +2,7 @@
 // Public endpoint — no JWT required
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
-const BASE_URL = "https://testd-health.lovable.app";
+const BASE_URL = "https://testd.website";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
