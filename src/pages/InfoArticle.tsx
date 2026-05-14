@@ -254,6 +254,15 @@ export default function InfoArticle() {
 
   return (
     <>
+      <SEOHead
+        title={seoTitle}
+        description={seoDesc}
+        canonicalPath={canonicalPath}
+        ogImage={article.cover_url || undefined}
+        ogType="article"
+        lang={language === 'th' ? 'th' : 'en'}
+        jsonLd={articleJsonLd}
+      />
       <PageContainer className="pb-8">
         {/* Header */}
         <div className="mb-6 flex items-center gap-4">
