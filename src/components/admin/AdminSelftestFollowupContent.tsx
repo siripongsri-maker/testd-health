@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Phone, MessageSquare, RefreshCw, CheckCircle2, Search } from "lucide-react";
+import { Loader2, Phone, MessageSquare, RefreshCw, CheckCircle2, Search, History, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -34,6 +34,15 @@ const CARE_ACTIONS = [
   { value: "unreachable", labelTh: "ติดต่อไม่ได้", labelEn: "Unreachable" },
 ];
 
+interface HistoryRow {
+  id: string;
+  field_changed: string;
+  old_value: string | null;
+  new_value: string | null;
+  changed_by_name: string | null;
+  created_at: string;
+}
+
 export default function AdminSelftestFollowupContent() {
   const { language } = useLanguage();
   const t = (th: string, en: string) => (language === "th" ? th : en);
@@ -42,6 +51,29 @@ export default function AdminSelftestFollowupContent() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("open");
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [openHistory, setOpenHistory] = useState<Record<string, boolean>>({});
+  const [historyMap, setHistoryMap] = useState<Record<string, HistoryRow[]>>({});
+  const [loadingHistory, setLoadingHistory] = useState<Record<string, boolean>>({});
+
+  const loadHistory = async (id: string) => {
+    setLoadingHistory((p) => ({ ...p, [id]: true }));
+    const { data, error } = await supabase
+      .from("hiv_selftest_case_history")
+      .select("id, field_changed, old_value, new_value, changed_by_name, created_at")
+      .eq("request_id", id)
+      .order("created_at", { ascending: false });
+    setLoadingHistory((p) => ({ ...p, [id]: false }));
+    if (!error) setHistoryMap((p) => ({ ...p, [id]: (data as any) || [] }));
+  };
+
+  const toggleHistory = (id: string) => {
+    setOpenHistory((p) => {
+      const next = { ...p, [id]: !p[id] };
+      if (next[id] && !historyMap[id]) loadHistory(id);
+      return next;
+    });
+  };
+
 
   const load = async () => {
     setLoading(true);
@@ -83,6 +115,7 @@ export default function AdminSelftestFollowupContent() {
     if (error) { toast.error(error.message); return; }
     toast.success(t("บันทึกแล้ว", "Saved"));
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+    if (openHistory[id]) loadHistory(id);
   };
 
   const counts = useMemo(() => {
@@ -206,6 +239,57 @@ export default function AdminSelftestFollowupContent() {
                       <CheckCircle2 className="h-4 w-4"/> {t("เคสนี้เข้าสู่การรักษาแล้ว","Linked into care")}
                     </div>
                   )}
+
+                  <div className="border-t pt-3">
+                    <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => toggleHistory(r.id)}>
+                      <History className="h-3.5 w-3.5 mr-1" />
+                      {t("ประวัติการเปลี่ยนแปลง","Change history")}
+                      {openHistory[r.id] ? <ChevronUp className="h-3.5 w-3.5 ml-1" /> : <ChevronDown className="h-3.5 w-3.5 ml-1" />}
+                    </Button>
+                    {openHistory[r.id] && (
+                      <div className="mt-2 space-y-2">
+                        {loadingHistory[r.id] ? (
+                          <div className="flex justify-center py-3"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground"/></div>
+                        ) : (historyMap[r.id] || []).length === 0 ? (
+                          <div className="text-xs text-muted-foreground py-2">{t("ยังไม่มีประวัติการเปลี่ยนแปลง","No changes recorded yet")}</div>
+                        ) : (
+                          <ol className="relative border-l border-border pl-4 space-y-3">
+                            {(historyMap[r.id] || []).map((h) => {
+                              const isAction = h.field_changed === "care_action";
+                              const fieldLabel = isAction ? t("สถานะ","Status") : t("บันทึก","Notes");
+                              return (
+                                <li key={h.id} className="relative">
+                                  <span className="absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full bg-primary" />
+                                  <div className="flex items-center gap-2 flex-wrap text-xs">
+                                    <Badge variant="outline" className="text-[10px]">{fieldLabel}</Badge>
+                                    <span className="text-muted-foreground">
+                                      {new Date(h.created_at).toLocaleString("th-TH",{timeZone:"Asia/Bangkok"})}
+                                    </span>
+                                    {h.changed_by_name && (
+                                      <span className="text-muted-foreground">· {h.changed_by_name}</span>
+                                    )}
+                                  </div>
+                                  <div className="text-xs mt-1">
+                                    {isAction ? (
+                                      <span>
+                                        <span className="text-muted-foreground line-through">{h.old_value || "—"}</span>
+                                        <span className="mx-1">→</span>
+                                        <span className="font-medium">{h.new_value || "—"}</span>
+                                      </span>
+                                    ) : (
+                                      <div className="rounded bg-muted/50 p-2 whitespace-pre-wrap">
+                                        {h.new_value || <span className="text-muted-foreground italic">{t("(ลบบันทึก)","(notes cleared)")}</span>}
+                                      </div>
+                                    )}
+                                  </div>
+                                </li>
+                              );
+                            })}
+                          </ol>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             );
