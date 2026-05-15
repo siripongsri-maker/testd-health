@@ -239,6 +239,57 @@ export default function AdminSelftestFollowupContent() {
                       <CheckCircle2 className="h-4 w-4"/> {t("เคสนี้เข้าสู่การรักษาแล้ว","Linked into care")}
                     </div>
                   )}
+
+                  <div className="border-t pt-3">
+                    <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={() => toggleHistory(r.id)}>
+                      <History className="h-3.5 w-3.5 mr-1" />
+                      {t("ประวัติการเปลี่ยนแปลง","Change history")}
+                      {openHistory[r.id] ? <ChevronUp className="h-3.5 w-3.5 ml-1" /> : <ChevronDown className="h-3.5 w-3.5 ml-1" />}
+                    </Button>
+                    {openHistory[r.id] && (
+                      <div className="mt-2 space-y-2">
+                        {loadingHistory[r.id] ? (
+                          <div className="flex justify-center py-3"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground"/></div>
+                        ) : (historyMap[r.id] || []).length === 0 ? (
+                          <div className="text-xs text-muted-foreground py-2">{t("ยังไม่มีประวัติการเปลี่ยนแปลง","No changes recorded yet")}</div>
+                        ) : (
+                          <ol className="relative border-l border-border pl-4 space-y-3">
+                            {(historyMap[r.id] || []).map((h) => {
+                              const isAction = h.field_changed === "care_action";
+                              const fieldLabel = isAction ? t("สถานะ","Status") : t("บันทึก","Notes");
+                              return (
+                                <li key={h.id} className="relative">
+                                  <span className="absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full bg-primary" />
+                                  <div className="flex items-center gap-2 flex-wrap text-xs">
+                                    <Badge variant="outline" className="text-[10px]">{fieldLabel}</Badge>
+                                    <span className="text-muted-foreground">
+                                      {new Date(h.created_at).toLocaleString("th-TH",{timeZone:"Asia/Bangkok"})}
+                                    </span>
+                                    {h.changed_by_name && (
+                                      <span className="text-muted-foreground">· {h.changed_by_name}</span>
+                                    )}
+                                  </div>
+                                  <div className="text-xs mt-1">
+                                    {isAction ? (
+                                      <span>
+                                        <span className="text-muted-foreground line-through">{h.old_value || "—"}</span>
+                                        <span className="mx-1">→</span>
+                                        <span className="font-medium">{h.new_value || "—"}</span>
+                                      </span>
+                                    ) : (
+                                      <div className="rounded bg-muted/50 p-2 whitespace-pre-wrap">
+                                        {h.new_value || <span className="text-muted-foreground italic">{t("(ลบบันทึก)","(notes cleared)")}</span>}
+                                      </div>
+                                    )}
+                                  </div>
+                                </li>
+                              );
+                            })}
+                          </ol>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             );
