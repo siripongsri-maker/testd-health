@@ -34,6 +34,15 @@ const CARE_ACTIONS = [
   { value: "unreachable", labelTh: "ติดต่อไม่ได้", labelEn: "Unreachable" },
 ];
 
+interface HistoryRow {
+  id: string;
+  field_changed: string;
+  old_value: string | null;
+  new_value: string | null;
+  changed_by_name: string | null;
+  created_at: string;
+}
+
 export default function AdminSelftestFollowupContent() {
   const { language } = useLanguage();
   const t = (th: string, en: string) => (language === "th" ? th : en);
@@ -42,6 +51,29 @@ export default function AdminSelftestFollowupContent() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("open");
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [openHistory, setOpenHistory] = useState<Record<string, boolean>>({});
+  const [historyMap, setHistoryMap] = useState<Record<string, HistoryRow[]>>({});
+  const [loadingHistory, setLoadingHistory] = useState<Record<string, boolean>>({});
+
+  const loadHistory = async (id: string) => {
+    setLoadingHistory((p) => ({ ...p, [id]: true }));
+    const { data, error } = await supabase
+      .from("hiv_selftest_case_history")
+      .select("id, field_changed, old_value, new_value, changed_by_name, created_at")
+      .eq("request_id", id)
+      .order("created_at", { ascending: false });
+    setLoadingHistory((p) => ({ ...p, [id]: false }));
+    if (!error) setHistoryMap((p) => ({ ...p, [id]: (data as any) || [] }));
+  };
+
+  const toggleHistory = (id: string) => {
+    setOpenHistory((p) => {
+      const next = { ...p, [id]: !p[id] };
+      if (next[id] && !historyMap[id]) loadHistory(id);
+      return next;
+    });
+  };
+
 
   const load = async () => {
     setLoading(true);
