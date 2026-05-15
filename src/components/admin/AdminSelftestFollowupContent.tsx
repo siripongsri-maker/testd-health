@@ -115,6 +115,7 @@ export default function AdminSelftestFollowupContent() {
     if (error) { toast.error(error.message); return; }
     toast.success(t("บันทึกแล้ว", "Saved"));
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+    if (openHistory[id]) loadHistory(id);
   };
 
   const counts = useMemo(() => {
