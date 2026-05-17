@@ -323,7 +323,8 @@ export default function AdminSelftestFollowupContent() {
                               );
                             })}
                           </ol>
-                        )}
+                          );
+                        })()}
                       </div>
                     )}
                   </div>
