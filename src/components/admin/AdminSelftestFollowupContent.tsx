@@ -250,13 +250,48 @@ export default function AdminSelftestFollowupContent() {
                     </Button>
                     {openHistory[r.id] && (
                       <div className="mt-2 space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Select
+                            value={historyFieldFilter[r.id] || "all"}
+                            onValueChange={(v) => setHistoryFieldFilter((p) => ({ ...p, [r.id]: v }))}
+                          >
+                            <SelectTrigger className="h-7 w-44 text-xs"><SelectValue/></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">{t("ทั้งหมด","All changes")}</SelectItem>
+                              <SelectItem value="care_action">{t("เฉพาะสถานะ","Status only")}</SelectItem>
+                              <SelectItem value="staff_notes">{t("เฉพาะบันทึก","Notes only")}</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-7 px-2 text-xs"
+                            onClick={() => setHistorySortAsc((p) => ({ ...p, [r.id]: !p[r.id] }))}
+                          >
+                            {historySortAsc[r.id]
+                              ? t("เก่า → ใหม่","Oldest first")
+                              : t("ใหม่ → เก่า","Newest first")}
+                          </Button>
+                        </div>
                         {loadingHistory[r.id] ? (
                           <div className="flex justify-center py-3"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground"/></div>
-                        ) : (historyMap[r.id] || []).length === 0 ? (
-                          <div className="text-xs text-muted-foreground py-2">{t("ยังไม่มีประวัติการเปลี่ยนแปลง","No changes recorded yet")}</div>
-                        ) : (
+                        ) : (() => {
+                          const filter = historyFieldFilter[r.id] || "all";
+                          const asc = !!historySortAsc[r.id];
+                          const list = (historyMap[r.id] || [])
+                            .filter((h) => filter === "all" || h.field_changed === filter)
+                            .slice()
+                            .sort((a, b) => {
+                              const da = new Date(a.created_at).getTime();
+                              const db = new Date(b.created_at).getTime();
+                              return asc ? da - db : db - da;
+                            });
+                          if (list.length === 0) {
+                            return <div className="text-xs text-muted-foreground py-2">{t("ยังไม่มีประวัติการเปลี่ยนแปลง","No changes recorded yet")}</div>;
+                          }
+                          return (
                           <ol className="relative border-l border-border pl-4 space-y-3">
-                            {(historyMap[r.id] || []).map((h) => {
+                            {list.map((h) => {
                               const isAction = h.field_changed === "care_action";
                               const fieldLabel = isAction ? t("สถานะ","Status") : t("บันทึก","Notes");
                               return (
