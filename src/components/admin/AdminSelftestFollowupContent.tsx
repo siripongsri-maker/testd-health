@@ -54,6 +54,8 @@ export default function AdminSelftestFollowupContent() {
   const [openHistory, setOpenHistory] = useState<Record<string, boolean>>({});
   const [historyMap, setHistoryMap] = useState<Record<string, HistoryRow[]>>({});
   const [loadingHistory, setLoadingHistory] = useState<Record<string, boolean>>({});
+  const [historyFieldFilter, setHistoryFieldFilter] = useState<Record<string, string>>({});
+  const [historySortAsc, setHistorySortAsc] = useState<Record<string, boolean>>({});
 
   const loadHistory = async (id: string) => {
     setLoadingHistory((p) => ({ ...p, [id]: true }));
