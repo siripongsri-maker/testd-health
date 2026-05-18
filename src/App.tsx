@@ -11,7 +11,7 @@ import { OfflineBanner } from "@/components/OfflineBanner";
 import { PageLoader } from "@/components/PageLoader";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { AutoSEO } from "@/components/seo/AutoSEO";
-import { FloatingMedClock } from "@/components/FloatingMedClock";
+const FloatingMedClock = lazy(() => import("@/components/FloatingMedClock").then(m => ({ default: m.FloatingMedClock })));
 import { AppLayout } from "@/components/AppLayout";
 import { ForceUpdateGuard } from "@/components/ForceUpdateGuard";
 import { VersionAnnouncementBanner } from "@/components/VersionAnnouncementBanner";
@@ -173,7 +173,7 @@ function AppShell() {
             </Routes>
           </AppLayout>
         </Suspense>
-        <FloatingMedClock />
+        <Suspense fallback={null}><FloatingMedClock /></Suspense>
       </AnalyticsProvider>
     </>
   );
