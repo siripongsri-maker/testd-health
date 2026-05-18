@@ -85,7 +85,17 @@ const YouthHivSurvey = lazy(() => import("./pages/YouthHivSurvey"));
 const MyRewards = lazy(() => import("./pages/MyRewards"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,      // 5 min — avoid refetch storms
+      gcTime: 30 * 60 * 1000,        // keep cached 30 min
+      refetchOnWindowFocus: false,   // stop refetching on tab focus
+      refetchOnReconnect: false,
+      retry: 1,
+    },
+  },
+});
 
 /** Inner shell — lives inside BrowserRouter so children can useNavigate */
 function AppShell() {
