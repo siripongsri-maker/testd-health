@@ -173,7 +173,7 @@ function AppShell() {
             </Routes>
           </AppLayout>
         </Suspense>
-        <FloatingMedClock />
+        <Suspense fallback={null}><FloatingMedClock /></Suspense>
       </AnalyticsProvider>
     </>
   );
