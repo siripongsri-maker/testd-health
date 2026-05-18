@@ -39,26 +39,70 @@ export default function Home() {
   }, [user, loading]);
 
   useEffect(() => {
+    if (!user) return;
+
+    let cancelled = false;
+    const ADMIN_CACHE_KEY = `isAdmin:${user.id}`;
+    const PENDING_CACHE_KEY = `pendingReq:${user.id}`;
+    const TTL = 5 * 60 * 1000;
+
+    // Hydrate instantly from sessionStorage cache (no waiting on network)
+    try {
+      const cached = sessionStorage.getItem(ADMIN_CACHE_KEY);
+      if (cached) {
+        const { v, t } = JSON.parse(cached);
+        if (Date.now() - t < TTL) setIsAdmin(!!v);
+      }
+      const cachedPending = sessionStorage.getItem(PENDING_CACHE_KEY);
+      if (cachedPending) {
+        const { v, t } = JSON.parse(cachedPending);
+        if (Date.now() - t < TTL) setPendingRequests(v);
+      }
+    } catch {}
+
     const checkAdmin = async () => {
-      if (!user) return;
       const { data: roleData } = await supabase.rpc('has_role', {
         _user_id: user.id,
-        _role: 'admin'
+        _role: 'admin',
       });
-      setIsAdmin(!!roleData);
-      if (roleData) {
-        const { count: hivCount } = await supabase
+      if (cancelled) return;
+      const adminFlag = !!roleData;
+      setIsAdmin(adminFlag);
+      try {
+        sessionStorage.setItem(ADMIN_CACHE_KEY, JSON.stringify({ v: adminFlag, t: Date.now() }));
+      } catch {}
+
+      if (!adminFlag) return;
+
+      // Run both count queries in parallel
+      const [hivRes, adminRes] = await Promise.all([
+        supabase
           .from('hiv_selftest_requests')
           .select('*', { count: 'exact', head: true })
-          .eq('status', 'pending');
-        const { count: adminCount } = await supabase
+          .eq('status', 'pending'),
+        supabase
           .from('admin_requests')
           .select('*', { count: 'exact', head: true })
-          .eq('status', 'pending');
-        setPendingRequests((hivCount || 0) + (adminCount || 0));
-      }
+          .eq('status', 'pending'),
+      ]);
+      if (cancelled) return;
+      const total = (hivRes.count || 0) + (adminRes.count || 0);
+      setPendingRequests(total);
+      try {
+        sessionStorage.setItem(PENDING_CACHE_KEY, JSON.stringify({ v: total, t: Date.now() }));
+      } catch {}
     };
-    checkAdmin();
+
+    // Defer to idle so it never blocks first paint / interactions
+    const idle = (window as any).requestIdleCallback
+      ? (window as any).requestIdleCallback(checkAdmin, { timeout: 2000 })
+      : setTimeout(checkAdmin, 300);
+
+    return () => {
+      cancelled = true;
+      if ((window as any).cancelIdleCallback) (window as any).cancelIdleCallback(idle);
+      else clearTimeout(idle);
+    };
   }, [user]);
 
   return (
