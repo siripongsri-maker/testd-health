@@ -1,22 +1,28 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
-import { AdminRequestsPopup } from "@/components/AdminRequestsPopup";
-import { HomeMenuGrid } from "@/components/home/HomeMenuGrid";
-import { SmartPriorityCard } from "@/components/home/SmartPriorityCard";
-import { MyPreventionJourneyCard } from "@/components/home/MyPreventionJourneyCard";
 import { HeroSection } from "@/components/home/HeroSection";
 import { HeroLivingScene } from "@/components/landing/HeroLivingScene";
 import { QuickActionStrip } from "@/components/home/QuickActionStrip";
-import { FeaturedJourneySection } from "@/components/home/FeaturedJourneySection";
-import { StickyTestCTA } from "@/components/home/StickyTestCTA";
-import { PixelStadiumWidget } from "@/components/home/PixelStadiumWidget";
 
+// Below-the-fold: lazy-load to shrink initial bundle and speed up FCP/LCP
+const FeaturedJourneySection = lazy(() => import("@/components/home/FeaturedJourneySection").then(m => ({ default: m.FeaturedJourneySection })));
+const PixelStadiumWidget = lazy(() => import("@/components/home/PixelStadiumWidget").then(m => ({ default: m.PixelStadiumWidget })));
+const SmartPriorityCard = lazy(() => import("@/components/home/SmartPriorityCard").then(m => ({ default: m.SmartPriorityCard })));
+const MyPreventionJourneyCard = lazy(() => import("@/components/home/MyPreventionJourneyCard").then(m => ({ default: m.MyPreventionJourneyCard })));
+const HomeMenuGrid = lazy(() => import("@/components/home/HomeMenuGrid").then(m => ({ default: m.HomeMenuGrid })));
+const StickyTestCTA = lazy(() => import("@/components/home/StickyTestCTA").then(m => ({ default: m.StickyTestCTA })));
+const AdminRequestsPopup = lazy(() => import("@/components/AdminRequestsPopup").then(m => ({ default: m.AdminRequestsPopup })));
 
 import swingLogo from "@/assets/swing-logo.png";
 import testdLogo from "@/assets/testd-logo.png";
+
+const SectionSkeleton = ({ h = 120 }: { h?: number }) => (
+  <div className="animate-pulse rounded-2xl bg-muted/30" style={{ height: h }} />
+);
+
 
 export default function Home() {
   const { t, language } = useLanguage();
