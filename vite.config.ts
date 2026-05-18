@@ -91,7 +91,7 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  optimizeDeps: {
-    force: true,
-  },
+  // Note: do NOT set optimizeDeps.force = true — that re-prebundles every dep
+  // on every server start, making cold loads take 8+ seconds.
+
 }));
