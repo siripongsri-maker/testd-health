@@ -56,9 +56,10 @@ export function FloatingMedClock() {
   const todayKey = getTodayKey();
   const todayTaken = userData.checkIns[todayKey] === 'taken';
 
-  // Load medicines from DB on login
+  // Load medicines from DB on login — deferred to idle to avoid blocking first paint
   useEffect(() => {
     if (!user) return;
+    let cancelled = false;
     const loadFromDb = async () => {
       const { data, error } = await supabase
         .from('user_medicines')
@@ -66,6 +67,7 @@ export function FloatingMedClock() {
         .eq('user_id', user.id)
         .order('created_at', { ascending: true });
 
+      if (cancelled) return;
       if (!error && data && data.length > 0) {
         const dbMeds: Medicine[] = data.map((m: any) => ({
           id: m.id,
@@ -78,7 +80,14 @@ export function FloatingMedClock() {
         localStorage.setItem(MEDICINES_KEY, JSON.stringify(dbMeds));
       }
     };
-    loadFromDb();
+    const idle = (window as any).requestIdleCallback
+      ? (window as any).requestIdleCallback(loadFromDb, { timeout: 3000 })
+      : setTimeout(loadFromDb, 500);
+    return () => {
+      cancelled = true;
+      if ((window as any).cancelIdleCallback) (window as any).cancelIdleCallback(idle);
+      else clearTimeout(idle);
+    };
   }, [user]);
 
   // Save medicines to localStorage
