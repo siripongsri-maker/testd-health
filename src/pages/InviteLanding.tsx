@@ -80,14 +80,12 @@ export default function InviteLanding() {
         set_at: Date.now(),
       });
 
-      // Load current response state
-      const { data: respData } = await (supabase as any)
-        .from('partner_invite_responses')
-        .select('response_state')
-        .eq('invite_id', data.id)
-        .eq('visitor_session_id', getVisitorSessionId())
-        .maybeSingle();
-      if (respData) setCurrentResponse(respData.response_state);
+      // Load current response state (via SECURITY DEFINER RPC — direct table read is admin-only)
+      const { data: respData } = await (supabase as any).rpc('get_my_partner_invite_response', {
+        p_invite_id: data.id,
+        p_visitor_session_id: getVisitorSessionId(),
+      });
+      if (respData) setCurrentResponse(respData as ResponseState);
 
       try {
         await supabase.rpc('record_partner_invite_event', {

@@ -10431,6 +10431,10 @@ export type Database = {
         Args: { p_month_key: string; p_user_id: string }
         Returns: number
       }
+      get_my_partner_invite_response: {
+        Args: { p_invite_id: string; p_visitor_session_id: string }
+        Returns: string
+      }
       get_or_create_chat_thread: {
         Args: { p_subject?: string; p_user_id: string }
         Returns: string
