@@ -1,4 +1,5 @@
 import { corsHeaders } from "npm:@supabase/supabase-js@^2.95.0/cors";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 interface NarrativeRequest {
   language: 'th' | 'en';
