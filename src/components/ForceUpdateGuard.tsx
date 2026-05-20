@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { APP_VERSION } from "@/config/appVersion";
 
 const VERSION_KEY = "testd_app_version";
+const RESET_KEY = "testd_forced_cache_reset";
 const SESSION_KEY = "testd_session_checked_version";
 const RETRY_KEY = "testd_refresh_retries";
 const MAX_RETRIES = 3;
+const CACHE_RESET_VERSION = `${APP_VERSION}:fast-load-reset-2026-05-20`;
 
 // Keys to preserve during force-update
 const PRESERVE_PREFIXES = [
@@ -17,6 +19,37 @@ const PRESERVE_PREFIXES = [
 
 function shouldPreserve(key: string): boolean {
   return PRESERVE_PREFIXES.some((p) => key.startsWith(p));
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return new Promise((resolve) => {
+    const timer = window.setTimeout(() => resolve(fallback), ms);
+    promise.then(
+      (value) => {
+        window.clearTimeout(timer);
+        resolve(value);
+      },
+      () => {
+        window.clearTimeout(timer);
+        resolve(fallback);
+      }
+    );
+  });
+}
+
+function clearBrowserCookies() {
+  const hostname = window.location.hostname;
+  const domainParts = hostname.split(".");
+  const apexDomain = domainParts.length > 2 ? `.${domainParts.slice(-2).join(".")}` : `.${hostname}`;
+  const domains = Array.from(new Set([undefined, hostname, apexDomain]));
+
+  document.cookie.split(";").forEach((cookie) => {
+    const name = cookie.split("=")[0]?.trim();
+    if (!name) return;
+    domains.forEach((domain) => {
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/${domain ? `; domain=${domain}` : ""}; SameSite=Lax`;
+    });
+  });
 }
 
 function dispatchAnalytics(event: string) {
@@ -33,8 +66,12 @@ async function nukeCache(): Promise<void> {
   // 1. Unregister all service workers
   if ("serviceWorker" in navigator) {
     try {
-      const regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.allSettled(regs.map((r) => r.unregister()));
+      const regs = await withTimeout(
+        navigator.serviceWorker.getRegistrations(),
+        1200,
+        [] as ServiceWorkerRegistration[]
+      );
+      await withTimeout(Promise.allSettled(regs.map((r) => r.unregister())), 1200, []);
       dispatchAnalytics("service_worker_reset");
     } catch {}
   }
@@ -42,19 +79,24 @@ async function nukeCache(): Promise<void> {
   // 2. Clear Cache Storage API
   if ("caches" in window) {
     try {
-      const keys = await caches.keys();
-      await Promise.allSettled(keys.map((k) => caches.delete(k)));
+      const keys = await withTimeout(caches.keys(), 1200, [] as string[]);
+      await withTimeout(Promise.allSettled(keys.map((k) => caches.delete(k))), 1500, []);
     } catch {}
   }
 
-  // 3. Clear sessionStorage except retry/session keys
+  // 3. Clear same-origin cookies best-effort. HttpOnly cookies cannot be cleared client-side.
+  try {
+    clearBrowserCookies();
+  } catch {}
+
+  // 4. Clear sessionStorage except retry/session keys
   const retryVal = sessionStorage.getItem(RETRY_KEY);
   const sessionVal = sessionStorage.getItem(SESSION_KEY);
   sessionStorage.clear();
   if (retryVal) sessionStorage.setItem(RETRY_KEY, retryVal);
   if (sessionVal) sessionStorage.setItem(SESSION_KEY, sessionVal);
 
-  // 4. Clear localStorage except preserved keys
+  // 5. Clear localStorage except preserved keys
   const keysToRemove: string[] = [];
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
@@ -64,18 +106,8 @@ async function nukeCache(): Promise<void> {
   }
   keysToRemove.forEach((k) => localStorage.removeItem(k));
 
-  // 5. Stamp new version
+  // 6. Stamp new version
   localStorage.setItem(VERSION_KEY, APP_VERSION);
-}
-
-function needsVersionUpdate(): boolean {
-  const stored = localStorage.getItem(VERSION_KEY);
-  return stored !== APP_VERSION;
-}
-
-function needsSessionCheck(): boolean {
-  const sessionFlag = sessionStorage.getItem(SESSION_KEY);
-  return sessionFlag !== APP_VERSION;
 }
 
 function isRetryExhausted(): boolean {
@@ -100,14 +132,32 @@ function performHardReload() {
 type GuardState = "ok" | "updating" | "stuck";
 
 export function ForceUpdateGuard({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<GuardState>(() => {
-    // Skip version guard in development / preview environments
-    if (import.meta.env.DEV || window.location.hostname.includes('preview')) return "ok";
-    // Synchronous pre-check to avoid flash of content
-    if (needsVersionUpdate()) return "updating";
-    if (needsSessionCheck()) return "updating";
-    return "ok";
-  });
+  const [state, setState] = useState<GuardState>("ok");
+
+  useEffect(() => {
+    if (import.meta.env.DEV || window.location.hostname.includes('preview')) return;
+    if (localStorage.getItem(RESET_KEY) === CACHE_RESET_VERSION) return;
+
+    localStorage.setItem(RESET_KEY, CACHE_RESET_VERSION);
+    localStorage.setItem(VERSION_KEY, APP_VERSION);
+    sessionStorage.setItem(SESSION_KEY, APP_VERSION);
+
+    const reset = () => {
+      void nukeCache().then(() => {
+        sessionStorage.setItem(SESSION_KEY, APP_VERSION);
+        localStorage.setItem(RESET_KEY, CACHE_RESET_VERSION);
+        dispatchAnalytics("background_cache_reset_completed");
+      });
+    };
+
+    if ("requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(reset, { timeout: 2500 });
+      return () => window.cancelIdleCallback?.(idleId);
+    }
+
+    const timer = globalThis.setTimeout(reset, 1500);
+    return () => globalThis.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (state !== "updating") return;
