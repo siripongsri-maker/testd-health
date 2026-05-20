@@ -120,9 +120,12 @@ export function DeploymentVersionCheck() {
     };
 
     // Defer initial check to idle so it never competes with first paint.
-    const schedule = (fn: () => void, delay: number) => {
-      if ("requestIdleCallback" in window) {
-        return window.requestIdleCallback(fn, { timeout: delay });
+    const schedule = (fn: () => void, delay: number): number => {
+      const w = window as Window & {
+        requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      };
+      if (typeof w.requestIdleCallback === "function") {
+        return w.requestIdleCallback(fn, { timeout: delay });
       }
       return window.setTimeout(fn, delay);
     };
@@ -133,12 +136,13 @@ export function DeploymentVersionCheck() {
     return () => {
       cancelled = true;
       window.clearInterval(interval);
-      if ("cancelIdleCallback" in window) {
+      const w = window as Window & { cancelIdleCallback?: (id: number) => void };
+      if (typeof w.cancelIdleCallback === "function") {
         try {
-          window.cancelIdleCallback(initialId as number);
+          w.cancelIdleCallback(initialId);
         } catch {}
       } else {
-        window.clearTimeout(initialId as number);
+        window.clearTimeout(initialId);
       }
     };
   }, []);
