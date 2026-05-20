@@ -155,8 +155,8 @@ export function ForceUpdateGuard({ children }: { children: React.ReactNode }) {
       return () => window.cancelIdleCallback?.(idleId);
     }
 
-    const timer = window.setTimeout(reset, 1500);
-    return () => window.clearTimeout(timer);
+    const timer = globalThis.setTimeout(reset, 1500);
+    return () => globalThis.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
