@@ -1,0 +1,4 @@
+{
+  "version": "5.0.1",
+  "note": "Bump this version whenever a new deployment ships. Clients fetch this with no-store to detect stale bundles and trigger a one-shot cache reset + reload."
+}

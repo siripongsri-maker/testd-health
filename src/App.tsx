@@ -14,6 +14,7 @@ import { AutoSEO } from "@/components/seo/AutoSEO";
 const FloatingMedClock = lazy(() => import("@/components/FloatingMedClock").then(m => ({ default: m.FloatingMedClock })));
 import { AppLayout } from "@/components/AppLayout";
 import { ForceUpdateGuard } from "@/components/ForceUpdateGuard";
+import { DeploymentVersionCheck } from "@/components/DeploymentVersionCheck";
 import { VersionAnnouncementBanner } from "@/components/VersionAnnouncementBanner";
 import { useMedicationReminder } from "@/hooks/useMedicationReminder";
 
@@ -192,6 +193,7 @@ function AppShell() {
 const App = () => {
   return (
     <ForceUpdateGuard>
+      <DeploymentVersionCheck />
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <ThemedBackground />
