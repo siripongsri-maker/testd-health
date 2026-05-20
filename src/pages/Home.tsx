@@ -30,6 +30,17 @@ export default function Home() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingRequests, setPendingRequests] = useState(0);
   const [adminPopupOpen, setAdminPopupOpen] = useState(false);
+  const [loadDeferredSections, setLoadDeferredSections] = useState(false);
+
+  useEffect(() => {
+    if ("requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(() => setLoadDeferredSections(true), { timeout: 1600 });
+      return () => window.cancelIdleCallback?.(idleId);
+    }
+
+    const timer = globalThis.setTimeout(() => setLoadDeferredSections(true), 900);
+    return () => globalThis.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -131,23 +142,29 @@ export default function Home() {
 
         <QuickActionStrip />
 
-        <Suspense fallback={<SectionSkeleton h={180} />}>
-          <FeaturedJourneySection />
-        </Suspense>
+        {loadDeferredSections ? (
+          <Suspense fallback={<SectionSkeleton h={180} />}>
+            <FeaturedJourneySection />
+          </Suspense>
+        ) : <SectionSkeleton h={180} />}
 
         <div className="mb-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold px-1 mb-2">
             {language === 'th' ? 'ชุมชน testD' : 'testD Community'}
           </p>
-          <Suspense fallback={<SectionSkeleton h={160} />}>
-            <PixelStadiumWidget />
-          </Suspense>
+          {loadDeferredSections ? (
+            <Suspense fallback={<SectionSkeleton h={160} />}>
+              <PixelStadiumWidget />
+            </Suspense>
+          ) : <SectionSkeleton h={160} />}
         </div>
 
         <div className="mb-6">
-          <Suspense fallback={<SectionSkeleton h={120} />}>
-            <SmartPriorityCard />
-          </Suspense>
+          {loadDeferredSections ? (
+            <Suspense fallback={<SectionSkeleton h={120} />}>
+              <SmartPriorityCard />
+            </Suspense>
+          ) : <SectionSkeleton h={120} />}
         </div>
 
         <div className="mb-6">
