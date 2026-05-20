@@ -148,16 +148,7 @@ export default function Home() {
           </Suspense>
         ) : <SectionSkeleton h={180} />}
 
-        <div className="mb-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold px-1 mb-2">
-            {language === 'th' ? 'ชุมชน testD' : 'testD Community'}
-          </p>
-          {loadDeferredSections ? (
-            <Suspense fallback={<SectionSkeleton h={160} />}>
-              <PixelStadiumWidget />
-            </Suspense>
-          ) : <SectionSkeleton h={160} />}
-        </div>
+        {/* Community widget moved to bottom of page */}
 
         <div className="mb-6">
           {loadDeferredSections ? (
