@@ -1,13 +1,15 @@
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { LanguageToggle } from "@/components/LanguageToggle";
-import { NotificationBell } from "@/components/NotificationBell";
-import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
 import testdLogo from "@/assets/testd-logo.png";
 import { User, LogIn, MapPin } from "lucide-react";
-import { useGlobalPresence } from "@/hooks/useGlobalPresence";
+
+const NotificationBell = lazy(() => import("@/components/NotificationBell").then(m => ({ default: m.NotificationBell })));
+const BottomNav = lazy(() => import("@/components/BottomNav").then(m => ({ default: m.BottomNav })));
+const GlobalPresence = lazy(() => import("@/components/GlobalPresence").then(m => ({ default: m.GlobalPresence })));
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -19,7 +21,17 @@ export function AppLayout({ children, hideNav }: AppLayoutProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  useGlobalPresence();
+  const [showDeferredChrome, setShowDeferredChrome] = useState(false);
+
+  useEffect(() => {
+    if ("requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(() => setShowDeferredChrome(true), { timeout: 2000 });
+      return () => window.cancelIdleCallback?.(idleId);
+    }
+
+    const timer = globalThis.setTimeout(() => setShowDeferredChrome(true), 1200);
+    return () => globalThis.clearTimeout(timer);
+  }, []);
 
   // Admin pages use AdminLayout — don't wrap them
   const isAdminPage = location.pathname.startsWith("/admin");
@@ -47,7 +59,11 @@ export function AppLayout({ children, hideNav }: AppLayoutProps) {
           >
             <MapPin className="h-4 w-4" />
           </Button>
-          <NotificationBell />
+          {user && showDeferredChrome && (
+            <Suspense fallback={null}>
+              <NotificationBell />
+            </Suspense>
+          )}
           <LanguageToggle />
           {user ? (
             <Button variant="ghost" size="icon" className="rounded-full h-8 w-8" onClick={() => navigate("/settings")}>
@@ -66,7 +82,12 @@ export function AppLayout({ children, hideNav }: AppLayoutProps) {
         {children}
       </main>
 
-      <BottomNav />
+      {showDeferredChrome && (
+        <Suspense fallback={null}>
+          <GlobalPresence />
+          <BottomNav />
+        </Suspense>
+      )}
     </div>
   );
 }
