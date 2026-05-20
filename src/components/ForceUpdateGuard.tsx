@@ -66,8 +66,12 @@ async function nukeCache(): Promise<void> {
   // 1. Unregister all service workers
   if ("serviceWorker" in navigator) {
     try {
-      const regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.allSettled(regs.map((r) => r.unregister()));
+      const regs = await withTimeout(
+        navigator.serviceWorker.getRegistrations(),
+        1200,
+        [] as ServiceWorkerRegistration[]
+      );
+      await withTimeout(Promise.allSettled(regs.map((r) => r.unregister())), 1200, []);
       dispatchAnalytics("service_worker_reset");
     } catch {}
   }
@@ -75,19 +79,24 @@ async function nukeCache(): Promise<void> {
   // 2. Clear Cache Storage API
   if ("caches" in window) {
     try {
-      const keys = await caches.keys();
-      await Promise.allSettled(keys.map((k) => caches.delete(k)));
+      const keys = await withTimeout(caches.keys(), 1200, [] as string[]);
+      await withTimeout(Promise.allSettled(keys.map((k) => caches.delete(k))), 1500, []);
     } catch {}
   }
 
-  // 3. Clear sessionStorage except retry/session keys
+  // 3. Clear same-origin cookies best-effort. HttpOnly cookies cannot be cleared client-side.
+  try {
+    clearBrowserCookies();
+  } catch {}
+
+  // 4. Clear sessionStorage except retry/session keys
   const retryVal = sessionStorage.getItem(RETRY_KEY);
   const sessionVal = sessionStorage.getItem(SESSION_KEY);
   sessionStorage.clear();
   if (retryVal) sessionStorage.setItem(RETRY_KEY, retryVal);
   if (sessionVal) sessionStorage.setItem(SESSION_KEY, sessionVal);
 
-  // 4. Clear localStorage except preserved keys
+  // 5. Clear localStorage except preserved keys
   const keysToRemove: string[] = [];
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
@@ -97,7 +106,7 @@ async function nukeCache(): Promise<void> {
   }
   keysToRemove.forEach((k) => localStorage.removeItem(k));
 
-  // 5. Stamp new version
+  // 6. Stamp new version
   localStorage.setItem(VERSION_KEY, APP_VERSION);
 }
 
