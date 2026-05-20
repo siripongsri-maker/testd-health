@@ -185,6 +185,18 @@ export default function Home() {
           </p>
         </div>
 
+        {/* Community widget — moved to bottom */}
+        <div className="mb-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold px-1 mb-2">
+            {language === 'th' ? 'ชุมชน testD' : 'testD Community'}
+          </p>
+          {loadDeferredSections ? (
+            <Suspense fallback={<SectionSkeleton h={160} />}>
+              <PixelStadiumWidget />
+            </Suspense>
+          ) : <SectionSkeleton h={160} />}
+        </div>
+
         {/* Footer */}
         <footer className="text-center space-y-3 pb-20 pt-2">
           <p className="text-xs text-muted-foreground px-4">
