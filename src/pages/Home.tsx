@@ -168,18 +168,22 @@ export default function Home() {
         </div>
 
         <div className="mb-6">
-          <Suspense fallback={<SectionSkeleton h={140} />}>
-            <MyPreventionJourneyCard />
-          </Suspense>
+          {loadDeferredSections ? (
+            <Suspense fallback={<SectionSkeleton h={140} />}>
+              <MyPreventionJourneyCard />
+            </Suspense>
+          ) : <SectionSkeleton h={140} />}
         </div>
 
         <div className="mb-6">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold px-1 mb-3">
             {language === 'th' ? 'เลือกสิ่งที่ต้องการ' : 'Choose what you need'}
           </p>
-          <Suspense fallback={<SectionSkeleton h={240} />}>
-            <HomeMenuGrid />
-          </Suspense>
+          {loadDeferredSections ? (
+            <Suspense fallback={<SectionSkeleton h={240} />}>
+              <HomeMenuGrid />
+            </Suspense>
+          ) : <SectionSkeleton h={240} />}
         </div>
 
         <div className="text-center py-3">
@@ -213,9 +217,11 @@ export default function Home() {
       <div className="fixed bottom-16 left-0 right-0 h-1 bg-gradient-to-r from-[hsl(0,85%,65%)] via-[hsl(50,95%,55%)] via-[hsl(120,65%,50%)] via-[hsl(200,85%,55%)] to-[hsl(280,70%,60%)] z-30" />
 
       {/* Sticky CTA */}
-      <Suspense fallback={null}>
-        <StickyTestCTA />
-      </Suspense>
+      {loadDeferredSections && (
+        <Suspense fallback={null}>
+          <StickyTestCTA />
+        </Suspense>
+      )}
 
       {/* Popups (admin only) */}
       {isAdmin && (
