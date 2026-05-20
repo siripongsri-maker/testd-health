@@ -26,32 +26,20 @@ export function PixelStadiumWidget() {
   const [viewerCount, setViewerCount] = useState(0);
   const [ticker, setTicker] = useState(language === 'th' ? 'LIVE · ยินดีต้อนรับสู่ testD' : 'LIVE · Welcome to testD');
 
-  // Fetch real stats
+  // Fetch real stats via SECURITY DEFINER RPC (works for anonymous visitors)
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const today = new Date().toISOString().split('T')[0];
-
-        // Today's events from analytics_events
-        const { count: todayEvents } = await supabase
-          .from('analytics_events')
-          .select('*', { count: 'exact', head: true })
-          .gte('created_at', today);
-
-        // All-time total events from analytics_events
-        const { count: allTimeEvents } = await supabase
-          .from('analytics_events')
-          .select('*', { count: 'exact', head: true });
-
-        // Members from profiles
-        const { count: profiles } = await supabase
-          .from('profiles')
-          .select('*', { count: 'exact', head: true });
-
-        setTodayCount(todayEvents || 0);
-        setTotalCount(allTimeEvents || 0);
-        setViewerCount(profiles || 0);
-      } catch { /* fallback to 0 */ }
+        const { data, error } = await supabase.rpc('get_home_community_stats');
+        if (error) throw error;
+        const row: any = Array.isArray(data) ? data[0] : data;
+        if (!row) return;
+        setTodayCount(Number(row.today_events) || 0);
+        setTotalCount(Number(row.total_events) || 0);
+        setViewerCount(Number(row.total_members) || 0);
+      } catch (e) {
+        console.error('[PixelStadium] stats fetch failed', e);
+      }
     };
     fetchStats();
   }, []);
