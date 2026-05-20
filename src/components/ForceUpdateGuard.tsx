@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import { APP_VERSION } from "@/config/appVersion";
 
 const VERSION_KEY = "testd_app_version";
+const RESET_KEY = "testd_forced_cache_reset";
 const SESSION_KEY = "testd_session_checked_version";
 const RETRY_KEY = "testd_refresh_retries";
 const MAX_RETRIES = 3;
+const CACHE_RESET_VERSION = `${APP_VERSION}:fast-load-reset-2026-05-20`;
 
 // Keys to preserve during force-update
 const PRESERVE_PREFIXES = [
@@ -17,6 +19,37 @@ const PRESERVE_PREFIXES = [
 
 function shouldPreserve(key: string): boolean {
   return PRESERVE_PREFIXES.some((p) => key.startsWith(p));
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return new Promise((resolve) => {
+    const timer = window.setTimeout(() => resolve(fallback), ms);
+    promise.then(
+      (value) => {
+        window.clearTimeout(timer);
+        resolve(value);
+      },
+      () => {
+        window.clearTimeout(timer);
+        resolve(fallback);
+      }
+    );
+  });
+}
+
+function clearBrowserCookies() {
+  const hostname = window.location.hostname;
+  const domainParts = hostname.split(".");
+  const apexDomain = domainParts.length > 2 ? `.${domainParts.slice(-2).join(".")}` : `.${hostname}`;
+  const domains = Array.from(new Set([undefined, hostname, apexDomain]));
+
+  document.cookie.split(";").forEach((cookie) => {
+    const name = cookie.split("=")[0]?.trim();
+    if (!name) return;
+    domains.forEach((domain) => {
+      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/${domain ? `; domain=${domain}` : ""}; SameSite=Lax`;
+    });
+  });
 }
 
 function dispatchAnalytics(event: string) {
