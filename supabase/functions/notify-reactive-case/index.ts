@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
     submittedAt: request.result_submitted_at || new Date().toISOString(),
     deliveryMode: request.delivery_mode || "unknown",
     photoAttached: !!request.photo_provided,
-    adminUrl: `${ADMIN_BASE_URL}/selftest/${request.id}`,
+    adminUrl: `${ADMIN_BASE_URL}?tab=selftest-results&request=${request.id}`,
   };
 
   // Send to each recipient through send-transactional-email (uses internal queue)
