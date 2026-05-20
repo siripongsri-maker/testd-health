@@ -110,16 +110,6 @@ async function nukeCache(): Promise<void> {
   localStorage.setItem(VERSION_KEY, APP_VERSION);
 }
 
-function needsVersionUpdate(): boolean {
-  const stored = localStorage.getItem(VERSION_KEY);
-  return stored !== APP_VERSION;
-}
-
-function needsSessionCheck(): boolean {
-  const sessionFlag = sessionStorage.getItem(SESSION_KEY);
-  return sessionFlag !== APP_VERSION;
-}
-
 function isRetryExhausted(): boolean {
   const retries = parseInt(sessionStorage.getItem(RETRY_KEY) || "0", 10);
   return retries >= MAX_RETRIES;
@@ -142,14 +132,32 @@ function performHardReload() {
 type GuardState = "ok" | "updating" | "stuck";
 
 export function ForceUpdateGuard({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<GuardState>(() => {
-    // Skip version guard in development / preview environments
-    if (import.meta.env.DEV || window.location.hostname.includes('preview')) return "ok";
-    // Synchronous pre-check to avoid flash of content
-    if (needsVersionUpdate()) return "updating";
-    if (needsSessionCheck()) return "updating";
-    return "ok";
-  });
+  const [state, setState] = useState<GuardState>("ok");
+
+  useEffect(() => {
+    if (import.meta.env.DEV || window.location.hostname.includes('preview')) return;
+    if (localStorage.getItem(RESET_KEY) === CACHE_RESET_VERSION) return;
+
+    localStorage.setItem(RESET_KEY, CACHE_RESET_VERSION);
+    localStorage.setItem(VERSION_KEY, APP_VERSION);
+    sessionStorage.setItem(SESSION_KEY, APP_VERSION);
+
+    const reset = () => {
+      void nukeCache().then(() => {
+        sessionStorage.setItem(SESSION_KEY, APP_VERSION);
+        localStorage.setItem(RESET_KEY, CACHE_RESET_VERSION);
+        dispatchAnalytics("background_cache_reset_completed");
+      });
+    };
+
+    if ("requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(reset, { timeout: 2500 });
+      return () => window.cancelIdleCallback?.(idleId);
+    }
+
+    const timer = window.setTimeout(reset, 1500);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (state !== "updating") return;
