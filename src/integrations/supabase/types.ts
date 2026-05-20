@@ -10399,6 +10399,14 @@ export type Database = {
           status: string
         }[]
       }
+      get_home_community_stats: {
+        Args: never
+        Returns: {
+          today_events: number
+          total_events: number
+          total_members: number
+        }[]
+      }
       get_hr_demographic_stats: {
         Args: never
         Returns: {
