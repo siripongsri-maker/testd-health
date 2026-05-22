@@ -5,10 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, Search, Phone, Image as ImageIcon, RefreshCw } from "lucide-react";
+import { Loader2, Search, Phone, Image as ImageIcon, RefreshCw, Save, Trash2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 
 interface Row {
   id: string;
@@ -21,6 +26,7 @@ interface Row {
   staff_notes: string | null;
   care_action: string | null;
   assigned_branch: string | null;
+  tracking_number: string | null;
   full_name: string | null;
   phone: string | null;
   pii: { full_name: string | null; phone: string | null } | null;
@@ -33,6 +39,16 @@ const RESULT_COLOR: Record<string, string> = {
   invalid: "bg-amber-500/15 text-amber-700 border-amber-500/30",
 };
 
+const STATUS_OPTIONS = [
+  { value: "pending", labelTh: "รอตรวจสอบ", labelEn: "Pending" },
+  { value: "approved", labelTh: "อนุมัติแล้ว", labelEn: "Approved" },
+  { value: "shipped", labelTh: "จัดส่งแล้ว", labelEn: "Shipped" },
+  { value: "delivered", labelTh: "ถึงผู้รับแล้ว", labelEn: "Delivered" },
+  { value: "result_submitted", labelTh: "ส่งผลแล้ว", labelEn: "Result Submitted" },
+  { value: "followed_up", labelTh: "ติดตามแล้ว", labelEn: "Followed Up" },
+  { value: "rejected", labelTh: "ปฏิเสธ", labelEn: "Rejected" },
+];
+
 export default function AdminSelftestResultsContent() {
   const { language } = useLanguage();
   const t = (th: string, en: string) => (language === "th" ? th : en);
@@ -41,22 +57,51 @@ export default function AdminSelftestResultsContent() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<string>("all");
   const [photo, setPhoto] = useState<string | null>(null);
+  const [edits, setEdits] = useState<Record<string, { status: string; tracking_number: string }>>({});
+  const [savingId, setSavingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<Row | null>(null);
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("hiv_selftest_requests")
-      .select(`
-        id, created_at, result_submitted_at, status, test_result, self_reported_result,
-        result_photo_url, staff_notes, care_action, assigned_branch, full_name, phone,
-        pii:selftest_pii ( full_name, phone )
-      `)
-      .or("result_photo_url.not.is.null,self_reported_result.not.is.null,test_result.not.is.null")
-      .order("result_submitted_at", { ascending: false, nullsFirst: false })
-      .order("created_at", { ascending: false })
-      .limit(1000);
-    if (error) console.error(error);
-    setRows((data as any) || []);
+    // Fetch rows with any result info. Use 3 .not() queries combined, since
+    // PostgREST .or() with multiple `is.null` negations is unreliable.
+    const select = `
+      id, created_at, result_submitted_at, status, test_result, self_reported_result,
+      result_photo_url, staff_notes, care_action, assigned_branch, tracking_number, full_name, phone,
+      pii:selftest_pii ( full_name, phone )
+    `;
+
+    const [a, b, c] = await Promise.all([
+      supabase.from("hiv_selftest_requests").select(select).not("result_photo_url", "is", null).limit(1000),
+      supabase.from("hiv_selftest_requests").select(select).not("self_reported_result", "is", null).limit(1000),
+      supabase.from("hiv_selftest_requests").select(select).not("test_result", "is", null).limit(1000),
+    ]);
+
+    if (a.error || b.error || c.error) {
+      console.error("selftest results load error", a.error, b.error, c.error);
+      toast.error(t("โหลดข้อมูลไม่สำเร็จ", "Failed to load data"));
+      setLoading(false);
+      return;
+    }
+
+    const byId = new Map<string, Row>();
+    [...(a.data || []), ...(b.data || []), ...(c.data || [])].forEach((r: any) => {
+      if (!byId.has(r.id)) byId.set(r.id, r as Row);
+    });
+
+    const merged = Array.from(byId.values()).sort((x, y) => {
+      const dx = new Date(x.result_submitted_at || x.created_at).getTime();
+      const dy = new Date(y.result_submitted_at || y.created_at).getTime();
+      return dy - dx;
+    });
+
+    setRows(merged);
+    setEdits(
+      Object.fromEntries(
+        merged.map((r) => [r.id, { status: r.status, tracking_number: r.tracking_number || "" }])
+      )
+    );
     setLoading(false);
   };
 
@@ -82,6 +127,54 @@ export default function AdminSelftestResultsContent() {
     });
     return c;
   }, [rows]);
+
+  const isDirty = (r: Row) => {
+    const e = edits[r.id];
+    if (!e) return false;
+    return e.status !== r.status || (e.tracking_number || "") !== (r.tracking_number || "");
+  };
+
+  const save = async (r: Row) => {
+    const e = edits[r.id];
+    if (!e) return;
+    setSavingId(r.id);
+    const { error } = await supabase
+      .from("hiv_selftest_requests")
+      .update({
+        status: e.status,
+        tracking_number: e.tracking_number || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", r.id);
+    setSavingId(null);
+    if (error) {
+      console.error(error);
+      toast.error(t("บันทึกไม่สำเร็จ", "Save failed"));
+      return;
+    }
+    toast.success(t("บันทึกสำเร็จ", "Saved"));
+    setRows((prev) =>
+      prev.map((x) =>
+        x.id === r.id ? { ...x, status: e.status, tracking_number: e.tracking_number || null } : x
+      )
+    );
+  };
+
+  const doDelete = async () => {
+    if (!confirmDelete) return;
+    const id = confirmDelete.id;
+    setDeletingId(id);
+    const { error } = await supabase.from("hiv_selftest_requests").delete().eq("id", id);
+    setDeletingId(null);
+    setConfirmDelete(null);
+    if (error) {
+      console.error(error);
+      toast.error(t("ลบไม่สำเร็จ", "Delete failed"));
+      return;
+    }
+    toast.success(t("ลบเคสแล้ว", "Case deleted"));
+    setRows((prev) => prev.filter((x) => x.id !== id));
+  };
 
   return (
     <div className="space-y-4">
@@ -146,9 +239,10 @@ export default function AdminSelftestResultsContent() {
                     <TableHead>{t("ชื่อ","Name")}</TableHead>
                     <TableHead>{t("เบอร์โทร","Phone")}</TableHead>
                     <TableHead>{t("ผลตรวจ","Result")}</TableHead>
-                    <TableHead>{t("สถานะ","Status")}</TableHead>
+                    <TableHead>{t("สถานะการติดตาม","Follow-up Status")}</TableHead>
+                    <TableHead>{t("เลขพัสดุ","Tracking #")}</TableHead>
                     <TableHead>{t("สาขา","Branch")}</TableHead>
-                    <TableHead>{t("รูป","Photo")}</TableHead>
+                    <TableHead className="text-right">{t("การจัดการ","Actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -157,6 +251,8 @@ export default function AdminSelftestResultsContent() {
                     const name = r.pii?.full_name || r.full_name || "—";
                     const phone = r.pii?.phone || r.phone || "";
                     const date = r.result_submitted_at || r.created_at;
+                    const e = edits[r.id] || { status: r.status, tracking_number: r.tracking_number || "" };
+                    const dirty = isDirty(r);
                     return (
                       <TableRow key={r.id}>
                         <TableCell className="text-xs whitespace-nowrap">{new Date(date).toLocaleString("th-TH",{timeZone:"Asia/Bangkok"})}</TableCell>
@@ -171,14 +267,65 @@ export default function AdminSelftestResultsContent() {
                         <TableCell>
                           <Badge variant="outline" className={RESULT_COLOR[result] || ""}>{result}</Badge>
                         </TableCell>
-                        <TableCell><span className="text-xs text-muted-foreground">{r.status}</span></TableCell>
-                        <TableCell><span className="text-xs">{r.assigned_branch || "—"}</span></TableCell>
                         <TableCell>
-                          {r.result_photo_url ? (
-                            <Button size="sm" variant="ghost" onClick={()=>setPhoto(r.result_photo_url)}>
-                              <ImageIcon className="h-4 w-4"/>
+                          <Select
+                            value={e.status}
+                            onValueChange={(v) =>
+                              setEdits((prev) => ({ ...prev, [r.id]: { ...e, status: v } }))
+                            }
+                          >
+                            <SelectTrigger className="h-8 w-40"><SelectValue/></SelectTrigger>
+                            <SelectContent>
+                              {STATUS_OPTIONS.map((o) => (
+                                <SelectItem key={o.value} value={o.value}>
+                                  {language === "th" ? o.labelTh : o.labelEn}
+                                </SelectItem>
+                              ))}
+                              {/* Preserve any unknown legacy status */}
+                              {!STATUS_OPTIONS.some((o) => o.value === e.status) && (
+                                <SelectItem value={e.status}>{e.status}</SelectItem>
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            className="h-8 w-32"
+                            placeholder="—"
+                            value={e.tracking_number}
+                            onChange={(ev) =>
+                              setEdits((prev) => ({ ...prev, [r.id]: { ...e, tracking_number: ev.target.value } }))
+                            }
+                          />
+                        </TableCell>
+                        <TableCell><span className="text-xs">{r.assigned_branch || "—"}</span></TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            {r.result_photo_url && (
+                              <Button size="sm" variant="ghost" onClick={()=>setPhoto(r.result_photo_url)} title={t("ดูรูป","View photo")}>
+                                <ImageIcon className="h-4 w-4"/>
+                              </Button>
+                            )}
+                            <Button
+                              size="sm"
+                              variant={dirty ? "default" : "ghost"}
+                              disabled={!dirty || savingId === r.id}
+                              onClick={() => save(r)}
+                              title={t("บันทึก","Save")}
+                            >
+                              {savingId === r.id ? <Loader2 className="h-4 w-4 animate-spin"/> : <Save className="h-4 w-4"/>}
                             </Button>
-                          ) : <span className="text-xs text-muted-foreground">—</span>}
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                              disabled={deletingId === r.id}
+                              onClick={() => setConfirmDelete(r)}
+                              title={t("ลบเคส","Delete case")}
+                            >
+                              {deletingId === r.id ? <Loader2 className="h-4 w-4 animate-spin"/> : <Trash2 className="h-4 w-4"/>}
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     );
@@ -196,6 +343,29 @@ export default function AdminSelftestResultsContent() {
           {photo && <img src={photo} alt="result" className="w-full rounded" />}
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!confirmDelete} onOpenChange={(o)=>!o && setConfirmDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("ยืนยันการลบเคส","Confirm Delete Case")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t(
+                `ต้องการลบเคสของ "${confirmDelete?.pii?.full_name || confirmDelete?.full_name || confirmDelete?.id.slice(0,8)}" ออกจากระบบใช่หรือไม่? การดำเนินการนี้ไม่สามารถย้อนกลับได้`,
+                `Delete case for "${confirmDelete?.pii?.full_name || confirmDelete?.full_name || confirmDelete?.id.slice(0,8)}"? This action cannot be undone.`
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("ยกเลิก","Cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={doDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {t("ลบ","Delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
