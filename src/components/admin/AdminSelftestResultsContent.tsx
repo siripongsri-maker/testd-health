@@ -14,6 +14,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { usePdpaAudit } from "@/hooks/usePdpaAudit";
 
 interface Row {
   id: string;
@@ -51,6 +52,7 @@ const STATUS_OPTIONS = [
 
 export default function AdminSelftestResultsContent() {
   const { language } = useLanguage();
+  const { log: logAudit } = usePdpaAudit();
   const t = (th: string, en: string) => (language === "th" ? th : en);
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Row[]>([]);
@@ -162,16 +164,43 @@ export default function AdminSelftestResultsContent() {
 
   const doDelete = async () => {
     if (!confirmDelete) return;
-    const id = confirmDelete.id;
+    const r = confirmDelete;
+    const id = r.id;
     setDeletingId(id);
     const { error } = await supabase.from("hiv_selftest_requests").delete().eq("id", id);
     setDeletingId(null);
     setConfirmDelete(null);
     if (error) {
       console.error(error);
+      await logAudit({
+        action_type: "data_delete",
+        target_type: "hiv_selftest_requests",
+        target_id: id,
+        target_classification: "highly_restricted",
+        result: "failed",
+        reason: "admin_delete_selftest_case",
+        metadata: { error: error.message },
+      });
       toast.error(t("ลบไม่สำเร็จ", "Delete failed"));
       return;
     }
+    await logAudit({
+      action_type: "data_delete",
+      target_type: "hiv_selftest_requests",
+      target_id: id,
+      target_classification: "highly_restricted",
+      result: "allowed",
+      reason: "admin_delete_selftest_case",
+      metadata: {
+        full_name: r.pii?.full_name || r.full_name || null,
+        phone: r.pii?.phone || r.phone || null,
+        status: r.status,
+        test_result: r.test_result,
+        self_reported_result: r.self_reported_result,
+        result_submitted_at: r.result_submitted_at,
+        created_at: r.created_at,
+      },
+    });
     toast.success(t("ลบเคสแล้ว", "Case deleted"));
     setRows((prev) => prev.filter((x) => x.id !== id));
   };
