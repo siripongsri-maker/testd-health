@@ -52,6 +52,7 @@ const STATUS_OPTIONS = [
 
 export default function AdminSelftestResultsContent() {
   const { language } = useLanguage();
+  const { log: logAudit } = usePdpaAudit();
   const t = (th: string, en: string) => (language === "th" ? th : en);
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Row[]>([]);
