@@ -1689,6 +1689,16 @@ export default function Booking() {
                 </div>
               </Card>
 
+              {/* Before-service baseline survey */}
+              {confirmedAppointmentId && (
+                <PreServiceSurveyCard
+                  bookingId={confirmedAppointmentId}
+                  channel="clinic"
+                />
+              )}
+
+
+
               {/* Screenshot guidance */}
               <Card className="p-4 rounded-3xl bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
                 <div className="flex items-start gap-3">
