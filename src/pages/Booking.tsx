@@ -516,6 +516,7 @@ export default function Booking() {
         if (error) throw error;
         const result = data as any;
         setConfirmedCode(result.referral_code);
+        setConfirmedAppointmentId(result.id);
         setReplacingAppointmentId(null);
         setActiveBookingDetected(null);
 
