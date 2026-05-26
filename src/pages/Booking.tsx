@@ -124,6 +124,7 @@ export default function Booking() {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [confirmedCode, setConfirmedCode] = useState<string | null>(null);
+  const [confirmedAppointmentId, setConfirmedAppointmentId] = useState<string | null>(null);
   const [guestToken, setGuestToken] = useState<string | null>(null);
 
   // Booking replacement state
