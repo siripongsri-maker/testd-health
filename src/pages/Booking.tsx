@@ -21,6 +21,7 @@ import {
 import { DensityTimeSelector } from '@/components/booking/DensityTimeSelector';
 import { NotifyMeDialog } from '@/components/booking/NotifyMeDialog';
 import { DemandSuggestionBanner } from '@/components/booking/DemandSuggestionBanner';
+import { PreServiceSurveyCard } from '@/components/booking/PreServiceSurveyCard';
 import { Badge } from '@/components/ui/badge';
 import { QRCodeSVG } from 'qrcode.react';
 import { Bell, Sparkles } from 'lucide-react';
@@ -124,6 +125,7 @@ export default function Booking() {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [confirmedCode, setConfirmedCode] = useState<string | null>(null);
+  const [confirmedAppointmentId, setConfirmedAppointmentId] = useState<string | null>(null);
   const [guestToken, setGuestToken] = useState<string | null>(null);
 
   // Booking replacement state
@@ -515,6 +517,7 @@ export default function Booking() {
         if (error) throw error;
         const result = data as any;
         setConfirmedCode(result.referral_code);
+        setConfirmedAppointmentId(result.id);
         setReplacingAppointmentId(null);
         setActiveBookingDetected(null);
 
@@ -546,6 +549,7 @@ export default function Booking() {
         if (error) throw error;
         const result = data as any;
         setConfirmedCode(result.referral_code);
+        setConfirmedAppointmentId(result.id);
 
         try {
           const STORAGE_KEY = 'guest_appointments_v1';
@@ -639,6 +643,7 @@ export default function Booking() {
 
         if (error) throw error;
         setConfirmedCode((data as any).referral_code);
+        setConfirmedAppointmentId((data as any).id);
 
         // Send appointment action email for logged-in user
         if (user.email) {
@@ -1683,6 +1688,16 @@ export default function Booking() {
                   {selectedServices.map(s => `${s.icon} ${loc(s.name_th, s.name_en)}`).join(', ')}
                 </div>
               </Card>
+
+              {/* Before-service baseline survey */}
+              {confirmedAppointmentId && (
+                <PreServiceSurveyCard
+                  bookingId={confirmedAppointmentId}
+                  channel="clinic"
+                />
+              )}
+
+
 
               {/* Screenshot guidance */}
               <Card className="p-4 rounded-3xl bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
