@@ -389,6 +389,62 @@ export type Database = {
           },
         ]
       }
+      appointment_pre_service_surveys: {
+        Row: {
+          behavior: Json | null
+          booking_id: string
+          channel: string | null
+          confidence: number | null
+          created_at: string
+          id: string
+          knowledge: Json | null
+          language: string | null
+          mental_health_interest: string | null
+          recommend: string | null
+          safety: number | null
+          suggestions: string | null
+          uic_code: string | null
+        }
+        Insert: {
+          behavior?: Json | null
+          booking_id: string
+          channel?: string | null
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          knowledge?: Json | null
+          language?: string | null
+          mental_health_interest?: string | null
+          recommend?: string | null
+          safety?: number | null
+          suggestions?: string | null
+          uic_code?: string | null
+        }
+        Update: {
+          behavior?: Json | null
+          booking_id?: string
+          channel?: string | null
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          knowledge?: Json | null
+          language?: string | null
+          mental_health_interest?: string | null
+          recommend?: string | null
+          safety?: number | null
+          suggestions?: string | null
+          uic_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointment_pre_service_surveys_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "appointments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       appointment_reviews: {
         Row: {
           appointment_id: string
