@@ -642,6 +642,7 @@ export default function Booking() {
 
         if (error) throw error;
         setConfirmedCode((data as any).referral_code);
+        setConfirmedAppointmentId((data as any).id);
 
         // Send appointment action email for logged-in user
         if (user.email) {
