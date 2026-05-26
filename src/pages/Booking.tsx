@@ -548,6 +548,7 @@ export default function Booking() {
         if (error) throw error;
         const result = data as any;
         setConfirmedCode(result.referral_code);
+        setConfirmedAppointmentId(result.id);
 
         try {
           const STORAGE_KEY = 'guest_appointments_v1';
