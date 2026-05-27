@@ -10,7 +10,6 @@ import {
   Download, HeartPulse, UserCheck, UserX, Inbox,
 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
-import { maskUic } from "@/lib/uic";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import { toast } from "@/hooks/use-toast";
