@@ -32,6 +32,7 @@ interface Row {
   id: string;
   booking_id: string;
   uic_code: string | null;
+  uic_display: string | null;
   uic_hash: string | null;
   visit_sequence: number;
   linked_previous_count: number;
