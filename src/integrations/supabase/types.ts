@@ -405,6 +405,7 @@ export type Database = {
           safety: number | null
           suggestions: string | null
           uic_code: string | null
+          uic_display: string | null
           uic_hash: string | null
           visit_sequence: number
         }
@@ -423,6 +424,7 @@ export type Database = {
           safety?: number | null
           suggestions?: string | null
           uic_code?: string | null
+          uic_display?: string | null
           uic_hash?: string | null
           visit_sequence?: number
         }
@@ -441,6 +443,7 @@ export type Database = {
           safety?: number | null
           suggestions?: string | null
           uic_code?: string | null
+          uic_display?: string | null
           uic_hash?: string | null
           visit_sequence?: number
         }
