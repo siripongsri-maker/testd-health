@@ -299,7 +299,7 @@ export default function AdminPreServiceSurveysContent() {
         { key: "risk", header: tx("ความเสี่ยง", "Risk Level"), format: (r) => riskOf(r) },
         { key: "mh", header: tx("ความสนใจสุขภาพจิต", "MH Response"), format: (r) => r.mental_health_interest || "" },
         { key: "service", header: tx("บริการ", "Service Type"), format: (r) => serviceName(r.appointments?.service_id) },
-        { key: "uic_masked", header: tx("UIC (masked)", "UIC (masked)"), format: (r) => maskUic(r.uic_code) },
+        { key: "uic", header: "UIC", format: (r) => r.uic_display || r.uic_code || "" },
         { key: "submitted_at", header: tx("ส่งเมื่อ", "Submitted At"), format: (r) => formatCsvDate(r.created_at) },
         { key: "identity", header: tx("ประเภทผู้ใช้", "Anonymous/User"), format: (r) => r.appointments?.user_id ? "user" : "anonymous" },
         { key: "channel", header: tx("ช่องทาง", "Channel"), format: (r) => r.channel || "" },
