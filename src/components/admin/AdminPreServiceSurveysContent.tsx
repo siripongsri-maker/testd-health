@@ -19,7 +19,7 @@ import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,
   PieChart, Pie, Cell, BarChart, Bar, Legend,
 } from "recharts";
-import { format, subDays, startOfDay, parseISO } from "date-fns";
+import { format, subDays, startOfDay } from "date-fns";
 
 interface ApptRef {
   branch_id: string | null;
