@@ -62,6 +62,7 @@ const AdminHarmReductionReportContent = lazy(() => import("@/components/admin/Ad
 const AdminMonthlyDrawContent = lazy(() => import("@/components/admin/AdminMonthlyDrawContent").then(m => ({ default: m.AdminMonthlyDrawContent })));
 const AdminSelftestResultsContent = lazy(() => import("@/components/admin/AdminSelftestResultsContent"));
 const AdminSelftestFollowupContent = lazy(() => import("@/components/admin/AdminSelftestFollowupContent"));
+const AdminPreServiceSurveysContent = lazy(() => import("@/components/admin/AdminPreServiceSurveysContent"));
 
 // MEL modules
 const MelServiceLedgerContent = lazy(() => import("@/components/admin/mel/MelServiceLedgerContent"));
@@ -93,7 +94,7 @@ const ME_ANALYST_TABS = new Set([
   // SMS & Credits (read-only)
   "sms-relay", "credit-balances", "credit-purchases",
   // Reports
-  "analytics", "analytics-overview", "export-center", "attribution", "feedback-outcomes",
+  "analytics", "analytics-overview", "export-center", "attribution", "feedback-outcomes", "pre-service-surveys",
   // MEL
   "mel-services", "mel-indicators", "mel-outreach", "mel-training",
   "mel-safe-spaces", "mel-partners", "mel-policy", "mel-evaluation", "mel-reporting",
@@ -217,6 +218,7 @@ export default function Admin() {
           {renderTab("analytics-overview", <AdminAnalyticsOverview />)}
           {renderTab("attribution", <AdminAttributionContent />)}
           {renderTab("feedback-outcomes", <AdminFeedbackOutcomesContent />)}
+          {renderTab("pre-service-surveys", <AdminPreServiceSurveysContent />)}
           {renderTab("export-center", <AdminExportCenterContent />)}
           {renderTab("activity-logs", <AdminActivityLogsContent />)}
 
