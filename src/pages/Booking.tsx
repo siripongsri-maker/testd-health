@@ -21,7 +21,7 @@ import {
 import { DensityTimeSelector } from '@/components/booking/DensityTimeSelector';
 import { NotifyMeDialog } from '@/components/booking/NotifyMeDialog';
 import { DemandSuggestionBanner } from '@/components/booking/DemandSuggestionBanner';
-import { PreServiceSurveyCard } from '@/components/booking/PreServiceSurveyCard';
+import { PreServiceSurveyModal } from '@/components/booking/PreServiceSurveyModal';
 import { Badge } from '@/components/ui/badge';
 import { QRCodeSVG } from 'qrcode.react';
 import { Bell, Sparkles } from 'lucide-react';
@@ -1689,9 +1689,9 @@ export default function Booking() {
                 </div>
               </Card>
 
-              {/* Before-service baseline survey */}
+              {/* Before-service baseline survey — floating modal, auto-opens once per booking */}
               {confirmedAppointmentId && (
-                <PreServiceSurveyCard
+                <PreServiceSurveyModal
                   bookingId={confirmedAppointmentId}
                   channel="clinic"
                 />
