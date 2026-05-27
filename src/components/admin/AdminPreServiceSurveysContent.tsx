@@ -97,20 +97,42 @@ export default function AdminPreServiceSurveysContent() {
 
   const load = async () => {
     setLoading(true);
-    const [{ data: surveys, error }, { data: br }, { data: sv }] = await Promise.all([
-      supabase
-        .from("appointment_pre_service_surveys")
-        .select("*, appointments(branch_id, appointment_date, user_id, service_id, source)")
-        .order("created_at", { ascending: false })
-        .limit(2000),
-      supabase.from("booking_branches").select("id, name_th, name_en"),
-      supabase.from("booking_services").select("id, name_th, name_en"),
-    ]);
-    if (error) console.error("PRE_SURVEY_LOAD", error);
-    setRows((surveys as any) || []);
-    setBranches((br as any) || []);
-    setServices((sv as any) || []);
-    setLoading(false);
+    console.log("PRE_SURVEY_FETCH_START");
+    try {
+      const [surveysRes, brRes, svRes] = await Promise.all([
+        supabase
+          .from("appointment_pre_service_surveys")
+          .select("*, appointments:booking_id(branch_id, appointment_date, user_id, service_id, source)")
+          .order("created_at", { ascending: false })
+          .limit(2000),
+        supabase.from("booking_branches").select("id, name_th, name_en"),
+        supabase.from("booking_services").select("id, name_th, name_en"),
+      ]);
+      if (surveysRes.error) {
+        console.error("PRE_SURVEY_FETCH_ERROR", {
+          code: (surveysRes.error as any).code,
+          message: surveysRes.error.message,
+          details: (surveysRes.error as any).details,
+          hint: (surveysRes.error as any).hint,
+        });
+        toast({
+          title: "โหลดข้อมูลล้มเหลว",
+          description: surveysRes.error.message,
+          variant: "destructive",
+        });
+      } else {
+        console.log("PRE_SURVEY_FETCH_SUCCESS", { rows: surveysRes.data?.length || 0 });
+        console.log("PRE_SURVEY_ROWS_COUNT", surveysRes.data?.length || 0);
+      }
+      setRows(((surveysRes.data as any) || []) as Row[]);
+      setBranches((brRes.data as any) || []);
+      setServices((svRes.data as any) || []);
+    } catch (e: any) {
+      console.error("PRE_SURVEY_FETCH_ERROR_UNCAUGHT", e);
+      setRows([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, []);
