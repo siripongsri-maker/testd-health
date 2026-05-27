@@ -170,10 +170,10 @@ export default function AdminPreServiceSurveysContent() {
       if (filterService !== "all" && r.appointments?.service_id !== filterService) return false;
       if (filterClinics.length && (!r.appointments?.branch_id || !filterClinics.includes(r.appointments.branch_id))) return false;
       if (searchDebounced) {
-        const masked = maskUic(r.uic_code).toLowerCase();
+        const uic = (r.uic_display || r.uic_code || "").toLowerCase();
         const hit =
           r.booking_id.toLowerCase().includes(searchDebounced) ||
-          masked.includes(searchDebounced) ||
+          uic.includes(searchDebounced) ||
           (r.channel || "").toLowerCase().includes(searchDebounced) ||
           branchName(r.appointments?.branch_id).toLowerCase().includes(searchDebounced) ||
           serviceName(r.appointments?.service_id).toLowerCase().includes(searchDebounced);
