@@ -1,0 +1,2 @@
+ALTER TABLE public.appointments DROP CONSTRAINT IF EXISTS valid_status;
+ALTER TABLE public.appointments ADD CONSTRAINT valid_status CHECK (status = ANY (ARRAY['booked'::text, 'confirmed'::text, 'in_progress'::text, 'completed'::text, 'cancelled'::text, 'cancelled_replaced'::text, 'no_show'::text, 'waiting'::text, 'checked_out'::text, 'arrived'::text]));
