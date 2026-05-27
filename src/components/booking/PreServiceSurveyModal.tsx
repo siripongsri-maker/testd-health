@@ -111,14 +111,26 @@ export function PreServiceSurveyModal({ bookingId, channel }: Props) {
   const canSubmit = uicValid && surveyValid;
 
   const submit = async () => {
-    if (!canSubmit || !uicResult.uic) return;
+    if (submitting) return;
+    if (!bookingId) {
+      toast({
+        title: tx("ไม่พบข้อมูลการนัดหมาย", "Booking not found", language),
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!canSubmit || !uicResult.uic) {
+      toast({
+        title: tx("ข้อมูล UIC ไม่ถูกต้อง", "Invalid UIC data", language),
+        variant: "destructive",
+      });
+      return;
+    }
     setSubmitting(true);
     try {
       const uic_code = uicResult.uic;
       const uic_hash = await sha256Hex(uic_code);
-      console.log("PRE_SURVEY_UIC", { uic_code: maskUic(uic_code), uic_hash });
-
-      const { data, error } = await supabase.rpc("submit_pre_service_survey", {
+      const payload = {
         p_booking_id: bookingId,
         p_uic_code: uic_code,
         p_uic_hash: uic_hash,
@@ -131,31 +143,57 @@ export function PreServiceSurveyModal({ bookingId, channel }: Props) {
         p_recommend: recommend,
         p_mental_health_interest: mhInterest,
         p_suggestions: suggestions.trim() || null,
-      });
+      };
+      console.log("SURVEY_PAYLOAD", payload);
+      console.log("BOOKING_ID", bookingId);
+      console.log("UIC_CODE", maskUic(uic_code));
+      console.log("UIC_HASH", uic_hash.slice(0, 12) + "…");
+
+      const { data, error } = await supabase.rpc("submit_pre_service_survey", payload);
+      console.log("RPC_RESPONSE", data);
+      console.log("RPC_ERROR", error);
 
       if (error) {
-        // Duplicate booking_id (unique constraint) → already submitted
-        if (error.code === "23505") {
+        const code = (error as any).code;
+        let title = tx("บันทึกไม่สำเร็จ", "Could not save", language);
+        if (code === "23505") {
           localStorage.setItem(storageKey(bookingId), "1");
           setStep("done");
-          setSubmitting(false);
           return;
         }
-        throw error;
+        if (code === "42501" || code === "PGRST301") {
+          title = tx("ระบบไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่", "Permission error, please try again", language);
+        } else if ((error as any).message?.toLowerCase?.().includes("network") || (error as any).message?.toLowerCase?.().includes("fetch")) {
+          title = tx("การเชื่อมต่อมีปัญหา กรุณาลองอีกครั้ง", "Network problem, please retry", language);
+        }
+        toast({ title, description: (error as any).message, variant: "destructive" });
+        return;
       }
 
-      const row = Array.isArray(data) ? data[0] : data;
-      const seq = row?.visit_sequence ?? 1;
-      setVisitNumber(seq);
-      console.log("PRE_SURVEY_INSERT_RESULT", row);
+      const result: any = data || {};
+      if (result.success === false) {
+        const ec = result.error_code;
+        let title = tx("บันทึกไม่สำเร็จ", "Could not save", language);
+        if (ec === "booking_not_found" || ec === "missing_booking") {
+          title = tx("ไม่พบข้อมูลการนัดหมาย", "Booking not found", language);
+        }
+        toast({ title, description: result.error_message, variant: "destructive" });
+        return;
+      }
+
+      if (result.duplicate) {
+        toast({ title: tx("คุณได้ส่งแบบสอบถามนี้แล้ว", "You already submitted this survey", language) });
+      } else {
+        toast({ title: tx("ขอบคุณสำหรับคำตอบ 🙏", "Thanks for sharing 🙏", language) });
+      }
+      setVisitNumber(Number(result.visit_sequence) || 1);
       localStorage.setItem(storageKey(bookingId), "1");
       setStep("done");
-      toast({ title: tx("ขอบคุณสำหรับคำตอบ 🙏", "Thanks for sharing 🙏", language) });
     } catch (err: any) {
       console.error("PRE_SURVEY_ERROR", err);
       toast({
-        title: tx("บันทึกไม่สำเร็จ", "Could not save", language),
-        description: tx("ลองอีกครั้ง หรือข้ามไปก่อนได้", "Try again, or skip for now", language),
+        title: tx("การเชื่อมต่อมีปัญหา กรุณาลองอีกครั้ง", "Network problem, please retry", language),
+        description: err?.message,
         variant: "destructive",
       });
     } finally {
