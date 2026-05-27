@@ -10,7 +10,6 @@ import {
   Download, HeartPulse, UserCheck, UserX, Inbox,
 } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
-import { maskUic } from "@/lib/uic";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import { toast } from "@/hooks/use-toast";
@@ -33,6 +32,7 @@ interface Row {
   id: string;
   booking_id: string;
   uic_code: string | null;
+  uic_display: string | null;
   uic_hash: string | null;
   visit_sequence: number;
   linked_previous_count: number;
@@ -97,20 +97,42 @@ export default function AdminPreServiceSurveysContent() {
 
   const load = async () => {
     setLoading(true);
-    const [{ data: surveys, error }, { data: br }, { data: sv }] = await Promise.all([
-      supabase
-        .from("appointment_pre_service_surveys")
-        .select("*, appointments(branch_id, appointment_date, user_id, service_id, source)")
-        .order("created_at", { ascending: false })
-        .limit(2000),
-      supabase.from("booking_branches").select("id, name_th, name_en"),
-      supabase.from("booking_services").select("id, name_th, name_en"),
-    ]);
-    if (error) console.error("PRE_SURVEY_LOAD", error);
-    setRows((surveys as any) || []);
-    setBranches((br as any) || []);
-    setServices((sv as any) || []);
-    setLoading(false);
+    console.log("PRE_SURVEY_FETCH_START");
+    try {
+      const [surveysRes, brRes, svRes] = await Promise.all([
+        supabase
+          .from("appointment_pre_service_surveys")
+          .select("*, appointments:booking_id(branch_id, appointment_date, user_id, service_id, source)")
+          .order("created_at", { ascending: false })
+          .limit(2000),
+        supabase.from("booking_branches").select("id, name_th, name_en"),
+        supabase.from("booking_services").select("id, name_th, name_en"),
+      ]);
+      if (surveysRes.error) {
+        console.error("PRE_SURVEY_FETCH_ERROR", {
+          code: (surveysRes.error as any).code,
+          message: surveysRes.error.message,
+          details: (surveysRes.error as any).details,
+          hint: (surveysRes.error as any).hint,
+        });
+        toast({
+          title: "โหลดข้อมูลล้มเหลว",
+          description: surveysRes.error.message,
+          variant: "destructive",
+        });
+      } else {
+        console.log("PRE_SURVEY_FETCH_SUCCESS", { rows: surveysRes.data?.length || 0 });
+        console.log("PRE_SURVEY_ROWS_COUNT", surveysRes.data?.length || 0);
+      }
+      setRows(((surveysRes.data as any) || []) as Row[]);
+      setBranches((brRes.data as any) || []);
+      setServices((svRes.data as any) || []);
+    } catch (e: any) {
+      console.error("PRE_SURVEY_FETCH_ERROR_UNCAUGHT", e);
+      setRows([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { load(); }, []);
@@ -148,10 +170,10 @@ export default function AdminPreServiceSurveysContent() {
       if (filterService !== "all" && r.appointments?.service_id !== filterService) return false;
       if (filterClinics.length && (!r.appointments?.branch_id || !filterClinics.includes(r.appointments.branch_id))) return false;
       if (searchDebounced) {
-        const masked = maskUic(r.uic_code).toLowerCase();
+        const uic = (r.uic_display || r.uic_code || "").toLowerCase();
         const hit =
           r.booking_id.toLowerCase().includes(searchDebounced) ||
-          masked.includes(searchDebounced) ||
+          uic.includes(searchDebounced) ||
           (r.channel || "").toLowerCase().includes(searchDebounced) ||
           branchName(r.appointments?.branch_id).toLowerCase().includes(searchDebounced) ||
           serviceName(r.appointments?.service_id).toLowerCase().includes(searchDebounced);
@@ -277,7 +299,7 @@ export default function AdminPreServiceSurveysContent() {
         { key: "risk", header: tx("ความเสี่ยง", "Risk Level"), format: (r) => riskOf(r) },
         { key: "mh", header: tx("ความสนใจสุขภาพจิต", "MH Response"), format: (r) => r.mental_health_interest || "" },
         { key: "service", header: tx("บริการ", "Service Type"), format: (r) => serviceName(r.appointments?.service_id) },
-        { key: "uic_masked", header: tx("UIC (masked)", "UIC (masked)"), format: (r) => maskUic(r.uic_code) },
+        { key: "uic", header: "UIC", format: (r) => r.uic_display || r.uic_code || "" },
         { key: "submitted_at", header: tx("ส่งเมื่อ", "Submitted At"), format: (r) => formatCsvDate(r.created_at) },
         { key: "identity", header: tx("ประเภทผู้ใช้", "Anonymous/User"), format: (r) => r.appointments?.user_id ? "user" : "anonymous" },
         { key: "channel", header: tx("ช่องทาง", "Channel"), format: (r) => r.channel || "" },
@@ -614,7 +636,7 @@ export default function AdminPreServiceSurveysContent() {
                   return (
                     <tr key={r.id} className="border-t hover:bg-muted/30">
                       <td className="px-3 py-2 font-mono text-xs">{r.booking_id.slice(0, 8)}…</td>
-                      <td className="px-3 py-2 font-mono text-xs">{maskUic(r.uic_code)}</td>
+                      <td className="px-3 py-2 font-mono text-xs">{r.uic_display || r.uic_code || "—"}</td>
                       <td className="px-3 py-2 text-xs">{branchName(r.appointments?.branch_id)}</td>
                       <td className="px-3 py-2 text-xs">{serviceName(r.appointments?.service_id)}</td>
                       <td className="px-3 py-2 text-center">
