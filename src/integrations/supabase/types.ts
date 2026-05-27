@@ -399,11 +399,14 @@ export type Database = {
           id: string
           knowledge: Json | null
           language: string | null
+          linked_previous_count: number
           mental_health_interest: string | null
           recommend: string | null
           safety: number | null
           suggestions: string | null
           uic_code: string | null
+          uic_hash: string | null
+          visit_sequence: number
         }
         Insert: {
           behavior?: Json | null
@@ -414,11 +417,14 @@ export type Database = {
           id?: string
           knowledge?: Json | null
           language?: string | null
+          linked_previous_count?: number
           mental_health_interest?: string | null
           recommend?: string | null
           safety?: number | null
           suggestions?: string | null
           uic_code?: string | null
+          uic_hash?: string | null
+          visit_sequence?: number
         }
         Update: {
           behavior?: Json | null
@@ -429,11 +435,14 @@ export type Database = {
           id?: string
           knowledge?: Json | null
           language?: string | null
+          linked_previous_count?: number
           mental_health_interest?: string | null
           recommend?: string | null
           safety?: number | null
           suggestions?: string | null
           uic_code?: string | null
+          uic_hash?: string | null
+          visit_sequence?: number
         }
         Relationships: [
           {
@@ -10772,6 +10781,27 @@ export type Database = {
       start_walkin_service: {
         Args: { p_appointment_id: string }
         Returns: undefined
+      }
+      submit_pre_service_survey: {
+        Args: {
+          p_behavior: Json
+          p_booking_id: string
+          p_channel: string
+          p_confidence: number
+          p_knowledge: Json
+          p_language: string
+          p_mental_health_interest: string
+          p_recommend: string
+          p_safety: number
+          p_suggestions: string
+          p_uic_code: string
+          p_uic_hash: string
+        }
+        Returns: {
+          id: string
+          linked_previous_count: number
+          visit_sequence: number
+        }[]
       }
       update_abuse_flag_status: {
         Args: { p_flag_id: string; p_note?: string; p_status: string }
