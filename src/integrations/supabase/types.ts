@@ -10797,11 +10797,7 @@ export type Database = {
           p_uic_code: string
           p_uic_hash: string
         }
-        Returns: {
-          id: string
-          linked_previous_count: number
-          visit_sequence: number
-        }[]
+        Returns: Json
       }
       update_abuse_flag_status: {
         Args: { p_flag_id: string; p_note?: string; p_status: string }
