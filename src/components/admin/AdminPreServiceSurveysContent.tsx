@@ -636,7 +636,7 @@ export default function AdminPreServiceSurveysContent() {
                   return (
                     <tr key={r.id} className="border-t hover:bg-muted/30">
                       <td className="px-3 py-2 font-mono text-xs">{r.booking_id.slice(0, 8)}…</td>
-                      <td className="px-3 py-2 font-mono text-xs">{maskUic(r.uic_code)}</td>
+                      <td className="px-3 py-2 font-mono text-xs">{r.uic_display || r.uic_code || "—"}</td>
                       <td className="px-3 py-2 text-xs">{branchName(r.appointments?.branch_id)}</td>
                       <td className="px-3 py-2 text-xs">{serviceName(r.appointments?.service_id)}</td>
                       <td className="px-3 py-2 text-center">
