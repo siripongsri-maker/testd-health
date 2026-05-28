@@ -406,7 +406,7 @@ export default function Info() {
                           <div className="flex-1 min-w-0">
                             <h3 className="font-medium text-foreground text-sm line-clamp-2">
                               {language === 'th' ? article.title_th : article.title_en}
-                            </h4>
+                            </h3>
                             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mt-1">
                               {article.author_name && (
                                 <span className="flex items-center gap-1">
