@@ -64,23 +64,24 @@ Deno.serve(async (req) => {
     .eq("id", body.request_id)
     .maybeSingle();
 
-  if (error || !request) {
-    return new Response(JSON.stringify({ error: "request_not_found" }), {
-      status: 404,
+  // Uniform OK response to prevent enumeration of self-test request IDs / statuses.
+  const okResponse = () =>
+    new Response(JSON.stringify({ ok: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  }
 
-  if (request.self_reported_result !== "reactive") {
-    return new Response(JSON.stringify({ ok: true, skipped: "not_reactive" }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
+  if (error || !request) return okResponse();
+  if (request.self_reported_result !== "reactive") return okResponse();
+  if (request.reactive_notified_at) return okResponse();
 
-  if (request.reactive_notified_at) {
-    return new Response(JSON.stringify({ ok: true, skipped: "already_notified" }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+  // Anti-abuse: only fire if the result was submitted very recently (10 min window).
+  // The legitimate caller is the client immediately after submission; this blocks
+  // replay/enumeration attempts against historical reactive cases.
+  const submittedAt = request.result_submitted_at
+    ? new Date(request.result_submitted_at).getTime()
+    : 0;
+  if (!submittedAt || Date.now() - submittedAt > 10 * 60 * 1000) {
+    return okResponse();
   }
 
   const shortId = String(request.id).slice(0, 8);
