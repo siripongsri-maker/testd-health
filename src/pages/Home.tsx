@@ -125,7 +125,7 @@ export default function Home() {
         <div className="flex justify-center sm:justify-start mb-4">
           <img
             src={testdLogo}
-            alt="testD"
+            alt="testD Sexual Health"
             className="h-14 sm:h-16 w-auto object-contain drop-shadow-[0_4px_24px_rgba(255,100,150,0.3)] animate-scale-in"
           />
         </div>

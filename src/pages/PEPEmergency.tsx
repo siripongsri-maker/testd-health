@@ -58,7 +58,7 @@ export default function PEPEmergency() {
       <PageContainer>
         {/* Header */}
         <div className="mb-6 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} aria-label="Go back">
             <ArrowLeft className="h-6 w-6" />
           </Button>
           <h1 className="text-xl font-bold text-foreground">{t('pep.emergency.title')}</h1>
@@ -116,7 +116,7 @@ export default function PEPEmergency() {
           
           {/* Info */}
           <div className="rounded-xl bg-card border border-border p-4 shadow-card">
-            <h3 className="font-bold text-foreground mb-2">{t('pep.emergency.whatIs')}</h3>
+            <h2 className="font-bold text-foreground mb-2">{t('pep.emergency.whatIs')}</h2>
             <p className="text-sm text-muted-foreground mb-4">
               {t('pep.emergency.whatIsDesc')}
             </p>
@@ -130,7 +130,7 @@ export default function PEPEmergency() {
             <div className="flex items-start gap-3">
               <MapPin className="h-5 w-5 shrink-0 text-primary mt-0.5" />
               <div>
-                <h3 className="font-bold text-foreground mb-1">{t('pep.emergency.where')}</h3>
+                <h2 className="font-bold text-foreground mb-1">{t('pep.emergency.where')}</h2>
                 <p className="text-sm text-muted-foreground mb-3">
                   {t('pep.emergency.whereDesc')}
                 </p>

@@ -211,9 +211,9 @@ export default function Info() {
                   )}
                   <div className="p-3">
                     <div className="flex items-start justify-between gap-1 mb-2">
-                      <h4 className="font-medium text-foreground text-xs line-clamp-2">
+                      <h3 className="font-medium text-foreground text-xs line-clamp-2">
                         {language === 'th' ? article.title_th : article.title_en}
-                      </h4>
+                      </h3>
                       {article.published_at && 
                         (new Date().getTime() - new Date(article.published_at).getTime()) / (1000 * 60 * 60 * 24) <= 7 && (
                         <span className="flex-shrink-0 px-1.5 py-0.5 text-[10px] font-bold bg-green-500 text-white rounded-full">
@@ -326,6 +326,7 @@ export default function Info() {
                         onClick={(e) => handleShare(e, article)}
                         className="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
                         title={language === 'th' ? 'แชร์บทความ' : 'Share article'}
+                        aria-label={language === 'th' ? 'แชร์บทความ' : 'Share article'}
                       >
                         {copiedSlug === article.slug ? (
                           <Check className="h-4 w-4" />
@@ -403,9 +404,9 @@ export default function Info() {
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-foreground text-sm line-clamp-2">
+                            <h3 className="font-medium text-foreground text-sm line-clamp-2">
                               {language === 'th' ? article.title_th : article.title_en}
-                            </h4>
+                            </h3>
                             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mt-1">
                               {article.author_name && (
                                 <span className="flex items-center gap-1">
