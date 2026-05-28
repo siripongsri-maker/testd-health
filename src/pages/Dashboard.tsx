@@ -122,6 +122,7 @@ export default function Dashboard() {
               size="icon" 
               onClick={() => navigate("/")}
               className="rounded-2xl glass-sm hover:glass h-10 w-10"
+              aria-label="Go home"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
@@ -135,6 +136,7 @@ export default function Dashboard() {
             size="icon" 
             onClick={() => navigate("/settings")}
               className="rounded-2xl glass-sm hover:glass h-10 w-10"
+              aria-label="Open settings"
             >
             <Settings className="h-5 w-5" />
           </Button>

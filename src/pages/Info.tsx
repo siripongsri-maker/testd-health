@@ -211,7 +211,7 @@ export default function Info() {
                   )}
                   <div className="p-3">
                     <div className="flex items-start justify-between gap-1 mb-2">
-                      <h4 className="font-medium text-foreground text-xs line-clamp-2">
+                      <h3 className="font-medium text-foreground text-xs line-clamp-2">
                         {language === 'th' ? article.title_th : article.title_en}
                       </h4>
                       {article.published_at && 
@@ -326,6 +326,7 @@ export default function Info() {
                         onClick={(e) => handleShare(e, article)}
                         className="p-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
                         title={language === 'th' ? 'แชร์บทความ' : 'Share article'}
+                        aria-label={language === 'th' ? 'แชร์บทความ' : 'Share article'}
                       >
                         {copiedSlug === article.slug ? (
                           <Check className="h-4 w-4" />
@@ -403,7 +404,7 @@ export default function Info() {
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-foreground text-sm line-clamp-2">
+                            <h3 className="font-medium text-foreground text-sm line-clamp-2">
                               {language === 'th' ? article.title_th : article.title_en}
                             </h4>
                             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mt-1">

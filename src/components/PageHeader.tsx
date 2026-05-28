@@ -45,6 +45,7 @@ export function PageHeader({
             size="icon" 
             onClick={() => navigate("/settings")}
             className="rounded-xl hover:bg-muted/80 h-10 w-10"
+            aria-label="Open settings"
           >
             <Settings className="h-5 w-5" />
           </Button>
