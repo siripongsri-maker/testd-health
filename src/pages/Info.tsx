@@ -213,7 +213,7 @@ export default function Info() {
                     <div className="flex items-start justify-between gap-1 mb-2">
                       <h3 className="font-medium text-foreground text-xs line-clamp-2">
                         {language === 'th' ? article.title_th : article.title_en}
-                      </h4>
+                      </h3>
                       {article.published_at && 
                         (new Date().getTime() - new Date(article.published_at).getTime()) / (1000 * 60 * 60 * 24) <= 7 && (
                         <span className="flex-shrink-0 px-1.5 py-0.5 text-[10px] font-bold bg-green-500 text-white rounded-full">
