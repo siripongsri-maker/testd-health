@@ -21,8 +21,7 @@ interface PrePostRow {
   matched_name: string | null;
 }
 
-const PRE_ID = "6e5918db-d70a-4d7d-b978-e6711f2a4779";
-const POST_ID = "4a5e39ad-0b89-487b-9ff3-2b97a393cf38";
+const SURVEY_ID = "6e5918db-d70a-4d7d-b978-e6711f2a4779";
 
 export default function PrePostResults() {
   const navigate = useNavigate();
@@ -143,8 +142,8 @@ export default function PrePostResults() {
         {result && (
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {renderScoreCard(t("Pre-test (ก่อน)", "Pre-test"), pre, result.pre_completed_at, PRE_ID)}
-              {renderScoreCard(t("Post-test (หลัง)", "Post-test"), post, result.post_completed_at, POST_ID)}
+              {renderScoreCard(t("Pre-test (ก่อน)", "Pre-test"), pre, result.pre_completed_at, SURVEY_ID)}
+              {renderScoreCard(t("Post-test (หลัง)", "Post-test"), post, result.post_completed_at, SURVEY_ID)}
             </div>
 
             {delta != null && (
