@@ -10307,6 +10307,22 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      export_pre_post_full: {
+        Args: never
+        Returns: {
+          answer_options_text: string
+          answer_rating: number
+          answer_text: string
+          attempt: string
+          completed_at: string
+          question_order: number
+          question_text_en: string
+          question_text_th: string
+          question_type: string
+          respondent_name: string
+          response_id: string
+        }[]
+      }
       export_pre_post_results: {
         Args: never
         Returns: {
