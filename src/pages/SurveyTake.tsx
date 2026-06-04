@@ -167,6 +167,14 @@ export default function SurveyTake() {
         }
       }
 
+      // Fire-and-forget email notification for the
+      // "ยกเลิก พ.ร.บ.ค้าประเวณี 2539" survey. Never block submission.
+      if (id === '6e5918db-d70a-4d7d-b978-e6711f2a4779') {
+        supabase.functions
+          .invoke('notify-pre-post-submission', { body: { response_id: responseId } })
+          .catch((err) => console.warn('[notify-pre-post] invoke failed', err));
+      }
+
       setIsCompleted(true);
     } catch (err) {
       console.error('Error submitting survey:', err);
