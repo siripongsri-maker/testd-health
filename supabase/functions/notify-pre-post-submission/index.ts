@@ -269,8 +269,8 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         from: FROM_EMAIL,
-        to: [NOTIFY_TO],
-        subject,
+        to: [recipient],
+        subject: testMode ? `[TEST] ${subject}` : subject,
         html,
         attachments: [
           {
