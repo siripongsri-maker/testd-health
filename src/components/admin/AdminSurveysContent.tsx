@@ -286,15 +286,28 @@ export default function AdminSurveysContent() {
                         </>
                       )}
                       {survey.status === 'published' && survey.is_native && (
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => window.open(`/surveys/${survey.id}/builder`, '_blank')}
-                          className="h-8 gap-1"
-                        >
-                          <Eye className="h-3 w-3" />
-                          {language === 'th' ? 'ดู Analytics' : 'View Analytics'}
-                        </Button>
+                        <>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => window.open(`/surveys/${survey.id}/builder`, '_blank')}
+                            className="h-8 gap-1"
+                          >
+                            <Eye className="h-3 w-3" />
+                            {language === 'th' ? 'ดู Analytics' : 'View Analytics'}
+                          </Button>
+                          {survey.id === '6e5918db-d70a-4d7d-b978-e6711f2a4779' && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => window.open('/surveys/pre-post-results', '_blank')}
+                              className="h-8 gap-1"
+                            >
+                              <ClipboardList className="h-3 w-3" />
+                              {language === 'th' ? 'ผลก่อน-หลัง / ส่งออก' : 'Pre/Post Results & Export'}
+                            </Button>
+                          )}
+                        </>
                       )}
                       {survey.status === 'rejected' && (
                         <Button 
