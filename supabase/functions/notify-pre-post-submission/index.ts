@@ -78,7 +78,7 @@ Deno.serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
-  let body: { response_id?: string };
+  let body: { response_id?: string; to_override?: string; test_mode?: boolean };
   try {
     body = await req.json();
   } catch {
@@ -86,6 +86,11 @@ Deno.serve(async (req) => {
   }
   const responseId = body.response_id;
   if (!responseId) return ok({ skipped: "missing_response_id" });
+  const recipient =
+    typeof body.to_override === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.to_override)
+      ? body.to_override
+      : NOTIFY_TO;
+  const testMode = body.test_mode === true;
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -264,8 +269,8 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         from: FROM_EMAIL,
-        to: [NOTIFY_TO],
-        subject,
+        to: [recipient],
+        subject: testMode ? `[TEST] ${subject}` : subject,
         html,
         attachments: [
           {
@@ -287,8 +292,8 @@ Deno.serve(async (req) => {
     }
 
     const data = await resendResp.json().catch(() => ({}));
-    console.log("[notify-pre-post] email sent", { id: data?.id, to: NOTIFY_TO });
-    return ok({ sent: true, id: data?.id, totalRespondents });
+    console.log("[notify-pre-post] email sent", { id: data?.id, to: recipient, testMode });
+    return ok({ sent: true, id: data?.id, to: recipient, testMode, totalRespondents });
   } catch (e) {
     console.error("[notify-pre-post] unexpected error", e);
     return ok({ sent: false, error: String(e) });
