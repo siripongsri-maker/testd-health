@@ -263,7 +263,17 @@ export default function AdminSurveysContent() {
                       </div>
                     )}
                     
-                    <div className="flex gap-2 mt-3">
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {survey.is_native && (
+                        <Button
+                          size="sm"
+                          onClick={() => window.open(`/surveys/${survey.id}/builder?tab=analytics`, '_blank')}
+                          className="h-8 gap-1"
+                        >
+                          <Eye className="h-3 w-3" />
+                          {language === 'th' ? 'ไปที่ Analytics' : 'Go to Analytics'}
+                        </Button>
+                      )}
                       {survey.status === 'pending_review' && (
                         <>
                           <Button 
@@ -285,29 +295,16 @@ export default function AdminSurveysContent() {
                           </Button>
                         </>
                       )}
-                      {survey.status === 'published' && survey.is_native && (
-                        <>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => window.open(`/surveys/${survey.id}/builder`, '_blank')}
-                            className="h-8 gap-1"
-                          >
-                            <Eye className="h-3 w-3" />
-                            {language === 'th' ? 'ดู Analytics' : 'View Analytics'}
-                          </Button>
-                          {survey.id === '6e5918db-d70a-4d7d-b978-e6711f2a4779' && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => window.open('/surveys/pre-post-results', '_blank')}
-                              className="h-8 gap-1"
-                            >
-                              <ClipboardList className="h-3 w-3" />
-                              {language === 'th' ? 'ผลก่อน-หลัง / ส่งออก' : 'Pre/Post Results & Export'}
-                            </Button>
-                          )}
-                        </>
+                      {survey.status === 'published' && survey.is_native && survey.id === '6e5918db-d70a-4d7d-b978-e6711f2a4779' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => window.open('/surveys/pre-post-results', '_blank')}
+                          className="h-8 gap-1"
+                        >
+                          <ClipboardList className="h-3 w-3" />
+                          {language === 'th' ? 'ผลก่อน-หลัง / ส่งออก' : 'Pre/Post Results & Export'}
+                        </Button>
                       )}
                       {survey.status === 'rejected' && (
                         <Button 

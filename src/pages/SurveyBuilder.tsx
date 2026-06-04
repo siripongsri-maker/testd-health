@@ -42,7 +42,10 @@ export default function SurveyBuilder() {
   const [isOwner, setIsOwner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState("builder");
+  const initialTab = typeof window !== 'undefined'
+    ? (new URLSearchParams(window.location.search).get('tab') || 'builder')
+    : 'builder';
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   // Survey settings form
   const [settings, setSettings] = useState({
