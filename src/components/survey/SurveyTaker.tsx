@@ -180,7 +180,12 @@ export function SurveyTaker({ questions, onSubmit, isSubmitting = false, surveyI
         <div className="space-y-6">
           <div>
             <h2 className="text-lg font-semibold text-foreground mb-1">
-              {questionText}
+              {questionText?.split('\n').map((line, i) => (
+                <span key={i}>
+                  {line}
+                  {i < questionText.split('\n').length - 1 && <br />}
+                </span>
+              ))}
               {currentQuestion.is_required && <span className="text-destructive ml-1">*</span>}
             </h2>
           </div>
