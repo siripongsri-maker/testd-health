@@ -37,6 +37,44 @@ export default function PrePostResults() {
   const [searched, setSearched] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [exportingFull, setExportingFull] = useState(false);
+  const [testResponseId, setTestResponseId] = useState("");
+  const [testEmail, setTestEmail] = useState("");
+  const [testingNotify, setTestingNotify] = useState(false);
+
+  const handleTestNotify = async () => {
+    const respId = testResponseId.trim();
+    if (!respId) {
+      toast.error(t("กรอก Response ID", "Enter a Response ID"));
+      return;
+    }
+    setTestingNotify(true);
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "notify-pre-post-submission",
+        {
+          body: {
+            response_id: respId,
+            test_mode: true,
+            ...(testEmail.trim() ? { to_override: testEmail.trim() } : {}),
+          },
+        },
+      );
+      if (error) throw error;
+      const res = data as { sent?: boolean; to?: string; skipped?: string; status?: number; error?: string };
+      if (res?.sent) {
+        toast.success(t(`ส่งอีเมลทดสอบไปยัง ${res.to} แล้ว`, `Test email sent to ${res.to}`));
+      } else {
+        toast.error(
+          t("ส่งไม่สำเร็จ: ", "Send failed: ") + (res?.skipped || res?.error || `HTTP ${res?.status ?? "?"}`),
+        );
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err?.message || t("เกิดข้อผิดพลาด", "Something went wrong"));
+    } finally {
+      setTestingNotify(false);
+    }
+  };
 
   const handleExportFull = async () => {
     setExportingFull(true);
