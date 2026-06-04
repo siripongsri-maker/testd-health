@@ -302,6 +302,39 @@ export default function PrePostResults() {
           </Card>
         )}
 
+        {canExport && (
+          <Card className="p-4 mb-6 space-y-3 border-dashed">
+            <div>
+              <div className="text-sm font-medium text-foreground">
+                {t("ทดสอบอีเมลแจ้งเตือน", "Test notification email")}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {t(
+                  "ยิง notify-pre-post-submission สำหรับ Response ID ที่ระบุ พร้อมแนบไฟล์ CSV ทั้งสอง",
+                  "Trigger notify-pre-post-submission once for a specific Response ID with both CSV attachments.",
+                )}
+              </div>
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <Input
+                value={testResponseId}
+                onChange={(e) => setTestResponseId(e.target.value)}
+                placeholder={t("Response ID (uuid)", "Response ID (uuid)")}
+              />
+              <Input
+                type="email"
+                value={testEmail}
+                onChange={(e) => setTestEmail(e.target.value)}
+                placeholder={t("อีเมลผู้รับสำหรับทดสอบ (ไม่ระบุ = ใช้ค่า default)", "Override recipient email (optional)")}
+              />
+            </div>
+            <Button onClick={handleTestNotify} disabled={testingNotify} variant="outline" size="sm">
+              {testingNotify ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+              <span className="ml-2">{t("ส่งอีเมลทดสอบ", "Send test email")}</span>
+            </Button>
+          </Card>
+        )}
+
         {searched && !loading && !result && (
           <Card className="p-6 text-center text-muted-foreground">
             {t(
