@@ -43,6 +43,7 @@ const HIVSelfTest = lazy(() => import("./pages/HIVSelfTest"));
 const ShareAchievements = lazy(() => import("./pages/ShareAchievements"));
 const Surveys = lazy(() => import("./pages/Surveys"));
 const SurveyTake = lazy(() => import("./pages/SurveyTake"));
+const PrePostResults = lazy(() => import("./pages/PrePostResults"));
 const SurveyBuilder = lazy(() => import("./pages/SurveyBuilder"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const HealthProfile = lazy(() => import("./pages/HealthProfile"));
@@ -134,6 +135,7 @@ function AppShell() {
               <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/share-achievements" element={<ShareAchievements />} />
               <Route path="/surveys" element={<Surveys />} />
+              <Route path="/surveys/pre-post-results" element={<PrePostResults />} />
               <Route path="/surveys/:id" element={<SurveyTake />} />
               <Route path="/surveys/:id/builder" element={<SurveyBuilder />} />
               <Route path="/surveys/youth-hiv" element={<YouthHivSurvey />} />
