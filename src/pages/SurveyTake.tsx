@@ -87,28 +87,31 @@ export default function SurveyTake() {
   const createResponse = async (anonymous: boolean) => {
     try {
       const sessionId = anonymous ? `anon-${Date.now()}-${Math.random().toString(36).substr(2, 9)}` : null;
-      
-      const { data, error } = await supabase
+      const newId = (typeof crypto !== 'undefined' && 'randomUUID' in crypto)
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+      const { error } = await supabase
         .from('survey_responses')
         .insert({
+          id: newId,
           survey_id: id,
           user_id: anonymous ? null : user?.id,
           session_id: sessionId,
           is_anonymous: anonymous,
           consent_given: true,
           consent_given_at: new Date().toISOString(),
-        })
-        .select()
-        .single();
+        });
 
       if (error) throw error;
-      setResponseId(data.id);
+      setResponseId(newId);
       setIsAnonymous(anonymous);
     } catch (err) {
       console.error('Error creating response:', err);
       toast.error(language === 'th' ? 'เกิดข้อผิดพลาด' : 'Something went wrong');
     }
   };
+
 
   const handleConsent = async (anonymous: boolean) => {
     setShowConsent(false);

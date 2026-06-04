@@ -10680,6 +10680,10 @@ export type Database = {
       increment_link_click: { Args: { p_slug: string }; Returns: Json }
       increment_postpone: { Args: { req_id: string }; Returns: undefined }
       increment_survey_view: { Args: { p_survey_id: string }; Returns: number }
+      is_anonymous_survey_response: {
+        Args: { p_response_id: string }
+        Returns: boolean
+      }
       is_booking_branch_admin: {
         Args: { p_branch_id: string }
         Returns: boolean
