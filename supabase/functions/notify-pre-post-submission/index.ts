@@ -292,8 +292,8 @@ Deno.serve(async (req) => {
     }
 
     const data = await resendResp.json().catch(() => ({}));
-    console.log("[notify-pre-post] email sent", { id: data?.id, to: NOTIFY_TO });
-    return ok({ sent: true, id: data?.id, totalRespondents });
+    console.log("[notify-pre-post] email sent", { id: data?.id, to: recipient, testMode });
+    return ok({ sent: true, id: data?.id, to: recipient, testMode, totalRespondents });
   } catch (e) {
     console.error("[notify-pre-post] unexpected error", e);
     return ok({ sent: false, error: String(e) });
