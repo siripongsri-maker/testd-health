@@ -391,6 +391,20 @@ export default function AdminSurveysContent() {
                           {language === 'th' ? 'ไปที่ Analytics' : 'Go to Analytics'}
                         </Button>
                       )}
+                      {survey.is_native && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => exportSurveyAnswers(survey)}
+                          disabled={exportingSurveyId === survey.id}
+                          className="h-8 gap-1"
+                        >
+                          {exportingSurveyId === survey.id
+                            ? <Loader2 className="h-3 w-3 animate-spin" />
+                            : <Download className="h-3 w-3" />}
+                          {language === 'th' ? 'Export คำตอบทั้งหมด' : 'Export all answers'}
+                        </Button>
+                      )}
                       {survey.status === 'pending_review' && (
                         <>
                           <Button 
