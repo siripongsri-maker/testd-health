@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Loader2, TrendingUp, TrendingDown, Minus, Search } from "lucide-react";
+import { ArrowLeft, Loader2, TrendingUp, TrendingDown, Minus, Search, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
+import { useAdminRole } from "@/hooks/useAdminRole";
 import { toast } from "sonner";
 
 interface PrePostRow {
@@ -26,12 +27,66 @@ const SURVEY_ID = "6e5918db-d70a-4d7d-b978-e6711f2a4779";
 export default function PrePostResults() {
   const navigate = useNavigate();
   const { language } = useLanguage();
+  const { isAdmin, isMeAnalyst } = useAdminRole();
+  const canExport = isAdmin || isMeAnalyst;
   const t = (th: string, en: string) => (language === "th" ? th : en);
 
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<PrePostRow | null>(null);
   const [searched, setSearched] = useState(false);
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const { data, error } = await supabase.rpc("export_pre_post_results" as any);
+      if (error) throw error;
+      const rows = (data as any[]) ?? [];
+      if (rows.length === 0) {
+        toast.info(t("ยังไม่มีข้อมูล", "No data yet"));
+        return;
+      }
+      const headers = [
+        "matched_name",
+        "pre_score",
+        "pre_total",
+        "pre_completed_at",
+        "post_score",
+        "post_total",
+        "post_completed_at",
+        "score_delta",
+      ];
+      const esc = (v: unknown) => {
+        if (v == null) return "";
+        const s = String(v).replace(/"/g, '""');
+        return /[",\n]/.test(s) ? `"${s}"` : s;
+      };
+      // Zero-width Unicode watermark (per export protection policy)
+      const wm = `\u200B\u200C\u200D\uFEFF${new Date().toISOString()}\u200B`;
+      const csv =
+        "\uFEFF" + // BOM for Excel
+        headers.join(",") + "\n" +
+        rows.map((r) => headers.map((h) => esc(r[h])).join(",")).join("\n") +
+        `\n#${wm}\n`;
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `pre-post-results-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success(t("ส่งออกสำเร็จ", "Export complete"));
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err?.message === "forbidden"
+        ? t("ไม่มีสิทธิ์เข้าถึง", "Not authorized")
+        : t("ส่งออกไม่สำเร็จ", "Export failed"));
+    } finally {
+      setExporting(false);
+    }
+  };
+
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -129,6 +184,26 @@ export default function PrePostResults() {
             </div>
           </form>
         </Card>
+
+        {canExport && (
+          <Card className="p-4 mb-6 flex items-center justify-between gap-3 border-dashed">
+            <div>
+              <div className="text-sm font-medium text-foreground">
+                {t("ส่งออกข้อมูลภายใน", "Internal export")}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {t(
+                  "ดาวน์โหลด CSV ผลคะแนน Pre/Post ทั้งหมด (เฉพาะเจ้าหน้าที่)",
+                  "Download CSV of all paired Pre/Post results (staff only)",
+                )}
+              </div>
+            </div>
+            <Button onClick={handleExport} disabled={exporting} variant="outline">
+              {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+              <span className="ml-2">{t("ส่งออก CSV", "Export CSV")}</span>
+            </Button>
+          </Card>
+        )}
 
         {searched && !loading && !result && (
           <Card className="p-6 text-center text-muted-foreground">
