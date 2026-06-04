@@ -50,7 +50,7 @@ export default function AdminSurveysContent() {
   
   const [surveys, setSurveys] = useState<Survey[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filterStatus, setFilterStatus] = useState<SurveyStatus | 'all'>('pending_review');
+  const [filterStatus, setFilterStatus] = useState<SurveyStatus | 'all'>('all');
   
   // Review dialog state
   const [reviewingSurvey, setReviewingSurvey] = useState<Survey | null>(null);
