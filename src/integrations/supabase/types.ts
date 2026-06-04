@@ -10541,6 +10541,18 @@ export type Database = {
           unique_opens: number
         }[]
       }
+      get_pre_post_score: {
+        Args: { p_name: string }
+        Returns: {
+          matched_name: string
+          post_completed_at: string
+          post_score: number
+          post_total: number
+          pre_completed_at: string
+          pre_score: number
+          pre_total: number
+        }[]
+      }
       get_public_demand_hints: {
         Args: { p_branch_id: string; p_horizon_days?: number }
         Returns: Json
