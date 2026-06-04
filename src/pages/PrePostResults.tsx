@@ -239,22 +239,28 @@ export default function PrePostResults() {
         </Card>
 
         {canExport && (
-          <Card className="p-4 mb-6 flex items-center justify-between gap-3 border-dashed">
+          <Card className="p-4 mb-6 space-y-3 border-dashed">
             <div>
               <div className="text-sm font-medium text-foreground">
                 {t("ส่งออกข้อมูลภายใน", "Internal export")}
               </div>
               <div className="text-xs text-muted-foreground">
                 {t(
-                  "ดาวน์โหลด CSV ผลคะแนน Pre/Post ทั้งหมด (เฉพาะเจ้าหน้าที่)",
-                  "Download CSV of all paired Pre/Post results (staff only)",
+                  "ดาวน์โหลด CSV สำหรับทีมไปวิเคราะห์ต่อ (เฉพาะเจ้าหน้าที่)",
+                  "Download CSV for the team to review (staff only)",
                 )}
               </div>
             </div>
-            <Button onClick={handleExport} disabled={exporting} variant="outline">
-              {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-              <span className="ml-2">{t("ส่งออก CSV", "Export CSV")}</span>
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={handleExport} disabled={exporting} variant="outline" size="sm">
+                {exporting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                <span className="ml-2">{t("คะแนน Pre/Post (จับคู่)", "Paired Pre/Post scores")}</span>
+              </Button>
+              <Button onClick={handleExportFull} disabled={exportingFull} variant="outline" size="sm">
+                {exportingFull ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                <span className="ml-2">{t("คำตอบทั้งหมด (ทุกข้อ)", "All answers (full sheet)")}</span>
+              </Button>
+            </div>
           </Card>
         )}
 
