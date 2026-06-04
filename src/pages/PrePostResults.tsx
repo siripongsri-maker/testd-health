@@ -36,6 +36,59 @@ export default function PrePostResults() {
   const [result, setResult] = useState<PrePostRow | null>(null);
   const [searched, setSearched] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [exportingFull, setExportingFull] = useState(false);
+
+  const handleExportFull = async () => {
+    setExportingFull(true);
+    try {
+      const { data, error } = await supabase.rpc("export_pre_post_full" as any);
+      if (error) throw error;
+      const rows = (data as any[]) ?? [];
+      if (rows.length === 0) {
+        toast.info(t("ยังไม่มีข้อมูล", "No data yet"));
+        return;
+      }
+      const headers = [
+        "response_id",
+        "attempt",
+        "respondent_name",
+        "completed_at",
+        "question_order",
+        "question_text_th",
+        "question_text_en",
+        "question_type",
+        "answer_text",
+        "answer_options_text",
+        "answer_rating",
+      ];
+      const esc = (v: unknown) => {
+        if (v == null) return "";
+        const s = String(v).replace(/"/g, '""');
+        return /[",\n]/.test(s) ? `"${s}"` : s;
+      };
+      const wm = `\u200B\u200C\u200D\uFEFF${new Date().toISOString()}\u200B`;
+      const csv =
+        "\uFEFF" +
+        headers.join(",") + "\n" +
+        rows.map((r) => headers.map((h) => esc(r[h])).join(",")).join("\n") +
+        `\n#${wm}\n`;
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `pre-post-full-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success(t("ส่งออกสำเร็จ", "Export complete"));
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err?.message === "forbidden"
+        ? t("ไม่มีสิทธิ์เข้าถึง", "Not authorized")
+        : t("ส่งออกไม่สำเร็จ", "Export failed"));
+    } finally {
+      setExportingFull(false);
+    }
+  };
 
   const handleExport = async () => {
     setExporting(true);
