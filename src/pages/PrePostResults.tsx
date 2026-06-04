@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, Loader2, TrendingUp, TrendingDown, Minus, Search } from "lucide-react";
+import { ArrowLeft, Loader2, TrendingUp, TrendingDown, Minus, Search, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
+import { useAdminRole } from "@/hooks/useAdminRole";
 import { toast } from "sonner";
 
 interface PrePostRow {
