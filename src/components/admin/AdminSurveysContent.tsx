@@ -10,7 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/lib/i18n";
 import { 
   ClipboardList, Clock, CheckCircle, XCircle, FileText,
-  Loader2, Eye, Check, X, Sparkles, Flame, Gift
+  Loader2, Eye, Check, X, Sparkles, Flame, Gift, Download
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
