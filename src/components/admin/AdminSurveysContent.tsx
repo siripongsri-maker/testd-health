@@ -61,6 +61,123 @@ export default function AdminSurveysContent() {
   const [isHot, setIsHot] = useState(false);
   const [isNew, setIsNew] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [exportingSurveyId, setExportingSurveyId] = useState<string | null>(null);
+
+  const exportSurveyAnswers = async (survey: Survey) => {
+    setExportingSurveyId(survey.id);
+    try {
+      const PREPOST_ID = '6e5918db-d70a-4d7d-b978-e6711f2a4779';
+      let rows: any[] = [];
+      let headers: string[] = [];
+
+      if (survey.id === PREPOST_ID) {
+        const { data, error } = await supabase.rpc('export_pre_post_full' as any);
+        if (error) throw error;
+        rows = (data as any[]) ?? [];
+        headers = [
+          'response_id', 'attempt', 'respondent_name', 'completed_at',
+          'question_order', 'question_text_th', 'question_text_en',
+          'question_type', 'answer_text', 'answer_options_text', 'answer_rating',
+        ];
+      } else {
+        // Generic export for any other native survey: join responses + answers + questions
+        const { data: responses, error: rErr } = await supabase
+          .from('survey_responses')
+          .select('id, completed_at, created_at, is_anonymous, user_id')
+          .eq('survey_id', survey.id)
+          .order('completed_at', { ascending: true, nullsFirst: false });
+        if (rErr) throw rErr;
+        const responseIds = (responses || []).map((r: any) => r.id);
+        const { data: questions, error: qErr } = await supabase
+          .from('survey_questions')
+          .select('id, display_order, question_text_th, question_text_en, question_type, options')
+          .eq('survey_id', survey.id)
+          .order('display_order', { ascending: true });
+        if (qErr) throw qErr;
+        let answers: any[] = [];
+        if (responseIds.length > 0) {
+          const { data: ans, error: aErr } = await supabase
+            .from('survey_answers')
+            .select('response_id, question_id, answer_text, answer_options, answer_rating')
+            .in('response_id', responseIds);
+          if (aErr) throw aErr;
+          answers = ans || [];
+        }
+        const respMap = new Map((responses || []).map((r: any) => [r.id, r]));
+        const qMap = new Map((questions || []).map((q: any) => [q.id, q]));
+        rows = answers.map((a: any) => {
+          const q = qMap.get(a.question_id) || {};
+          const r = respMap.get(a.response_id) || {};
+          const opts = Array.isArray(q.options) ? q.options : [];
+          const selected = Array.isArray(a.answer_options) ? a.answer_options : [];
+          const optionsText = opts
+            .filter((o: any) => selected.includes(o.id))
+            .map((o: any) => o.text_th || o.text_en || o.id)
+            .join(' | ');
+          return {
+            response_id: a.response_id,
+            respondent_user_id: r.user_id || '',
+            completed_at: r.completed_at || '',
+            question_order: q.display_order ?? '',
+            question_text_th: q.question_text_th ?? '',
+            question_text_en: q.question_text_en ?? '',
+            question_type: q.question_type ?? '',
+            answer_text: a.answer_text ?? '',
+            answer_options_text: optionsText,
+            answer_rating: a.answer_rating ?? '',
+          };
+        });
+        headers = [
+          'response_id', 'respondent_user_id', 'completed_at', 'question_order',
+          'question_text_th', 'question_text_en', 'question_type',
+          'answer_text', 'answer_options_text', 'answer_rating',
+        ];
+      }
+
+      if (!rows.length) {
+        toast.info(language === 'th'
+          ? 'ยังไม่มีข้อมูลคำตอบสำหรับแบบทดสอบนี้'
+          : 'No answers yet for this survey');
+        return;
+      }
+
+      const esc = (v: unknown) => {
+        if (v == null) return '';
+        const s = String(v).replace(/"/g, '""');
+        return /[",\n]/.test(s) ? `"${s}"` : s;
+      };
+      const wm = `\u200B\u200C\u200D\uFEFF${new Date().toISOString()}\u200B`;
+      const respondents = new Set(rows.map((r: any) => r.response_id)).size;
+      const csv =
+        '\uFEFF' +
+        `# Survey: ${survey.title_th || survey.title_en}\n` +
+        `# Survey ID: ${survey.id}\n` +
+        `# Total respondents: ${respondents}\n` +
+        `# Total answer rows: ${rows.length}\n` +
+        `# Exported: ${new Date().toISOString()}\n` +
+        headers.join(',') + '\n' +
+        rows.map((r: any) => headers.map((h) => esc(r[h])).join(',')).join('\n') +
+        `\n#${wm}\n`;
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const safeName = (survey.title_th || survey.title_en || 'survey').replace(/[^\w\u0E00-\u0E7F-]+/g, '_').slice(0, 60);
+      a.download = `${safeName}-answers-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toast.success(language === 'th' ? 'ดาวน์โหลดสำเร็จ' : 'Download complete');
+    } catch (err: any) {
+      console.error('Export failed:', err);
+      toast.error(err?.message === 'forbidden'
+        ? (language === 'th' ? 'ไม่มีสิทธิ์เข้าถึง' : 'Not authorized')
+        : (language === 'th' ? 'ส่งออกไม่สำเร็จ' : 'Export failed'));
+    } finally {
+      setExportingSurveyId(null);
+    }
+  };
 
   useEffect(() => {
     loadSurveys();
