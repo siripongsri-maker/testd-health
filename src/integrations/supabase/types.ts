@@ -10307,6 +10307,19 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      export_pre_post_results: {
+        Args: never
+        Returns: {
+          matched_name: string
+          post_completed_at: string
+          post_score: number
+          post_total: number
+          pre_completed_at: string
+          pre_score: number
+          pre_total: number
+          score_delta: number
+        }[]
+      }
       generate_guest_access_token: {
         Args: { p_appointment_id: string }
         Returns: string
