@@ -22,7 +22,7 @@ interface ImportResult {
   errors: Array<{ row: number; reason: string }>;
   insertedIds: string[];
   updatedIds: string[];
-  csvType?: "bangkok" | "pattaya_reach" | "legacy_hivst_combined" | "unknown";
+  csvType?: "bangkok" | "pattaya_reach" | "legacy_hivst_combined" | "legacy_hivst_pii" | "unknown";
   reactiveFlagged?: number;
 }
 
@@ -53,6 +53,7 @@ export default function AdminImportContent() {
     if (type === "bangkok") return "Bangkok Form (Google Form)";
     if (type === "pattaya_reach") return "Pattaya Reach";
     if (type === "legacy_hivst_combined") return language === "th" ? "Legacy HIVST (พรีโปรเซส)" : "Legacy HIVST (pre-processed)";
+    if (type === "legacy_hivst_pii") return language === "th" ? "Legacy HIVST PII (ลิงก์ด้วย result_id)" : "Legacy HIVST PII (linked by result_id)";
     return language === "th" ? "ไม่ทราบ" : "Unknown";
   };
 
