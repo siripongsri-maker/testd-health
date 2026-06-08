@@ -131,6 +131,9 @@ function AppShell() {
               <Route path="/community/interests" element={<Interests />} />
               <Route path="/self-care" element={<SelfCare />} />
               <Route path="/hiv-selftest" element={<HIVSelfTest />} />
+              {/* Direct submission channel: share-friendly short links that drop clients into the submit-result flow */}
+              <Route path="/submit-result" element={<Navigate to="/hiv-selftest?action=submit" replace />} />
+              <Route path="/submit-hiv-result" element={<Navigate to="/hiv-selftest?action=submit" replace />} />
               
               <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/share-achievements" element={<ShareAchievements />} />
