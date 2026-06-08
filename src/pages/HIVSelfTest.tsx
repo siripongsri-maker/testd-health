@@ -290,6 +290,16 @@ export default function HIVSelfTest() {
     }
   };
 
+  // Direct submission channel: `?action=submit` drops the visitor straight onto the
+  // "submit result from existing kit" step (shared via /submit-result short links).
+  useEffect(() => {
+    if (searchParams.get('action') === 'submit') {
+      setCurrentStep('existing-kit-upload');
+      trackEvent('selftest_direct_submit_link_opened', {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get('action')]);
+
   // Determine which step to show based on active request status
   useEffect(() => {
     if (activeRequest) {
