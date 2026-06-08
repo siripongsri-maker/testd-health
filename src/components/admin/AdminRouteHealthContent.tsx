@@ -258,6 +258,26 @@ export default function AdminRouteHealthContent() {
           </div>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader><CardTitle>ประวัติ Smoke test หลัง deploy (20 ครั้งล่าสุด)</CardTitle></CardHeader>
+        <CardContent>
+          <div className="space-y-1 max-h-[400px] overflow-auto text-sm">
+            {deploys.map((d) => (
+              <div key={d.id} className={`flex items-center gap-2 p-2 rounded ${d.smoke_status === "pass" ? "" : "bg-destructive/5"}`}>
+                {d.smoke_status === "pass"
+                  ? <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                  : <XCircle className="h-4 w-4 text-destructive shrink-0" />}
+                <Badge variant={d.smoke_status === "pass" ? "outline" : "destructive"}>{d.smoke_status}</Badge>
+                <span className="text-xs">{d.checked_count - d.failing_count}/{d.checked_count} OK</span>
+                <code className="text-xs text-muted-foreground truncate max-w-[200px]">{d.build_fingerprint}</code>
+                <span className="text-xs text-muted-foreground ml-auto">{formatDistanceToNow(new Date(d.detected_at), { addSuffix: true })}</span>
+              </div>
+            ))}
+            {deploys.length === 0 && <p className="text-muted-foreground text-center py-8">ยังไม่พบ deploy ใหม่ — ระบบจะตรวจอัตโนมัติทุก 5 นาที</p>}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
