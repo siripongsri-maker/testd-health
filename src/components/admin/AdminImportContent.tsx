@@ -235,6 +235,17 @@ export default function AdminImportContent() {
                   </div>
                 </div>
 
+                {result.reactiveFlagged !== undefined && result.reactiveFlagged > 0 && (
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-rose-500/10 border border-rose-500/30">
+                    <AlertTriangle className="h-4 w-4 text-rose-600" />
+                    <span className="text-sm font-medium text-rose-700">
+                      {language === "th"
+                        ? `🚩 ${result.reactiveFlagged} reactive cases ถูก flag แบบเงียบ — ตรวจในแดชบอร์ด (filter: self_reported_result = reactive)`
+                        : `🚩 ${result.reactiveFlagged} reactive cases silently flagged — review in dashboard (filter: self_reported_result = reactive)`}
+                    </span>
+                  </div>
+                )}
+
                 {!isDryRun && dbVerified !== null && (
                   <div className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
                     <Database className="h-4 w-4 text-green-600" />
