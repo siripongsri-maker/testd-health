@@ -3414,9 +3414,18 @@ export type Database = {
           last_postponed_at: string | null
           last_risk_date: string | null
           last_tracking_check_at: string | null
+          legacy_art_status: string | null
+          legacy_hospital_confirmed: string | null
+          legacy_hospital_name: string | null
+          legacy_pdpa_consent: boolean | null
+          legacy_raw_result: string | null
+          legacy_result_id: string | null
+          legacy_source: string | null
+          legacy_treatment_status: string | null
           line_id: string | null
           name_address_fp: string | null
           name_fp: string | null
+          national_id_hash: string | null
           phone: string | null
           photo_provided: boolean
           pickup_latitude: number | null
@@ -3467,9 +3476,18 @@ export type Database = {
           last_postponed_at?: string | null
           last_risk_date?: string | null
           last_tracking_check_at?: string | null
+          legacy_art_status?: string | null
+          legacy_hospital_confirmed?: string | null
+          legacy_hospital_name?: string | null
+          legacy_pdpa_consent?: boolean | null
+          legacy_raw_result?: string | null
+          legacy_result_id?: string | null
+          legacy_source?: string | null
+          legacy_treatment_status?: string | null
           line_id?: string | null
           name_address_fp?: string | null
           name_fp?: string | null
+          national_id_hash?: string | null
           phone?: string | null
           photo_provided?: boolean
           pickup_latitude?: number | null
@@ -3520,9 +3538,18 @@ export type Database = {
           last_postponed_at?: string | null
           last_risk_date?: string | null
           last_tracking_check_at?: string | null
+          legacy_art_status?: string | null
+          legacy_hospital_confirmed?: string | null
+          legacy_hospital_name?: string | null
+          legacy_pdpa_consent?: boolean | null
+          legacy_raw_result?: string | null
+          legacy_result_id?: string | null
+          legacy_source?: string | null
+          legacy_treatment_status?: string | null
           line_id?: string | null
           name_address_fp?: string | null
           name_fp?: string | null
+          national_id_hash?: string | null
           phone?: string | null
           photo_provided?: boolean
           pickup_latitude?: number | null
