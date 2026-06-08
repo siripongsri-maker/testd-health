@@ -378,7 +378,137 @@ serve(async (req) => {
     console.log("Detected CSV type:", csvType, "Headers:", headers.slice(0, 10));
 
     if (csvType === 'unknown') {
-      return new Response(JSON.stringify({ error: "Unrecognized CSV format. Expected Bangkok Form, Pattaya Reach, or Legacy HIVST combined headers.", detectedHeaders: headers.slice(0, 20) }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "Unrecognized CSV format. Expected Bangkok Form, Pattaya Reach, Legacy HIVST result, or Legacy HIVST PII headers.", detectedHeaders: headers.slice(0, 20) }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // LEGACY HIVST PII-ONLY PATH (companion file uploaded as main file)
+    // ─────────────────────────────────────────────────────────────────
+    if (csvType === 'legacy_hivst_pii') {
+      const c = {
+        result_id: headers.indexOf('result_id'),
+        full_name: headers.indexOf('full_name'),
+        national_id: headers.indexOf('national_id'),
+        dob_iso: headers.indexOf('dob_iso'),
+        phone: headers.indexOf('phone'),
+        sex_at_birth: headers.indexOf('sex_at_birth'),
+      };
+      const piiResult: ImportResult = { total: rows.length - 1, inserted: 0, updated: 0, skipped: 0, errors: [], insertedIds: [], updatedIds: [], csvType };
+      const piiRowResults: Array<{ row_number: number; outcome: string; error_message: string | null; external_ref: string | null }> = [];
+
+      const existingLegacyRows: any[] = [];
+      let from = 0; const pageSize = 1000;
+      while (true) {
+        const { data, error } = await adminClient
+          .from('hiv_selftest_requests')
+          .select('id, user_id, pii_id, legacy_result_id, national_id_hash')
+          .not('legacy_result_id', 'is', null)
+          .range(from, from + pageSize - 1);
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+        existingLegacyRows.push(...data);
+        if (data.length < pageSize) break;
+        from += pageSize;
+      }
+      const requestByLegacyId = new Map(existingLegacyRows.map(r => [r.legacy_result_id, r]));
+
+      for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i];
+        const rowNum = i + 1;
+        const g = (idx: number) => idx >= 0 && idx < cells.length ? (cells[idx] || '').trim() : '';
+        const resultId = g(c.result_id);
+        try {
+          if (!resultId) {
+            piiResult.skipped++;
+            piiRowResults.push({ row_number: rowNum, outcome: 'skipped', error_message: 'Missing result_id', external_ref: null });
+            continue;
+          }
+          const requestRow = requestByLegacyId.get(resultId);
+          if (!requestRow) {
+            const reason = 'No matching legacy result row found; import hivst_results_clean.csv first';
+            piiResult.skipped++;
+            piiResult.errors.push({ row: rowNum, reason });
+            piiRowResults.push({ row_number: rowNum, outcome: 'skipped', error_message: reason, external_ref: resultId });
+            continue;
+          }
+
+          const rawNid = g(c.national_id).replace(/\D/g, '');
+          const nidCheck = rawNid ? normalizeThaiId(rawNid) : { value: null, valid: false };
+          const nidHash = rawNid ? await sha256Hex(rawNid) : null;
+          const piiPayload: Record<string, any> = {
+            full_name: g(c.full_name) || null,
+            phone: normalizePhone(g(c.phone)) || null,
+            gender: normalizeGender(g(c.sex_at_birth)) || null,
+            date_of_birth: g(c.dob_iso) || null,
+          };
+          if (nidCheck.valid && nidCheck.value) piiPayload.thai_id = nidCheck.value;
+
+          if (dryRun) {
+            requestRow.pii_id ? piiResult.updated++ : piiResult.inserted++;
+            piiRowResults.push({ row_number: rowNum, outcome: requestRow.pii_id ? 'will_update' : 'will_insert', error_message: null, external_ref: resultId });
+            continue;
+          }
+
+          let piiId = requestRow.pii_id;
+          if (piiId) {
+            const updates = Object.fromEntries(Object.entries(piiPayload).filter(([, v]) => v !== null && v !== ''));
+            if (Object.keys(updates).length > 0) {
+              updates.updated_at = new Date().toISOString();
+              const { error: updateErr } = await adminClient.from('selftest_pii').update(updates).eq('id', piiId);
+              if (updateErr) throw updateErr;
+            }
+            piiResult.updated++;
+            piiResult.updatedIds.push(requestRow.id);
+            piiRowResults.push({ row_number: rowNum, outcome: 'updated', error_message: null, external_ref: resultId });
+          } else {
+            const { data: piiData, error: piiErr } = await adminClient.from('selftest_pii').insert({ user_id: requestRow.user_id || user.id, ...piiPayload }).select('id').single();
+            if (piiErr) throw piiErr;
+            piiId = piiData.id;
+            const { error: reqUpdateErr } = await adminClient.from('hiv_selftest_requests').update({ pii_id: piiId, national_id_hash: nidHash || requestRow.national_id_hash || null }).eq('id', requestRow.id);
+            if (reqUpdateErr) throw reqUpdateErr;
+            piiResult.inserted++;
+            piiResult.insertedIds.push(requestRow.id);
+            piiRowResults.push({ row_number: rowNum, outcome: 'inserted', error_message: null, external_ref: resultId });
+          }
+
+          if (nidHash && !requestRow.national_id_hash) {
+            await adminClient.from('hiv_selftest_requests').update({ national_id_hash: nidHash }).eq('id', requestRow.id);
+          }
+        } catch (err: any) {
+          piiResult.errors.push({ row: rowNum, reason: err.message || String(err) });
+          piiRowResults.push({ row_number: rowNum, outcome: 'error', error_message: err.message || String(err), external_ref: resultId || null });
+        }
+      }
+
+      try {
+        const batchStatus = piiResult.errors.length === 0 ? 'success' : (piiResult.inserted > 0 || piiResult.updated > 0) ? 'partial' : 'failed';
+        const { data: batchData } = await adminClient.from('selftest_import_batches').insert({
+          branch,
+          uploaded_by: user.id,
+          filename: csvFile.name || 'hivst_results_pii.csv',
+          source_type: 'legacy_hivst_pii',
+          total_rows: piiResult.total,
+          inserted_rows: piiResult.inserted,
+          duplicate_rows: piiResult.updated,
+          error_rows: piiResult.errors.length,
+          skipped_rows: piiResult.skipped,
+          status: batchStatus,
+          is_dry_run: dryRun,
+          notes: 'Legacy PII-only companion import linked by result_id',
+        }).select('id').single();
+        if (batchData && piiRowResults.length > 0) {
+          for (let cc = 0; cc < piiRowResults.length; cc += 500) {
+            const chunk = piiRowResults.slice(cc, cc + 500).map(r => ({ ...r, batch_id: batchData.id }));
+            await adminClient.from('selftest_import_rows').insert(chunk);
+          }
+        }
+      } catch (batchErr) {
+        console.error("Failed to record legacy PII batch history:", batchErr);
+      }
+
+      return new Response(JSON.stringify({ success: true, dry_run: dryRun, result: piiResult }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     // ─────────────────────────────────────────────────────────────────
