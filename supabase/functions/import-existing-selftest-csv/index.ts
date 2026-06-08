@@ -6,7 +6,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-type CsvType = "bangkok" | "pattaya_reach" | "legacy_hivst_combined" | "unknown";
+type CsvType = "bangkok" | "pattaya_reach" | "legacy_hivst_combined" | "legacy_hivst_pii" | "unknown";
 
 interface ImportResult {
   total: number;
@@ -145,9 +145,10 @@ async function decodeCSVFile(file: File): Promise<string> {
 
 function detectCsvType(headers: string[]): CsvType {
   const joined = headers.join(' ');
-  // Pre-processed legacy export: hivst_results_clean.csv
   // Pre-processed legacy export: hivst_results_clean.csv (English headers)
   if (joined.includes('result_id') && (joined.includes('submitted_at') || joined.includes('result_raw') || joined.includes('result_normalized'))) return 'legacy_hivst_combined';
+  // Pre-processed legacy PII companion export: hivst_results_pii.csv (English headers)
+  if (joined.includes('result_id') && (joined.includes('full_name') || joined.includes('national_id') || joined.includes('phone'))) return 'legacy_hivst_pii';
   if (joined.includes('ประทับเวลา') && joined.includes('ชื่อ-นามสกุล')) return 'bangkok';
   if (joined.includes('วันที่รับบริการ') && (joined.includes('ชื่อจริง') || joined.includes('นามสกุล'))) return 'pattaya_reach';
   if (joined.includes('ประทับเวลา') || joined.includes('Line id') || joined.includes('ที่อยู่ในการจัดส่ง')) return 'bangkok';
@@ -195,6 +196,11 @@ function buildLegacyPiiIndex(piiCsv: string | null): Map<string, Record<string, 
     idx.set(rid, obj);
   }
   return idx;
+}
+
+async function sha256Hex(value: string): Promise<string> {
+  const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 
