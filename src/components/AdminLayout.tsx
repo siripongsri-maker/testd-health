@@ -38,6 +38,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               </span>
             </div>
           </header>
+          <RouteHealthBanner />
           <main className="flex-1 overflow-auto">
             {children}
           </main>
