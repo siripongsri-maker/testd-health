@@ -35,6 +35,7 @@ const AdminActivityLogsContent = lazy(() => import("@/components/admin/AdminActi
 const AdminExportCenterContent = lazy(() => import("@/components/admin/AdminExportCenterContent"));
 const AdminDiagnosticsContent = lazy(() => import("@/components/admin/AdminDiagnosticsContent"));
 const AdminSystemHealthContent = lazy(() => import("@/components/admin/AdminSystemHealthContent"));
+const AdminRouteHealthContent = lazy(() => import("@/components/admin/AdminRouteHealthContent"));
 const AdminMilestonesContent = lazy(() => import("@/components/admin/AdminMilestonesContent"));
 const AdminUserChatsContent = lazy(() => import("@/components/admin/AdminUserChatsContent"));
 const AdminIPDocsContent = lazy(() => import("@/components/admin/AdminIPDocsContent"));
