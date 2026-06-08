@@ -7850,6 +7850,45 @@ export type Database = {
         }
         Relationships: []
       }
+      route_health_deploys: {
+        Row: {
+          base_url: string
+          build_fingerprint: string
+          checked_count: number
+          detected_at: string
+          duration_ms: number | null
+          failing_count: number
+          failing_paths: Json
+          id: string
+          notes: string | null
+          smoke_status: string
+        }
+        Insert: {
+          base_url: string
+          build_fingerprint: string
+          checked_count?: number
+          detected_at?: string
+          duration_ms?: number | null
+          failing_count?: number
+          failing_paths?: Json
+          id?: string
+          notes?: string | null
+          smoke_status?: string
+        }
+        Update: {
+          base_url?: string
+          build_fingerprint?: string
+          checked_count?: number
+          detected_at?: string
+          duration_ms?: number | null
+          failing_count?: number
+          failing_paths?: Json
+          id?: string
+          notes?: string | null
+          smoke_status?: string
+        }
+        Relationships: []
+      }
       route_health_targets: {
         Row: {
           consecutive_failures: number
