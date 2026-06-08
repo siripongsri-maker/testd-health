@@ -146,7 +146,8 @@ async function decodeCSVFile(file: File): Promise<string> {
 function detectCsvType(headers: string[]): CsvType {
   const joined = headers.join(' ');
   // Pre-processed legacy export: hivst_results_clean.csv
-  if (joined.includes('result_id') && joined.includes('submitted_at') && joined.includes('result_raw')) return 'legacy_hivst_combined';
+  // Pre-processed legacy export: hivst_results_clean.csv (English headers)
+  if (joined.includes('result_id') && (joined.includes('submitted_at') || joined.includes('result_raw') || joined.includes('result_normalized'))) return 'legacy_hivst_combined';
   if (joined.includes('ประทับเวลา') && joined.includes('ชื่อ-นามสกุล')) return 'bangkok';
   if (joined.includes('วันที่รับบริการ') && (joined.includes('ชื่อจริง') || joined.includes('นามสกุล'))) return 'pattaya_reach';
   if (joined.includes('ประทับเวลา') || joined.includes('Line id') || joined.includes('ที่อยู่ในการจัดส่ง')) return 'bangkok';
