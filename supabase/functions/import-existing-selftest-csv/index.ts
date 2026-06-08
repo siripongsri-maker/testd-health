@@ -338,6 +338,7 @@ serve(async (req) => {
 
     const formData = await req.formData();
     const csvFile = formData.get("csv") as File;
+    const piiFile = formData.get("pii_csv") as File | null;
     const dryRun = formData.get("dry_run") === "true";
     const branch = (formData.get("branch") as string) || "silom";
 
