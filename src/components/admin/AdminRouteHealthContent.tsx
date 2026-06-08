@@ -32,26 +32,42 @@ interface CheckRow {
   duration_ms: number | null;
 }
 
+interface DeployRow {
+  id: string;
+  detected_at: string;
+  build_fingerprint: string;
+  smoke_status: string;
+  checked_count: number;
+  failing_count: number;
+  failing_paths: any;
+  duration_ms: number | null;
+}
+
 export default function AdminRouteHealthContent() {
   const [targets, setTargets] = useState<Target[]>([]);
   const [history, setHistory] = useState<CheckRow[]>([]);
+  const [deploys, setDeploys] = useState<DeployRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
+  const [smoking, setSmoking] = useState(false);
   const [newPath, setNewPath] = useState("");
   const [newLabel, setNewLabel] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [tRes, hRes] = await Promise.all([
+    const [tRes, hRes, dRes] = await Promise.all([
       supabase.from("route_health_targets").select("*").order("path"),
       supabase.from("route_health_checks").select("*").order("checked_at", { ascending: false }).limit(100),
+      supabase.from("route_health_deploys" as any).select("*").order("detected_at", { ascending: false }).limit(20),
     ]);
     if (tRes.error) toast.error(tRes.error.message);
     else setTargets((tRes.data ?? []) as Target[]);
     if (hRes.error) toast.error(hRes.error.message);
     else setHistory((hRes.data ?? []) as CheckRow[]);
+    if (!dRes.error) setDeploys(((dRes.data as any) ?? []) as DeployRow[]);
     setLoading(false);
   }, []);
+
 
   useEffect(() => { load(); }, [load]);
 
@@ -71,7 +87,25 @@ export default function AdminRouteHealthContent() {
     }
   };
 
+  const runSmoke = async () => {
+    setSmoking(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("route-health-smoke", { body: { force: true } });
+      if (error) throw error;
+      const d: any = data;
+      if (d?.skipped) toast.info("ยังไม่มี deploy ใหม่ — build เดิม");
+      else if (d?.smoke_status === "pass") toast.success(`Smoke test ผ่าน (${d.checked} ลิงก์)`);
+      else toast.error(`Smoke test ล้มเหลว: ${d?.failing} ลิงก์มีปัญหา`);
+      await load();
+    } catch (e: any) {
+      toast.error(e.message ?? "Smoke test ล้มเหลว");
+    } finally {
+      setSmoking(false);
+    }
+  };
+
   const addTarget = async () => {
+
     if (!newPath.startsWith("/")) return toast.error("path ต้องขึ้นต้นด้วย /");
     const { error } = await supabase.from("route_health_targets").insert({
       path: newPath.trim(),
