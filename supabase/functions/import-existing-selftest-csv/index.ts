@@ -6,7 +6,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-type CsvType = "bangkok" | "pattaya_reach" | "unknown";
+type CsvType = "bangkok" | "pattaya_reach" | "legacy_hivst_combined" | "unknown";
 
 interface ImportResult {
   total: number;
@@ -17,6 +17,7 @@ interface ImportResult {
   insertedIds: string[];
   updatedIds: string[];
   csvType: CsvType;
+  reactiveFlagged?: number;
 }
 
 // ── CSV Parsing ──
@@ -136,12 +137,57 @@ async function decodeCSVFile(file: File): Promise<string> {
 
 function detectCsvType(headers: string[]): CsvType {
   const joined = headers.join(' ');
+  // Pre-processed legacy export: hivst_results_clean.csv
+  if (joined.includes('result_id') && joined.includes('submitted_at') && joined.includes('result_raw')) return 'legacy_hivst_combined';
   if (joined.includes('ประทับเวลา') && joined.includes('ชื่อ-นามสกุล')) return 'bangkok';
   if (joined.includes('วันที่รับบริการ') && (joined.includes('ชื่อจริง') || joined.includes('นามสกุล'))) return 'pattaya_reach';
   if (joined.includes('ประทับเวลา') || joined.includes('Line id') || joined.includes('ที่อยู่ในการจัดส่ง')) return 'bangkok';
   if (joined.includes('UIC') || joined.includes('HNID') || joined.includes('กลุ่มประชากร')) return 'pattaya_reach';
   return 'unknown';
 }
+
+// ── Legacy combined helpers ──
+function normalizeLegacyResult(v: string | undefined): "non_reactive" | "reactive" | "invalid" | null {
+  if (!v) return null;
+  const s = v.trim().toLowerCase();
+  if (s === 'non_reactive' || s === 'reactive' || s === 'invalid') return s as any;
+  return null;
+}
+
+function parseIsoTimestamp(raw: string | undefined): string | null {
+  if (!raw) return null;
+  const s = raw.trim();
+  if (!s) return null;
+  // Already ISO-ish: "2025-10-23 15:17:53.087"
+  const m = s.match(/(\d{4})-(\d{2})-(\d{2})[\sT](\d{2}):(\d{2}):(\d{2})/);
+  if (m) {
+    const [, y, mo, d, h, mi, se] = m;
+    return `${y}-${mo}-${d}T${h}:${mi}:${se}+07:00`;
+  }
+  return null;
+}
+
+function buildLegacyPiiIndex(piiCsv: string | null): Map<string, Record<string, string>> {
+  const idx = new Map<string, Record<string, string>>();
+  if (!piiCsv) return idx;
+  const rows = parseCSV(piiCsv);
+  if (rows.length < 2) return idx;
+  const headers = rows[0].map(h => h.replace(/^\uFEFF/, '').trim());
+  const ridIdx = headers.findIndex(h => h === 'result_id');
+  if (ridIdx < 0) return idx;
+  for (let i = 1; i < rows.length; i++) {
+    const cells = rows[i];
+    const rid = cells[ridIdx]?.trim();
+    if (!rid) continue;
+    const obj: Record<string, string> = {};
+    for (let c = 0; c < headers.length; c++) {
+      obj[headers[c]] = (cells[c] ?? '').trim();
+    }
+    idx.set(rid, obj);
+  }
+  return idx;
+}
+
 
 function findCol(headers: string[], ...patterns: string[]): number {
   for (const pattern of patterns) {
