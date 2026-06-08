@@ -136,8 +136,13 @@ export default function AdminImportContent() {
             <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground">
                 {language === "th"
-                  ? "รองรับ 2 รูปแบบ: Bangkok Form (Google Form) และ Pattaya Reach — ตรวจจับอัตโนมัติ"
-                  : "Supports 2 formats: Bangkok Form (Google Form) and Pattaya Reach — auto-detected"}
+                  ? "รองรับ 3 รูปแบบ: Bangkok Form, Pattaya Reach, และ Legacy HIVST (พรีโปรเซส) — ตรวจจับอัตโนมัติ"
+                  : "Supports 3 formats: Bangkok Form, Pattaya Reach, and Legacy HIVST (pre-processed) — auto-detected"}
+              </p>
+              <p className="text-xs text-muted-foreground bg-muted/40 rounded p-2 border border-border/40">
+                {language === "th"
+                  ? "💡 Legacy HIVST: อัปโหลด hivst_results_clean.csv เป็นไฟล์หลัก และ hivst_results_pii.csv เป็นไฟล์เสริม (ถ้ามี). Reactive cases จะถูก flag แบบเงียบ (ไม่ trigger notify) ให้ admin ตรวจในแดชบอร์ด"
+                  : "💡 Legacy HIVST: upload hivst_results_clean.csv as the main file and hivst_results_pii.csv as optional companion. Reactive cases are silently flagged (no notify) for admin review in the dashboard."}
               </p>
 
               <div className="flex items-center gap-3">
@@ -151,14 +156,29 @@ export default function AdminImportContent() {
                 </Select>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
                 <input ref={fileInputRef} type="file" accept=".csv" className="hidden" onChange={handleFileSelect} />
                 <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={loading}>
                   <Upload className="h-4 w-4 mr-2" />
-                  {selectedFile ? selectedFile.name : language === "th" ? "เลือกไฟล์ CSV" : "Select CSV file"}
+                  {selectedFile ? selectedFile.name : language === "th" ? "เลือกไฟล์หลัก (CSV)" : "Select main CSV"}
                 </Button>
                 {selectedFile && <span className="text-sm text-muted-foreground">{(selectedFile.size / 1024).toFixed(1)} KB</span>}
               </div>
+
+              <div className="flex items-center gap-3 flex-wrap">
+                <input ref={piiInputRef} type="file" accept=".csv" className="hidden" onChange={handlePiiFileSelect} />
+                <Button variant="ghost" size="sm" onClick={() => piiInputRef.current?.click()} disabled={loading}>
+                  <Upload className="h-4 w-4 mr-2" />
+                  {selectedPiiFile ? selectedPiiFile.name : language === "th" ? "+ ไฟล์ PII (Legacy เท่านั้น, ไม่บังคับ)" : "+ PII file (Legacy only, optional)"}
+                </Button>
+                {selectedPiiFile && (
+                  <>
+                    <span className="text-sm text-muted-foreground">{(selectedPiiFile.size / 1024).toFixed(1)} KB</span>
+                    <Button variant="ghost" size="sm" onClick={() => { setSelectedPiiFile(null); if (piiInputRef.current) piiInputRef.current.value = ''; }}>×</Button>
+                  </>
+                )}
+              </div>
+
 
               {selectedFile && (
                 <div className="flex gap-3">
