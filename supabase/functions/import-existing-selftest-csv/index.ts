@@ -123,7 +123,9 @@ function isValidUtf8Thai(text: string): boolean {
 async function decodeCSVFile(file: File): Promise<string> {
   const bytes = new Uint8Array(await file.arrayBuffer());
   const decoder = new TextDecoder('utf-8', { fatal: false });
-  const utf8Text = decoder.decode(bytes);
+  let utf8Text = decoder.decode(bytes);
+  // Strip UTF-8 BOM if present
+  if (utf8Text.charCodeAt(0) === 0xFEFF) utf8Text = utf8Text.slice(1);
   if (isValidUtf8Thai(utf8Text)) return utf8Text;
   const cp874Text = decodeCp874(bytes);
   const cp874FirstLine = cp874Text.split('\n')[0] || '';
@@ -131,6 +133,12 @@ async function decodeCSVFile(file: File): Promise<string> {
   if (thaiCount > 3) {
     console.log("Decoded CSV as CP874/Windows-874");
     return cp874Text;
+  }
+  // Fallback: ASCII / English-only CSV (legacy exports with no Thai in headers)
+  const firstLine = utf8Text.split('\n')[0] || '';
+  if (!firstLine.includes('\uFFFD') && firstLine.length > 0) {
+    console.log("Decoded CSV as UTF-8/ASCII (no Thai detected)");
+    return utf8Text;
   }
   throw new Error("Unsupported CSV encoding");
 }
