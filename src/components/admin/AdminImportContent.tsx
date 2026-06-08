@@ -22,13 +22,16 @@ interface ImportResult {
   errors: Array<{ row: number; reason: string }>;
   insertedIds: string[];
   updatedIds: string[];
-  csvType?: "bangkok" | "pattaya_reach" | "unknown";
+  csvType?: "bangkok" | "pattaya_reach" | "legacy_hivst_combined" | "unknown";
+  reactiveFlagged?: number;
 }
 
 export default function AdminImportContent() {
   const { language } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const piiInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedPiiFile, setSelectedPiiFile] = useState<File | null>(null);
   const [selectedBranch, setSelectedBranch] = useState<string>("silom");
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<"idle" | "dry_run" | "import">("idle");
@@ -41,9 +44,15 @@ export default function AdminImportContent() {
     if (file) { setSelectedFile(file); setResult(null); setDbVerified(null); }
   };
 
+  const handlePiiFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) { setSelectedPiiFile(file); }
+  };
+
   const csvTypeLabel = (type?: string) => {
     if (type === "bangkok") return "Bangkok Form (Google Form)";
     if (type === "pattaya_reach") return "Pattaya Reach";
+    if (type === "legacy_hivst_combined") return language === "th" ? "Legacy HIVST (พรีโปรเซส)" : "Legacy HIVST (pre-processed)";
     return language === "th" ? "ไม่ทราบ" : "Unknown";
   };
 
