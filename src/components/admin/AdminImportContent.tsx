@@ -66,6 +66,7 @@ export default function AdminImportContent() {
 
       const formData = new FormData();
       formData.append("csv", selectedFile);
+      if (selectedPiiFile) formData.append("pii_csv", selectedPiiFile);
       formData.append("dry_run", dryRun.toString());
       formData.append("branch", selectedBranch);
 
