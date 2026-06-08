@@ -7817,6 +7817,84 @@ export type Database = {
         }
         Relationships: []
       }
+      route_health_checks: {
+        Row: {
+          checked_at: string
+          content_length: number | null
+          duration_ms: number | null
+          error: string | null
+          id: string
+          ok: boolean
+          path: string
+          status_code: number | null
+        }
+        Insert: {
+          checked_at?: string
+          content_length?: number | null
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          ok: boolean
+          path: string
+          status_code?: number | null
+        }
+        Update: {
+          checked_at?: string
+          content_length?: number | null
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          ok?: boolean
+          path?: string
+          status_code?: number | null
+        }
+        Relationships: []
+      }
+      route_health_targets: {
+        Row: {
+          consecutive_failures: number
+          created_at: string
+          enabled: boolean
+          expected_substring: string | null
+          id: string
+          label: string
+          last_checked_at: string | null
+          last_error: string | null
+          last_ok: boolean | null
+          last_status_code: number | null
+          path: string
+          updated_at: string
+        }
+        Insert: {
+          consecutive_failures?: number
+          created_at?: string
+          enabled?: boolean
+          expected_substring?: string | null
+          id?: string
+          label: string
+          last_checked_at?: string | null
+          last_error?: string | null
+          last_ok?: boolean | null
+          last_status_code?: number | null
+          path: string
+          updated_at?: string
+        }
+        Update: {
+          consecutive_failures?: number
+          created_at?: string
+          enabled?: boolean
+          expected_substring?: string | null
+          id?: string
+          label?: string
+          last_checked_at?: string | null
+          last_error?: string | null
+          last_ok?: boolean | null
+          last_status_code?: number | null
+          path?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       security_alerts: {
         Row: {
           actor_id: string | null

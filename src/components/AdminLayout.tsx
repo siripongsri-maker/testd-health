@@ -7,6 +7,7 @@ import { SessionTimeoutDialog } from "@/components/pdpa/SessionTimeoutDialog";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useBrowserSecurity } from "@/hooks/useBrowserSecurity";
+import { RouteHealthBanner } from "@/components/admin/RouteHealthBanner";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -37,6 +38,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               </span>
             </div>
           </header>
+          <RouteHealthBanner />
           <main className="flex-1 overflow-auto">
             {children}
           </main>
