@@ -1061,6 +1061,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.melReporting': 'MEL Reporting',
     'admin.diagnostics': 'Diagnostics',
     'admin.systemHealth': 'System Health',
+    'admin.routeHealth': 'Route Health',
     'admin.ipDocs': 'IP Documentation',
     'admin.servicesCare': 'Services & Care',
     'admin.melReportingGroup': 'MEL & Reporting',
