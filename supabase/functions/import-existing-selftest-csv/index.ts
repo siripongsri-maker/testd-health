@@ -358,13 +358,202 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "CSV has no data rows" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const headers = rows[0].map(h => h.replace(/\s+/g, ' ').trim());
+    const headers = rows[0].map(h => h.replace(/^\uFEFF/, '').replace(/\s+/g, ' ').trim());
     const csvType = detectCsvType(headers);
     console.log("Detected CSV type:", csvType, "Headers:", headers.slice(0, 10));
 
     if (csvType === 'unknown') {
-      return new Response(JSON.stringify({ error: "Unrecognized CSV format. Expected Bangkok Form or Pattaya Reach headers." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "Unrecognized CSV format. Expected Bangkok Form, Pattaya Reach, or Legacy HIVST combined headers." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
+
+    // ─────────────────────────────────────────────────────────────────
+    // LEGACY HIVST COMBINED PATH (pre-processed Google Form exports)
+    // ─────────────────────────────────────────────────────────────────
+    if (csvType === 'legacy_hivst_combined') {
+      const piiText = piiFile ? await decodeCSVFile(piiFile).catch(() => null) : null;
+      const piiIndex = buildLegacyPiiIndex(piiText);
+      console.log(`Legacy import: ${rows.length - 1} result rows, ${piiIndex.size} PII rows`);
+
+      const col = (name: string) => headers.indexOf(name);
+      const c = {
+        result_id: col('result_id'),
+        source: col('source'),
+        submitted_at: col('submitted_at'),
+        result: col('result'),
+        result_raw: col('result_raw'),
+        is_reactive: col('is_reactive'),
+        legacy_photo_url: col('legacy_photo_url'),
+        hospital_confirmed: col('hospital_confirmed'),
+        hospital_name: col('hospital_name'),
+        treatment_status: col('treatment_status'),
+        art_status: col('art_status'),
+        staff_note: col('staff_note'),
+        pdpa_consent: col('pdpa_consent'),
+        national_id_hash: col('national_id_hash'),
+        has_pii: col('has_pii'),
+      };
+      if (c.result_id < 0) {
+        return new Response(JSON.stringify({ error: "Missing required column: result_id" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+
+      // Pre-fetch already-imported legacy_result_ids for idempotency
+      const existingLegacy = await (async () => {
+        const all: any[] = [];
+        let from = 0; const ps = 1000;
+        while (true) {
+          const { data, error } = await adminClient.from('hiv_selftest_requests').select('legacy_result_id').not('legacy_result_id', 'is', null).range(from, from + ps - 1);
+          if (error) throw error;
+          if (!data || data.length === 0) break;
+          all.push(...data);
+          if (data.length < ps) break;
+          from += ps;
+        }
+        return new Set(all.map(r => r.legacy_result_id));
+      })();
+
+      const legacyResult: ImportResult = { total: rows.length - 1, inserted: 0, updated: 0, skipped: 0, errors: [], insertedIds: [], updatedIds: [], csvType, reactiveFlagged: 0 };
+      const legacyRowResults: Array<{ row_number: number; outcome: string; error_message: string | null; external_ref: string | null }> = [];
+
+      for (let i = 1; i < rows.length; i++) {
+        const cells = rows[i];
+        const rowNum = i + 1;
+        const g = (idx: number) => idx >= 0 && idx < cells.length ? (cells[idx] || '').trim() : '';
+        const resultId = g(c.result_id);
+        try {
+          if (!resultId) {
+            legacyResult.skipped++;
+            legacyRowResults.push({ row_number: rowNum, outcome: 'skipped', error_message: 'Missing result_id', external_ref: null });
+            continue;
+          }
+          if (existingLegacy.has(resultId)) {
+            legacyResult.skipped++;
+            legacyRowResults.push({ row_number: rowNum, outcome: 'duplicate', error_message: 'Already imported', external_ref: resultId });
+            continue;
+          }
+
+          const result = normalizeLegacyResult(g(c.result));
+          const submittedAt = parseIsoTimestamp(g(c.submitted_at)) || new Date().toISOString();
+          const source = g(c.source) || 'legacy_hivst_form';
+          const rawResult = g(c.result_raw) || null;
+          const isReactive = result === 'reactive';
+          const legacyPhotoUrl = g(c.legacy_photo_url) || null;
+          const pdpaRaw = g(c.pdpa_consent);
+          const pdpaConsent = pdpaRaw === 'True' ? true : pdpaRaw === 'False' ? false : null;
+          const nidHash = g(c.national_id_hash) || null;
+          const hasPii = g(c.has_pii) === 'True';
+
+          // Build staff_notes from legacy follow-up fields
+          const followup: string[] = [];
+          const hc = g(c.hospital_confirmed); if (hc) followup.push(`รพ.ยืนยันผล: ${hc}`);
+          const hn = g(c.hospital_name); if (hn) followup.push(`ชื่อ รพ.: ${hn}`);
+          const ts = g(c.treatment_status); if (ts) followup.push(`การรักษา: ${ts}`);
+          const ars = g(c.art_status); if (ars) followup.push(`ART: ${ars}`);
+          const sn = g(c.staff_note); if (sn) followup.push(`บันทึก: ${sn}`);
+          const staffNotes = followup.length ? followup.join(' | ') : null;
+
+          if (dryRun) {
+            legacyResult.inserted++;
+            if (isReactive) legacyResult.reactiveFlagged!++;
+            legacyRowResults.push({ row_number: rowNum, outcome: 'will_insert', error_message: null, external_ref: resultId });
+            continue;
+          }
+
+          // 1) Insert PII row first if we have identity
+          let piiId: string | null = null;
+          if (hasPii && pdpaConsent !== false) {
+            const piiRow = piiIndex.get(resultId);
+            if (piiRow) {
+              const rawNid = (piiRow.national_id || '').replace(/\D/g, '');
+              const nidCheck = rawNid ? normalizeThaiId(rawNid) : { value: null, valid: false };
+              const piiInsert: Record<string, any> = {
+                user_id: user.id,
+                full_name: piiRow.full_name || null,
+                phone: piiRow.phone || null,
+                gender: piiRow.sex_at_birth || null,
+                date_of_birth: piiRow.dob_iso || null,
+              };
+              // Only set thai_id if checksum is valid (validator trigger will reject otherwise)
+              if (nidCheck.valid && nidCheck.value) piiInsert.thai_id = nidCheck.value;
+              const { data: piiData, error: piiErr } = await adminClient.from('selftest_pii').insert(piiInsert).select('id').single();
+              if (piiErr) {
+                console.warn(`Row ${rowNum} PII insert failed, continuing without PII: ${piiErr.message}`);
+              } else {
+                piiId = piiData.id;
+              }
+            }
+          }
+
+          // 2) Insert request row
+          const reqInsert: Record<string, any> = {
+            user_id: user.id,
+            pii_id: piiId,
+            status: 'completed',
+            assigned_branch: branch,
+            created_at: submittedAt,
+            result_submitted_at: submittedAt,
+            self_reported_result: result,
+            test_result: result,
+            result_photo_url: legacyPhotoUrl,
+            photo_provided: !!legacyPhotoUrl,
+            submission_path: 'legacy_import',
+            staff_notes: staffNotes,
+            legacy_result_id: resultId,
+            legacy_source: source,
+            legacy_raw_result: rawResult,
+            legacy_hospital_confirmed: g(c.hospital_confirmed) || null,
+            legacy_hospital_name: g(c.hospital_name) || null,
+            legacy_treatment_status: g(c.treatment_status) || null,
+            legacy_art_status: g(c.art_status) || null,
+            legacy_pdpa_consent: pdpaConsent,
+            national_id_hash: nidHash,
+          };
+          const { data: reqData, error: reqErr } = await adminClient.from('hiv_selftest_requests').insert(reqInsert).select('id').single();
+          if (reqErr) throw reqErr;
+
+          legacyResult.inserted++;
+          legacyResult.insertedIds.push(reqData.id);
+          if (isReactive) legacyResult.reactiveFlagged!++;
+          legacyRowResults.push({ row_number: rowNum, outcome: 'inserted', error_message: null, external_ref: resultId });
+          existingLegacy.add(resultId);
+        } catch (err: any) {
+          legacyResult.errors.push({ row: rowNum, reason: err.message || String(err) });
+          legacyRowResults.push({ row_number: rowNum, outcome: 'error', error_message: err.message || String(err), external_ref: resultId || null });
+        }
+      }
+
+      // Record batch
+      const batchStatus = legacyResult.errors.length === 0 ? 'success' : (legacyResult.inserted > 0) ? 'partial' : 'failed';
+      try {
+        const { data: batchData } = await adminClient.from('selftest_import_batches').insert({
+          branch,
+          uploaded_by: user.id,
+          filename: csvFile.name || 'legacy_hivst.csv',
+          source_type: 'legacy_hivst_combined',
+          total_rows: legacyResult.total,
+          inserted_rows: legacyResult.inserted,
+          duplicate_rows: 0,
+          error_rows: legacyResult.errors.length,
+          skipped_rows: legacyResult.skipped,
+          status: batchStatus,
+          is_dry_run: dryRun,
+          notes: `Reactive cases flagged (silent, no notify): ${legacyResult.reactiveFlagged}. PII pairs: ${piiIndex.size}`,
+        }).select('id').single();
+        if (batchData && legacyRowResults.length > 0) {
+          const chunkSize = 500;
+          for (let cc = 0; cc < legacyRowResults.length; cc += chunkSize) {
+            const chunk = legacyRowResults.slice(cc, cc + chunkSize).map(r => ({ ...r, batch_id: batchData.id }));
+            await adminClient.from('selftest_import_rows').insert(chunk);
+          }
+        }
+      } catch (batchErr) {
+        console.error("Failed to record legacy batch history:", batchErr);
+      }
+
+      return new Response(JSON.stringify({ success: true, dry_run: dryRun, result: legacyResult }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
 
     let colMap: Record<string, number> = {};
     if (csvType === 'bangkok') {
