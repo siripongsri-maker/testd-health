@@ -22,7 +22,7 @@ interface ImportResult {
   errors: Array<{ row: number; reason: string }>;
   insertedIds: string[];
   updatedIds: string[];
-  csvType?: "bangkok" | "pattaya_reach" | "legacy_hivst_combined" | "unknown";
+  csvType?: "bangkok" | "pattaya_reach" | "legacy_hivst_combined" | "legacy_hivst_pii" | "unknown";
   reactiveFlagged?: number;
 }
 
@@ -53,6 +53,7 @@ export default function AdminImportContent() {
     if (type === "bangkok") return "Bangkok Form (Google Form)";
     if (type === "pattaya_reach") return "Pattaya Reach";
     if (type === "legacy_hivst_combined") return language === "th" ? "Legacy HIVST (พรีโปรเซส)" : "Legacy HIVST (pre-processed)";
+    if (type === "legacy_hivst_pii") return language === "th" ? "Legacy HIVST PII (ลิงก์ด้วย result_id)" : "Legacy HIVST PII (linked by result_id)";
     return language === "th" ? "ไม่ทราบ" : "Unknown";
   };
 
@@ -136,8 +137,8 @@ export default function AdminImportContent() {
             <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground">
                 {language === "th"
-                  ? "รองรับ 3 รูปแบบ: Bangkok Form, Pattaya Reach, และ Legacy HIVST (พรีโปรเซส) — ตรวจจับอัตโนมัติ"
-                  : "Supports 3 formats: Bangkok Form, Pattaya Reach, and Legacy HIVST (pre-processed) — auto-detected"}
+                  ? "รองรับ Bangkok Form, Pattaya Reach, Legacy HIVST results และ Legacy HIVST PII — ตรวจจับอัตโนมัติ"
+                  : "Supports Bangkok Form, Pattaya Reach, Legacy HIVST results, and Legacy HIVST PII — auto-detected"}
               </p>
               <p className="text-xs text-muted-foreground bg-muted/40 rounded p-2 border border-border/40">
                 {language === "th"
