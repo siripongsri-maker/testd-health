@@ -134,18 +134,61 @@ export default function AdminRouteHealthContent() {
     return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin" /></div>;
   }
 
+  const lastDeploy = deploys[0];
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h2 className="text-2xl font-bold">Route Health</h2>
-          <p className="text-sm text-muted-foreground">เฝ้าระวังลิงก์สำคัญหลัง deploy (ตรวจอัตโนมัติทุก 1 ชั่วโมง)</p>
+          <p className="text-sm text-muted-foreground">เฝ้าระวังลิงก์สำคัญ · ตรวจรายชั่วโมง + Smoke test อัตโนมัติทุก 5 นาทีหลัง deploy</p>
         </div>
-        <Button onClick={runNow} disabled={running}>
-          {running ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
-          ตรวจสอบเดี๋ยวนี้
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={runSmoke} disabled={smoking}>
+            {smoking ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+            รัน Smoke test
+          </Button>
+          <Button onClick={runNow} disabled={running}>
+            {running ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+            ตรวจสอบเดี๋ยวนี้
+          </Button>
+        </div>
       </div>
+
+      {lastDeploy && (
+        <Card className={
+          lastDeploy.smoke_status === "pass"
+            ? "border-emerald-500/40 bg-emerald-500/5"
+            : lastDeploy.smoke_status === "fail"
+              ? "border-destructive/50 bg-destructive/5"
+              : "border-border"
+        }>
+          <CardContent className="pt-6 space-y-2">
+            <div className="flex items-center gap-3 flex-wrap">
+              {lastDeploy.smoke_status === "pass"
+                ? <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                : <XCircle className="h-5 w-5 text-destructive" />}
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold">
+                  Deploy ล่าสุด: Smoke test {lastDeploy.smoke_status === "pass" ? "ผ่าน" : "ล้มเหลว"}
+                  {" "}({lastDeploy.checked_count - lastDeploy.failing_count}/{lastDeploy.checked_count} ลิงก์ OK)
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  ตรวจพบเมื่อ {formatDistanceToNow(new Date(lastDeploy.detected_at), { addSuffix: true })}
+                  {" · "}build: <code className="text-xs">{lastDeploy.build_fingerprint}</code>
+                </p>
+              </div>
+            </div>
+            {lastDeploy.failing_count > 0 && Array.isArray(lastDeploy.failing_paths) && (
+              <ul className="text-sm text-destructive pl-8 list-disc">
+                {lastDeploy.failing_paths.map((f: any, i: number) => (
+                  <li key={i}><code>{f.path}</code> — {f.error ?? `HTTP ${f.status}`}</li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {failingCount > 0 && (
         <Card className="border-destructive/50 bg-destructive/5">
