@@ -228,6 +228,7 @@ export default function Admin() {
           {renderTab("import", <AdminImportContent />)}
           {renderTab("app-updates", <AdminAppUpdatesContent />)}
           {renderTab("system-health", <AdminSystemHealthContent />)}
+          {renderTab("route-health", <AdminRouteHealthContent />)}
           {renderTab("ip-docs", <AdminIPDocsContent />)}
           {renderTab("harm-reduction", <AdminHarmReductionContent />)}
           {renderTab("safety-planner", <AdminSafetyPlannerContent />)}
