@@ -372,7 +372,7 @@ serve(async (req) => {
     console.log("Detected CSV type:", csvType, "Headers:", headers.slice(0, 10));
 
     if (csvType === 'unknown') {
-      return new Response(JSON.stringify({ error: "Unrecognized CSV format. Expected Bangkok Form, Pattaya Reach, or Legacy HIVST combined headers." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "Unrecognized CSV format. Expected Bangkok Form, Pattaya Reach, or Legacy HIVST combined headers.", detectedHeaders: headers.slice(0, 20) }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     // ─────────────────────────────────────────────────────────────────
