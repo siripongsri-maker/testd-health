@@ -1835,8 +1835,3 @@ export default function HIVSelfTest() {
     </>
   );
 }
-      </PageContainer>
-      <BottomNav />
-    </>
-  );
-}
