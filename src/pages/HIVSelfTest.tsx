@@ -1814,6 +1814,14 @@ export default function HIVSelfTest() {
             trackEvent={(name, props) => trackEvent(name, props as any)}
           />
         )}
+
+        {/* Guest flow (no active request): render legacy step views so guests can
+            watch the tutorial, run the timer, and submit a photo without logging in. */}
+        {!activeRequest && currentStep === 'confirm-receipt' && renderConfirmReceiptStep()}
+        {!activeRequest && currentStep === 'video' && renderVideoStep()}
+        {!activeRequest && currentStep === 'testing' && renderTestingStep()}
+        {!activeRequest && currentStep === 'timer' && renderTimerStep()}
+        {!activeRequest && currentStep === 'photo-result' && renderPhotoResultStep()}
       </PageContainer>
       <BottomNav />
     </>
