@@ -326,27 +326,116 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
           </span>
         </label>
 
+        {/* Guest-only: contact info required for the team to follow up if reactive */}
+        {guestMode && (
+          <div className="space-y-3 rounded-lg bg-muted/40 border border-border/60 p-3">
+            <div>
+              <p className="text-sm font-medium">
+                {language === "th" ? "ข้อมูลติดต่อกลับ" : "Contact information"}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {language === "th"
+                  ? "ส่งผลแบบไม่ต้องสมัครสมาชิก — ทีมจะใช้ข้อมูลนี้เฉพาะเมื่อจำเป็น"
+                  : "No account needed — the team only uses this if necessary."}
+              </p>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="lean-guest-name" className="text-xs">
+                {language === "th" ? "ชื่อ หรือชื่อเล่น" : "Name or nickname"} *
+              </Label>
+              <Input
+                id="lean-guest-name"
+                value={guestName}
+                onChange={(e) => setGuestName(e.target.value)}
+                placeholder={language === "th" ? "เช่น นิว" : "e.g. Alex"}
+                maxLength={100}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="lean-guest-phone" className="text-xs">
+                {language === "th" ? "เบอร์โทรติดต่อกลับ" : "Contact phone"} *
+              </Label>
+              <Input
+                id="lean-guest-phone"
+                type="tel"
+                value={guestPhone}
+                onChange={(e) => setGuestPhone(e.target.value)}
+                placeholder="0XX-XXX-XXXX"
+                maxLength={20}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="lean-guest-line" className="text-xs">
+                {language === "th" ? "LINE ID (ไม่บังคับ)" : "LINE ID (optional)"}
+              </Label>
+              <Input
+                id="lean-guest-line"
+                value={guestLineId}
+                onChange={(e) => setGuestLineId(e.target.value)}
+                placeholder="@yourline"
+                maxLength={100}
+              />
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              🔒 {language === "th"
+                ? "ข้อมูลของคุณจะถูกเก็บเป็นความลับ ใช้เพื่อติดต่อกลับและส่งต่อการดูแลเท่านั้น"
+                : "Your information stays confidential, used only for follow-up and care."}
+            </p>
+          </div>
+        )}
+
         <Button
           size="lg"
           className="w-full"
-          disabled={!result || submitting}
+          disabled={
+            !result ||
+            submitting ||
+            (guestMode && !photo) /* photo is required for guests (RPC needs photo_path) */
+          }
           onClick={async () => {
             if (!result) return;
+            if (guestMode) {
+              const trimmedName = guestName.trim();
+              const trimmedPhone = guestPhone.replace(/\s+/g, "");
+              if (trimmedName.length < 2) {
+                toast({ title: language === "th" ? "กรุณากรอกชื่อ" : "Please enter your name", variant: "destructive" });
+                return;
+              }
+              if (trimmedPhone.length < 8) {
+                toast({ title: language === "th" ? "กรุณากรอกเบอร์โทรที่ติดต่อได้" : "Please enter a valid phone", variant: "destructive" });
+                return;
+              }
+              if (!photo) {
+                toast({ title: language === "th" ? "กรุณาแนบรูปผลตรวจ" : "Please attach a result photo", variant: "destructive" });
+                return;
+              }
+            }
             setSubmitting(true);
             try {
-              await submitResult(request, result, photo);
+              let submittedId = request.id;
+              if (guestMode) {
+                submittedId = await submitGuestResult(result, photo!, {
+                  name: guestName.trim(),
+                  phone: guestPhone.replace(/\s+/g, ""),
+                  lineId: guestLineId.trim() || null,
+                });
+                setGuestRequestId(submittedId);
+              } else {
+                await submitResult(request, result, photo);
+              }
               trackEvent("lean_result_submitted", {
-                request_id: request.id,
+                request_id: submittedId,
                 result,
                 has_photo: !!photo,
                 via_magic_link: !!cameFromMagicLink,
+                guest: !!guestMode,
               });
 
               // Fire-and-forget reactive notification
               if (result === "reactive") {
                 supabase.functions
                   .invoke("notify-reactive-case", {
-                    body: { request_id: request.id, has_photo: !!photo },
+                    body: { request_id: submittedId, has_photo: !!photo },
                   })
                   .catch((err) => console.warn("[notify-reactive-case]", err));
               }
@@ -364,13 +453,15 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
           {submitting ? t.submitting : t.submit}
         </Button>
 
-        <button
-          type="button"
-          onClick={handlePostpone}
-          className="w-full text-center text-sm text-muted-foreground hover:text-foreground py-2 transition"
-        >
-          {t.postpone}
-        </button>
+        {!guestMode && (
+          <button
+            type="button"
+            onClick={handlePostpone}
+            className="w-full text-center text-sm text-muted-foreground hover:text-foreground py-2 transition"
+          >
+            {t.postpone}
+          </button>
+        )}
       </Card>
     );
   }
