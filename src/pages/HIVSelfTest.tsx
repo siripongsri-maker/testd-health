@@ -1815,13 +1815,21 @@ export default function HIVSelfTest() {
           />
         )}
 
-        {/* Guest flow (no active request): render legacy step views so guests can
-            watch the tutorial, run the timer, and submit a photo without logging in. */}
-        {!activeRequest && currentStep === 'confirm-receipt' && renderConfirmReceiptStep()}
-        {!activeRequest && currentStep === 'video' && renderVideoStep()}
-        {!activeRequest && currentStep === 'testing' && renderTestingStep()}
-        {!activeRequest && currentStep === 'timer' && renderTimerStep()}
-        {!activeRequest && currentStep === 'photo-result' && renderPhotoResultStep()}
+        {/* Guest path — same unified Lean flow (1 ขีด / 2 ขีด), no login required.
+            Anonymous visitors land here via /submit-result → ?action=submit → existing-kit-upload → photo-result. */}
+        {!activeRequest && !user && currentStep === 'photo-result' && (
+          <LeanResultSubmissionFlow
+            request={{
+              id: 'guest-pending',
+              user_id: null,
+              delivery_mode: null,
+              status: 'guest',
+            }}
+            guestMode
+            onDone={() => setCurrentStep('intro')}
+            trackEvent={(name, props) => trackEvent(name, props as any)}
+          />
+        )}
       </PageContainer>
       <BottomNav />
     </>
