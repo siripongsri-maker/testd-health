@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/lib/i18n";
@@ -19,6 +21,8 @@ export interface LeanActiveRequest {
 interface Props {
   request: LeanActiveRequest;
   cameFromMagicLink?: boolean;
+  /** When true, the visitor is anonymous: collect name/phone and call the guest RPC instead of UPDATE. */
+  guestMode?: boolean;
   onDone: () => void;
   trackEvent: (name: string, props?: Record<string, unknown>) => void;
 }
