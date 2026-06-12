@@ -468,19 +468,23 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
 
   // ---------- Step C: Outcome ----------
   if (step === "outcome" && result) {
+    const effectiveRequestId = guestRequestId || request.id;
     return (
       <OutcomeScreen
         result={result}
-        request={request}
+        request={{ ...request, id: effectiveRequestId }}
         t={t}
         onDone={onDone}
         onCareAction={async (action) => {
-          trackEvent("lean_care_action", { request_id: request.id, action, result });
+          trackEvent("lean_care_action", { request_id: effectiveRequestId, action, result, guest: !!guestMode });
+          // Guests cannot UPDATE hiv_selftest_requests directly (RLS); their care choice
+          // is captured in analytics only. Authenticated submissions persist it.
+          if (guestMode) return;
           try {
             await supabase
               .from("hiv_selftest_requests")
               .update({ care_action: action })
-              .eq("id", request.id);
+              .eq("id", effectiveRequestId);
           } catch (e) {
             console.error("[care_action]", e);
           }
