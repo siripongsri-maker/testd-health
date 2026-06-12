@@ -725,12 +725,73 @@ export default function HIVSelfTest() {
       toast.error(language === 'th' ? 'กรุณาถ่ายรูปผลตรวจก่อน' : 'Please take a photo first');
       return;
     }
-    
+
+    // Guest path: no login required, but we need basic contact info
     if (!user) {
-      toast.error(language === 'th' ? 'กรุณาลงทะเบียนก่อนส่งผล' : 'Please complete registration before submitting result');
+      const trimmedName = guestName.trim();
+      const trimmedPhone = guestPhone.replace(/\s+/g, '');
+      if (trimmedName.length < 2) {
+        toast.error(language === 'th' ? 'กรุณากรอกชื่อ' : 'Please enter your name');
+        return;
+      }
+      if (trimmedPhone.length < 8) {
+        toast.error(language === 'th' ? 'กรุณากรอกเบอร์โทรที่ติดต่อได้' : 'Please enter a valid phone number');
+        return;
+      }
+
+      // Map AI analysis result → DB-allowed self-reported value
+      const mapped: 'negative' | 'reactive' | 'invalid' =
+        analysisResult === 'positive' ? 'reactive'
+        : analysisResult === 'negative' ? 'negative'
+        : 'invalid';
+
+      setUploading(true);
+      try {
+        const fileExt = resultPhoto.name.split('.').pop() || 'jpg';
+        const fileName = `guest/${crypto.randomUUID()}-${Date.now()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('selftest-results')
+          .upload(fileName, resultPhoto, { upsert: false });
+        if (uploadError) throw uploadError;
+
+        const { error: rpcError } = await supabase.rpc('submit_guest_selftest_result', {
+          p_full_name: trimmedName,
+          p_phone: trimmedPhone,
+          p_line_id: guestLineId.trim() || null,
+          p_self_result: mapped,
+          p_photo_path: fileName,
+          p_wants_callback: mapped === 'reactive' ? true : wantsCallback,
+        });
+        if (rpcError) throw rpcError;
+
+        toast.success(
+          language === 'th'
+            ? 'ส่งผลตรวจสำเร็จ! เจ้าหน้าที่จะติดต่อกลับหากจำเป็น'
+            : 'Result submitted! Staff will follow up if needed.'
+        );
+
+        setCurrentStep('intro');
+        setCompletedSteps([]);
+        setTimerSeconds(15 * 60);
+        setResultPhoto(null);
+        setPhotoPreview(null);
+        setAnalysisResult(null);
+        setAnalysisDetails(null);
+        setWantsCallback(false);
+        setCallbackPhone("");
+        setGuestName("");
+        setGuestPhone("");
+        setGuestLineId("");
+      } catch (error) {
+        console.error('Guest submit error:', error);
+        toast.error(language === 'th' ? 'ส่งผลไม่สำเร็จ ลองอีกครั้ง' : 'Submission failed. Please try again.');
+      } finally {
+        setUploading(false);
+      }
       return;
     }
-    
+
     setUploading(true);
     
     try {
