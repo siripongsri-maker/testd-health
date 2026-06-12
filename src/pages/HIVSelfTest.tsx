@@ -1567,6 +1567,64 @@ export default function HIVSelfTest() {
                   confidence={analysisDetails?.confidence}
                   language={language}
                 />
+
+                {!user && (
+                  <Card className="p-4 space-y-3 bg-muted/30">
+                    <div>
+                      <h4 className="text-sm font-semibold text-foreground">
+                        {language === 'th' ? 'ข้อมูลติดต่อกลับ' : 'Contact information'}
+                      </h4>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {language === 'th'
+                          ? 'ส่งผลแบบไม่ต้องสมัครสมาชิก เจ้าหน้าที่จะใช้ข้อมูลนี้เพื่อติดต่อกลับเฉพาะเมื่อจำเป็น'
+                          : 'No account needed. Staff will only use this to follow up if necessary.'}
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="guestName" className="text-xs font-medium">
+                        {language === 'th' ? 'ชื่อ หรือชื่อเล่น' : 'Name or nickname'} *
+                      </Label>
+                      <Input
+                        id="guestName"
+                        value={guestName}
+                        onChange={(e) => setGuestName(e.target.value)}
+                        placeholder={language === 'th' ? 'เช่น นิว' : 'e.g. Alex'}
+                        maxLength={100}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="guestPhone" className="text-xs font-medium">
+                        {language === 'th' ? 'เบอร์โทรติดต่อกลับ' : 'Contact phone'} *
+                      </Label>
+                      <Input
+                        id="guestPhone"
+                        type="tel"
+                        value={guestPhone}
+                        onChange={(e) => setGuestPhone(e.target.value)}
+                        placeholder="0XX-XXX-XXXX"
+                        maxLength={20}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="guestLineId" className="text-xs font-medium">
+                        {language === 'th' ? 'LINE ID (ไม่บังคับ)' : 'LINE ID (optional)'}
+                      </Label>
+                      <Input
+                        id="guestLineId"
+                        value={guestLineId}
+                        onChange={(e) => setGuestLineId(e.target.value)}
+                        placeholder="@yourline"
+                        maxLength={100}
+                      />
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      {language === 'th'
+                        ? '🔒 ข้อมูลของคุณจะถูกเก็บเป็นความลับ ใช้เพื่อติดต่อกลับและส่งต่อการดูแลเท่านั้น'
+                        : '🔒 Your information is confidential and only used for follow-up and care coordination.'}
+                    </p>
+                  </Card>
+                )}
+
                 <Button 
                   className="w-full gap-2" 
                   size="lg"
