@@ -674,3 +674,29 @@ async function submitResult(request: LeanActiveRequest, result: ResultType, phot
     }
   }
 }
+
+// ---------- Guest submit (anonymous) ----------
+async function submitGuestResult(
+  result: ResultType,
+  photo: File,
+  contact: { name: string; phone: string; lineId: string | null },
+): Promise<string> {
+  // Upload to the guest/ prefix — anon insert is permitted there by storage policy.
+  const ext = (photo.name.split(".").pop() || "jpg").toLowerCase();
+  const photoPath = `guest/${crypto.randomUUID()}-${Date.now()}.${ext}`;
+  const { error: upErr } = await supabase.storage
+    .from("selftest-results")
+    .upload(photoPath, photo, { upsert: false, contentType: photo.type });
+  if (upErr) throw upErr;
+
+  const { data, error } = await supabase.rpc("submit_guest_selftest_result", {
+    p_full_name: contact.name,
+    p_phone: contact.phone,
+    p_line_id: contact.lineId,
+    p_self_result: result,
+    p_photo_path: photoPath,
+    p_wants_callback: result === "reactive",
+  });
+  if (error) throw error;
+  return data as unknown as string;
+}
