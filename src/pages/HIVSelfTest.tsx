@@ -994,59 +994,50 @@ export default function HIVSelfTest() {
           </p>
         </div>
 
-        {!user ? (
-          <div className="space-y-4">
-            <div className="p-4 bg-muted/50 rounded-lg text-center">
-              <p className="text-sm text-muted-foreground mb-3">
-                {language === 'th' 
-                  ? '⚠️ กรุณาเข้าสู่ระบบก่อนเพื่อส่งผลตรวจ' 
-                  : '⚠️ Please login first to submit your result'
-                }
+        <div className="space-y-4">
+          {/* Option 1: Watch video first */}
+          <div className="p-4 border rounded-lg space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">1</span>
+              <p className="text-sm font-medium">
+                {language === 'th' ? 'ดูวิดีโอคำแนะนำก่อน (แนะนำ)' : 'Watch tutorial video first (recommended)'}
               </p>
-              <Button onClick={() => navigate('/auth')} className="gap-2">
-                <ArrowRight className="h-4 w-4" />
-                {language === 'th' ? 'เข้าสู่ระบบ' : 'Login'}
-              </Button>
             </div>
+            <Button
+              variant="outline"
+              className="w-full gap-2"
+              onClick={() => setCurrentStep('video')}
+            >
+              <Play className="h-4 w-4" />
+              {language === 'th' ? 'ดูวิดีโอ' : 'Watch Video'}
+            </Button>
           </div>
-        ) : (
-          <div className="space-y-4">
-            {/* Option 1: Watch video first */}
-            <div className="p-4 border rounded-lg space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">1</span>
-                <p className="text-sm font-medium">
-                  {language === 'th' ? 'ดูวิดีโอคำแนะนำก่อน (แนะนำ)' : 'Watch tutorial video first (recommended)'}
-                </p>
-              </div>
-              <Button 
-                variant="outline" 
-                className="w-full gap-2"
-                onClick={() => setCurrentStep('video')}
-              >
-                <Play className="h-4 w-4" />
-                {language === 'th' ? 'ดูวิดีโอ' : 'Watch Video'}
-              </Button>
-            </div>
 
-            {/* Option 2: Skip to photo upload */}
-            <div className="p-4 border rounded-lg space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">2</span>
-                <p className="text-sm font-medium">
-                  {language === 'th' ? 'ข้ามไปส่งผลตรวจเลย' : 'Skip to submit result'}
-                </p>
-              </div>
-              <Button 
-                className="w-full gap-2"
-                onClick={() => setCurrentStep('photo-result')}
-              >
-                <Camera className="h-4 w-4" />
-                {language === 'th' ? 'ถ่ายรูปผลตรวจ' : 'Take Result Photo'}
-              </Button>
+          {/* Option 2: Skip to photo upload */}
+          <div className="p-4 border rounded-lg space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">2</span>
+              <p className="text-sm font-medium">
+                {language === 'th' ? 'ข้ามไปส่งผลตรวจเลย' : 'Skip to submit result'}
+              </p>
             </div>
+            <Button
+              className="w-full gap-2"
+              onClick={() => setCurrentStep('photo-result')}
+            >
+              <Camera className="h-4 w-4" />
+              {language === 'th' ? 'ถ่ายรูปผลตรวจ' : 'Take Result Photo'}
+            </Button>
           </div>
-        )}
+
+          {!user && (
+            <p className="text-xs text-center text-muted-foreground">
+              {language === 'th'
+                ? '🔒 ส่งผลแบบไม่ต้องสมัครสมาชิกได้ — เราจะขอเพียงชื่อและเบอร์ติดต่อกลับ'
+                : '🔒 No account needed — we will only ask for your name and a contact number.'}
+            </p>
+          )}
+        </div>
       </Card>
 
       {/* Privacy note */}
