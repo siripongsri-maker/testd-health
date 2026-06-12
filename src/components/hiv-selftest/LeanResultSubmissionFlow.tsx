@@ -27,7 +27,7 @@ interface Props {
   trackEvent: (name: string, props?: Record<string, unknown>) => void;
 }
 
-const VIDEO_URL = "https://testd.website/learn/selftest-video";
+const VIDEO_URL = "https://www.youtube.com/watch?v=LbvDEQu3kaE";
 
 const T = {
   th: {

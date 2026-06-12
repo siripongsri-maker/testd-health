@@ -1071,7 +1071,7 @@ export default function HIVSelfTest() {
         <div className="aspect-video rounded-lg overflow-hidden bg-muted mb-4">
           <iframe
             className="w-full h-full"
-            src="https://drive.google.com/file/d/1jUs47ss5wiKODpMEyj01B2eqzoNT6Q-_/preview"
+            src="https://www.youtube.com/embed/LbvDEQu3kaE"
             allow="autoplay"
             allowFullScreen
           />
@@ -1246,7 +1246,7 @@ export default function HIVSelfTest() {
               <div className="aspect-video rounded-lg overflow-hidden">
                 <iframe
                   className="w-full h-full"
-                  src="https://www.youtube.com/embed/eIVV06_kioM?autoplay=1"
+                  src="https://www.youtube.com/embed/LbvDEQu3kaE?autoplay=1"
                   title="SWING Thailand - HIV Self Test Guide"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
