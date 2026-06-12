@@ -149,6 +149,11 @@ export default function HIVSelfTest() {
   // Contact consent state for positive results
   const [wantsCallback, setWantsCallback] = useState(false);
   const [callbackPhone, setCallbackPhone] = useState("");
+
+  // Guest contact fields (used when no logged-in user submits a result from an existing kit)
+  const [guestName, setGuestName] = useState("");
+  const [guestPhone, setGuestPhone] = useState("");
+  const [guestLineId, setGuestLineId] = useState("");
   const [analysisResult, setAnalysisResult] = useState<'positive' | 'negative' | 'invalid' | 'inconclusive' | null>(null);
   const [analysisDetails, setAnalysisDetails] = useState<{
     confidence?: string;
@@ -720,12 +725,73 @@ export default function HIVSelfTest() {
       toast.error(language === 'th' ? 'กรุณาถ่ายรูปผลตรวจก่อน' : 'Please take a photo first');
       return;
     }
-    
+
+    // Guest path: no login required, but we need basic contact info
     if (!user) {
-      toast.error(language === 'th' ? 'กรุณาลงทะเบียนก่อนส่งผล' : 'Please complete registration before submitting result');
+      const trimmedName = guestName.trim();
+      const trimmedPhone = guestPhone.replace(/\s+/g, '');
+      if (trimmedName.length < 2) {
+        toast.error(language === 'th' ? 'กรุณากรอกชื่อ' : 'Please enter your name');
+        return;
+      }
+      if (trimmedPhone.length < 8) {
+        toast.error(language === 'th' ? 'กรุณากรอกเบอร์โทรที่ติดต่อได้' : 'Please enter a valid phone number');
+        return;
+      }
+
+      // Map AI analysis result → DB-allowed self-reported value
+      const mapped: 'negative' | 'reactive' | 'invalid' =
+        analysisResult === 'positive' ? 'reactive'
+        : analysisResult === 'negative' ? 'negative'
+        : 'invalid';
+
+      setUploading(true);
+      try {
+        const fileExt = resultPhoto.name.split('.').pop() || 'jpg';
+        const fileName = `guest/${crypto.randomUUID()}-${Date.now()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('selftest-results')
+          .upload(fileName, resultPhoto, { upsert: false });
+        if (uploadError) throw uploadError;
+
+        const { error: rpcError } = await supabase.rpc('submit_guest_selftest_result', {
+          p_full_name: trimmedName,
+          p_phone: trimmedPhone,
+          p_line_id: guestLineId.trim() || null,
+          p_self_result: mapped,
+          p_photo_path: fileName,
+          p_wants_callback: mapped === 'reactive' ? true : wantsCallback,
+        });
+        if (rpcError) throw rpcError;
+
+        toast.success(
+          language === 'th'
+            ? 'ส่งผลตรวจสำเร็จ! เจ้าหน้าที่จะติดต่อกลับหากจำเป็น'
+            : 'Result submitted! Staff will follow up if needed.'
+        );
+
+        setCurrentStep('intro');
+        setCompletedSteps([]);
+        setTimerSeconds(15 * 60);
+        setResultPhoto(null);
+        setPhotoPreview(null);
+        setAnalysisResult(null);
+        setAnalysisDetails(null);
+        setWantsCallback(false);
+        setCallbackPhone("");
+        setGuestName("");
+        setGuestPhone("");
+        setGuestLineId("");
+      } catch (error) {
+        console.error('Guest submit error:', error);
+        toast.error(language === 'th' ? 'ส่งผลไม่สำเร็จ ลองอีกครั้ง' : 'Submission failed. Please try again.');
+      } finally {
+        setUploading(false);
+      }
       return;
     }
-    
+
     setUploading(true);
     
     try {
@@ -928,59 +994,50 @@ export default function HIVSelfTest() {
           </p>
         </div>
 
-        {!user ? (
-          <div className="space-y-4">
-            <div className="p-4 bg-muted/50 rounded-lg text-center">
-              <p className="text-sm text-muted-foreground mb-3">
-                {language === 'th' 
-                  ? '⚠️ กรุณาเข้าสู่ระบบก่อนเพื่อส่งผลตรวจ' 
-                  : '⚠️ Please login first to submit your result'
-                }
+        <div className="space-y-4">
+          {/* Option 1: Watch video first */}
+          <div className="p-4 border rounded-lg space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">1</span>
+              <p className="text-sm font-medium">
+                {language === 'th' ? 'ดูวิดีโอคำแนะนำก่อน (แนะนำ)' : 'Watch tutorial video first (recommended)'}
               </p>
-              <Button onClick={() => navigate('/auth')} className="gap-2">
-                <ArrowRight className="h-4 w-4" />
-                {language === 'th' ? 'เข้าสู่ระบบ' : 'Login'}
-              </Button>
             </div>
+            <Button
+              variant="outline"
+              className="w-full gap-2"
+              onClick={() => setCurrentStep('video')}
+            >
+              <Play className="h-4 w-4" />
+              {language === 'th' ? 'ดูวิดีโอ' : 'Watch Video'}
+            </Button>
           </div>
-        ) : (
-          <div className="space-y-4">
-            {/* Option 1: Watch video first */}
-            <div className="p-4 border rounded-lg space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">1</span>
-                <p className="text-sm font-medium">
-                  {language === 'th' ? 'ดูวิดีโอคำแนะนำก่อน (แนะนำ)' : 'Watch tutorial video first (recommended)'}
-                </p>
-              </div>
-              <Button 
-                variant="outline" 
-                className="w-full gap-2"
-                onClick={() => setCurrentStep('video')}
-              >
-                <Play className="h-4 w-4" />
-                {language === 'th' ? 'ดูวิดีโอ' : 'Watch Video'}
-              </Button>
-            </div>
 
-            {/* Option 2: Skip to photo upload */}
-            <div className="p-4 border rounded-lg space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">2</span>
-                <p className="text-sm font-medium">
-                  {language === 'th' ? 'ข้ามไปส่งผลตรวจเลย' : 'Skip to submit result'}
-                </p>
-              </div>
-              <Button 
-                className="w-full gap-2"
-                onClick={() => setCurrentStep('photo-result')}
-              >
-                <Camera className="h-4 w-4" />
-                {language === 'th' ? 'ถ่ายรูปผลตรวจ' : 'Take Result Photo'}
-              </Button>
+          {/* Option 2: Skip to photo upload */}
+          <div className="p-4 border rounded-lg space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">2</span>
+              <p className="text-sm font-medium">
+                {language === 'th' ? 'ข้ามไปส่งผลตรวจเลย' : 'Skip to submit result'}
+              </p>
             </div>
+            <Button
+              className="w-full gap-2"
+              onClick={() => setCurrentStep('photo-result')}
+            >
+              <Camera className="h-4 w-4" />
+              {language === 'th' ? 'ถ่ายรูปผลตรวจ' : 'Take Result Photo'}
+            </Button>
           </div>
-        )}
+
+          {!user && (
+            <p className="text-xs text-center text-muted-foreground">
+              {language === 'th'
+                ? '🔒 ส่งผลแบบไม่ต้องสมัครสมาชิกได้ — เราจะขอเพียงชื่อและเบอร์ติดต่อกลับ'
+                : '🔒 No account needed — we will only ask for your name and a contact number.'}
+            </p>
+          )}
+        </div>
       </Card>
 
       {/* Privacy note */}
@@ -1510,6 +1567,64 @@ export default function HIVSelfTest() {
                   confidence={analysisDetails?.confidence}
                   language={language}
                 />
+
+                {!user && (
+                  <Card className="p-4 space-y-3 bg-muted/30">
+                    <div>
+                      <h4 className="text-sm font-semibold text-foreground">
+                        {language === 'th' ? 'ข้อมูลติดต่อกลับ' : 'Contact information'}
+                      </h4>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {language === 'th'
+                          ? 'ส่งผลแบบไม่ต้องสมัครสมาชิก เจ้าหน้าที่จะใช้ข้อมูลนี้เพื่อติดต่อกลับเฉพาะเมื่อจำเป็น'
+                          : 'No account needed. Staff will only use this to follow up if necessary.'}
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="guestName" className="text-xs font-medium">
+                        {language === 'th' ? 'ชื่อ หรือชื่อเล่น' : 'Name or nickname'} *
+                      </Label>
+                      <Input
+                        id="guestName"
+                        value={guestName}
+                        onChange={(e) => setGuestName(e.target.value)}
+                        placeholder={language === 'th' ? 'เช่น นิว' : 'e.g. Alex'}
+                        maxLength={100}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="guestPhone" className="text-xs font-medium">
+                        {language === 'th' ? 'เบอร์โทรติดต่อกลับ' : 'Contact phone'} *
+                      </Label>
+                      <Input
+                        id="guestPhone"
+                        type="tel"
+                        value={guestPhone}
+                        onChange={(e) => setGuestPhone(e.target.value)}
+                        placeholder="0XX-XXX-XXXX"
+                        maxLength={20}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="guestLineId" className="text-xs font-medium">
+                        {language === 'th' ? 'LINE ID (ไม่บังคับ)' : 'LINE ID (optional)'}
+                      </Label>
+                      <Input
+                        id="guestLineId"
+                        value={guestLineId}
+                        onChange={(e) => setGuestLineId(e.target.value)}
+                        placeholder="@yourline"
+                        maxLength={100}
+                      />
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      {language === 'th'
+                        ? '🔒 ข้อมูลของคุณจะถูกเก็บเป็นความลับ ใช้เพื่อติดต่อกลับและส่งต่อการดูแลเท่านั้น'
+                        : '🔒 Your information is confidential and only used for follow-up and care coordination.'}
+                    </p>
+                  </Card>
+                )}
+
                 <Button 
                   className="w-full gap-2" 
                   size="lg"
