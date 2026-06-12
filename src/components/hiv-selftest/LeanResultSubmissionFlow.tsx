@@ -138,13 +138,18 @@ const T = {
   },
 };
 
-export function LeanResultSubmissionFlow({ request, cameFromMagicLink, onDone, trackEvent }: Props) {
+export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode, onDone, trackEvent }: Props) {
   const { language } = useLanguage();
   const t = T[language === "en" ? "en" : "th"];
   const [step, setStep] = useState<"ready" | "result" | "outcome">("ready");
   const [result, setResult] = useState<ResultType | null>(null);
   const [photo, setPhoto] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // Guest-only contact fields (required by the submit_guest_selftest_result RPC)
+  const [guestName, setGuestName] = useState("");
+  const [guestPhone, setGuestPhone] = useState("");
+  const [guestLineId, setGuestLineId] = useState("");
+  const [guestRequestId, setGuestRequestId] = useState<string | null>(null);
 
   useEffect(() => {
     trackEvent("lean_flow_entered", {
