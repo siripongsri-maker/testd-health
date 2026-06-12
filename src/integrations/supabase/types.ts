@@ -3453,7 +3453,7 @@ export type Database = {
           tracking_carrier: string | null
           tracking_number: string | null
           updated_at: string
-          user_id: string
+          user_id: string | null
           wants_callback: boolean | null
         }
         Insert: {
@@ -3515,7 +3515,7 @@ export type Database = {
           tracking_carrier?: string | null
           tracking_number?: string | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
           wants_callback?: boolean | null
         }
         Update: {
@@ -3577,7 +3577,7 @@ export type Database = {
           tracking_carrier?: string | null
           tracking_number?: string | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
           wants_callback?: boolean | null
         }
         Relationships: [
@@ -10973,6 +10973,17 @@ export type Database = {
       start_walkin_service: {
         Args: { p_appointment_id: string }
         Returns: undefined
+      }
+      submit_guest_selftest_result: {
+        Args: {
+          p_full_name: string
+          p_line_id: string
+          p_phone: string
+          p_photo_path: string
+          p_self_result: string
+          p_wants_callback: boolean
+        }
+        Returns: string
       }
       submit_pre_service_survey: {
         Args: {
