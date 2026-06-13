@@ -83,6 +83,15 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Per-user rate limit: 30 requests / 5 min
+    if (!checkRateLimit(`u:${claimsData.claims.sub}`)) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded, please try again in a few minutes" }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+
     const { messages } = await req.json();
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
