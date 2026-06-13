@@ -38,6 +38,22 @@ If asked about drug preparation, sourcing, or illegal activities, respond compas
 
 Keep responses concise (under 200 words). Use bullet points for lists.`;
 
+// Simple in-memory rate limiter (resets on cold start, ~5 min window)
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_MAX = 30;
+const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000;
+function checkRateLimit(key: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(key);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) return false;
+  entry.count++;
+  return true;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -66,6 +82,15 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    // Per-user rate limit: 30 requests / 5 min
+    if (!checkRateLimit(`u:${claimsData.claims.sub}`)) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded, please try again in a few minutes" }), {
+        status: 429,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
 
     const { messages } = await req.json();
 
