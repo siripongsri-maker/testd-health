@@ -1,0 +1,1 @@
+ALTER VIEW public.v_uic_assessment_summary SET (security_invoker = on);
