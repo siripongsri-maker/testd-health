@@ -25,12 +25,39 @@ async function sha256(text: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// Simple in-memory IP rate limiter (resets on cold start, ~5 min window)
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const IP_RATE_LIMIT_MAX = 20; // 20 batches / 5 min / IP
+const IP_RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000;
+function checkIpRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + IP_RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= IP_RATE_LIMIT_MAX) return false;
+  entry.count++;
+  return true;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Per-IP rate limit
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      || req.headers.get('cf-connecting-ip')
+      || 'unknown';
+    if (!checkIpRateLimit(ip)) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limit exceeded, please try again later', translations: [] }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const { target_lang, items } = await req.json();
 
     // Validate target_lang
