@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { HeroSection } from "@/components/home/HeroSection";
 import { HeroLivingScene } from "@/components/landing/HeroLivingScene";
 import { QuickActionStrip } from "@/components/home/QuickActionStrip";
+import { PendingSelftestResultBanner } from "@/components/hiv-selftest/PendingSelftestResultBanner";
 
 // Below-the-fold: lazy-load to shrink initial bundle and speed up FCP/LCP
 const FeaturedJourneySection = lazy(() => import("@/components/home/FeaturedJourneySection").then(m => ({ default: m.FeaturedJourneySection })));
@@ -139,6 +140,8 @@ export default function Home() {
             <HeroLivingScene />
           </div>
         </div>
+
+        <PendingSelftestResultBanner className="mb-4" />
 
         <QuickActionStrip />
 

@@ -45,6 +45,7 @@ import {
 } from "@/components/hiv-selftest";
 import { SelfTestResultExplanation } from "@/components/hiv-selftest/SelfTestResultExplanation";
 import { LeanResultSubmissionFlow } from "@/components/hiv-selftest/LeanResultSubmissionFlow";
+import { PendingSelftestResultBanner } from "@/components/hiv-selftest/PendingSelftestResultBanner";
 import { useFormAutosave } from "@/hooks/useFormAutosave";
 
 export default function HIVSelfTest() {
@@ -1719,6 +1720,10 @@ export default function HIVSelfTest() {
               </Button>
             </div>
           </Card>
+        )}
+
+        {magicLinkState.status !== 'error' && magicLinkState.status !== 'resolving' && currentStep === 'intro' && (
+          <PendingSelftestResultBanner className="mb-4" />
         )}
 
         {magicLinkState.status !== 'error' && renderStepIndicator()}
