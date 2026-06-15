@@ -141,6 +141,8 @@ export default function Home() {
           </div>
         </div>
 
+        <PendingSelftestResultBanner className="mb-4" />
+
         <QuickActionStrip />
 
         {loadDeferredSections ? (
