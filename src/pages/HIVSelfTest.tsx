@@ -509,23 +509,10 @@ export default function HIVSelfTest() {
     setLoading(true);
 
     try {
-      // Auto-register if not logged in
-      let userId = user?.id;
-      let isNewUser = false;
-      
-      if (!userId) {
-        const result = await autoRegisterUser();
-        if (!result || !result.userId) {
-          setLoading(false);
-          return;
-        }
-        userId = result.userId;
-        isNewUser = result.isNew;
-      }
+      const isPickup = deliveryMode === 'pickup';
+      const initialStatus = isPickup ? 'received' : 'pending';
 
-      // Insert PII into separate table (auto-registration)
-      const { data: piiData, error: piiError } = await supabase.from('selftest_pii').insert({
-        user_id: userId,
+      const piiPayload = {
         full_name: shippingData.fullName,
         date_of_birth: nhsoData.dateOfBirth || null,
         thai_id: nhsoData.thaiId,
@@ -537,19 +524,9 @@ export default function HIVSelfTest() {
         district: shippingData.district,
         province: shippingData.province,
         postal_code: shippingData.postalCode,
-      }).select().single();
+      };
 
-      if (piiError) throw piiError;
-
-      // For venue pickup: auto-confirm as 'received' immediately
-      // For shipping: use normal 'pending' workflow
-      const isPickup = deliveryMode === 'pickup';
-      const initialStatus = isPickup ? 'received' : 'pending';
-
-      // Insert health data with reference to PII
-      const insertPayload: Record<string, any> = {
-        user_id: userId,
-        pii_id: piiData.id,
+      const requestPayload: Record<string, any> = {
         last_risk_date: shippingData.lastRiskDate || null,
         days_since_risk: daysSinceRisk,
         status: initialStatus,
@@ -557,21 +534,85 @@ export default function HIVSelfTest() {
         delivery_mode: deliveryMode,
       };
 
-      // Add location data for pickup mode
       if (isPickup && pickupLocation) {
-        insertPayload.pickup_location_captured = pickupLocation.status === 'captured';
-        insertPayload.pickup_latitude = pickupLocation.status === 'captured' ? pickupLocation.latitude : null;
-        insertPayload.pickup_longitude = pickupLocation.status === 'captured' ? pickupLocation.longitude : null;
-        insertPayload.pickup_location_timestamp = pickupLocation.status === 'captured' ? new Date(pickupLocation.timestamp).toISOString() : null;
-        insertPayload.pickup_location_status = pickupLocation.status;
+        requestPayload.pickup_location_captured = pickupLocation.status === 'captured';
+        requestPayload.pickup_latitude = pickupLocation.status === 'captured' ? pickupLocation.latitude : null;
+        requestPayload.pickup_longitude = pickupLocation.status === 'captured' ? pickupLocation.longitude : null;
+        requestPayload.pickup_location_timestamp = pickupLocation.status === 'captured' ? new Date(pickupLocation.timestamp).toISOString() : null;
+        requestPayload.pickup_location_status = pickupLocation.status;
       } else if (isPickup) {
-        insertPayload.pickup_location_captured = false;
-        insertPayload.pickup_location_status = 'not_attempted';
+        requestPayload.pickup_location_captured = false;
+        requestPayload.pickup_location_status = 'not_attempted';
       }
 
-      const { data, error } = await supabase.from('hiv_selftest_requests').insert(insertPayload as any).select().single();
+      // Build auth/registration parameters for the edge function
+      let invokeBody: Record<string, any> = {
+        mode: 'submit',
+        pii: piiPayload,
+        request: requestPayload,
+      };
+      let isNewUser = false;
+      let pendingCredentials: { username: string; password: string } | null = null;
 
-      if (error) throw error;
+      if (user?.id) {
+        invokeBody.user_id = user.id;
+      } else {
+        if (!nhsoData.thaiId || nhsoData.thaiId.length !== 13) {
+          toast.error(language === 'th' ? 'กรุณากรอกหมายเลขบัตรประชาชนให้ถูกต้อง' : 'Please enter a valid Thai ID');
+          setLoading(false);
+          return;
+        }
+        const suffix = nhsoData.thaiId.slice(-6);
+        const randomPart = Math.random().toString(36).slice(-4);
+        const email = `user_${suffix}_${randomPart}@swingth.local`;
+        const password = generateSecurePassword();
+        invokeBody = { ...invokeBody, email, password, display_name: shippingData.fullName || email };
+        pendingCredentials = { username: email, password };
+        isNewUser = true;
+      }
+
+      // Single server-side call: creates user (if needed) + inserts PII + request with service role
+      let { data: submitData, error: submitError } = await supabase.functions.invoke(
+        'selftest-auto-register',
+        { body: invokeBody }
+      );
+
+      // Retry once if generated email collides
+      if (!user?.id && (submitError || (submitData && submitData.error === 'already_exists'))) {
+        const suffix = nhsoData.thaiId.slice(-6);
+        const retrySuffix = Math.random().toString(36).slice(-6);
+        const retryEmail = `user_${suffix}_${retrySuffix}@swingth.local`;
+        const password = generateSecurePassword();
+        pendingCredentials = { username: retryEmail, password };
+        const retry = await supabase.functions.invoke('selftest-auto-register', {
+          body: { ...invokeBody, email: retryEmail, password, display_name: shippingData.fullName || retryEmail },
+        });
+        submitData = retry.data;
+        submitError = retry.error;
+      }
+
+      if (submitError || !submitData || submitData.error) {
+        console.error('Submit failed:', submitError || submitData);
+        toast.error(language === 'th' ? 'เกิดข้อผิดพลาด กรุณาลองใหม่' : 'Something went wrong. Please try again.');
+        setLoading(false);
+        return;
+      }
+
+      const userId: string = submitData.user_id;
+      const data = submitData.request;
+
+      // Sign the new user in so the rest of the app sees them as authenticated
+      if (isNewUser && pendingCredentials) {
+        const { error: signInError } = await supabase.auth.signInWithPassword({
+          email: pendingCredentials.username,
+          password: pendingCredentials.password,
+        });
+        if (signInError) {
+          console.error('Auto-login failed:', signInError);
+        } else {
+          setGeneratedCredentials(pendingCredentials);
+        }
+      }
 
       // Note: Venue pickup auto-confirmed status is recorded directly in the request record
 
@@ -610,7 +651,7 @@ export default function HIVSelfTest() {
       trackSelftestRequest(language);
       
       // Show account success screen for NEW users, otherwise go to appropriate step
-      if (isNewUser && generatedCredentials) {
+      if (isNewUser && pendingCredentials) {
         setCurrentStep('account-success');
       } else if (isPickup) {
         // Venue pickup: auto-confirmed, go straight to video/testing
