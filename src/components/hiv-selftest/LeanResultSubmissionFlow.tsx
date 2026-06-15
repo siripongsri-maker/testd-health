@@ -395,11 +395,7 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
         <Button
           size="lg"
           className="w-full"
-          disabled={
-            !result ||
-            submitting ||
-            (guestMode && !photo) /* photo is required for guests (RPC needs photo_path) */
-          }
+          disabled={!result || submitting}
           onClick={async () => {
             if (!result) return;
             if (guestMode) {
@@ -413,16 +409,13 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
                 toast({ title: language === "th" ? "กรุณากรอกเบอร์โทรที่ติดต่อได้" : "Please enter a valid phone", variant: "destructive" });
                 return;
               }
-              if (!photo) {
-                toast({ title: language === "th" ? "กรุณาแนบรูปผลตรวจ" : "Please attach a result photo", variant: "destructive" });
-                return;
-              }
+              // Photo is optional — RPC accepts null photo_path.
             }
             setSubmitting(true);
             try {
               let submittedId = request.id;
               if (guestMode) {
-                submittedId = await submitGuestResult(result, photo!, {
+                submittedId = await submitGuestResult(result, photo, {
                   name: guestName.trim(),
                   phone: guestPhone.replace(/\s+/g, ""),
                   lineId: guestLineId.trim() || null,
