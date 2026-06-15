@@ -236,14 +236,14 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
         image: selftestImgNegative,
         title: t.optNeg.title,
         sub: t.optNeg.sub,
-        color: "border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/30",
+        color: "border-border hover:bg-muted/50",
       },
       {
         value: "reactive",
         image: selftestImgReactive,
         title: t.optReact.title,
         sub: t.optReact.sub,
-        color: "border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/30",
+        color: "border-border hover:bg-muted/50",
       },
       {
         value: "invalid",
@@ -281,17 +281,17 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
         <h2 className="text-xl font-semibold">{t.pickTitle}</h2>
         <p className="text-sm text-muted-foreground">{t.pickSub}</p>
 
-        <div className="grid grid-cols-3 gap-2">
+        <div className="flex flex-col gap-3">
           {options.map((o) => (
             <button
               key={o.value}
               type="button"
               onClick={() => handlePick(o.value)}
-              className={`flex flex-col items-center text-center p-2 rounded-xl border-2 bg-card transition ${o.color} ${
+              className={`flex items-center gap-4 text-left p-3 rounded-xl border-2 bg-card transition ${o.color} ${
                 result === o.value ? "ring-2 ring-primary border-primary" : ""
               }`}
             >
-              <div className="w-full aspect-square rounded-lg overflow-hidden bg-white mb-2">
+              <div className="w-28 h-28 shrink-0 rounded-lg overflow-hidden bg-white">
                 <img
                   src={o.image}
                   alt={o.title}
@@ -301,8 +301,10 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="font-semibold text-sm leading-tight">{o.title}</div>
-              <div className="text-[10px] text-muted-foreground leading-tight mt-0.5">{o.sub}</div>
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-base leading-tight">{o.title}</div>
+                <div className="text-xs text-muted-foreground leading-snug mt-1">{o.sub}</div>
+              </div>
             </button>
           ))}
         </div>
