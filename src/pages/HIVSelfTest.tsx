@@ -428,46 +428,64 @@ export default function HIVSelfTest() {
     const password = generateSecurePassword();
 
     try {
-      // Try to sign up first
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-          data: {
+      // Create the auth user via edge function (admin API, no confirmation email).
+      // This avoids Supabase's signup email rate limit on synthetic @swingth.local addresses.
+      const { data: regData, error: regError } = await supabase.functions.invoke(
+        'selftest-auto-register',
+        {
+          body: {
+            email,
+            password,
             display_name: shippingData.fullName || username,
           },
-        },
-      });
+        }
+      );
 
-      if (signUpError) {
-        // If user already exists with this ID pattern, try to sign in
-        if (signUpError.message.includes('already registered') || signUpError.message.includes('already exists')) {
-          // Try different email patterns for existing users
-          const existingEmail = `${username}@swingth.local`;
-          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-            email: existingEmail,
-            password,
+      if (regError || (regData && regData.error)) {
+        const errMsg = (regData && regData.error) || regError?.message || '';
+        // If user with this email somehow exists, regenerate and retry once with fresh suffix.
+        if (errMsg === 'already_exists') {
+          const retrySuffix = Math.random().toString(36).slice(-6);
+          const retryEmail = `user_${suffix}_${retrySuffix}@swingth.local`;
+          const { data: retryData, error: retryError } = await supabase.functions.invoke(
+            'selftest-auto-register',
+            { body: { email: retryEmail, password, display_name: shippingData.fullName || username } }
+          );
+          if (retryError || (retryData && retryData.error)) {
+            console.error('Auto-registration retry failed:', retryError || retryData);
+            toast.error(language === 'th' ? 'เกิดข้อผิดพลาดในการลงทะเบียน' : 'Registration error');
+            return null;
+          }
+          const { data: signIn2, error: signInErr2 } = await supabase.auth.signInWithPassword({
+            email: retryEmail, password,
           });
-          
-          if (signInError) {
-            console.error('Auto-login failed:', signInError);
+          if (signInErr2) {
+            console.error('Auto-login (retry) failed:', signInErr2);
             toast.error(language === 'th' ? 'ไม่สามารถเข้าสู่ระบบได้ กรุณาลองใหม่' : 'Could not log in. Please try again.');
             return null;
           }
-          
-          return { userId: signInData.user?.id || '', username: email, password, isNew: false };
+          setGeneratedCredentials({ username: retryEmail, password });
+          return { userId: signIn2.user?.id || '', username: retryEmail, password, isNew: true };
         }
-        
-        console.error('Auto-registration error:', signUpError);
+
+        console.error('Auto-registration error:', errMsg, regError);
         toast.error(language === 'th' ? 'เกิดข้อผิดพลาดในการลงทะเบียน' : 'Registration error');
         return null;
       }
 
-      // Store generated credentials for success screen
+      // Sign the new user in client-side so the session is available immediately.
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (signInError) {
+        console.error('Auto-login failed:', signInError);
+        toast.error(language === 'th' ? 'ไม่สามารถเข้าสู่ระบบได้ กรุณาลองใหม่' : 'Could not log in. Please try again.');
+        return null;
+      }
+
       setGeneratedCredentials({ username: email, password });
-      
-      return { userId: signUpData.user?.id || '', username: email, password, isNew: true };
+      return { userId: signInData.user?.id || regData?.user_id || '', username: email, password, isNew: true };
     } catch (error) {
       console.error('Auto-registration failed:', error);
       toast.error(language === 'th' ? 'เกิดข้อผิดพลาด กรุณาลองใหม่' : 'Something went wrong. Please try again.');
