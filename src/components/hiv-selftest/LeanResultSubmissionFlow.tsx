@@ -236,14 +236,14 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
         image: selftestImgNegative,
         title: t.optNeg.title,
         sub: t.optNeg.sub,
-        color: "border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/30",
+        color: "border-border hover:bg-muted/50",
       },
       {
         value: "reactive",
         image: selftestImgReactive,
         title: t.optReact.title,
         sub: t.optReact.sub,
-        color: "border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/30",
+        color: "border-border hover:bg-muted/50",
       },
       {
         value: "invalid",
