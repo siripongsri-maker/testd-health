@@ -651,7 +651,7 @@ export default function HIVSelfTest() {
       trackSelftestRequest(language);
       
       // Show account success screen for NEW users, otherwise go to appropriate step
-      if (isNewUser && generatedCredentials) {
+      if (isNewUser && pendingCredentials) {
         setCurrentStep('account-success');
       } else if (isPickup) {
         // Venue pickup: auto-confirmed, go straight to video/testing
