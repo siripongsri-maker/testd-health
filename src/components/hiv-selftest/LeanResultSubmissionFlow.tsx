@@ -8,6 +8,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/lib/i18n";
 import { ArrowRight, Loader2, Camera } from "lucide-react";
+import selftestImgNegative from "@/assets/selftest-result-negative.jpg";
+import selftestImgReactive from "@/assets/selftest-result-reactive.jpg";
+import selftestImgInvalid from "@/assets/selftest-result-invalid.jpg";
 
 type ResultType = "negative" | "reactive" | "invalid";
 
