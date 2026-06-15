@@ -46,3 +46,5 @@ project_id = "tzerhfvlrssrashrcbeg"
     verify_jwt = false
   [functions.notify-pre-post-submission]
     verify_jwt = false
+  [functions.selftest-auto-register]
+    verify_jwt = false
