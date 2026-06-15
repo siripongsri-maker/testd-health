@@ -8,6 +8,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/lib/i18n";
 import { ArrowRight, Loader2, Camera } from "lucide-react";
+import selftestImgNegative from "@/assets/selftest-result-negative.jpg";
+import selftestImgReactive from "@/assets/selftest-result-reactive.jpg";
+import selftestImgInvalid from "@/assets/selftest-result-invalid.jpg";
 
 type ResultType = "negative" | "reactive" | "invalid";
 
@@ -223,28 +226,28 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
   if (step === "result") {
     const options: Array<{
       value: ResultType;
-      emoji: string;
+      image: string;
       title: string;
       sub: string;
       color: string;
     }> = [
       {
         value: "negative",
-        emoji: "✅",
+        image: selftestImgNegative,
         title: t.optNeg.title,
         sub: t.optNeg.sub,
         color: "border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/30",
       },
       {
         value: "reactive",
-        emoji: "⚠️",
+        image: selftestImgReactive,
         title: t.optReact.title,
         sub: t.optReact.sub,
         color: "border-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/30",
       },
       {
         value: "invalid",
-        emoji: "❔",
+        image: selftestImgInvalid,
         title: t.optInvalid.title,
         sub: t.optInvalid.sub,
         color: "border-border hover:bg-muted/50",
@@ -278,28 +281,33 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
         <h2 className="text-xl font-semibold">{t.pickTitle}</h2>
         <p className="text-sm text-muted-foreground">{t.pickSub}</p>
 
-        <div className="space-y-2">
+        <div className="grid grid-cols-3 gap-2">
           {options.map((o) => (
             <button
               key={o.value}
               type="button"
               onClick={() => handlePick(o.value)}
-              className={`w-full text-left p-4 rounded-lg border-2 transition ${o.color} ${
-                result === o.value ? "ring-2 ring-primary" : ""
+              className={`flex flex-col items-center text-center p-2 rounded-xl border-2 bg-card transition ${o.color} ${
+                result === o.value ? "ring-2 ring-primary border-primary" : ""
               }`}
             >
-              <div className="flex items-center gap-3">
-                <div className="text-2xl">{o.emoji}</div>
-                <div>
-                  <div className="font-semibold">{o.title}</div>
-                  <div className="text-xs text-muted-foreground">{o.sub}</div>
-                </div>
+              <div className="w-full aspect-square rounded-lg overflow-hidden bg-white mb-2">
+                <img
+                  src={o.image}
+                  alt={o.title}
+                  loading="lazy"
+                  width={256}
+                  height={256}
+                  className="w-full h-full object-cover"
+                />
               </div>
+              <div className="font-semibold text-sm leading-tight">{o.title}</div>
+              <div className="text-[10px] text-muted-foreground leading-tight mt-0.5">{o.sub}</div>
             </button>
           ))}
         </div>
 
-        {/* Inline visible photo upload */}
+        {/* Optional photo upload — never required */}
         <label className="flex items-center gap-3 cursor-pointer border border-dashed rounded-lg p-3 bg-muted/40">
           <Camera className="h-6 w-6 text-muted-foreground" />
           <div className="flex-1 min-w-0">
@@ -387,11 +395,7 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
         <Button
           size="lg"
           className="w-full"
-          disabled={
-            !result ||
-            submitting ||
-            (guestMode && !photo) /* photo is required for guests (RPC needs photo_path) */
-          }
+          disabled={!result || submitting}
           onClick={async () => {
             if (!result) return;
             if (guestMode) {
@@ -405,16 +409,13 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
                 toast({ title: language === "th" ? "กรุณากรอกเบอร์โทรที่ติดต่อได้" : "Please enter a valid phone", variant: "destructive" });
                 return;
               }
-              if (!photo) {
-                toast({ title: language === "th" ? "กรุณาแนบรูปผลตรวจ" : "Please attach a result photo", variant: "destructive" });
-                return;
-              }
+              // Photo is optional — RPC accepts null photo_path.
             }
             setSubmitting(true);
             try {
               let submittedId = request.id;
               if (guestMode) {
-                submittedId = await submitGuestResult(result, photo!, {
+                submittedId = await submitGuestResult(result, photo, {
                   name: guestName.trim(),
                   phone: guestPhone.replace(/\s+/g, ""),
                   lineId: guestLineId.trim() || null,
@@ -678,16 +679,19 @@ async function submitResult(request: LeanActiveRequest, result: ResultType, phot
 // ---------- Guest submit (anonymous) ----------
 async function submitGuestResult(
   result: ResultType,
-  photo: File,
+  photo: File | null,
   contact: { name: string; phone: string; lineId: string | null },
 ): Promise<string> {
-  // Upload to the guest/ prefix — anon insert is permitted there by storage policy.
-  const ext = (photo.name.split(".").pop() || "jpg").toLowerCase();
-  const photoPath = `guest/${crypto.randomUUID()}-${Date.now()}.${ext}`;
-  const { error: upErr } = await supabase.storage
-    .from("selftest-results")
-    .upload(photoPath, photo, { upsert: false, contentType: photo.type });
-  if (upErr) throw upErr;
+  let photoPath: string | null = null;
+  if (photo) {
+    // Upload to the guest/ prefix — anon insert is permitted there by storage policy.
+    const ext = (photo.name.split(".").pop() || "jpg").toLowerCase();
+    photoPath = `guest/${crypto.randomUUID()}-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("selftest-results")
+      .upload(photoPath, photo, { upsert: false, contentType: photo.type });
+    if (upErr) throw upErr;
+  }
 
   const { data, error } = await supabase.rpc("submit_guest_selftest_result", {
     p_full_name: contact.name,
