@@ -1722,6 +1722,10 @@ export default function HIVSelfTest() {
           </Card>
         )}
 
+        {magicLinkState.status !== 'error' && magicLinkState.status !== 'resolving' && currentStep === 'intro' && (
+          <PendingSelftestResultBanner className="mb-4" />
+        )}
+
         {magicLinkState.status !== 'error' && renderStepIndicator()}
 
         {magicLinkState.status !== 'error' && magicLinkState.status !== 'resolving' && currentStep === 'intro' && (
