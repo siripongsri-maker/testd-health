@@ -53,17 +53,13 @@ export default function InviteSession() {
 
   const loadSession = useCallback(async () => {
     if (!sessionCode) return;
-    const { data: sess } = await supabase
-      .from('partner_test_sessions')
-      .select('*, partner_invites!inner(code, id)')
-      .eq('session_code', sessionCode)
-      .maybeSingle();
+    const { data: sessRows } = await (supabase as any).rpc('get_partner_session_by_code', { p_code: sessionCode });
+    const sess = Array.isArray(sessRows) ? sessRows[0] : sessRows;
 
     if (sess) {
       setSession(sess);
-      const invite = (sess as any).partner_invites;
-      setInviteCode(invite?.code || null);
-      setInviteId(invite?.id || null);
+      setInviteCode(sess.invite_code || null);
+      setInviteId(sess.invite_id || null);
 
       if (sess.status === 'active' && sess.started_at) {
         const elapsed = Math.floor((Date.now() - new Date(sess.started_at).getTime()) / 1000);
@@ -77,14 +73,11 @@ export default function InviteSession() {
       }
     }
 
-    const { data: parts } = await supabase
-      .from('partner_test_session_participants')
-      .select('id, participant_session_id, joined_at')
-      .eq('session_id', sess?.id);
+    const { data: parts } = await (supabase as any).rpc('get_partner_session_participants', { p_session_id: sess?.id });
     if (parts) {
       setParticipants(parts);
       const mySid = getParticipantSessionId();
-      if (parts.some(p => p.participant_session_id === mySid)) setJoined(true);
+      if ((parts as any[]).some((p: any) => p.participant_session_id === mySid)) setJoined(true);
     }
 
     setLoading(false);

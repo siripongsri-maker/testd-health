@@ -64,12 +64,8 @@ export default function InviteLanding() {
       setInvite(data);
 
       if (data.invite_type === 'session') {
-        const { data: sess } = await supabase
-          .from('partner_test_sessions')
-          .select('session_code')
-          .eq('host_invite_id', data.id)
-          .maybeSingle();
-        if (sess) setSessionCode(sess.session_code);
+        const { data: code } = await (supabase as any).rpc('get_partner_session_code_by_invite', { p_invite_id: data.id });
+        if (code) setSessionCode(code as string);
       }
 
       setInviteAttribution({

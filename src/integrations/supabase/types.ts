@@ -10714,6 +10714,35 @@ export type Database = {
           unique_opens: number
         }[]
       }
+      get_partner_session_by_code: {
+        Args: { p_code: string }
+        Returns: {
+          completed_at: string
+          created_at: string
+          id: string
+          invite_code: string
+          invite_id: string
+          is_test_mode: boolean
+          max_participants: number
+          pair_booking_count: number
+          session_code: string
+          started_at: string
+          status: string
+        }[]
+      }
+      get_partner_session_code_by_invite: {
+        Args: { p_invite_id: string }
+        Returns: string
+      }
+      get_partner_session_participants: {
+        Args: { p_session_id: string }
+        Returns: {
+          id: string
+          joined_at: string
+          participant_session_id: string
+          session_id: string
+        }[]
+      }
       get_pre_post_score: {
         Args: { p_name: string }
         Returns: {
