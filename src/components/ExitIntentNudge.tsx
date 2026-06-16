@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Calendar } from "lucide-react";
 import { trackEvent } from "@/hooks/useAnalytics";
+import { openSupportChat } from "@/lib/openSupportChat";
 
 const SESSION_KEY = "testd_exit_nudge_shown";
 const IDLE_MS = 25000;
