@@ -2,6 +2,43 @@ import { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
 
+// Smoothly tweens a number toward `value` for a friendly count-up effect.
+function AnimatedNumber({ value, className, format }: { value: number; className?: string; format?: (n: number) => string }) {
+  const [display, setDisplay] = useState(value);
+  const fromRef = useRef(value);
+  const startRef = useRef<number>(0);
+  const rafRef = useRef<number>(0);
+  const [bump, setBump] = useState(false);
+
+  useEffect(() => {
+    if (value === display) return;
+    fromRef.current = display;
+    startRef.current = performance.now();
+    const from = fromRef.current;
+    const delta = value - from;
+    const duration = 900;
+    setBump(true);
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - startRef.current) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setDisplay(Math.round(from + delta * eased));
+      if (t < 1) rafRef.current = requestAnimationFrame(tick);
+      else setTimeout(() => setBump(false), 200);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  return (
+    <span
+      className={`inline-block tabular-nums transition-transform duration-300 ${bump ? 'scale-110' : 'scale-100'} ${className ?? ''}`}
+    >
+      {format ? format(display) : display}
+    </span>
+  );
+}
+
 const CROWD_C = ['#3B6D11', '#534AB7', '#BA7517', '#0F6E56', '#993556', '#185FA5'];
 const R_COLORS = ['#5DCAA5', '#AFA9EC', '#EF9F27', '#ED93B1', '#85B7EB'];
 const P = 4;
