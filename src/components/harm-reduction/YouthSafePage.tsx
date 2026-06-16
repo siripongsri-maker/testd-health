@@ -1,3 +1,4 @@
+import { openSupportChat } from "@/lib/openSupportChat";
 import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -53,7 +54,7 @@ export function YouthSafePage({ onReset }: Props) {
       iconBg: "bg-blue-100 dark:bg-blue-900/40",
       iconColor: "text-blue-600 dark:text-blue-400",
       borderColor: "border-blue-200/60 dark:border-blue-800/30",
-      action: () => navigate("/support-chat"),
+      action: () => openSupportChat(),
     },
     {
       icon: AlertTriangle,
@@ -147,7 +148,7 @@ export function YouthSafePage({ onReset }: Props) {
             </span>
           </button>
           <button
-            onClick={() => navigate("/support-chat")}
+            onClick={() => openSupportChat()}
             className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/20 border border-rose-200/50 dark:border-rose-800/30 hover:shadow-md transition-all active:scale-[0.97]"
           >
             <Phone className="h-5 w-5 text-rose-500" />

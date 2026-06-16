@@ -1,3 +1,4 @@
+import { openSupportChat } from "@/lib/openSupportChat";
 import { useState } from "react";
 import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
@@ -71,7 +72,7 @@ export function DistressCard({ userId, onNavigateSupport }: Props) {
             onClick={() => {
               logAction("talk_counselor");
               if (onNavigateSupport) onNavigateSupport();
-              else navigate("/support-chat");
+              else openSupportChat();
             }}
           >
             <MessageCircle className="h-4 w-4 mr-2" />

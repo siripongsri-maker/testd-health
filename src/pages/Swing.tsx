@@ -1,3 +1,4 @@
+import { openSupportChat } from "@/lib/openSupportChat";
 import { useState, useEffect } from "react";
 import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
@@ -102,7 +103,7 @@ export default function Swing() {
 
   const handleCallback = () => {
     trackEvent("clinic_callback_requested", { source: "clinic_page" });
-    navigate("/support-chat");
+    openSupportChat();
   };
 
   const loc = (th: string | null | undefined, en: string | null | undefined) =>

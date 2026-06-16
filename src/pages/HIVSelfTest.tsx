@@ -1,3 +1,4 @@
+import { openSupportChat } from "@/lib/openSupportChat";
 import { useState, useEffect, useRef } from "react";
 import { trackEvent } from "@/hooks/useAnalytics";
 import { PageContainer } from "@/components/PageContainer";
@@ -1505,7 +1506,7 @@ export default function HIVSelfTest() {
                       </p>
                       <Button
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium"
-                        onClick={() => navigate("/support-chat")}
+                        onClick={() => openSupportChat()}
                       >
                         <MessageCircle className="h-5 w-5" />
                         {language === 'th' ? 'ติดต่อ SWING Thailand' : 'Contact SWING Thailand'}

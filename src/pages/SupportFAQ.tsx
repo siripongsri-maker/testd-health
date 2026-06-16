@@ -1,3 +1,4 @@
+import { openSupportChat } from "@/lib/openSupportChat";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -54,7 +55,7 @@ export default function SupportFAQPage() {
         <p className="text-sm text-foreground font-medium">
           {isEn ? "Still have questions?" : "ยังมีคำถามอยู่?"}
         </p>
-        <Button className="gap-2" onClick={() => navigate("/support-chat")}>
+        <Button className="gap-2" onClick={() => openSupportChat()}>
           <MessageCircle className="h-4 w-4" />
           {isEn ? "Chat with us" : "แชทกับเรา"}
         </Button>
