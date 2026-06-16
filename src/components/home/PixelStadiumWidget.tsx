@@ -237,26 +237,17 @@ export function PixelStadiumWidget() {
     };
   }, [todayCount]);
 
-  // Simulated ticker updates
+  // Ticker text follows language (no fake count increments — counts come from
+  // realtime Supabase subscriptions above).
   useEffect(() => {
     const ACTS_TH = ['จองตรวจแล้ว', 'เริ่ม PrEP', 'บันทึกยาครบ', 'ตรวจ HIV เสร็จ'];
     const ACTS_EN = ['booked a test', 'started PrEP', 'logged meds', 'completed HIV test'];
     const acts = language === 'th' ? ACTS_TH : ACTS_EN;
-
     const interval = setInterval(() => {
-      if (Math.random() < 0.45) {
-        setTodayCount(p => p + 1);
-        setTotalCount(p => p + 1);
-        const act = acts[Math.floor(Math.random() * acts.length)];
-        setTicker(`LIVE · ${language === 'th' ? 'ผู้ใช้ใหม่' : 'Someone'} ${act}`);
-      }
+      const act = acts[Math.floor(Math.random() * acts.length)];
+      setTicker(`LIVE · ${language === 'th' ? 'ผู้ใช้ใหม่' : 'Someone'} ${act}`);
     }, 7000);
-
-    const viewerInterval = setInterval(() => {
-      setViewerCount(p => p + Math.floor(Math.random() * 3));
-    }, 3500);
-
-    return () => { clearInterval(interval); clearInterval(viewerInterval); };
+    return () => clearInterval(interval);
   }, [language]);
 
   const pct = Math.min(100, totalCount > 0 ? Math.round((todayCount / Math.max(todayCount, 100)) * 100) : 0);
