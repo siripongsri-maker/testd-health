@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { TestTube, Package, MessageCircle } from 'lucide-react';
 import { trackEvent } from '@/hooks/useAnalytics';
 import { useLanguage } from '@/lib/i18n';
+import { openSupportChat } from '@/lib/openSupportChat';
 
 const actions = [
   {
