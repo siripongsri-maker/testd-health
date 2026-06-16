@@ -108,7 +108,13 @@ export function HomeActionGrid() {
               key={i}
               icon={item.icon}
               label={item.label}
-              onClick={() => navigate(item.path)}
+              onClick={() => {
+                if ((item as any).external) {
+                  window.open(item.path, '_blank', 'noopener,noreferrer');
+                } else {
+                  navigate(item.path);
+                }
+              }}
             />
           ))}
           <MedicationTrackerWidget />
