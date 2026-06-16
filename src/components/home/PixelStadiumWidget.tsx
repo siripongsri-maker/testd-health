@@ -2,6 +2,43 @@ import { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '@/lib/i18n';
 import { supabase } from '@/integrations/supabase/client';
 
+// Smoothly tweens a number toward `value` for a friendly count-up effect.
+function AnimatedNumber({ value, className, format }: { value: number; className?: string; format?: (n: number) => string }) {
+  const [display, setDisplay] = useState(value);
+  const fromRef = useRef(value);
+  const startRef = useRef<number>(0);
+  const rafRef = useRef<number>(0);
+  const [bump, setBump] = useState(false);
+
+  useEffect(() => {
+    if (value === display) return;
+    fromRef.current = display;
+    startRef.current = performance.now();
+    const from = fromRef.current;
+    const delta = value - from;
+    const duration = 900;
+    setBump(true);
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - startRef.current) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setDisplay(Math.round(from + delta * eased));
+      if (t < 1) rafRef.current = requestAnimationFrame(tick);
+      else setTimeout(() => setBump(false), 200);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
+
+  return (
+    <span
+      className={`inline-block tabular-nums transition-transform duration-300 ${bump ? 'scale-110' : 'scale-100'} ${className ?? ''}`}
+    >
+      {format ? format(display) : display}
+    </span>
+  );
+}
+
 const CROWD_C = ['#3B6D11', '#534AB7', '#BA7517', '#0F6E56', '#993556', '#185FA5'];
 const R_COLORS = ['#5DCAA5', '#AFA9EC', '#EF9F27', '#ED93B1', '#85B7EB'];
 const P = 4;
@@ -196,28 +233,28 @@ export function PixelStadiumWidget() {
         style={{ imageRendering: 'pixelated' }}
       />
 
-      {/* Stats grid */}
+      {/* Stats grid — simplified, single label per cell, animated count-up */}
       <div className="grid grid-cols-3" style={{ background: '#0a0e1a' }}>
-        <div className="p-2 text-center" style={{ borderTop: '2px solid #1D9E75', borderRight: '1px solid #1a1f3a' }}>
-          <div className="text-[8px] tracking-wider mb-0.5" style={{ color: '#1D9E75' }}>
-            {language === 'th' ? 'วันนี้' : 'TODAY'}
+        <div className="p-2.5 text-center relative" style={{ borderTop: '2px solid #1D9E75', borderRight: '1px solid #1a1f3a' }}>
+          <div className="flex items-center justify-center gap-1 mb-1">
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#1D9E75', boxShadow: '0 0 6px #1D9E75' }} />
+            <span className="text-[9px] tracking-wider font-semibold" style={{ color: '#1D9E75' }}>
+              {language === 'th' ? 'วันนี้' : 'TODAY'}
+            </span>
           </div>
-          <div className="text-xl font-bold text-white leading-none">{todayCount}</div>
-          <div className="text-[7px] mt-0.5 opacity-70" style={{ color: '#1D9E75' }}>TODAY</div>
+          <AnimatedNumber value={todayCount} className="text-xl font-bold text-white leading-none" />
         </div>
-        <div className="p-2 text-center" style={{ borderTop: '2px solid #7F77DD', borderRight: '1px solid #1a1f3a' }}>
-          <div className="text-[8px] tracking-wider mb-0.5" style={{ color: '#AFA9EC' }}>
+        <div className="p-2.5 text-center" style={{ borderTop: '2px solid #7F77DD', borderRight: '1px solid #1a1f3a' }}>
+          <div className="text-[9px] tracking-wider font-semibold mb-1" style={{ color: '#AFA9EC' }}>
             {language === 'th' ? 'ทั้งหมด' : 'ALL-TIME'}
           </div>
-          <div className="text-xl font-bold text-white leading-none">{totalCount.toLocaleString()}</div>
-          <div className="text-[7px] mt-0.5 opacity-70" style={{ color: '#7F77DD' }}>ALL-TIME</div>
+          <AnimatedNumber value={totalCount} className="text-xl font-bold text-white leading-none" format={(n) => n.toLocaleString()} />
         </div>
-        <div className="p-2 text-center" style={{ borderTop: '2px solid #EF9F27' }}>
-          <div className="text-[8px] tracking-wider mb-0.5" style={{ color: '#FAC775' }}>
+        <div className="p-2.5 text-center" style={{ borderTop: '2px solid #EF9F27' }}>
+          <div className="text-[9px] tracking-wider font-semibold mb-1" style={{ color: '#FAC775' }}>
             {language === 'th' ? 'สมาชิก' : 'MEMBERS'}
           </div>
-          <div className="text-xl font-bold text-white leading-none">{viewerCount.toLocaleString()}</div>
-          <div className="text-[7px] mt-0.5 opacity-70" style={{ color: '#EF9F27' }}>MEMBERS</div>
+          <AnimatedNumber value={viewerCount} className="text-xl font-bold text-white leading-none" format={(n) => n.toLocaleString()} />
         </div>
       </div>
 
