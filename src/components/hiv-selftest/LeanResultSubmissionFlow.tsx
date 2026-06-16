@@ -213,7 +213,7 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
             size="sm"
             onClick={() => {
               trackEvent("lean_help_requested", { request_id: request.id, from_step: "ready" });
-              window.location.href = "/support-chat";
+              openSupportChat();
             }}
           >
             {t.needHelp}
