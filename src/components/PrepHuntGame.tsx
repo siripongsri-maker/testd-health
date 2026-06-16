@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { trackEvent } from "@/hooks/useAnalytics";
 import { trackEpisodeComplete, trackEpisodeCtaClick } from "@/lib/virtualEpisodeAnalytics";
 import { setHarmReductionSource } from "@/hooks/useHarmReductionTracking";
+import { openSupportChat } from "@/lib/openSupportChat";
 
 /* ═══════════════════════════════════════════════════════════════
    PREP HUNT  —  drag / tap objects to reveal hidden pills
