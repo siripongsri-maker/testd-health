@@ -63,14 +63,20 @@ export function PixelStadiumWidget() {
   const [viewerCount, setViewerCount] = useState(0);
   const [ticker, setTicker] = useState(language === 'th' ? 'LIVE · ยินดีต้อนรับสู่ testD' : 'LIVE · Welcome to testD');
 
-  // Fetch real stats via SECURITY DEFINER RPC (works for anonymous visitors)
+  // Realtime stats: initial RPC fetch + Supabase subscriptions on
+  // analytics_events / profiles. Debounced refetch keeps the counters accurate
+  // without spamming the RPC, and we re-sync on channel reconnect, tab focus,
+  // and network online events so the TODAY counter never drifts.
   useEffect(() => {
+    let cancelled = false;
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
     const fetchStats = async () => {
       try {
         const { data, error } = await supabase.rpc('get_home_community_stats');
         if (error) throw error;
         const row: any = Array.isArray(data) ? data[0] : data;
-        if (!row) return;
+        if (!row || cancelled) return;
         setTodayCount(Number(row.today_events) || 0);
         setTotalCount(Number(row.total_events) || 0);
         setViewerCount(Number(row.total_members) || 0);
@@ -78,7 +84,39 @@ export function PixelStadiumWidget() {
         console.error('[PixelStadium] stats fetch failed', e);
       }
     };
+
+    const scheduleRefetch = () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(fetchStats, 800);
+    };
+
     fetchStats();
+
+    const channel = supabase
+      .channel('home-stadium-stats')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'analytics_events' }, scheduleRefetch)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'profiles' }, scheduleRefetch)
+      .subscribe((status) => {
+        // Resync on (re)connect to guarantee accuracy after dropped sockets.
+        if (status === 'SUBSCRIBED') fetchStats();
+      });
+
+    const onVisible = () => { if (document.visibilityState === 'visible') fetchStats(); };
+    const onOnline = () => fetchStats();
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('online', onOnline);
+
+    // Safety-net poll (every 30s) in case realtime is throttled or paused.
+    const poll = setInterval(fetchStats, 30000);
+
+    return () => {
+      cancelled = true;
+      if (debounceTimer) clearTimeout(debounceTimer);
+      clearInterval(poll);
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('online', onOnline);
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   // Init runners
