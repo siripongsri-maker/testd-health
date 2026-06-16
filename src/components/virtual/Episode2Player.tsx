@@ -9,6 +9,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { getVisitorId } from "@/lib/visitorId";
 import { trackJourneyEvent } from "@/lib/journeyTracker";
+import { openSupportChat } from "@/lib/openSupportChat";
 
 /* ─── Scene Colors ─── */
 const SCENE_COLORS: Record<string, { bg: string; accent: string }> = {
