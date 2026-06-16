@@ -113,7 +113,8 @@ export function HomeMenuGrid() {
             {isTh ? item.labelTh : item.labelEn}
           </span>
         </button>
-      ))}
+        );
+      })}
     </div>
   );
 }
