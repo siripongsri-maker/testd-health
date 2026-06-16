@@ -1103,6 +1103,10 @@ function ServiceCards({ lose, all }: { lose?: boolean; all?: boolean }) {
     setHarmReductionSource();
     trackEvent(`virtual_cta_${ctaType}_click`, { source_page: "/virtual", cta_label: label });
     trackEpisodeCtaClick({ slug: 'prep-hunt', title: 'หา PrEP ให้เจอ' }, { cta_type: ctaType, cta_target: route, cta_label: label });
+    if (route === '/support-chat') {
+      openSupportChat();
+      return;
+    }
     navigate(route);
   };
 
