@@ -1,3 +1,4 @@
+import { openSupportChat } from "@/lib/openSupportChat";
 import { useState } from "react";
 import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
@@ -127,7 +128,7 @@ export function CounselingReferral({ userId }: Props) {
         </Card>
 
         <div className="grid grid-cols-2 gap-2">
-          <Button onClick={() => navigate("/support-chat")} className="rounded-xl h-11">
+          <Button onClick={() => openSupportChat()} className="rounded-xl h-11">
             <MessageCircle className="h-4 w-4 mr-1.5" />
             {isEn ? "Chat Now" : "แชทเลย"}
           </Button>
@@ -152,7 +153,7 @@ export function CounselingReferral({ userId }: Props) {
     return (
       <div className="space-y-4">
         <BackButton onBack={() => setPathway(null)} isEn={isEn} />
-        <SafetyEscalation userId={userId} onNavigateSupport={() => navigate("/support-chat")} />
+        <SafetyEscalation userId={userId} onNavigateSupport={() => openSupportChat()} />
       </div>
     );
   }
@@ -162,7 +163,7 @@ export function CounselingReferral({ userId }: Props) {
     return (
       <div className="space-y-4">
         <BackButton onBack={() => setPathway(null)} isEn={isEn} />
-        <RecoveryMode userId={userId} onNavigateSupport={() => navigate("/support-chat")} />
+        <RecoveryMode userId={userId} onNavigateSupport={() => openSupportChat()} />
       </div>
     );
   }
@@ -256,7 +257,7 @@ export function CounselingReferral({ userId }: Props) {
               {isEn ? "How would you like to connect?" : "คุณอยากติดต่อทางไหน?"}
             </p>
             <div className="grid grid-cols-2 gap-2">
-              <Button className="rounded-xl h-11" onClick={() => { trackEvent("hr_talk_chat"); navigate("/support-chat"); }}>
+              <Button className="rounded-xl h-11" onClick={() => { trackEvent("hr_talk_chat"); openSupportChat(); }}>
                 <MessageCircle className="h-4 w-4 mr-1.5" />
                 {isEn ? "Chat now" : "แชทเลย"}
               </Button>

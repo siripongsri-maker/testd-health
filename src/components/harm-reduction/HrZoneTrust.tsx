@@ -1,3 +1,4 @@
+import { openSupportChat } from "@/lib/openSupportChat";
 import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -68,7 +69,7 @@ export default function HrZoneTrust({ userId, onResetAge }: Props) {
               <Button
                 variant="outline"
                 className="rounded-full text-xs h-9"
-                onClick={() => { trackReferral("chat"); navigate("/support-chat"); }}
+                onClick={() => { trackReferral("chat"); openSupportChat(); }}
               >
                 <MessageCircle className="h-3.5 w-3.5 mr-1.5" />
                 {isEn ? "Chat" : "แชท"}

@@ -1,3 +1,4 @@
+import { openSupportChat } from "@/lib/openSupportChat";
 import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -91,7 +92,7 @@ export function SwingClinicCard({ userId, sourceContext, compact }: Props) {
             <CalendarDays className="h-3.5 w-3.5 mr-1.5" />
             {isEn ? "Book Visit" : "จองนัด"}
           </Button>
-          <Button variant="outline" className="rounded-xl text-xs h-9" onClick={() => { trackReferral("chat"); navigate("/support-chat"); }}>
+          <Button variant="outline" className="rounded-xl text-xs h-9" onClick={() => { trackReferral("chat"); openSupportChat(); }}>
             <MessageCircle className="h-3.5 w-3.5 mr-1.5" />
             {isEn ? "Chat" : "แชท"}
           </Button>

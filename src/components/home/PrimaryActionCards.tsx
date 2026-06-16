@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { TestTube, Package, MessageCircle, ArrowRight } from 'lucide-react';
 import { trackEvent } from '@/hooks/useAnalytics';
 import { useLanguage } from '@/lib/i18n';
+import { openSupportChat } from '@/lib/openSupportChat';
 
 const actions = [
   {
@@ -48,6 +49,10 @@ export function PrimaryActionCards() {
             key={a.path}
             onClick={() => {
               trackEvent(a.event, { source: 'homepage', section: 'action_cards' });
+              if (a.path === '/support-chat') {
+                openSupportChat();
+                return;
+              }
               navigate(a.path);
             }}
             className={`

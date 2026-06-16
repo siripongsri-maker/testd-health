@@ -1,3 +1,4 @@
+import { openSupportChat } from "@/lib/openSupportChat";
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Compass } from 'lucide-react';
@@ -56,7 +57,7 @@ export function HeroSection() {
           className="h-12 px-4 rounded-full text-sm font-medium gap-2 text-muted-foreground hover:text-foreground hover:bg-card/60"
           onClick={() => {
             trackEvent('homepage_cta_journey_click', { source: 'homepage', section: 'hero' });
-            navigate('/support-chat');
+            openSupportChat();
           }}
         >
           <Compass className="h-4 w-4" />

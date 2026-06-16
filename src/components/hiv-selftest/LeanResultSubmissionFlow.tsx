@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/lib/i18n";
+import { openSupportChat } from "@/lib/openSupportChat";
 import { ArrowRight, Loader2, Camera } from "lucide-react";
 import selftestImgNegative from "@/assets/selftest-result-negative.jpg";
 import selftestImgReactive from "@/assets/selftest-result-reactive.jpg";
@@ -212,7 +213,7 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
             size="sm"
             onClick={() => {
               trackEvent("lean_help_requested", { request_id: request.id, from_step: "ready" });
-              window.location.href = "/support-chat";
+              openSupportChat();
             }}
           >
             {t.needHelp}

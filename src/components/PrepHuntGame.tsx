@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { trackEvent } from "@/hooks/useAnalytics";
 import { trackEpisodeComplete, trackEpisodeCtaClick } from "@/lib/virtualEpisodeAnalytics";
 import { setHarmReductionSource } from "@/hooks/useHarmReductionTracking";
+import { openSupportChat } from "@/lib/openSupportChat";
 
 /* ═══════════════════════════════════════════════════════════════
    PREP HUNT  —  drag / tap objects to reveal hidden pills
@@ -1103,6 +1104,10 @@ function ServiceCards({ lose, all }: { lose?: boolean; all?: boolean }) {
     setHarmReductionSource();
     trackEvent(`virtual_cta_${ctaType}_click`, { source_page: "/virtual", cta_label: label });
     trackEpisodeCtaClick({ slug: 'prep-hunt', title: 'หา PrEP ให้เจอ' }, { cta_type: ctaType, cta_target: route, cta_label: label });
+    if (route === '/support-chat') {
+      openSupportChat();
+      return;
+    }
     navigate(route);
   };
 

@@ -73,7 +73,8 @@ export function HomeActionGrid() {
     {
       icon: <MessageCircle className="h-4 w-4" />,
       label: isEn ? 'Online Counselor' : 'ขอคำปรึกษา',
-      path: '/community',
+      path: 'https://line.me/R/ti/p/@swingthailand',
+      external: true,
     },
     {
       icon: <Headphones className="h-4 w-4" />,
@@ -107,7 +108,13 @@ export function HomeActionGrid() {
               key={i}
               icon={item.icon}
               label={item.label}
-              onClick={() => navigate(item.path)}
+              onClick={() => {
+                if ((item as any).external) {
+                  window.open(item.path, '_blank', 'noopener,noreferrer');
+                } else {
+                  navigate(item.path);
+                }
+              }}
             />
           ))}
           <MedicationTrackerWidget />

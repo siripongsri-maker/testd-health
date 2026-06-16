@@ -1,3 +1,4 @@
+import { openSupportChat } from "@/lib/openSupportChat";
 import { useLanguage } from "@/lib/i18n";
 import { APP_VERSION } from "@/config/appVersion";
 import { useNavigate } from "react-router-dom";
@@ -169,7 +170,7 @@ export default function WhatsNew() {
             <Button
               variant="outline"
               className="w-full justify-between rounded-xl h-12"
-              onClick={() => navigate("/support-chat")}
+              onClick={() => openSupportChat()}
             >
               <span className="flex items-center gap-2">
                 <MessageCircle className="h-4 w-4 text-primary" />

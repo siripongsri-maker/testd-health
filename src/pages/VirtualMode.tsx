@@ -1,3 +1,4 @@
+import { openSupportChat } from "@/lib/openSupportChat";
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
@@ -322,7 +323,7 @@ export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
               <TestTube className="h-3.5 w-3.5" />{language === 'th' ? 'รับชุดตรวจ' : 'Get Kit'}
             </Button>
             <Button variant="outline" size="sm" className="gap-1.5 h-11 rounded-xl text-xs col-span-2 border-border/50 font-semibold"
-              onClick={() => { trackEvent('virtual_cta_support', { source: '/virtual' }); navigate('/support-chat'); }}>
+              onClick={() => { trackEvent('virtual_cta_support', { source: '/virtual' }); openSupportChat(); }}>
               <MessageCircle className="h-3.5 w-3.5" />{language === 'th' ? 'คุยกับเจ้าหน้าที่แบบไม่ระบุตัวตน' : 'Chat Anonymously'}
             </Button>
           </div>

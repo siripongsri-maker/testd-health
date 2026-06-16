@@ -9,6 +9,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { getVisitorId } from "@/lib/visitorId";
 import { trackJourneyEvent } from "@/lib/journeyTracker";
+import { openSupportChat } from "@/lib/openSupportChat";
 
 /* ─── Scene Colors ─── */
 const SCENE_COLORS: Record<string, { bg: string; accent: string }> = {
@@ -203,6 +204,10 @@ export function Episode2Player({ onBack }: { onBack: () => void }) {
   const handleCta = useCallback((target: string, label: string) => {
     trackEvent('virtual_story_cta_clicked', { cta_target: target, choice_text: label });
     trackEvent('virtual_cta_click', { source: 'virtual', target });
+    if (target === '/support-chat') {
+      openSupportChat();
+      return;
+    }
     navigate(target);
   }, [navigate, trackEvent]);
 

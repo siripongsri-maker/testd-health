@@ -1,3 +1,4 @@
+import { openSupportChat } from "@/lib/openSupportChat";
 import { useState, useMemo } from "react";
 import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
@@ -779,7 +780,7 @@ function ResultsView({
       label: isEn ? "Talk to a Counselor" : "พูดคุยกับผู้ให้คำปรึกษา",
       icon: MessageCircle,
       primary: crisis,
-      onClick: () => { if (onNavigateSupport) onNavigateSupport(); else navigate("/support-chat"); },
+      onClick: () => { if (onNavigateSupport) onNavigateSupport(); else openSupportChat(); },
     });
   }
 
