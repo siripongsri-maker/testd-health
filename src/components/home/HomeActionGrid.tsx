@@ -73,7 +73,8 @@ export function HomeActionGrid() {
     {
       icon: <MessageCircle className="h-4 w-4" />,
       label: isEn ? 'Online Counselor' : 'ขอคำปรึกษา',
-      path: '/community',
+      path: 'https://line.me/R/ti/p/@swingthailand',
+      external: true,
     },
     {
       icon: <Headphones className="h-4 w-4" />,
