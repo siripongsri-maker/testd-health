@@ -46,6 +46,10 @@ export function QuickActionStrip() {
             key={a.path}
             onClick={() => {
               trackEvent(a.event, { source: 'homepage', section: 'quick_strip' });
+              if (a.path === '/support-chat') {
+                openSupportChat();
+                return;
+              }
               navigate(a.path);
             }}
             className="group flex flex-col items-center gap-2 rounded-2xl glass border border-border/30 p-3 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
