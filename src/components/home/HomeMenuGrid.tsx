@@ -23,7 +23,7 @@ const items: MenuItem[] = [
     img: consultImg,
     labelTh: 'ขอคำปรึกษา',
     labelEn: 'Get advice',
-    path: '/support-chat',
+    path: 'https://line.me/R/ti/p/@swingthailand',
     tint: 'from-rose-100/60 to-orange-50/40',
   },
   {
@@ -84,10 +84,18 @@ export function HomeMenuGrid() {
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-2.5">
-      {items.map((item) => (
+      {items.map((item) => {
+        const isExternal = /^https?:\/\//.test(item.path);
+        return (
         <button
           key={item.path}
-          onClick={() => navigate(item.path)}
+          onClick={() => {
+            if (isExternal) {
+              window.open(item.path, '_blank', 'noopener,noreferrer');
+            } else {
+              navigate(item.path);
+            }
+          }}
           aria-label={isTh ? item.labelTh : item.labelEn}
           className="group flex flex-col items-center text-center rounded-2xl bg-card/40 backdrop-blur-sm border border-border/30 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 overflow-hidden p-1 sm:p-1.5"
         >
@@ -105,7 +113,8 @@ export function HomeMenuGrid() {
             {isTh ? item.labelTh : item.labelEn}
           </span>
         </button>
-      ))}
+        );
+      })}
     </div>
   );
 }
