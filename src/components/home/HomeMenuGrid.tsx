@@ -23,7 +23,7 @@ const items: MenuItem[] = [
     img: consultImg,
     labelTh: 'ขอคำปรึกษา',
     labelEn: 'Get advice',
-    path: '/support-chat',
+    path: 'https://line.me/R/ti/p/@swingthailand',
     tint: 'from-rose-100/60 to-orange-50/40',
   },
   {
