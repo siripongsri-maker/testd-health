@@ -49,6 +49,10 @@ export function ExitIntentNudge() {
   const handleClick = (target: string) => {
     trackEvent("exit_intent_nudge_click", { target, page: "/" });
     setOpen(false);
+    if (target === "/support-chat") {
+      openSupportChat();
+      return;
+    }
     navigate(target);
   };
 
