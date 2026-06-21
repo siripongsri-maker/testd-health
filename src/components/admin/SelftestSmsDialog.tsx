@@ -20,11 +20,14 @@ interface Props {
   recipients: SmsRecipient[];
   onSent?: () => void;
   initialTemplateKey?: string;
+  /** "selftest" (default) sends via hiv_selftest_requests.id; "kit_orders" sends to kit_orders.id recipients. */
+  source?: "selftest" | "kit_orders";
 }
 
 const TEMPLATE_CATEGORIES = [
   { key: "all", labelTh: "ทั้งหมด", labelEn: "All", icon: Layers },
   { key: "followup", labelTh: "ติดตาม", labelEn: "Follow-up", icon: Bell },
+  { key: "shipping", labelTh: "ส่งชุดตรวจ", labelEn: "Shipping", icon: Truck },
   { key: "clinic", labelTh: "คลินิก", labelEn: "Clinic", icon: Stethoscope },
   { key: "retention", labelTh: "ดูแลต่อเนื่อง", labelEn: "Retention", icon: Heart },
   { key: "custom", labelTh: "กำหนดเอง", labelEn: "Custom", icon: Edit3 },
