@@ -8744,6 +8744,7 @@ export type Database = {
           first_clicked_at: string | null
           http_status: number | null
           id: string
+          kit_order_id: string | null
           last_click_ip_hash: string | null
           last_click_user_agent: string | null
           last_clicked_at: string | null
@@ -8769,6 +8770,7 @@ export type Database = {
           first_clicked_at?: string | null
           http_status?: number | null
           id?: string
+          kit_order_id?: string | null
           last_click_ip_hash?: string | null
           last_click_user_agent?: string | null
           last_clicked_at?: string | null
@@ -8794,6 +8796,7 @@ export type Database = {
           first_clicked_at?: string | null
           http_status?: number | null
           id?: string
+          kit_order_id?: string | null
           last_click_ip_hash?: string | null
           last_click_user_agent?: string | null
           last_clicked_at?: string | null
@@ -8813,6 +8816,13 @@ export type Database = {
           tracking_token?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "sms_send_log_kit_order_id_fkey"
+            columns: ["kit_order_id"]
+            isOneToOne: false
+            referencedRelation: "kit_orders"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "sms_send_log_request_id_fkey"
             columns: ["request_id"]
