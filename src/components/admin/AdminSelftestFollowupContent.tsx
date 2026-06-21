@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Phone, MessageSquare, RefreshCw, CheckCircle2, Search, History, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import SelftestSmsDialog, { type SmsRecipient } from "./SelftestSmsDialog";
 
 interface Row {
   id: string;
@@ -56,6 +58,29 @@ export default function AdminSelftestFollowupContent() {
   const [loadingHistory, setLoadingHistory] = useState<Record<string, boolean>>({});
   const [historyFieldFilter, setHistoryFieldFilter] = useState<Record<string, string>>({});
   const [historySortAsc, setHistorySortAsc] = useState<Record<string, boolean>>({});
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [smsOpen, setSmsOpen] = useState(false);
+  const [smsRecipients, setSmsRecipients] = useState<SmsRecipient[]>([]);
+
+  const toRecipient = (r: Row): SmsRecipient => ({
+    id: r.id,
+    name: r.pii?.full_name || r.full_name || t("ไม่ระบุชื่อ", "No name"),
+    phone: r.pii?.phone || r.phone || "",
+  });
+
+  const openSmsFor = (rows: Row[]) => {
+    if (rows.length === 0) return;
+    setSmsRecipients(rows.map(toRecipient));
+    setSmsOpen(true);
+  };
+
+  const toggleSelected = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
 
   const loadHistory = async (id: string) => {
     setLoadingHistory((p) => ({ ...p, [id]: true }));
