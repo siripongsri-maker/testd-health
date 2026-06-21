@@ -692,7 +692,7 @@ async function submitResult(request: LeanActiveRequest, result: ResultType, phot
 async function submitGuestResult(
   result: ResultType,
   photo: File | null,
-  contact: { name: string; phone: string; lineId: string | null },
+  contact: { thaiId: string; phone: string; lineId: string | null },
 ): Promise<string> {
   let photoPath: string | null = null;
   if (photo) {
@@ -706,7 +706,7 @@ async function submitGuestResult(
   }
 
   const { data, error } = await supabase.rpc("submit_guest_selftest_result", {
-    p_full_name: contact.name,
+    p_thai_id: contact.thaiId,
     p_phone: contact.phone,
     p_line_id: contact.lineId,
     p_self_result: result,
