@@ -76,9 +76,25 @@ Deno.serve(async (req) => {
       if (!pii || typeof pii !== "object") return json({ error: "missing_pii" }, 400);
       if (!request || typeof request !== "object") return json({ error: "missing_request" }, 400);
 
+      // Whitelist PII fields — never spread raw client input into service-role insert
+      const safePii: Record<string, unknown> = {
+        user_id: resolvedUserId,
+        full_name: (pii as any).full_name ?? null,
+        phone: (pii as any).phone ?? null,
+        address: (pii as any).address ?? null,
+        province: (pii as any).province ?? null,
+        district: (pii as any).district ?? null,
+        subdistrict: (pii as any).subdistrict ?? null,
+        postal_code: (pii as any).postal_code ?? null,
+        date_of_birth: (pii as any).date_of_birth ?? null,
+        gender: (pii as any).gender ?? null,
+        national_id: (pii as any).national_id ?? null,
+        email: (pii as any).email ?? null,
+      };
+
       const { data: piiRow, error: piiErr } = await supa
         .from("selftest_pii")
-        .insert({ ...pii, user_id: resolvedUserId })
+        .insert(safePii)
         .select()
         .single();
 
@@ -87,9 +103,28 @@ Deno.serve(async (req) => {
         return json({ error: "pii_insert_failed", detail: piiErr.message }, 500);
       }
 
+      // Whitelist request fields — block client from injecting status/test_result/abuse_*
+      const r = request as Record<string, any>;
+      const safeRequest: Record<string, unknown> = {
+        user_id: resolvedUserId,
+        pii_id: piiRow.id,
+        last_risk_date: r.last_risk_date ?? null,
+        delivery_mode: r.delivery_mode ?? "ship",
+        assigned_branch: r.assigned_branch ?? "silom",
+        wants_callback: r.wants_callback ?? false,
+        callback_phone: r.callback_phone ?? null,
+        submission_path: r.submission_path ?? null,
+        pickup_branch: r.pickup_branch ?? null,
+        pickup_date: r.pickup_date ?? null,
+        notes: r.notes ?? null,
+        consent_given: r.consent_given ?? null,
+        risk_level: r.risk_level ?? null,
+        prior_test: r.prior_test ?? null,
+      };
+
       const { data: reqRow, error: reqErr } = await supa
         .from("hiv_selftest_requests")
-        .insert({ ...request, user_id: resolvedUserId, pii_id: piiRow.id })
+        .insert(safeRequest)
         .select()
         .single();
 
@@ -105,6 +140,7 @@ Deno.serve(async (req) => {
         request: reqRow,
       });
     }
+
 
     return json({ error: "unknown_mode" }, 400);
   } catch (e) {
