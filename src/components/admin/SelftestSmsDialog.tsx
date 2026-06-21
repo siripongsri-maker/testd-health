@@ -128,6 +128,7 @@ const TEMPLATES = [
     icon: Shield,
     bodyTh: "testD: คุณ {{name}} กรุณาติดต่อรับยา PrEP ที่คลินิก โทร 02-632-9501 หรือจองเวลา: https://testd.website/clinic/book",
     bodyEn: "testD: Hi {{name}}, please contact the clinic to pick up your PrEP. Call 02-632-9501 or book: https://testd.website/clinic/book",
+  },
   {
     key: "custom",
     category: "custom",
