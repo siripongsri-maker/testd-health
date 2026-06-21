@@ -23,12 +23,9 @@ export function PendingSelftestResultBanner({
 
   if (!hasPending) return null;
 
-  const isMany = dbCount > 1;
   const title = language === "th"
-    ? isMany
-      ? `คุณมี ${dbCount} ชุดตรวจที่รอส่งผล`
-      : "คุณมีชุดตรวจที่รอส่งผล"
-    : isMany
+    ? "คุณมีชุดตรวจที่รอส่งผล"
+    : dbCount > 1
       ? `You have ${dbCount} test kits waiting for results`
       : "You have a test kit waiting for results";
 
