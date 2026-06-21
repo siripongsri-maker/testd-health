@@ -416,6 +416,7 @@ export default function AdminSelftestFollowupContent() {
         recipients={smsRecipients}
         onSent={() => setSelected(new Set())}
       />
+      <SmsHistoryDialog open={smsHistoryOpen} onOpenChange={setSmsHistoryOpen} />
     </div>
   );
 }
