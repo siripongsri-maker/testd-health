@@ -274,7 +274,7 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
         track_links: true,
       };
       if (source === "kit_orders") {
-        invokeBody.kit_recipients = validRecipients.map((r) => ({ id: r.id, name: r.name, phone: r.phone }));
+        invokeBody.kit_recipients = validRecipients.map((r) => ({ id: r.id, name: r.name, phone: r.phone, code: r.code }));
       } else {
         invokeBody.request_ids = validRecipients.map((r) => r.id);
       }
