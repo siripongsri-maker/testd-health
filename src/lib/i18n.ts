@@ -984,6 +984,17 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'home.poweredBy': 'Powered by',
     'home.freeConfidential': 'This service is free • Your information is confidential',
 
+    // Home menu grid (central labels)
+    'home.menu.consult': 'Get advice',
+    'home.menu.selftest': 'HIV self-test',
+    'home.menu.risk': 'Risk check',
+    'home.menu.invite': 'Invite a friend',
+    'home.menu.learn': 'Learn more',
+    'home.menu.selfcare': 'Self-care',
+    'home.menu.preventionMatch': 'Find your match',
+    'home.menu.harmReduction': 'Harm Reduction',
+
+
     // My Appointments
     'appointments.title': 'My Appointments',
     'appointments.upcoming': 'Upcoming',
