@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, MessageSquare, Send, Bell, Phone, Stethoscope, Calendar, HelpCircle, Heart, Shield, Edit3, FileText, Layers } from "lucide-react";
+import { Loader2, MessageSquare, Send, Bell, Phone, Stethoscope, Calendar, HelpCircle, Heart, Shield, Edit3, FileText, Layers, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
