@@ -11034,6 +11034,7 @@ export type Database = {
           p_line_id: string
           p_phone: string
           p_photo_path: string
+          p_province: string
           p_self_result: string
           p_thai_id: string
           p_wants_callback: boolean
