@@ -19,6 +19,7 @@ interface Props {
   onOpenChange: (v: boolean) => void;
   recipients: SmsRecipient[];
   onSent?: () => void;
+  initialTemplateKey?: string;
 }
 
 const TEMPLATE_CATEGORIES = [
