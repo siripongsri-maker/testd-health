@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, Search, Phone, Image as ImageIcon, RefreshCw, Save, Trash2 } from "lucide-react";
+import { Loader2, Search, Phone, Image as ImageIcon, RefreshCw, Save, Trash2, MessageSquare, Shield } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { usePdpaAudit } from "@/hooks/usePdpaAudit";
+import SelftestSmsDialog, { SmsRecipient } from "./SelftestSmsDialog";
 
 interface Row {
   id: string;
@@ -63,6 +64,9 @@ export default function AdminSelftestResultsContent() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Row | null>(null);
+  const [smsOpen, setSmsOpen] = useState(false);
+  const [smsRecipients, setSmsRecipients] = useState<SmsRecipient[]>([]);
+  const [smsTemplateKey, setSmsTemplateKey] = useState<string>("negative_prep_invite");
 
   const load = async () => {
     setLoading(true);
@@ -129,6 +133,40 @@ export default function AdminSelftestResultsContent() {
     });
     return c;
   }, [rows]);
+
+  const toRecipient = (r: Row): SmsRecipient => ({
+    id: r.id,
+    name: r.pii?.full_name || r.full_name || "—",
+    phone: (r.pii?.phone || r.phone || "").trim(),
+  });
+
+  const negativeFiltered = useMemo(
+    () =>
+      filtered.filter((r) => (r.self_reported_result || r.test_result) === "negative"),
+    [filtered],
+  );
+
+  const openSmsForRow = (r: Row, templateKey = "negative_prep_invite") => {
+    const rec = toRecipient(r);
+    if (!rec.phone) {
+      toast.error(t("ไม่มีเบอร์โทรของผู้รับ", "Recipient has no phone number"));
+      return;
+    }
+    setSmsRecipients([rec]);
+    setSmsTemplateKey(templateKey);
+    setSmsOpen(true);
+  };
+
+  const openBulkSmsNegatives = (templateKey = "negative_prep_invite") => {
+    const recipients = negativeFiltered.map(toRecipient).filter((r) => r.phone);
+    if (recipients.length === 0) {
+      toast.error(t("ไม่พบผู้รับผล Negative ที่มีเบอร์โทร", "No Negative recipients with a phone number"));
+      return;
+    }
+    setSmsRecipients(recipients);
+    setSmsTemplateKey(templateKey);
+    setSmsOpen(true);
+  };
 
   const isDirty = (r: Row) => {
     const e = edits[r.id];
@@ -253,6 +291,37 @@ export default function AdminSelftestResultsContent() {
               </Button>
             </div>
           </div>
+          {negativeFiltered.length > 0 && (
+            <div className="mt-3 flex flex-wrap items-center gap-2 rounded-md border border-emerald-500/30 bg-emerald-500/5 p-2.5">
+              <Shield className="h-4 w-4 text-emerald-600 shrink-0" />
+              <span className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">
+                {t(
+                  `พบผล Negative ${negativeFiltered.length} ราย — ส่ง SMS ติดตามรับ PrEP ได้`,
+                  `${negativeFiltered.length} Negative results — send PrEP follow-up SMS`,
+                )}
+              </span>
+              <div className="ml-auto flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 gap-1.5 border-emerald-500/40"
+                  onClick={() => openBulkSmsNegatives("negative_prep_invite")}
+                >
+                  <MessageSquare className="h-3.5 w-3.5" />
+                  {t("เชิญรับ PrEP", "Invite for PrEP")}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 gap-1.5 border-emerald-500/40"
+                  onClick={() => openBulkSmsNegatives("negative_prep_pickup")}
+                >
+                  <MessageSquare className="h-3.5 w-3.5" />
+                  {t("ติดต่อรับยา PrEP", "Contact for PrEP pickup")}
+                </Button>
+              </div>
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -335,6 +404,17 @@ export default function AdminSelftestResultsContent() {
                                 <ImageIcon className="h-4 w-4"/>
                               </Button>
                             )}
+                            {result === "negative" && phone && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-500/10"
+                                onClick={() => openSmsForRow(r, "negative_prep_invite")}
+                                title={t("ส่ง SMS เชิญรับ PrEP", "Send PrEP invite SMS")}
+                              >
+                                <MessageSquare className="h-4 w-4"/>
+                              </Button>
+                            )}
                             <Button
                               size="sm"
                               variant={dirty ? "default" : "ghost"}
@@ -395,6 +475,15 @@ export default function AdminSelftestResultsContent() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <SelftestSmsDialog
+        open={smsOpen}
+        onOpenChange={setSmsOpen}
+        recipients={smsRecipients}
+        initialTemplateKey={smsTemplateKey}
+        onSent={() => load()}
+      />
+
     </div>
   );
 }

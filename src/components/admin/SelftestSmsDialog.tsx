@@ -19,6 +19,7 @@ interface Props {
   onOpenChange: (v: boolean) => void;
   recipients: SmsRecipient[];
   onSent?: () => void;
+  initialTemplateKey?: string;
 }
 
 const TEMPLATE_CATEGORIES = [
@@ -112,6 +113,24 @@ const TEMPLATES = [
     bodyEn: "testD: Hi {{name}}, interested in PrEP or prevention? Book a clinic visit: https://testd.website/clinic/book or call 02-632-9501",
   },
   {
+    key: "negative_prep_invite",
+    category: "retention",
+    labelTh: "เชิญรับ PrEP (ผล Negative)",
+    labelEn: "Invite for PrEP (Negative)",
+    icon: Shield,
+    bodyTh: "testD: คุณ {{name}} ผลล่าสุดเป็นลบ ขอแนะนำให้รับยา PrEP เพื่อป้องกันต่อเนื่อง ฟรี! นัดคลินิก: https://testd.website/clinic/book หรือโทร 02-632-9501",
+    bodyEn: "testD: Hi {{name}}, your recent result is negative. We recommend starting PrEP for ongoing protection — free! Book: https://testd.website/clinic/book or call 02-632-9501",
+  },
+  {
+    key: "negative_prep_pickup",
+    category: "retention",
+    labelTh: "ติดต่อรับยา PrEP",
+    labelEn: "Contact to pick up PrEP",
+    icon: Shield,
+    bodyTh: "testD: คุณ {{name}} กรุณาติดต่อรับยา PrEP ที่คลินิก โทร 02-632-9501 หรือจองเวลา: https://testd.website/clinic/book",
+    bodyEn: "testD: Hi {{name}}, please contact the clinic to pick up your PrEP. Call 02-632-9501 or book: https://testd.website/clinic/book",
+  },
+  {
     key: "custom",
     category: "custom",
     labelTh: "กำหนดเอง",
@@ -150,15 +169,22 @@ function segmentInfo(text: string) {
   return { len, segments, unicode };
 }
 
-export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSent }: Props) {
+export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSent, initialTemplateKey }: Props) {
   const { language } = useLanguage();
   const t = (th: string, en: string) => (language === "th" ? th : en);
-  const [tplKey, setTplKey] = useState<string>(TEMPLATES[0].key);
+  const [tplKey, setTplKey] = useState<string>(initialTemplateKey || TEMPLATES[0].key);
   const [category, setCategory] = useState<string>("all");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [previewIdx, setPreviewIdx] = useState(0);
   const [showAllPreviews, setShowAllPreviews] = useState(false);
+
+  // When dialog opens, sync to the requested initial template (if provided)
+  useEffect(() => {
+    if (open && initialTemplateKey && TEMPLATES.some((x) => x.key === initialTemplateKey)) {
+      setTplKey(initialTemplateKey);
+    }
+  }, [open, initialTemplateKey]);
 
   useEffect(() => {
     if (!open) return;
