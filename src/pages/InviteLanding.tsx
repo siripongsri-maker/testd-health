@@ -37,11 +37,9 @@ export default function InviteLanding() {
   useEffect(() => {
     if (!code) return;
     const load = async () => {
-      const { data, error } = await (supabase as any)
-        .from('partner_invites')
-        .select('id, code, invite_type, tone, expires_at, is_active, status')
-        .eq('code', code)
-        .maybeSingle();
+      const { data: rows, error } = await (supabase as any)
+        .rpc('get_partner_invite_by_code', { _code: code });
+      const data = Array.isArray(rows) ? rows[0] : rows;
 
       if (error || !data) {
         setExpired(true);
