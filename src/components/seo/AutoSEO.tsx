@@ -9,7 +9,7 @@ import {
   stripLocalePrefix,
 } from "@/lib/seoLocalePrefix";
 
-const BASE_URL = "https://testd-health.lovable.app";
+const BASE_URL = "https://testd.website";
 
 /**
  * AutoSEO — placed once inside BrowserRouter.
