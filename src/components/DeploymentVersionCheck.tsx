@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { APP_VERSION } from "@/config/appVersion";
+import { logCacheResetEvent, markReloadPending } from "@/lib/cacheResetLog";
 
 /**
  * DeploymentVersionCheck
