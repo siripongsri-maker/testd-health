@@ -49,19 +49,8 @@ async function sha256Hex(input: string): Promise<string> {
   return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-async function createSelftestFollowupLink(admin: any, requestId: string): Promise<string> {
-  const token = makeMagicToken();
-  const tokenHash = await sha256Hex(token);
-  const expiresAt = new Date(Date.now() + 30 * 86400000).toISOString();
-  const { error } = await admin.from("selftest_magic_tokens").insert({
-    request_id: requestId,
-    token_hash: tokenHash,
-    purpose: "followup",
-    expires_at: expiresAt,
-  });
-  if (error) throw new Error(`followup_token_insert_failed: ${error.message}`);
-  return `${APP_BASE_URL}/selftest/followup/${token}`;
-}
+// Public landing page for HIV self-test follow-up — no token, no /r/ redirect.
+const SELFTEST_PUBLIC_URL = `${APP_BASE_URL}/th/hiv-selftest`;
 
 function shouldReplaceWithSelftestFollowup(url: string): boolean {
   try {
@@ -242,13 +231,10 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      const templateUrls = message.match(/https?:\/\/[^\s]+/g) || [];
-      const needsSecureFollowupLink = kind === "selftest" && (
-        /\{\{\s*followup_link\s*\}\}/i.test(message) ||
-        templateUrls.some((url) => shouldReplaceWithSelftestFollowup(url))
-      );
+      // Public link — no token, no tracking redirect. Self-test sends go to the public HIV self-test page;
+      // kit-order sends go to the public order-tracking page.
       const followupLink = kind === "selftest"
-        ? (needsSecureFollowupLink ? await createSelftestFollowupLink(admin, ref_id) : `${APP_BASE_URL}/booking?service=hiv-testing&followup=selftest`)
+        ? SELFTEST_PUBLIC_URL
         : `${APP_BASE_URL}/track-kit/${encodeURIComponent(code || ref_id)}`;
 
       // Substitute per-recipient variables ({{name}}, {{phone}}, {{code}}, {{followup_link}}) in the template
@@ -258,24 +244,15 @@ Deno.serve(async (req) => {
         .replace(/\{\{\s*code\s*\}\}/gi, code || "")
         .replace(/\{\{\s*followup_link\s*\}\}/gi, followupLink);
 
+      // Replace any internal site URLs in the template with the public follow-up link
+      // so legacy admin/internal paths never reach the recipient.
       personalized = personalized.replace(/https?:\/\/[^\s]+/g, (url) => {
-        if (kind !== "selftest") return url;
         return shouldReplaceWithSelftestFollowup(url) ? followupLink : url;
       });
 
-      // Tracking link: rewrite FIRST http(s) URL in the personalized message
-      // so we can log click-throughs ("backlink").
-      let trackingToken: string | null = null;
-      let originalUrl: string | null = null;
-      if (trackLinks) {
-        const urlMatch = personalized.match(/https?:\/\/[^\s]+/);
-        if (urlMatch) {
-          originalUrl = urlMatch[0];
-          trackingToken = makeToken(10);
-          const trackedUrl = `${APP_BASE_URL}/r/${trackingToken}`;
-          personalized = personalized.replace(originalUrl, trackedUrl);
-        }
-      }
+      // No /r/ tracking rewrite — send the public URL as-is to avoid 404 redirects.
+      const trackingToken: string | null = null;
+      const originalUrl: string | null = null;
 
       try {
         const resp = await fetch(SMSMKT_URL, {
