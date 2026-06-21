@@ -560,7 +560,7 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="px-6 pb-6 pt-2 border-t bg-background">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={sending}>
             {t("ยกเลิก", "Cancel")}
           </Button>
@@ -569,6 +569,7 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
             {t(`ส่ง ${validRecipients.length} ราย`, `Send ${validRecipients.length}`)}
           </Button>
         </DialogFooter>
+
       </DialogContent>
     </Dialog>
   );
