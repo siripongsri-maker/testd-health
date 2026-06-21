@@ -1759,7 +1759,7 @@ export default function HIVSelfTest() {
                   className="w-full gap-2" 
                   size="lg"
                   onClick={handleSubmitResult}
-                  disabled={uploading || !pdpaConsent}
+                  disabled={uploading || !pdpaConsent || (!user && !guestProvince)}
                 >
                   <Upload className="h-4 w-4" />
                   {uploading 
