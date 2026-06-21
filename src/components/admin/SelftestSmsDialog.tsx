@@ -204,6 +204,13 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
   const [sending, setSending] = useState(false);
   const [previewIdx, setPreviewIdx] = useState(0);
   const [showAllPreviews, setShowAllPreviews] = useState(false);
+  const [sendResult, setSendResult] = useState<null | {
+    sent: number;
+    total: number;
+    sentAt: string;
+    results: Array<{ request_id?: string; phone?: string; ok: boolean; error?: string; name?: string }>;
+  }>(null);
+
 
   // When dialog opens, sync to the requested initial template (if provided)
   useEffect(() => {
