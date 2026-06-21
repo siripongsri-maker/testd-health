@@ -862,6 +862,7 @@ export default function HIVSelfTest() {
         setPdpaConsent(false);
         setGuestPhone("");
         setGuestLineId("");
+        setGuestProvince("");
       } catch (error) {
         console.error('Guest submit error:', error);
         toast.error(language === 'th' ? 'ส่งผลไม่สำเร็จ ลองอีกครั้ง' : 'Submission failed. Please try again.');
