@@ -197,6 +197,21 @@ export default function AdminSelftestFollowupContent() {
                 <History className="h-4 w-4" />
                 {t("ประวัติ SMS / CSV", "SMS history / CSV")}
               </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const targets = filtered.filter((r) => (r.pii?.phone || r.phone || "").replace(/\D/g, "").length >= 9);
+                  if (targets.length === 0) {
+                    toast.info(t("ไม่พบเบอร์โทรที่พร้อมส่งในรายการที่แสดง", "No valid phone numbers in the current list"));
+                    return;
+                  }
+                  openSmsFor(targets);
+                }}
+                className="gap-1.5"
+              >
+                <MessageSquare className="h-4 w-4" />
+                {t(`ส่ง SMS ทั้งหมด (${filtered.filter((r) => (r.pii?.phone || r.phone || "").replace(/\D/g, "").length >= 9).length})`, `Send SMS all (${filtered.filter((r) => (r.pii?.phone || r.phone || "").replace(/\D/g, "").length >= 9).length})`)}
+              </Button>
               <Button variant="outline" size="icon" onClick={load} disabled={loading}>
                 <RefreshCw className={`h-4 w-4 ${loading?"animate-spin":""}`} />
               </Button>
