@@ -262,15 +262,18 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
     }
     setSending(true);
     try {
-      const { data, error } = await supabase.functions.invoke("selftest-send-sms", {
-        body: {
-          request_ids: validRecipients.map((r) => r.id),
-          message: message.trim(),
-          template_key: selectedTpl.key,
-          template_label: selectedTpl.labelEn,
-          track_links: true,
-        },
-      });
+      const invokeBody: Record<string, any> = {
+        message: message.trim(),
+        template_key: selectedTpl.key,
+        template_label: selectedTpl.labelEn,
+        track_links: true,
+      };
+      if (source === "kit_orders") {
+        invokeBody.kit_recipients = validRecipients.map((r) => ({ id: r.id, name: r.name, phone: r.phone }));
+      } else {
+        invokeBody.request_ids = validRecipients.map((r) => r.id);
+      }
+      const { data, error } = await supabase.functions.invoke("selftest-send-sms", { body: invokeBody });
       if (error) throw error;
       const sent = (data as any)?.sent ?? 0;
       const total = (data as any)?.total ?? validRecipients.length;
