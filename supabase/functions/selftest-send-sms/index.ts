@@ -66,21 +66,8 @@ async function createSelftestFollowupLink(admin: any, requestId: string): Promis
 function shouldReplaceWithSelftestFollowup(url: string): boolean {
   try {
     const parsed = new URL(url, APP_BASE_URL);
-    const path = parsed.pathname.replace(/^\/(th|en)(?=\/)/, "").replace(/\/+$/, "") || "/";
     const sameSite = parsed.hostname === new URL(APP_BASE_URL).hostname || parsed.hostname.endsWith(".lovable.app");
-    return sameSite && (
-      path === "/admin" ||
-      path.startsWith("/admin/") ||
-      path === "/dashboard" ||
-      path.startsWith("/dashboard/") ||
-      path === "/booking" ||
-      path === "/clinic/book" ||
-      path === "/selftest" ||
-      path === "/submit-result" ||
-      path === "/submit-hiv-result" ||
-      path === "/submit" ||
-      path === "/hiv-selftest"
-    );
+    return sameSite;
   } catch {
     return false;
   }
