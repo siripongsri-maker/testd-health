@@ -634,7 +634,6 @@ function OutcomeScreen({
   onDone: () => void;
   onCareAction: (action: string) => Promise<void>;
 }) {
-  const [saving, setSaving] = useState(false);
 
   if (result === "negative") {
     return (
