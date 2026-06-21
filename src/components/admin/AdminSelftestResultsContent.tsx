@@ -291,6 +291,37 @@ export default function AdminSelftestResultsContent() {
               </Button>
             </div>
           </div>
+          {negativeFiltered.length > 0 && (
+            <div className="mt-3 flex flex-wrap items-center gap-2 rounded-md border border-emerald-500/30 bg-emerald-500/5 p-2.5">
+              <Shield className="h-4 w-4 text-emerald-600 shrink-0" />
+              <span className="text-xs text-emerald-700 dark:text-emerald-400 font-medium">
+                {t(
+                  `พบผล Negative ${negativeFiltered.length} ราย — ส่ง SMS ติดตามรับ PrEP ได้`,
+                  `${negativeFiltered.length} Negative results — send PrEP follow-up SMS`,
+                )}
+              </span>
+              <div className="ml-auto flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 gap-1.5 border-emerald-500/40"
+                  onClick={() => openBulkSmsNegatives("negative_prep_invite")}
+                >
+                  <MessageSquare className="h-3.5 w-3.5" />
+                  {t("เชิญรับ PrEP", "Invite for PrEP")}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 gap-1.5 border-emerald-500/40"
+                  onClick={() => openBulkSmsNegatives("negative_prep_pickup")}
+                >
+                  <MessageSquare className="h-3.5 w-3.5" />
+                  {t("ติดต่อรับยา PrEP", "Contact for PrEP pickup")}
+                </Button>
+              </div>
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           {loading ? (
