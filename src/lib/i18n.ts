@@ -472,6 +472,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.kitOrders': 'ชุดตรวจ',
     'admin.selftestResults': 'รายงานผลตรวจ',
     'admin.selftestFollowup': 'ติดตามผลตรวจ',
+    'admin.selftestMap': 'แผนที่กระจายชุดตรวจ',
     'admin.notifications': 'แจ้งเตือน',
     'admin.analytics': 'สถิติ',
     'admin.analyticsOverview': 'ภาพรวมช่วงเวลา',
