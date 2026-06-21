@@ -112,6 +112,23 @@ const TEMPLATES = [
     bodyEn: "testD: Hi {{name}}, interested in PrEP or prevention? Book a clinic visit: https://testd.website/clinic/book or call 02-632-9501",
   },
   {
+    key: "negative_prep_invite",
+    category: "retention",
+    labelTh: "เชิญรับ PrEP (ผล Negative)",
+    labelEn: "Invite for PrEP (Negative)",
+    icon: Shield,
+    bodyTh: "testD: คุณ {{name}} ผลล่าสุดเป็นลบ ขอแนะนำให้รับยา PrEP เพื่อป้องกันต่อเนื่อง ฟรี! นัดคลินิก: https://testd.website/clinic/book หรือโทร 02-632-9501",
+    bodyEn: "testD: Hi {{name}}, your recent result is negative. We recommend starting PrEP for ongoing protection — free! Book: https://testd.website/clinic/book or call 02-632-9501",
+  },
+  {
+    key: "negative_prep_pickup",
+    category: "retention",
+    labelTh: "ติดต่อรับยา PrEP",
+    labelEn: "Contact to pick up PrEP",
+    icon: Shield,
+    bodyTh: "testD: คุณ {{name}} กรุณาติดต่อรับยา PrEP ที่คลินิก โทร 02-632-9501 หรือจองเวลา: https://testd.website/clinic/book",
+    bodyEn: "testD: Hi {{name}}, please contact the clinic to pick up your PrEP. Call 02-632-9501 or book: https://testd.website/clinic/book",
+  {
     key: "custom",
     category: "custom",
     labelTh: "กำหนดเอง",
