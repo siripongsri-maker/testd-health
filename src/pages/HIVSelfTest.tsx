@@ -789,6 +789,11 @@ export default function HIVSelfTest() {
       toast.error(language === 'th' ? 'กรุณาถ่ายรูปผลตรวจก่อน' : 'Please take a photo first');
       return;
     }
+    if (!pdpaConsent) {
+      toast.error(language === 'th' ? 'กรุณายืนยันความยินยอม PDPA ก่อนส่ง' : 'Please confirm PDPA consent before submitting');
+      return;
+    }
+
 
     // Guest path: no login required, but we need basic contact info
     if (!user) {
