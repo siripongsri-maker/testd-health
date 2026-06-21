@@ -150,8 +150,10 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
   const [result, setResult] = useState<ResultType | null>(null);
   const [photo, setPhoto] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // Thai national ID — required for every submit-result flow so the record
+  // can be linked back to the same person at the clinic.
+  const [thaiId, setThaiId] = useState("");
   // Guest-only contact fields (required by the submit_guest_selftest_result RPC)
-  const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [guestLineId, setGuestLineId] = useState("");
   const [guestRequestId, setGuestRequestId] = useState<string | null>(null);
