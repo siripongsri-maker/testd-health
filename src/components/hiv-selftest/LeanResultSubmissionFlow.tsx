@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/lib/i18n";
 import { openSupportChat } from "@/lib/openSupportChat";
+import { isValidThaiId, normalizeThaiId } from "@/lib/thaiId";
 import { ArrowRight, Loader2, Camera } from "lucide-react";
 import selftestImgNegative from "@/assets/selftest-result-negative.jpg";
 import selftestImgReactive from "@/assets/selftest-result-reactive.jpg";
@@ -149,8 +150,10 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
   const [result, setResult] = useState<ResultType | null>(null);
   const [photo, setPhoto] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // Thai national ID — required for every submit-result flow so the record
+  // can be linked back to the same person at the clinic.
+  const [thaiId, setThaiId] = useState("");
   // Guest-only contact fields (required by the submit_guest_selftest_result RPC)
-  const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [guestLineId, setGuestLineId] = useState("");
   const [guestRequestId, setGuestRequestId] = useState<string | null>(null);
@@ -337,6 +340,27 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
           </span>
         </label>
 
+        {/* Thai national ID — required for every submission (links result back to the person). */}
+        <div className="space-y-1.5 rounded-lg bg-muted/40 border border-border/60 p-3">
+          <Label htmlFor="lean-thai-id" className="text-xs font-medium">
+            {language === "th" ? "เลขบัตรประชาชน 13 หลัก" : "Thai national ID (13 digits)"} *
+          </Label>
+          <Input
+            id="lean-thai-id"
+            inputMode="numeric"
+            autoComplete="off"
+            value={thaiId}
+            onChange={(e) => setThaiId(normalizeThaiId(e.target.value).slice(0, 13))}
+            placeholder="X-XXXX-XXXXX-XX-X"
+            maxLength={13}
+          />
+          <p className="text-[11px] text-muted-foreground">
+            🔒 {language === "th"
+              ? "ใช้เชื่อมผลตรวจกับเวชระเบียนของคุณอย่างปลอดภัย เก็บเป็นความลับตาม PDPA"
+              : "Used to securely link your result with your medical record. Kept confidential per PDPA."}
+          </p>
+        </div>
+
         {/* Guest-only: contact info required for the team to follow up if reactive */}
         {guestMode && (
           <div className="space-y-3 rounded-lg bg-muted/40 border border-border/60 p-3">
@@ -349,18 +373,6 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
                   ? "ส่งผลแบบไม่ต้องสมัครสมาชิก — ทีมจะใช้ข้อมูลนี้เฉพาะเมื่อจำเป็น"
                   : "No account needed — the team only uses this if necessary."}
               </p>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="lean-guest-name" className="text-xs">
-                {language === "th" ? "ชื่อ หรือชื่อเล่น" : "Name or nickname"} *
-              </Label>
-              <Input
-                id="lean-guest-name"
-                value={guestName}
-                onChange={(e) => setGuestName(e.target.value)}
-                placeholder={language === "th" ? "เช่น นิว" : "e.g. Alex"}
-                maxLength={100}
-              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="lean-guest-phone" className="text-xs">
@@ -401,13 +413,18 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
           disabled={!result || submitting}
           onClick={async () => {
             if (!result) return;
+            const trimmedThaiId = normalizeThaiId(thaiId);
+            if (!isValidThaiId(trimmedThaiId)) {
+              toast({
+                title: language === "th"
+                  ? "เลขบัตรประชาชนไม่ถูกต้อง"
+                  : "Invalid Thai national ID",
+                variant: "destructive",
+              });
+              return;
+            }
             if (guestMode) {
-              const trimmedName = guestName.trim();
               const trimmedPhone = guestPhone.replace(/\s+/g, "");
-              if (trimmedName.length < 2) {
-                toast({ title: language === "th" ? "กรุณากรอกชื่อ" : "Please enter your name", variant: "destructive" });
-                return;
-              }
               if (trimmedPhone.length < 8) {
                 toast({ title: language === "th" ? "กรุณากรอกเบอร์โทรที่ติดต่อได้" : "Please enter a valid phone", variant: "destructive" });
                 return;
@@ -419,13 +436,13 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
               let submittedId = request.id;
               if (guestMode) {
                 submittedId = await submitGuestResult(result, photo, {
-                  name: guestName.trim(),
+                  thaiId: trimmedThaiId,
                   phone: guestPhone.replace(/\s+/g, ""),
                   lineId: guestLineId.trim() || null,
                 });
                 setGuestRequestId(submittedId);
               } else {
-                await submitResult(request, result, photo);
+                await submitResult(request, result, photo, trimmedThaiId);
               }
               trackEvent("lean_result_submitted", {
                 request_id: submittedId,
@@ -645,7 +662,12 @@ function OutcomeScreen({
 }
 
 // ---------- Submit ----------
-async function submitResult(request: LeanActiveRequest, result: ResultType, photo: File | null) {
+async function submitResult(
+  request: LeanActiveRequest,
+  result: ResultType,
+  photo: File | null,
+  thaiId: string,
+) {
   let photoPath: string | null = null;
 
   if (photo) {
@@ -664,6 +686,7 @@ async function submitResult(request: LeanActiveRequest, result: ResultType, phot
     photo_provided: !!photo,
     submission_path: photo ? "lean_with_photo" : "lean_no_photo",
     result_submitted_at: new Date().toISOString(),
+    thai_id: thaiId,
     test_result:
       result === "negative" ? "negative" : result === "reactive" ? "reactive" : "invalid",
   };
@@ -692,7 +715,7 @@ async function submitResult(request: LeanActiveRequest, result: ResultType, phot
 async function submitGuestResult(
   result: ResultType,
   photo: File | null,
-  contact: { name: string; phone: string; lineId: string | null },
+  contact: { thaiId: string; phone: string; lineId: string | null },
 ): Promise<string> {
   let photoPath: string | null = null;
   if (photo) {
@@ -706,7 +729,7 @@ async function submitGuestResult(
   }
 
   const { data, error } = await supabase.rpc("submit_guest_selftest_result", {
-    p_full_name: contact.name,
+    p_thai_id: contact.thaiId,
     p_phone: contact.phone,
     p_line_id: contact.lineId,
     p_self_result: result,

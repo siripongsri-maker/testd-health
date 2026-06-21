@@ -10925,6 +10925,7 @@ export type Database = {
         Args: { _pii_id: string; _user_id: string }
         Returns: boolean
       }
+      is_valid_thai_id: { Args: { _id: string }; Returns: boolean }
       join_partner_session: {
         Args: { p_participant_sid: string; p_session_code: string }
         Returns: Json
@@ -11030,11 +11031,11 @@ export type Database = {
       }
       submit_guest_selftest_result: {
         Args: {
-          p_full_name: string
           p_line_id: string
           p_phone: string
           p_photo_path: string
           p_self_result: string
+          p_thai_id: string
           p_wants_callback: boolean
         }
         Returns: string

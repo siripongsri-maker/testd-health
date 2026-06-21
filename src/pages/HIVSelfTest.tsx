@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { Label } from "@/components/ui/label";
+import { isValidThaiId, normalizeThaiId } from "@/lib/thaiId";
 
 import { 
   TestTube, 
@@ -153,7 +154,7 @@ export default function HIVSelfTest() {
   const [callbackPhone, setCallbackPhone] = useState("");
 
   // Guest contact fields (used when no logged-in user submits a result from an existing kit)
-  const [guestName, setGuestName] = useState("");
+  const [guestThaiId, setGuestThaiId] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [guestLineId, setGuestLineId] = useState("");
   const [analysisResult, setAnalysisResult] = useState<'positive' | 'negative' | 'invalid' | 'inconclusive' | null>(null);
@@ -789,10 +790,10 @@ export default function HIVSelfTest() {
 
     // Guest path: no login required, but we need basic contact info
     if (!user) {
-      const trimmedName = guestName.trim();
+      const trimmedThaiId = normalizeThaiId(guestThaiId);
       const trimmedPhone = guestPhone.replace(/\s+/g, '');
-      if (trimmedName.length < 2) {
-        toast.error(language === 'th' ? 'กรุณากรอกชื่อ' : 'Please enter your name');
+      if (!isValidThaiId(trimmedThaiId)) {
+        toast.error(language === 'th' ? 'เลขบัตรประชาชนไม่ถูกต้อง' : 'Invalid Thai national ID');
         return;
       }
       if (trimmedPhone.length < 8) {
@@ -817,7 +818,7 @@ export default function HIVSelfTest() {
         if (uploadError) throw uploadError;
 
         const { error: rpcError } = await supabase.rpc('submit_guest_selftest_result', {
-          p_full_name: trimmedName,
+          p_thai_id: trimmedThaiId,
           p_phone: trimmedPhone,
           p_line_id: guestLineId.trim() || null,
           p_self_result: mapped,
@@ -841,7 +842,7 @@ export default function HIVSelfTest() {
         setAnalysisDetails(null);
         setWantsCallback(false);
         setCallbackPhone("");
-        setGuestName("");
+        setGuestThaiId("");
         setGuestPhone("");
         setGuestLineId("");
       } catch (error) {
@@ -1642,16 +1643,23 @@ export default function HIVSelfTest() {
                       </p>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="guestName" className="text-xs font-medium">
-                        {language === 'th' ? 'ชื่อ หรือชื่อเล่น' : 'Name or nickname'} *
+                      <Label htmlFor="guestThaiId" className="text-xs font-medium">
+                        {language === 'th' ? 'เลขบัตรประชาชน 13 หลัก' : 'Thai national ID (13 digits)'} *
                       </Label>
                       <Input
-                        id="guestName"
-                        value={guestName}
-                        onChange={(e) => setGuestName(e.target.value)}
-                        placeholder={language === 'th' ? 'เช่น นิว' : 'e.g. Alex'}
-                        maxLength={100}
+                        id="guestThaiId"
+                        inputMode="numeric"
+                        autoComplete="off"
+                        value={guestThaiId}
+                        onChange={(e) => setGuestThaiId(normalizeThaiId(e.target.value).slice(0, 13))}
+                        placeholder="X-XXXX-XXXXX-XX-X"
+                        maxLength={13}
                       />
+                      <p className="text-[11px] text-muted-foreground mt-1">
+                        🔒 {language === 'th'
+                          ? 'ใช้เชื่อมผลตรวจกับเวชระเบียนของคุณอย่างปลอดภัย'
+                          : 'Used to securely link your result with your medical record.'}
+                      </p>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="guestPhone" className="text-xs font-medium">
