@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getProvinces } from "@/lib/thailand-address";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/lib/i18n";
@@ -159,6 +161,8 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
   // Guest-only contact fields (required by the submit_guest_selftest_result RPC)
   const [guestPhone, setGuestPhone] = useState("");
   const [guestLineId, setGuestLineId] = useState("");
+  // Province — required so the result can be aggregated onto the geo dashboard.
+  const [province, setProvince] = useState("");
   const [guestRequestId, setGuestRequestId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -170,7 +174,7 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Auto-prefill Thai national ID from the user's saved selftest_pii record
+  // Auto-prefill Thai national ID + province from the user's saved selftest_pii
   // so result-reporting links back to the same person who ordered the kit.
   useEffect(() => {
     if (guestMode || !request.user_id) return;
@@ -178,13 +182,18 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
     (async () => {
       const { data, error } = await supabase
         .from("selftest_pii")
-        .select("thai_id")
+        .select("thai_id, province")
         .eq("user_id", request.user_id!)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
-      if (cancelled || error || !data?.thai_id) return;
-      setThaiId((prev) => (prev ? prev : normalizeThaiId(data.thai_id).slice(0, 13)));
+      if (cancelled || error || !data) return;
+      if (data.thai_id) {
+        setThaiId((prev) => (prev ? prev : normalizeThaiId(data.thai_id).slice(0, 13)));
+      }
+      if (data.province) {
+        setProvince((prev) => (prev ? prev : data.province as string));
+      }
     })();
     return () => { cancelled = true; };
   }, [guestMode, request.user_id]);
@@ -429,6 +438,28 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
           </div>
         )}
 
+        {/* Province — required so the result can be plotted on the geo dashboard. */}
+        <div className="space-y-1.5 rounded-lg bg-muted/40 border border-border/60 p-3">
+          <Label htmlFor="lean-province" className="text-xs font-medium">
+            {language === "th" ? "จังหวัด" : "Province"} *
+          </Label>
+          <Select value={province} onValueChange={setProvince}>
+            <SelectTrigger id="lean-province">
+              <SelectValue placeholder={language === "th" ? "เลือกจังหวัด" : "Select province"} />
+            </SelectTrigger>
+            <SelectContent className="max-h-60">
+              {getProvinces().map((p) => (
+                <SelectItem key={p} value={p}>{p}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-[11px] text-muted-foreground">
+            {language === "th"
+              ? "ใช้เพื่อสถิติเชิงพื้นที่ ไม่เปิดเผยตัวตน"
+              : "Used for area-level analytics, never personally identified."}
+          </p>
+        </div>
+
         {/* PDPA consent — required before submitting Thai national ID. */}
         <label
           htmlFor="lean-pdpa-consent"
@@ -450,7 +481,7 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
         <Button
           size="lg"
           className="w-full"
-          disabled={!result || submitting || !pdpaConsent}
+          disabled={!result || submitting || !pdpaConsent || !province}
           onClick={async () => {
             if (!result) return;
             if (!pdpaConsent) {
@@ -472,6 +503,14 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
               });
               return;
             }
+            const trimmedProvince = province.trim();
+            if (!trimmedProvince) {
+              toast({
+                title: language === "th" ? "กรุณาเลือกจังหวัด" : "Please select a province",
+                variant: "destructive",
+              });
+              return;
+            }
             if (guestMode) {
               const trimmedPhone = guestPhone.replace(/\s+/g, "");
               if (trimmedPhone.length < 8) {
@@ -488,10 +527,11 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
                   thaiId: trimmedThaiId,
                   phone: guestPhone.replace(/\s+/g, ""),
                   lineId: guestLineId.trim() || null,
+                  province: trimmedProvince,
                 });
                 setGuestRequestId(submittedId);
               } else {
-                await submitResult(request, result, photo, trimmedThaiId);
+                await submitResult(request, result, photo, trimmedThaiId, trimmedProvince);
               }
               trackEvent("lean_result_submitted", {
                 request_id: submittedId,
@@ -716,6 +756,7 @@ async function submitResult(
   result: ResultType,
   photo: File | null,
   thaiId: string,
+  province: string,
 ) {
   let photoPath: string | null = null;
 
@@ -736,6 +777,7 @@ async function submitResult(
     submission_path: photo ? "lean_with_photo" : "lean_no_photo",
     result_submitted_at: new Date().toISOString(),
     thai_id: thaiId,
+    province,
     test_result:
       result === "negative" ? "negative" : result === "reactive" ? "reactive" : "invalid",
   };
@@ -746,6 +788,20 @@ async function submitResult(
     .update(update)
     .eq("id", request.id);
   if (error) throw error;
+
+  // Best-effort: mirror province onto the linked PII row so future analyses
+  // see it on the canonical record too.
+  if (request.user_id && province) {
+    try {
+      await supabase
+        .from("selftest_pii")
+        .update({ province })
+        .eq("user_id", request.user_id)
+        .is("province", null);
+    } catch (e) {
+      console.warn("[lean pii province sync]", e);
+    }
+  }
 
   // Award XP for submission (best-effort)
   if (request.user_id) {
@@ -764,7 +820,7 @@ async function submitResult(
 async function submitGuestResult(
   result: ResultType,
   photo: File | null,
-  contact: { thaiId: string; phone: string; lineId: string | null },
+  contact: { thaiId: string; phone: string; lineId: string | null; province: string },
 ): Promise<string> {
   let photoPath: string | null = null;
   if (photo) {
@@ -784,6 +840,7 @@ async function submitGuestResult(
     p_self_result: result,
     p_photo_path: photoPath,
     p_wants_callback: result === "reactive",
+    p_province: contact.province,
   });
   if (error) throw error;
   return data as unknown as string;

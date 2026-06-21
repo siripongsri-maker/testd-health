@@ -10,6 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getProvinces } from "@/lib/thailand-address";
 import { isValidThaiId, normalizeThaiId } from "@/lib/thaiId";
 
 import { 
@@ -157,6 +159,7 @@ export default function HIVSelfTest() {
   const [guestThaiId, setGuestThaiId] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [guestLineId, setGuestLineId] = useState("");
+  const [guestProvince, setGuestProvince] = useState("");
   // PDPA consent — required before submitting Thai national ID with test result.
   const [pdpaConsent, setPdpaConsent] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<'positive' | 'negative' | 'invalid' | 'inconclusive' | null>(null);
@@ -807,6 +810,11 @@ export default function HIVSelfTest() {
         toast.error(language === 'th' ? 'กรุณากรอกเบอร์โทรที่ติดต่อได้' : 'Please enter a valid phone number');
         return;
       }
+      const trimmedProvince = guestProvince.trim();
+      if (!trimmedProvince) {
+        toast.error(language === 'th' ? 'กรุณาเลือกจังหวัด' : 'Please select a province');
+        return;
+      }
 
       // Map AI analysis result → DB-allowed self-reported value
       const mapped: 'negative' | 'reactive' | 'invalid' =
@@ -831,6 +839,7 @@ export default function HIVSelfTest() {
           p_self_result: mapped,
           p_photo_path: fileName,
           p_wants_callback: mapped === 'reactive' ? true : wantsCallback,
+          p_province: trimmedProvince,
         });
         if (rpcError) throw rpcError;
 
@@ -853,6 +862,7 @@ export default function HIVSelfTest() {
         setPdpaConsent(false);
         setGuestPhone("");
         setGuestLineId("");
+        setGuestProvince("");
       } catch (error) {
         console.error('Guest submit error:', error);
         toast.error(language === 'th' ? 'ส่งผลไม่สำเร็จ ลองอีกครั้ง' : 'Submission failed. Please try again.');
@@ -1703,6 +1713,30 @@ export default function HIVSelfTest() {
                   </Card>
                 )}
 
+                {/* Province — required so result can be plotted on the geo dashboard. */}
+                {!user && (
+                  <div className="space-y-1.5 rounded-lg bg-muted/40 border border-border/60 p-3">
+                    <Label htmlFor="hivst-guest-province" className="text-xs font-medium">
+                      {language === 'th' ? 'จังหวัด' : 'Province'} *
+                    </Label>
+                    <Select value={guestProvince} onValueChange={setGuestProvince}>
+                      <SelectTrigger id="hivst-guest-province">
+                        <SelectValue placeholder={language === 'th' ? 'เลือกจังหวัด' : 'Select province'} />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60">
+                        {getProvinces().map((p) => (
+                          <SelectItem key={p} value={p}>{p}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-[11px] text-muted-foreground">
+                      {language === 'th'
+                        ? 'ใช้เพื่อสถิติเชิงพื้นที่ ไม่เปิดเผยตัวตน'
+                        : 'Used for area-level analytics, never personally identified.'}
+                    </p>
+                  </div>
+                )}
+
                 {/* PDPA consent — required before submitting Thai national ID with test result. */}
                 <label
                   htmlFor="hivst-pdpa-consent"
@@ -1725,7 +1759,7 @@ export default function HIVSelfTest() {
                   className="w-full gap-2" 
                   size="lg"
                   onClick={handleSubmitResult}
-                  disabled={uploading || !pdpaConsent}
+                  disabled={uploading || !pdpaConsent || (!user && !guestProvince)}
                 >
                   <Upload className="h-4 w-4" />
                   {uploading 
