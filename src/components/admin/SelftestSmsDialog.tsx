@@ -12,6 +12,8 @@ export interface SmsRecipient {
   id: string;
   name: string;
   phone: string;
+  /** Public-facing tracking code (e.g. kit order_code) substituted into {{code}} */
+  code?: string;
 }
 
 interface Props {
