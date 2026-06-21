@@ -15,6 +15,10 @@ const FloatingMedClock = lazy(() => import("@/components/FloatingMedClock").then
 import { AppLayout } from "@/components/AppLayout";
 import { ForceUpdateGuard } from "@/components/ForceUpdateGuard";
 import { DeploymentVersionCheck } from "@/components/DeploymentVersionCheck";
+import { consumePendingReload } from "@/lib/cacheResetLog";
+
+// Log whether the previous forced reload landed on the expected version.
+consumePendingReload();
 import { VersionAnnouncementBanner } from "@/components/VersionAnnouncementBanner";
 import { useMedicationReminder } from "@/hooks/useMedicationReminder";
 
