@@ -97,19 +97,10 @@ test.describe('HomeMenuGrid i18n + CLVM', () => {
     await expect
       .poll(
         async () => {
-          const cache = await page.evaluate(() => {
-            try {
-              const raw = localStorage.getItem('lovable_ui_translation_cache_v1')
-                ?? localStorage.getItem('ui_translation_cache')
-                ?? Object.keys(localStorage)
-                  .filter((k) => /translation.*cache/i.test(k))
-                  .map((k) => localStorage.getItem(k))
-                  .join('');
-              return raw ?? '';
-            } catch {
-              return '';
-            }
-          });
+          const cache = await page.evaluate(
+            () => localStorage.getItem('testd-translations-cache') ?? '',
+          );
+          // dynamicCache shape: { vi: { 'home.menu.selftest': '...' , ... } }
           return cache.includes('home.menu.selftest');
         },
         { timeout: 20_000, intervals: [250, 500, 1000] },
