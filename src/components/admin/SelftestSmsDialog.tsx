@@ -40,8 +40,8 @@ const TEMPLATES = [
     labelTh: "จัดส่งแล้ว: เช็คพัสดุ",
     labelEn: "Shipped: confirm arrival",
     icon: Truck,
-    bodyTh: "testD: คุณ {{name}} ชุดตรวจของคุณถูกจัดส่งแล้ว เมื่อได้รับพัสดุกรุณาเข้าระบบเพื่อยืนยันการรับ: https://testd.website/selftest หากมีปัญหา โทร 02-632-9501",
-    bodyEn: "testD: Hi {{name}}, your test kit has been shipped. Once it arrives, please confirm receipt in the app: https://testd.website/selftest — questions? Call 02-632-9501",
+    bodyTh: "testD: คุณ {{name}} ชุดตรวจของคุณถูกจัดส่งแล้ว เช็คสถานะและยืนยันรับพัสดุได้ที่ https://testd.website/track-kit/{{code}} หรือโทร 02-632-9501",
+    bodyEn: "testD: Hi {{name}}, your test kit has been shipped. Track status & confirm receipt: https://testd.website/track-kit/{{code}} — or call 02-632-9501",
   },
   {
     key: "kit_delivered_remind_test",
@@ -49,8 +49,8 @@ const TEMPLATES = [
     labelTh: "ถึงแล้ว: เตือนตรวจ + รายงานผล",
     labelEn: "Delivered: test & report reminder",
     icon: Package,
-    bodyTh: "testD: คุณ {{name}} ชุดตรวจของคุณถึงแล้ว อย่าลืมทำตามคู่มือและรายงานผลในระบบ: https://testd.website/selftest หากต้องการคำปรึกษา โทร 02-632-9501",
-    bodyEn: "testD: Hi {{name}}, your test kit has arrived. Please follow the guide and report your result in the app: https://testd.website/selftest — need support? Call 02-632-9501",
+    bodyTh: "testD: คุณ {{name}} ชุดตรวจของคุณถึงแล้ว เปิดหน้าสถานะเพื่อยืนยันรับ + รายงานผล: https://testd.website/track-kit/{{code}} หรือโทร 02-632-9501",
+    bodyEn: "testD: Hi {{name}}, your test kit has arrived. Open your status page to confirm & report: https://testd.website/track-kit/{{code}} — or call 02-632-9501",
   },
   {
     key: "first_reactive",
