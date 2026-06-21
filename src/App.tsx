@@ -112,6 +112,7 @@ function AppShell() {
           <AppLayout>
             <Routes location={strippedLocation}>
               <Route path="/" element={<Home />} />
+              <Route path="/r/:token" element={<SmsRedirect />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/consent" element={<Consent />} />
