@@ -153,7 +153,9 @@ export function LiteRequestStep({
 
   const isNhsoValid = nhsoData.thaiId.length === 13 && !thaiIdError && nhsoData.dateOfBirth && nhsoData.gender;
   const isPickupLocationValid = true; // location is optional, never blocks submission
-  const isShippingValid = deliveryMode === 'pickup' || (shippingData.fullName && shippingData.phone && shippingData.province && assignedBranch);
+  const isShippingValid = deliveryMode === 'pickup'
+    ? !!(shippingData.fullName && shippingData.province)
+    : !!(shippingData.fullName && shippingData.phone && shippingData.province && assignedBranch);
   const isFormValid = isNhsoValid && isShippingValid && isPickupLocationValid;
 
   const handleSubmit = async (e: React.FormEvent) => {
