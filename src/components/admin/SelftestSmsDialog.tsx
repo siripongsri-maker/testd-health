@@ -298,8 +298,8 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0">
+        <DialogHeader className="px-6 pt-6">
           <DialogTitle className="flex items-center gap-2">
             <MessageSquare className="h-5 w-5" /> {t("ส่ง SMS", "Send SMS")}
           </DialogTitle>
@@ -311,7 +311,8 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 overflow-y-auto px-6 flex-1 min-h-0">
+
           <div>
             <div className="text-xs font-medium text-muted-foreground mb-1">
               {t("ผู้รับ", "Recipients")}
@@ -559,7 +560,7 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
           </div>
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="px-6 pb-6 pt-2 border-t bg-background">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={sending}>
             {t("ยกเลิก", "Cancel")}
           </Button>
@@ -568,6 +569,7 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
             {t(`ส่ง ${validRecipients.length} ราย`, `Send ${validRecipients.length}`)}
           </Button>
         </DialogFooter>
+
       </DialogContent>
     </Dialog>
   );
