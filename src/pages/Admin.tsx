@@ -63,6 +63,7 @@ const AdminHarmReductionReportContent = lazy(() => import("@/components/admin/Ad
 const AdminMonthlyDrawContent = lazy(() => import("@/components/admin/AdminMonthlyDrawContent").then(m => ({ default: m.AdminMonthlyDrawContent })));
 const AdminSelftestResultsContent = lazy(() => import("@/components/admin/AdminSelftestResultsContent"));
 const AdminSelftestFollowupContent = lazy(() => import("@/components/admin/AdminSelftestFollowupContent"));
+const AdminSelftestMapContent = lazy(() => import("@/components/admin/AdminSelftestMapContent"));
 const AdminPreServiceSurveysContent = lazy(() => import("@/components/admin/AdminPreServiceSurveysContent"));
 
 // MEL modules
