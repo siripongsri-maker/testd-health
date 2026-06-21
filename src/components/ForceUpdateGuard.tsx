@@ -314,6 +314,12 @@ export function ForceUpdateGuard({ children }: { children: React.ReactNode }) {
         <button
           onClick={() => {
             sessionStorage.removeItem(RETRY_KEY);
+            logCacheResetEvent({
+              trigger: "manual",
+              stage: "reload_triggered",
+              to_version: APP_VERSION,
+            });
+            markReloadPending("manual", APP_VERSION, 1);
             performHardReload();
           }}
           className="px-6 py-2.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm"
