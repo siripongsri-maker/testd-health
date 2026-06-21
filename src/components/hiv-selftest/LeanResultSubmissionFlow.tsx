@@ -340,6 +340,27 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
           </span>
         </label>
 
+        {/* Thai national ID — required for every submission (links result back to the person). */}
+        <div className="space-y-1.5 rounded-lg bg-muted/40 border border-border/60 p-3">
+          <Label htmlFor="lean-thai-id" className="text-xs font-medium">
+            {language === "th" ? "เลขบัตรประชาชน 13 หลัก" : "Thai national ID (13 digits)"} *
+          </Label>
+          <Input
+            id="lean-thai-id"
+            inputMode="numeric"
+            autoComplete="off"
+            value={thaiId}
+            onChange={(e) => setThaiId(normalizeThaiId(e.target.value).slice(0, 13))}
+            placeholder="X-XXXX-XXXXX-XX-X"
+            maxLength={13}
+          />
+          <p className="text-[11px] text-muted-foreground">
+            🔒 {language === "th"
+              ? "ใช้เชื่อมผลตรวจกับเวชระเบียนของคุณอย่างปลอดภัย เก็บเป็นความลับตาม PDPA"
+              : "Used to securely link your result with your medical record. Kept confidential per PDPA."}
+          </p>
+        </div>
+
         {/* Guest-only: contact info required for the team to follow up if reactive */}
         {guestMode && (
           <div className="space-y-3 rounded-lg bg-muted/40 border border-border/60 p-3">
@@ -352,18 +373,6 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
                   ? "ส่งผลแบบไม่ต้องสมัครสมาชิก — ทีมจะใช้ข้อมูลนี้เฉพาะเมื่อจำเป็น"
                   : "No account needed — the team only uses this if necessary."}
               </p>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="lean-guest-name" className="text-xs">
-                {language === "th" ? "ชื่อ หรือชื่อเล่น" : "Name or nickname"} *
-              </Label>
-              <Input
-                id="lean-guest-name"
-                value={guestName}
-                onChange={(e) => setGuestName(e.target.value)}
-                placeholder={language === "th" ? "เช่น นิว" : "e.g. Alex"}
-                maxLength={100}
-              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="lean-guest-phone" className="text-xs">
@@ -404,13 +413,18 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
           disabled={!result || submitting}
           onClick={async () => {
             if (!result) return;
+            const trimmedThaiId = normalizeThaiId(thaiId);
+            if (!isValidThaiId(trimmedThaiId)) {
+              toast({
+                title: language === "th"
+                  ? "เลขบัตรประชาชนไม่ถูกต้อง"
+                  : "Invalid Thai national ID",
+                variant: "destructive",
+              });
+              return;
+            }
             if (guestMode) {
-              const trimmedName = guestName.trim();
               const trimmedPhone = guestPhone.replace(/\s+/g, "");
-              if (trimmedName.length < 2) {
-                toast({ title: language === "th" ? "กรุณากรอกชื่อ" : "Please enter your name", variant: "destructive" });
-                return;
-              }
               if (trimmedPhone.length < 8) {
                 toast({ title: language === "th" ? "กรุณากรอกเบอร์โทรที่ติดต่อได้" : "Please enter a valid phone", variant: "destructive" });
                 return;
@@ -422,7 +436,7 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
               let submittedId = request.id;
               if (guestMode) {
                 submittedId = await submitGuestResult(result, photo, {
-                  name: guestName.trim(),
+                  thaiId: trimmedThaiId,
                   phone: guestPhone.replace(/\s+/g, ""),
                   lineId: guestLineId.trim() || null,
                 });
