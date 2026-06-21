@@ -172,7 +172,7 @@ Deno.serve(async (req) => {
     const results: Array<{ request_id?: string; kit_order_id?: string; ok: boolean; phone?: string; error?: string; sms_id?: string }> = [];
 
     for (const tgt of targets) {
-      const { kind, ref_id, rawPhone, recipientName } = tgt;
+      const { kind, ref_id, rawPhone, recipientName, code } = tgt;
       const normalized = normalizeThaiPhone(rawPhone);
       // Helper to build sms_send_log row with the right FK column based on kind.
       const baseLog: Record<string, any> = {
