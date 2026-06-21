@@ -7,11 +7,19 @@ const TIMER_STORAGE_KEY = "hiv-selftest-timer";
 // Statuses where the kit is in the user's hands but a result has not been submitted yet.
 const PENDING_STATUSES = ["shipped", "delivered", "received", "approved"];
 
+export interface PendingSelftestDetails {
+  source: "db" | "timer";
+  status?: string;
+  createdAt?: string;
+  startedAt?: string;
+}
+
 export interface PendingSelftestState {
   hasPending: boolean;
   dbCount: number;
   hasLocalTimer: boolean;
   loading: boolean;
+  details: PendingSelftestDetails | null;
   refresh: () => void;
 }
 
