@@ -75,13 +75,14 @@ const T = {
     reactTitle: "เราอยู่ตรงนี้กับคุณ",
     reactBody1: "ผล 2 ขีดจากชุดตรวจเบื้องต้น ไม่ได้แปลว่าติดเชื้อ HIV",
     reactBody2: "ต้องยืนยันด้วยการตรวจที่คลินิกอีกครั้ง ซึ่งฟรีและเป็นความลับ",
-    reactPick: "เลือกวิธีที่สบายใจที่สุดเพื่อก้าวต่อไป:",
-    connCallback: { title: "ขอให้ทีมโทรกลับ", sub: "ภายใน 24 ชั่วโมง" },
-    connBook: { title: "จองตรวจที่คลินิก", sub: "SWING Silom / Pattaya" },
-    connLine: { title: "แชทผ่าน LINE", sub: "คุยแบบเป็นความลับ" },
-    reactConfirm: "ยืนยันและเชื่อมต่อทีม",
-    reactConnecting: "กำลังเชื่อมต่อ...",
-    reactSavedToast: "ทีมจะติดต่อกลับเร็วๆ นี้",
+    reactPick: "กรอกเบอร์โทรเพื่อให้ทีมโทรกลับ — เราจะส่ง SMS หาคุณเพื่อนัดเวลาที่สะดวก",
+    reactPhoneLabel: "เบอร์โทรสำหรับติดต่อกลับ",
+    reactPhonePlaceholder: "0XX-XXX-XXXX",
+    reactPhoneInvalid: "กรุณากรอกเบอร์โทรที่ติดต่อได้",
+    reactPhoneSavedFor: "ทีมจะติดต่อกลับที่เบอร์",
+    reactConfirm: "ยืนยันให้ทีมโทรกลับ",
+    reactConnecting: "กำลังบันทึก...",
+    reactSavedToast: "บันทึกแล้ว ทีมจะติดต่อกลับเร็วๆ นี้",
     reactFooter: "ทุกบริการฟรี เป็นความลับ ไม่ตัดสิน",
     invalidTitle: "ลองอีกครั้งได้",
     invalidBody: "บางครั้งชุดตรวจอ่านไม่ออก ไม่ใช่ความผิดของใคร เราขอชุดใหม่ให้ได้",
@@ -128,13 +129,14 @@ const T = {
     reactTitle: "We're here with you",
     reactBody1: "2 lines on a self-test does NOT mean you have HIV.",
     reactBody2: "It must be confirmed at a clinic — free and confidential.",
-    reactPick: "Pick what feels easiest to take the next step:",
-    connCallback: { title: "Ask the team to call me", sub: "Within 24 hours" },
-    connBook: { title: "Book a clinic visit", sub: "SWING Silom / Pattaya" },
-    connLine: { title: "Chat on LINE", sub: "Confidential" },
-    reactConfirm: "Confirm and connect to the team",
-    reactConnecting: "Connecting...",
-    reactSavedToast: "The team will reach out soon",
+    reactPick: "Leave a phone number and our team will call you back — we'll text you to confirm a convenient time.",
+    reactPhoneLabel: "Callback phone number",
+    reactPhonePlaceholder: "0XX-XXX-XXXX",
+    reactPhoneInvalid: "Please enter a valid phone number",
+    reactPhoneSavedFor: "The team will call you back at",
+    reactConfirm: "Confirm callback request",
+    reactConnecting: "Saving...",
+    reactSavedToast: "Saved. The team will reach out soon.",
     reactFooter: "All services free, confidential, non-judgmental",
     invalidTitle: "Let's try again",
     invalidBody: "Sometimes test strips don't read clearly — not your fault. We'll send a new kit.",
@@ -592,6 +594,7 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
       <OutcomeScreen
         result={result}
         request={{ ...request, id: effectiveRequestId }}
+        defaultCallbackPhone={guestMode ? guestPhone.replace(/\s+/g, "") : ""}
         t={t}
         onDone={onDone}
         onCareAction={async (action) => {
@@ -619,18 +622,18 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
 function OutcomeScreen({
   result,
   request: _request,
+  defaultCallbackPhone,
   t,
   onDone,
   onCareAction,
 }: {
   result: ResultType;
   request: LeanActiveRequest;
+  defaultCallbackPhone?: string;
   t: typeof T.th;
   onDone: () => void;
   onCareAction: (action: string) => Promise<void>;
 }) {
-  const [chosen, setChosen] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
 
   if (result === "negative") {
     return (
@@ -691,12 +694,57 @@ function OutcomeScreen({
     );
   }
 
-  // Reactive — forced connection (no soft exit)
-  const connections = [
-    { key: "requested_callback", title: t.connCallback.title, sub: t.connCallback.sub },
-    { key: "booked_clinic", title: t.connBook.title, sub: t.connBook.sub },
-    { key: "chose_line_chat", title: t.connLine.title, sub: t.connLine.sub },
-  ];
+  // Reactive — phone-only callback request
+  return (
+    <ReactiveCallbackScreen
+      requestId={_request.id}
+      defaultPhone={defaultCallbackPhone || ""}
+      t={t}
+      onDone={onDone}
+      onCareAction={onCareAction}
+    />
+  );
+}
+
+function ReactiveCallbackScreen({
+  requestId,
+  defaultPhone,
+  t,
+  onDone,
+  onCareAction,
+}: {
+  requestId: string;
+  defaultPhone: string;
+  t: typeof T.th;
+  onDone: () => void;
+  onCareAction: (action: string) => Promise<void>;
+}) {
+  const [phone, setPhone] = useState(defaultPhone);
+  const [saving, setSaving] = useState(false);
+
+  const submit = async () => {
+    const trimmed = phone.replace(/\s+/g, "");
+    if (trimmed.length < 8) {
+      toast({ title: t.reactPhoneInvalid, variant: "destructive" });
+      return;
+    }
+    setSaving(true);
+    try {
+      const { error } = await supabase.rpc("attach_selftest_callback_phone", {
+        p_request_id: requestId,
+        p_phone: trimmed,
+      });
+      if (error) throw error;
+      // Best-effort: also record care_action via the existing path (no-op for guests).
+      try { await onCareAction("requested_callback"); } catch { /* noop */ }
+      toast({ title: t.reactSavedToast });
+      setTimeout(onDone, 1200);
+    } catch (e) {
+      console.error("[reactive callback]", e);
+      toast({ title: t.submitErr, variant: "destructive" });
+      setSaving(false);
+    }
+  };
 
   return (
     <Card className="p-6 max-w-md mx-auto space-y-4 animate-fade-in bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/40">
@@ -707,40 +755,31 @@ function OutcomeScreen({
         <p>{t.reactBody2}</p>
       </div>
       <p className="text-sm font-medium">{t.reactPick}</p>
-      <div className="space-y-2">
-        {connections.map((c) => (
-          <button
-            key={c.key}
-            type="button"
-            onClick={() => setChosen(c.key)}
-            className={`w-full text-left p-3 rounded-lg border-2 transition ${
-              chosen === c.key
-                ? "border-primary bg-primary/10 ring-2 ring-primary/30"
-                : "border-border hover:bg-background"
-            }`}
-          >
-            <div className="font-semibold text-sm">{c.title}</div>
-            <div className="text-xs text-muted-foreground">{c.sub}</div>
-          </button>
-        ))}
+      <div className="space-y-1.5">
+        <Label htmlFor="reactive-callback-phone" className="text-xs font-medium">
+          {t.reactPhoneLabel} *
+        </Label>
+        <Input
+          id="reactive-callback-phone"
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder={t.reactPhonePlaceholder}
+          maxLength={20}
+        />
+        {defaultPhone && (
+          <p className="text-[11px] text-muted-foreground">
+            {t.reactPhoneSavedFor} <span className="font-medium">{defaultPhone}</span>
+          </p>
+        )}
       </div>
       <Button
         size="lg"
         className="w-full"
-        disabled={!chosen || saving}
-        onClick={async () => {
-          if (!chosen) return;
-          setSaving(true);
-          await onCareAction(chosen);
-          if (chosen === "chose_line_chat") {
-            window.open("https://line.me/R/ti/p/@swingthailand", "_blank");
-          } else if (chosen === "booked_clinic") {
-            window.location.href = "/clinic/book?service=followup-consultation";
-            return;
-          }
-          toast({ title: t.reactSavedToast });
-          setTimeout(onDone, 1200);
-        }}
+        disabled={saving || phone.replace(/\s+/g, "").length < 8}
+        onClick={submit}
       >
         {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
         {saving ? t.reactConnecting : t.reactConfirm}

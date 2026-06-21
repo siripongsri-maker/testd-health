@@ -10480,6 +10480,10 @@ export type Database = {
         Args: { p_appointment_id: string; p_staff_profile_id: string }
         Returns: undefined
       }
+      attach_selftest_callback_phone: {
+        Args: { p_phone: string; p_request_id: string }
+        Returns: undefined
+      }
       auto_checkout_stale_appointments: {
         Args: { p_threshold_hours?: number }
         Returns: number
