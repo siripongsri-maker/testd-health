@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/lib/i18n";
@@ -153,6 +154,8 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
   // Thai national ID — required for every submit-result flow so the record
   // can be linked back to the same person at the clinic.
   const [thaiId, setThaiId] = useState("");
+  // PDPA consent — explicit acknowledgement before submitting Thai national ID.
+  const [pdpaConsent, setPdpaConsent] = useState(false);
   // Guest-only contact fields (required by the submit_guest_selftest_result RPC)
   const [guestPhone, setGuestPhone] = useState("");
   const [guestLineId, setGuestLineId] = useState("");
@@ -407,12 +410,39 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
           </div>
         )}
 
+        {/* PDPA consent — required before submitting Thai national ID. */}
+        <label
+          htmlFor="lean-pdpa-consent"
+          className="flex items-start gap-2.5 rounded-lg border border-border/60 bg-muted/40 p-3 cursor-pointer"
+        >
+          <Checkbox
+            id="lean-pdpa-consent"
+            checked={pdpaConsent}
+            onCheckedChange={(v) => setPdpaConsent(v === true)}
+            className="mt-0.5"
+          />
+          <span className="text-[11px] leading-snug text-muted-foreground">
+            {language === "th"
+              ? "ฉันยินยอมให้เก็บและใช้เลขบัตรประชาชนเพื่อเชื่อมผลตรวจกับเวชระเบียนของฉันตาม PDPA และจะเก็บเป็นความลับ"
+              : "I consent to storing my Thai national ID to link this result with my medical record under PDPA. It will be kept confidential."}
+          </span>
+        </label>
+
         <Button
           size="lg"
           className="w-full"
-          disabled={!result || submitting}
+          disabled={!result || submitting || !pdpaConsent}
           onClick={async () => {
             if (!result) return;
+            if (!pdpaConsent) {
+              toast({
+                title: language === "th"
+                  ? "กรุณายืนยันความยินยอม PDPA ก่อนส่ง"
+                  : "Please confirm PDPA consent before submitting",
+                variant: "destructive",
+              });
+              return;
+            }
             const trimmedThaiId = normalizeThaiId(thaiId);
             if (!isValidThaiId(trimmedThaiId)) {
               toast({

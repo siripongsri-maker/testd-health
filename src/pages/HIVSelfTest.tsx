@@ -157,6 +157,8 @@ export default function HIVSelfTest() {
   const [guestThaiId, setGuestThaiId] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [guestLineId, setGuestLineId] = useState("");
+  // PDPA consent — required before submitting Thai national ID with test result.
+  const [pdpaConsent, setPdpaConsent] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<'positive' | 'negative' | 'invalid' | 'inconclusive' | null>(null);
   const [analysisDetails, setAnalysisDetails] = useState<{
     confidence?: string;
@@ -787,6 +789,11 @@ export default function HIVSelfTest() {
       toast.error(language === 'th' ? 'กรุณาถ่ายรูปผลตรวจก่อน' : 'Please take a photo first');
       return;
     }
+    if (!pdpaConsent) {
+      toast.error(language === 'th' ? 'กรุณายืนยันความยินยอม PDPA ก่อนส่ง' : 'Please confirm PDPA consent before submitting');
+      return;
+    }
+
 
     // Guest path: no login required, but we need basic contact info
     if (!user) {
@@ -843,6 +850,7 @@ export default function HIVSelfTest() {
         setWantsCallback(false);
         setCallbackPhone("");
         setGuestThaiId("");
+        setPdpaConsent(false);
         setGuestPhone("");
         setGuestLineId("");
       } catch (error) {
@@ -934,6 +942,7 @@ export default function HIVSelfTest() {
       setAnalysisDetails(null);
       setWantsCallback(false);
       setCallbackPhone("");
+      setPdpaConsent(false);
     } catch (error) {
       console.error('Error uploading:', error);
       toast.error(language === 'th' ? 'อัปโหลดไม่สำเร็จ' : 'Upload failed');
@@ -1694,11 +1703,29 @@ export default function HIVSelfTest() {
                   </Card>
                 )}
 
+                {/* PDPA consent — required before submitting Thai national ID with test result. */}
+                <label
+                  htmlFor="hivst-pdpa-consent"
+                  className="flex items-start gap-2.5 rounded-lg border border-border/60 bg-muted/40 p-3 cursor-pointer"
+                >
+                  <Checkbox
+                    id="hivst-pdpa-consent"
+                    checked={pdpaConsent}
+                    onCheckedChange={(v) => setPdpaConsent(v === true)}
+                    className="mt-0.5"
+                  />
+                  <span className="text-[11px] leading-snug text-muted-foreground">
+                    {language === 'th'
+                      ? 'ฉันยินยอมให้เก็บและใช้เลขบัตรประชาชนเพื่อเชื่อมผลตรวจกับเวชระเบียนของฉันตาม PDPA และจะเก็บเป็นความลับ'
+                      : 'I consent to storing my Thai national ID to link this result with my medical record under PDPA. It will be kept confidential.'}
+                  </span>
+                </label>
+
                 <Button 
                   className="w-full gap-2" 
                   size="lg"
                   onClick={handleSubmitResult}
-                  disabled={uploading}
+                  disabled={uploading || !pdpaConsent}
                 >
                   <Upload className="h-4 w-4" />
                   {uploading 
