@@ -108,8 +108,8 @@ const TEMPLATES = [
     labelTh: "ข้อมูล PrEP",
     labelEn: "PrEP info",
     icon: Shield,
-    bodyTh: "testD: สนใจเรียนรู้เพิ่มเติมเกี่ยวกับ PrEP หรือการป้องกัน? คลิก: https://testd.website/prep หรือโทร 02-632-9501",
-    bodyEn: "testD: Want to learn more about PrEP or prevention? Visit: https://testd.website/prep or call 02-632-9501",
+    bodyTh: "testD: สนใจข้อมูล PrEP หรือการป้องกัน? นัดคลินิก: https://testd.website/clinic/book หรือโทร 02-632-9501",
+    bodyEn: "testD: Interested in PrEP or prevention? Book a clinic visit: https://testd.website/clinic/book or call 02-632-9501",
   },
   {
     key: "custom",
