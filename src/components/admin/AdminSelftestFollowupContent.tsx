@@ -198,6 +198,37 @@ export default function AdminSelftestFollowupContent() {
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
+          {!loading && filtered.length > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-2 p-2 bg-muted/40 rounded">
+              <div className="flex items-center gap-2 text-xs">
+                <Checkbox
+                  checked={filtered.length > 0 && filtered.every((r) => selected.has(r.id))}
+                  onCheckedChange={(v) => {
+                    setSelected((prev) => {
+                      const next = new Set(prev);
+                      if (v) filtered.forEach((r) => next.add(r.id));
+                      else filtered.forEach((r) => next.delete(r.id));
+                      return next;
+                    });
+                  }}
+                />
+                <span>{t(`เลือกแล้ว ${selected.size} รายการ`, `${selected.size} selected`)}</span>
+                {selected.size > 0 && (
+                  <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setSelected(new Set())}>
+                    {t("ล้าง", "Clear")}
+                  </Button>
+                )}
+              </div>
+              <Button
+                size="sm"
+                onClick={() => openSmsFor(filtered.filter((r) => selected.has(r.id)))}
+                disabled={selected.size === 0}
+              >
+                <MessageSquare className="h-4 w-4 mr-1" />
+                {t(`ส่ง SMS (${selected.size})`, `Send SMS (${selected.size})`)}
+              </Button>
+            </div>
+          )}
           {loading ? (
             <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary"/></div>
           ) : filtered.length === 0 ? (
