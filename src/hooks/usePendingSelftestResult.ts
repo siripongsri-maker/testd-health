@@ -7,11 +7,19 @@ const TIMER_STORAGE_KEY = "hiv-selftest-timer";
 // Statuses where the kit is in the user's hands but a result has not been submitted yet.
 const PENDING_STATUSES = ["shipped", "delivered", "received", "approved"];
 
+export interface PendingSelftestDetails {
+  source: "db" | "timer";
+  status?: string;
+  createdAt?: string;
+  startedAt?: string;
+}
+
 export interface PendingSelftestState {
   hasPending: boolean;
   dbCount: number;
   hasLocalTimer: boolean;
   loading: boolean;
+  details: PendingSelftestDetails | null;
   refresh: () => void;
 }
 
@@ -26,7 +34,9 @@ export interface PendingSelftestState {
 export function usePendingSelftestResult(): PendingSelftestState {
   const { user } = useAuth();
   const [dbCount, setDbCount] = useState(0);
+  const [dbDetails, setDbDetails] = useState<PendingSelftestDetails | null>(null);
   const [hasLocalTimer, setHasLocalTimer] = useState(false);
+  const [timerDetails, setTimerDetails] = useState<PendingSelftestDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [tick, setTick] = useState(0);
 
@@ -38,13 +48,21 @@ export function usePendingSelftestResult(): PendingSelftestState {
       const stored = localStorage.getItem(TIMER_STORAGE_KEY);
       if (!stored) {
         setHasLocalTimer(false);
+        setTimerDetails(null);
         return;
       }
       const parsed = JSON.parse(stored);
+      const startedAt = parsed?.startedAt;
       // Consider "pending" once the timer has been started — finished or not.
-      setHasLocalTimer(!!parsed?.startedAt);
+      setHasLocalTimer(!!startedAt);
+      setTimerDetails(
+        startedAt
+          ? { source: "timer", startedAt: String(startedAt) }
+          : null
+      );
     } catch {
       setHasLocalTimer(false);
+      setTimerDetails(null);
     }
   }, [tick]);
 
@@ -60,15 +78,27 @@ export function usePendingSelftestResult(): PendingSelftestState {
     (async () => {
       const { data, error } = await supabase
         .from("hiv_selftest_requests")
-        .select("id, status, result_submitted_at")
+        .select("id, status, created_at, result_submitted_at")
         .eq("user_id", user.id)
         .in("status", PENDING_STATUSES)
-        .is("result_submitted_at", null);
+        .is("result_submitted_at", null)
+        .order("created_at", { ascending: false });
       if (cancelled) return;
       if (error) {
         setDbCount(0);
+        setDbDetails(null);
       } else {
-        setDbCount(data?.length ?? 0);
+        const rows = data ?? [];
+        setDbCount(rows.length);
+        setDbDetails(
+          rows[0]
+            ? {
+                source: "db",
+                status: rows[0].status ?? undefined,
+                createdAt: rows[0].created_at ?? undefined,
+              }
+            : null
+        );
       }
       setLoading(false);
     })();
@@ -82,6 +112,7 @@ export function usePendingSelftestResult(): PendingSelftestState {
     dbCount,
     hasLocalTimer,
     loading,
+    details: dbDetails ?? timerDetails,
     refresh,
   };
 }
