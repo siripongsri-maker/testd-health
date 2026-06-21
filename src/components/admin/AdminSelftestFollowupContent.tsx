@@ -213,14 +213,22 @@ export default function AdminSelftestFollowupContent() {
               <Card key={r.id} className="border-l-4" style={{ borderLeftColor: isReactive ? "hsl(var(--destructive))" : "hsl(var(--primary))" }}>
                 <CardContent className="p-4 space-y-3">
                   <div className="flex flex-wrap gap-3 items-start justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold text-lg">{name}</span>
-                        <Badge variant={isReactive ? "destructive" : "outline"}>{result}</Badge>
-                        {r.assigned_branch && <Badge variant="outline" className="text-xs">{r.assigned_branch}</Badge>}
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {t("ส่งผล","Submitted")}: {new Date(date).toLocaleString("th-TH",{timeZone:"Asia/Bangkok"})}
+                    <div className="flex gap-3">
+                      <Checkbox
+                        checked={selected.has(r.id)}
+                        onCheckedChange={() => toggleSelected(r.id)}
+                        aria-label={t("เลือกเพื่อส่ง SMS", "Select to send SMS")}
+                        className="mt-1.5"
+                      />
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-semibold text-lg">{name}</span>
+                          <Badge variant={isReactive ? "destructive" : "outline"}>{result}</Badge>
+                          {r.assigned_branch && <Badge variant="outline" className="text-xs">{r.assigned_branch}</Badge>}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {t("ส่งผล","Submitted")}: {new Date(date).toLocaleString("th-TH",{timeZone:"Asia/Bangkok"})}
+                        </div>
                       </div>
                     </div>
                     <div className="flex gap-2">
@@ -229,9 +237,14 @@ export default function AdminSelftestFollowupContent() {
                           <a href={`tel:${phone}`}><Phone className="h-4 w-4 mr-1"/>{phone}</a>
                         </Button>
                       )}
-                      <Button size="sm" variant="outline" disabled title={t("เร็ว ๆ นี้","Coming soon")}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => openSmsFor([r])}
+                        disabled={!phone}
+                        title={!phone ? t("ไม่มีเบอร์", "No phone") : undefined}
+                      >
                         <MessageSquare className="h-4 w-4 mr-1"/>SMS
-                        <Badge variant="secondary" className="ml-2 text-[10px]">{t("เร็วๆนี้","Soon")}</Badge>
                       </Button>
                     </div>
                   </div>
