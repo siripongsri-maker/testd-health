@@ -112,6 +112,7 @@ export function usePendingSelftestResult(): PendingSelftestState {
     dbCount,
     hasLocalTimer,
     loading,
+    details: dbDetails ?? timerDetails,
     refresh,
   };
 }
