@@ -65,10 +65,13 @@ function dispatchAnalytics(event: string) {
   } catch {}
 }
 
-async function nukeCache(): Promise<void> {
+async function nukeCache(trigger: CacheResetTrigger, attempt = 1): Promise<void> {
+  const startedAt = Date.now();
   dispatchAnalytics("cache_cleared");
+  logCacheResetEvent({ trigger, stage: "started", attempt });
 
   // 1. Unregister all service workers
+  let swCount = 0;
   if ("serviceWorker" in navigator) {
     try {
       const regs = await withTimeout(
@@ -76,17 +79,50 @@ async function nukeCache(): Promise<void> {
         1200,
         [] as ServiceWorkerRegistration[]
       );
+      swCount = regs.length;
       await withTimeout(Promise.allSettled(regs.map((r) => r.unregister())), 1200, []);
       dispatchAnalytics("service_worker_reset");
-    } catch {}
+      logCacheResetEvent({
+        trigger,
+        stage: "service_worker_reset",
+        attempt,
+        duration_ms: Date.now() - startedAt,
+        metadata: { sw_count: swCount },
+      });
+    } catch (err) {
+      logCacheResetEvent({
+        trigger,
+        stage: "failed",
+        attempt,
+        success: false,
+        error: `sw_unregister:${(err as Error)?.message ?? "unknown"}`,
+      });
+    }
   }
 
   // 2. Clear Cache Storage API
+  let cacheCount = 0;
   if ("caches" in window) {
     try {
       const keys = await withTimeout(caches.keys(), 1200, [] as string[]);
+      cacheCount = keys.length;
       await withTimeout(Promise.allSettled(keys.map((k) => caches.delete(k))), 1500, []);
-    } catch {}
+      logCacheResetEvent({
+        trigger,
+        stage: "caches_cleared",
+        attempt,
+        duration_ms: Date.now() - startedAt,
+        metadata: { cache_count: cacheCount },
+      });
+    } catch (err) {
+      logCacheResetEvent({
+        trigger,
+        stage: "failed",
+        attempt,
+        success: false,
+        error: `caches:${(err as Error)?.message ?? "unknown"}`,
+      });
+    }
   }
 
   // 3. Clear same-origin cookies best-effort. HttpOnly cookies cannot be cleared client-side.
@@ -113,6 +149,26 @@ async function nukeCache(): Promise<void> {
 
   // 6. Stamp new version
   localStorage.setItem(VERSION_KEY, APP_VERSION);
+
+  logCacheResetEvent({
+    trigger,
+    stage: "storage_cleared",
+    attempt,
+    duration_ms: Date.now() - startedAt,
+    metadata: {
+      removed_local_keys: keysToRemove.length,
+      sw_count: swCount,
+      cache_count: cacheCount,
+    },
+  });
+
+  logCacheResetEvent({
+    trigger,
+    stage: "completed",
+    attempt,
+    success: true,
+    duration_ms: Date.now() - startedAt,
+  });
 }
 
 function isRetryExhausted(): boolean {
