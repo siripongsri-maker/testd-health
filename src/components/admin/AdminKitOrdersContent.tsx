@@ -8,8 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Package, Plus, Search, Loader2, Eye, Copy, Truck, Download, FileSpreadsheet, TestTube, Printer, PhoneCall,
-  XCircle, AlertTriangle, ShieldAlert, CheckCircle, CheckSquare, Square, Pencil, MapPin
+  XCircle, AlertTriangle, ShieldAlert, CheckCircle, CheckSquare, Square, Pencil, MapPin, MessageSquare
 } from "lucide-react";
+import SelftestSmsDialog, { type SmsRecipient } from "./SelftestSmsDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -233,6 +234,36 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const [batchEditValue, setBatchEditValue] = useState('');
   const [batchEditTracking, setBatchEditTracking] = useState('');
   const [savingBatch, setSavingBatch] = useState(false);
+
+  // SMS sending state (kit orders)
+  const [smsOpen, setSmsOpen] = useState(false);
+  const [smsRecipients, setSmsRecipients] = useState<SmsRecipient[]>([]);
+  const [smsTemplateKey, setSmsTemplateKey] = useState<string | undefined>(undefined);
+
+  const orderToSmsRecipient = (o: KitOrder): SmsRecipient => ({
+    id: o.id,
+    name: (o.recipient_name || '').trim() || 'คุณ',
+    phone: (o.recipient_phone || '').trim(),
+  });
+
+  const openSmsForOrder = (o: KitOrder, templateKey?: string) => {
+    setSmsRecipients([orderToSmsRecipient(o)]);
+    setSmsTemplateKey(templateKey);
+    setSmsOpen(true);
+  };
+
+  const openBulkSmsForStatus = (statuses: OrderStatus[], templateKey: string) => {
+    const targets = orders
+      .filter((o) => statuses.includes(o.status) && (o.recipient_phone || '').replace(/\D/g, '').length >= 9)
+      .map(orderToSmsRecipient);
+    if (targets.length === 0) {
+      toast.info(language === 'th' ? 'ไม่พบผู้รับที่มีเบอร์โทร' : 'No recipients with phone numbers');
+      return;
+    }
+    setSmsRecipients(targets);
+    setSmsTemplateKey(templateKey);
+    setSmsOpen(true);
+  };
 
   useEffect(() => {
     fetchOrders();
@@ -1043,6 +1074,47 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             </TabsList>
 
             <TabsContent value={activeTab} className="space-y-3">
+              {/* SMS bulk toolbar */}
+              {(() => {
+                const shippedCount = orders.filter((o) => o.status === 'shipped' && (o.recipient_phone || '').replace(/\D/g, '').length >= 9).length;
+                const deliveredCount = orders.filter((o) => (o.status === 'delivered_unconfirmed' || o.status === 'out_for_delivery') && (o.recipient_phone || '').replace(/\D/g, '').length >= 9).length;
+                if (shippedCount === 0 && deliveredCount === 0) return null;
+                return (
+                  <div className="flex flex-wrap items-center gap-2 p-3 rounded-lg border border-primary/20 bg-primary/5">
+                    <MessageSquare className="h-4 w-4 text-primary" />
+                    <span className="text-xs font-medium text-primary">
+                      {language === 'th' ? 'ส่ง SMS ติดตามผู้รับชุดตรวจ' : 'Send SMS follow-ups to kit recipients'}
+                    </span>
+                    {shippedCount > 0 && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 gap-1.5 text-xs"
+                        onClick={() => openBulkSmsForStatus(['shipped'], 'kit_shipped_check_arrival')}
+                      >
+                        <Truck className="h-3.5 w-3.5" />
+                        {language === 'th'
+                          ? `แจ้งเช็คพัสดุ (${shippedCount} ส่งแล้ว)`
+                          : `Confirm arrival (${shippedCount} shipped)`}
+                      </Button>
+                    )}
+                    {deliveredCount > 0 && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 gap-1.5 text-xs"
+                        onClick={() => openBulkSmsForStatus(['delivered_unconfirmed', 'out_for_delivery'], 'kit_delivered_remind_test')}
+                      >
+                        <Package className="h-3.5 w-3.5" />
+                        {language === 'th'
+                          ? `เตือนตรวจ + รายงานผล (${deliveredCount} ถึงแล้ว)`
+                          : `Test reminder (${deliveredCount} delivered)`}
+                      </Button>
+                    )}
+                  </div>
+                );
+              })()}
+
               {filteredOrders.length === 0 ? (
                 <Card className="p-8 text-center">
                   <Package className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
@@ -1051,7 +1123,15 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                   </p>
                 </Card>
               ) : (
-                filteredOrders.map((order) => (
+                filteredOrders.map((order) => {
+                  const phoneOk = (order.recipient_phone || '').replace(/\D/g, '').length >= 9;
+                  const smsTemplate =
+                    order.status === 'shipped'
+                      ? 'kit_shipped_check_arrival'
+                      : order.status === 'delivered_unconfirmed' || order.status === 'out_for_delivery'
+                      ? 'kit_delivered_remind_test'
+                      : undefined;
+                  return (
                   <Card key={order.id} className="p-4">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
@@ -1075,22 +1155,43 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                       <p className="truncate">{order.recipient_address}</p>
                     </div>
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <span className="text-xs text-muted-foreground">
                         {formatDate(order.created_at)}
                       </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => openOrderDetail(order)}
-                        className="gap-2"
-                      >
-                        <Eye className="h-4 w-4" />
-                        {language === 'th' ? 'ดู' : 'View'}
-                      </Button>
+                      <div className="flex items-center gap-1.5">
+                        {phoneOk && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => openSmsForOrder(order, smsTemplate)}
+                            className="gap-1.5"
+                            title={language === 'th' ? 'ส่ง SMS' : 'Send SMS'}
+                          >
+                            <MessageSquare className="h-4 w-4" />
+                            <span className="hidden sm:inline">
+                              {smsTemplate === 'kit_shipped_check_arrival'
+                                ? (language === 'th' ? 'แจ้งเช็คพัสดุ' : 'Arrival SMS')
+                                : smsTemplate === 'kit_delivered_remind_test'
+                                ? (language === 'th' ? 'เตือนตรวจ' : 'Test reminder')
+                                : 'SMS'}
+                            </span>
+                          </Button>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openOrderDetail(order)}
+                          className="gap-2"
+                        >
+                          <Eye className="h-4 w-4" />
+                          {language === 'th' ? 'ดู' : 'View'}
+                        </Button>
+                      </div>
                     </div>
                   </Card>
-                ))
+                  );
+                })
               )}
             </TabsContent>
           </Tabs>
@@ -1989,6 +2090,13 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <SelftestSmsDialog
+        open={smsOpen}
+        onOpenChange={setSmsOpen}
+        recipients={smsRecipients}
+        initialTemplateKey={smsTemplateKey}
+        source="kit_orders"
+      />
     </div>
   );
 }

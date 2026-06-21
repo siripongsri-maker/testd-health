@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, MessageSquare, Send, Bell, Phone, Stethoscope, Calendar, HelpCircle, Heart, Shield, Edit3, FileText, Layers, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, MessageSquare, Send, Bell, Phone, Stethoscope, Calendar, HelpCircle, Heart, Shield, Edit3, FileText, Layers, Eye, ChevronLeft, ChevronRight, Package, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
@@ -20,17 +20,38 @@ interface Props {
   recipients: SmsRecipient[];
   onSent?: () => void;
   initialTemplateKey?: string;
+  /** "selftest" (default) sends via hiv_selftest_requests.id; "kit_orders" sends to kit_orders.id recipients. */
+  source?: "selftest" | "kit_orders";
 }
 
 const TEMPLATE_CATEGORIES = [
   { key: "all", labelTh: "ทั้งหมด", labelEn: "All", icon: Layers },
   { key: "followup", labelTh: "ติดตาม", labelEn: "Follow-up", icon: Bell },
+  { key: "shipping", labelTh: "ส่งชุดตรวจ", labelEn: "Shipping", icon: Truck },
   { key: "clinic", labelTh: "คลินิก", labelEn: "Clinic", icon: Stethoscope },
   { key: "retention", labelTh: "ดูแลต่อเนื่อง", labelEn: "Retention", icon: Heart },
   { key: "custom", labelTh: "กำหนดเอง", labelEn: "Custom", icon: Edit3 },
 ];
 
 const TEMPLATES = [
+  {
+    key: "kit_shipped_check_arrival",
+    category: "shipping",
+    labelTh: "จัดส่งแล้ว: เช็คพัสดุ",
+    labelEn: "Shipped: confirm arrival",
+    icon: Truck,
+    bodyTh: "testD: คุณ {{name}} ชุดตรวจของคุณถูกจัดส่งแล้ว เมื่อได้รับพัสดุกรุณาเข้าระบบเพื่อยืนยันการรับ: https://testd.website/selftest หากมีปัญหา โทร 02-632-9501",
+    bodyEn: "testD: Hi {{name}}, your test kit has been shipped. Once it arrives, please confirm receipt in the app: https://testd.website/selftest — questions? Call 02-632-9501",
+  },
+  {
+    key: "kit_delivered_remind_test",
+    category: "shipping",
+    labelTh: "ถึงแล้ว: เตือนตรวจ + รายงานผล",
+    labelEn: "Delivered: test & report reminder",
+    icon: Package,
+    bodyTh: "testD: คุณ {{name}} ชุดตรวจของคุณถึงแล้ว อย่าลืมทำตามคู่มือและรายงานผลในระบบ: https://testd.website/selftest หากต้องการคำปรึกษา โทร 02-632-9501",
+    bodyEn: "testD: Hi {{name}}, your test kit has arrived. Please follow the guide and report your result in the app: https://testd.website/selftest — need support? Call 02-632-9501",
+  },
   {
     key: "first_reactive",
     category: "followup",
@@ -169,7 +190,7 @@ function segmentInfo(text: string) {
   return { len, segments, unicode };
 }
 
-export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSent, initialTemplateKey }: Props) {
+export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSent, initialTemplateKey, source = "selftest" }: Props) {
   const { language } = useLanguage();
   const t = (th: string, en: string) => (language === "th" ? th : en);
   const [tplKey, setTplKey] = useState<string>(initialTemplateKey || TEMPLATES[0].key);
@@ -241,15 +262,18 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
     }
     setSending(true);
     try {
-      const { data, error } = await supabase.functions.invoke("selftest-send-sms", {
-        body: {
-          request_ids: validRecipients.map((r) => r.id),
-          message: message.trim(),
-          template_key: selectedTpl.key,
-          template_label: selectedTpl.labelEn,
-          track_links: true,
-        },
-      });
+      const invokeBody: Record<string, any> = {
+        message: message.trim(),
+        template_key: selectedTpl.key,
+        template_label: selectedTpl.labelEn,
+        track_links: true,
+      };
+      if (source === "kit_orders") {
+        invokeBody.kit_recipients = validRecipients.map((r) => ({ id: r.id, name: r.name, phone: r.phone }));
+      } else {
+        invokeBody.request_ids = validRecipients.map((r) => r.id);
+      }
+      const { data, error } = await supabase.functions.invoke("selftest-send-sms", { body: invokeBody });
       if (error) throw error;
       const sent = (data as any)?.sent ?? 0;
       const total = (data as any)?.total ?? validRecipients.length;

@@ -11,8 +11,15 @@ const corsHeaders = {
 
 const SMSMKT_URL = "https://portal-otp.smsmkt.com/api/send-message";
 
+interface KitRecipient {
+  id: string;        // kit_orders.id
+  name?: string | null;
+  phone: string;
+}
+
 interface Body {
-  request_ids: string[];
+  request_ids?: string[];
+  kit_recipients?: KitRecipient[];
   message: string;
   sender?: string;
   template_key?: string;
@@ -96,18 +103,22 @@ Deno.serve(async (req) => {
 
     const body = (await req.json()) as Body;
     const requestIds = Array.isArray(body.request_ids) ? body.request_ids.filter((x) => typeof x === "string") : [];
+    const kitRecipients = Array.isArray(body.kit_recipients)
+      ? body.kit_recipients.filter((x) => x && typeof x.id === "string" && typeof x.phone === "string")
+      : [];
     const message = (body.message || "").trim();
     const sender = (body.sender || DEFAULT_SENDER).trim().slice(0, 11);
     const templateKey = (body.template_key || "").trim().slice(0, 64) || null;
     const templateLabel = (body.template_label || "").trim().slice(0, 128) || null;
     const trackLinks = body.track_links !== false; // default ON
 
-    if (requestIds.length === 0) {
+    const totalRecipients = requestIds.length + kitRecipients.length;
+    if (totalRecipients === 0) {
       return new Response(JSON.stringify({ error: "no_recipients" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    if (requestIds.length > 200) {
+    if (totalRecipients > 200) {
       return new Response(JSON.stringify({ error: "too_many_recipients", max: 200 }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -118,42 +129,77 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Resolve recipient phones from requests + pii
-    const { data: reqs, error: reqErr } = await admin
-      .from("hiv_selftest_requests")
-      .select("id, phone, full_name, selftest_pii:selftest_pii(phone, full_name)")
-      .in("id", requestIds);
-    if (reqErr) {
-      return new Response(JSON.stringify({ error: reqErr.message }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    // Resolve recipient phones from selftest requests + pii (if any)
+    let reqs: any[] = [];
+    if (requestIds.length > 0) {
+      const { data, error: reqErr } = await admin
+        .from("hiv_selftest_requests")
+        .select("id, phone, full_name, selftest_pii:selftest_pii(phone, full_name)")
+        .in("id", requestIds);
+      if (reqErr) {
+        return new Response(JSON.stringify({ error: reqErr.message }), {
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      reqs = data || [];
     }
 
-    const results: Array<{ request_id: string; ok: boolean; phone?: string; error?: string; sms_id?: string }> = [];
+    // Build a unified list of send targets — selftest requests and/or kit-order recipients.
+    type Target = {
+      kind: "selftest" | "kit_order";
+      ref_id: string;            // hiv_selftest_requests.id OR kit_orders.id
+      rawPhone: string;
+      recipientName: string;
+    };
+    const targets: Target[] = [
+      ...reqs.map((r: any): Target => ({
+        kind: "selftest",
+        ref_id: r.id,
+        rawPhone: r.selftest_pii?.phone || r.phone || "",
+        recipientName: (r.selftest_pii?.full_name || r.full_name || "").trim(),
+      })),
+      ...kitRecipients.map((k): Target => ({
+        kind: "kit_order",
+        ref_id: k.id,
+        rawPhone: k.phone || "",
+        recipientName: (k.name || "").trim(),
+      })),
+    ];
 
-    for (const r of reqs || []) {
-      const rawPhone = (r as any).selftest_pii?.phone || (r as any).phone || "";
-      const recipientName = ((r as any).selftest_pii?.full_name || (r as any).full_name || "").trim();
+    const results: Array<{ request_id?: string; kit_order_id?: string; ok: boolean; phone?: string; error?: string; sms_id?: string }> = [];
+
+    for (const tgt of targets) {
+      const { kind, ref_id, rawPhone, recipientName } = tgt;
       const normalized = normalizeThaiPhone(rawPhone);
+      // Helper to build sms_send_log row with the right FK column based on kind.
+      const baseLog: Record<string, any> = {
+        request_id: kind === "selftest" ? ref_id : null,
+        kit_order_id: kind === "kit_order" ? ref_id : null,
+        recipient_name: recipientName || null,
+        template_key: templateKey,
+        template_label: templateLabel,
+        sender,
+        sent_by: userData.user.id,
+      };
+      // selftest_tracking_events is selftest-scoped only; skip for kit-order sends.
+      const logSelftestEvent = async (row: Record<string, any>) => {
+        if (kind !== "selftest") return;
+        await admin.from("selftest_tracking_events").insert({ request_id: ref_id, ...row });
+      };
+
       if (!normalized) {
-        results.push({ request_id: r.id, ok: false, error: "invalid_phone" });
-        await admin.from("selftest_tracking_events").insert({
-          request_id: r.id,
+        results.push({ [kind === "selftest" ? "request_id" : "kit_order_id"]: ref_id, ok: false, error: "invalid_phone" } as any);
+        await logSelftestEvent({
           event_code: "sms_failed",
           event_description: "invalid_phone",
           raw: { phone_raw: rawPhone, sender, message_preview: message.slice(0, 80) },
         });
         await admin.from("sms_send_log").insert({
-          request_id: r.id,
-          recipient_name: recipientName || null,
+          ...baseLog,
           phone: rawPhone || "",
-          template_key: templateKey,
-          template_label: templateLabel,
           message,
-          sender,
           status: "failed",
           error_message: "invalid_phone",
-          sent_by: userData.user.id,
         });
         continue;
       }
@@ -197,54 +243,42 @@ Deno.serve(async (req) => {
         const errMsg = ok ? null : (data?.message || `http_${resp.status}`);
 
         results.push({
-          request_id: r.id,
+          [kind === "selftest" ? "request_id" : "kit_order_id"]: ref_id,
           ok,
           phone: normalized,
           sms_id: smsProviderId || undefined,
           error: errMsg || undefined,
-        });
-        await admin.from("selftest_tracking_events").insert({
-          request_id: r.id,
+        } as any);
+        await logSelftestEvent({
           event_code: ok ? "sms_sent" : "sms_failed",
           event_description: ok ? "SMS sent via SMSMKT" : `SMS failed: ${data?.message || resp.status}`,
           raw: { sender, phone: normalized, response: data, http_status: resp.status, message_preview: personalized.slice(0, 80), sent_by: userData.user.id, tracking_token: trackingToken },
         });
         await admin.from("sms_send_log").insert({
-          request_id: r.id,
-          recipient_name: recipientName || null,
+          ...baseLog,
           phone: normalized,
-          template_key: templateKey,
-          template_label: templateLabel,
           message: personalized,
-          sender,
           status: ok ? "sent" : "failed",
           sms_provider_id: smsProviderId,
           http_status: resp.status,
           error_message: errMsg,
           provider_response: data ?? null,
-          sent_by: userData.user.id,
           tracking_token: trackingToken,
           original_url: originalUrl,
         });
       } catch (e: any) {
-        results.push({ request_id: r.id, ok: false, error: e?.message || "network_error" });
-        await admin.from("selftest_tracking_events").insert({
-          request_id: r.id,
+        results.push({ [kind === "selftest" ? "request_id" : "kit_order_id"]: ref_id, ok: false, error: e?.message || "network_error" } as any);
+        await logSelftestEvent({
           event_code: "sms_failed",
           event_description: `network_error: ${e?.message || ""}`,
           raw: { sender, phone: normalized, sent_by: userData.user.id, tracking_token: trackingToken },
         });
         await admin.from("sms_send_log").insert({
-          request_id: r.id,
-          recipient_name: recipientName || null,
+          ...baseLog,
           phone: normalized,
-          template_key: templateKey,
-          template_label: templateLabel,
           message: personalized,
-          sender,
           status: "failed",
           error_message: e?.message || "network_error",
-          sent_by: userData.user.id,
           tracking_token: trackingToken,
           original_url: originalUrl,
         });
