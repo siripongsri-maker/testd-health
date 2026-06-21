@@ -442,7 +442,7 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
                 });
                 setGuestRequestId(submittedId);
               } else {
-                await submitResult(request, result, photo);
+                await submitResult(request, result, photo, trimmedThaiId);
               }
               trackEvent("lean_result_submitted", {
                 request_id: submittedId,
