@@ -314,7 +314,7 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
               <span className="text-xs font-medium text-muted-foreground">
                 {isCustom
                   ? t("ข้อความกำหนดเอง", "Custom message")
-                  : t(`เทมเพลต: ${language === "th" ? selectedTpl.labelTh : selectedTpl.labelEn}`, `Template: ${language === "en" ? selectedTpl.labelEn : selectedTpl.labelTh}`)}
+                  : `${t("เทมเพลต", "Template")}: ${language === "th" ? selectedTpl.labelTh : selectedTpl.labelEn}`}
               </span>
               <span className="text-xs text-muted-foreground">
                 {info.len} {t("ตัวอักษร", "chars")} · {info.segments} {t("ส่วน", "seg")} ·{" "}
