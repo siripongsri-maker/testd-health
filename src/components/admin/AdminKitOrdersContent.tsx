@@ -2090,6 +2090,13 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <SelftestSmsDialog
+        open={smsOpen}
+        onOpenChange={setSmsOpen}
+        recipients={smsRecipients}
+        initialTemplateKey={smsTemplateKey}
+        source="kit_orders"
+      />
     </div>
   );
 }
