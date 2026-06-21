@@ -242,9 +242,28 @@ Deno.serve(async (req) => {
           }),
         });
         const data = await resp.json().catch(() => ({}));
-        const ok = resp.ok && (data?.status === "success" || data?.code === 200 || data?.success === true || resp.status === 200);
+        // SMSMKT returns HTTP 200 even on failure — must check provider code/status in body.
+        // Known success indicators: code "000" / status "success" / success:true.
+        // Known failure example: {"code":"300","detail":"Not found this sender name."}
+        const providerCode = data?.code != null ? String(data.code) : null;
+        const providerStatus = (data?.status || "").toString().toLowerCase();
+        const providerOk =
+          providerCode === "000" ||
+          providerCode === "0" ||
+          providerStatus === "success" ||
+          data?.success === true;
+        const providerFail =
+          (providerCode && providerCode !== "000" && providerCode !== "0") ||
+          providerStatus === "error" ||
+          providerStatus === "failed" ||
+          data?.success === false;
+        // If provider gave no recognisable signal, fall back to HTTP status.
+        const ok = providerOk || (!providerFail && resp.ok);
         const smsProviderId = data?.message_id || data?.data?.message_id || null;
-        const errMsg = ok ? null : (data?.message || `http_${resp.status}`);
+        const errMsg = ok
+          ? null
+          : (data?.detail || data?.message || (providerCode ? `provider_code_${providerCode}` : `http_${resp.status}`));
+
 
         results.push({
           [kind === "selftest" ? "request_id" : "kit_order_id"]: ref_id,
