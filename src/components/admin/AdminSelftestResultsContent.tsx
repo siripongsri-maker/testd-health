@@ -404,6 +404,17 @@ export default function AdminSelftestResultsContent() {
                                 <ImageIcon className="h-4 w-4"/>
                               </Button>
                             )}
+                            {result === "negative" && phone && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-500/10"
+                                onClick={() => openSmsForRow(r, "negative_prep_invite")}
+                                title={t("ส่ง SMS เชิญรับ PrEP", "Send PrEP invite SMS")}
+                              >
+                                <MessageSquare className="h-4 w-4"/>
+                              </Button>
+                            )}
                             <Button
                               size="sm"
                               variant={dirty ? "default" : "ghost"}
