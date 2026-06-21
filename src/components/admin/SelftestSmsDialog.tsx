@@ -360,12 +360,144 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
               maxLength={459}
               placeholder={t("พิมพ์ข้อความ...", "Type your message...")}
             />
+            <div className="flex flex-wrap items-center gap-1.5 mt-2">
+              <span className="text-[11px] text-muted-foreground mr-1">
+                {t("ใส่ตัวแปร:", "Insert variable:")}
+              </span>
+              {TEMPLATE_VARIABLES.map((v) => (
+                <Button
+                  key={v.token}
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-6 px-2 text-[11px] font-mono"
+                  onClick={() => insertVariable(v.token)}
+                  title={language === "th" ? v.labelTh : v.labelEn}
+                >
+                  {v.token}
+                </Button>
+              ))}
+            </div>
             <div className="text-[11px] text-muted-foreground mt-1">
               {t(
-                "หลายส่วน = หลายเครดิต (Unicode 67 ตัว/ส่วน, GSM 153 ตัว/ส่วน)",
-                "Multi-segment = multi-credit (Unicode 67/seg, GSM 153/seg)",
+                "หลายส่วน = หลายเครดิต (Unicode 67 ตัว/ส่วน, GSM 153 ตัว/ส่วน) • ตัวแปรจะถูกแทนค่าตอนส่งโดยอัตโนมัติ",
+                "Multi-segment = multi-credit (Unicode 67/seg, GSM 153/seg) • Variables are replaced at send time",
               )}
             </div>
+          </div>
+
+          {/* Preview panel */}
+          <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-1.5 text-xs font-semibold">
+                <Eye className="h-3.5 w-3.5" />
+                {t("ตัวอย่างข้อความ", "Message preview")}
+                {validRecipients.length > 1 && (
+                  <Badge variant="secondary" className="text-[10px] ml-1">
+                    {validRecipients.length} {t("ผู้รับ", "recipients")}
+                  </Badge>
+                )}
+              </div>
+              {validRecipients.length > 1 && (
+                <div className="flex items-center gap-1">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 px-2 text-[11px]"
+                    onClick={() => setShowAllPreviews((v) => !v)}
+                  >
+                    {showAllPreviews
+                      ? t("ดูทีละราย", "One at a time")
+                      : t(`ดูทั้งหมด (${Math.min(validRecipients.length, 10)})`, `View all (${Math.min(validRecipients.length, 10)})`)}
+                  </Button>
+                  {!showAllPreviews && (
+                    <>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="outline"
+                        className="h-7 w-7"
+                        disabled={previewIdx <= 0}
+                        onClick={() => setPreviewIdx((i) => Math.max(0, i - 1))}
+                      >
+                        <ChevronLeft className="h-3.5 w-3.5" />
+                      </Button>
+                      <span className="text-[11px] text-muted-foreground tabular-nums">
+                        {previewIdx + 1}/{validRecipients.length}
+                      </span>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="outline"
+                        className="h-7 w-7"
+                        disabled={previewIdx >= validRecipients.length - 1}
+                        onClick={() => setPreviewIdx((i) => Math.min(validRecipients.length - 1, i + 1))}
+                      >
+                        <ChevronRight className="h-3.5 w-3.5" />
+                      </Button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {validRecipients.length === 0 ? (
+              <div className="text-xs text-muted-foreground italic py-3 text-center">
+                {t("ไม่มีผู้รับที่มีเบอร์ถูกต้องสำหรับดูตัวอย่าง", "No valid recipient to preview")}
+              </div>
+            ) : showAllPreviews ? (
+              <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                {validRecipients.slice(0, 10).map((r) => {
+                  const msg = renderMessage(message, r, fallbackName);
+                  const seg = segmentInfo(msg);
+                  return (
+                    <div key={r.id} className="rounded-md border bg-background p-2.5">
+                      <div className="flex items-center justify-between mb-1 text-[11px] text-muted-foreground">
+                        <span className="font-medium text-foreground">{r.name} · {r.phone}</span>
+                        <span>{seg.len} · {seg.segments} {t("ส่วน", "seg")}</span>
+                      </div>
+                      <div className="text-xs whitespace-pre-wrap leading-relaxed">{msg || <span className="italic text-muted-foreground">{t("(ข้อความว่าง)", "(empty)")}</span>}</div>
+                    </div>
+                  );
+                })}
+                {validRecipients.length > 10 && (
+                  <div className="text-[11px] text-muted-foreground text-center pt-1">
+                    {t(`+ อีก ${validRecipients.length - 10} ราย`, `+ ${validRecipients.length - 10} more`)}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="rounded-md border bg-background p-3">
+                {previewRecipient && (
+                  <div className="flex items-center justify-between mb-2 text-[11px] text-muted-foreground">
+                    <span className="font-medium text-foreground">
+                      {previewRecipient.name} · {previewRecipient.phone}
+                    </span>
+                    <span>
+                      {previewInfo.len} · {previewInfo.segments} {t("ส่วน", "seg")}
+                    </span>
+                  </div>
+                )}
+                <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                  {previewMessage || (
+                    <span className="italic text-muted-foreground">
+                      {t("(ข้อความว่าง)", "(empty message)")}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {hasUnresolvedVars && (
+              <div className="text-[11px] text-destructive flex items-center gap-1">
+                <HelpCircle className="h-3 w-3" />
+                {t(
+                  "พบตัวแปรที่ไม่รู้จัก — ตรวจสอบการสะกด {{name}} / {{phone}}",
+                  "Unknown variable found — check spelling of {{name}} / {{phone}}",
+                )}
+              </div>
+            )}
           </div>
         </div>
 
