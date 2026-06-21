@@ -36,12 +36,13 @@ async function sha256Hex(input: string): Promise<string> {
 async function createFollowupUrl(admin: any, origin: string, requestId: string): Promise<string> {
   const token = makeMagicToken();
   const tokenHash = await sha256Hex(token);
-  await admin.from("selftest_magic_tokens").insert({
+  const { error } = await admin.from("selftest_magic_tokens").insert({
     request_id: requestId,
     token_hash: tokenHash,
     purpose: "followup",
     expires_at: new Date(Date.now() + 30 * 86400000).toISOString(),
   });
+  if (error) throw error;
   return `${origin.replace(/\/+$/, "")}/selftest/followup/${token}`;
 }
 
