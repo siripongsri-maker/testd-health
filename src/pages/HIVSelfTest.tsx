@@ -1702,11 +1702,29 @@ export default function HIVSelfTest() {
                   </Card>
                 )}
 
+                {/* PDPA consent — required before submitting Thai national ID with test result. */}
+                <label
+                  htmlFor="hivst-pdpa-consent"
+                  className="flex items-start gap-2.5 rounded-lg border border-border/60 bg-muted/40 p-3 cursor-pointer"
+                >
+                  <Checkbox
+                    id="hivst-pdpa-consent"
+                    checked={pdpaConsent}
+                    onCheckedChange={(v) => setPdpaConsent(v === true)}
+                    className="mt-0.5"
+                  />
+                  <span className="text-[11px] leading-snug text-muted-foreground">
+                    {language === 'th'
+                      ? 'ฉันยินยอมให้เก็บและใช้เลขบัตรประชาชนเพื่อเชื่อมผลตรวจกับเวชระเบียนของฉันตาม PDPA และจะเก็บเป็นความลับ'
+                      : 'I consent to storing my Thai national ID to link this result with my medical record under PDPA. It will be kept confidential.'}
+                  </span>
+                </label>
+
                 <Button 
                   className="w-full gap-2" 
                   size="lg"
                   onClick={handleSubmitResult}
-                  disabled={uploading}
+                  disabled={uploading || !pdpaConsent}
                 >
                   <Upload className="h-4 w-4" />
                   {uploading 
