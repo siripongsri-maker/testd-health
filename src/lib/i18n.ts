@@ -1005,6 +1005,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.kitOrders': 'Kit Orders',
     'admin.selftestResults': 'Self-test Results',
     'admin.selftestFollowup': 'Result Follow-up',
+    'admin.selftestMap': 'Self-test Map',
     'admin.notifications': 'Notifications',
     'admin.analytics': 'Analytics',
     'admin.analyticsOverview': 'Period Overview',
