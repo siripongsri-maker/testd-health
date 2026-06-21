@@ -38,6 +38,53 @@ function makeToken(len = 10): string {
   return out;
 }
 
+function makeMagicToken(): string {
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function sha256Hex(input: string): Promise<string> {
+  const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
+  return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function createSelftestFollowupLink(admin: any, requestId: string): Promise<string> {
+  const token = makeMagicToken();
+  const tokenHash = await sha256Hex(token);
+  const expiresAt = new Date(Date.now() + 30 * 86400000).toISOString();
+  await admin.from("selftest_magic_tokens").insert({
+    request_id: requestId,
+    token_hash: tokenHash,
+    purpose: "followup",
+    expires_at: expiresAt,
+  });
+  return `${APP_BASE_URL}/selftest/followup/${token}`;
+}
+
+function shouldReplaceWithSelftestFollowup(url: string): boolean {
+  try {
+    const parsed = new URL(url, APP_BASE_URL);
+    const path = parsed.pathname.replace(/^\/(th|en)(?=\/)/, "").replace(/\/+$/, "") || "/";
+    const sameSite = parsed.hostname === new URL(APP_BASE_URL).hostname || parsed.hostname.endsWith(".lovable.app");
+    return sameSite && (
+      path === "/admin" ||
+      path.startsWith("/admin/") ||
+      path === "/dashboard" ||
+      path.startsWith("/dashboard/") ||
+      path === "/booking" ||
+      path === "/clinic/book" ||
+      path === "/selftest" ||
+      path === "/submit-result" ||
+      path === "/submit-hiv-result" ||
+      path === "/submit" ||
+      path === "/hiv-selftest"
+    );
+  } catch {
+    return false;
+  }
+}
+
 function normalizeThaiPhone(raw: string): string | null {
   const digits = (raw || "").replace(/\D/g, "");
   if (!digits) return null;
