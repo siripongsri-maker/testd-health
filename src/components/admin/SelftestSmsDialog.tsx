@@ -291,19 +291,44 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
       if (error) throw error;
       const sent = (data as any)?.sent ?? 0;
       const total = (data as any)?.total ?? validRecipients.length;
-      if (sent === total) {
+      const rawResults: any[] = Array.isArray((data as any)?.results) ? (data as any).results : [];
+      // Enrich results with recipient name for nicer display
+      const nameById = new Map(validRecipients.map((r) => [r.id, r.name]));
+      const phoneToName = new Map(validRecipients.map((r) => [r.phone.replace(/\D/g, ""), r.name]));
+      const results = rawResults.map((r) => ({
+        request_id: r.request_id,
+        phone: r.phone,
+        ok: !!r.ok,
+        error: r.error || r.message,
+        name:
+          (r.request_id && nameById.get(r.request_id)) ||
+          (r.phone && phoneToName.get(String(r.phone).replace(/\D/g, ""))) ||
+          undefined,
+      }));
+      setSendResult({ sent, total, sentAt: new Date().toISOString(), results });
+      if (sent === total && total > 0) {
         toast.success(t(`ส่ง SMS สำเร็จ ${sent}/${total}`, `Sent ${sent}/${total} SMS`));
+      } else if (sent > 0) {
+        toast.warning(t(`ส่งสำเร็จ ${sent}/${total} — ดูรายละเอียดด้านล่าง`, `Sent ${sent}/${total} — see details below`));
       } else {
-        toast.warning(t(`ส่งสำเร็จ ${sent}/${total} — ดูประวัติเพื่อตรวจสอบ`, `Sent ${sent}/${total} — check history`));
+        toast.error(t(`ส่งไม่สำเร็จทั้งหมด (0/${total})`, `Failed to send (0/${total})`));
       }
-      onOpenChange(false);
+      // Keep dialog open so the user can verify per-recipient outcome.
       onSent?.();
     } catch (e: any) {
-      toast.error(e?.message || t("ส่งไม่สำเร็จ", "Failed to send"));
+      const msg = e?.message || t("ส่งไม่สำเร็จ", "Failed to send");
+      setSendResult({
+        sent: 0,
+        total: validRecipients.length,
+        sentAt: new Date().toISOString(),
+        results: validRecipients.map((r) => ({ request_id: r.id, phone: r.phone, name: r.name, ok: false, error: msg })),
+      });
+      toast.error(msg);
     } finally {
       setSending(false);
     }
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
