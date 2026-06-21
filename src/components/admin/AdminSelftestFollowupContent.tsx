@@ -403,6 +403,13 @@ export default function AdminSelftestFollowupContent() {
           })}
         </CardContent>
       </Card>
+
+      <SelftestSmsDialog
+        open={smsOpen}
+        onOpenChange={setSmsOpen}
+        recipients={smsRecipients}
+        onSent={() => setSelected(new Set())}
+      />
     </div>
   );
 }
