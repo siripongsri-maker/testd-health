@@ -36,8 +36,8 @@ const TEMPLATES = [
     labelTh: "ติดตามผล Reactive",
     labelEn: "Reactive result follow-up",
     icon: Bell,
-    bodyTh: "testD: ทีมงานติดต่อเพื่อดูแลคุณต่อ หากต้องการคำปรึกษา โทร 02-632-9501 หรือนัดคลินิก: https://testd.website/clinic/book",
-    bodyEn: "testD: Our team is reaching out to support you. For advice, call 02-632-9501 or book a clinic: https://testd.website/clinic/book",
+    bodyTh: "testD: สวัสดีคุณ {{name}} ทีมงานติดต่อเพื่อดูแลคุณต่อ หากต้องการคำปรึกษา โทร 02-632-9501 หรือนัดคลินิก: https://testd.website/clinic/book",
+    bodyEn: "testD: Hi {{name}}, our team is reaching out to support you. For advice, call 02-632-9501 or book a clinic: https://testd.website/clinic/book",
   },
   {
     key: "remind_report",
@@ -45,8 +45,8 @@ const TEMPLATES = [
     labelTh: "เตือนรายงานผล",
     labelEn: "Remind to report",
     icon: FileText,
-    bodyTh: "testD: ถึงเวลารายงานผลของคุณแล้ว เปิดลิงก์เพื่อบันทึก: https://testd.website/selftest หากต้องการความช่วยเหลือ โทร 02-632-9501",
-    bodyEn: "testD: It's time to report your result. Open: https://testd.website/selftest or call 02-632-9501",
+    bodyTh: "testD: คุณ {{name}} ถึงเวลารายงานผลของคุณแล้ว เปิดลิงก์เพื่อบันทึก: https://testd.website/selftest หากต้องการความช่วยเหลือ โทร 02-632-9501",
+    bodyEn: "testD: Hi {{name}}, it's time to report your result. Open: https://testd.website/selftest or call 02-632-9501",
   },
   {
     key: "request_callback",
@@ -54,8 +54,8 @@ const TEMPLATES = [
     labelTh: "ขอติดต่อกลับ",
     labelEn: "Request callback",
     icon: Phone,
-    bodyTh: "testD: ทีมเจ้าหน้าที่อยากติดต่อคุณเพื่อช่วยดูแลต่อ กรุณาโทรกลับ 02-632-9501 ขอบคุณค่ะ",
-    bodyEn: "testD: Our care team would like to support you. Please call back 02-632-9501. Thank you.",
+    bodyTh: "testD: สวัสดีคุณ {{name}} ทีมเจ้าหน้าที่อยากติดต่อคุณเพื่อช่วยดูแลต่อ กรุณาโทรกลับ 02-632-9501 ขอบคุณค่ะ",
+    bodyEn: "testD: Hi {{name}}, our care team would like to support you. Please call back 02-632-9501. Thank you.",
   },
   {
     key: "invite_clinic",
@@ -63,8 +63,8 @@ const TEMPLATES = [
     labelTh: "นัดเข้าคลินิก",
     labelEn: "Invite to clinic",
     icon: Stethoscope,
-    bodyTh: "testD: เชิญคุณเข้ารับบริการที่คลินิกฟรี นัดเวลาที่สะดวก: https://testd.website/clinic/book โทร 02-632-9501",
-    bodyEn: "testD: We invite you to a free clinic visit. Book: https://testd.website/clinic/book or call 02-632-9501",
+    bodyTh: "testD: คุณ {{name}} เชิญคุณเข้ารับบริการที่คลินิกฟรี นัดเวลาที่สะดวก: https://testd.website/clinic/book โทร 02-632-9501",
+    bodyEn: "testD: Hi {{name}}, we invite you to a free clinic visit. Book: https://testd.website/clinic/book or call 02-632-9501",
   },
   {
     key: "clinic_reminder",
@@ -72,8 +72,8 @@ const TEMPLATES = [
     labelTh: "เตือนนัดคลินิก",
     labelEn: "Clinic appointment reminder",
     icon: Calendar,
-    bodyTh: "testD: อย่าลืมนัดหมายของคุณ กรุณามาตามเวลานัด หรือติดต่อ 02-632-9501 หากต้องการเปลี่ยนเวลา",
-    bodyEn: "testD: Please remember your appointment. Come on time or call 02-632-9501 to reschedule.",
+    bodyTh: "testD: คุณ {{name}} อย่าลืมนัดหมายของคุณ กรุณามาตามเวลานัด หรือติดต่อ 02-632-9501 หากต้องการเปลี่ยนเวลา",
+    bodyEn: "testD: Hi {{name}}, please remember your appointment. Come on time or call 02-632-9501 to reschedule.",
   },
   {
     key: "missed_appointment",
@@ -81,8 +81,8 @@ const TEMPLATES = [
     labelTh: "นัดสาย / ไม่มานัด",
     labelEn: "Missed appointment",
     icon: HelpCircle,
-    bodyTh: "testD: เราสังเกตว่าคุณยังไม่ได้มาตามนัด หากต้องการนัดใหม่ โทร 02-632-9501 หรือจองออนไลน์: https://testd.website/clinic/book",
-    bodyEn: "testD: We noticed you missed your appointment. To reschedule, call 02-632-9501 or book online: https://testd.website/clinic/book",
+    bodyTh: "testD: คุณ {{name}} เราสังเกตว่าคุณยังไม่ได้มาตามนัด หากต้องการนัดใหม่ โทร 02-632-9501 หรือจองออนไลน์: https://testd.website/clinic/book",
+    bodyEn: "testD: Hi {{name}}, we noticed you missed your appointment. To reschedule, call 02-632-9501 or book online: https://testd.website/clinic/book",
   },
   {
     key: "retention_checkin",
@@ -90,8 +90,8 @@ const TEMPLATES = [
     labelTh: "เช็คอินดูแลต่อเนื่อง",
     labelEn: "Retention check-in",
     icon: Heart,
-    bodyTh: "testD: สวัสดี อยากเช็คว่าคุณสบายดีไหม หากต้องการความช่วยเหลือ โทร 02-632-9501 หรือทักมาได้ตลอด",
-    bodyEn: "testD: Hi, we hope you're doing well. If you need support, call 02-632-9501 or reach out anytime.",
+    bodyTh: "testD: สวัสดีคุณ {{name}} อยากเช็คว่าคุณสบายดีไหม หากต้องการความช่วยเหลือ โทร 02-632-9501 หรือทักมาได้ตลอด",
+    bodyEn: "testD: Hi {{name}}, we hope you're doing well. If you need support, call 02-632-9501 or reach out anytime.",
   },
   {
     key: "emotional_support",
@@ -99,8 +99,8 @@ const TEMPLATES = [
     labelTh: "ให้กำลังใจ",
     labelEn: "Emotional support",
     icon: Heart,
-    bodyTh: "testD: เราอยู่เคียงข้างคุณ หากต้องการคุยกับเจ้าหน้าที่ โทร 02-632-9501 คุณไม่ต้องเผชิญเรื่องนี้คนเดียว",
-    bodyEn: "testD: We are here for you. If you need to talk to a staff member, call 02-632-9501. You are not alone.",
+    bodyTh: "testD: คุณ {{name}} เราอยู่เคียงข้างคุณ หากต้องการคุยกับเจ้าหน้าที่ โทร 02-632-9501 คุณไม่ต้องเผชิญเรื่องนี้คนเดียว",
+    bodyEn: "testD: Hi {{name}}, we are here for you. If you need to talk to a staff member, call 02-632-9501. You are not alone.",
   },
   {
     key: "prep_info",
@@ -108,8 +108,8 @@ const TEMPLATES = [
     labelTh: "ข้อมูล PrEP",
     labelEn: "PrEP info",
     icon: Shield,
-    bodyTh: "testD: สนใจข้อมูล PrEP หรือการป้องกัน? นัดคลินิก: https://testd.website/clinic/book หรือโทร 02-632-9501",
-    bodyEn: "testD: Interested in PrEP or prevention? Book a clinic visit: https://testd.website/clinic/book or call 02-632-9501",
+    bodyTh: "testD: คุณ {{name}} สนใจข้อมูล PrEP หรือการป้องกัน? นัดคลินิก: https://testd.website/clinic/book หรือโทร 02-632-9501",
+    bodyEn: "testD: Hi {{name}}, interested in PrEP or prevention? Book a clinic visit: https://testd.website/clinic/book or call 02-632-9501",
   },
   {
     key: "custom",
@@ -121,6 +121,20 @@ const TEMPLATES = [
     bodyEn: "",
   },
 ];
+
+// Variables available for substitution in templates
+const TEMPLATE_VARIABLES = [
+  { token: "{{name}}", labelTh: "ชื่อผู้รับ", labelEn: "Recipient name" },
+  { token: "{{phone}}", labelTh: "เบอร์โทร", labelEn: "Phone number" },
+];
+
+function renderMessage(template: string, recipient: { name?: string; phone?: string } | null, fallbackName: string) {
+  const name = (recipient?.name || "").trim() || fallbackName;
+  const phone = (recipient?.phone || "").trim();
+  return template
+    .replace(/\{\{\s*name\s*\}\}/gi, name)
+    .replace(/\{\{\s*phone\s*\}\}/gi, phone);
+}
 
 // Thai SMS encoding: GSM-7 = 160 chars/segment; Unicode (Thai) = 70 chars/segment
 function isUnicode(text: string): boolean {
