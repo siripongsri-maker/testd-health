@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, Search, Phone, Image as ImageIcon, RefreshCw, Save, Trash2 } from "lucide-react";
+import { Loader2, Search, Phone, Image as ImageIcon, RefreshCw, Save, Trash2, MessageSquare, Shield } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { usePdpaAudit } from "@/hooks/usePdpaAudit";
+import SelftestSmsDialog, { SmsRecipient } from "./SelftestSmsDialog";
 
 interface Row {
   id: string;
