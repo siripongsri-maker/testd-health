@@ -242,8 +242,13 @@ Deno.serve(async (req) => {
         continue;
       }
 
+      const templateUrls = message.match(/https?:\/\/[^\s]+/g) || [];
+      const needsSecureFollowupLink = kind === "selftest" && (
+        /\{\{\s*followup_link\s*\}\}/i.test(message) ||
+        templateUrls.some((url) => shouldReplaceWithSelftestFollowup(url))
+      );
       const followupLink = kind === "selftest"
-        ? await createSelftestFollowupLink(admin, ref_id)
+        ? (needsSecureFollowupLink ? await createSelftestFollowupLink(admin, ref_id) : `${APP_BASE_URL}/booking?service=hiv-testing&followup=selftest`)
         : `${APP_BASE_URL}/track-kit/${encodeURIComponent(code || ref_id)}`;
 
       // Substitute per-recipient variables ({{name}}, {{phone}}, {{code}}, {{followup_link}}) in the template
