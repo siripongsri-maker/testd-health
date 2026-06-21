@@ -25,25 +25,27 @@ Deno.serve(async (req) => {
 
     const { data: tk, error } = await supa
       .from("selftest_magic_tokens")
-      .select("id, request_id, expires_at, used_at")
+      .select("id, request_id, purpose, expires_at, used_at")
       .eq("token_hash", hash)
       .maybeSingle();
 
     if (error || !tk) {
       return new Response(JSON.stringify({ error: "not_found" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
-    if (tk.used_at) {
+    if (tk.used_at && tk.purpose !== "followup") {
       return new Response(JSON.stringify({ error: "already_used" }), { status: 410, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
     if (new Date(tk.expires_at) < new Date()) {
       return new Response(JSON.stringify({ error: "expired" }), { status: 410, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    await supa.from("selftest_magic_tokens").update({ used_at: new Date().toISOString() }).eq("id", tk.id);
+    if (tk.purpose !== "followup") {
+      await supa.from("selftest_magic_tokens").update({ used_at: new Date().toISOString() }).eq("id", tk.id);
+    }
 
     const { data: reqRow } = await supa
       .from("hiv_selftest_requests")
-      .select("id, status, delivery_mode, user_id, pii_id, assigned_branch, created_at")
+      .select("id, status, delivery_mode, user_id, pii_id, assigned_branch, self_reported_result, test_result, care_action, created_at")
       .eq("id", tk.request_id)
       .maybeSingle();
 
@@ -66,10 +68,14 @@ Deno.serve(async (req) => {
               delivery_mode: reqRow.delivery_mode,
               user_id: reqRow.user_id,
               assigned_branch: reqRow.assigned_branch,
+              self_reported_result: reqRow.self_reported_result,
+              test_result: reqRow.test_result,
+              care_action: reqRow.care_action,
               created_at: reqRow.created_at,
               phone,
             }
           : null,
+        purpose: tk.purpose,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
