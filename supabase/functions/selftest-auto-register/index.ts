@@ -76,6 +76,15 @@ Deno.serve(async (req) => {
       if (!pii || typeof pii !== "object") return json({ error: "missing_pii" }, 400);
       if (!request || typeof request !== "object") return json({ error: "missing_request" }, 400);
 
+      // Province is required for analytics/map coverage — block submissions without it.
+      const provinceRaw = (pii as any).province;
+      const province = typeof provinceRaw === "string" ? provinceRaw.trim() : "";
+      if (!province || province.length > 100) {
+        return json({ error: "province_required", message: "กรุณาเลือกจังหวัด" }, 400);
+      }
+      (pii as any).province = province;
+
+
       // Whitelist PII fields — never spread raw client input into service-role insert
       const safePii: Record<string, unknown> = {
         user_id: resolvedUserId,
