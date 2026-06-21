@@ -207,10 +207,11 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      // Substitute per-recipient variables ({{name}}, {{phone}}) in the template
+      // Substitute per-recipient variables ({{name}}, {{phone}}, {{code}}) in the template
       let personalized = message
         .replace(/\{\{\s*name\s*\}\}/gi, recipientName || "คุณ")
-        .replace(/\{\{\s*phone\s*\}\}/gi, normalized);
+        .replace(/\{\{\s*phone\s*\}\}/gi, normalized)
+        .replace(/\{\{\s*code\s*\}\}/gi, code || "");
 
       // Tracking link: rewrite FIRST http(s) URL in the personalized message
       // so we can log click-throughs ("backlink").
