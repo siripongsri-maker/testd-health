@@ -1087,7 +1087,7 @@ export default function HIVSelfTest() {
               onClick={() => setCurrentStep('photo-result')}
             >
               <Camera className="h-4 w-4" />
-              {language === 'th' ? 'ถ่ายรูปผลตรวจ' : 'Take Result Photo'}
+              {language === 'th' ? 'ส่งผลตรวจ' : 'Take Result Photo'}
             </Button>
           </div>
 
