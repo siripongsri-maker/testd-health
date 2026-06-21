@@ -26,6 +26,7 @@ import { useMedicationReminder } from "@/hooks/useMedicationReminder";
 const Home = lazy(() => import("./pages/Home"));
 const SmsRedirect = lazy(() => import("./pages/SmsRedirect"));
 const KitTrackPublic = lazy(() => import("./pages/KitTrackPublic"));
+const SelftestFollowup = lazy(() => import("./pages/SelftestFollowup"));
 const Landing = lazy(() => import("./pages/Landing"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
@@ -120,6 +121,8 @@ function AppShell() {
               <Route path="/r/:token" element={<SmsRedirect />} />
               <Route path="/track-kit" element={<KitTrackPublic />} />
               <Route path="/track-kit/:code" element={<KitTrackPublic />} />
+              <Route path="/selftest/followup/:token" element={<SelftestFollowup />} />
+              <Route path="/followup/:token" element={<SelftestFollowup />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/consent" element={<Consent />} />
