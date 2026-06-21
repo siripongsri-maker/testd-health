@@ -226,17 +226,31 @@ export function ForceUpdateGuard({ children }: { children: React.ReactNode }) {
     // Loop protection
     if (isRetryExhausted()) {
       dispatchAnalytics("refresh_failed");
+      logCacheResetEvent({
+        trigger: "stuck_retry",
+        stage: "gave_up",
+        success: false,
+        attempt: MAX_RETRIES,
+        error: "max_retries_exceeded",
+      });
       setState("stuck");
       return;
     }
 
     dispatchAnalytics("hard_refresh_triggered");
-    incrementRetry();
+    const attempt = incrementRetry();
 
-    nukeCache().then(() => {
+    nukeCache("force_guard", attempt).then(() => {
       // Mark session as checked before reload
       sessionStorage.setItem(SESSION_KEY, APP_VERSION);
       dispatchAnalytics("refresh_completed");
+      markReloadPending("force_guard", APP_VERSION, attempt);
+      logCacheResetEvent({
+        trigger: "force_guard",
+        stage: "reload_triggered",
+        attempt,
+        to_version: APP_VERSION,
+      });
       setTimeout(performHardReload, 800);
     });
   }, [state]);
