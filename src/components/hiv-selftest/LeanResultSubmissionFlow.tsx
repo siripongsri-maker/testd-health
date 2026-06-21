@@ -161,6 +161,8 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
   // Guest-only contact fields (required by the submit_guest_selftest_result RPC)
   const [guestPhone, setGuestPhone] = useState("");
   const [guestLineId, setGuestLineId] = useState("");
+  // Province — required so the result can be aggregated onto the geo dashboard.
+  const [province, setProvince] = useState("");
   const [guestRequestId, setGuestRequestId] = useState<string | null>(null);
 
   useEffect(() => {
