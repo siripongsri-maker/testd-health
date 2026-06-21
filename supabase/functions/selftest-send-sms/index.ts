@@ -150,6 +150,7 @@ Deno.serve(async (req) => {
       ref_id: string;            // hiv_selftest_requests.id OR kit_orders.id
       rawPhone: string;
       recipientName: string;
+      code: string;              // public tracking code (kit_orders.order_code) for {{code}}
     };
     const targets: Target[] = [
       ...reqs.map((r: any): Target => ({
@@ -157,12 +158,14 @@ Deno.serve(async (req) => {
         ref_id: r.id,
         rawPhone: r.selftest_pii?.phone || r.phone || "",
         recipientName: (r.selftest_pii?.full_name || r.full_name || "").trim(),
+        code: "",
       })),
       ...kitRecipients.map((k): Target => ({
         kind: "kit_order",
         ref_id: k.id,
         rawPhone: k.phone || "",
         recipientName: (k.name || "").trim(),
+        code: ((k as any).code || "").toString().trim(),
       })),
     ];
 
