@@ -103,18 +103,22 @@ Deno.serve(async (req) => {
 
     const body = (await req.json()) as Body;
     const requestIds = Array.isArray(body.request_ids) ? body.request_ids.filter((x) => typeof x === "string") : [];
+    const kitRecipients = Array.isArray(body.kit_recipients)
+      ? body.kit_recipients.filter((x) => x && typeof x.id === "string" && typeof x.phone === "string")
+      : [];
     const message = (body.message || "").trim();
     const sender = (body.sender || DEFAULT_SENDER).trim().slice(0, 11);
     const templateKey = (body.template_key || "").trim().slice(0, 64) || null;
     const templateLabel = (body.template_label || "").trim().slice(0, 128) || null;
     const trackLinks = body.track_links !== false; // default ON
 
-    if (requestIds.length === 0) {
+    const totalRecipients = requestIds.length + kitRecipients.length;
+    if (totalRecipients === 0) {
       return new Response(JSON.stringify({ error: "no_recipients" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    if (requestIds.length > 200) {
+    if (totalRecipients > 200) {
       return new Response(JSON.stringify({ error: "too_many_recipients", max: 200 }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -125,22 +129,47 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Resolve recipient phones from requests + pii
-    const { data: reqs, error: reqErr } = await admin
-      .from("hiv_selftest_requests")
-      .select("id, phone, full_name, selftest_pii:selftest_pii(phone, full_name)")
-      .in("id", requestIds);
-    if (reqErr) {
-      return new Response(JSON.stringify({ error: reqErr.message }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    // Resolve recipient phones from selftest requests + pii (if any)
+    let reqs: any[] = [];
+    if (requestIds.length > 0) {
+      const { data, error: reqErr } = await admin
+        .from("hiv_selftest_requests")
+        .select("id, phone, full_name, selftest_pii:selftest_pii(phone, full_name)")
+        .in("id", requestIds);
+      if (reqErr) {
+        return new Response(JSON.stringify({ error: reqErr.message }), {
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      reqs = data || [];
     }
 
-    const results: Array<{ request_id: string; ok: boolean; phone?: string; error?: string; sms_id?: string }> = [];
+    // Build a unified list of send targets — selftest requests and/or kit-order recipients.
+    type Target = {
+      kind: "selftest" | "kit_order";
+      ref_id: string;            // hiv_selftest_requests.id OR kit_orders.id
+      rawPhone: string;
+      recipientName: string;
+    };
+    const targets: Target[] = [
+      ...reqs.map((r: any): Target => ({
+        kind: "selftest",
+        ref_id: r.id,
+        rawPhone: r.selftest_pii?.phone || r.phone || "",
+        recipientName: (r.selftest_pii?.full_name || r.full_name || "").trim(),
+      })),
+      ...kitRecipients.map((k): Target => ({
+        kind: "kit_order",
+        ref_id: k.id,
+        rawPhone: k.phone || "",
+        recipientName: (k.name || "").trim(),
+      })),
+    ];
 
-    for (const r of reqs || []) {
-      const rawPhone = (r as any).selftest_pii?.phone || (r as any).phone || "";
-      const recipientName = ((r as any).selftest_pii?.full_name || (r as any).full_name || "").trim();
+    const results: Array<{ request_id?: string; kit_order_id?: string; ok: boolean; phone?: string; error?: string; sms_id?: string }> = [];
+
+    for (const tgt of targets) {
+      const { kind, ref_id, rawPhone, recipientName } = tgt;
       const normalized = normalizeThaiPhone(rawPhone);
       if (!normalized) {
         results.push({ request_id: r.id, ok: false, error: "invalid_phone" });
