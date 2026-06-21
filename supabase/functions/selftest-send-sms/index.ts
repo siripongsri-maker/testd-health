@@ -11,8 +11,15 @@ const corsHeaders = {
 
 const SMSMKT_URL = "https://portal-otp.smsmkt.com/api/send-message";
 
+interface KitRecipient {
+  id: string;        // kit_orders.id
+  name?: string | null;
+  phone: string;
+}
+
 interface Body {
-  request_ids: string[];
+  request_ids?: string[];
+  kit_recipients?: KitRecipient[];
   message: string;
   sender?: string;
   template_key?: string;
