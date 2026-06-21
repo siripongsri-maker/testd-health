@@ -415,6 +415,16 @@ export function LiteRequestStep({
                 placeholder="0XX-XXX-XXXX"
               />
             </div>
+            <div className="space-y-2">
+              <Label>{language === 'th' ? 'จังหวัด' : 'Province'} *</Label>
+              <Select value={shippingData.province} onValueChange={(v) => onShippingChange({ ...shippingData, province: v, district: '', subdistrict: '', postalCode: '' })}>
+                <SelectTrigger><SelectValue placeholder={language === 'th' ? 'เลือกจังหวัด' : 'Select province'} /></SelectTrigger>
+                <SelectContent className="max-h-60">{getProvinces().map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                {language === 'th' ? 'ใช้เพื่อสถิติการกระจายชุดตรวจ' : 'Used for kit distribution analytics'}
+              </p>
+            </div>
           </Card>
         </>
       )}
