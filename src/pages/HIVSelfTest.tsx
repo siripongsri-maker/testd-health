@@ -850,6 +850,7 @@ export default function HIVSelfTest() {
         setWantsCallback(false);
         setCallbackPhone("");
         setGuestThaiId("");
+        setPdpaConsent(false);
         setGuestPhone("");
         setGuestLineId("");
       } catch (error) {
