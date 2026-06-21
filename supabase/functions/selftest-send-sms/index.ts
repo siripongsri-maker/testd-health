@@ -161,7 +161,7 @@ Deno.serve(async (req) => {
           request_id: r.id,
           event_code: ok ? "sms_sent" : "sms_failed",
           event_description: ok ? "SMS sent via SMSMKT" : `SMS failed: ${data?.message || resp.status}`,
-          raw: { sender, phone: normalized, response: data, http_status: resp.status, message_preview: message.slice(0, 80), sent_by: userData.user.id },
+          raw: { sender, phone: normalized, response: data, http_status: resp.status, message_preview: personalized.slice(0, 80), sent_by: userData.user.id },
         });
       } catch (e: any) {
         results.push({ request_id: r.id, ok: false, error: e?.message || "network_error" });
