@@ -410,12 +410,39 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
           </div>
         )}
 
+        {/* PDPA consent — required before submitting Thai national ID. */}
+        <label
+          htmlFor="lean-pdpa-consent"
+          className="flex items-start gap-2.5 rounded-lg border border-border/60 bg-muted/40 p-3 cursor-pointer"
+        >
+          <Checkbox
+            id="lean-pdpa-consent"
+            checked={pdpaConsent}
+            onCheckedChange={(v) => setPdpaConsent(v === true)}
+            className="mt-0.5"
+          />
+          <span className="text-[11px] leading-snug text-muted-foreground">
+            {language === "th"
+              ? "ฉันยินยอมให้เก็บและใช้เลขบัตรประชาชนเพื่อเชื่อมผลตรวจกับเวชระเบียนของฉันตาม PDPA และจะเก็บเป็นความลับ"
+              : "I consent to storing my Thai national ID to link this result with my medical record under PDPA. It will be kept confidential."}
+          </span>
+        </label>
+
         <Button
           size="lg"
           className="w-full"
-          disabled={!result || submitting}
+          disabled={!result || submitting || !pdpaConsent}
           onClick={async () => {
             if (!result) return;
+            if (!pdpaConsent) {
+              toast({
+                title: language === "th"
+                  ? "กรุณายืนยันความยินยอม PDPA ก่อนส่ง"
+                  : "Please confirm PDPA consent before submitting",
+                variant: "destructive",
+              });
+              return;
+            }
             const trimmedThaiId = normalizeThaiId(thaiId);
             if (!isValidThaiId(trimmedThaiId)) {
               toast({
