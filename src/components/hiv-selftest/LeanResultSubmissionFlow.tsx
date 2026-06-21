@@ -594,6 +594,7 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
       <OutcomeScreen
         result={result}
         request={{ ...request, id: effectiveRequestId }}
+        defaultCallbackPhone={guestMode ? guestPhone.replace(/\s+/g, "") : ""}
         t={t}
         onDone={onDone}
         onCareAction={async (action) => {
@@ -621,17 +622,18 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
 function OutcomeScreen({
   result,
   request: _request,
+  defaultCallbackPhone,
   t,
   onDone,
   onCareAction,
 }: {
   result: ResultType;
   request: LeanActiveRequest;
+  defaultCallbackPhone?: string;
   t: typeof T.th;
   onDone: () => void;
   onCareAction: (action: string) => Promise<void>;
 }) {
-  const [chosen, setChosen] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   if (result === "negative") {
