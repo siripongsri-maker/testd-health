@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, MessageSquare, Send, Bell, Phone, Stethoscope, Calendar, HelpCircle, Heart, Shield, Edit3, FileText, Layers, Eye, ChevronLeft, ChevronRight, Package, Truck } from "lucide-react";
+import { Loader2, MessageSquare, Send, Bell, Phone, Stethoscope, Calendar, HelpCircle, Heart, Shield, Edit3, FileText, Layers, Eye, ChevronLeft, ChevronRight, Package, Truck, CheckCircle2, XCircle, History as HistoryIcon } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
@@ -204,6 +204,13 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
   const [sending, setSending] = useState(false);
   const [previewIdx, setPreviewIdx] = useState(0);
   const [showAllPreviews, setShowAllPreviews] = useState(false);
+  const [sendResult, setSendResult] = useState<null | {
+    sent: number;
+    total: number;
+    sentAt: string;
+    results: Array<{ request_id?: string; phone?: string; ok: boolean; error?: string; name?: string }>;
+  }>(null);
+
 
   // When dialog opens, sync to the requested initial template (if provided)
   useEffect(() => {
@@ -246,11 +253,13 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
   const previewInfo = segmentInfo(previewMessage);
   const hasUnresolvedVars = /\{\{\s*\w+\s*\}\}/.test(previewMessage);
 
-  // Reset preview index when recipient list changes or dialog reopens
+  // Reset preview index + previous send result when recipient list changes or dialog reopens
   useEffect(() => {
     setPreviewIdx(0);
     setShowAllPreviews(false);
+    setSendResult(null);
   }, [open, recipients.length]);
+
 
   const insertVariable = (token: string) => {
     setMessage((prev) => (prev ? `${prev} ${token}` : token));
@@ -282,19 +291,44 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
       if (error) throw error;
       const sent = (data as any)?.sent ?? 0;
       const total = (data as any)?.total ?? validRecipients.length;
-      if (sent === total) {
+      const rawResults: any[] = Array.isArray((data as any)?.results) ? (data as any).results : [];
+      // Enrich results with recipient name for nicer display
+      const nameById = new Map(validRecipients.map((r) => [r.id, r.name]));
+      const phoneToName = new Map(validRecipients.map((r) => [r.phone.replace(/\D/g, ""), r.name]));
+      const results = rawResults.map((r) => ({
+        request_id: r.request_id,
+        phone: r.phone,
+        ok: !!r.ok,
+        error: r.error || r.message,
+        name:
+          (r.request_id && nameById.get(r.request_id)) ||
+          (r.phone && phoneToName.get(String(r.phone).replace(/\D/g, ""))) ||
+          undefined,
+      }));
+      setSendResult({ sent, total, sentAt: new Date().toISOString(), results });
+      if (sent === total && total > 0) {
         toast.success(t(`ส่ง SMS สำเร็จ ${sent}/${total}`, `Sent ${sent}/${total} SMS`));
+      } else if (sent > 0) {
+        toast.warning(t(`ส่งสำเร็จ ${sent}/${total} — ดูรายละเอียดด้านล่าง`, `Sent ${sent}/${total} — see details below`));
       } else {
-        toast.warning(t(`ส่งสำเร็จ ${sent}/${total} — ดูประวัติเพื่อตรวจสอบ`, `Sent ${sent}/${total} — check history`));
+        toast.error(t(`ส่งไม่สำเร็จทั้งหมด (0/${total})`, `Failed to send (0/${total})`));
       }
-      onOpenChange(false);
+      // Keep dialog open so the user can verify per-recipient outcome.
       onSent?.();
     } catch (e: any) {
-      toast.error(e?.message || t("ส่งไม่สำเร็จ", "Failed to send"));
+      const msg = e?.message || t("ส่งไม่สำเร็จ", "Failed to send");
+      setSendResult({
+        sent: 0,
+        total: validRecipients.length,
+        sentAt: new Date().toISOString(),
+        results: validRecipients.map((r) => ({ request_id: r.id, phone: r.phone, name: r.name, ok: false, error: msg })),
+      });
+      toast.error(msg);
     } finally {
       setSending(false);
     }
   };
+
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -558,17 +592,96 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
               </div>
             )}
           </div>
+
+          {sendResult && (
+            <div className="mt-2 rounded-lg border p-3 space-y-2 bg-muted/30">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <div className="flex items-center gap-2">
+                  {sendResult.sent === sendResult.total && sendResult.total > 0 ? (
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                  ) : sendResult.sent > 0 ? (
+                    <CheckCircle2 className="h-5 w-5 text-amber-600" />
+                  ) : (
+                    <XCircle className="h-5 w-5 text-destructive" />
+                  )}
+                  <div className="text-sm font-medium">
+                    {t(
+                      `ผลการส่ง: สำเร็จ ${sendResult.sent}/${sendResult.total}`,
+                      `Result: ${sendResult.sent}/${sendResult.total} delivered to gateway`,
+                    )}
+                  </div>
+                </div>
+                <div className="text-[11px] text-muted-foreground">
+                  {new Date(sendResult.sentAt).toLocaleString("th-TH", { timeZone: "Asia/Bangkok" })}
+                </div>
+              </div>
+              <div className="max-h-40 overflow-y-auto rounded border bg-background divide-y">
+                {sendResult.results.length === 0 ? (
+                  <div className="p-2 text-xs text-muted-foreground">
+                    {t("ไม่มีรายละเอียดรายเบอร์จากเซิร์ฟเวอร์", "No per-recipient detail returned")}
+                  </div>
+                ) : (
+                  sendResult.results.map((r, i) => (
+                    <div key={r.request_id || `${r.phone}-${i}`} className="flex items-start gap-2 p-2 text-xs">
+                      {r.ok ? (
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 mt-0.5 shrink-0" />
+                      ) : (
+                        <XCircle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {r.name && <span className="font-medium truncate">{r.name}</span>}
+                          {r.phone && <span className="text-muted-foreground">· {r.phone}</span>}
+                          <Badge variant={r.ok ? "secondary" : "destructive"} className="text-[10px]">
+                            {r.ok ? t("สำเร็จ", "sent") : t("ไม่สำเร็จ", "failed")}
+                          </Badge>
+                        </div>
+                        {!r.ok && r.error && (
+                          <div className="text-destructive mt-0.5 break-words">{r.error}</div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+              <div className="text-[11px] text-muted-foreground flex items-center gap-1">
+                <HistoryIcon className="h-3 w-3" />
+                {t(
+                  "บันทึกผลถูกเก็บแล้ว — เปิด “ประวัติ SMS / CSV” เพื่อดูย้อนหลังและดาวน์โหลด",
+                  "Saved to history — open “SMS history / CSV” to review or export later.",
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         <DialogFooter className="px-6 pb-6 pt-2 border-t bg-background">
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={sending}>
-            {t("ยกเลิก", "Cancel")}
-          </Button>
-          <Button onClick={send} disabled={sending || validRecipients.length === 0}>
-            {sending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
-            {t(`ส่ง ${validRecipients.length} ราย`, `Send ${validRecipients.length}`)}
-          </Button>
+          {sendResult ? (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => setSendResult(null)}
+                disabled={sending}
+              >
+                {t("ส่งใหม่ / แก้ข้อความ", "Send again / edit")}
+              </Button>
+              <Button onClick={() => onOpenChange(false)} disabled={sending}>
+                {t("ปิด", "Close")}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" onClick={() => onOpenChange(false)} disabled={sending}>
+                {t("ยกเลิก", "Cancel")}
+              </Button>
+              <Button onClick={send} disabled={sending || validRecipients.length === 0}>
+                {sending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
+                {t(`ส่ง ${validRecipients.length} ราย`, `Send ${validRecipients.length}`)}
+              </Button>
+            </>
+          )}
         </DialogFooter>
+
 
       </DialogContent>
     </Dialog>
