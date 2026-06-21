@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Phone, MessageSquare, RefreshCw, CheckCircle2, Search, History, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import SelftestSmsDialog, { type SmsRecipient } from "./SelftestSmsDialog";
 
 interface Row {
   id: string;
@@ -56,6 +58,29 @@ export default function AdminSelftestFollowupContent() {
   const [loadingHistory, setLoadingHistory] = useState<Record<string, boolean>>({});
   const [historyFieldFilter, setHistoryFieldFilter] = useState<Record<string, string>>({});
   const [historySortAsc, setHistorySortAsc] = useState<Record<string, boolean>>({});
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [smsOpen, setSmsOpen] = useState(false);
+  const [smsRecipients, setSmsRecipients] = useState<SmsRecipient[]>([]);
+
+  const toRecipient = (r: Row): SmsRecipient => ({
+    id: r.id,
+    name: r.pii?.full_name || r.full_name || t("ไม่ระบุชื่อ", "No name"),
+    phone: r.pii?.phone || r.phone || "",
+  });
+
+  const openSmsFor = (rows: Row[]) => {
+    if (rows.length === 0) return;
+    setSmsRecipients(rows.map(toRecipient));
+    setSmsOpen(true);
+  };
+
+  const toggleSelected = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
 
   const loadHistory = async (id: string) => {
     setLoadingHistory((p) => ({ ...p, [id]: true }));
@@ -173,6 +198,37 @@ export default function AdminSelftestFollowupContent() {
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
+          {!loading && filtered.length > 0 && (
+            <div className="flex flex-wrap items-center justify-between gap-2 p-2 bg-muted/40 rounded">
+              <div className="flex items-center gap-2 text-xs">
+                <Checkbox
+                  checked={filtered.length > 0 && filtered.every((r) => selected.has(r.id))}
+                  onCheckedChange={(v) => {
+                    setSelected((prev) => {
+                      const next = new Set(prev);
+                      if (v) filtered.forEach((r) => next.add(r.id));
+                      else filtered.forEach((r) => next.delete(r.id));
+                      return next;
+                    });
+                  }}
+                />
+                <span>{t(`เลือกแล้ว ${selected.size} รายการ`, `${selected.size} selected`)}</span>
+                {selected.size > 0 && (
+                  <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setSelected(new Set())}>
+                    {t("ล้าง", "Clear")}
+                  </Button>
+                )}
+              </div>
+              <Button
+                size="sm"
+                onClick={() => openSmsFor(filtered.filter((r) => selected.has(r.id)))}
+                disabled={selected.size === 0}
+              >
+                <MessageSquare className="h-4 w-4 mr-1" />
+                {t(`ส่ง SMS (${selected.size})`, `Send SMS (${selected.size})`)}
+              </Button>
+            </div>
+          )}
           {loading ? (
             <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary"/></div>
           ) : filtered.length === 0 ? (
@@ -188,14 +244,22 @@ export default function AdminSelftestFollowupContent() {
               <Card key={r.id} className="border-l-4" style={{ borderLeftColor: isReactive ? "hsl(var(--destructive))" : "hsl(var(--primary))" }}>
                 <CardContent className="p-4 space-y-3">
                   <div className="flex flex-wrap gap-3 items-start justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold text-lg">{name}</span>
-                        <Badge variant={isReactive ? "destructive" : "outline"}>{result}</Badge>
-                        {r.assigned_branch && <Badge variant="outline" className="text-xs">{r.assigned_branch}</Badge>}
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {t("ส่งผล","Submitted")}: {new Date(date).toLocaleString("th-TH",{timeZone:"Asia/Bangkok"})}
+                    <div className="flex gap-3">
+                      <Checkbox
+                        checked={selected.has(r.id)}
+                        onCheckedChange={() => toggleSelected(r.id)}
+                        aria-label={t("เลือกเพื่อส่ง SMS", "Select to send SMS")}
+                        className="mt-1.5"
+                      />
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-semibold text-lg">{name}</span>
+                          <Badge variant={isReactive ? "destructive" : "outline"}>{result}</Badge>
+                          {r.assigned_branch && <Badge variant="outline" className="text-xs">{r.assigned_branch}</Badge>}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {t("ส่งผล","Submitted")}: {new Date(date).toLocaleString("th-TH",{timeZone:"Asia/Bangkok"})}
+                        </div>
                       </div>
                     </div>
                     <div className="flex gap-2">
@@ -204,9 +268,14 @@ export default function AdminSelftestFollowupContent() {
                           <a href={`tel:${phone}`}><Phone className="h-4 w-4 mr-1"/>{phone}</a>
                         </Button>
                       )}
-                      <Button size="sm" variant="outline" disabled title={t("เร็ว ๆ นี้","Coming soon")}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => openSmsFor([r])}
+                        disabled={!phone}
+                        title={!phone ? t("ไม่มีเบอร์", "No phone") : undefined}
+                      >
                         <MessageSquare className="h-4 w-4 mr-1"/>SMS
-                        <Badge variant="secondary" className="ml-2 text-[10px]">{t("เร็วๆนี้","Soon")}</Badge>
                       </Button>
                     </div>
                   </div>
@@ -334,6 +403,13 @@ export default function AdminSelftestFollowupContent() {
           })}
         </CardContent>
       </Card>
+
+      <SelftestSmsDialog
+        open={smsOpen}
+        onOpenChange={setSmsOpen}
+        recipients={smsRecipients}
+        onSent={() => setSelected(new Set())}
+      />
     </div>
   );
 }
