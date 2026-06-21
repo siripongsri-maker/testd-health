@@ -49,19 +49,8 @@ async function sha256Hex(input: string): Promise<string> {
   return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-async function createSelftestFollowupLink(admin: any, requestId: string): Promise<string> {
-  const token = makeMagicToken();
-  const tokenHash = await sha256Hex(token);
-  const expiresAt = new Date(Date.now() + 30 * 86400000).toISOString();
-  const { error } = await admin.from("selftest_magic_tokens").insert({
-    request_id: requestId,
-    token_hash: tokenHash,
-    purpose: "followup",
-    expires_at: expiresAt,
-  });
-  if (error) throw new Error(`followup_token_insert_failed: ${error.message}`);
-  return `${APP_BASE_URL}/selftest/followup/${token}`;
-}
+// Public landing page for HIV self-test follow-up — no token, no /r/ redirect.
+const SELFTEST_PUBLIC_URL = `${APP_BASE_URL}/th/hiv-selftest`;
 
 function shouldReplaceWithSelftestFollowup(url: string): boolean {
   try {
