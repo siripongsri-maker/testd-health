@@ -22,11 +22,15 @@ function redirect(to: string): Response {
   });
 }
 
-function normalizeLegacyUrl(originalUrl: string): string {
+function normalizeLegacyUrl(originalUrl: string, requestId?: string | null): string {
   try {
     const target = new URL(originalUrl, FALLBACK_URL);
     const normalizedPath = target.pathname.replace(/\/+$/, "") || "/";
     const pathWithoutLocale = normalizedPath.replace(/^\/(th|en)(?=\/)/, "");
+
+    if (pathWithoutLocale === "/admin" || pathWithoutLocale.startsWith("/admin/") || pathWithoutLocale === "/dashboard" || pathWithoutLocale.startsWith("/dashboard/")) {
+      return requestId ? `${target.origin}/booking?service=hiv-testing&followup=selftest` : FALLBACK_URL;
+    }
 
     if (["/selftest", "/submit-result", "/submit-hiv-result", "/submit"].includes(pathWithoutLocale)) {
       return `${target.origin}/hiv-selftest?action=submit`;
@@ -71,7 +75,7 @@ Deno.serve(async (req) => {
 
     const { data: row } = await admin
       .from("sms_send_log")
-      .select("id, original_url, click_count, first_clicked_at")
+      .select("id, request_id, original_url, click_count, first_clicked_at")
       .eq("tracking_token", token)
       .maybeSingle();
 
@@ -97,7 +101,7 @@ Deno.serve(async (req) => {
       })
       .eq("id", row.id);
 
-    return redirect(normalizeLegacyUrl(row.original_url));
+    return redirect(normalizeLegacyUrl(row.original_url, row.request_id));
   } catch (e) {
     console.error("[sms-redirect] error", e);
     return redirect(FALLBACK_URL);
