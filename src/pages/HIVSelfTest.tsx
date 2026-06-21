@@ -1712,6 +1712,30 @@ export default function HIVSelfTest() {
                   </Card>
                 )}
 
+                {/* Province — required so result can be plotted on the geo dashboard. */}
+                {!user && (
+                  <div className="space-y-1.5 rounded-lg bg-muted/40 border border-border/60 p-3">
+                    <Label htmlFor="hivst-guest-province" className="text-xs font-medium">
+                      {language === 'th' ? 'จังหวัด' : 'Province'} *
+                    </Label>
+                    <Select value={guestProvince} onValueChange={setGuestProvince}>
+                      <SelectTrigger id="hivst-guest-province">
+                        <SelectValue placeholder={language === 'th' ? 'เลือกจังหวัด' : 'Select province'} />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60">
+                        {getProvinces().map((p) => (
+                          <SelectItem key={p} value={p}>{p}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-[11px] text-muted-foreground">
+                      {language === 'th'
+                        ? 'ใช้เพื่อสถิติเชิงพื้นที่ ไม่เปิดเผยตัวตน'
+                        : 'Used for area-level analytics, never personally identified.'}
+                    </p>
+                  </div>
+                )}
+
                 {/* PDPA consent — required before submitting Thai national ID with test result. */}
                 <label
                   htmlFor="hivst-pdpa-consent"
