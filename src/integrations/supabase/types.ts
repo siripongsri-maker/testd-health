@@ -1291,6 +1291,63 @@ export type Database = {
           },
         ]
       }
+      cache_reset_events: {
+        Row: {
+          anonymous_id: string | null
+          attempt: number | null
+          created_at: string
+          duration_ms: number | null
+          error: string | null
+          from_version: string | null
+          hostname: string | null
+          id: string
+          metadata: Json | null
+          path: string | null
+          stage: string
+          success: boolean | null
+          to_version: string | null
+          trigger: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          anonymous_id?: string | null
+          attempt?: number | null
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          from_version?: string | null
+          hostname?: string | null
+          id?: string
+          metadata?: Json | null
+          path?: string | null
+          stage: string
+          success?: boolean | null
+          to_version?: string | null
+          trigger: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          anonymous_id?: string | null
+          attempt?: number | null
+          created_at?: string
+          duration_ms?: number | null
+          error?: string | null
+          from_version?: string | null
+          hostname?: string | null
+          id?: string
+          metadata?: Json | null
+          path?: string | null
+          stage?: string
+          success?: boolean | null
+          to_version?: string | null
+          trigger?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       case_notes: {
         Row: {
           anonymous_token: string | null
