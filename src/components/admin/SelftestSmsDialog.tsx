@@ -157,6 +157,8 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
   const [category, setCategory] = useState<string>("all");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [previewIdx, setPreviewIdx] = useState(0);
+  const [showAllPreviews, setShowAllPreviews] = useState(false);
 
   useEffect(() => {
     if (!open) return;
