@@ -134,6 +134,40 @@ export default function AdminSelftestResultsContent() {
     return c;
   }, [rows]);
 
+  const toRecipient = (r: Row): SmsRecipient => ({
+    id: r.id,
+    name: r.pii?.full_name || r.full_name || "—",
+    phone: (r.pii?.phone || r.phone || "").trim(),
+  });
+
+  const negativeFiltered = useMemo(
+    () =>
+      filtered.filter((r) => (r.self_reported_result || r.test_result) === "negative"),
+    [filtered],
+  );
+
+  const openSmsForRow = (r: Row, templateKey = "negative_prep_invite") => {
+    const rec = toRecipient(r);
+    if (!rec.phone) {
+      toast.error(t("ไม่มีเบอร์โทรของผู้รับ", "Recipient has no phone number"));
+      return;
+    }
+    setSmsRecipients([rec]);
+    setSmsTemplateKey(templateKey);
+    setSmsOpen(true);
+  };
+
+  const openBulkSmsNegatives = (templateKey = "negative_prep_invite") => {
+    const recipients = negativeFiltered.map(toRecipient).filter((r) => r.phone);
+    if (recipients.length === 0) {
+      toast.error(t("ไม่พบผู้รับผล Negative ที่มีเบอร์โทร", "No Negative recipients with a phone number"));
+      return;
+    }
+    setSmsRecipients(recipients);
+    setSmsTemplateKey(templateKey);
+    setSmsOpen(true);
+  };
+
   const isDirty = (r: Row) => {
     const e = edits[r.id];
     if (!e) return false;
