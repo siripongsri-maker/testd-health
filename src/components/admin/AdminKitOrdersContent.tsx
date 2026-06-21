@@ -244,6 +244,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     id: o.id,
     name: (o.recipient_name || '').trim() || 'คุณ',
     phone: (o.recipient_phone || '').trim(),
+    code: o.order_code,
   });
 
   const openSmsForOrder = (o: KitOrder, templateKey?: string) => {

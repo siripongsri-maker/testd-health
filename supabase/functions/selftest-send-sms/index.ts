@@ -150,6 +150,7 @@ Deno.serve(async (req) => {
       ref_id: string;            // hiv_selftest_requests.id OR kit_orders.id
       rawPhone: string;
       recipientName: string;
+      code: string;              // public tracking code (kit_orders.order_code) for {{code}}
     };
     const targets: Target[] = [
       ...reqs.map((r: any): Target => ({
@@ -157,19 +158,21 @@ Deno.serve(async (req) => {
         ref_id: r.id,
         rawPhone: r.selftest_pii?.phone || r.phone || "",
         recipientName: (r.selftest_pii?.full_name || r.full_name || "").trim(),
+        code: "",
       })),
       ...kitRecipients.map((k): Target => ({
         kind: "kit_order",
         ref_id: k.id,
         rawPhone: k.phone || "",
         recipientName: (k.name || "").trim(),
+        code: ((k as any).code || "").toString().trim(),
       })),
     ];
 
     const results: Array<{ request_id?: string; kit_order_id?: string; ok: boolean; phone?: string; error?: string; sms_id?: string }> = [];
 
     for (const tgt of targets) {
-      const { kind, ref_id, rawPhone, recipientName } = tgt;
+      const { kind, ref_id, rawPhone, recipientName, code } = tgt;
       const normalized = normalizeThaiPhone(rawPhone);
       // Helper to build sms_send_log row with the right FK column based on kind.
       const baseLog: Record<string, any> = {
@@ -204,10 +207,11 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      // Substitute per-recipient variables ({{name}}, {{phone}}) in the template
+      // Substitute per-recipient variables ({{name}}, {{phone}}, {{code}}) in the template
       let personalized = message
         .replace(/\{\{\s*name\s*\}\}/gi, recipientName || "คุณ")
-        .replace(/\{\{\s*phone\s*\}\}/gi, normalized);
+        .replace(/\{\{\s*phone\s*\}\}/gi, normalized)
+        .replace(/\{\{\s*code\s*\}\}/gi, code || "");
 
       // Tracking link: rewrite FIRST http(s) URL in the personalized message
       // so we can log click-throughs ("backlink").
