@@ -235,6 +235,36 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const [batchEditTracking, setBatchEditTracking] = useState('');
   const [savingBatch, setSavingBatch] = useState(false);
 
+  // SMS sending state (kit orders)
+  const [smsOpen, setSmsOpen] = useState(false);
+  const [smsRecipients, setSmsRecipients] = useState<SmsRecipient[]>([]);
+  const [smsTemplateKey, setSmsTemplateKey] = useState<string | undefined>(undefined);
+
+  const orderToSmsRecipient = (o: KitOrder): SmsRecipient => ({
+    id: o.id,
+    name: (o.recipient_name || '').trim() || 'คุณ',
+    phone: (o.recipient_phone || '').trim(),
+  });
+
+  const openSmsForOrder = (o: KitOrder, templateKey?: string) => {
+    setSmsRecipients([orderToSmsRecipient(o)]);
+    setSmsTemplateKey(templateKey);
+    setSmsOpen(true);
+  };
+
+  const openBulkSmsForStatus = (statuses: OrderStatus[], templateKey: string) => {
+    const targets = orders
+      .filter((o) => statuses.includes(o.status) && (o.recipient_phone || '').replace(/\D/g, '').length >= 9)
+      .map(orderToSmsRecipient);
+    if (targets.length === 0) {
+      toast.info(language === 'th' ? 'ไม่พบผู้รับที่มีเบอร์โทร' : 'No recipients with phone numbers');
+      return;
+    }
+    setSmsRecipients(targets);
+    setSmsTemplateKey(templateKey);
+    setSmsOpen(true);
+  };
+
   useEffect(() => {
     fetchOrders();
     fetchHIVRequests();
