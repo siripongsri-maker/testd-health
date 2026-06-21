@@ -1,0 +1,74 @@
+// SMS link redirector with click tracking.
+// Public endpoint (no auth). Records each visit into sms_send_log
+// then 302-redirects to the original URL.
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+};
+
+const FALLBACK_URL = (Deno.env.get("APP_BASE_URL") || "https://testd.website").replace(/\/+$/, "");
+
+async function hashIp(ip: string, salt: string): Promise<string> {
+  const data = new TextEncoder().encode(`${salt}:${ip}`);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, "0")).join("").slice(0, 32);
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
+  try {
+    const url = new URL(req.url);
+    // Accept either /functions/v1/sms-redirect?t=TOKEN or trailing path /sms-redirect/TOKEN
+    let token = url.searchParams.get("t") || "";
+    if (!token) {
+      const parts = url.pathname.split("/").filter(Boolean);
+      token = parts[parts.length - 1] || "";
+    }
+    token = token.trim();
+
+    if (!token || token.length > 64) {
+      return Response.redirect(FALLBACK_URL, 302);
+    }
+
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+    const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const admin = createClient(SUPABASE_URL, SERVICE_ROLE);
+
+    const { data: row } = await admin
+      .from("sms_send_log")
+      .select("id, original_url, click_count, first_clicked_at")
+      .eq("tracking_token", token)
+      .maybeSingle();
+
+    if (!row || !row.original_url) {
+      return Response.redirect(FALLBACK_URL, 302);
+    }
+
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+      || req.headers.get("cf-connecting-ip")
+      || "";
+    const ua = (req.headers.get("user-agent") || "").slice(0, 256);
+    const ipHash = ip ? await hashIp(ip, SERVICE_ROLE.slice(0, 16)) : null;
+    const now = new Date().toISOString();
+
+    await admin
+      .from("sms_send_log")
+      .update({
+        click_count: (row.click_count || 0) + 1,
+        first_clicked_at: row.first_clicked_at || now,
+        last_clicked_at: now,
+        last_click_user_agent: ua || null,
+        last_click_ip_hash: ipHash,
+      })
+      .eq("id", row.id);
+
+    return Response.redirect(row.original_url, 302);
+  } catch (e) {
+    console.error("[sms-redirect] error", e);
+    return Response.redirect(FALLBACK_URL, 302);
+  }
+});

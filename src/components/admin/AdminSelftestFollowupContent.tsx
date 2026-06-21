@@ -11,6 +11,7 @@ import { Loader2, Phone, MessageSquare, RefreshCw, CheckCircle2, Search, History
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SelftestSmsDialog, { type SmsRecipient } from "./SelftestSmsDialog";
+import SmsHistoryDialog from "./SmsHistoryDialog";
 
 interface Row {
   id: string;
@@ -61,6 +62,7 @@ export default function AdminSelftestFollowupContent() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [smsOpen, setSmsOpen] = useState(false);
   const [smsRecipients, setSmsRecipients] = useState<SmsRecipient[]>([]);
+  const [smsHistoryOpen, setSmsHistoryOpen] = useState(false);
 
   const toRecipient = (r: Row): SmsRecipient => ({
     id: r.id,
@@ -191,6 +193,10 @@ export default function AdminSelftestFollowupContent() {
                   <SelectItem value="all">{t("ทั้งหมด","All")}</SelectItem>
                 </SelectContent>
               </Select>
+              <Button variant="outline" size="sm" onClick={() => setSmsHistoryOpen(true)} className="gap-1.5">
+                <History className="h-4 w-4" />
+                {t("ประวัติ SMS / CSV", "SMS history / CSV")}
+              </Button>
               <Button variant="outline" size="icon" onClick={load} disabled={loading}>
                 <RefreshCw className={`h-4 w-4 ${loading?"animate-spin":""}`} />
               </Button>
@@ -410,6 +416,7 @@ export default function AdminSelftestFollowupContent() {
         recipients={smsRecipients}
         onSent={() => setSelected(new Set())}
       />
+      <SmsHistoryDialog open={smsHistoryOpen} onOpenChange={setSmsHistoryOpen} />
     </div>
   );
 }

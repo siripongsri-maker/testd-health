@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, Search, Phone, Image as ImageIcon, RefreshCw, Save, Trash2, MessageSquare, Shield } from "lucide-react";
+import { Loader2, Search, Phone, Image as ImageIcon, RefreshCw, Save, Trash2, MessageSquare, Shield, History } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import { usePdpaAudit } from "@/hooks/usePdpaAudit";
 import SelftestSmsDialog, { SmsRecipient } from "./SelftestSmsDialog";
+import SmsHistoryDialog from "./SmsHistoryDialog";
 
 interface Row {
   id: string;
@@ -67,6 +68,7 @@ export default function AdminSelftestResultsContent() {
   const [smsOpen, setSmsOpen] = useState(false);
   const [smsRecipients, setSmsRecipients] = useState<SmsRecipient[]>([]);
   const [smsTemplateKey, setSmsTemplateKey] = useState<string>("negative_prep_invite");
+  const [smsHistoryOpen, setSmsHistoryOpen] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -286,6 +288,10 @@ export default function AdminSelftestResultsContent() {
                   <SelectItem value="invalid">Invalid</SelectItem>
                 </SelectContent>
               </Select>
+              <Button variant="outline" size="sm" onClick={() => setSmsHistoryOpen(true)} className="gap-1.5">
+                <History className="h-4 w-4" />
+                {t("ประวัติ SMS / CSV", "SMS history / CSV")}
+              </Button>
               <Button variant="outline" size="icon" onClick={load} disabled={loading}>
                 <RefreshCw className={`h-4 w-4 ${loading?"animate-spin":""}`} />
               </Button>
@@ -483,6 +489,7 @@ export default function AdminSelftestResultsContent() {
         initialTemplateKey={smsTemplateKey}
         onSent={() => load()}
       />
+      <SmsHistoryDialog open={smsHistoryOpen} onOpenChange={setSmsHistoryOpen} />
 
     </div>
   );

@@ -15,6 +15,20 @@ interface Body {
   request_ids: string[];
   message: string;
   sender?: string;
+  template_key?: string;
+  template_label?: string;
+  track_links?: boolean;
+}
+
+const APP_BASE_URL = (Deno.env.get("APP_BASE_URL") || "https://testd.website").replace(/\/+$/, "");
+
+function makeToken(len = 10): string {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+  const bytes = new Uint8Array(len);
+  crypto.getRandomValues(bytes);
+  let out = "";
+  for (let i = 0; i < len; i++) out += alphabet[bytes[i] % alphabet.length];
+  return out;
 }
 
 function normalizeThaiPhone(raw: string): string | null {
@@ -84,6 +98,9 @@ Deno.serve(async (req) => {
     const requestIds = Array.isArray(body.request_ids) ? body.request_ids.filter((x) => typeof x === "string") : [];
     const message = (body.message || "").trim();
     const sender = (body.sender || DEFAULT_SENDER).trim().slice(0, 11);
+    const templateKey = (body.template_key || "").trim().slice(0, 64) || null;
+    const templateLabel = (body.template_label || "").trim().slice(0, 128) || null;
+    const trackLinks = body.track_links !== false; // default ON
 
     if (requestIds.length === 0) {
       return new Response(JSON.stringify({ error: "no_recipients" }), {
@@ -126,13 +143,39 @@ Deno.serve(async (req) => {
           event_description: "invalid_phone",
           raw: { phone_raw: rawPhone, sender, message_preview: message.slice(0, 80) },
         });
+        await admin.from("sms_send_log").insert({
+          request_id: r.id,
+          recipient_name: recipientName || null,
+          phone: rawPhone || "",
+          template_key: templateKey,
+          template_label: templateLabel,
+          message,
+          sender,
+          status: "failed",
+          error_message: "invalid_phone",
+          sent_by: userData.user.id,
+        });
         continue;
       }
 
       // Substitute per-recipient variables ({{name}}, {{phone}}) in the template
-      const personalized = message
+      let personalized = message
         .replace(/\{\{\s*name\s*\}\}/gi, recipientName || "คุณ")
         .replace(/\{\{\s*phone\s*\}\}/gi, normalized);
+
+      // Tracking link: rewrite FIRST http(s) URL in the personalized message
+      // so we can log click-throughs ("backlink").
+      let trackingToken: string | null = null;
+      let originalUrl: string | null = null;
+      if (trackLinks) {
+        const urlMatch = personalized.match(/https?:\/\/[^\s]+/);
+        if (urlMatch) {
+          originalUrl = urlMatch[0];
+          trackingToken = makeToken(10);
+          const trackedUrl = `${APP_BASE_URL}/r/${trackingToken}`;
+          personalized = personalized.replace(originalUrl, trackedUrl);
+        }
+      }
 
       try {
         const resp = await fetch(SMSMKT_URL, {
@@ -150,18 +193,38 @@ Deno.serve(async (req) => {
         });
         const data = await resp.json().catch(() => ({}));
         const ok = resp.ok && (data?.status === "success" || data?.code === 200 || data?.success === true || resp.status === 200);
+        const smsProviderId = data?.message_id || data?.data?.message_id || null;
+        const errMsg = ok ? null : (data?.message || `http_${resp.status}`);
+
         results.push({
           request_id: r.id,
           ok,
           phone: normalized,
-          sms_id: data?.message_id || data?.data?.message_id,
-          error: ok ? undefined : (data?.message || `http_${resp.status}`),
+          sms_id: smsProviderId || undefined,
+          error: errMsg || undefined,
         });
         await admin.from("selftest_tracking_events").insert({
           request_id: r.id,
           event_code: ok ? "sms_sent" : "sms_failed",
           event_description: ok ? "SMS sent via SMSMKT" : `SMS failed: ${data?.message || resp.status}`,
-          raw: { sender, phone: normalized, response: data, http_status: resp.status, message_preview: personalized.slice(0, 80), sent_by: userData.user.id },
+          raw: { sender, phone: normalized, response: data, http_status: resp.status, message_preview: personalized.slice(0, 80), sent_by: userData.user.id, tracking_token: trackingToken },
+        });
+        await admin.from("sms_send_log").insert({
+          request_id: r.id,
+          recipient_name: recipientName || null,
+          phone: normalized,
+          template_key: templateKey,
+          template_label: templateLabel,
+          message: personalized,
+          sender,
+          status: ok ? "sent" : "failed",
+          sms_provider_id: smsProviderId,
+          http_status: resp.status,
+          error_message: errMsg,
+          provider_response: data ?? null,
+          sent_by: userData.user.id,
+          tracking_token: trackingToken,
+          original_url: originalUrl,
         });
       } catch (e: any) {
         results.push({ request_id: r.id, ok: false, error: e?.message || "network_error" });
@@ -169,7 +232,21 @@ Deno.serve(async (req) => {
           request_id: r.id,
           event_code: "sms_failed",
           event_description: `network_error: ${e?.message || ""}`,
-          raw: { sender, phone: normalized, sent_by: userData.user.id },
+          raw: { sender, phone: normalized, sent_by: userData.user.id, tracking_token: trackingToken },
+        });
+        await admin.from("sms_send_log").insert({
+          request_id: r.id,
+          recipient_name: recipientName || null,
+          phone: normalized,
+          template_key: templateKey,
+          template_label: templateLabel,
+          message: personalized,
+          sender,
+          status: "failed",
+          error_message: e?.message || "network_error",
+          sent_by: userData.user.id,
+          tracking_token: trackingToken,
+          original_url: originalUrl,
         });
       }
     }

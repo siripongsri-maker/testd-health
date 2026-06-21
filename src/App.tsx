@@ -20,6 +20,7 @@ import { useMedicationReminder } from "@/hooks/useMedicationReminder";
 
 // Lazy load all pages for code-splitting
 const Home = lazy(() => import("./pages/Home"));
+const SmsRedirect = lazy(() => import("./pages/SmsRedirect"));
 const Landing = lazy(() => import("./pages/Landing"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
@@ -111,6 +112,7 @@ function AppShell() {
           <AppLayout>
             <Routes location={strippedLocation}>
               <Route path="/" element={<Home />} />
+              <Route path="/r/:token" element={<SmsRedirect />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/consent" element={<Consent />} />

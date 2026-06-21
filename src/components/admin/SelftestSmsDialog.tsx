@@ -245,6 +245,9 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
         body: {
           request_ids: validRecipients.map((r) => r.id),
           message: message.trim(),
+          template_key: selectedTpl.key,
+          template_label: selectedTpl.labelEn,
+          track_links: true,
         },
       });
       if (error) throw error;
