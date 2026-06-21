@@ -171,25 +171,35 @@ Deno.serve(async (req) => {
     for (const tgt of targets) {
       const { kind, ref_id, rawPhone, recipientName } = tgt;
       const normalized = normalizeThaiPhone(rawPhone);
+      // Helper to build sms_send_log row with the right FK column based on kind.
+      const baseLog: Record<string, any> = {
+        request_id: kind === "selftest" ? ref_id : null,
+        kit_order_id: kind === "kit_order" ? ref_id : null,
+        recipient_name: recipientName || null,
+        template_key: templateKey,
+        template_label: templateLabel,
+        sender,
+        sent_by: userData.user.id,
+      };
+      // selftest_tracking_events is selftest-scoped only; skip for kit-order sends.
+      const logSelftestEvent = async (row: Record<string, any>) => {
+        if (kind !== "selftest") return;
+        await admin.from("selftest_tracking_events").insert({ request_id: ref_id, ...row });
+      };
+
       if (!normalized) {
-        results.push({ request_id: r.id, ok: false, error: "invalid_phone" });
-        await admin.from("selftest_tracking_events").insert({
-          request_id: r.id,
+        results.push({ [kind === "selftest" ? "request_id" : "kit_order_id"]: ref_id, ok: false, error: "invalid_phone" } as any);
+        await logSelftestEvent({
           event_code: "sms_failed",
           event_description: "invalid_phone",
           raw: { phone_raw: rawPhone, sender, message_preview: message.slice(0, 80) },
         });
         await admin.from("sms_send_log").insert({
-          request_id: r.id,
-          recipient_name: recipientName || null,
+          ...baseLog,
           phone: rawPhone || "",
-          template_key: templateKey,
-          template_label: templateLabel,
           message,
-          sender,
           status: "failed",
           error_message: "invalid_phone",
-          sent_by: userData.user.id,
         });
         continue;
       }
@@ -233,54 +243,42 @@ Deno.serve(async (req) => {
         const errMsg = ok ? null : (data?.message || `http_${resp.status}`);
 
         results.push({
-          request_id: r.id,
+          [kind === "selftest" ? "request_id" : "kit_order_id"]: ref_id,
           ok,
           phone: normalized,
           sms_id: smsProviderId || undefined,
           error: errMsg || undefined,
-        });
-        await admin.from("selftest_tracking_events").insert({
-          request_id: r.id,
+        } as any);
+        await logSelftestEvent({
           event_code: ok ? "sms_sent" : "sms_failed",
           event_description: ok ? "SMS sent via SMSMKT" : `SMS failed: ${data?.message || resp.status}`,
           raw: { sender, phone: normalized, response: data, http_status: resp.status, message_preview: personalized.slice(0, 80), sent_by: userData.user.id, tracking_token: trackingToken },
         });
         await admin.from("sms_send_log").insert({
-          request_id: r.id,
-          recipient_name: recipientName || null,
+          ...baseLog,
           phone: normalized,
-          template_key: templateKey,
-          template_label: templateLabel,
           message: personalized,
-          sender,
           status: ok ? "sent" : "failed",
           sms_provider_id: smsProviderId,
           http_status: resp.status,
           error_message: errMsg,
           provider_response: data ?? null,
-          sent_by: userData.user.id,
           tracking_token: trackingToken,
           original_url: originalUrl,
         });
       } catch (e: any) {
-        results.push({ request_id: r.id, ok: false, error: e?.message || "network_error" });
-        await admin.from("selftest_tracking_events").insert({
-          request_id: r.id,
+        results.push({ [kind === "selftest" ? "request_id" : "kit_order_id"]: ref_id, ok: false, error: e?.message || "network_error" } as any);
+        await logSelftestEvent({
           event_code: "sms_failed",
           event_description: `network_error: ${e?.message || ""}`,
           raw: { sender, phone: normalized, sent_by: userData.user.id, tracking_token: trackingToken },
         });
         await admin.from("sms_send_log").insert({
-          request_id: r.id,
-          recipient_name: recipientName || null,
+          ...baseLog,
           phone: normalized,
-          template_key: templateKey,
-          template_label: templateLabel,
           message: personalized,
-          sender,
           status: "failed",
           error_message: e?.message || "network_error",
-          sent_by: userData.user.id,
           tracking_token: trackingToken,
           original_url: originalUrl,
         });
