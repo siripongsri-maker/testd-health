@@ -942,6 +942,7 @@ export default function HIVSelfTest() {
       setAnalysisDetails(null);
       setWantsCallback(false);
       setCallbackPhone("");
+      setPdpaConsent(false);
     } catch (error) {
       console.error('Error uploading:', error);
       toast.error(language === 'th' ? 'อัปโหลดไม่สำเร็จ' : 'Upload failed');
