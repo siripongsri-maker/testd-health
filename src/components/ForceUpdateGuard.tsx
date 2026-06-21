@@ -204,7 +204,7 @@ export function ForceUpdateGuard({ children }: { children: React.ReactNode }) {
     sessionStorage.setItem(SESSION_KEY, APP_VERSION);
 
     const reset = () => {
-      void nukeCache().then(() => {
+      void nukeCache("force_guard").then(() => {
         sessionStorage.setItem(SESSION_KEY, APP_VERSION);
         localStorage.setItem(RESET_KEY, CACHE_RESET_VERSION);
         dispatchAnalytics("background_cache_reset_completed");
