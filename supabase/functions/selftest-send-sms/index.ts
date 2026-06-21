@@ -98,6 +98,9 @@ Deno.serve(async (req) => {
     const requestIds = Array.isArray(body.request_ids) ? body.request_ids.filter((x) => typeof x === "string") : [];
     const message = (body.message || "").trim();
     const sender = (body.sender || DEFAULT_SENDER).trim().slice(0, 11);
+    const templateKey = (body.template_key || "").trim().slice(0, 64) || null;
+    const templateLabel = (body.template_label || "").trim().slice(0, 128) || null;
+    const trackLinks = body.track_links !== false; // default ON
 
     if (requestIds.length === 0) {
       return new Response(JSON.stringify({ error: "no_recipients" }), {
