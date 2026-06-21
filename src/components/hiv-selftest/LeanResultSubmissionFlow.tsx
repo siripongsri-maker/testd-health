@@ -438,6 +438,28 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
           </div>
         )}
 
+        {/* Province — required so the result can be plotted on the geo dashboard. */}
+        <div className="space-y-1.5 rounded-lg bg-muted/40 border border-border/60 p-3">
+          <Label htmlFor="lean-province" className="text-xs font-medium">
+            {language === "th" ? "จังหวัด" : "Province"} *
+          </Label>
+          <Select value={province} onValueChange={setProvince}>
+            <SelectTrigger id="lean-province">
+              <SelectValue placeholder={language === "th" ? "เลือกจังหวัด" : "Select province"} />
+            </SelectTrigger>
+            <SelectContent className="max-h-60">
+              {getProvinces().map((p) => (
+                <SelectItem key={p} value={p}>{p}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-[11px] text-muted-foreground">
+            {language === "th"
+              ? "ใช้เพื่อสถิติเชิงพื้นที่ ไม่เปิดเผยตัวตน"
+              : "Used for area-level analytics, never personally identified."}
+          </p>
+        </div>
+
         {/* PDPA consent — required before submitting Thai national ID. */}
         <label
           htmlFor="lean-pdpa-consent"
@@ -459,7 +481,7 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
         <Button
           size="lg"
           className="w-full"
-          disabled={!result || submitting || !pdpaConsent}
+          disabled={!result || submitting || !pdpaConsent || !province}
           onClick={async () => {
             if (!result) return;
             if (!pdpaConsent) {
@@ -481,6 +503,14 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
               });
               return;
             }
+            const trimmedProvince = province.trim();
+            if (!trimmedProvince) {
+              toast({
+                title: language === "th" ? "กรุณาเลือกจังหวัด" : "Please select a province",
+                variant: "destructive",
+              });
+              return;
+            }
             if (guestMode) {
               const trimmedPhone = guestPhone.replace(/\s+/g, "");
               if (trimmedPhone.length < 8) {
@@ -497,10 +527,11 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
                   thaiId: trimmedThaiId,
                   phone: guestPhone.replace(/\s+/g, ""),
                   lineId: guestLineId.trim() || null,
+                  province: trimmedProvince,
                 });
                 setGuestRequestId(submittedId);
               } else {
-                await submitResult(request, result, photo, trimmedThaiId);
+                await submitResult(request, result, photo, trimmedThaiId, trimmedProvince);
               }
               trackEvent("lean_result_submitted", {
                 request_id: submittedId,
