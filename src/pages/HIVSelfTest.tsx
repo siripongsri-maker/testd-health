@@ -1643,16 +1643,23 @@ export default function HIVSelfTest() {
                       </p>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="guestName" className="text-xs font-medium">
-                        {language === 'th' ? 'ชื่อ หรือชื่อเล่น' : 'Name or nickname'} *
+                      <Label htmlFor="guestThaiId" className="text-xs font-medium">
+                        {language === 'th' ? 'เลขบัตรประชาชน 13 หลัก' : 'Thai national ID (13 digits)'} *
                       </Label>
                       <Input
-                        id="guestName"
-                        value={guestName}
-                        onChange={(e) => setGuestName(e.target.value)}
-                        placeholder={language === 'th' ? 'เช่น นิว' : 'e.g. Alex'}
-                        maxLength={100}
+                        id="guestThaiId"
+                        inputMode="numeric"
+                        autoComplete="off"
+                        value={guestThaiId}
+                        onChange={(e) => setGuestThaiId(normalizeThaiId(e.target.value).slice(0, 13))}
+                        placeholder="X-XXXX-XXXXX-XX-X"
+                        maxLength={13}
                       />
+                      <p className="text-[11px] text-muted-foreground mt-1">
+                        🔒 {language === 'th'
+                          ? 'ใช้เชื่อมผลตรวจกับเวชระเบียนของคุณอย่างปลอดภัย'
+                          : 'Used to securely link your result with your medical record.'}
+                      </p>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="guestPhone" className="text-xs font-medium">
