@@ -159,6 +159,7 @@ export default function HIVSelfTest() {
   const [guestThaiId, setGuestThaiId] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [guestLineId, setGuestLineId] = useState("");
+  const [guestProvince, setGuestProvince] = useState("");
   // PDPA consent — required before submitting Thai national ID with test result.
   const [pdpaConsent, setPdpaConsent] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<'positive' | 'negative' | 'invalid' | 'inconclusive' | null>(null);
