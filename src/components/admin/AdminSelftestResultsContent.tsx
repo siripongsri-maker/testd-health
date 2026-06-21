@@ -489,6 +489,7 @@ export default function AdminSelftestResultsContent() {
         initialTemplateKey={smsTemplateKey}
         onSent={() => load()}
       />
+      <SmsHistoryDialog open={smsHistoryOpen} onOpenChange={setSmsHistoryOpen} />
 
     </div>
   );
