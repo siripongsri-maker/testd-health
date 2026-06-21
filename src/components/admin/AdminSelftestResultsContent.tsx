@@ -68,6 +68,7 @@ export default function AdminSelftestResultsContent() {
   const [smsOpen, setSmsOpen] = useState(false);
   const [smsRecipients, setSmsRecipients] = useState<SmsRecipient[]>([]);
   const [smsTemplateKey, setSmsTemplateKey] = useState<string>("negative_prep_invite");
+  const [smsHistoryOpen, setSmsHistoryOpen] = useState(false);
 
   const load = async () => {
     setLoading(true);
