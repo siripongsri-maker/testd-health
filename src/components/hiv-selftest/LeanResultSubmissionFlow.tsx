@@ -174,7 +174,7 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Auto-prefill Thai national ID from the user's saved selftest_pii record
+  // Auto-prefill Thai national ID + province from the user's saved selftest_pii
   // so result-reporting links back to the same person who ordered the kit.
   useEffect(() => {
     if (guestMode || !request.user_id) return;
@@ -182,13 +182,18 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
     (async () => {
       const { data, error } = await supabase
         .from("selftest_pii")
-        .select("thai_id")
+        .select("thai_id, province")
         .eq("user_id", request.user_id!)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
-      if (cancelled || error || !data?.thai_id) return;
-      setThaiId((prev) => (prev ? prev : normalizeThaiId(data.thai_id).slice(0, 13)));
+      if (cancelled || error || !data) return;
+      if (data.thai_id) {
+        setThaiId((prev) => (prev ? prev : normalizeThaiId(data.thai_id).slice(0, 13)));
+      }
+      if (data.province) {
+        setProvince((prev) => (prev ? prev : data.province as string));
+      }
     })();
     return () => { cancelled = true; };
   }, [guestMode, request.user_id]);
