@@ -154,6 +154,8 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
   // Thai national ID — required for every submit-result flow so the record
   // can be linked back to the same person at the clinic.
   const [thaiId, setThaiId] = useState("");
+  // PDPA consent — explicit acknowledgement before submitting Thai national ID.
+  const [pdpaConsent, setPdpaConsent] = useState(false);
   // Guest-only contact fields (required by the submit_guest_selftest_result RPC)
   const [guestPhone, setGuestPhone] = useState("");
   const [guestLineId, setGuestLineId] = useState("");
