@@ -190,7 +190,7 @@ function segmentInfo(text: string) {
   return { len, segments, unicode };
 }
 
-export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSent, initialTemplateKey }: Props) {
+export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSent, initialTemplateKey, source = "selftest" }: Props) {
   const { language } = useLanguage();
   const t = (th: string, en: string) => (language === "th" ? th : en);
   const [tplKey, setTplKey] = useState<string>(initialTemplateKey || TEMPLATES[0].key);
