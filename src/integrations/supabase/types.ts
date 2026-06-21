@@ -10778,6 +10778,19 @@ export type Database = {
         Args: { p_request_id: string }
         Returns: Json
       }
+      get_selftest_geo_stats: {
+        Args: never
+        Returns: {
+          assigned_branch: string
+          distributed: number
+          invalid_count: number
+          non_reactive: number
+          province: string
+          reactive: number
+          results_returned: number
+          total: number
+        }[]
+      }
       get_selftest_statistics: {
         Args: never
         Returns: {

@@ -63,6 +63,7 @@ const AdminHarmReductionReportContent = lazy(() => import("@/components/admin/Ad
 const AdminMonthlyDrawContent = lazy(() => import("@/components/admin/AdminMonthlyDrawContent").then(m => ({ default: m.AdminMonthlyDrawContent })));
 const AdminSelftestResultsContent = lazy(() => import("@/components/admin/AdminSelftestResultsContent"));
 const AdminSelftestFollowupContent = lazy(() => import("@/components/admin/AdminSelftestFollowupContent"));
+const AdminSelftestMapContent = lazy(() => import("@/components/admin/AdminSelftestMapContent"));
 const AdminPreServiceSurveysContent = lazy(() => import("@/components/admin/AdminPreServiceSurveysContent"));
 
 // MEL modules
@@ -83,13 +84,13 @@ const TabLoader = () => (
 );
 
 // Tabs accessible by moderators (branch staff)
-const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "selftest-results", "selftest-followup", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk"]);
+const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "selftest-results", "selftest-followup", "selftest-map", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk"]);
 
 // Tabs accessible by M&E Analyst (read-only analytics/reporting)
 const ME_ANALYST_TABS = new Set([
   "dashboard",
   // Operations (read-only)
-  "kit-orders", "selftest-results", "selftest-followup", "bookings", "pair-sessions", "activity-logs",
+  "kit-orders", "selftest-results", "selftest-followup", "selftest-map", "bookings", "pair-sessions", "activity-logs",
   // Partner Network
   "partner-invites", "anonymous-responses",
   // SMS & Credits (read-only)
@@ -183,6 +184,7 @@ export default function Admin() {
           {renderTab("kit-orders", <AdminKitOrdersContent userBranch={userBranch} isModerator={(isModerator && !isAdmin) || isMeAnalyst} />)}
           {renderTab("selftest-results", <AdminSelftestResultsContent />)}
           {renderTab("selftest-followup", <AdminSelftestFollowupContent />)}
+          {renderTab("selftest-map", <AdminSelftestMapContent />)}
           {renderTab("bookings", <AdminBookingContent userBranch={userBranch} />)}
           {renderTab("today", <AdminTodayBoard userBranch={userBranch} />)}
           {renderTab("schedule", <AdminScheduleContent />)}
