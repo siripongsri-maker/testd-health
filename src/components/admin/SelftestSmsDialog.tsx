@@ -253,11 +253,13 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
   const previewInfo = segmentInfo(previewMessage);
   const hasUnresolvedVars = /\{\{\s*\w+\s*\}\}/.test(previewMessage);
 
-  // Reset preview index when recipient list changes or dialog reopens
+  // Reset preview index + previous send result when recipient list changes or dialog reopens
   useEffect(() => {
     setPreviewIdx(0);
     setShowAllPreviews(false);
+    setSendResult(null);
   }, [open, recipients.length]);
+
 
   const insertVariable = (token: string) => {
     setMessage((prev) => (prev ? `${prev} ${token}` : token));
