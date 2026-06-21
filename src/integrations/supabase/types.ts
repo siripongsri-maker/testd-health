@@ -10688,6 +10688,18 @@ export type Database = {
         Args: { p_subject?: string; p_user_id: string }
         Returns: string
       }
+      get_partner_invite_by_code: {
+        Args: { _code: string }
+        Returns: {
+          code: string
+          expires_at: string
+          id: string
+          invite_type: string
+          is_active: boolean
+          status: string
+          tone: string
+        }[]
+      }
       get_partner_invite_stats: {
         Args: never
         Returns: {
