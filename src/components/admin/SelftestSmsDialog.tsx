@@ -188,6 +188,22 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
   const selectedTpl = TEMPLATES.find((t) => t.key === tplKey) || TEMPLATES[0];
   const isCustom = selectedTpl.key === "custom";
 
+  const fallbackName = t("คุณ", "there");
+  const previewRecipient = validRecipients[Math.min(previewIdx, Math.max(validRecipients.length - 1, 0))] || null;
+  const previewMessage = renderMessage(message, previewRecipient, fallbackName);
+  const previewInfo = segmentInfo(previewMessage);
+  const hasUnresolvedVars = /\{\{\s*\w+\s*\}\}/.test(previewMessage);
+
+  // Reset preview index when recipient list changes or dialog reopens
+  useEffect(() => {
+    setPreviewIdx(0);
+    setShowAllPreviews(false);
+  }, [open, recipients.length]);
+
+  const insertVariable = (token: string) => {
+    setMessage((prev) => (prev ? `${prev} ${token}` : token));
+  };
+
   const send = async () => {
     if (validRecipients.length === 0) {
       toast.error(t("ไม่มีผู้รับที่มีเบอร์ถูกต้อง", "No valid phone numbers"));
