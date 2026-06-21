@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
 import { APP_VERSION } from "@/config/appVersion";
+import {
+  logCacheResetEvent,
+  markReloadPending,
+  type CacheResetTrigger,
+} from "@/lib/cacheResetLog";
 
 const VERSION_KEY = "testd_app_version";
 const RESET_KEY = "testd_forced_cache_reset";
