@@ -168,14 +168,17 @@ const TEMPLATES = [
 const TEMPLATE_VARIABLES = [
   { token: "{{name}}", labelTh: "ชื่อผู้รับ", labelEn: "Recipient name" },
   { token: "{{phone}}", labelTh: "เบอร์โทร", labelEn: "Phone number" },
+  { token: "{{code}}", labelTh: "รหัสติดตาม", labelEn: "Tracking code" },
 ];
 
-function renderMessage(template: string, recipient: { name?: string; phone?: string } | null, fallbackName: string) {
+function renderMessage(template: string, recipient: { name?: string; phone?: string; code?: string } | null, fallbackName: string) {
   const name = (recipient?.name || "").trim() || fallbackName;
   const phone = (recipient?.phone || "").trim();
+  const code = (recipient?.code || "").trim();
   return template
     .replace(/\{\{\s*name\s*\}\}/gi, name)
-    .replace(/\{\{\s*phone\s*\}\}/gi, phone);
+    .replace(/\{\{\s*phone\s*\}\}/gi, phone)
+    .replace(/\{\{\s*code\s*\}\}/gi, code);
 }
 
 // Thai SMS encoding: GSM-7 = 160 chars/segment; Unicode (Thai) = 70 chars/segment
