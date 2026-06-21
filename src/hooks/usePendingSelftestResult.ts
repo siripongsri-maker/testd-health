@@ -34,7 +34,9 @@ export interface PendingSelftestState {
 export function usePendingSelftestResult(): PendingSelftestState {
   const { user } = useAuth();
   const [dbCount, setDbCount] = useState(0);
+  const [dbDetails, setDbDetails] = useState<PendingSelftestDetails | null>(null);
   const [hasLocalTimer, setHasLocalTimer] = useState(false);
+  const [timerDetails, setTimerDetails] = useState<PendingSelftestDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [tick, setTick] = useState(0);
 
