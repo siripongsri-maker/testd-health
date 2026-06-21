@@ -84,7 +84,7 @@ const TabLoader = () => (
 );
 
 // Tabs accessible by moderators (branch staff)
-const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "selftest-results", "selftest-followup", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk"]);
+const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "selftest-results", "selftest-followup", "selftest-map", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk"]);
 
 // Tabs accessible by M&E Analyst (read-only analytics/reporting)
 const ME_ANALYST_TABS = new Set([
