@@ -53,12 +53,13 @@ async function createSelftestFollowupLink(admin: any, requestId: string): Promis
   const token = makeMagicToken();
   const tokenHash = await sha256Hex(token);
   const expiresAt = new Date(Date.now() + 30 * 86400000).toISOString();
-  await admin.from("selftest_magic_tokens").insert({
+  const { error } = await admin.from("selftest_magic_tokens").insert({
     request_id: requestId,
     token_hash: tokenHash,
     purpose: "followup",
     expires_at: expiresAt,
   });
+  if (error) throw new Error(`followup_token_insert_failed: ${error.message}`);
   return `${APP_BASE_URL}/selftest/followup/${token}`;
 }
 
