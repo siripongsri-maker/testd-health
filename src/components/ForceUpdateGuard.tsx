@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
 import { APP_VERSION } from "@/config/appVersion";
+import {
+  logCacheResetEvent,
+  markReloadPending,
+  type CacheResetTrigger,
+} from "@/lib/cacheResetLog";
 
 const VERSION_KEY = "testd_app_version";
 const RESET_KEY = "testd_forced_cache_reset";
@@ -60,10 +65,13 @@ function dispatchAnalytics(event: string) {
   } catch {}
 }
 
-async function nukeCache(): Promise<void> {
+async function nukeCache(trigger: CacheResetTrigger, attempt = 1): Promise<void> {
+  const startedAt = Date.now();
   dispatchAnalytics("cache_cleared");
+  logCacheResetEvent({ trigger, stage: "started", attempt });
 
   // 1. Unregister all service workers
+  let swCount = 0;
   if ("serviceWorker" in navigator) {
     try {
       const regs = await withTimeout(
@@ -71,17 +79,50 @@ async function nukeCache(): Promise<void> {
         1200,
         [] as ServiceWorkerRegistration[]
       );
+      swCount = regs.length;
       await withTimeout(Promise.allSettled(regs.map((r) => r.unregister())), 1200, []);
       dispatchAnalytics("service_worker_reset");
-    } catch {}
+      logCacheResetEvent({
+        trigger,
+        stage: "service_worker_reset",
+        attempt,
+        duration_ms: Date.now() - startedAt,
+        metadata: { sw_count: swCount },
+      });
+    } catch (err) {
+      logCacheResetEvent({
+        trigger,
+        stage: "failed",
+        attempt,
+        success: false,
+        error: `sw_unregister:${(err as Error)?.message ?? "unknown"}`,
+      });
+    }
   }
 
   // 2. Clear Cache Storage API
+  let cacheCount = 0;
   if ("caches" in window) {
     try {
       const keys = await withTimeout(caches.keys(), 1200, [] as string[]);
+      cacheCount = keys.length;
       await withTimeout(Promise.allSettled(keys.map((k) => caches.delete(k))), 1500, []);
-    } catch {}
+      logCacheResetEvent({
+        trigger,
+        stage: "caches_cleared",
+        attempt,
+        duration_ms: Date.now() - startedAt,
+        metadata: { cache_count: cacheCount },
+      });
+    } catch (err) {
+      logCacheResetEvent({
+        trigger,
+        stage: "failed",
+        attempt,
+        success: false,
+        error: `caches:${(err as Error)?.message ?? "unknown"}`,
+      });
+    }
   }
 
   // 3. Clear same-origin cookies best-effort. HttpOnly cookies cannot be cleared client-side.
@@ -108,6 +149,26 @@ async function nukeCache(): Promise<void> {
 
   // 6. Stamp new version
   localStorage.setItem(VERSION_KEY, APP_VERSION);
+
+  logCacheResetEvent({
+    trigger,
+    stage: "storage_cleared",
+    attempt,
+    duration_ms: Date.now() - startedAt,
+    metadata: {
+      removed_local_keys: keysToRemove.length,
+      sw_count: swCount,
+      cache_count: cacheCount,
+    },
+  });
+
+  logCacheResetEvent({
+    trigger,
+    stage: "completed",
+    attempt,
+    success: true,
+    duration_ms: Date.now() - startedAt,
+  });
 }
 
 function isRetryExhausted(): boolean {
@@ -143,7 +204,7 @@ export function ForceUpdateGuard({ children }: { children: React.ReactNode }) {
     sessionStorage.setItem(SESSION_KEY, APP_VERSION);
 
     const reset = () => {
-      void nukeCache().then(() => {
+      void nukeCache("force_guard").then(() => {
         sessionStorage.setItem(SESSION_KEY, APP_VERSION);
         localStorage.setItem(RESET_KEY, CACHE_RESET_VERSION);
         dispatchAnalytics("background_cache_reset_completed");
@@ -165,17 +226,31 @@ export function ForceUpdateGuard({ children }: { children: React.ReactNode }) {
     // Loop protection
     if (isRetryExhausted()) {
       dispatchAnalytics("refresh_failed");
+      logCacheResetEvent({
+        trigger: "stuck_retry",
+        stage: "gave_up",
+        success: false,
+        attempt: MAX_RETRIES,
+        error: "max_retries_exceeded",
+      });
       setState("stuck");
       return;
     }
 
     dispatchAnalytics("hard_refresh_triggered");
-    incrementRetry();
+    const attempt = incrementRetry();
 
-    nukeCache().then(() => {
+    nukeCache("force_guard", attempt).then(() => {
       // Mark session as checked before reload
       sessionStorage.setItem(SESSION_KEY, APP_VERSION);
       dispatchAnalytics("refresh_completed");
+      markReloadPending("force_guard", APP_VERSION, attempt);
+      logCacheResetEvent({
+        trigger: "force_guard",
+        stage: "reload_triggered",
+        attempt,
+        to_version: APP_VERSION,
+      });
       setTimeout(performHardReload, 800);
     });
   }, [state]);
@@ -239,6 +314,12 @@ export function ForceUpdateGuard({ children }: { children: React.ReactNode }) {
         <button
           onClick={() => {
             sessionStorage.removeItem(RETRY_KEY);
+            logCacheResetEvent({
+              trigger: "manual",
+              stage: "reload_triggered",
+              to_version: APP_VERSION,
+            });
+            markReloadPending("manual", APP_VERSION, 1);
             performHardReload();
           }}
           className="px-6 py-2.5 rounded-full bg-primary text-primary-foreground font-semibold text-sm"

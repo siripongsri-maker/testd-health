@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { APP_VERSION } from "@/config/appVersion";
+import { logCacheResetEvent, markReloadPending } from "@/lib/cacheResetLog";
 
 /**
  * DeploymentVersionCheck
@@ -36,6 +37,14 @@ async function fetchRemoteVersion(): Promise<string | null> {
 }
 
 async function nukeAndReload(targetVersion: string) {
+  const startedAt = Date.now();
+  logCacheResetEvent({
+    trigger: "version_check",
+    stage: "started",
+    to_version: targetVersion,
+    from_version: APP_VERSION,
+  });
+
   // Persist the version we are reacting to BEFORE reload — prevents loop on next mount.
   try {
     localStorage.setItem(REMOTE_VERSION_KEY, targetVersion);
@@ -57,13 +66,32 @@ async function nukeAndReload(targetVersion: string) {
       );
     });
 
+  let cacheCount = 0;
   if ("caches" in window) {
     try {
       const keys = await bounded(caches.keys(), 1000, [] as string[]);
+      cacheCount = keys.length;
       await bounded(Promise.allSettled(keys.map((k) => caches.delete(k))), 1200, []);
-    } catch {}
+      logCacheResetEvent({
+        trigger: "version_check",
+        stage: "caches_cleared",
+        to_version: targetVersion,
+        from_version: APP_VERSION,
+        duration_ms: Date.now() - startedAt,
+        metadata: { cache_count: cacheCount },
+      });
+    } catch (err) {
+      logCacheResetEvent({
+        trigger: "version_check",
+        stage: "failed",
+        to_version: targetVersion,
+        success: false,
+        error: `caches:${(err as Error)?.message ?? "unknown"}`,
+      });
+    }
   }
 
+  let swCount = 0;
   if ("serviceWorker" in navigator) {
     try {
       const regs = await bounded(
@@ -71,9 +99,44 @@ async function nukeAndReload(targetVersion: string) {
         1000,
         [] as ServiceWorkerRegistration[],
       );
+      swCount = regs.length;
       await bounded(Promise.allSettled(regs.map((r) => r.unregister())), 1200, []);
-    } catch {}
+      logCacheResetEvent({
+        trigger: "version_check",
+        stage: "service_worker_reset",
+        to_version: targetVersion,
+        from_version: APP_VERSION,
+        duration_ms: Date.now() - startedAt,
+        metadata: { sw_count: swCount },
+      });
+    } catch (err) {
+      logCacheResetEvent({
+        trigger: "version_check",
+        stage: "failed",
+        to_version: targetVersion,
+        success: false,
+        error: `sw:${(err as Error)?.message ?? "unknown"}`,
+      });
+    }
   }
+
+  logCacheResetEvent({
+    trigger: "version_check",
+    stage: "completed",
+    to_version: targetVersion,
+    from_version: APP_VERSION,
+    success: true,
+    duration_ms: Date.now() - startedAt,
+    metadata: { sw_count: swCount, cache_count: cacheCount },
+  });
+
+  markReloadPending("version_check", targetVersion, 1);
+  logCacheResetEvent({
+    trigger: "version_check",
+    stage: "reload_triggered",
+    to_version: targetVersion,
+    from_version: APP_VERSION,
+  });
 
   const url = new URL(window.location.href);
   url.searchParams.set("_v", targetVersion);
