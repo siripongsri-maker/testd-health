@@ -64,6 +64,9 @@ export default function AdminSelftestResultsContent() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Row | null>(null);
+  const [smsOpen, setSmsOpen] = useState(false);
+  const [smsRecipients, setSmsRecipients] = useState<SmsRecipient[]>([]);
+  const [smsTemplateKey, setSmsTemplateKey] = useState<string>("negative_prep_invite");
 
   const load = async () => {
     setLoading(true);
