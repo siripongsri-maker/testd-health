@@ -699,7 +699,7 @@ function OutcomeScreen({
   return (
     <ReactiveCallbackScreen
       requestId={_request.id}
-      defaultPhone={(_request as LeanActiveRequest & { __defaultPhone?: string }).__defaultPhone || ""}
+      defaultPhone={defaultCallbackPhone || ""}
       t={t}
       onDone={onDone}
       onCareAction={onCareAction}
