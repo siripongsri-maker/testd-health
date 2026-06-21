@@ -169,15 +169,22 @@ function segmentInfo(text: string) {
   return { len, segments, unicode };
 }
 
-export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSent }: Props) {
+export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSent, initialTemplateKey }: Props) {
   const { language } = useLanguage();
   const t = (th: string, en: string) => (language === "th" ? th : en);
-  const [tplKey, setTplKey] = useState<string>(TEMPLATES[0].key);
+  const [tplKey, setTplKey] = useState<string>(initialTemplateKey || TEMPLATES[0].key);
   const [category, setCategory] = useState<string>("all");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
   const [previewIdx, setPreviewIdx] = useState(0);
   const [showAllPreviews, setShowAllPreviews] = useState(false);
+
+  // When dialog opens, sync to the requested initial template (if provided)
+  useEffect(() => {
+    if (open && initialTemplateKey && TEMPLATES.some((x) => x.key === initialTemplateKey)) {
+      setTplKey(initialTemplateKey);
+    }
+  }, [open, initialTemplateKey]);
 
   useEffect(() => {
     if (!open) return;
