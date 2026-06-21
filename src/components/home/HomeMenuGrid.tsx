@@ -71,7 +71,11 @@ const items: MenuItem[] = [
 
 export function HomeMenuGrid() {
   const navigate = useNavigate();
+  // Subscribe to language + _cacheVersion so CLVM async translations (home.menu.*)
+  // re-render labels as soon as translate-ui resolves — no hard refresh needed.
   const t = useLanguage((s) => s.t);
+  useLanguage((s) => s.language);
+  useLanguage((s) => s._cacheVersion);
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-2.5">
