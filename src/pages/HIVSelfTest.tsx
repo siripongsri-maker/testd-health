@@ -790,10 +790,10 @@ export default function HIVSelfTest() {
 
     // Guest path: no login required, but we need basic contact info
     if (!user) {
-      const trimmedName = guestName.trim();
+      const trimmedThaiId = normalizeThaiId(guestThaiId);
       const trimmedPhone = guestPhone.replace(/\s+/g, '');
-      if (trimmedName.length < 2) {
-        toast.error(language === 'th' ? 'กรุณากรอกชื่อ' : 'Please enter your name');
+      if (!isValidThaiId(trimmedThaiId)) {
+        toast.error(language === 'th' ? 'เลขบัตรประชาชนไม่ถูกต้อง' : 'Invalid Thai national ID');
         return;
       }
       if (trimmedPhone.length < 8) {
@@ -818,7 +818,7 @@ export default function HIVSelfTest() {
         if (uploadError) throw uploadError;
 
         const { error: rpcError } = await supabase.rpc('submit_guest_selftest_result', {
-          p_full_name: trimmedName,
+          p_thai_id: trimmedThaiId,
           p_phone: trimmedPhone,
           p_line_id: guestLineId.trim() || null,
           p_self_result: mapped,
@@ -842,7 +842,7 @@ export default function HIVSelfTest() {
         setAnalysisDetails(null);
         setWantsCallback(false);
         setCallbackPhone("");
-        setGuestName("");
+        setGuestThaiId("");
         setGuestPhone("");
         setGuestLineId("");
       } catch (error) {
