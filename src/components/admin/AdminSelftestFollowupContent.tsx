@@ -11,6 +11,7 @@ import { Loader2, Phone, MessageSquare, RefreshCw, CheckCircle2, Search, History
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SelftestSmsDialog, { type SmsRecipient } from "./SelftestSmsDialog";
+import SmsHistoryDialog from "./SmsHistoryDialog";
 
 interface Row {
   id: string;
