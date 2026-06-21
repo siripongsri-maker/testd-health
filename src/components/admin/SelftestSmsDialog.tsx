@@ -592,17 +592,96 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
               </div>
             )}
           </div>
+
+          {sendResult && (
+            <div className="mt-2 rounded-lg border p-3 space-y-2 bg-muted/30">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <div className="flex items-center gap-2">
+                  {sendResult.sent === sendResult.total && sendResult.total > 0 ? (
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                  ) : sendResult.sent > 0 ? (
+                    <CheckCircle2 className="h-5 w-5 text-amber-600" />
+                  ) : (
+                    <XCircle className="h-5 w-5 text-destructive" />
+                  )}
+                  <div className="text-sm font-medium">
+                    {t(
+                      `ผลการส่ง: สำเร็จ ${sendResult.sent}/${sendResult.total}`,
+                      `Result: ${sendResult.sent}/${sendResult.total} delivered to gateway`,
+                    )}
+                  </div>
+                </div>
+                <div className="text-[11px] text-muted-foreground">
+                  {new Date(sendResult.sentAt).toLocaleString("th-TH", { timeZone: "Asia/Bangkok" })}
+                </div>
+              </div>
+              <div className="max-h-40 overflow-y-auto rounded border bg-background divide-y">
+                {sendResult.results.length === 0 ? (
+                  <div className="p-2 text-xs text-muted-foreground">
+                    {t("ไม่มีรายละเอียดรายเบอร์จากเซิร์ฟเวอร์", "No per-recipient detail returned")}
+                  </div>
+                ) : (
+                  sendResult.results.map((r, i) => (
+                    <div key={r.request_id || `${r.phone}-${i}`} className="flex items-start gap-2 p-2 text-xs">
+                      {r.ok ? (
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 mt-0.5 shrink-0" />
+                      ) : (
+                        <XCircle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {r.name && <span className="font-medium truncate">{r.name}</span>}
+                          {r.phone && <span className="text-muted-foreground">· {r.phone}</span>}
+                          <Badge variant={r.ok ? "secondary" : "destructive"} className="text-[10px]">
+                            {r.ok ? t("สำเร็จ", "sent") : t("ไม่สำเร็จ", "failed")}
+                          </Badge>
+                        </div>
+                        {!r.ok && r.error && (
+                          <div className="text-destructive mt-0.5 break-words">{r.error}</div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+              <div className="text-[11px] text-muted-foreground flex items-center gap-1">
+                <HistoryIcon className="h-3 w-3" />
+                {t(
+                  "บันทึกผลถูกเก็บแล้ว — เปิด “ประวัติ SMS / CSV” เพื่อดูย้อนหลังและดาวน์โหลด",
+                  "Saved to history — open “SMS history / CSV” to review or export later.",
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         <DialogFooter className="px-6 pb-6 pt-2 border-t bg-background">
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={sending}>
-            {t("ยกเลิก", "Cancel")}
-          </Button>
-          <Button onClick={send} disabled={sending || validRecipients.length === 0}>
-            {sending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
-            {t(`ส่ง ${validRecipients.length} ราย`, `Send ${validRecipients.length}`)}
-          </Button>
+          {sendResult ? (
+            <>
+              <Button
+                variant="outline"
+                onClick={() => setSendResult(null)}
+                disabled={sending}
+              >
+                {t("ส่งใหม่ / แก้ข้อความ", "Send again / edit")}
+              </Button>
+              <Button onClick={() => onOpenChange(false)} disabled={sending}>
+                {t("ปิด", "Close")}
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" onClick={() => onOpenChange(false)} disabled={sending}>
+                {t("ยกเลิก", "Cancel")}
+              </Button>
+              <Button onClick={send} disabled={sending || validRecipients.length === 0}>
+                {sending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Send className="h-4 w-4 mr-1" />}
+                {t(`ส่ง ${validRecipients.length} ราย`, `Send ${validRecipients.length}`)}
+              </Button>
+            </>
+          )}
         </DialogFooter>
+
 
       </DialogContent>
     </Dialog>
