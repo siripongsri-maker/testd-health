@@ -17,7 +17,7 @@ interface SEOHeadProps {
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
-const BASE_URL = "https://testd-health.lovable.app";
+const BASE_URL = "https://testd.website";
 const DEFAULT_OG_IMAGE = "https://storage.googleapis.com/gpt-engineer-file-uploads/KT2ExYhzQvVnbWOZrapb2296DWu1/social-images/social-1770910470399-testD_logo.png";
 
 /**
@@ -157,7 +157,7 @@ export function buildMedicalPageJsonLd({
     publisher: {
       "@type": "Organization",
       name: "SWING Foundation",
-      url: "https://testd-health.lovable.app",
+      url: "https://testd.website",
     },
     medicalAudience: {
       "@type": "MedicalAudience",
