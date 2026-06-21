@@ -87,7 +87,7 @@ export function PendingSelftestResultBanner({
   );
   const status = statusLabel(details?.status, language);
 
-  const explanationTitle = language === "th" ? "กำลังรอผล หมายถึงอะไร?" : "What does "awaiting result" mean?";
+  const explanationTitle = language === "th" ? "กำลังรอผล หมายถึงอะไร?" : 'What does "awaiting result" mean?';
   const explanationBody = language === "th"
     ? "ชุดตรวจอยู่ในมือคุณแล้ว แต่ระบบยังไม่ได้รับรูปผลตรวจจากคุณ"
     : "The test kit is with you, but we have not received your result photo yet.";
