@@ -810,6 +810,11 @@ export default function HIVSelfTest() {
         toast.error(language === 'th' ? 'กรุณากรอกเบอร์โทรที่ติดต่อได้' : 'Please enter a valid phone number');
         return;
       }
+      const trimmedProvince = guestProvince.trim();
+      if (!trimmedProvince) {
+        toast.error(language === 'th' ? 'กรุณาเลือกจังหวัด' : 'Please select a province');
+        return;
+      }
 
       // Map AI analysis result → DB-allowed self-reported value
       const mapped: 'negative' | 'reactive' | 'invalid' =
@@ -834,6 +839,7 @@ export default function HIVSelfTest() {
           p_self_result: mapped,
           p_photo_path: fileName,
           p_wants_callback: mapped === 'reactive' ? true : wantsCallback,
+          p_province: trimmedProvince,
         });
         if (rpcError) throw rpcError;
 
