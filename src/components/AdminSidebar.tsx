@@ -74,6 +74,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "kit-orders", icon: Package, labelKey: "admin.kitOrders", meAnalyst: true },
       { tab: "selftest-results", icon: Package, labelKey: "admin.selftestResults", meAnalyst: true },
       { tab: "selftest-followup", icon: Package, labelKey: "admin.selftestFollowup", meAnalyst: true },
+      { tab: "selftest-map", icon: MapPin, labelKey: "admin.selftestMap", adminOnly: true, meAnalyst: true },
     ],
   },
 
