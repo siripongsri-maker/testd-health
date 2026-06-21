@@ -475,6 +475,15 @@ export default function AdminSelftestResultsContent() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <SelftestSmsDialog
+        open={smsOpen}
+        onOpenChange={setSmsOpen}
+        recipients={smsRecipients}
+        initialTemplateKey={smsTemplateKey}
+        onSent={() => load()}
+      />
+
     </div>
   );
 }
