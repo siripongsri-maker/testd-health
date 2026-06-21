@@ -90,7 +90,7 @@ const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "selftest-results", "
 const ME_ANALYST_TABS = new Set([
   "dashboard",
   // Operations (read-only)
-  "kit-orders", "selftest-results", "selftest-followup", "bookings", "pair-sessions", "activity-logs",
+  "kit-orders", "selftest-results", "selftest-followup", "selftest-map", "bookings", "pair-sessions", "activity-logs",
   // Partner Network
   "partner-invites", "anonymous-responses",
   // SMS & Credits (read-only)
