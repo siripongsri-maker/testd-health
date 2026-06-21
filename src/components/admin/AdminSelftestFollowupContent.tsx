@@ -62,6 +62,7 @@ export default function AdminSelftestFollowupContent() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [smsOpen, setSmsOpen] = useState(false);
   const [smsRecipients, setSmsRecipients] = useState<SmsRecipient[]>([]);
+  const [smsHistoryOpen, setSmsHistoryOpen] = useState(false);
 
   const toRecipient = (r: Row): SmsRecipient => ({
     id: r.id,
