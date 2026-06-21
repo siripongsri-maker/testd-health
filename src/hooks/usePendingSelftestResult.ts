@@ -42,6 +42,25 @@ export function usePendingSelftestResult(): PendingSelftestState {
 
   const refresh = useCallback(() => setTick((t) => t + 1), []);
 
+  // Refresh when other parts of the app signal that a result was submitted,
+  // when the tab regains focus, or when localStorage changes in another tab.
+  useEffect(() => {
+    const onRefresh = () => setTick((t) => t + 1);
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") setTick((t) => t + 1);
+    };
+    window.addEventListener("selftest:pending-refresh", onRefresh);
+    window.addEventListener("storage", onRefresh);
+    window.addEventListener("focus", onRefresh);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("selftest:pending-refresh", onRefresh);
+      window.removeEventListener("storage", onRefresh);
+      window.removeEventListener("focus", onRefresh);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, []);
+
   // Check localStorage timer (anonymous + logged-in both apply)
   useEffect(() => {
     try {

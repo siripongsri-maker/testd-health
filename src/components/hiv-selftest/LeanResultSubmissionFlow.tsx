@@ -444,6 +444,15 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
                   .catch((err) => console.warn("[notify-reactive-case]", err));
               }
 
+              // Clear the on-device timer + notify pending-banner hook so the
+              // "submit your result" reminder disappears immediately.
+              try {
+                localStorage.removeItem("hiv-selftest-timer");
+                window.dispatchEvent(new CustomEvent("selftest:pending-refresh"));
+              } catch {
+                /* noop */
+              }
+
               setStep("outcome");
             } catch (e) {
               console.error("[lean submit]", e);
