@@ -11,6 +11,37 @@ const corsHeaders = {
 
 const FALLBACK_URL = (Deno.env.get("APP_BASE_URL") || "https://testd.website").replace(/\/+$/, "");
 
+function redirect(to: string): Response {
+  return new Response(null, {
+    status: 302,
+    headers: {
+      ...corsHeaders,
+      Location: to,
+      "Cache-Control": "no-store, max-age=0",
+    },
+  });
+}
+
+function normalizeLegacyUrl(originalUrl: string): string {
+  try {
+    const target = new URL(originalUrl, FALLBACK_URL);
+    const normalizedPath = target.pathname.replace(/\/+$/, "") || "/";
+    const pathWithoutLocale = normalizedPath.replace(/^\/(th|en)(?=\/)/, "");
+
+    if (["/selftest", "/submit-result", "/submit-hiv-result", "/submit"].includes(pathWithoutLocale)) {
+      return `${target.origin}/hiv-selftest?action=submit`;
+    }
+
+    if (pathWithoutLocale === "/clinic/book") {
+      return `${target.origin}/booking${target.search}`;
+    }
+
+    return target.toString();
+  } catch {
+    return FALLBACK_URL;
+  }
+}
+
 async function hashIp(ip: string, salt: string): Promise<string> {
   const data = new TextEncoder().encode(`${salt}:${ip}`);
   const hash = await crypto.subtle.digest("SHA-256", data);
@@ -31,7 +62,7 @@ Deno.serve(async (req) => {
     token = token.trim();
 
     if (!token || token.length > 64) {
-      return Response.redirect(FALLBACK_URL, 302);
+      return redirect(FALLBACK_URL);
     }
 
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -45,7 +76,7 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (!row || !row.original_url) {
-      return Response.redirect(FALLBACK_URL, 302);
+      return redirect(FALLBACK_URL);
     }
 
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
@@ -66,9 +97,9 @@ Deno.serve(async (req) => {
       })
       .eq("id", row.id);
 
-    return Response.redirect(row.original_url, 302);
+    return redirect(normalizeLegacyUrl(row.original_url));
   } catch (e) {
     console.error("[sms-redirect] error", e);
-    return Response.redirect(FALLBACK_URL, 302);
+    return redirect(FALLBACK_URL);
   }
 });
