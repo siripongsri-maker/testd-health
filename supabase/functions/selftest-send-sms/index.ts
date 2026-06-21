@@ -116,6 +116,7 @@ Deno.serve(async (req) => {
 
     for (const r of reqs || []) {
       const rawPhone = (r as any).selftest_pii?.phone || (r as any).phone || "";
+      const recipientName = ((r as any).selftest_pii?.full_name || (r as any).full_name || "").trim();
       const normalized = normalizeThaiPhone(rawPhone);
       if (!normalized) {
         results.push({ request_id: r.id, ok: false, error: "invalid_phone" });
@@ -128,6 +129,11 @@ Deno.serve(async (req) => {
         continue;
       }
 
+      // Substitute per-recipient variables ({{name}}, {{phone}}) in the template
+      const personalized = message
+        .replace(/\{\{\s*name\s*\}\}/gi, recipientName || "คุณ")
+        .replace(/\{\{\s*phone\s*\}\}/gi, normalized);
+
       try {
         const resp = await fetch(SMSMKT_URL, {
           method: "POST",
@@ -137,7 +143,7 @@ Deno.serve(async (req) => {
             "secret_key": SECRET_KEY,
           },
           body: JSON.stringify({
-            message,
+            message: personalized,
             phone: normalized,
             sender,
           }),
