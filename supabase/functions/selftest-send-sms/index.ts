@@ -254,11 +254,21 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      // Substitute per-recipient variables ({{name}}, {{phone}}, {{code}}) in the template
+      const followupLink = kind === "selftest"
+        ? await createSelftestFollowupLink(admin, ref_id)
+        : `${APP_BASE_URL}/track-kit/${encodeURIComponent(code || ref_id)}`;
+
+      // Substitute per-recipient variables ({{name}}, {{phone}}, {{code}}, {{followup_link}}) in the template
       let personalized = message
         .replace(/\{\{\s*name\s*\}\}/gi, recipientName || "คุณ")
         .replace(/\{\{\s*phone\s*\}\}/gi, normalized)
-        .replace(/\{\{\s*code\s*\}\}/gi, code || "");
+        .replace(/\{\{\s*code\s*\}\}/gi, code || "")
+        .replace(/\{\{\s*followup_link\s*\}\}/gi, followupLink);
+
+      personalized = personalized.replace(/https?:\/\/[^\s]+/g, (url) => {
+        if (kind !== "selftest") return url;
+        return shouldReplaceWithSelftestFollowup(url) ? followupLink : url;
+      });
 
       // Tracking link: rewrite FIRST http(s) URL in the personalized message
       // so we can log click-throughs ("backlink").
