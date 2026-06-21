@@ -15,6 +15,20 @@ interface Body {
   request_ids: string[];
   message: string;
   sender?: string;
+  template_key?: string;
+  template_label?: string;
+  track_links?: boolean;
+}
+
+const APP_BASE_URL = (Deno.env.get("APP_BASE_URL") || "https://testd.website").replace(/\/+$/, "");
+
+function makeToken(len = 10): string {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+  const bytes = new Uint8Array(len);
+  crypto.getRandomValues(bytes);
+  let out = "";
+  for (let i = 0; i < len; i++) out += alphabet[bytes[i] % alphabet.length];
+  return out;
 }
 
 function normalizeThaiPhone(raw: string): string | null {
