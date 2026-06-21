@@ -193,6 +193,10 @@ export default function AdminSelftestFollowupContent() {
                   <SelectItem value="all">{t("ทั้งหมด","All")}</SelectItem>
                 </SelectContent>
               </Select>
+              <Button variant="outline" size="sm" onClick={() => setSmsHistoryOpen(true)} className="gap-1.5">
+                <History className="h-4 w-4" />
+                {t("ประวัติ SMS / CSV", "SMS history / CSV")}
+              </Button>
               <Button variant="outline" size="icon" onClick={load} disabled={loading}>
                 <RefreshCw className={`h-4 w-4 ${loading?"animate-spin":""}`} />
               </Button>
