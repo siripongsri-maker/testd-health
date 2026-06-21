@@ -8736,6 +8736,92 @@ export type Database = {
         }
         Relationships: []
       }
+      sms_send_log: {
+        Row: {
+          click_count: number
+          created_at: string
+          error_message: string | null
+          first_clicked_at: string | null
+          http_status: number | null
+          id: string
+          last_click_ip_hash: string | null
+          last_click_user_agent: string | null
+          last_clicked_at: string | null
+          message: string
+          original_url: string | null
+          phone: string
+          provider_response: Json | null
+          recipient_name: string | null
+          request_id: string | null
+          sender: string | null
+          sent_at: string
+          sent_by: string | null
+          sms_provider_id: string | null
+          status: string
+          template_key: string | null
+          template_label: string | null
+          tracking_token: string | null
+        }
+        Insert: {
+          click_count?: number
+          created_at?: string
+          error_message?: string | null
+          first_clicked_at?: string | null
+          http_status?: number | null
+          id?: string
+          last_click_ip_hash?: string | null
+          last_click_user_agent?: string | null
+          last_clicked_at?: string | null
+          message: string
+          original_url?: string | null
+          phone: string
+          provider_response?: Json | null
+          recipient_name?: string | null
+          request_id?: string | null
+          sender?: string | null
+          sent_at?: string
+          sent_by?: string | null
+          sms_provider_id?: string | null
+          status: string
+          template_key?: string | null
+          template_label?: string | null
+          tracking_token?: string | null
+        }
+        Update: {
+          click_count?: number
+          created_at?: string
+          error_message?: string | null
+          first_clicked_at?: string | null
+          http_status?: number | null
+          id?: string
+          last_click_ip_hash?: string | null
+          last_click_user_agent?: string | null
+          last_clicked_at?: string | null
+          message?: string
+          original_url?: string | null
+          phone?: string
+          provider_response?: Json | null
+          recipient_name?: string | null
+          request_id?: string | null
+          sender?: string | null
+          sent_at?: string
+          sent_by?: string | null
+          sms_provider_id?: string | null
+          status?: string
+          template_key?: string | null
+          template_label?: string | null
+          tracking_token?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_send_log_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "hiv_selftest_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       staff_access_sessions: {
         Row: {
           branch: string | null
