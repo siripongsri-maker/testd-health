@@ -116,6 +116,7 @@ Deno.serve(async (req) => {
 
     for (const r of reqs || []) {
       const rawPhone = (r as any).selftest_pii?.phone || (r as any).phone || "";
+      const recipientName = ((r as any).selftest_pii?.full_name || (r as any).full_name || "").trim();
       const normalized = normalizeThaiPhone(rawPhone);
       if (!normalized) {
         results.push({ request_id: r.id, ok: false, error: "invalid_phone" });
@@ -128,6 +129,11 @@ Deno.serve(async (req) => {
         continue;
       }
 
+      // Substitute per-recipient variables ({{name}}, {{phone}}) in the template
+      const personalized = message
+        .replace(/\{\{\s*name\s*\}\}/gi, recipientName || "คุณ")
+        .replace(/\{\{\s*phone\s*\}\}/gi, normalized);
+
       try {
         const resp = await fetch(SMSMKT_URL, {
           method: "POST",
@@ -137,7 +143,7 @@ Deno.serve(async (req) => {
             "secret_key": SECRET_KEY,
           },
           body: JSON.stringify({
-            message,
+            message: personalized,
             phone: normalized,
             sender,
           }),
@@ -155,7 +161,7 @@ Deno.serve(async (req) => {
           request_id: r.id,
           event_code: ok ? "sms_sent" : "sms_failed",
           event_description: ok ? "SMS sent via SMSMKT" : `SMS failed: ${data?.message || resp.status}`,
-          raw: { sender, phone: normalized, response: data, http_status: resp.status, message_preview: message.slice(0, 80), sent_by: userData.user.id },
+          raw: { sender, phone: normalized, response: data, http_status: resp.status, message_preview: personalized.slice(0, 80), sent_by: userData.user.id },
         });
       } catch (e: any) {
         results.push({ request_id: r.id, ok: false, error: e?.message || "network_error" });

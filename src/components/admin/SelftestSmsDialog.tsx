@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, MessageSquare, Send, Bell, Phone, Stethoscope, Calendar, HelpCircle, Heart, Shield, Edit3, FileText, Layers } from "lucide-react";
+import { Loader2, MessageSquare, Send, Bell, Phone, Stethoscope, Calendar, HelpCircle, Heart, Shield, Edit3, FileText, Layers, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
@@ -36,8 +36,8 @@ const TEMPLATES = [
     labelTh: "ติดตามผล Reactive",
     labelEn: "Reactive result follow-up",
     icon: Bell,
-    bodyTh: "testD: ทีมงานติดต่อเพื่อดูแลคุณต่อ หากต้องการคำปรึกษา โทร 02-632-9501 หรือนัดคลินิก: https://testd.website/clinic/book",
-    bodyEn: "testD: Our team is reaching out to support you. For advice, call 02-632-9501 or book a clinic: https://testd.website/clinic/book",
+    bodyTh: "testD: สวัสดีคุณ {{name}} ทีมงานติดต่อเพื่อดูแลคุณต่อ หากต้องการคำปรึกษา โทร 02-632-9501 หรือนัดคลินิก: https://testd.website/clinic/book",
+    bodyEn: "testD: Hi {{name}}, our team is reaching out to support you. For advice, call 02-632-9501 or book a clinic: https://testd.website/clinic/book",
   },
   {
     key: "remind_report",
@@ -45,8 +45,8 @@ const TEMPLATES = [
     labelTh: "เตือนรายงานผล",
     labelEn: "Remind to report",
     icon: FileText,
-    bodyTh: "testD: ถึงเวลารายงานผลของคุณแล้ว เปิดลิงก์เพื่อบันทึก: https://testd.website/selftest หากต้องการความช่วยเหลือ โทร 02-632-9501",
-    bodyEn: "testD: It's time to report your result. Open: https://testd.website/selftest or call 02-632-9501",
+    bodyTh: "testD: คุณ {{name}} ถึงเวลารายงานผลของคุณแล้ว เปิดลิงก์เพื่อบันทึก: https://testd.website/selftest หากต้องการความช่วยเหลือ โทร 02-632-9501",
+    bodyEn: "testD: Hi {{name}}, it's time to report your result. Open: https://testd.website/selftest or call 02-632-9501",
   },
   {
     key: "request_callback",
@@ -54,8 +54,8 @@ const TEMPLATES = [
     labelTh: "ขอติดต่อกลับ",
     labelEn: "Request callback",
     icon: Phone,
-    bodyTh: "testD: ทีมเจ้าหน้าที่อยากติดต่อคุณเพื่อช่วยดูแลต่อ กรุณาโทรกลับ 02-632-9501 ขอบคุณค่ะ",
-    bodyEn: "testD: Our care team would like to support you. Please call back 02-632-9501. Thank you.",
+    bodyTh: "testD: สวัสดีคุณ {{name}} ทีมเจ้าหน้าที่อยากติดต่อคุณเพื่อช่วยดูแลต่อ กรุณาโทรกลับ 02-632-9501 ขอบคุณค่ะ",
+    bodyEn: "testD: Hi {{name}}, our care team would like to support you. Please call back 02-632-9501. Thank you.",
   },
   {
     key: "invite_clinic",
@@ -63,8 +63,8 @@ const TEMPLATES = [
     labelTh: "นัดเข้าคลินิก",
     labelEn: "Invite to clinic",
     icon: Stethoscope,
-    bodyTh: "testD: เชิญคุณเข้ารับบริการที่คลินิกฟรี นัดเวลาที่สะดวก: https://testd.website/clinic/book โทร 02-632-9501",
-    bodyEn: "testD: We invite you to a free clinic visit. Book: https://testd.website/clinic/book or call 02-632-9501",
+    bodyTh: "testD: คุณ {{name}} เชิญคุณเข้ารับบริการที่คลินิกฟรี นัดเวลาที่สะดวก: https://testd.website/clinic/book โทร 02-632-9501",
+    bodyEn: "testD: Hi {{name}}, we invite you to a free clinic visit. Book: https://testd.website/clinic/book or call 02-632-9501",
   },
   {
     key: "clinic_reminder",
@@ -72,8 +72,8 @@ const TEMPLATES = [
     labelTh: "เตือนนัดคลินิก",
     labelEn: "Clinic appointment reminder",
     icon: Calendar,
-    bodyTh: "testD: อย่าลืมนัดหมายของคุณ กรุณามาตามเวลานัด หรือติดต่อ 02-632-9501 หากต้องการเปลี่ยนเวลา",
-    bodyEn: "testD: Please remember your appointment. Come on time or call 02-632-9501 to reschedule.",
+    bodyTh: "testD: คุณ {{name}} อย่าลืมนัดหมายของคุณ กรุณามาตามเวลานัด หรือติดต่อ 02-632-9501 หากต้องการเปลี่ยนเวลา",
+    bodyEn: "testD: Hi {{name}}, please remember your appointment. Come on time or call 02-632-9501 to reschedule.",
   },
   {
     key: "missed_appointment",
@@ -81,8 +81,8 @@ const TEMPLATES = [
     labelTh: "นัดสาย / ไม่มานัด",
     labelEn: "Missed appointment",
     icon: HelpCircle,
-    bodyTh: "testD: เราสังเกตว่าคุณยังไม่ได้มาตามนัด หากต้องการนัดใหม่ โทร 02-632-9501 หรือจองออนไลน์: https://testd.website/clinic/book",
-    bodyEn: "testD: We noticed you missed your appointment. To reschedule, call 02-632-9501 or book online: https://testd.website/clinic/book",
+    bodyTh: "testD: คุณ {{name}} เราสังเกตว่าคุณยังไม่ได้มาตามนัด หากต้องการนัดใหม่ โทร 02-632-9501 หรือจองออนไลน์: https://testd.website/clinic/book",
+    bodyEn: "testD: Hi {{name}}, we noticed you missed your appointment. To reschedule, call 02-632-9501 or book online: https://testd.website/clinic/book",
   },
   {
     key: "retention_checkin",
@@ -90,8 +90,8 @@ const TEMPLATES = [
     labelTh: "เช็คอินดูแลต่อเนื่อง",
     labelEn: "Retention check-in",
     icon: Heart,
-    bodyTh: "testD: สวัสดี อยากเช็คว่าคุณสบายดีไหม หากต้องการความช่วยเหลือ โทร 02-632-9501 หรือทักมาได้ตลอด",
-    bodyEn: "testD: Hi, we hope you're doing well. If you need support, call 02-632-9501 or reach out anytime.",
+    bodyTh: "testD: สวัสดีคุณ {{name}} อยากเช็คว่าคุณสบายดีไหม หากต้องการความช่วยเหลือ โทร 02-632-9501 หรือทักมาได้ตลอด",
+    bodyEn: "testD: Hi {{name}}, we hope you're doing well. If you need support, call 02-632-9501 or reach out anytime.",
   },
   {
     key: "emotional_support",
@@ -99,8 +99,8 @@ const TEMPLATES = [
     labelTh: "ให้กำลังใจ",
     labelEn: "Emotional support",
     icon: Heart,
-    bodyTh: "testD: เราอยู่เคียงข้างคุณ หากต้องการคุยกับเจ้าหน้าที่ โทร 02-632-9501 คุณไม่ต้องเผชิญเรื่องนี้คนเดียว",
-    bodyEn: "testD: We are here for you. If you need to talk to a staff member, call 02-632-9501. You are not alone.",
+    bodyTh: "testD: คุณ {{name}} เราอยู่เคียงข้างคุณ หากต้องการคุยกับเจ้าหน้าที่ โทร 02-632-9501 คุณไม่ต้องเผชิญเรื่องนี้คนเดียว",
+    bodyEn: "testD: Hi {{name}}, we are here for you. If you need to talk to a staff member, call 02-632-9501. You are not alone.",
   },
   {
     key: "prep_info",
@@ -108,8 +108,8 @@ const TEMPLATES = [
     labelTh: "ข้อมูล PrEP",
     labelEn: "PrEP info",
     icon: Shield,
-    bodyTh: "testD: สนใจข้อมูล PrEP หรือการป้องกัน? นัดคลินิก: https://testd.website/clinic/book หรือโทร 02-632-9501",
-    bodyEn: "testD: Interested in PrEP or prevention? Book a clinic visit: https://testd.website/clinic/book or call 02-632-9501",
+    bodyTh: "testD: คุณ {{name}} สนใจข้อมูล PrEP หรือการป้องกัน? นัดคลินิก: https://testd.website/clinic/book หรือโทร 02-632-9501",
+    bodyEn: "testD: Hi {{name}}, interested in PrEP or prevention? Book a clinic visit: https://testd.website/clinic/book or call 02-632-9501",
   },
   {
     key: "custom",
@@ -121,6 +121,20 @@ const TEMPLATES = [
     bodyEn: "",
   },
 ];
+
+// Variables available for substitution in templates
+const TEMPLATE_VARIABLES = [
+  { token: "{{name}}", labelTh: "ชื่อผู้รับ", labelEn: "Recipient name" },
+  { token: "{{phone}}", labelTh: "เบอร์โทร", labelEn: "Phone number" },
+];
+
+function renderMessage(template: string, recipient: { name?: string; phone?: string } | null, fallbackName: string) {
+  const name = (recipient?.name || "").trim() || fallbackName;
+  const phone = (recipient?.phone || "").trim();
+  return template
+    .replace(/\{\{\s*name\s*\}\}/gi, name)
+    .replace(/\{\{\s*phone\s*\}\}/gi, phone);
+}
 
 // Thai SMS encoding: GSM-7 = 160 chars/segment; Unicode (Thai) = 70 chars/segment
 function isUnicode(text: string): boolean {
@@ -143,6 +157,8 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
   const [category, setCategory] = useState<string>("all");
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [previewIdx, setPreviewIdx] = useState(0);
+  const [showAllPreviews, setShowAllPreviews] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -171,6 +187,22 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
 
   const selectedTpl = TEMPLATES.find((t) => t.key === tplKey) || TEMPLATES[0];
   const isCustom = selectedTpl.key === "custom";
+
+  const fallbackName = t("คุณ", "there");
+  const previewRecipient = validRecipients[Math.min(previewIdx, Math.max(validRecipients.length - 1, 0))] || null;
+  const previewMessage = renderMessage(message, previewRecipient, fallbackName);
+  const previewInfo = segmentInfo(previewMessage);
+  const hasUnresolvedVars = /\{\{\s*\w+\s*\}\}/.test(previewMessage);
+
+  // Reset preview index when recipient list changes or dialog reopens
+  useEffect(() => {
+    setPreviewIdx(0);
+    setShowAllPreviews(false);
+  }, [open, recipients.length]);
+
+  const insertVariable = (token: string) => {
+    setMessage((prev) => (prev ? `${prev} ${token}` : token));
+  };
 
   const send = async () => {
     if (validRecipients.length === 0) {
@@ -328,12 +360,144 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
               maxLength={459}
               placeholder={t("พิมพ์ข้อความ...", "Type your message...")}
             />
+            <div className="flex flex-wrap items-center gap-1.5 mt-2">
+              <span className="text-[11px] text-muted-foreground mr-1">
+                {t("ใส่ตัวแปร:", "Insert variable:")}
+              </span>
+              {TEMPLATE_VARIABLES.map((v) => (
+                <Button
+                  key={v.token}
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-6 px-2 text-[11px] font-mono"
+                  onClick={() => insertVariable(v.token)}
+                  title={language === "th" ? v.labelTh : v.labelEn}
+                >
+                  {v.token}
+                </Button>
+              ))}
+            </div>
             <div className="text-[11px] text-muted-foreground mt-1">
               {t(
-                "หลายส่วน = หลายเครดิต (Unicode 67 ตัว/ส่วน, GSM 153 ตัว/ส่วน)",
-                "Multi-segment = multi-credit (Unicode 67/seg, GSM 153/seg)",
+                "หลายส่วน = หลายเครดิต (Unicode 67 ตัว/ส่วน, GSM 153 ตัว/ส่วน) • ตัวแปรจะถูกแทนค่าตอนส่งโดยอัตโนมัติ",
+                "Multi-segment = multi-credit (Unicode 67/seg, GSM 153/seg) • Variables are replaced at send time",
               )}
             </div>
+          </div>
+
+          {/* Preview panel */}
+          <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-1.5 text-xs font-semibold">
+                <Eye className="h-3.5 w-3.5" />
+                {t("ตัวอย่างข้อความ", "Message preview")}
+                {validRecipients.length > 1 && (
+                  <Badge variant="secondary" className="text-[10px] ml-1">
+                    {validRecipients.length} {t("ผู้รับ", "recipients")}
+                  </Badge>
+                )}
+              </div>
+              {validRecipients.length > 1 && (
+                <div className="flex items-center gap-1">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 px-2 text-[11px]"
+                    onClick={() => setShowAllPreviews((v) => !v)}
+                  >
+                    {showAllPreviews
+                      ? t("ดูทีละราย", "One at a time")
+                      : t(`ดูทั้งหมด (${Math.min(validRecipients.length, 10)})`, `View all (${Math.min(validRecipients.length, 10)})`)}
+                  </Button>
+                  {!showAllPreviews && (
+                    <>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="outline"
+                        className="h-7 w-7"
+                        disabled={previewIdx <= 0}
+                        onClick={() => setPreviewIdx((i) => Math.max(0, i - 1))}
+                      >
+                        <ChevronLeft className="h-3.5 w-3.5" />
+                      </Button>
+                      <span className="text-[11px] text-muted-foreground tabular-nums">
+                        {previewIdx + 1}/{validRecipients.length}
+                      </span>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="outline"
+                        className="h-7 w-7"
+                        disabled={previewIdx >= validRecipients.length - 1}
+                        onClick={() => setPreviewIdx((i) => Math.min(validRecipients.length - 1, i + 1))}
+                      >
+                        <ChevronRight className="h-3.5 w-3.5" />
+                      </Button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {validRecipients.length === 0 ? (
+              <div className="text-xs text-muted-foreground italic py-3 text-center">
+                {t("ไม่มีผู้รับที่มีเบอร์ถูกต้องสำหรับดูตัวอย่าง", "No valid recipient to preview")}
+              </div>
+            ) : showAllPreviews ? (
+              <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                {validRecipients.slice(0, 10).map((r) => {
+                  const msg = renderMessage(message, r, fallbackName);
+                  const seg = segmentInfo(msg);
+                  return (
+                    <div key={r.id} className="rounded-md border bg-background p-2.5">
+                      <div className="flex items-center justify-between mb-1 text-[11px] text-muted-foreground">
+                        <span className="font-medium text-foreground">{r.name} · {r.phone}</span>
+                        <span>{seg.len} · {seg.segments} {t("ส่วน", "seg")}</span>
+                      </div>
+                      <div className="text-xs whitespace-pre-wrap leading-relaxed">{msg || <span className="italic text-muted-foreground">{t("(ข้อความว่าง)", "(empty)")}</span>}</div>
+                    </div>
+                  );
+                })}
+                {validRecipients.length > 10 && (
+                  <div className="text-[11px] text-muted-foreground text-center pt-1">
+                    {t(`+ อีก ${validRecipients.length - 10} ราย`, `+ ${validRecipients.length - 10} more`)}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="rounded-md border bg-background p-3">
+                {previewRecipient && (
+                  <div className="flex items-center justify-between mb-2 text-[11px] text-muted-foreground">
+                    <span className="font-medium text-foreground">
+                      {previewRecipient.name} · {previewRecipient.phone}
+                    </span>
+                    <span>
+                      {previewInfo.len} · {previewInfo.segments} {t("ส่วน", "seg")}
+                    </span>
+                  </div>
+                )}
+                <div className="text-sm whitespace-pre-wrap leading-relaxed">
+                  {previewMessage || (
+                    <span className="italic text-muted-foreground">
+                      {t("(ข้อความว่าง)", "(empty message)")}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {hasUnresolvedVars && (
+              <div className="text-[11px] text-destructive flex items-center gap-1">
+                <HelpCircle className="h-3 w-3" />
+                {t(
+                  "พบตัวแปรที่ไม่รู้จัก — ตรวจสอบการสะกด {{name}} / {{phone}}",
+                  "Unknown variable found — check spelling of {{name}} / {{phone}}",
+                )}
+              </div>
+            )}
           </div>
         </div>
 
