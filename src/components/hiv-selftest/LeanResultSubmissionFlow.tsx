@@ -756,6 +756,7 @@ async function submitResult(
   result: ResultType,
   photo: File | null,
   thaiId: string,
+  province: string,
 ) {
   let photoPath: string | null = null;
 
@@ -776,6 +777,7 @@ async function submitResult(
     submission_path: photo ? "lean_with_photo" : "lean_no_photo",
     result_submitted_at: new Date().toISOString(),
     thai_id: thaiId,
+    province,
     test_result:
       result === "negative" ? "negative" : result === "reactive" ? "reactive" : "invalid",
   };
@@ -786,6 +788,20 @@ async function submitResult(
     .update(update)
     .eq("id", request.id);
   if (error) throw error;
+
+  // Best-effort: mirror province onto the linked PII row so future analyses
+  // see it on the canonical record too.
+  if (request.user_id && province) {
+    try {
+      await supabase
+        .from("selftest_pii")
+        .update({ province })
+        .eq("user_id", request.user_id)
+        .is("province", null);
+    } catch (e) {
+      console.warn("[lean pii province sync]", e);
+    }
+  }
 
   // Award XP for submission (best-effort)
   if (request.user_id) {
@@ -804,7 +820,7 @@ async function submitResult(
 async function submitGuestResult(
   result: ResultType,
   photo: File | null,
-  contact: { thaiId: string; phone: string; lineId: string | null },
+  contact: { thaiId: string; phone: string; lineId: string | null; province: string },
 ): Promise<string> {
   let photoPath: string | null = null;
   if (photo) {
@@ -824,6 +840,7 @@ async function submitGuestResult(
     p_self_result: result,
     p_photo_path: photoPath,
     p_wants_callback: result === "reactive",
+    p_province: contact.province,
   });
   if (error) throw error;
   return data as unknown as string;
