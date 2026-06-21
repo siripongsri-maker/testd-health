@@ -662,7 +662,12 @@ function OutcomeScreen({
 }
 
 // ---------- Submit ----------
-async function submitResult(request: LeanActiveRequest, result: ResultType, photo: File | null) {
+async function submitResult(
+  request: LeanActiveRequest,
+  result: ResultType,
+  photo: File | null,
+  thaiId: string,
+) {
   let photoPath: string | null = null;
 
   if (photo) {
@@ -681,6 +686,7 @@ async function submitResult(request: LeanActiveRequest, result: ResultType, phot
     photo_provided: !!photo,
     submission_path: photo ? "lean_with_photo" : "lean_no_photo",
     result_submitted_at: new Date().toISOString(),
+    thai_id: thaiId,
     test_result:
       result === "negative" ? "negative" : result === "reactive" ? "reactive" : "invalid",
   };
