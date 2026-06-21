@@ -132,11 +132,10 @@ export default function KitTrackPublic() {
 
   return (
     <div className="min-h-screen bg-background">
-      <AutoSEO
-        title={t("ติดตามชุดตรวจ — testD", "Track your test kit — testD")}
-        description={t("ตรวจสอบสถานะการจัดส่งชุดตรวจของคุณ", "Check your test kit shipment status")}
-        noindex
-      />
+      <AutoSEO />
+      <title>{t("ติดตามชุดตรวจ — testD", "Track your test kit — testD")}</title>
+      <meta name="robots" content="noindex,nofollow" />
+      <meta name="description" content={t("ตรวจสอบสถานะการจัดส่งชุดตรวจของคุณ", "Check your test kit shipment status")} />
       <div className="max-w-2xl mx-auto p-4 sm:p-6">
         <div className="flex items-center gap-2 mb-4">
           <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
