@@ -153,7 +153,7 @@ export default function HIVSelfTest() {
   const [callbackPhone, setCallbackPhone] = useState("");
 
   // Guest contact fields (used when no logged-in user submits a result from an existing kit)
-  const [guestName, setGuestName] = useState("");
+  const [guestThaiId, setGuestThaiId] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [guestLineId, setGuestLineId] = useState("");
   const [analysisResult, setAnalysisResult] = useState<'positive' | 'negative' | 'invalid' | 'inconclusive' | null>(null);
