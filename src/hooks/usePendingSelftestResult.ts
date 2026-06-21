@@ -78,15 +78,27 @@ export function usePendingSelftestResult(): PendingSelftestState {
     (async () => {
       const { data, error } = await supabase
         .from("hiv_selftest_requests")
-        .select("id, status, result_submitted_at")
+        .select("id, status, created_at, result_submitted_at")
         .eq("user_id", user.id)
         .in("status", PENDING_STATUSES)
-        .is("result_submitted_at", null);
+        .is("result_submitted_at", null)
+        .order("created_at", { ascending: false });
       if (cancelled) return;
       if (error) {
         setDbCount(0);
+        setDbDetails(null);
       } else {
-        setDbCount(data?.length ?? 0);
+        const rows = data ?? [];
+        setDbCount(rows.length);
+        setDbDetails(
+          rows[0]
+            ? {
+                source: "db",
+                status: rows[0].status ?? undefined,
+                createdAt: rows[0].created_at ?? undefined,
+              }
+            : null
+        );
       }
       setLoading(false);
     })();
