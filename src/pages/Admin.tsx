@@ -184,6 +184,7 @@ export default function Admin() {
           {renderTab("kit-orders", <AdminKitOrdersContent userBranch={userBranch} isModerator={(isModerator && !isAdmin) || isMeAnalyst} />)}
           {renderTab("selftest-results", <AdminSelftestResultsContent />)}
           {renderTab("selftest-followup", <AdminSelftestFollowupContent />)}
+          {renderTab("selftest-map", <AdminSelftestMapContent />)}
           {renderTab("bookings", <AdminBookingContent userBranch={userBranch} />)}
           {renderTab("today", <AdminTodayBoard userBranch={userBranch} />)}
           {renderTab("schedule", <AdminScheduleContent />)}
