@@ -22,17 +22,47 @@ function redirect(to: string): Response {
   });
 }
 
-function normalizeLegacyUrl(originalUrl: string): string {
+function makeMagicToken(): string {
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function sha256Hex(input: string): Promise<string> {
+  const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
+  return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function createFollowupUrl(admin: any, origin: string, requestId: string): Promise<string> {
+  const token = makeMagicToken();
+  const tokenHash = await sha256Hex(token);
+  const { error } = await admin.from("selftest_magic_tokens").insert({
+    request_id: requestId,
+    token_hash: tokenHash,
+    purpose: "followup",
+    expires_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+  });
+  if (error) throw error;
+  return `${origin.replace(/\/+$/, "")}/selftest/followup/${token}`;
+}
+
+async function normalizeLegacyUrl(admin: any, originalUrl: string, requestId?: string | null): Promise<string> {
   try {
     const target = new URL(originalUrl, FALLBACK_URL);
     const normalizedPath = target.pathname.replace(/\/+$/, "") || "/";
     const pathWithoutLocale = normalizedPath.replace(/^\/(th|en)(?=\/)/, "");
 
+    if (pathWithoutLocale === "/admin" || pathWithoutLocale.startsWith("/admin/") || pathWithoutLocale === "/dashboard" || pathWithoutLocale.startsWith("/dashboard/")) {
+      return requestId ? await createFollowupUrl(admin, target.origin, requestId) : FALLBACK_URL;
+    }
+
     if (["/selftest", "/submit-result", "/submit-hiv-result", "/submit"].includes(pathWithoutLocale)) {
+      if (requestId) return await createFollowupUrl(admin, target.origin, requestId);
       return `${target.origin}/hiv-selftest?action=submit`;
     }
 
-    if (pathWithoutLocale === "/clinic/book") {
+    if (pathWithoutLocale === "/clinic/book" || pathWithoutLocale === "/booking" || pathWithoutLocale === "/hiv-selftest") {
+      if (requestId) return await createFollowupUrl(admin, target.origin, requestId);
       return `${target.origin}/booking${target.search}`;
     }
 
@@ -71,7 +101,7 @@ Deno.serve(async (req) => {
 
     const { data: row } = await admin
       .from("sms_send_log")
-      .select("id, original_url, click_count, first_clicked_at")
+      .select("id, request_id, original_url, click_count, first_clicked_at")
       .eq("tracking_token", token)
       .maybeSingle();
 
@@ -97,7 +127,7 @@ Deno.serve(async (req) => {
       })
       .eq("id", row.id);
 
-    return redirect(normalizeLegacyUrl(row.original_url));
+    return redirect(await normalizeLegacyUrl(admin, row.original_url, row.request_id));
   } catch (e) {
     console.error("[sms-redirect] error", e);
     return redirect(FALLBACK_URL);

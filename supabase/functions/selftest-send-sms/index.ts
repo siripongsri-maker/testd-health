@@ -38,6 +38,41 @@ function makeToken(len = 10): string {
   return out;
 }
 
+function makeMagicToken(): string {
+  const bytes = new Uint8Array(24);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function sha256Hex(input: string): Promise<string> {
+  const hash = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(input));
+  return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function createSelftestFollowupLink(admin: any, requestId: string): Promise<string> {
+  const token = makeMagicToken();
+  const tokenHash = await sha256Hex(token);
+  const expiresAt = new Date(Date.now() + 30 * 86400000).toISOString();
+  const { error } = await admin.from("selftest_magic_tokens").insert({
+    request_id: requestId,
+    token_hash: tokenHash,
+    purpose: "followup",
+    expires_at: expiresAt,
+  });
+  if (error) throw new Error(`followup_token_insert_failed: ${error.message}`);
+  return `${APP_BASE_URL}/selftest/followup/${token}`;
+}
+
+function shouldReplaceWithSelftestFollowup(url: string): boolean {
+  try {
+    const parsed = new URL(url, APP_BASE_URL);
+    const sameSite = parsed.hostname === new URL(APP_BASE_URL).hostname || parsed.hostname.endsWith(".lovable.app");
+    return sameSite;
+  } catch {
+    return false;
+  }
+}
+
 function normalizeThaiPhone(raw: string): string | null {
   const digits = (raw || "").replace(/\D/g, "");
   if (!digits) return null;
@@ -207,11 +242,26 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      // Substitute per-recipient variables ({{name}}, {{phone}}, {{code}}) in the template
+      const templateUrls = message.match(/https?:\/\/[^\s]+/g) || [];
+      const needsSecureFollowupLink = kind === "selftest" && (
+        /\{\{\s*followup_link\s*\}\}/i.test(message) ||
+        templateUrls.some((url) => shouldReplaceWithSelftestFollowup(url))
+      );
+      const followupLink = kind === "selftest"
+        ? (needsSecureFollowupLink ? await createSelftestFollowupLink(admin, ref_id) : `${APP_BASE_URL}/booking?service=hiv-testing&followup=selftest`)
+        : `${APP_BASE_URL}/track-kit/${encodeURIComponent(code || ref_id)}`;
+
+      // Substitute per-recipient variables ({{name}}, {{phone}}, {{code}}, {{followup_link}}) in the template
       let personalized = message
         .replace(/\{\{\s*name\s*\}\}/gi, recipientName || "คุณ")
         .replace(/\{\{\s*phone\s*\}\}/gi, normalized)
-        .replace(/\{\{\s*code\s*\}\}/gi, code || "");
+        .replace(/\{\{\s*code\s*\}\}/gi, code || "")
+        .replace(/\{\{\s*followup_link\s*\}\}/gi, followupLink);
+
+      personalized = personalized.replace(/https?:\/\/[^\s]+/g, (url) => {
+        if (kind !== "selftest") return url;
+        return shouldReplaceWithSelftestFollowup(url) ? followupLink : url;
+      });
 
       // Tracking link: rewrite FIRST http(s) URL in the personalized message
       // so we can log click-throughs ("backlink").

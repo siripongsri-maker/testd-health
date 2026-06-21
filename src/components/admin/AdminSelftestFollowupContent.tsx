@@ -430,6 +430,7 @@ export default function AdminSelftestFollowupContent() {
         onOpenChange={setSmsOpen}
         recipients={smsRecipients}
         onSent={() => setSelected(new Set())}
+        initialTemplateKey="first_reactive"
       />
       <SmsHistoryDialog open={smsHistoryOpen} onOpenChange={setSmsHistoryOpen} />
     </div>
