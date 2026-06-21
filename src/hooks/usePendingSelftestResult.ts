@@ -48,13 +48,21 @@ export function usePendingSelftestResult(): PendingSelftestState {
       const stored = localStorage.getItem(TIMER_STORAGE_KEY);
       if (!stored) {
         setHasLocalTimer(false);
+        setTimerDetails(null);
         return;
       }
       const parsed = JSON.parse(stored);
+      const startedAt = parsed?.startedAt;
       // Consider "pending" once the timer has been started — finished or not.
-      setHasLocalTimer(!!parsed?.startedAt);
+      setHasLocalTimer(!!startedAt);
+      setTimerDetails(
+        startedAt
+          ? { source: "timer", startedAt: String(startedAt) }
+          : null
+      );
     } catch {
       setHasLocalTimer(false);
+      setTimerDetails(null);
     }
   }, [tick]);
 
