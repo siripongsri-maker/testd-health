@@ -109,7 +109,22 @@ Deno.serve(async (req) => {
       (pii as any).province = province;
 
 
-      // Whitelist PII fields — never spread raw client input into service-role insert
+      // Whitelist PII fields — never spread raw client input into service-role insert.
+      // Canonical column is `thai_id`; accept legacy `national_id` alias from older clients.
+      const rawThaiId =
+        (pii as any).thai_id ?? (pii as any).national_id ?? null;
+      const normalizedThaiId =
+        typeof rawThaiId === "string"
+          ? rawThaiId.replace(/\D/g, "").slice(0, 13) || null
+          : null;
+
+      if (!normalizedThaiId || normalizedThaiId.length !== 13) {
+        return json(
+          { error: "thai_id_required", message: "กรุณากรอกเลขบัตรประชาชน 13 หลัก" },
+          400,
+        );
+      }
+
       const safePii: Record<string, unknown> = {
         user_id: resolvedUserId,
         full_name: (pii as any).full_name ?? null,
@@ -121,7 +136,7 @@ Deno.serve(async (req) => {
         postal_code: (pii as any).postal_code ?? null,
         date_of_birth: (pii as any).date_of_birth ?? null,
         gender: (pii as any).gender ?? null,
-        national_id: (pii as any).national_id ?? null,
+        thai_id: normalizedThaiId,
         email: (pii as any).email ?? null,
       };
 
