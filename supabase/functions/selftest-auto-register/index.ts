@@ -21,6 +21,30 @@ function json(body: unknown, status = 200) {
   });
 }
 
+// Retry an insert when PostgREST's schema cache is stale (PGRST204 / "schema cache").
+// This can happen briefly right after a migration adds a new column.
+async function insertWithSchemaRetry<T = any>(
+  build: () => any,
+  label: string,
+  attempts = 4,
+): Promise<{ data: T | null; error: any }> {
+  let lastErr: any = null;
+  for (let i = 0; i < attempts; i++) {
+    const { data, error } = await build();
+    if (!error) return { data, error: null };
+    lastErr = error;
+    const msg = String(error?.message ?? "");
+    const code = String(error?.code ?? "");
+    const isSchemaCache =
+      code === "PGRST204" || msg.toLowerCase().includes("schema cache");
+    if (!isSchemaCache) return { data: null, error };
+    const delay = 400 * (i + 1);
+    console.warn(`[${label}] schema cache miss, retry ${i + 1}/${attempts} in ${delay}ms`, msg);
+    await new Promise((r) => setTimeout(r, delay));
+  }
+  return { data: null, error: lastErr };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
