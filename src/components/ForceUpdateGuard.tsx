@@ -199,25 +199,21 @@ export function ForceUpdateGuard({ children }: { children: React.ReactNode }) {
     if (import.meta.env.DEV || window.location.hostname.includes('preview')) return;
     if (localStorage.getItem(RESET_KEY) === CACHE_RESET_VERSION) return;
 
+    // Mark so we don't loop, then nuke caches/SWs and hard-reload to pick up
+    // the latest bundle. Without the reload, the user stays on the stale SW-
+    // served HTML/JS even after unregister.
     localStorage.setItem(RESET_KEY, CACHE_RESET_VERSION);
     localStorage.setItem(VERSION_KEY, APP_VERSION);
     sessionStorage.setItem(SESSION_KEY, APP_VERSION);
 
-    const reset = () => {
-      void nukeCache("force_guard").then(() => {
-        sessionStorage.setItem(SESSION_KEY, APP_VERSION);
-        localStorage.setItem(RESET_KEY, CACHE_RESET_VERSION);
-        dispatchAnalytics("background_cache_reset_completed");
-      });
-    };
-
-    if ("requestIdleCallback" in window) {
-      const idleId = window.requestIdleCallback(reset, { timeout: 2500 });
-      return () => window.cancelIdleCallback?.(idleId);
-    }
-
-    const timer = globalThis.setTimeout(reset, 1500);
-    return () => globalThis.clearTimeout(timer);
+    void nukeCache("force_guard").then(() => {
+      sessionStorage.setItem(SESSION_KEY, APP_VERSION);
+      localStorage.setItem(RESET_KEY, CACHE_RESET_VERSION);
+      dispatchAnalytics("background_cache_reset_completed");
+      markReloadPending("force_guard", APP_VERSION, 1);
+      // Small delay so analytics/log writes flush before navigation.
+      setTimeout(performHardReload, 300);
+    });
   }, []);
 
   useEffect(() => {
