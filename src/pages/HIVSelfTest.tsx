@@ -843,6 +843,12 @@ export default function HIVSelfTest() {
         });
         if (rpcError) throw rpcError;
 
+        // Clear on-device pending state so the "submit your result" banner disappears
+        try {
+          localStorage.removeItem(TIMER_STORAGE_KEY);
+          window.dispatchEvent(new CustomEvent('selftest:pending-refresh'));
+        } catch { /* noop */ }
+
         toast.success(
           language === 'th'
             ? 'ส่งผลตรวจสำเร็จ! เจ้าหน้าที่จะติดต่อกลับหากจำเป็น'
@@ -905,11 +911,20 @@ export default function HIVSelfTest() {
         .update({ 
           result_photo_url: fileName,
           status: 'result_submitted',
+          result_submitted_at: new Date().toISOString(),
           test_result: analysisResult,
+          self_reported_result: analysisResult === 'positive' ? 'reactive' : analysisResult === 'negative' ? 'negative' : 'invalid',
+          photo_provided: true,
           wants_callback: analysisResult === 'positive' ? wantsCallback : false,
           callback_phone: analysisResult === 'positive' && wantsCallback ? callbackPhone : null
         })
         .eq('id', requestId);
+
+      // Clear on-device pending state so the "submit your result" banner disappears
+      try {
+        localStorage.removeItem(TIMER_STORAGE_KEY);
+        window.dispatchEvent(new CustomEvent('selftest:pending-refresh'));
+      } catch { /* noop */ }
 
       // Award 1000 XP for completing the test
       const { data: profile } = await supabase
