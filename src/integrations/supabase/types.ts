@@ -8308,6 +8308,7 @@ export type Database = {
           gender: string | null
           id: string
           line_id: string | null
+          national_id: string | null
           phone: string | null
           postal_code: string | null
           province: string | null
@@ -8326,6 +8327,7 @@ export type Database = {
           gender?: string | null
           id?: string
           line_id?: string | null
+          national_id?: string | null
           phone?: string | null
           postal_code?: string | null
           province?: string | null
@@ -8344,6 +8346,7 @@ export type Database = {
           gender?: string | null
           id?: string
           line_id?: string | null
+          national_id?: string | null
           phone?: string | null
           postal_code?: string | null
           province?: string | null
