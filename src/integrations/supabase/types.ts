@@ -3461,6 +3461,7 @@ export type Database = {
           assigned_branch: string | null
           callback_phone: string | null
           care_action: string | null
+          consent_given: boolean | null
           created_at: string
           days_since_risk: number | null
           delivered_at: string | null
@@ -3483,8 +3484,11 @@ export type Database = {
           name_address_fp: string | null
           name_fp: string | null
           national_id_hash: string | null
+          notes: string | null
           phone: string | null
           photo_provided: boolean
+          pickup_branch: string | null
+          pickup_date: string | null
           pickup_latitude: number | null
           pickup_location_captured: boolean | null
           pickup_location_status: string | null
@@ -3493,6 +3497,7 @@ export type Database = {
           pii_id: string | null
           postal_code: string | null
           postpone_count: number
+          prior_test: string | null
           province: string | null
           reactive_notified_at: string | null
           reactive_notified_to: string | null
@@ -3501,6 +3506,7 @@ export type Database = {
           rejection_reason: string | null
           result_photo_url: string | null
           result_submitted_at: string | null
+          risk_level: string | null
           self_reported_result: string | null
           staff_notes: string | null
           status: string
@@ -3523,6 +3529,7 @@ export type Database = {
           assigned_branch?: string | null
           callback_phone?: string | null
           care_action?: string | null
+          consent_given?: boolean | null
           created_at?: string
           days_since_risk?: number | null
           delivered_at?: string | null
@@ -3545,8 +3552,11 @@ export type Database = {
           name_address_fp?: string | null
           name_fp?: string | null
           national_id_hash?: string | null
+          notes?: string | null
           phone?: string | null
           photo_provided?: boolean
+          pickup_branch?: string | null
+          pickup_date?: string | null
           pickup_latitude?: number | null
           pickup_location_captured?: boolean | null
           pickup_location_status?: string | null
@@ -3555,6 +3565,7 @@ export type Database = {
           pii_id?: string | null
           postal_code?: string | null
           postpone_count?: number
+          prior_test?: string | null
           province?: string | null
           reactive_notified_at?: string | null
           reactive_notified_to?: string | null
@@ -3563,6 +3574,7 @@ export type Database = {
           rejection_reason?: string | null
           result_photo_url?: string | null
           result_submitted_at?: string | null
+          risk_level?: string | null
           self_reported_result?: string | null
           staff_notes?: string | null
           status?: string
@@ -3585,6 +3597,7 @@ export type Database = {
           assigned_branch?: string | null
           callback_phone?: string | null
           care_action?: string | null
+          consent_given?: boolean | null
           created_at?: string
           days_since_risk?: number | null
           delivered_at?: string | null
@@ -3607,8 +3620,11 @@ export type Database = {
           name_address_fp?: string | null
           name_fp?: string | null
           national_id_hash?: string | null
+          notes?: string | null
           phone?: string | null
           photo_provided?: boolean
+          pickup_branch?: string | null
+          pickup_date?: string | null
           pickup_latitude?: number | null
           pickup_location_captured?: boolean | null
           pickup_location_status?: string | null
@@ -3617,6 +3633,7 @@ export type Database = {
           pii_id?: string | null
           postal_code?: string | null
           postpone_count?: number
+          prior_test?: string | null
           province?: string | null
           reactive_notified_at?: string | null
           reactive_notified_to?: string | null
@@ -3625,6 +3642,7 @@ export type Database = {
           rejection_reason?: string | null
           result_photo_url?: string | null
           result_submitted_at?: string | null
+          risk_level?: string | null
           self_reported_result?: string | null
           staff_notes?: string | null
           status?: string
