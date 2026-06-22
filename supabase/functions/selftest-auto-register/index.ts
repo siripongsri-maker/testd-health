@@ -125,11 +125,10 @@ Deno.serve(async (req) => {
         email: (pii as any).email ?? null,
       };
 
-      const { data: piiRow, error: piiErr } = await supa
-        .from("selftest_pii")
-        .insert(safePii)
-        .select()
-        .single();
+      const { data: piiRow, error: piiErr } = await insertWithSchemaRetry<any>(
+        () => supa.from("selftest_pii").insert(safePii).select().single(),
+        "selftest_pii",
+      );
 
       if (piiErr) {
         console.error("selftest_pii insert failed", piiErr);
