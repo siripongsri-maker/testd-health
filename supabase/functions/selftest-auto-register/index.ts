@@ -154,11 +154,10 @@ Deno.serve(async (req) => {
         prior_test: r.prior_test ?? null,
       };
 
-      const { data: reqRow, error: reqErr } = await supa
-        .from("hiv_selftest_requests")
-        .insert(safeRequest)
-        .select()
-        .single();
+      const { data: reqRow, error: reqErr } = await insertWithSchemaRetry<any>(
+        () => supa.from("hiv_selftest_requests").insert(safeRequest).select().single(),
+        "hiv_selftest_requests",
+      );
 
       if (reqErr) {
         console.error("hiv_selftest_requests insert failed", reqErr);
