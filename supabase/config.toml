@@ -48,3 +48,5 @@ project_id = "tzerhfvlrssrashrcbeg"
     verify_jwt = false
   [functions.selftest-auto-register]
     verify_jwt = false
+  [functions.selftest-submit-thai-id]
+    verify_jwt = false
