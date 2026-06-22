@@ -64,6 +64,7 @@ const AdminMonthlyDrawContent = lazy(() => import("@/components/admin/AdminMonth
 const AdminSelftestResultsContent = lazy(() => import("@/components/admin/AdminSelftestResultsContent"));
 const AdminSelftestFollowupContent = lazy(() => import("@/components/admin/AdminSelftestFollowupContent"));
 const AdminSelftestMapContent = lazy(() => import("@/components/admin/AdminSelftestMapContent"));
+const AdminSelftestMissingIdContent = lazy(() => import("@/components/admin/AdminSelftestMissingIdContent"));
 const AdminPreServiceSurveysContent = lazy(() => import("@/components/admin/AdminPreServiceSurveysContent"));
 
 // MEL modules
@@ -84,7 +85,7 @@ const TabLoader = () => (
 );
 
 // Tabs accessible by moderators (branch staff)
-const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "selftest-results", "selftest-followup", "selftest-map", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk"]);
+const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "selftest-results", "selftest-followup", "selftest-map", "selftest-missing-id", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk"]);
 
 // Tabs accessible by M&E Analyst (read-only analytics/reporting)
 const ME_ANALYST_TABS = new Set([
@@ -185,6 +186,7 @@ export default function Admin() {
           {renderTab("selftest-results", <AdminSelftestResultsContent />)}
           {renderTab("selftest-followup", <AdminSelftestFollowupContent />)}
           {renderTab("selftest-map", <AdminSelftestMapContent />)}
+          {renderTab("selftest-missing-id", <AdminSelftestMissingIdContent />)}
           {renderTab("bookings", <AdminBookingContent userBranch={userBranch} />)}
           {renderTab("today", <AdminTodayBoard userBranch={userBranch} />)}
           {renderTab("schedule", <AdminScheduleContent />)}
