@@ -843,6 +843,12 @@ export default function HIVSelfTest() {
         });
         if (rpcError) throw rpcError;
 
+        // Clear on-device pending state so the "submit your result" banner disappears
+        try {
+          localStorage.removeItem(TIMER_STORAGE_KEY);
+          window.dispatchEvent(new CustomEvent('selftest:pending-refresh'));
+        } catch { /* noop */ }
+
         toast.success(
           language === 'th'
             ? 'ส่งผลตรวจสำเร็จ! เจ้าหน้าที่จะติดต่อกลับหากจำเป็น'
