@@ -76,6 +76,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "selftest-results", icon: Package, labelKey: "admin.selftestResults", meAnalyst: true },
       { tab: "selftest-followup", icon: Package, labelKey: "admin.selftestFollowup", meAnalyst: true },
       { tab: "selftest-map", icon: MapPin, labelKey: "admin.selftestMap", adminOnly: true, meAnalyst: true },
+      { tab: "selftest-missing-id", icon: ShieldAlert, labelKey: "admin.selftestMissingId" },
     ],
   },
 
