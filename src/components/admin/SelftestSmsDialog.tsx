@@ -132,8 +132,8 @@ const TEMPLATES = [
     labelTh: "ข้อมูล PrEP",
     labelEn: "PrEP info",
     icon: Shield,
-    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} สนใจข้อมูล PrEP หรือการป้องกัน? นัดคลินิก: {{followup_link}} หรือโทร 02-632-9501",
-    bodyEn: "SWING Foundation: Hi {{name}}, interested in PrEP or prevention? Book a clinic visit: {{followup_link}} or call 02-632-9501",
+    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} สนใจข้อมูล PrEP หรือการป้องกัน? นัดคลินิก: {{book_link}} หรือโทร 02-632-9501",
+    bodyEn: "SWING Foundation: Hi {{name}}, interested in PrEP or prevention? Book a clinic visit: {{book_link}} or call 02-632-9501",
   },
   {
     key: "negative_prep_invite",
