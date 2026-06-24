@@ -664,6 +664,47 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
                   {new Date(sendResult.sentAt).toLocaleString("th-TH", { timeZone: "Asia/Bangkok" })}
                 </div>
               </div>
+
+              {sendResult.batches && sendResult.batches.length > 1 && (
+                <div className="rounded-md border bg-background p-2 space-y-1">
+                  <div className="text-[11px] font-semibold text-muted-foreground mb-1">
+                    {t(`รายชุด (${sendResult.batches.length} ชุด × 200 ราย)`, `Per-batch (${sendResult.batches.length} batches × 200)`)}
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                    {sendResult.batches.map((b) => {
+                      const allOk = b.failed === 0 && !b.error;
+                      const allFail = b.sent === 0;
+                      return (
+                        <div
+                          key={b.index}
+                          className={[
+                            "rounded border px-2 py-1.5 text-[11px] flex flex-col gap-0.5",
+                            allOk
+                              ? "border-emerald-500/40 bg-emerald-500/5"
+                              : allFail
+                                ? "border-destructive/40 bg-destructive/5"
+                                : "border-amber-500/40 bg-amber-500/5",
+                          ].join(" ")}
+                          title={b.error || undefined}
+                        >
+                          <div className="flex items-center justify-between font-medium">
+                            <span>#{b.index}/{b.total}</span>
+                            <span className="tabular-nums">{b.sent}/{b.size}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-[10px] text-muted-foreground tabular-nums">
+                            <span className="text-emerald-600">✓ {b.sent}</span>
+                            <span className="text-destructive">✗ {b.failed}</span>
+                          </div>
+                          {b.error && (
+                            <div className="text-[10px] text-destructive truncate">{b.error}</div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               <div className="max-h-40 overflow-y-auto rounded border bg-background divide-y">
                 {sendResult.results.length === 0 ? (
                   <div className="p-2 text-xs text-muted-foreground">
