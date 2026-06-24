@@ -2127,7 +2127,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         onOpenChange={setSmsOpen}
         recipients={smsRecipients}
         initialTemplateKey={smsTemplateKey}
-        source="kit_orders"
+        source={smsSource}
       />
     </div>
   );
