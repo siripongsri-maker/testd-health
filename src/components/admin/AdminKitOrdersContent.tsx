@@ -1256,6 +1256,47 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             </TabsList>
 
             <TabsContent value={activeTab}>
+              {/* SMS bulk toolbar — shipped → arrival check, delivered → test reminder */}
+              {(() => {
+                const hivShippedCount = hivRequests.filter((r) => r.status === 'shipped' && ((r.selftest_pii?.phone || r.callback_phone || '').replace(/\D/g, '').length >= 9)).length;
+                const hivDeliveredCount = hivRequests.filter((r) => r.status === 'delivered' && ((r.selftest_pii?.phone || r.callback_phone || '').replace(/\D/g, '').length >= 9)).length;
+                if (hivShippedCount === 0 && hivDeliveredCount === 0) return null;
+                return (
+                  <div className="flex flex-wrap items-center gap-2 p-3 rounded-lg border border-primary/20 bg-primary/5 mb-3">
+                    <MessageSquare className="h-4 w-4 text-primary" />
+                    <span className="text-xs font-medium text-primary">
+                      {language === 'th' ? 'ส่ง SMS ติดตามผู้รับชุดตรวจ' : 'Send SMS follow-ups to recipients'}
+                    </span>
+                    {hivShippedCount > 0 && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 gap-1.5 text-xs"
+                        onClick={() => openBulkSmsForHivStatus(['shipped'], 'kit_shipped_check_arrival')}
+                      >
+                        <Truck className="h-3.5 w-3.5" />
+                        {language === 'th'
+                          ? `แจ้งเช็คพัสดุ (${hivShippedCount} ส่งแล้ว)`
+                          : `Confirm arrival (${hivShippedCount} shipped)`}
+                      </Button>
+                    )}
+                    {hivDeliveredCount > 0 && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 gap-1.5 text-xs"
+                        onClick={() => openBulkSmsForHivStatus(['delivered'], 'kit_delivered_remind_test')}
+                      >
+                        <Package className="h-3.5 w-3.5" />
+                        {language === 'th'
+                          ? `เตือนตรวจ + รายงานผล (${hivDeliveredCount} ถึงแล้ว)`
+                          : `Test reminder (${hivDeliveredCount} delivered)`}
+                      </Button>
+                    )}
+                  </div>
+                );
+              })()}
+
               {/* Per-page selector & count */}
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm text-muted-foreground">
