@@ -168,8 +168,10 @@ const TEMPLATES = [
 const TEMPLATE_VARIABLES = [
   { token: "{{name}}", labelTh: "ชื่อผู้รับ", labelEn: "Recipient name" },
   { token: "{{phone}}", labelTh: "เบอร์โทร", labelEn: "Phone number" },
-  { token: "{{code}}", labelTh: "รหัสติดตาม", labelEn: "Tracking code" },
-  { token: "{{followup_link}}", labelTh: "ลิงก์ติดตามผลแบบปลอดภัย", labelEn: "Secure follow-up link" },
+  { token: "{{code}}", labelTh: "รหัสติดตามชุดตรวจ", labelEn: "Kit tracking code" },
+  { token: "{{book_link}}", labelTh: "ลิงก์จองคลินิก (กดจองได้ทันที)", labelEn: "Clinic booking link (one-tap)" },
+  { token: "{{report_link}}", labelTh: "ลิงก์ส่งผลตรวจ / ขอชุดตรวจ", labelEn: "Self-test report / order link" },
+  { token: "{{track_link}}", labelTh: "ลิงก์ติดตามพัสดุ", labelEn: "Kit tracking link" },
 ];
 
 function renderMessage(template: string, recipient: { name?: string; phone?: string; code?: string } | null, fallbackName: string) {
@@ -180,7 +182,10 @@ function renderMessage(template: string, recipient: { name?: string; phone?: str
     .replace(/\{\{\s*name\s*\}\}/gi, name)
     .replace(/\{\{\s*phone\s*\}\}/gi, phone)
     .replace(/\{\{\s*code\s*\}\}/gi, code)
-    .replace(/\{\{\s*followup_link\s*\}\}/gi, "https://testd.website/selftest/followup/secure-link");
+    .replace(/\{\{\s*book_link\s*\}\}/gi, "https://testd.website/clinic/book")
+    .replace(/\{\{\s*report_link\s*\}\}/gi, "https://testd.website/th/hiv-selftest")
+    .replace(/\{\{\s*track_link\s*\}\}/gi, code ? `https://testd.website/track-kit/${code}` : "https://testd.website/th/hiv-selftest")
+    .replace(/\{\{\s*followup_link\s*\}\}/gi, "https://testd.website/th/hiv-selftest");
 }
 
 // Thai SMS encoding: GSM-7 = 160 chars/segment; Unicode (Thai) = 70 chars/segment
