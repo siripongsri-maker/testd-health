@@ -1561,6 +1561,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                                   </Button>
                                 );
                               })()}
+                              {request.status !== 'rejected' && (
                                 <Button
                                   size="sm"
                                   variant="ghost"
