@@ -235,10 +235,11 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const [batchEditTracking, setBatchEditTracking] = useState('');
   const [savingBatch, setSavingBatch] = useState(false);
 
-  // SMS sending state (kit orders)
+  // SMS sending state — shared between kit_orders and hiv_requests sources.
   const [smsOpen, setSmsOpen] = useState(false);
   const [smsRecipients, setSmsRecipients] = useState<SmsRecipient[]>([]);
   const [smsTemplateKey, setSmsTemplateKey] = useState<string | undefined>(undefined);
+  const [smsSource, setSmsSource] = useState<"kit_orders" | "selftest">("kit_orders");
 
   const orderToSmsRecipient = (o: KitOrder): SmsRecipient => ({
     id: o.id,
@@ -247,7 +248,15 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     code: o.order_code,
   });
 
+  const hivRequestToSmsRecipient = (r: HIVTestRequest): SmsRecipient => ({
+    id: r.id,
+    name: (r.selftest_pii?.full_name || '').trim() || 'คุณ',
+    phone: (r.selftest_pii?.phone || r.callback_phone || '').trim(),
+    code: (r.tracking_number || '').trim(),
+  });
+
   const openSmsForOrder = (o: KitOrder, templateKey?: string) => {
+    setSmsSource("kit_orders");
     setSmsRecipients([orderToSmsRecipient(o)]);
     setSmsTemplateKey(templateKey);
     setSmsOpen(true);
@@ -261,6 +270,28 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       toast.info(language === 'th' ? 'ไม่พบผู้รับที่มีเบอร์โทร' : 'No recipients with phone numbers');
       return;
     }
+    setSmsSource("kit_orders");
+    setSmsRecipients(targets);
+    setSmsTemplateKey(templateKey);
+    setSmsOpen(true);
+  };
+
+  const openSmsForHivRequest = (r: HIVTestRequest, templateKey?: string) => {
+    setSmsSource("selftest");
+    setSmsRecipients([hivRequestToSmsRecipient(r)]);
+    setSmsTemplateKey(templateKey);
+    setSmsOpen(true);
+  };
+
+  const openBulkSmsForHivStatus = (statuses: string[], templateKey: string) => {
+    const targets = hivRequests
+      .filter((r) => statuses.includes(r.status) && ((r.selftest_pii?.phone || r.callback_phone || '').replace(/\D/g, '').length >= 9))
+      .map(hivRequestToSmsRecipient);
+    if (targets.length === 0) {
+      toast.info(language === 'th' ? 'ไม่พบผู้รับที่มีเบอร์โทร' : 'No recipients with phone numbers');
+      return;
+    }
+    setSmsSource("selftest");
     setSmsRecipients(targets);
     setSmsTemplateKey(templateKey);
     setSmsOpen(true);
