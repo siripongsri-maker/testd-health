@@ -235,10 +235,11 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const [batchEditTracking, setBatchEditTracking] = useState('');
   const [savingBatch, setSavingBatch] = useState(false);
 
-  // SMS sending state (kit orders)
+  // SMS sending state — shared between kit_orders and hiv_requests sources.
   const [smsOpen, setSmsOpen] = useState(false);
   const [smsRecipients, setSmsRecipients] = useState<SmsRecipient[]>([]);
   const [smsTemplateKey, setSmsTemplateKey] = useState<string | undefined>(undefined);
+  const [smsSource, setSmsSource] = useState<"kit_orders" | "selftest">("kit_orders");
 
   const orderToSmsRecipient = (o: KitOrder): SmsRecipient => ({
     id: o.id,
@@ -247,7 +248,15 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     code: o.order_code,
   });
 
+  const hivRequestToSmsRecipient = (r: HIVTestRequest): SmsRecipient => ({
+    id: r.id,
+    name: (r.selftest_pii?.full_name || '').trim() || 'คุณ',
+    phone: (r.selftest_pii?.phone || r.callback_phone || '').trim(),
+    code: (r.tracking_number || '').trim(),
+  });
+
   const openSmsForOrder = (o: KitOrder, templateKey?: string) => {
+    setSmsSource("kit_orders");
     setSmsRecipients([orderToSmsRecipient(o)]);
     setSmsTemplateKey(templateKey);
     setSmsOpen(true);
@@ -261,6 +270,28 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       toast.info(language === 'th' ? 'ไม่พบผู้รับที่มีเบอร์โทร' : 'No recipients with phone numbers');
       return;
     }
+    setSmsSource("kit_orders");
+    setSmsRecipients(targets);
+    setSmsTemplateKey(templateKey);
+    setSmsOpen(true);
+  };
+
+  const openSmsForHivRequest = (r: HIVTestRequest, templateKey?: string) => {
+    setSmsSource("selftest");
+    setSmsRecipients([hivRequestToSmsRecipient(r)]);
+    setSmsTemplateKey(templateKey);
+    setSmsOpen(true);
+  };
+
+  const openBulkSmsForHivStatus = (statuses: string[], templateKey: string) => {
+    const targets = hivRequests
+      .filter((r) => statuses.includes(r.status) && ((r.selftest_pii?.phone || r.callback_phone || '').replace(/\D/g, '').length >= 9))
+      .map(hivRequestToSmsRecipient);
+    if (targets.length === 0) {
+      toast.info(language === 'th' ? 'ไม่พบผู้รับที่มีเบอร์โทร' : 'No recipients with phone numbers');
+      return;
+    }
+    setSmsSource("selftest");
     setSmsRecipients(targets);
     setSmsTemplateKey(templateKey);
     setSmsOpen(true);
@@ -1225,6 +1256,47 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             </TabsList>
 
             <TabsContent value={activeTab}>
+              {/* SMS bulk toolbar — shipped → arrival check, delivered → test reminder */}
+              {(() => {
+                const hivShippedCount = hivRequests.filter((r) => r.status === 'shipped' && ((r.selftest_pii?.phone || r.callback_phone || '').replace(/\D/g, '').length >= 9)).length;
+                const hivDeliveredCount = hivRequests.filter((r) => r.status === 'delivered' && ((r.selftest_pii?.phone || r.callback_phone || '').replace(/\D/g, '').length >= 9)).length;
+                if (hivShippedCount === 0 && hivDeliveredCount === 0) return null;
+                return (
+                  <div className="flex flex-wrap items-center gap-2 p-3 rounded-lg border border-primary/20 bg-primary/5 mb-3">
+                    <MessageSquare className="h-4 w-4 text-primary" />
+                    <span className="text-xs font-medium text-primary">
+                      {language === 'th' ? 'ส่ง SMS ติดตามผู้รับชุดตรวจ' : 'Send SMS follow-ups to recipients'}
+                    </span>
+                    {hivShippedCount > 0 && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 gap-1.5 text-xs"
+                        onClick={() => openBulkSmsForHivStatus(['shipped'], 'kit_shipped_check_arrival')}
+                      >
+                        <Truck className="h-3.5 w-3.5" />
+                        {language === 'th'
+                          ? `แจ้งเช็คพัสดุ (${hivShippedCount} ส่งแล้ว)`
+                          : `Confirm arrival (${hivShippedCount} shipped)`}
+                      </Button>
+                    )}
+                    {hivDeliveredCount > 0 && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 gap-1.5 text-xs"
+                        onClick={() => openBulkSmsForHivStatus(['delivered'], 'kit_delivered_remind_test')}
+                      >
+                        <Package className="h-3.5 w-3.5" />
+                        {language === 'th'
+                          ? `เตือนตรวจ + รายงานผล (${hivDeliveredCount} ถึงแล้ว)`
+                          : `Test reminder (${hivDeliveredCount} delivered)`}
+                      </Button>
+                    )}
+                  </div>
+                );
+              })()}
+
               {/* Per-page selector & count */}
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm text-muted-foreground">
@@ -1466,6 +1538,29 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                                   {language === 'th' ? 'ล้าง' : 'Clear'}
                                 </Button>
                               )}
+                              {(() => {
+                                const phoneOk = ((request.selftest_pii?.phone || request.callback_phone || '').replace(/\D/g, '').length >= 9);
+                                const hivSmsTemplate = request.status === 'shipped'
+                                  ? 'kit_shipped_check_arrival'
+                                  : request.status === 'delivered'
+                                  ? 'kit_delivered_remind_test'
+                                  : undefined;
+                                if (!phoneOk || !hivSmsTemplate) return null;
+                                return (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => openSmsForHivRequest(request, hivSmsTemplate)}
+                                    className="h-7 px-2 gap-1 text-primary border-primary/30 hover:bg-primary/10"
+                                    title={language === 'th' ? 'ส่ง SMS' : 'Send SMS'}
+                                  >
+                                    <MessageSquare className="h-3 w-3" />
+                                    {hivSmsTemplate === 'kit_shipped_check_arrival'
+                                      ? (language === 'th' ? 'แจ้งเช็คพัสดุ' : 'Arrival SMS')
+                                      : (language === 'th' ? 'เตือนตรวจ' : 'Test SMS')}
+                                  </Button>
+                                );
+                              })()}
                               {request.status !== 'rejected' && (
                                 <Button
                                   size="sm"
@@ -2096,7 +2191,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         onOpenChange={setSmsOpen}
         recipients={smsRecipients}
         initialTemplateKey={smsTemplateKey}
-        source="kit_orders"
+        source={smsSource}
       />
     </div>
   );
