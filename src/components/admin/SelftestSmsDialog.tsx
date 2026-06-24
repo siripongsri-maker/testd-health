@@ -150,8 +150,8 @@ const TEMPLATES = [
     labelTh: "ติดต่อรับยา PrEP",
     labelEn: "Contact to pick up PrEP",
     icon: Shield,
-    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} กรุณาติดต่อรับยา PrEP ที่คลินิก โทร 02-632-9501 หรือจองเวลา: {{followup_link}}",
-    bodyEn: "SWING Foundation: Hi {{name}}, please contact the clinic to pick up your PrEP. Call 02-632-9501 or book: {{followup_link}}",
+    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} กรุณาติดต่อรับยา PrEP ที่คลินิก โทร 02-632-9501 หรือจองเวลา: {{book_link}}",
+    bodyEn: "SWING Foundation: Hi {{name}}, please contact the clinic to pick up your PrEP. Call 02-632-9501 or book: {{book_link}}",
   },
   {
     key: "custom",
