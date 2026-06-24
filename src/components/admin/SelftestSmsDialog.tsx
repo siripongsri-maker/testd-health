@@ -87,8 +87,8 @@ const TEMPLATES = [
     labelTh: "นัดเข้าคลินิก",
     labelEn: "Invite to clinic",
     icon: Stethoscope,
-    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} เชิญคุณเข้ารับบริการที่คลินิกฟรี นัดเวลาที่สะดวก: {{followup_link}} โทร 02-632-9501",
-    bodyEn: "SWING Foundation: Hi {{name}}, we invite you to a free clinic visit. Book: {{followup_link}} or call 02-632-9501",
+    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} เชิญคุณเข้ารับบริการที่คลินิกฟรี นัดเวลาที่สะดวก: {{book_link}} โทร 02-632-9501",
+    bodyEn: "SWING Foundation: Hi {{name}}, we invite you to a free clinic visit. Book: {{book_link}} or call 02-632-9501",
   },
   {
     key: "clinic_reminder",
