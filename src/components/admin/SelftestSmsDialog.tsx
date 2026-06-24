@@ -216,6 +216,7 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
     total: number;
     sentAt: string;
     results: Array<{ request_id?: string; phone?: string; ok: boolean; error?: string; name?: string }>;
+    batches: Array<{ index: number; total: number; size: number; sent: number; failed: number; error?: string }>;
   }>(null);
 
 
