@@ -69,8 +69,8 @@ const TEMPLATES = [
     labelTh: "เตือนรายงานผล",
     labelEn: "Remind to report",
     icon: FileText,
-    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} ถึงเวลารายงานผลของคุณแล้ว เปิดลิงก์เพื่อบันทึก: {{followup_link}} หากต้องการความช่วยเหลือ โทร 02-632-9501",
-    bodyEn: "SWING Foundation: Hi {{name}}, it's time to report your result. Open: {{followup_link}} or call 02-632-9501",
+    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} ถึงเวลารายงานผลของคุณแล้ว เปิดลิงก์เพื่อบันทึก: {{report_link}} หากต้องการความช่วยเหลือ โทร 02-632-9501",
+    bodyEn: "SWING Foundation: Hi {{name}}, it's time to report your result. Open: {{report_link}} or call 02-632-9501",
   },
   {
     key: "request_callback",
