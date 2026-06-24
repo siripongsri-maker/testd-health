@@ -293,6 +293,7 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
       let sent = 0;
       let total = 0;
       const rawResults: any[] = [];
+      const batchSummaries: Array<{ index: number; total: number; size: number; sent: number; failed: number; error?: string }> = [];
 
       for (let bi = 0; bi < batches.length; bi++) {
         const batch = batches[bi];
@@ -314,12 +315,29 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
         if (error) {
           total += batch.length;
           rawResults.push(...batch.map((r) => ({ request_id: r.id, phone: r.phone, ok: false, error: error.message || "batch_failed" })));
+          batchSummaries.push({
+            index: bi + 1,
+            total: batches.length,
+            size: batch.length,
+            sent: 0,
+            failed: batch.length,
+            error: error.message || "batch_failed",
+          });
           continue;
         }
-        sent += (data as any)?.sent ?? 0;
-        total += (data as any)?.total ?? batch.length;
+        const batchSent = (data as any)?.sent ?? 0;
+        const batchTotal = (data as any)?.total ?? batch.length;
+        sent += batchSent;
+        total += batchTotal;
         const br: any[] = Array.isArray((data as any)?.results) ? (data as any).results : [];
         rawResults.push(...br);
+        batchSummaries.push({
+          index: bi + 1,
+          total: batches.length,
+          size: batch.length,
+          sent: batchSent,
+          failed: Math.max(batchTotal - batchSent, 0),
+        });
       }
 
       // Enrich results with recipient name for nicer display
@@ -335,7 +353,7 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
           (r.phone && phoneToName.get(String(r.phone).replace(/\D/g, ""))) ||
           undefined,
       }));
-      setSendResult({ sent, total, sentAt: new Date().toISOString(), results });
+      setSendResult({ sent, total, sentAt: new Date().toISOString(), results, batches: batchSummaries });
       if (sent === total && total > 0) {
         toast.success(t(`ส่ง SMS สำเร็จ ${sent}/${total}`, `Sent ${sent}/${total} SMS`));
       } else if (sent > 0) {
@@ -352,6 +370,7 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
         total: validRecipients.length,
         sentAt: new Date().toISOString(),
         results: validRecipients.map((r) => ({ request_id: r.id, phone: r.phone, name: r.name, ok: false, error: msg })),
+        batches: [{ index: 1, total: 1, size: validRecipients.length, sent: 0, failed: validRecipients.length, error: msg }],
       });
       toast.error(msg);
     } finally {
