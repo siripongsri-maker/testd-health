@@ -1538,7 +1538,29 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                                   {language === 'th' ? 'ล้าง' : 'Clear'}
                                 </Button>
                               )}
-                              {request.status !== 'rejected' && (
+                              {(() => {
+                                const phoneOk = ((request.selftest_pii?.phone || request.callback_phone || '').replace(/\D/g, '').length >= 9);
+                                const hivSmsTemplate = request.status === 'shipped'
+                                  ? 'kit_shipped_check_arrival'
+                                  : request.status === 'delivered'
+                                  ? 'kit_delivered_remind_test'
+                                  : undefined;
+                                if (!phoneOk || !hivSmsTemplate) return null;
+                                return (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => openSmsForHivRequest(request, hivSmsTemplate)}
+                                    className="h-7 px-2 gap-1 text-primary border-primary/30 hover:bg-primary/10"
+                                    title={language === 'th' ? 'ส่ง SMS' : 'Send SMS'}
+                                  >
+                                    <MessageSquare className="h-3 w-3" />
+                                    {hivSmsTemplate === 'kit_shipped_check_arrival'
+                                      ? (language === 'th' ? 'แจ้งเช็คพัสดุ' : 'Arrival SMS')
+                                      : (language === 'th' ? 'เตือนตรวจ' : 'Test SMS')}
+                                  </Button>
+                                );
+                              })()}
                                 <Button
                                   size="sm"
                                   variant="ghost"
