@@ -60,8 +60,8 @@ const TEMPLATES = [
     labelTh: "ติดตามผล Reactive",
     labelEn: "Reactive result follow-up",
     icon: Bell,
-    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): สวัสดีคุณ {{name}} ทีมงานติดต่อเพื่อดูแลคุณต่อ หากต้องการคำปรึกษา โทร 02-632-9501 หรือนัดคลินิก: {{followup_link}}",
-    bodyEn: "SWING Foundation: Hi {{name}}, our team is reaching out to support you. For advice, call 02-632-9501 or book a clinic: {{followup_link}}",
+    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): สวัสดีคุณ {{name}} ทีมงานติดต่อเพื่อดูแลคุณต่อ หากต้องการคำปรึกษา โทร 02-632-9501 หรือนัดคลินิก: {{book_link}}",
+    bodyEn: "SWING Foundation: Hi {{name}}, our team is reaching out to support you. For advice, call 02-632-9501 or book a clinic: {{book_link}}",
   },
   {
     key: "remind_report",
