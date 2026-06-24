@@ -60,8 +60,8 @@ const TEMPLATES = [
     labelTh: "ติดตามผล Reactive",
     labelEn: "Reactive result follow-up",
     icon: Bell,
-    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): สวัสดีคุณ {{name}} ทีมงานติดต่อเพื่อดูแลคุณต่อ หากต้องการคำปรึกษา โทร 02-632-9501 หรือนัดคลินิก: {{followup_link}}",
-    bodyEn: "SWING Foundation: Hi {{name}}, our team is reaching out to support you. For advice, call 02-632-9501 or book a clinic: {{followup_link}}",
+    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): สวัสดีคุณ {{name}} ทีมงานติดต่อเพื่อดูแลคุณต่อ หากต้องการคำปรึกษา โทร 02-632-9501 หรือนัดคลินิก: {{book_link}}",
+    bodyEn: "SWING Foundation: Hi {{name}}, our team is reaching out to support you. For advice, call 02-632-9501 or book a clinic: {{book_link}}",
   },
   {
     key: "remind_report",
@@ -69,8 +69,8 @@ const TEMPLATES = [
     labelTh: "เตือนรายงานผล",
     labelEn: "Remind to report",
     icon: FileText,
-    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} ถึงเวลารายงานผลของคุณแล้ว เปิดลิงก์เพื่อบันทึก: {{followup_link}} หากต้องการความช่วยเหลือ โทร 02-632-9501",
-    bodyEn: "SWING Foundation: Hi {{name}}, it's time to report your result. Open: {{followup_link}} or call 02-632-9501",
+    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} ถึงเวลารายงานผลของคุณแล้ว เปิดลิงก์เพื่อบันทึก: {{report_link}} หากต้องการความช่วยเหลือ โทร 02-632-9501",
+    bodyEn: "SWING Foundation: Hi {{name}}, it's time to report your result. Open: {{report_link}} or call 02-632-9501",
   },
   {
     key: "request_callback",
@@ -87,8 +87,8 @@ const TEMPLATES = [
     labelTh: "นัดเข้าคลินิก",
     labelEn: "Invite to clinic",
     icon: Stethoscope,
-    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} เชิญคุณเข้ารับบริการที่คลินิกฟรี นัดเวลาที่สะดวก: {{followup_link}} โทร 02-632-9501",
-    bodyEn: "SWING Foundation: Hi {{name}}, we invite you to a free clinic visit. Book: {{followup_link}} or call 02-632-9501",
+    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} เชิญคุณเข้ารับบริการที่คลินิกฟรี นัดเวลาที่สะดวก: {{book_link}} โทร 02-632-9501",
+    bodyEn: "SWING Foundation: Hi {{name}}, we invite you to a free clinic visit. Book: {{book_link}} or call 02-632-9501",
   },
   {
     key: "clinic_reminder",
@@ -105,8 +105,8 @@ const TEMPLATES = [
     labelTh: "นัดสาย / ไม่มานัด",
     labelEn: "Missed appointment",
     icon: HelpCircle,
-    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} เราสังเกตว่าคุณยังไม่ได้มาตามนัด หากต้องการนัดใหม่ โทร 02-632-9501 หรือจองออนไลน์: {{followup_link}}",
-    bodyEn: "SWING Foundation: Hi {{name}}, we noticed you missed your appointment. To reschedule, call 02-632-9501 or book online: {{followup_link}}",
+    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} เราสังเกตว่าคุณยังไม่ได้มาตามนัด หากต้องการนัดใหม่ โทร 02-632-9501 หรือจองออนไลน์: {{book_link}}",
+    bodyEn: "SWING Foundation: Hi {{name}}, we noticed you missed your appointment. To reschedule, call 02-632-9501 or book online: {{book_link}}",
   },
   {
     key: "retention_checkin",
@@ -132,8 +132,8 @@ const TEMPLATES = [
     labelTh: "ข้อมูล PrEP",
     labelEn: "PrEP info",
     icon: Shield,
-    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} สนใจข้อมูล PrEP หรือการป้องกัน? นัดคลินิก: {{followup_link}} หรือโทร 02-632-9501",
-    bodyEn: "SWING Foundation: Hi {{name}}, interested in PrEP or prevention? Book a clinic visit: {{followup_link}} or call 02-632-9501",
+    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} สนใจข้อมูล PrEP หรือการป้องกัน? นัดคลินิก: {{book_link}} หรือโทร 02-632-9501",
+    bodyEn: "SWING Foundation: Hi {{name}}, interested in PrEP or prevention? Book a clinic visit: {{book_link}} or call 02-632-9501",
   },
   {
     key: "negative_prep_invite",
@@ -141,8 +141,8 @@ const TEMPLATES = [
     labelTh: "เชิญรับ PrEP (ผล Negative)",
     labelEn: "Invite for PrEP (Negative)",
     icon: Shield,
-    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} ผลล่าสุดเป็นลบ ขอแนะนำให้รับยา PrEP เพื่อป้องกันต่อเนื่อง ฟรี! นัดคลินิก: {{followup_link}} หรือโทร 02-632-9501",
-    bodyEn: "SWING Foundation: Hi {{name}}, your recent result is negative. We recommend starting PrEP for ongoing protection — free! Book: {{followup_link}} or call 02-632-9501",
+    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} ผลล่าสุดเป็นลบ ขอแนะนำให้รับยา PrEP เพื่อป้องกันต่อเนื่อง ฟรี! นัดคลินิก: {{book_link}} หรือโทร 02-632-9501",
+    bodyEn: "SWING Foundation: Hi {{name}}, your recent result is negative. We recommend starting PrEP for ongoing protection — free! Book: {{book_link}} or call 02-632-9501",
   },
   {
     key: "negative_prep_pickup",
@@ -150,8 +150,8 @@ const TEMPLATES = [
     labelTh: "ติดต่อรับยา PrEP",
     labelEn: "Contact to pick up PrEP",
     icon: Shield,
-    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} กรุณาติดต่อรับยา PrEP ที่คลินิก โทร 02-632-9501 หรือจองเวลา: {{followup_link}}",
-    bodyEn: "SWING Foundation: Hi {{name}}, please contact the clinic to pick up your PrEP. Call 02-632-9501 or book: {{followup_link}}",
+    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} กรุณาติดต่อรับยา PrEP ที่คลินิก โทร 02-632-9501 หรือจองเวลา: {{book_link}}",
+    bodyEn: "SWING Foundation: Hi {{name}}, please contact the clinic to pick up your PrEP. Call 02-632-9501 or book: {{book_link}}",
   },
   {
     key: "custom",
@@ -168,8 +168,10 @@ const TEMPLATES = [
 const TEMPLATE_VARIABLES = [
   { token: "{{name}}", labelTh: "ชื่อผู้รับ", labelEn: "Recipient name" },
   { token: "{{phone}}", labelTh: "เบอร์โทร", labelEn: "Phone number" },
-  { token: "{{code}}", labelTh: "รหัสติดตาม", labelEn: "Tracking code" },
-  { token: "{{followup_link}}", labelTh: "ลิงก์ติดตามผลแบบปลอดภัย", labelEn: "Secure follow-up link" },
+  { token: "{{code}}", labelTh: "รหัสติดตามชุดตรวจ", labelEn: "Kit tracking code" },
+  { token: "{{book_link}}", labelTh: "ลิงก์จองคลินิก (กดจองได้ทันที)", labelEn: "Clinic booking link (one-tap)" },
+  { token: "{{report_link}}", labelTh: "ลิงก์ส่งผลตรวจ / ขอชุดตรวจ", labelEn: "Self-test report / order link" },
+  { token: "{{track_link}}", labelTh: "ลิงก์ติดตามพัสดุ", labelEn: "Kit tracking link" },
 ];
 
 function renderMessage(template: string, recipient: { name?: string; phone?: string; code?: string } | null, fallbackName: string) {
@@ -180,7 +182,10 @@ function renderMessage(template: string, recipient: { name?: string; phone?: str
     .replace(/\{\{\s*name\s*\}\}/gi, name)
     .replace(/\{\{\s*phone\s*\}\}/gi, phone)
     .replace(/\{\{\s*code\s*\}\}/gi, code)
-    .replace(/\{\{\s*followup_link\s*\}\}/gi, "https://testd.website/selftest/followup/secure-link");
+    .replace(/\{\{\s*book_link\s*\}\}/gi, "https://testd.website/clinic/book")
+    .replace(/\{\{\s*report_link\s*\}\}/gi, "https://testd.website/th/hiv-selftest")
+    .replace(/\{\{\s*track_link\s*\}\}/gi, code ? `https://testd.website/track-kit/${code}` : "https://testd.website/th/hiv-selftest")
+    .replace(/\{\{\s*followup_link\s*\}\}/gi, "https://testd.website/th/hiv-selftest");
 }
 
 // Thai SMS encoding: GSM-7 = 160 chars/segment; Unicode (Thai) = 70 chars/segment
