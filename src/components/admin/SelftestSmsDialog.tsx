@@ -141,8 +141,8 @@ const TEMPLATES = [
     labelTh: "เชิญรับ PrEP (ผล Negative)",
     labelEn: "Invite for PrEP (Negative)",
     icon: Shield,
-    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} ผลล่าสุดเป็นลบ ขอแนะนำให้รับยา PrEP เพื่อป้องกันต่อเนื่อง ฟรี! นัดคลินิก: {{followup_link}} หรือโทร 02-632-9501",
-    bodyEn: "SWING Foundation: Hi {{name}}, your recent result is negative. We recommend starting PrEP for ongoing protection — free! Book: {{followup_link}} or call 02-632-9501",
+    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} ผลล่าสุดเป็นลบ ขอแนะนำให้รับยา PrEP เพื่อป้องกันต่อเนื่อง ฟรี! นัดคลินิก: {{book_link}} หรือโทร 02-632-9501",
+    bodyEn: "SWING Foundation: Hi {{name}}, your recent result is negative. We recommend starting PrEP for ongoing protection — free! Book: {{book_link}} or call 02-632-9501",
   },
   {
     key: "negative_prep_pickup",
