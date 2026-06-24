@@ -283,22 +283,44 @@ export default function SelftestSmsDialog({ open, onOpenChange, recipients, onSe
     }
     setSending(true);
     try {
-      const invokeBody: Record<string, any> = {
-        message: message.trim(),
-        template_key: selectedTpl.key,
-        template_label: selectedTpl.labelEn,
-        track_links: true,
-      };
-      if (source === "kit_orders") {
-        invokeBody.kit_recipients = validRecipients.map((r) => ({ id: r.id, name: r.name, phone: r.phone, code: r.code }));
-      } else {
-        invokeBody.request_ids = validRecipients.map((r) => r.id);
+      const BATCH_SIZE = 200;
+      const batches: typeof validRecipients[] = [];
+      for (let i = 0; i < validRecipients.length; i += BATCH_SIZE) {
+        batches.push(validRecipients.slice(i, i + BATCH_SIZE));
       }
-      const { data, error } = await supabase.functions.invoke("selftest-send-sms", { body: invokeBody });
-      if (error) throw error;
-      const sent = (data as any)?.sent ?? 0;
-      const total = (data as any)?.total ?? validRecipients.length;
-      const rawResults: any[] = Array.isArray((data as any)?.results) ? (data as any).results : [];
+
+      let sent = 0;
+      let total = 0;
+      const rawResults: any[] = [];
+
+      for (let bi = 0; bi < batches.length; bi++) {
+        const batch = batches[bi];
+        const invokeBody: Record<string, any> = {
+          message: message.trim(),
+          template_key: selectedTpl.key,
+          template_label: selectedTpl.labelEn,
+          track_links: true,
+        };
+        if (source === "kit_orders") {
+          invokeBody.kit_recipients = batch.map((r) => ({ id: r.id, name: r.name, phone: r.phone, code: r.code }));
+        } else {
+          invokeBody.request_ids = batch.map((r) => r.id);
+        }
+        if (batches.length > 1) {
+          toast.message(t(`กำลังส่งชุดที่ ${bi + 1}/${batches.length}…`, `Sending batch ${bi + 1}/${batches.length}…`));
+        }
+        const { data, error } = await supabase.functions.invoke("selftest-send-sms", { body: invokeBody });
+        if (error) {
+          total += batch.length;
+          rawResults.push(...batch.map((r) => ({ request_id: r.id, phone: r.phone, ok: false, error: error.message || "batch_failed" })));
+          continue;
+        }
+        sent += (data as any)?.sent ?? 0;
+        total += (data as any)?.total ?? batch.length;
+        const br: any[] = Array.isArray((data as any)?.results) ? (data as any).results : [];
+        rawResults.push(...br);
+      }
+
       // Enrich results with recipient name for nicer display
       const nameById = new Map(validRecipients.map((r) => [r.id, r.name]));
       const phoneToName = new Map(validRecipients.map((r) => [r.phone.replace(/\D/g, ""), r.name]));
