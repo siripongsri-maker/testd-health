@@ -49,14 +49,44 @@ async function sha256Hex(input: string): Promise<string> {
   return Array.from(new Uint8Array(hash)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-// Public landing page for HIV self-test follow-up — no token, no /r/ redirect.
+// Public landing URLs — short, clickable, no token required.
+// Recipients can act directly: book a clinic visit, or open the self-test
+// reporting / kit-ordering hub.
+const BOOK_URL = `${APP_BASE_URL}/clinic/book`;
 const SELFTEST_PUBLIC_URL = `${APP_BASE_URL}/th/hiv-selftest`;
 
-function shouldReplaceWithSelftestFollowup(url: string): boolean {
+// Pick the right CTA link for the legacy {{followup_link}} placeholder based
+// on the template the admin chose. Booking-style templates -> /clinic/book.
+// Reporting / kit / selftest templates -> /th/hiv-selftest.
+function resolveFollowupLink(templateKey: string | null, kind: "selftest" | "kit_order", code: string): string {
+  const key = (templateKey || "").toLowerCase();
+  const bookingKeys = [
+    "invite_clinic",
+    "missed_appointment",
+    "prep_info",
+    "negative_prep_invite",
+    "negative_prep_pickup",
+    "first_reactive",
+  ];
+  if (bookingKeys.some((k) => key.includes(k))) return BOOK_URL;
+  if (kind === "kit_order" && code) return `${APP_BASE_URL}/track-kit/${encodeURIComponent(code)}`;
+  return SELFTEST_PUBLIC_URL;
+}
+
+// Only rewrite obviously-internal admin URLs that should never reach a
+// recipient. Public marketing pages (testd.website, /clinic/book, /th/...,
+// /track-kit/...) are kept verbatim so the CTA link the admin sees in the
+// preview is exactly what the recipient receives.
+function shouldRewriteInternalUrl(url: string): boolean {
   try {
     const parsed = new URL(url, APP_BASE_URL);
-    const sameSite = parsed.hostname === new URL(APP_BASE_URL).hostname || parsed.hostname.endsWith(".lovable.app");
-    return sameSite;
+    const path = parsed.pathname.toLowerCase();
+    return (
+      path.startsWith("/admin") ||
+      path.startsWith("/staff") ||
+      path.startsWith("/internal") ||
+      path.startsWith("/dev")
+    );
   } catch {
     return false;
   }
