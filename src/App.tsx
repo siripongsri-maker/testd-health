@@ -149,7 +149,10 @@ function AppShell() {
                   All aliases below MUST resolve to the same destination — /hiv-selftest?action=submit. */}
               <Route path="/submit-result" element={<Navigate to="/hiv-selftest?action=submit" replace />} />
               <Route path="/selftest" element={<Navigate to="/hiv-selftest?action=submit" replace />} />
-              <Route path="/clinic/book" element={<Navigate to="/booking" replace />} />
+              {/* Public, SMS-friendly short link. Renders Booking directly so the URL the recipient taps
+                  stays clean (no redirect bounce, no 404 race during SPA hydration). */}
+              <Route path="/clinic/book" element={<Booking />} />
+              <Route path="/clinic" element={<Navigate to="/clinic/book" replace />} />
               <Route path="/submit-hiv-result" element={<Navigate to="/hiv-selftest?action=submit" replace />} />
               <Route path="/submit" element={<Navigate to="/hiv-selftest?action=submit" replace />} />
               <Route path="/th/submit-result" element={<Navigate to="/th/hiv-selftest?action=submit" replace />} />
