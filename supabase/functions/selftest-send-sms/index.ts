@@ -261,23 +261,32 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      // Public link — no token, no tracking redirect. Self-test sends go to the public HIV self-test page;
-      // kit-order sends go to the public order-tracking page.
-      const followupLink = kind === "selftest"
-        ? SELFTEST_PUBLIC_URL
-        : `${APP_BASE_URL}/track-kit/${encodeURIComponent(code || ref_id)}`;
+      // Direct, clickable CTA links — no token, no /r/ redirect. Recipients
+      // can act immediately: book a clinic visit, report self-test, or track kit.
+      const bookLink = BOOK_URL;
+      const reportLink = SELFTEST_PUBLIC_URL;
+      const trackLink = kind === "kit_order" && code
+        ? `${APP_BASE_URL}/track-kit/${encodeURIComponent(code)}`
+        : SELFTEST_PUBLIC_URL;
+      const followupLink = resolveFollowupLink(templateKey, kind, code);
 
-      // Substitute per-recipient variables ({{name}}, {{phone}}, {{code}}, {{followup_link}}) in the template
+      // Substitute per-recipient variables. Supports both new explicit
+      // placeholders ({{book_link}}, {{report_link}}, {{track_link}}) and the
+      // legacy {{followup_link}} which adapts to the chosen template.
       let personalized = message
         .replace(/\{\{\s*name\s*\}\}/gi, recipientName || "คุณ")
         .replace(/\{\{\s*phone\s*\}\}/gi, normalized)
         .replace(/\{\{\s*code\s*\}\}/gi, code || "")
+        .replace(/\{\{\s*book_link\s*\}\}/gi, bookLink)
+        .replace(/\{\{\s*report_link\s*\}\}/gi, reportLink)
+        .replace(/\{\{\s*track_link\s*\}\}/gi, trackLink)
         .replace(/\{\{\s*followup_link\s*\}\}/gi, followupLink);
 
-      // Replace any internal site URLs in the template with the public follow-up link
-      // so legacy admin/internal paths never reach the recipient.
+      // Strip ONLY admin/staff/internal URLs that should never reach a recipient.
+      // Public marketing URLs are preserved verbatim so the link the admin
+      // previewed is exactly what the recipient taps.
       personalized = personalized.replace(/https?:\/\/[^\s]+/g, (url) => {
-        return shouldReplaceWithSelftestFollowup(url) ? followupLink : url;
+        return shouldRewriteInternalUrl(url) ? followupLink : url;
       });
 
       // No /r/ tracking rewrite — send the public URL as-is to avoid 404 redirects.
