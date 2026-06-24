@@ -105,8 +105,8 @@ const TEMPLATES = [
     labelTh: "นัดสาย / ไม่มานัด",
     labelEn: "Missed appointment",
     icon: HelpCircle,
-    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} เราสังเกตว่าคุณยังไม่ได้มาตามนัด หากต้องการนัดใหม่ โทร 02-632-9501 หรือจองออนไลน์: {{followup_link}}",
-    bodyEn: "SWING Foundation: Hi {{name}}, we noticed you missed your appointment. To reschedule, call 02-632-9501 or book online: {{followup_link}}",
+    bodyTh: "มูลนิธิเพื่อนพนักงานบริการ (SWING): คุณ {{name}} เราสังเกตว่าคุณยังไม่ได้มาตามนัด หากต้องการนัดใหม่ โทร 02-632-9501 หรือจองออนไลน์: {{book_link}}",
+    bodyEn: "SWING Foundation: Hi {{name}}, we noticed you missed your appointment. To reschedule, call 02-632-9501 or book online: {{book_link}}",
   },
   {
     key: "retention_checkin",
