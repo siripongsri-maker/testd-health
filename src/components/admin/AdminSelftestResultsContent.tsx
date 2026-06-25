@@ -5,10 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, Search, Phone, Image as ImageIcon, RefreshCw, Save, Trash2, MessageSquare, Shield, History, ArrowUpDown } from "lucide-react";
+import { Loader2, Search, Phone, Image as ImageIcon, RefreshCw, Save, Trash2, MessageSquare, Shield, History, ArrowUpDown, CalendarIcon, X } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -64,6 +68,8 @@ export default function AdminSelftestResultsContent() {
   const [provinceFilter, setProvinceFilter] = useState<string>("all");
   const [sortKey, setSortKey] = useState<"date" | "province">("date");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const [photo, setPhoto] = useState<string | null>(null);
   const [edits, setEdits] = useState<Record<string, { status: string; tracking_number: string }>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
@@ -126,6 +132,19 @@ export default function AdminSelftestResultsContent() {
       const result = r.self_reported_result || r.test_result || "";
       if (filter !== "all" && result !== filter) return false;
       if (provinceFilter !== "all" && r.province !== provinceFilter) return false;
+
+      const rowDate = new Date(r.result_submitted_at || r.created_at);
+      if (dateFrom) {
+        const from = new Date(dateFrom);
+        from.setHours(0, 0, 0, 0);
+        if (rowDate < from) return false;
+      }
+      if (dateTo) {
+        const to = new Date(dateTo);
+        to.setHours(23, 59, 59, 999);
+        if (rowDate > to) return false;
+      }
+
       if (!search.trim()) return true;
       const q = search.toLowerCase();
       const name = (r.pii?.full_name || r.full_name || "").toLowerCase();
@@ -143,7 +162,7 @@ export default function AdminSelftestResultsContent() {
       return sortDir === "asc" ? px : -px;
     });
     return data;
-  }, [rows, search, filter, provinceFilter, sortKey, sortDir]);
+  }, [rows, search, filter, provinceFilter, sortKey, sortDir, dateFrom, dateTo]);
 
   const counts = useMemo(() => {
     const c = { total: rows.length, reactive: 0, positive: 0, negative: 0, invalid: 0 };
@@ -315,6 +334,59 @@ export default function AdminSelftestResultsContent() {
                   ))}
                 </SelectContent>
               </Select>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={cn("w-36 justify-start text-left font-normal gap-1", !dateFrom && "text-muted-foreground")}
+                  >
+                    <CalendarIcon className="h-3.5 w-3.5" />
+                    {dateFrom ? format(dateFrom, "dd/MM/yyyy") : t("ตั้งแต่วันที่", "From date")}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateFrom}
+                    onSelect={setDateFrom}
+                    initialFocus
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={cn("w-36 justify-start text-left font-normal gap-1", !dateTo && "text-muted-foreground")}
+                  >
+                    <CalendarIcon className="h-3.5 w-3.5" />
+                    {dateTo ? format(dateTo, "dd/MM/yyyy") : t("ถึงวันที่", "To date")}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateTo}
+                    onSelect={setDateTo}
+                    initialFocus
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+              {(dateFrom || dateTo) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-foreground gap-1 px-2"
+                  onClick={() => { setDateFrom(undefined); setDateTo(undefined); }}
+                >
+                  <X className="h-3.5 w-3.5" />
+                  {t("ล้างวันที่", "Clear dates")}
+                </Button>
+              )}
               <Button
                 variant="outline"
                 size="sm"
