@@ -68,6 +68,8 @@ export default function AdminSelftestResultsContent() {
   const [provinceFilter, setProvinceFilter] = useState<string>("all");
   const [sortKey, setSortKey] = useState<"date" | "province">("date");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const [photo, setPhoto] = useState<string | null>(null);
   const [edits, setEdits] = useState<Record<string, { status: string; tracking_number: string }>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
