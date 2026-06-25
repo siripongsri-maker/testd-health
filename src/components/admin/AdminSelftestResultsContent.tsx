@@ -334,6 +334,59 @@ export default function AdminSelftestResultsContent() {
                   ))}
                 </SelectContent>
               </Select>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={cn("w-36 justify-start text-left font-normal gap-1", !dateFrom && "text-muted-foreground")}
+                  >
+                    <CalendarIcon className="h-3.5 w-3.5" />
+                    {dateFrom ? format(dateFrom, "dd/MM/yyyy") : t("ตั้งแต่วันที่", "From date")}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateFrom}
+                    onSelect={setDateFrom}
+                    initialFocus
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className={cn("w-36 justify-start text-left font-normal gap-1", !dateTo && "text-muted-foreground")}
+                  >
+                    <CalendarIcon className="h-3.5 w-3.5" />
+                    {dateTo ? format(dateTo, "dd/MM/yyyy") : t("ถึงวันที่", "To date")}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateTo}
+                    onSelect={setDateTo}
+                    initialFocus
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+              {(dateFrom || dateTo) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-foreground gap-1 px-2"
+                  onClick={() => { setDateFrom(undefined); setDateTo(undefined); }}
+                >
+                  <X className="h-3.5 w-3.5" />
+                  {t("ล้างวันที่", "Clear dates")}
+                </Button>
+              )}
               <Button
                 variant="outline"
                 size="sm"
