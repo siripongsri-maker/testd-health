@@ -32,6 +32,7 @@ interface Row {
   tracking_number: string | null;
   full_name: string | null;
   phone: string | null;
+  province: string | null;
   pii: { full_name: string | null; phone: string | null } | null;
 }
 
