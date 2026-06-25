@@ -26,17 +26,26 @@ interface Row {
   assigned_branch: string | null;
   full_name: string | null;
   phone: string | null;
+  contact_attempt_1_at: string | null;
+  contact_attempt_2_at: string | null;
+  contact_attempt_3_at: string | null;
   pii: { full_name: string | null; phone: string | null } | null;
 }
 
-const CARE_ACTIONS = [
-  { value: "pending", labelTh: "รอติดตาม", labelEn: "Pending" },
-  { value: "contacted", labelTh: "ติดต่อแล้ว", labelEn: "Contacted" },
-  { value: "scheduled", labelTh: "นัดเข้าคลินิก", labelEn: "Clinic scheduled" },
-  { value: "in_care", labelTh: "เข้าสู่การรักษา", labelEn: "In care" },
-  { value: "declined", labelTh: "ปฏิเสธ", labelEn: "Declined" },
-  { value: "unreachable", labelTh: "ติดต่อไม่ได้", labelEn: "Unreachable" },
-];
+// Status tabs (each status gets its own tab)
+const STATUS_TABS = [
+  { value: "pending", labelTh: "รอติดตาม", labelEn: "Pending", closed: false, tone: "amber" },
+  { value: "contacted", labelTh: "ติดต่อแล้ว", labelEn: "Contacted", closed: false, tone: "blue" },
+  { value: "scheduled", labelTh: "นัดเข้าสู่การรักษา", labelEn: "Treatment scheduled", closed: false, tone: "indigo" },
+  { value: "in_care", labelTh: "กำลังรักษา (ปิดเคส)", labelEn: "In care (closed)", closed: true, tone: "emerald" },
+  { value: "declined", labelTh: "ปฏิเสธ (ปิดเคส)", labelEn: "Declined (closed)", closed: true, tone: "rose" },
+  { value: "unreachable", labelTh: "ติดต่อไม่ได้ (ปิดเคส)", labelEn: "Unreachable (closed)", closed: true, tone: "slate" },
+] as const;
+
+const CARE_ACTIONS = STATUS_TABS.map((s) => ({ value: s.value, labelTh: s.labelTh, labelEn: s.labelEn }));
+
+// 3-7-7 schedule: attempt 1 at day 0, attempt 2 +3 days, attempt 3 +7 days, then auto-close +7 days
+const ATTEMPT_OFFSETS_DAYS = [0, 3, 10, 17];
 
 interface HistoryRow {
   id: string;
