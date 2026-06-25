@@ -190,38 +190,30 @@ export default function AdminSelftestFollowupContent() {
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <Card><CardContent className="p-4">
-          <div className="text-xs text-muted-foreground">{t("รวมเคส","Total cases")}</div>
-          <div className="text-2xl font-bold">{counts.total}</div>
-        </CardContent></Card>
-        <Card><CardContent className="p-4">
-          <div className="text-xs text-muted-foreground">{t("รอติดตาม","Open")}</div>
-          <div className="text-2xl font-bold text-amber-600">{counts.open}</div>
-        </CardContent></Card>
-        <Card><CardContent className="p-4">
-          <div className="text-xs text-muted-foreground">{t("ปิดเคสแล้ว","Closed")}</div>
-          <div className="text-2xl font-bold text-emerald-600">{counts.closed}</div>
-        </CardContent></Card>
-      </div>
+      <Tabs value={statusFilter} onValueChange={setStatusFilter}>
+        <TabsList className="flex flex-wrap h-auto gap-1 bg-muted/50 p-1">
+          {STATUS_TABS.map((s) => (
+            <TabsTrigger key={s.value} value={s.value} className="text-xs gap-1.5">
+              <span>{language === "th" ? s.labelTh : s.labelEn}</span>
+              <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{tabCounts[s.value] ?? 0}</Badge>
+            </TabsTrigger>
+          ))}
+          <TabsTrigger value="all" className="text-xs gap-1.5">
+            <span>{t("ทั้งหมด","All")}</span>
+            <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{tabCounts.all ?? 0}</Badge>
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       <Card>
         <CardHeader className="pb-3">
           <div className="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
-            <CardTitle className="text-base">{t("รายการที่ต้องติดตาม","Follow-up queue")}</CardTitle>
+            <CardTitle className="text-base">{t("รายการ","Cases")}</CardTitle>
             <div className="flex flex-wrap gap-2">
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input className="pl-8 w-64" placeholder={t("ค้นหา ชื่อ/เบอร์","Search name/phone")} value={search} onChange={(e)=>setSearch(e.target.value)} />
               </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-36"><SelectValue/></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="open">{t("รอติดตาม","Open")}</SelectItem>
-                  <SelectItem value="closed">{t("ปิดเคส","Closed")}</SelectItem>
-                  <SelectItem value="all">{t("ทั้งหมด","All")}</SelectItem>
-                </SelectContent>
-              </Select>
               <Button variant="outline" size="sm" onClick={() => setSmsHistoryOpen(true)} className="gap-1.5">
                 <History className="h-4 w-4" />
                 {t("ประวัติ SMS / CSV", "SMS history / CSV")}
