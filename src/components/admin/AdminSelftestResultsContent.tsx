@@ -393,6 +393,7 @@ export default function AdminSelftestResultsContent() {
                     <TableHead>{t("วันที่ส่งผล","Submitted")}</TableHead>
                     <TableHead>{t("ชื่อ","Name")}</TableHead>
                     <TableHead>{t("เบอร์โทร","Phone")}</TableHead>
+                    <TableHead>{t("จังหวัด","Province")}</TableHead>
                     <TableHead>{t("ผลตรวจ","Result")}</TableHead>
                     <TableHead>{t("สถานะการติดตาม","Follow-up Status")}</TableHead>
                     <TableHead>{t("เลขพัสดุ","Tracking #")}</TableHead>
