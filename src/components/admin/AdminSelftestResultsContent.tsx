@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, Search, Phone, Image as ImageIcon, RefreshCw, Save, Trash2, MessageSquare, Shield, History } from "lucide-react";
+import { Loader2, Search, Phone, Image as ImageIcon, RefreshCw, Save, Trash2, MessageSquare, Shield, History, ArrowUpDown } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -32,6 +32,7 @@ interface Row {
   tracking_number: string | null;
   full_name: string | null;
   phone: string | null;
+  province: string | null;
   pii: { full_name: string | null; phone: string | null } | null;
 }
 
@@ -60,6 +61,9 @@ export default function AdminSelftestResultsContent() {
   const [rows, setRows] = useState<Row[]>([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<string>("all");
+  const [provinceFilter, setProvinceFilter] = useState<string>("all");
+  const [sortKey, setSortKey] = useState<"date" | "province">("date");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [photo, setPhoto] = useState<string | null>(null);
   const [edits, setEdits] = useState<Record<string, { status: string; tracking_number: string }>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
@@ -76,7 +80,7 @@ export default function AdminSelftestResultsContent() {
     // PostgREST .or() with multiple `is.null` negations is unreliable.
     const select = `
       id, created_at, result_submitted_at, status, test_result, self_reported_result,
-      result_photo_url, staff_notes, care_action, assigned_branch, tracking_number, full_name, phone,
+      result_photo_url, staff_notes, care_action, assigned_branch, tracking_number, full_name, phone, province,
       pii:selftest_pii ( full_name, phone )
     `;
 
@@ -98,11 +102,7 @@ export default function AdminSelftestResultsContent() {
       if (!byId.has(r.id)) byId.set(r.id, r as Row);
     });
 
-    const merged = Array.from(byId.values()).sort((x, y) => {
-      const dx = new Date(x.result_submitted_at || x.created_at).getTime();
-      const dy = new Date(y.result_submitted_at || y.created_at).getTime();
-      return dy - dx;
-    });
+    const merged = Array.from(byId.values());
 
     setRows(merged);
     setEdits(
@@ -115,17 +115,35 @@ export default function AdminSelftestResultsContent() {
 
   useEffect(() => { load(); }, []);
 
+  const provinces = useMemo(() => {
+    const set = new Set<string>();
+    rows.forEach((r) => { if (r.province) set.add(r.province); });
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "th"));
+  }, [rows]);
+
   const filtered = useMemo(() => {
-    return rows.filter((r) => {
+    let data = rows.filter((r) => {
       const result = r.self_reported_result || r.test_result || "";
       if (filter !== "all" && result !== filter) return false;
+      if (provinceFilter !== "all" && r.province !== provinceFilter) return false;
       if (!search.trim()) return true;
       const q = search.toLowerCase();
       const name = (r.pii?.full_name || r.full_name || "").toLowerCase();
       const phone = (r.pii?.phone || r.phone || "").toLowerCase();
-      return name.includes(q) || phone.includes(q) || r.id.toLowerCase().startsWith(q);
+      const province = (r.province || "").toLowerCase();
+      return name.includes(q) || phone.includes(q) || province.includes(q) || r.id.toLowerCase().startsWith(q);
     });
-  }, [rows, search, filter]);
+    data = [...data].sort((x, y) => {
+      if (sortKey === "date") {
+        const dx = new Date(x.result_submitted_at || x.created_at).getTime();
+        const dy = new Date(y.result_submitted_at || y.created_at).getTime();
+        return sortDir === "asc" ? dx - dy : dy - dx;
+      }
+      const px = (x.province || "").localeCompare(y.province || "", "th");
+      return sortDir === "asc" ? px : -px;
+    });
+    return data;
+  }, [rows, search, filter, provinceFilter, sortKey, sortDir]);
 
   const counts = useMemo(() => {
     const c = { total: rows.length, reactive: 0, positive: 0, negative: 0, invalid: 0 };
@@ -288,6 +306,39 @@ export default function AdminSelftestResultsContent() {
                   <SelectItem value="invalid">Invalid</SelectItem>
                 </SelectContent>
               </Select>
+              <Select value={provinceFilter} onValueChange={setProvinceFilter}>
+                <SelectTrigger className="w-44"><SelectValue placeholder={t("ทุกจังหวัด","All provinces")}/></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("ทุกจังหวัด","All provinces")}</SelectItem>
+                  {provinces.map((p) => (
+                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1"
+                onClick={() => {
+                  if (sortKey === "date") setSortDir((d) => (d === "desc" ? "asc" : "desc"));
+                  else { setSortKey("date"); setSortDir("desc"); }
+                }}
+              >
+                <ArrowUpDown className="h-3.5 w-3.5" />
+                {sortKey === "date" ? (sortDir === "desc" ? t("ใหม่→เก่า","New→Old") : t("เก่า→ใหม่","Old→New")) : t("เรียงวันที่","Sort by date")}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1"
+                onClick={() => {
+                  if (sortKey === "province") setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+                  else { setSortKey("province"); setSortDir("asc"); }
+                }}
+              >
+                <ArrowUpDown className="h-3.5 w-3.5" />
+                {sortKey === "province" ? (sortDir === "asc" ? t("จังหวัด ก-ฮ","Province A→Z") : t("จังหวัด ฮ-ก","Province Z→A")) : t("เรียงจังหวัด","Sort by province")}
+              </Button>
               <Button variant="outline" size="sm" onClick={() => setSmsHistoryOpen(true)} className="gap-1.5">
                 <History className="h-4 w-4" />
                 {t("ประวัติ SMS / CSV", "SMS history / CSV")}
@@ -342,6 +393,7 @@ export default function AdminSelftestResultsContent() {
                     <TableHead>{t("วันที่ส่งผล","Submitted")}</TableHead>
                     <TableHead>{t("ชื่อ","Name")}</TableHead>
                     <TableHead>{t("เบอร์โทร","Phone")}</TableHead>
+                    <TableHead>{t("จังหวัด","Province")}</TableHead>
                     <TableHead>{t("ผลตรวจ","Result")}</TableHead>
                     <TableHead>{t("สถานะการติดตาม","Follow-up Status")}</TableHead>
                     <TableHead>{t("เลขพัสดุ","Tracking #")}</TableHead>
@@ -366,8 +418,9 @@ export default function AdminSelftestResultsContent() {
                             <a href={`tel:${phone}`} className="inline-flex items-center gap-1 text-primary hover:underline">
                               <Phone className="h-3 w-3"/>{phone}
                             </a>
-                          ) : <span className="text-muted-foreground">—</span>}
+                           ) : <span className="text-muted-foreground">—</span>}
                         </TableCell>
+                        <TableCell className="text-xs">{r.province || <span className="text-muted-foreground">—</span>}</TableCell>
                         <TableCell>
                           <Badge variant="outline" className={RESULT_COLOR[result] || ""}>{result}</Badge>
                         </TableCell>
