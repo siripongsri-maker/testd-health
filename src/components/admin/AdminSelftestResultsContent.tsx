@@ -115,17 +115,35 @@ export default function AdminSelftestResultsContent() {
 
   useEffect(() => { load(); }, []);
 
+  const provinces = useMemo(() => {
+    const set = new Set<string>();
+    rows.forEach((r) => { if (r.province) set.add(r.province); });
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "th"));
+  }, [rows]);
+
   const filtered = useMemo(() => {
-    return rows.filter((r) => {
+    let data = rows.filter((r) => {
       const result = r.self_reported_result || r.test_result || "";
       if (filter !== "all" && result !== filter) return false;
+      if (provinceFilter !== "all" && r.province !== provinceFilter) return false;
       if (!search.trim()) return true;
       const q = search.toLowerCase();
       const name = (r.pii?.full_name || r.full_name || "").toLowerCase();
       const phone = (r.pii?.phone || r.phone || "").toLowerCase();
-      return name.includes(q) || phone.includes(q) || r.id.toLowerCase().startsWith(q);
+      const province = (r.province || "").toLowerCase();
+      return name.includes(q) || phone.includes(q) || province.includes(q) || r.id.toLowerCase().startsWith(q);
     });
-  }, [rows, search, filter]);
+    data = [...data].sort((x, y) => {
+      if (sortKey === "date") {
+        const dx = new Date(x.result_submitted_at || x.created_at).getTime();
+        const dy = new Date(y.result_submitted_at || y.created_at).getTime();
+        return sortDir === "asc" ? dx - dy : dy - dx;
+      }
+      const px = (x.province || "").localeCompare(y.province || "", "th");
+      return sortDir === "asc" ? px : -px;
+    });
+    return data;
+  }, [rows, search, filter, provinceFilter, sortKey, sortDir]);
 
   const counts = useMemo(() => {
     const c = { total: rows.length, reactive: 0, positive: 0, negative: 0, invalid: 0 };
