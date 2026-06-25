@@ -347,6 +347,89 @@ export default function AdminSelftestFollowupContent() {
                     </div>
                   </div>
 
+                  {/* 3-7-7 contact attempts */}
+                  <div>
+                    <div className="text-xs font-medium text-muted-foreground mb-2">
+                      {t("การโทรติดตาม 3-7-7 (ครั้งที่ 1 วันนี้ · ครั้งที่ 2 อีก 3 วัน · ครั้งที่ 3 อีก 7 วัน)",
+                         "Follow-up calls 3-7-7 (1st today · 2nd in 3 days · 3rd in 7 days)")}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      {([1,2,3] as const).map((idx) => {
+                        const at = idx === 1 ? r.contact_attempt_1_at : idx === 2 ? r.contact_attempt_2_at : r.contact_attempt_3_at;
+                        const baseDate = idx === 1
+                          ? (r.result_submitted_at || r.created_at)
+                          : idx === 2 ? r.contact_attempt_1_at : r.contact_attempt_2_at;
+                        const offsetDays = idx === 1 ? 0 : idx === 2 ? 3 : 7;
+                        const dueDate = baseDate ? new Date(new Date(baseDate).getTime() + offsetDays * 86400000) : null;
+                        const prevDone = idx === 1 || (idx === 2 ? !!r.contact_attempt_1_at : !!r.contact_attempt_2_at);
+                        const now = Date.now();
+                        const overdue = !at && prevDone && dueDate && now > dueDate.getTime();
+                        const upcoming = !at && prevDone && dueDate && now < dueDate.getTime();
+                        return (
+                          <div
+                            key={idx}
+                            className={`rounded-lg border p-3 ${at ? "bg-emerald-50 border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-900" : overdue ? "bg-rose-50 border-rose-200 dark:bg-rose-950/30 dark:border-rose-900" : prevDone ? "bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:border-amber-900" : "bg-muted/30 border-border opacity-70"}`}
+                          >
+                            <div className="flex items-center justify-between gap-1">
+                              <div className="flex items-center gap-1.5 text-xs font-semibold">
+                                <PhoneCall className="h-3.5 w-3.5" />
+                                {t(`ครั้งที่ ${idx}`, `Attempt ${idx}`)}
+                              </div>
+                              {at ? (
+                                <Badge variant="outline" className="h-5 text-[10px] border-emerald-500 text-emerald-700 dark:text-emerald-400">
+                                  <CheckCircle2 className="h-3 w-3 mr-1" />{t("โทรแล้ว","Called")}
+                                </Badge>
+                              ) : overdue ? (
+                                <Badge variant="destructive" className="h-5 text-[10px]">
+                                  <AlertCircle className="h-3 w-3 mr-1" />{t("เกินกำหนด","Overdue")}
+                                </Badge>
+                              ) : upcoming ? (
+                                <Badge variant="outline" className="h-5 text-[10px]">
+                                  <Clock className="h-3 w-3 mr-1" />{t("รอ","Upcoming")}
+                                </Badge>
+                              ) : null}
+                            </div>
+                            <div className="text-[11px] text-muted-foreground mt-1.5">
+                              {at
+                                ? new Date(at).toLocaleString("th-TH",{timeZone:"Asia/Bangkok",dateStyle:"medium",timeStyle:"short"})
+                                : dueDate
+                                  ? `${t("ครบกำหนด","Due")}: ${dueDate.toLocaleDateString("th-TH",{timeZone:"Asia/Bangkok"})}`
+                                  : t("รอครั้งก่อนหน้า","Awaiting prior attempt")}
+                            </div>
+                            <div className="flex gap-1 mt-2">
+                              {at ? (
+                                <Button size="sm" variant="ghost" className="h-7 px-2 text-[11px]" onClick={() => clearAttempt(r, idx)} disabled={savingId === r.id}>
+                                  {t("ล้าง","Clear")}
+                                </Button>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  variant={overdue ? "destructive" : "outline"}
+                                  className="h-7 px-2 text-[11px] flex-1"
+                                  onClick={() => recordAttempt(r, idx)}
+                                  disabled={!prevDone || savingId === r.id}
+                                >
+                                  {t("บันทึกการโทร","Log call")}
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {r.contact_attempt_3_at && !["in_care","declined","unreachable","scheduled"].includes(action) && (
+                      <div className="mt-2 flex items-center justify-between gap-2 rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 p-2">
+                        <div className="text-xs text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
+                          <AlertCircle className="h-4 w-4" />
+                          {t("โทรครบ 3 ครั้งแล้ว — พิจารณาปิดเคสเป็น 'ติดต่อไม่ได้'", "All 3 attempts completed — consider closing as 'Unreachable'")}
+                        </div>
+                        <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => updateRow(r.id, { care_action: "unreachable" })} disabled={savingId === r.id}>
+                          {t("ปิดเคส: ติดต่อไม่ได้", "Close: Unreachable")}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
                   {action === "in_care" && (
                     <div className="flex items-center gap-2 text-xs text-emerald-600">
                       <CheckCircle2 className="h-4 w-4"/> {t("เคสนี้เข้าสู่การรักษาแล้ว","Linked into care")}
