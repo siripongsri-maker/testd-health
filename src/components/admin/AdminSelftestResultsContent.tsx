@@ -132,6 +132,19 @@ export default function AdminSelftestResultsContent() {
       const result = r.self_reported_result || r.test_result || "";
       if (filter !== "all" && result !== filter) return false;
       if (provinceFilter !== "all" && r.province !== provinceFilter) return false;
+
+      const rowDate = new Date(r.result_submitted_at || r.created_at);
+      if (dateFrom) {
+        const from = new Date(dateFrom);
+        from.setHours(0, 0, 0, 0);
+        if (rowDate < from) return false;
+      }
+      if (dateTo) {
+        const to = new Date(dateTo);
+        to.setHours(23, 59, 59, 999);
+        if (rowDate > to) return false;
+      }
+
       if (!search.trim()) return true;
       const q = search.toLowerCase();
       const name = (r.pii?.full_name || r.full_name || "").toLowerCase();
@@ -149,7 +162,7 @@ export default function AdminSelftestResultsContent() {
       return sortDir === "asc" ? px : -px;
     });
     return data;
-  }, [rows, search, filter, provinceFilter, sortKey, sortDir]);
+  }, [rows, search, filter, provinceFilter, sortKey, sortDir, dateFrom, dateTo]);
 
   const counts = useMemo(() => {
     const c = { total: rows.length, reactive: 0, positive: 0, negative: 0, invalid: 0 };
