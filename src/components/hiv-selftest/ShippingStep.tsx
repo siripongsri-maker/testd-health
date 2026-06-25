@@ -156,9 +156,9 @@ export function ShippingStep({ formData, onFormChange, onNext, onBack }: Shippin
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="address">
+          <Label htmlFor="address" className="whitespace-pre-line">
             <MapPin className="h-4 w-4 inline mr-1" />
-            {language === 'th' ? 'ที่อยู่จัดส่ง' : 'Shipping Address'} *
+            {language === 'th' ? 'ที่อยู่จัดส่ง *\n(โครงการขอสงวนสิทธิ์ในการไม่จัดส่งหากที่อยู่ไม่ครบ)' : 'Shipping Address *'}
           </Label>
           <Textarea
             id="address"

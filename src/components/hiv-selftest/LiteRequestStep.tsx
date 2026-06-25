@@ -335,7 +335,7 @@ export function LiteRequestStep({
           {(!idCardAddress || useDifferentAddress) && (
             <>
               <div className="space-y-2">
-                <Label>{language === 'th' ? 'ที่อยู่' : 'Address'} *</Label>
+                <Label className="whitespace-pre-line">{language === 'th' ? 'ที่อยู่ *\n(โครงการขอสงวนสิทธิ์ในการไม่จัดส่งหากที่อยู่ไม่ครบ)' : 'Address *'}</Label>
                 <Textarea
                   value={shippingData.address}
                   onChange={(e) => onShippingChange({ ...shippingData, address: e.target.value })}
