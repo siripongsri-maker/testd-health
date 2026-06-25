@@ -121,6 +121,7 @@ export default function AdminSelftestFollowupContent() {
       .select(`
         id, created_at, result_submitted_at, status, test_result, self_reported_result,
         staff_notes, care_action, assigned_branch, full_name, phone,
+        contact_attempt_1_at, contact_attempt_2_at, contact_attempt_3_at,
         pii:selftest_pii ( full_name, phone )
       `)
       .or("self_reported_result.in.(reactive,positive,invalid),test_result.in.(reactive,positive,invalid)")
