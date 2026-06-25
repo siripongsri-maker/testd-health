@@ -138,9 +138,7 @@ export default function AdminSelftestFollowupContent() {
   const filtered = useMemo(() => {
     return rows.filter((r) => {
       const action = r.care_action || "pending";
-      const isOpen = !["in_care", "declined"].includes(action);
-      if (statusFilter === "open" && !isOpen) return false;
-      if (statusFilter === "closed" && isOpen) return false;
+      if (statusFilter !== "all" && action !== statusFilter) return false;
       if (!search.trim()) return true;
       const q = search.toLowerCase();
       return (r.pii?.full_name || r.full_name || "").toLowerCase().includes(q)
@@ -158,9 +156,29 @@ export default function AdminSelftestFollowupContent() {
     if (openHistory[id]) loadHistory(id);
   };
 
-  const counts = useMemo(() => {
-    const open = rows.filter((r) => !["in_care", "declined"].includes(r.care_action || "pending")).length;
-    return { total: rows.length, open, closed: rows.length - open };
+  const recordAttempt = async (r: Row, idx: 1 | 2 | 3) => {
+    const col = `contact_attempt_${idx}_at` as const;
+    const patch: any = { [col]: new Date().toISOString() };
+    // First attempt also flips status to "contacted" if still pending
+    if (idx === 1 && (r.care_action || "pending") === "pending") {
+      patch.care_action = "contacted";
+    }
+    await updateRow(r.id, patch);
+  };
+
+  const clearAttempt = async (r: Row, idx: 1 | 2 | 3) => {
+    const col = `contact_attempt_${idx}_at` as const;
+    await updateRow(r.id, { [col]: null } as any);
+  };
+
+  const tabCounts = useMemo(() => {
+    const m: Record<string, number> = { all: rows.length };
+    STATUS_TABS.forEach((s) => { m[s.value] = 0; });
+    rows.forEach((r) => {
+      const a = r.care_action || "pending";
+      if (m[a] !== undefined) m[a]++;
+    });
+    return m;
   }, [rows]);
 
   return (
