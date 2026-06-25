@@ -418,8 +418,9 @@ export default function AdminSelftestResultsContent() {
                             <a href={`tel:${phone}`} className="inline-flex items-center gap-1 text-primary hover:underline">
                               <Phone className="h-3 w-3"/>{phone}
                             </a>
-                          ) : <span className="text-muted-foreground">—</span>}
+                           ) : <span className="text-muted-foreground">—</span>}
                         </TableCell>
+                        <TableCell className="text-xs">{r.province || <span className="text-muted-foreground">—</span>}</TableCell>
                         <TableCell>
                           <Badge variant="outline" className={RESULT_COLOR[result] || ""}>{result}</Badge>
                         </TableCell>
