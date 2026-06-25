@@ -306,6 +306,39 @@ export default function AdminSelftestResultsContent() {
                   <SelectItem value="invalid">Invalid</SelectItem>
                 </SelectContent>
               </Select>
+              <Select value={provinceFilter} onValueChange={setProvinceFilter}>
+                <SelectTrigger className="w-44"><SelectValue placeholder={t("ทุกจังหวัด","All provinces")}/></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("ทุกจังหวัด","All provinces")}</SelectItem>
+                  {provinces.map((p) => (
+                    <SelectItem key={p} value={p}>{p}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1"
+                onClick={() => {
+                  if (sortKey === "date") setSortDir((d) => (d === "desc" ? "asc" : "desc"));
+                  else { setSortKey("date"); setSortDir("desc"); }
+                }}
+              >
+                <ArrowUpDown className="h-3.5 w-3.5" />
+                {sortKey === "date" ? (sortDir === "desc" ? t("ใหม่→เก่า","New→Old") : t("เก่า→ใหม่","Old→New")) : t("เรียงวันที่","Sort by date")}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1"
+                onClick={() => {
+                  if (sortKey === "province") setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+                  else { setSortKey("province"); setSortDir("asc"); }
+                }}
+              >
+                <ArrowUpDown className="h-3.5 w-3.5" />
+                {sortKey === "province" ? (sortDir === "asc" ? t("จังหวัด ก-ฮ","Province A→Z") : t("จังหวัด ฮ-ก","Province Z→A")) : t("เรียงจังหวัด","Sort by province")}
+              </Button>
               <Button variant="outline" size="sm" onClick={() => setSmsHistoryOpen(true)} className="gap-1.5">
                 <History className="h-4 w-4" />
                 {t("ประวัติ SMS / CSV", "SMS history / CSV")}
