@@ -80,7 +80,7 @@ export default function AdminSelftestResultsContent() {
     // PostgREST .or() with multiple `is.null` negations is unreliable.
     const select = `
       id, created_at, result_submitted_at, status, test_result, self_reported_result,
-      result_photo_url, staff_notes, care_action, assigned_branch, tracking_number, full_name, phone,
+      result_photo_url, staff_notes, care_action, assigned_branch, tracking_number, full_name, phone, province,
       pii:selftest_pii ( full_name, phone )
     `;
 
