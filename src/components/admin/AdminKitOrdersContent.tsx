@@ -1785,7 +1785,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
               />
             </div>
             <div>
-              <Label>{language === 'th' ? 'ที่อยู่จัดส่ง *' : 'Delivery Address *'}</Label>
+              <Label className="whitespace-pre-line">{language === 'th' ? 'ที่อยู่จัดส่ง *\n(โครงการขอสงวนสิทธิ์ในการไม่จัดส่งหากที่อยู่ไม่ครบ)' : 'Delivery Address *'}</Label>
               <Textarea
                 value={newOrder.recipient_address}
                 onChange={(e) => setNewOrder({ ...newOrder, recipient_address: e.target.value })}
