@@ -102,11 +102,7 @@ export default function AdminSelftestResultsContent() {
       if (!byId.has(r.id)) byId.set(r.id, r as Row);
     });
 
-    const merged = Array.from(byId.values()).sort((x, y) => {
-      const dx = new Date(x.result_submitted_at || x.created_at).getTime();
-      const dy = new Date(y.result_submitted_at || y.created_at).getTime();
-      return dy - dx;
-    });
+    const merged = Array.from(byId.values());
 
     setRows(merged);
     setEdits(
