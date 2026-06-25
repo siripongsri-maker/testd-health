@@ -7,7 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Phone, MessageSquare, RefreshCw, CheckCircle2, Search, History, ChevronDown, ChevronUp } from "lucide-react";
+import { Loader2, Phone, MessageSquare, RefreshCw, CheckCircle2, Search, History, ChevronDown, ChevronUp, PhoneCall, Clock, AlertCircle } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SelftestSmsDialog, { type SmsRecipient } from "./SelftestSmsDialog";
@@ -25,17 +26,26 @@ interface Row {
   assigned_branch: string | null;
   full_name: string | null;
   phone: string | null;
+  contact_attempt_1_at: string | null;
+  contact_attempt_2_at: string | null;
+  contact_attempt_3_at: string | null;
   pii: { full_name: string | null; phone: string | null } | null;
 }
 
-const CARE_ACTIONS = [
-  { value: "pending", labelTh: "รอติดตาม", labelEn: "Pending" },
-  { value: "contacted", labelTh: "ติดต่อแล้ว", labelEn: "Contacted" },
-  { value: "scheduled", labelTh: "นัดเข้าคลินิก", labelEn: "Clinic scheduled" },
-  { value: "in_care", labelTh: "เข้าสู่การรักษา", labelEn: "In care" },
-  { value: "declined", labelTh: "ปฏิเสธ", labelEn: "Declined" },
-  { value: "unreachable", labelTh: "ติดต่อไม่ได้", labelEn: "Unreachable" },
-];
+// Status tabs (each status gets its own tab)
+const STATUS_TABS = [
+  { value: "pending", labelTh: "รอติดตาม", labelEn: "Pending", closed: false, tone: "amber" },
+  { value: "contacted", labelTh: "ติดต่อแล้ว", labelEn: "Contacted", closed: false, tone: "blue" },
+  { value: "scheduled", labelTh: "นัดเข้าสู่การรักษา", labelEn: "Treatment scheduled", closed: false, tone: "indigo" },
+  { value: "in_care", labelTh: "กำลังรักษา (ปิดเคส)", labelEn: "In care (closed)", closed: true, tone: "emerald" },
+  { value: "declined", labelTh: "ปฏิเสธ (ปิดเคส)", labelEn: "Declined (closed)", closed: true, tone: "rose" },
+  { value: "unreachable", labelTh: "ติดต่อไม่ได้ (ปิดเคส)", labelEn: "Unreachable (closed)", closed: true, tone: "slate" },
+] as const;
+
+const CARE_ACTIONS = STATUS_TABS.map((s) => ({ value: s.value, labelTh: s.labelTh, labelEn: s.labelEn }));
+
+// 3-7-7 schedule: attempt 1 at day 0, attempt 2 +3 days, attempt 3 +7 days, then auto-close +7 days
+const ATTEMPT_OFFSETS_DAYS = [0, 3, 10, 17];
 
 interface HistoryRow {
   id: string;
@@ -52,7 +62,7 @@ export default function AdminSelftestFollowupContent() {
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Row[]>([]);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("open");
+  const [statusFilter, setStatusFilter] = useState<string>("pending");
   const [savingId, setSavingId] = useState<string | null>(null);
   const [openHistory, setOpenHistory] = useState<Record<string, boolean>>({});
   const [historyMap, setHistoryMap] = useState<Record<string, HistoryRow[]>>({});
@@ -111,6 +121,7 @@ export default function AdminSelftestFollowupContent() {
       .select(`
         id, created_at, result_submitted_at, status, test_result, self_reported_result,
         staff_notes, care_action, assigned_branch, full_name, phone,
+        contact_attempt_1_at, contact_attempt_2_at, contact_attempt_3_at,
         pii:selftest_pii ( full_name, phone )
       `)
       .or("self_reported_result.in.(reactive,positive,invalid),test_result.in.(reactive,positive,invalid)")
@@ -127,9 +138,7 @@ export default function AdminSelftestFollowupContent() {
   const filtered = useMemo(() => {
     return rows.filter((r) => {
       const action = r.care_action || "pending";
-      const isOpen = !["in_care", "declined"].includes(action);
-      if (statusFilter === "open" && !isOpen) return false;
-      if (statusFilter === "closed" && isOpen) return false;
+      if (statusFilter !== "all" && action !== statusFilter) return false;
       if (!search.trim()) return true;
       const q = search.toLowerCase();
       return (r.pii?.full_name || r.full_name || "").toLowerCase().includes(q)
@@ -147,9 +156,29 @@ export default function AdminSelftestFollowupContent() {
     if (openHistory[id]) loadHistory(id);
   };
 
-  const counts = useMemo(() => {
-    const open = rows.filter((r) => !["in_care", "declined"].includes(r.care_action || "pending")).length;
-    return { total: rows.length, open, closed: rows.length - open };
+  const recordAttempt = async (r: Row, idx: 1 | 2 | 3) => {
+    const col = `contact_attempt_${idx}_at` as const;
+    const patch: any = { [col]: new Date().toISOString() };
+    // First attempt also flips status to "contacted" if still pending
+    if (idx === 1 && (r.care_action || "pending") === "pending") {
+      patch.care_action = "contacted";
+    }
+    await updateRow(r.id, patch);
+  };
+
+  const clearAttempt = async (r: Row, idx: 1 | 2 | 3) => {
+    const col = `contact_attempt_${idx}_at` as const;
+    await updateRow(r.id, { [col]: null } as any);
+  };
+
+  const tabCounts = useMemo(() => {
+    const m: Record<string, number> = { all: rows.length };
+    STATUS_TABS.forEach((s) => { m[s.value] = 0; });
+    rows.forEach((r) => {
+      const a = r.care_action || "pending";
+      if (m[a] !== undefined) m[a]++;
+    });
+    return m;
   }, [rows]);
 
   return (
@@ -161,38 +190,30 @@ export default function AdminSelftestFollowupContent() {
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <Card><CardContent className="p-4">
-          <div className="text-xs text-muted-foreground">{t("รวมเคส","Total cases")}</div>
-          <div className="text-2xl font-bold">{counts.total}</div>
-        </CardContent></Card>
-        <Card><CardContent className="p-4">
-          <div className="text-xs text-muted-foreground">{t("รอติดตาม","Open")}</div>
-          <div className="text-2xl font-bold text-amber-600">{counts.open}</div>
-        </CardContent></Card>
-        <Card><CardContent className="p-4">
-          <div className="text-xs text-muted-foreground">{t("ปิดเคสแล้ว","Closed")}</div>
-          <div className="text-2xl font-bold text-emerald-600">{counts.closed}</div>
-        </CardContent></Card>
-      </div>
+      <Tabs value={statusFilter} onValueChange={setStatusFilter}>
+        <TabsList className="flex flex-wrap h-auto gap-1 bg-muted/50 p-1">
+          {STATUS_TABS.map((s) => (
+            <TabsTrigger key={s.value} value={s.value} className="text-xs gap-1.5">
+              <span>{language === "th" ? s.labelTh : s.labelEn}</span>
+              <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{tabCounts[s.value] ?? 0}</Badge>
+            </TabsTrigger>
+          ))}
+          <TabsTrigger value="all" className="text-xs gap-1.5">
+            <span>{t("ทั้งหมด","All")}</span>
+            <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">{tabCounts.all ?? 0}</Badge>
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       <Card>
         <CardHeader className="pb-3">
           <div className="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
-            <CardTitle className="text-base">{t("รายการที่ต้องติดตาม","Follow-up queue")}</CardTitle>
+            <CardTitle className="text-base">{t("รายการ","Cases")}</CardTitle>
             <div className="flex flex-wrap gap-2">
               <div className="relative">
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input className="pl-8 w-64" placeholder={t("ค้นหา ชื่อ/เบอร์","Search name/phone")} value={search} onChange={(e)=>setSearch(e.target.value)} />
               </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-36"><SelectValue/></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="open">{t("รอติดตาม","Open")}</SelectItem>
-                  <SelectItem value="closed">{t("ปิดเคส","Closed")}</SelectItem>
-                  <SelectItem value="all">{t("ทั้งหมด","All")}</SelectItem>
-                </SelectContent>
-              </Select>
               <Button variant="outline" size="sm" onClick={() => setSmsHistoryOpen(true)} className="gap-1.5">
                 <History className="h-4 w-4" />
                 {t("ประวัติ SMS / CSV", "SMS history / CSV")}
@@ -324,6 +345,89 @@ export default function AdminSelftestFollowupContent() {
                         }}
                       />
                     </div>
+                  </div>
+
+                  {/* 3-7-7 contact attempts */}
+                  <div>
+                    <div className="text-xs font-medium text-muted-foreground mb-2">
+                      {t("การโทรติดตาม 3-7-7 (ครั้งที่ 1 วันนี้ · ครั้งที่ 2 อีก 3 วัน · ครั้งที่ 3 อีก 7 วัน)",
+                         "Follow-up calls 3-7-7 (1st today · 2nd in 3 days · 3rd in 7 days)")}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      {([1,2,3] as const).map((idx) => {
+                        const at = idx === 1 ? r.contact_attempt_1_at : idx === 2 ? r.contact_attempt_2_at : r.contact_attempt_3_at;
+                        const baseDate = idx === 1
+                          ? (r.result_submitted_at || r.created_at)
+                          : idx === 2 ? r.contact_attempt_1_at : r.contact_attempt_2_at;
+                        const offsetDays = idx === 1 ? 0 : idx === 2 ? 3 : 7;
+                        const dueDate = baseDate ? new Date(new Date(baseDate).getTime() + offsetDays * 86400000) : null;
+                        const prevDone = idx === 1 || (idx === 2 ? !!r.contact_attempt_1_at : !!r.contact_attempt_2_at);
+                        const now = Date.now();
+                        const overdue = !at && prevDone && dueDate && now > dueDate.getTime();
+                        const upcoming = !at && prevDone && dueDate && now < dueDate.getTime();
+                        return (
+                          <div
+                            key={idx}
+                            className={`rounded-lg border p-3 ${at ? "bg-emerald-50 border-emerald-200 dark:bg-emerald-950/30 dark:border-emerald-900" : overdue ? "bg-rose-50 border-rose-200 dark:bg-rose-950/30 dark:border-rose-900" : prevDone ? "bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:border-amber-900" : "bg-muted/30 border-border opacity-70"}`}
+                          >
+                            <div className="flex items-center justify-between gap-1">
+                              <div className="flex items-center gap-1.5 text-xs font-semibold">
+                                <PhoneCall className="h-3.5 w-3.5" />
+                                {t(`ครั้งที่ ${idx}`, `Attempt ${idx}`)}
+                              </div>
+                              {at ? (
+                                <Badge variant="outline" className="h-5 text-[10px] border-emerald-500 text-emerald-700 dark:text-emerald-400">
+                                  <CheckCircle2 className="h-3 w-3 mr-1" />{t("โทรแล้ว","Called")}
+                                </Badge>
+                              ) : overdue ? (
+                                <Badge variant="destructive" className="h-5 text-[10px]">
+                                  <AlertCircle className="h-3 w-3 mr-1" />{t("เกินกำหนด","Overdue")}
+                                </Badge>
+                              ) : upcoming ? (
+                                <Badge variant="outline" className="h-5 text-[10px]">
+                                  <Clock className="h-3 w-3 mr-1" />{t("รอ","Upcoming")}
+                                </Badge>
+                              ) : null}
+                            </div>
+                            <div className="text-[11px] text-muted-foreground mt-1.5">
+                              {at
+                                ? new Date(at).toLocaleString("th-TH",{timeZone:"Asia/Bangkok",dateStyle:"medium",timeStyle:"short"})
+                                : dueDate
+                                  ? `${t("ครบกำหนด","Due")}: ${dueDate.toLocaleDateString("th-TH",{timeZone:"Asia/Bangkok"})}`
+                                  : t("รอครั้งก่อนหน้า","Awaiting prior attempt")}
+                            </div>
+                            <div className="flex gap-1 mt-2">
+                              {at ? (
+                                <Button size="sm" variant="ghost" className="h-7 px-2 text-[11px]" onClick={() => clearAttempt(r, idx)} disabled={savingId === r.id}>
+                                  {t("ล้าง","Clear")}
+                                </Button>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  variant={overdue ? "destructive" : "outline"}
+                                  className="h-7 px-2 text-[11px] flex-1"
+                                  onClick={() => recordAttempt(r, idx)}
+                                  disabled={!prevDone || savingId === r.id}
+                                >
+                                  {t("บันทึกการโทร","Log call")}
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {r.contact_attempt_3_at && !["in_care","declined","unreachable","scheduled"].includes(action) && (
+                      <div className="mt-2 flex items-center justify-between gap-2 rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 p-2">
+                        <div className="text-xs text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
+                          <AlertCircle className="h-4 w-4" />
+                          {t("โทรครบ 3 ครั้งแล้ว — พิจารณาปิดเคสเป็น 'ติดต่อไม่ได้'", "All 3 attempts completed — consider closing as 'Unreachable'")}
+                        </div>
+                        <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => updateRow(r.id, { care_action: "unreachable" })} disabled={savingId === r.id}>
+                          {t("ปิดเคส: ติดต่อไม่ได้", "Close: Unreachable")}
+                        </Button>
+                      </div>
+                    )}
                   </div>
 
                   {action === "in_care" && (

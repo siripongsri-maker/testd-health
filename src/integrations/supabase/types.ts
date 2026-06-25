@@ -3462,6 +3462,9 @@ export type Database = {
           callback_phone: string | null
           care_action: string | null
           consent_given: boolean | null
+          contact_attempt_1_at: string | null
+          contact_attempt_2_at: string | null
+          contact_attempt_3_at: string | null
           created_at: string
           days_since_risk: number | null
           delivered_at: string | null
@@ -3530,6 +3533,9 @@ export type Database = {
           callback_phone?: string | null
           care_action?: string | null
           consent_given?: boolean | null
+          contact_attempt_1_at?: string | null
+          contact_attempt_2_at?: string | null
+          contact_attempt_3_at?: string | null
           created_at?: string
           days_since_risk?: number | null
           delivered_at?: string | null
@@ -3598,6 +3604,9 @@ export type Database = {
           callback_phone?: string | null
           care_action?: string | null
           consent_given?: boolean | null
+          contact_attempt_1_at?: string | null
+          contact_attempt_2_at?: string | null
+          contact_attempt_3_at?: string | null
           created_at?: string
           days_since_risk?: number | null
           delivered_at?: string | null
