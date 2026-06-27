@@ -241,6 +241,10 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const [smsTemplateKey, setSmsTemplateKey] = useState<string | undefined>(undefined);
   const [smsSource, setSmsSource] = useState<"kit_orders" | "selftest">("kit_orders");
 
+  // On-site pickup filters
+  const [pickupDateFrom, setPickupDateFrom] = useState<string>("");
+  const [pickupDateTo, setPickupDateTo] = useState<string>("");
+
   const orderToSmsRecipient = (o: KitOrder): SmsRecipient => ({
     id: o.id,
     name: (o.recipient_name || '').trim() || 'คุณ',
