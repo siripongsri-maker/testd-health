@@ -517,7 +517,9 @@ export default function HIVSelfTest() {
 
     try {
       const isPickup = deliveryMode === 'pickup';
-      const initialStatus = isPickup ? 'received' : 'pending';
+      // For venue pickup, mark as 'delivered' so the user must explicitly
+      // confirm they received the kit from staff in the next step.
+      const initialStatus = isPickup ? 'delivered' : 'pending';
 
       const piiPayload = {
         full_name: shippingData.fullName,
@@ -661,14 +663,15 @@ export default function HIVSelfTest() {
       if (isNewUser && pendingCredentials) {
         setCurrentStep('account-success');
       } else if (isPickup) {
-        // Venue pickup: auto-confirmed, go straight to video/testing
+        // Venue pickup: require explicit confirmation that the kit was
+        // received from staff before moving on to the test video.
         toast.success(
-          language === 'th' 
-            ? '🎉 ยืนยันว่าได้รับแล้ว! พร้อมเริ่มตรวจ' 
-            : '🎉 Confirmed received! Ready to start testing.'
+          language === 'th'
+            ? '📦 บันทึกข้อมูลแล้ว กรุณายืนยันการรับชุดตรวจจากเจ้าหน้าที่'
+            : '📦 Info saved. Please confirm receipt from staff.'
         );
-        setCurrentStep('video');
-        trackEvent('selftest_submitted', { source: 'selftest', delivery_mode: deliveryMode, step: 'pickup_confirmed' });
+        setCurrentStep('confirm-receipt');
+        trackEvent('selftest_submitted', { source: 'selftest', delivery_mode: deliveryMode, step: 'pickup_pending_confirm' });
       } else {
         toast.success(
           language === 'th' 
