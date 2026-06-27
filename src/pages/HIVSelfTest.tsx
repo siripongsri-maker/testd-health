@@ -517,7 +517,9 @@ export default function HIVSelfTest() {
 
     try {
       const isPickup = deliveryMode === 'pickup';
-      const initialStatus = isPickup ? 'received' : 'pending';
+      // For venue pickup, mark as 'delivered' so the user must explicitly
+      // confirm they received the kit from staff in the next step.
+      const initialStatus = isPickup ? 'delivered' : 'pending';
 
       const piiPayload = {
         full_name: shippingData.fullName,
