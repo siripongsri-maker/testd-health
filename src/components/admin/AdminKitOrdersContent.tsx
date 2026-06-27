@@ -1657,10 +1657,79 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
               </Card>
             </div>
 
-            {/* Pickup Records List */}
-            <ScrollArea className="max-h-[60vh]">
-              <div className="space-y-3">
-                {hivRequests
+            {/* Date range + SMS bulk actions */}
+            {(() => {
+              const fromTs = pickupDateFrom ? new Date(pickupDateFrom + 'T00:00:00').getTime() : null;
+              const toTs = pickupDateTo ? new Date(pickupDateTo + 'T23:59:59').getTime() : null;
+              const inRange = (iso: string) => {
+                const t = new Date(iso).getTime();
+                if (fromTs !== null && t < fromTs) return false;
+                if (toTs !== null && t > toTs) return false;
+                return true;
+              };
+              const filteredPickups = hivRequests
+                .filter(r => r.delivery_mode === 'pickup')
+                .filter(r => inRange(r.created_at))
+                .filter(r => {
+                  if (!searchQuery) return true;
+                  const q = searchQuery.toLowerCase();
+                  return (
+                    r.id.toLowerCase().includes(q) ||
+                    r.selftest_pii?.full_name?.toLowerCase().includes(q) ||
+                    r.selftest_pii?.phone?.toLowerCase().includes(q) ||
+                    r.status.toLowerCase().includes(q)
+                  );
+                });
+              const smsTargets = filteredPickups
+                .filter(r => ((r.selftest_pii?.phone || r.callback_phone || '').replace(/\D/g, '').length >= 9))
+                .map(hivRequestToSmsRecipient);
+              const openBulkPickupSms = (templateKey: string) => {
+                if (smsTargets.length === 0) {
+                  toast.info(language === 'th' ? 'ไม่พบผู้รับที่มีเบอร์โทร' : 'No recipients with phone numbers');
+                  return;
+                }
+                setSmsSource('selftest');
+                setSmsRecipients(smsTargets);
+                setSmsTemplateKey(templateKey);
+                setSmsOpen(true);
+              };
+              return (
+                <>
+                  <Card className="p-3 mb-3">
+                    <div className="flex flex-wrap items-end gap-2">
+                      <div className="flex-1 min-w-[140px]">
+                        <Label className="text-xs">{language === 'th' ? 'ตั้งแต่วันที่' : 'From'}</Label>
+                        <Input type="date" value={pickupDateFrom} onChange={(e) => setPickupDateFrom(e.target.value)} />
+                      </div>
+                      <div className="flex-1 min-w-[140px]">
+                        <Label className="text-xs">{language === 'th' ? 'ถึงวันที่' : 'To'}</Label>
+                        <Input type="date" value={pickupDateTo} onChange={(e) => setPickupDateTo(e.target.value)} />
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => { setPickupDateFrom(''); setPickupDateTo(''); }}
+                      >
+                        {language === 'th' ? 'ล้าง' : 'Clear'}
+                      </Button>
+                      <div className="flex-1 min-w-[180px] text-xs text-muted-foreground">
+                        {language === 'th' ? 'พบ' : 'Found'} <strong>{filteredPickups.length}</strong> {language === 'th' ? 'รายการ' : 'records'} · {language === 'th' ? 'มีเบอร์โทร' : 'with phone'}: <strong>{smsTargets.length}</strong>
+                      </div>
+                      <Button
+                        size="sm"
+                        onClick={() => openBulkPickupSms('remind_report')}
+                        disabled={smsTargets.length === 0}
+                      >
+                        <MessageSquare className="h-4 w-4 mr-1" />
+                        {language === 'th' ? `ส่ง SMS ตามผลตรวจ (${smsTargets.length})` : `Send SMS Follow-up (${smsTargets.length})`}
+                      </Button>
+                    </div>
+                  </Card>
+
+                  {/* Pickup Records List */}
+                  <ScrollArea className="max-h-[60vh]">
+                    <div className="space-y-3">
+                      {filteredPickups.length === 0 ? (
                   .filter(r => r.delivery_mode === 'pickup')
                   .filter(r => {
                     if (!searchQuery) return true;
