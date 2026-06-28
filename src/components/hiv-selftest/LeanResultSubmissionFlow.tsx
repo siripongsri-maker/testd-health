@@ -863,9 +863,11 @@ async function submitGuestResult(
 ): Promise<string> {
   let photoPath: string | null = null;
   if (photo) {
-    // Upload to the guest/ prefix — anon insert is permitted there by storage policy.
+    // Upload to the guest/<token>/<file> path — anon insert is permitted there
+    // by the storage policy, and the unguessable token segment prevents another
+    // user from targeting/overwriting this upload.
     const ext = (photo.name.split(".").pop() || "jpg").toLowerCase();
-    photoPath = `guest/${crypto.randomUUID()}-${Date.now()}.${ext}`;
+    photoPath = `guest/${crypto.randomUUID()}/${Date.now()}.${ext}`;
     const { error: upErr } = await supabase.storage
       .from("selftest-results")
       .upload(photoPath, photo, { upsert: false, contentType: photo.type });
