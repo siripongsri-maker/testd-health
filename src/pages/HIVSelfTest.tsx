@@ -828,7 +828,9 @@ export default function HIVSelfTest() {
       setUploading(true);
       try {
         const fileExt = resultPhoto.name.split('.').pop() || 'jpg';
-        const fileName = `guest/${crypto.randomUUID()}-${Date.now()}.${fileExt}`;
+        // Path includes an unguessable per-upload token segment so guest photos
+        // cannot be targeted/overwritten by guessing predictable paths.
+        const fileName = `guest/${crypto.randomUUID()}/${Date.now()}.${fileExt}`;
 
         const { error: uploadError } = await supabase.storage
           .from('selftest-results')
