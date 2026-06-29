@@ -1,7 +1,9 @@
 import { useState, useEffect, lazy, Suspense } from "react";
+import { useLocation } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { APP_VERSION } from "@/config/appVersion";
 
 import { HeroSection } from "@/components/home/HeroSection";
 import { HeroLivingScene } from "@/components/landing/HeroLivingScene";
@@ -20,6 +22,8 @@ const AdminRequestsPopup = lazy(() => import("@/components/AdminRequestsPopup").
 import swingLogo from "@/assets/swing-logo.png";
 import testdLogo from "@/assets/testd-logo.png";
 
+const HOME_UI_VERSION = "latest-home-v5.0.5";
+
 const SectionSkeleton = ({ h = 120 }: { h?: number }) => (
   <div className="animate-pulse rounded-2xl bg-muted/30" style={{ height: h }} />
 );
@@ -28,10 +32,20 @@ const SectionSkeleton = ({ h = 120 }: { h?: number }) => (
 export default function Home() {
   const { t, language } = useLanguage();
   const { user, loading } = useAuth();
+  const location = useLocation();
   const [isAdmin, setIsAdmin] = useState(false);
   const [pendingRequests, setPendingRequests] = useState(0);
   const [adminPopupOpen, setAdminPopupOpen] = useState(false);
   const [loadDeferredSections, setLoadDeferredSections] = useState(false);
+
+  useEffect(() => {
+    console.info("[testD-home-render]", {
+      component: "src/pages/Home.tsx",
+      route: location.pathname,
+      uiVersion: HOME_UI_VERSION,
+      appVersion: APP_VERSION,
+    });
+  }, [location.pathname]);
 
   useEffect(() => {
     if ("requestIdleCallback" in window) {
@@ -120,6 +134,14 @@ export default function Home() {
   return (
     <div className="relative">
       <div className="fixed inset-0 gradient-hero" style={{ zIndex: -1 }} />
+
+      <div
+        className="fixed left-3 bottom-20 z-[60] rounded-full border border-border bg-card/90 px-2.5 py-1 text-[10px] font-mono text-muted-foreground shadow-sm backdrop-blur-xl"
+        data-ui-version={HOME_UI_VERSION}
+        aria-label={`UI_VERSION: ${HOME_UI_VERSION}`}
+      >
+        UI_VERSION: {HOME_UI_VERSION}
+      </div>
 
       <main className="px-5 sm:px-6 py-4 max-w-lg sm:max-w-5xl mx-auto relative">
         {/* Logo */}
