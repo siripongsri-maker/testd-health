@@ -13,6 +13,53 @@ const RETRY_KEY = "testd_refresh_retries";
 const MAX_RETRIES = 3;
 const CACHE_RESET_VERSION = `${APP_VERSION}:stale-sw-kill-2026-06-22`;
 
+function isPreviewOrDevHost(): boolean {
+  const host = window.location.hostname;
+  return (
+    import.meta.env.DEV ||
+    window.self !== window.top ||
+    host.startsWith("id-preview--") ||
+    host.startsWith("preview--") ||
+    host.includes("preview") ||
+    host === "lovableproject.com" ||
+    host.endsWith(".lovableproject.com") ||
+    host === "lovableproject-dev.com" ||
+    host.endsWith(".lovableproject-dev.com") ||
+    host === "beta.lovable.dev" ||
+    host.endsWith(".beta.lovable.dev") ||
+    new URLSearchParams(window.location.search).get("sw") === "off"
+  );
+}
+
+async function disablePreviewServiceWorkersAndCaches(): Promise<void> {
+  let swCount = 0;
+  let cacheCount = 0;
+
+  if ("serviceWorker" in navigator) {
+    const regs = await withTimeout(
+      navigator.serviceWorker.getRegistrations(),
+      1000,
+      [] as ServiceWorkerRegistration[],
+    );
+    swCount = regs.length;
+    await withTimeout(Promise.allSettled(regs.map((r) => r.unregister())), 1200, []);
+  }
+
+  if ("caches" in window) {
+    const keys = await withTimeout(caches.keys(), 1000, [] as string[]);
+    cacheCount = keys.length;
+    await withTimeout(Promise.allSettled(keys.map((k) => caches.delete(k))), 1200, []);
+  }
+
+  if (swCount || cacheCount) {
+    console.info("[testD-preview-cache] disabled stale preview SW/cache", {
+      appVersion: APP_VERSION,
+      serviceWorkers: swCount,
+      caches: cacheCount,
+    });
+  }
+}
+
 // Keys to preserve during force-update
 const PRESERVE_PREFIXES = [
   "sb-",
@@ -196,7 +243,10 @@ export function ForceUpdateGuard({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<GuardState>("ok");
 
   useEffect(() => {
-    if (import.meta.env.DEV || window.location.hostname.includes('preview')) return;
+    if (isPreviewOrDevHost()) {
+      void disablePreviewServiceWorkersAndCaches();
+      return;
+    }
     if (localStorage.getItem(RESET_KEY) === CACHE_RESET_VERSION) return;
 
     // Mark so we don't loop, then nuke caches/SWs and hard-reload to pick up
