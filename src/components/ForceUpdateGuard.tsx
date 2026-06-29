@@ -66,7 +66,7 @@ const PRESERVE_PREFIXES = [
   "supabase.",
   "referral_code",
   "testd-language",
-  "testd-v4-banner-dismissed",
+  "testd-v5-banner-dismissed",
 ];
 
 function shouldPreserve(key: string): boolean {
