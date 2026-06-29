@@ -16,6 +16,7 @@ import { AppLayout } from "@/components/AppLayout";
 import { ForceUpdateGuard } from "@/components/ForceUpdateGuard";
 import { DeploymentVersionCheck } from "@/components/DeploymentVersionCheck";
 import { consumePendingReload } from "@/lib/cacheResetLog";
+import { APP_VERSION } from "@/config/appVersion";
 
 // Log whether the previous forced reload landed on the expected version.
 consumePendingReload();
@@ -28,7 +29,6 @@ const SmsRedirect = lazy(() => import("./pages/SmsRedirect"));
 const KitTrackPublic = lazy(() => import("./pages/KitTrackPublic"));
 const SelftestFollowup = lazy(() => import("./pages/SelftestFollowup"));
 const SelftestUpdateId = lazy(() => import("./pages/SelftestUpdateId"));
-const Landing = lazy(() => import("./pages/Landing"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Consent = lazy(() => import("./pages/Consent"));
@@ -111,6 +111,15 @@ const queryClient = new QueryClient({
 function AppShell() {
   useMedicationReminder();
   const strippedLocation = useStrippedLocation();
+
+  if (import.meta.env.DEV && strippedLocation.pathname === "/") {
+    console.info("[testD-route] /th resolves to <Home />", {
+      component: "src/pages/Home.tsx",
+      matchedPathname: strippedLocation.pathname,
+      appVersion: APP_VERSION,
+    });
+  }
+
   return (
     <>
       <VersionAnnouncementBanner />
