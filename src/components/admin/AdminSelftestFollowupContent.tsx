@@ -59,6 +59,10 @@ interface HistoryRow {
 
 export default function AdminSelftestFollowupContent() {
   const { language } = useLanguage();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const targetRequestId = searchParams.get("request");
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+  const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const t = (th: string, en: string) => (language === "th" ? th : en);
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Row[]>([]);
