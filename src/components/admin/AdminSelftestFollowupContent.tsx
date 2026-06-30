@@ -140,6 +140,27 @@ export default function AdminSelftestFollowupContent() {
 
   useEffect(() => { load(); }, []);
 
+  // Deep-link: when ?request=<id> is present, switch to All tab and scroll/highlight
+  useEffect(() => {
+    if (!targetRequestId || loading) return;
+    const match = rows.find((r) => r.id === targetRequestId);
+    if (!match) return;
+    const action = match.care_action || "pending";
+    setStatusFilter(action);
+    setHighlightId(targetRequestId);
+    const tm = setTimeout(() => {
+      const el = cardRefs.current[targetRequestId];
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 200);
+    const clr = setTimeout(() => {
+      setHighlightId(null);
+      const next = new URLSearchParams(searchParams);
+      next.delete("request");
+      setSearchParams(next, { replace: true });
+    }, 4000);
+    return () => { clearTimeout(tm); clearTimeout(clr); };
+  }, [targetRequestId, loading, rows]);
+
   const filtered = useMemo(() => {
     return rows.filter((r) => {
       const action = r.care_action || "pending";
