@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, Search, Phone, Image as ImageIcon, RefreshCw, Save, Trash2, MessageSquare, Shield, History, ArrowUpDown, CalendarIcon, X } from "lucide-react";
+import { Loader2, Search, Phone, Image as ImageIcon, RefreshCw, Save, Trash2, MessageSquare, Shield, History, ArrowUpDown, CalendarIcon, X, ClipboardList } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -58,6 +59,7 @@ const STATUS_OPTIONS = [
 ];
 
 export default function AdminSelftestResultsContent() {
+  const navigate = useNavigate();
   const { language } = useLanguage();
   const { log: logAudit } = usePdpaAudit();
   const t = (th: string, en: string) => (language === "th" ? th : en);
@@ -544,6 +546,17 @@ export default function AdminSelftestResultsContent() {
                                 title={t("ส่ง SMS เชิญรับ PrEP", "Send PrEP invite SMS")}
                               >
                                 <MessageSquare className="h-4 w-4"/>
+                              </Button>
+                            )}
+                            {(result === "reactive" || result === "positive" || result === "invalid") && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-rose-600 hover:text-rose-700 hover:bg-rose-500/10"
+                                onClick={() => navigate(`/admin?tab=selftest-followup&request=${r.id}`)}
+                                title={t("ไปหน้าติดตามผล", "Go to follow-up")}
+                              >
+                                <ClipboardList className="h-4 w-4"/>
                               </Button>
                             )}
                             <Button

@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -58,6 +59,10 @@ interface HistoryRow {
 
 export default function AdminSelftestFollowupContent() {
   const { language } = useLanguage();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const targetRequestId = searchParams.get("request");
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+  const cardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const t = (th: string, en: string) => (language === "th" ? th : en);
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<Row[]>([]);
@@ -134,6 +139,27 @@ export default function AdminSelftestFollowupContent() {
   };
 
   useEffect(() => { load(); }, []);
+
+  // Deep-link: when ?request=<id> is present, switch to All tab and scroll/highlight
+  useEffect(() => {
+    if (!targetRequestId || loading) return;
+    const match = rows.find((r) => r.id === targetRequestId);
+    if (!match) return;
+    const action = match.care_action || "pending";
+    setStatusFilter(action);
+    setHighlightId(targetRequestId);
+    const tm = setTimeout(() => {
+      const el = cardRefs.current[targetRequestId];
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 200);
+    const clr = setTimeout(() => {
+      setHighlightId(null);
+      const next = new URLSearchParams(searchParams);
+      next.delete("request");
+      setSearchParams(next, { replace: true });
+    }, 4000);
+    return () => { clearTimeout(tm); clearTimeout(clr); };
+  }, [targetRequestId, loading, rows]);
 
   const filtered = useMemo(() => {
     return rows.filter((r) => {
@@ -283,7 +309,12 @@ export default function AdminSelftestFollowupContent() {
             const date = r.result_submitted_at || r.created_at;
             const isReactive = result === "reactive" || result === "positive";
             return (
-              <Card key={r.id} className="border-l-4" style={{ borderLeftColor: isReactive ? "hsl(var(--destructive))" : "hsl(var(--primary))" }}>
+              <Card
+                key={r.id}
+                ref={(el) => { cardRefs.current[r.id] = el; }}
+                className={`border-l-4 transition-shadow ${highlightId === r.id ? "ring-2 ring-rose-400 shadow-lg" : ""}`}
+                style={{ borderLeftColor: isReactive ? "hsl(var(--destructive))" : "hsl(var(--primary))" }}
+              >
                 <CardContent className="p-4 space-y-3">
                   <div className="flex flex-wrap gap-3 items-start justify-between">
                     <div className="flex gap-3">
