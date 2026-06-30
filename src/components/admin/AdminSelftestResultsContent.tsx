@@ -548,6 +548,17 @@ export default function AdminSelftestResultsContent() {
                                 <MessageSquare className="h-4 w-4"/>
                               </Button>
                             )}
+                            {(result === "reactive" || result === "positive" || result === "invalid") && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-rose-600 hover:text-rose-700 hover:bg-rose-500/10"
+                                onClick={() => navigate(`/admin?tab=selftest-followup&request=${r.id}`)}
+                                title={t("ไปหน้าติดตามผล", "Go to follow-up")}
+                              >
+                                <ClipboardList className="h-4 w-4"/>
+                              </Button>
+                            )}
                             <Button
                               size="sm"
                               variant={dirty ? "default" : "ghost"}
