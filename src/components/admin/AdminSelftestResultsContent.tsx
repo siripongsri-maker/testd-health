@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, Search, Phone, Image as ImageIcon, RefreshCw, Save, Trash2, MessageSquare, Shield, History, ArrowUpDown, CalendarIcon, X } from "lucide-react";
+import { Loader2, Search, Phone, Image as ImageIcon, RefreshCw, Save, Trash2, MessageSquare, Shield, History, ArrowUpDown, CalendarIcon, X, ClipboardList } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
