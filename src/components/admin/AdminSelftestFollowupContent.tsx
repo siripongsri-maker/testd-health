@@ -309,7 +309,12 @@ export default function AdminSelftestFollowupContent() {
             const date = r.result_submitted_at || r.created_at;
             const isReactive = result === "reactive" || result === "positive";
             return (
-              <Card key={r.id} className="border-l-4" style={{ borderLeftColor: isReactive ? "hsl(var(--destructive))" : "hsl(var(--primary))" }}>
+              <Card
+                key={r.id}
+                ref={(el) => { cardRefs.current[r.id] = el; }}
+                className={`border-l-4 transition-shadow ${highlightId === r.id ? "ring-2 ring-rose-400 shadow-lg" : ""}`}
+                style={{ borderLeftColor: isReactive ? "hsl(var(--destructive))" : "hsl(var(--primary))" }}
+              >
                 <CardContent className="p-4 space-y-3">
                   <div className="flex flex-wrap gap-3 items-start justify-between">
                     <div className="flex gap-3">
