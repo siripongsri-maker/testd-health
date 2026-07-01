@@ -175,17 +175,27 @@ Deno.serve(async (req) => {
 
       // Whitelist request fields — block client from injecting status/test_result/abuse_*
       const r = request as Record<string, any>;
+      const deliveryModeFinal = r.delivery_mode ?? "ship";
+      // Venue pickup: kit is handed over on-site, so the request lands as
+      // "delivered" — the recipient still has to press Confirm receipt.
+      const initialStatus = deliveryModeFinal === "pickup" ? "delivered" : "pending";
       const safeRequest: Record<string, unknown> = {
         user_id: resolvedUserId,
         pii_id: piiRow.id,
+        status: initialStatus,
         last_risk_date: r.last_risk_date ?? null,
-        delivery_mode: r.delivery_mode ?? "ship",
+        delivery_mode: deliveryModeFinal,
         assigned_branch: r.assigned_branch ?? "silom",
         wants_callback: r.wants_callback ?? false,
         callback_phone: r.callback_phone ?? null,
         submission_path: r.submission_path ?? null,
         pickup_branch: r.pickup_branch ?? null,
         pickup_date: r.pickup_date ?? null,
+        pickup_location_captured: r.pickup_location_captured ?? null,
+        pickup_latitude: r.pickup_latitude ?? null,
+        pickup_longitude: r.pickup_longitude ?? null,
+        pickup_location_timestamp: r.pickup_location_timestamp ?? null,
+        pickup_location_status: r.pickup_location_status ?? null,
         notes: r.notes ?? null,
         consent_given: r.consent_given ?? null,
         risk_level: r.risk_level ?? null,
