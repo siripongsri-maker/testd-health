@@ -91,6 +91,8 @@ export default function HIVSelfTest() {
   
   const [nhsoData, setNhsoData] = useState<NHSOFormData>({
     thaiId: "",
+    passportNo: "",
+    idType: "thai_id",
     dateOfBirth: "",
     gender: "",
   });
