@@ -585,12 +585,20 @@ export default function HIVSelfTest() {
       if (user?.id) {
         invokeBody.user_id = user.id;
       } else {
-        if (!nhsoData.thaiId || nhsoData.thaiId.length !== 13) {
+        if (isPassport) {
+          const p = (nhsoData.passportNo || '').trim();
+          if (p.length < 5) {
+            toast.error(language === 'th' ? 'กรุณากรอกหมายเลขพาสปอร์ต' : 'Please enter your passport number');
+            setLoading(false);
+            return;
+          }
+        } else if (!nhsoData.thaiId || nhsoData.thaiId.length !== 13) {
           toast.error(language === 'th' ? 'กรุณากรอกหมายเลขบัตรประชาชนให้ถูกต้อง' : 'Please enter a valid Thai ID');
           setLoading(false);
           return;
         }
-        const suffix = nhsoData.thaiId.slice(-6);
+        const idSource = isPassport ? (nhsoData.passportNo || '').replace(/[^A-Z0-9]/gi, '') : nhsoData.thaiId;
+        const suffix = idSource.slice(-6).toLowerCase();
         const randomPart = Math.random().toString(36).slice(-4);
         const email = `user_${suffix}_${randomPart}@swingth.local`;
         const password = generateSecurePassword();
@@ -607,7 +615,8 @@ export default function HIVSelfTest() {
 
       // Retry once if generated email collides
       if (!user?.id && (submitError || (submitData && submitData.error === 'already_exists'))) {
-        const suffix = nhsoData.thaiId.slice(-6);
+        const idSource = isPassport ? (nhsoData.passportNo || '').replace(/[^A-Z0-9]/gi, '') : nhsoData.thaiId;
+        const suffix = idSource.slice(-6).toLowerCase();
         const retrySuffix = Math.random().toString(36).slice(-6);
         const retryEmail = `user_${suffix}_${retrySuffix}@swingth.local`;
         const password = generateSecurePassword();
