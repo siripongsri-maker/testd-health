@@ -91,6 +91,8 @@ export default function HIVSelfTest() {
   
   const [nhsoData, setNhsoData] = useState<NHSOFormData>({
     thaiId: "",
+    passportNo: "",
+    idType: "thai_id",
     dateOfBirth: "",
     gender: "",
   });
@@ -517,14 +519,31 @@ export default function HIVSelfTest() {
 
     try {
       const isPickup = deliveryMode === 'pickup';
+      const isPassport = isPickup && nhsoData.idType === 'passport';
       // For venue pickup, mark as 'delivered' so the user must explicitly
       // confirm they received the kit from staff in the next step.
       const initialStatus = isPickup ? 'delivered' : 'pending';
 
-      const piiPayload = {
+      // Validate ID input up-front
+      if (isPassport) {
+        const p = (nhsoData.passportNo || '').trim();
+        if (p.length < 5) {
+          toast.error(language === 'th' ? 'กรุณากรอกหมายเลขพาสปอร์ต' : 'Please enter your passport number');
+          setLoading(false);
+          return;
+        }
+      } else if (!nhsoData.thaiId || nhsoData.thaiId.length !== 13) {
+        toast.error(language === 'th' ? 'กรุณากรอกหมายเลขบัตรประชาชนให้ถูกต้อง' : 'Please enter a valid Thai ID');
+        setLoading(false);
+        return;
+      }
+
+      const piiPayload: Record<string, any> = {
         full_name: shippingData.fullName,
         date_of_birth: nhsoData.dateOfBirth || null,
-        thai_id: nhsoData.thaiId,
+        thai_id: isPassport ? null : nhsoData.thaiId,
+        passport_no: isPassport ? (nhsoData.passportNo || '').trim() : null,
+        id_type: isPassport ? 'passport' : 'thai_id',
         gender: nhsoData.gender || null,
         phone: shippingData.phone,
         line_id: shippingData.lineId,
@@ -566,12 +585,20 @@ export default function HIVSelfTest() {
       if (user?.id) {
         invokeBody.user_id = user.id;
       } else {
-        if (!nhsoData.thaiId || nhsoData.thaiId.length !== 13) {
+        if (isPassport) {
+          const p = (nhsoData.passportNo || '').trim();
+          if (p.length < 5) {
+            toast.error(language === 'th' ? 'กรุณากรอกหมายเลขพาสปอร์ต' : 'Please enter your passport number');
+            setLoading(false);
+            return;
+          }
+        } else if (!nhsoData.thaiId || nhsoData.thaiId.length !== 13) {
           toast.error(language === 'th' ? 'กรุณากรอกหมายเลขบัตรประชาชนให้ถูกต้อง' : 'Please enter a valid Thai ID');
           setLoading(false);
           return;
         }
-        const suffix = nhsoData.thaiId.slice(-6);
+        const idSource = isPassport ? (nhsoData.passportNo || '').replace(/[^A-Z0-9]/gi, '') : nhsoData.thaiId;
+        const suffix = idSource.slice(-6).toLowerCase();
         const randomPart = Math.random().toString(36).slice(-4);
         const email = `user_${suffix}_${randomPart}@swingth.local`;
         const password = generateSecurePassword();
@@ -588,7 +615,8 @@ export default function HIVSelfTest() {
 
       // Retry once if generated email collides
       if (!user?.id && (submitError || (submitData && submitData.error === 'already_exists'))) {
-        const suffix = nhsoData.thaiId.slice(-6);
+        const idSource = isPassport ? (nhsoData.passportNo || '').replace(/[^A-Z0-9]/gi, '') : nhsoData.thaiId;
+        const suffix = idSource.slice(-6).toLowerCase();
         const retrySuffix = Math.random().toString(36).slice(-6);
         const retryEmail = `user_${suffix}_${retrySuffix}@swingth.local`;
         const password = generateSecurePassword();

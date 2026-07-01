@@ -8334,8 +8334,10 @@ export type Database = {
           full_name: string | null
           gender: string | null
           id: string
+          id_type: string | null
           line_id: string | null
           national_id: string | null
+          passport_no: string | null
           phone: string | null
           postal_code: string | null
           province: string | null
@@ -8353,8 +8355,10 @@ export type Database = {
           full_name?: string | null
           gender?: string | null
           id?: string
+          id_type?: string | null
           line_id?: string | null
           national_id?: string | null
+          passport_no?: string | null
           phone?: string | null
           postal_code?: string | null
           province?: string | null
@@ -8372,8 +8376,10 @@ export type Database = {
           full_name?: string | null
           gender?: string | null
           id?: string
+          id_type?: string | null
           line_id?: string | null
           national_id?: string | null
+          passport_no?: string | null
           phone?: string | null
           postal_code?: string | null
           province?: string | null
@@ -10637,6 +10643,7 @@ export type Database = {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
       }
+      email_queue_dispatch: { Args: never; Returns: undefined }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
