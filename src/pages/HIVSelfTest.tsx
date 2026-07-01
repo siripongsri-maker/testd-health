@@ -998,11 +998,12 @@ export default function HIVSelfTest() {
         );
       }
       
-      fetchRequests();
-      setCurrentStep('intro');
       setActiveRequest(null);
+      setCurrentStep('intro');
       setCompletedSteps([]);
       setTimerSeconds(15 * 60);
+      setTimerActive(false);
+      setTimerFinished(false);
       setResultPhoto(null);
       setPhotoPreview(null);
       setAnalysisResult(null);
@@ -1010,6 +1011,7 @@ export default function HIVSelfTest() {
       setWantsCallback(false);
       setCallbackPhone("");
       setPdpaConsent(false);
+      await fetchRequests();
     } catch (error) {
       console.error('Error uploading:', error);
       toast.error(language === 'th' ? 'อัปโหลดไม่สำเร็จ' : 'Upload failed');
