@@ -739,12 +739,14 @@ export default function HIVSelfTest() {
     try {
       await supabase
         .from('hiv_selftest_requests')
-        .update({ status: 'confirmed' })
+        .update({ status: 'received', received_at: new Date().toISOString() } as any)
         .eq('id', activeRequest.id);
       
-      setActiveRequest({ ...activeRequest, status: 'confirmed' });
-      setCurrentStep('video');
-      toast.success(language === 'th' ? 'ยืนยันการรับสำเร็จ!' : 'Receipt confirmed!');
+      setActiveRequest({ ...activeRequest, status: 'received' });
+      // Venue pickup: after confirming receipt, jump straight to the
+      // result submission page (skip tutorial/timer — kit already used on-site).
+      setCurrentStep('photo-result');
+      toast.success(language === 'th' ? 'ยืนยันการรับสำเร็จ! ส่งผลตรวจได้เลย' : 'Receipt confirmed! You can submit your result now');
     } catch (error) {
       toast.error(language === 'th' ? 'เกิดข้อผิดพลาด' : 'Something went wrong');
     } finally {
