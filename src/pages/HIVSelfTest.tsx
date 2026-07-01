@@ -323,7 +323,8 @@ export default function HIVSelfTest() {
       } else if (activeRequest.status === 'delivered') {
         setCurrentStep('confirm-receipt');
       } else if (activeRequest.status === 'confirmed' || activeRequest.status === 'received') {
-        setCurrentStep('video');
+        // Kit already confirmed as received — send straight to result submission.
+        setCurrentStep('photo-result');
       }
     }
   }, [activeRequest]);
