@@ -25,8 +25,12 @@ export interface ShippingFormData {
   lastRiskDate: string;
 }
 
+export type IdType = 'thai_id' | 'passport';
+
 export interface NHSOFormData {
   thaiId: string;
+  passportNo?: string;
+  idType?: IdType;
   dateOfBirth: string;
   gender: 'male' | 'female' | 'transgender_male' | 'transgender_female' | 'non_binary' | 'prefer_not_to_say' | '';
 }
