@@ -1,0 +1,1 @@
+ALTER TABLE public.selftest_pii ADD COLUMN IF NOT EXISTS id_type TEXT DEFAULT 'thai_id', ADD COLUMN IF NOT EXISTS passport_no TEXT;
