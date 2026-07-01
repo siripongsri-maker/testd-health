@@ -180,36 +180,79 @@ export function LiteRequestStep({
         </Card>
       )}
 
-      {/* Thai ID OCR Scanner */}
-      <ThaiIdScanner onScanComplete={handleScanComplete} />
+      {/* Thai ID OCR Scanner — hide when using passport */}
+      {!isPassport && <ThaiIdScanner onScanComplete={handleScanComplete} />}
 
       {/* NHSO Verification — always required */}
       <Card className="p-4 space-y-3">
         <div className="flex items-center gap-2 mb-1">
           <Shield className="h-4 w-4 text-primary" />
           <h3 className="text-sm font-semibold text-foreground">
-            {language === 'th' ? 'ยืนยันสิทธิ์ สปสช.' : 'NHSO Verification'}
+            {language === 'th' ? 'ยืนยันตัวตน' : 'Identity Verification'}
           </h3>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="thaiId">
-            {language === 'th' ? 'เลขบัตรประชาชน (13 หลัก)' : 'Thai ID (13 digits)'} *
-          </Label>
-          <Input
-            id="thaiId"
-            inputMode="numeric"
-            value={nhsoData.thaiId}
-            onChange={(e) => handleThaiIdChange(e.target.value)}
-            placeholder="XXXXXXXXXXXXX"
-            maxLength={13}
-            className={thaiIdError ? 'border-destructive' : ''}
-          />
-          {thaiIdError && <p className="text-xs text-destructive">{thaiIdError}</p>}
-          {nhsoData.thaiId.length === 13 && !thaiIdError && (
-            <p className="text-xs text-success flex items-center gap-1"><Check className="h-3 w-3" /> {language === 'th' ? 'ถูกต้อง' : 'Valid'}</p>
-          )}
-        </div>
+        {/* ID type toggle — only in pickup mode */}
+        {deliveryMode === 'pickup' && (
+          <div className="space-y-2">
+            <Label>{language === 'th' ? 'ประเภทเอกสาร' : 'ID Type'} *</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                type="button"
+                variant={!isPassport ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => onNhsoChange({ ...nhsoData, idType: 'thai_id' })}
+              >
+                {language === 'th' ? 'บัตรประชาชน' : 'Thai ID'}
+              </Button>
+              <Button
+                type="button"
+                variant={isPassport ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => onNhsoChange({ ...nhsoData, idType: 'passport' })}
+              >
+                {language === 'th' ? 'พาสปอร์ต' : 'Passport'}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {language === 'th' ? 'พาสปอร์ตใช้ได้เฉพาะกรณีรับที่หน้างานเท่านั้น' : 'Passport only available for on-site pickup'}
+            </p>
+          </div>
+        )}
+
+        {isPassport ? (
+          <div className="space-y-2">
+            <Label htmlFor="passportNo">
+              {language === 'th' ? 'หมายเลขพาสปอร์ต' : 'Passport Number'} *
+            </Label>
+            <Input
+              id="passportNo"
+              value={nhsoData.passportNo || ''}
+              onChange={(e) => onNhsoChange({ ...nhsoData, passportNo: e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 20) })}
+              placeholder="A1234567"
+              maxLength={20}
+            />
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <Label htmlFor="thaiId">
+              {language === 'th' ? 'เลขบัตรประชาชน (13 หลัก)' : 'Thai ID (13 digits)'} *
+            </Label>
+            <Input
+              id="thaiId"
+              inputMode="numeric"
+              value={nhsoData.thaiId}
+              onChange={(e) => handleThaiIdChange(e.target.value)}
+              placeholder="XXXXXXXXXXXXX"
+              maxLength={13}
+              className={thaiIdError ? 'border-destructive' : ''}
+            />
+            {thaiIdError && <p className="text-xs text-destructive">{thaiIdError}</p>}
+            {nhsoData.thaiId.length === 13 && !thaiIdError && (
+              <p className="text-xs text-success flex items-center gap-1"><Check className="h-3 w-3" /> {language === 'th' ? 'ถูกต้อง' : 'Valid'}</p>
+            )}
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2">
