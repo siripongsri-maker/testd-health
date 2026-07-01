@@ -151,7 +151,10 @@ export function LiteRequestStep({
     }
   };
 
-  const isNhsoValid = nhsoData.thaiId.length === 13 && !thaiIdError && nhsoData.dateOfBirth && nhsoData.gender;
+  const isPassport = deliveryMode === 'pickup' && nhsoData.idType === 'passport';
+  const isNhsoValid = isPassport
+    ? !!(nhsoData.passportNo && nhsoData.passportNo.trim().length >= 5 && nhsoData.dateOfBirth && nhsoData.gender)
+    : (nhsoData.thaiId.length === 13 && !thaiIdError && nhsoData.dateOfBirth && nhsoData.gender);
   const isPickupLocationValid = true; // location is optional, never blocks submission
   const isShippingValid = deliveryMode === 'pickup'
     ? !!(shippingData.fullName && shippingData.province)
