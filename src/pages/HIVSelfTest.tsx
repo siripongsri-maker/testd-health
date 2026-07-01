@@ -396,10 +396,16 @@ export default function HIVSelfTest() {
     
     if (data) {
       setRequests(data);
-      const active = data.find(r => !['completed', 'cancelled'].includes(r.status));
-      if (active) {
-        setActiveRequest(active);
-      }
+      // A request only counts as "active" while the kit is in-flight or awaiting
+      // a result. Once the user has submitted their result photo (or the case is
+      // closed/cancelled), it must NOT block a fresh request.
+      const CLOSED_STATUSES = [
+        'completed', 'cancelled',
+        'result_submitted', 'reviewed', 'result_reviewed',
+        'positive', 'negative', 'invalid', 'reactive', 'non_reactive',
+      ];
+      const active = data.find(r => !CLOSED_STATUSES.includes(r.status));
+      setActiveRequest(active ?? null);
     }
   };
 
