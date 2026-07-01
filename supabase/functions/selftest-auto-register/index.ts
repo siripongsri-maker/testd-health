@@ -111,14 +111,35 @@ Deno.serve(async (req) => {
 
       // Whitelist PII fields — never spread raw client input into service-role insert.
       // Canonical column is `thai_id`; accept legacy `national_id` alias from older clients.
+      const idType = (pii as any).id_type === 'passport' ? 'passport' : 'thai_id';
+      const deliveryMode = (request as any)?.delivery_mode ?? 'ship';
       const rawThaiId =
         (pii as any).thai_id ?? (pii as any).national_id ?? null;
       const normalizedThaiId =
         typeof rawThaiId === "string"
           ? rawThaiId.replace(/\D/g, "").slice(0, 13) || null
           : null;
+      const rawPassport = (pii as any).passport_no;
+      const normalizedPassport =
+        typeof rawPassport === "string"
+          ? rawPassport.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 20) || null
+          : null;
 
-      if (!normalizedThaiId || normalizedThaiId.length !== 13) {
+      // Passport is only allowed for on-site pickup
+      if (idType === 'passport') {
+        if (deliveryMode !== 'pickup') {
+          return json(
+            { error: "passport_pickup_only", message: "พาสปอร์ตใช้ได้เฉพาะกรณีรับที่หน้างาน" },
+            400,
+          );
+        }
+        if (!normalizedPassport || normalizedPassport.length < 5) {
+          return json(
+            { error: "passport_required", message: "กรุณากรอกหมายเลขพาสปอร์ต" },
+            400,
+          );
+        }
+      } else if (!normalizedThaiId || normalizedThaiId.length !== 13) {
         return json(
           { error: "thai_id_required", message: "กรุณากรอกเลขบัตรประชาชน 13 หลัก" },
           400,
@@ -136,7 +157,9 @@ Deno.serve(async (req) => {
         postal_code: (pii as any).postal_code ?? null,
         date_of_birth: (pii as any).date_of_birth ?? null,
         gender: (pii as any).gender ?? null,
-        thai_id: normalizedThaiId,
+        thai_id: idType === 'passport' ? null : normalizedThaiId,
+        passport_no: idType === 'passport' ? normalizedPassport : null,
+        id_type: idType,
         email: (pii as any).email ?? null,
       };
 
