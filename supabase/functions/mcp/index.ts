@@ -11,7 +11,7 @@ import { createClient } from "npm:@supabase/supabase-js@^2.89.0";
 var list_branches_default = defineTool({
   name: "list_branches",
   title: "List clinic branches",
-  description: "List SWING clinic branches (name, slug, address, phone) available for booking.",
+  description: "List active SWING clinic branches (name, slug, address, phone) available for booking.",
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async () => {
@@ -20,7 +20,7 @@ var list_branches_default = defineTool({
       process.env.SUPABASE_PUBLISHABLE_KEY,
       { auth: { persistSession: false, autoRefreshToken: false } }
     );
-    const { data, error } = await supabase.from("branches").select("id,slug,name,address,phone").order("name");
+    const { data, error } = await supabase.from("booking_branches").select("id,slug,name_th,name_en,address_th,address_en,phone,status,is_active").eq("is_active", true).order("name_en");
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     return {
       content: [{ type: "text", text: JSON.stringify(data ?? []) }],
@@ -35,7 +35,7 @@ import { createClient as createClient2 } from "npm:@supabase/supabase-js@^2.89.0
 var list_services_default = defineTool2({
   name: "list_services",
   title: "List clinic services",
-  description: "List bookable clinic services from the public services catalog.",
+  description: "List active bookable clinic services (Thai and English names).",
   inputSchema: {},
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async () => {
@@ -44,7 +44,7 @@ var list_services_default = defineTool2({
       process.env.SUPABASE_PUBLISHABLE_KEY,
       { auth: { persistSession: false, autoRefreshToken: false } }
     );
-    const { data, error } = await supabase.from("booking_services").select("id,slug,name_th,name_en,category,active").eq("active", true).order("name_en");
+    const { data, error } = await supabase.from("booking_services").select("id,slug,name_th,name_en,description_th,description_en,is_free_thai,is_free_global_fund,display_order").eq("is_active", true).order("display_order");
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     return {
       content: [{ type: "text", text: JSON.stringify(data ?? []) }],
@@ -60,7 +60,7 @@ import { z } from "npm:zod@^3.25.76";
 var search_articles_default = defineTool3({
   name: "search_articles",
   title: "Search health articles",
-  description: "Search published testD health/harm-reduction articles by keyword. Returns id, slug, title, excerpt.",
+  description: "Search published testD health/harm-reduction articles by keyword (matches Thai and English titles/excerpts).",
   inputSchema: {
     query: z.string().trim().min(1).describe("Keyword to search titles and excerpts."),
     limit: z.number().int().min(1).max(20).default(10).describe("Max results (1-20).")
@@ -72,7 +72,10 @@ var search_articles_default = defineTool3({
       process.env.SUPABASE_PUBLISHABLE_KEY,
       { auth: { persistSession: false, autoRefreshToken: false } }
     );
-    const { data, error } = await supabase.from("articles").select("id,slug,title,excerpt,published_at").eq("status", "published").or(`title.ilike.%${query}%,excerpt.ilike.%${query}%`).order("published_at", { ascending: false }).limit(limit);
+    const q = query.replace(/[%,]/g, " ");
+    const { data, error } = await supabase.from("blog_articles").select("id,slug,title_th,title_en,excerpt_th,excerpt_en,published_at").eq("status", "published").or(
+      `title_th.ilike.%${q}%,title_en.ilike.%${q}%,excerpt_th.ilike.%${q}%,excerpt_en.ilike.%${q}%`
+    ).order("published_at", { ascending: false }).limit(limit);
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     return {
       content: [{ type: "text", text: JSON.stringify(data ?? []) }],

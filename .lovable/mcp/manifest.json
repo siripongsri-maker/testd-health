@@ -15,7 +15,7 @@
       {
         "name": "list_branches",
         "title": "List clinic branches",
-        "description": "List SWING clinic branches (name, slug, address, phone) available for booking.",
+        "description": "List active SWING clinic branches (name, slug, address, phone) available for booking.",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -31,7 +31,7 @@
       {
         "name": "list_services",
         "title": "List clinic services",
-        "description": "List bookable clinic services from the public services catalog.",
+        "description": "List active bookable clinic services (Thai and English names).",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,
@@ -47,7 +47,7 @@
       {
         "name": "search_articles",
         "title": "Search health articles",
-        "description": "Search published testD health/harm-reduction articles by keyword. Returns id, slug, title, excerpt.",
+        "description": "Search published testD health/harm-reduction articles by keyword (matches Thai and English titles/excerpts).",
         "annotations": {
           "readOnlyHint": true,
           "idempotentHint": true,

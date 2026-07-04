@@ -5,7 +5,7 @@ import { z } from "zod";
 export default defineTool({
   name: "search_articles",
   title: "Search health articles",
-  description: "Search published testD health/harm-reduction articles by keyword. Returns id, slug, title, excerpt.",
+  description: "Search published testD health/harm-reduction articles by keyword (matches Thai and English titles/excerpts).",
   inputSchema: {
     query: z.string().trim().min(1).describe("Keyword to search titles and excerpts."),
     limit: z.number().int().min(1).max(20).default(10).describe("Max results (1-20)."),
@@ -17,11 +17,14 @@ export default defineTool({
       process.env.SUPABASE_PUBLISHABLE_KEY!,
       { auth: { persistSession: false, autoRefreshToken: false } },
     );
+    const q = query.replace(/[%,]/g, " ");
     const { data, error } = await supabase
-      .from("articles")
-      .select("id,slug,title,excerpt,published_at")
+      .from("blog_articles")
+      .select("id,slug,title_th,title_en,excerpt_th,excerpt_en,published_at")
       .eq("status", "published")
-      .or(`title.ilike.%${query}%,excerpt.ilike.%${query}%`)
+      .or(
+        `title_th.ilike.%${q}%,title_en.ilike.%${q}%,excerpt_th.ilike.%${q}%,excerpt_en.ilike.%${q}%`,
+      )
       .order("published_at", { ascending: false })
       .limit(limit);
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
