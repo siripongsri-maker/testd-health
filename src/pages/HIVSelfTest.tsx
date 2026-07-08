@@ -2009,7 +2009,19 @@ export default function HIVSelfTest() {
             }}
             cameFromMagicLink={searchParams.has('token')}
             onDone={() => {
+              // Clear stale in-memory pending state FIRST so the
+              // step-from-status useEffect below doesn't route the user
+              // back into the just-completed submission flow (this matters
+              // for magic-link / not-signed-in users where fetchRequests
+              // is a no-op and can't refresh activeRequest from the DB).
+              setActiveRequest(null);
               setCurrentStep('intro');
+              // Notify banner hook + refetch from Supabase so the
+              // recalculated activeRequest reflects the submitted row.
+              try {
+                localStorage.removeItem('hiv-selftest-timer');
+                window.dispatchEvent(new CustomEvent('selftest:pending-refresh'));
+              } catch { /* noop */ }
               fetchRequests();
             }}
             trackEvent={(name, props) => trackEvent(name, props as any)}
