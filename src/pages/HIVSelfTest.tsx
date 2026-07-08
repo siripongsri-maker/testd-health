@@ -49,7 +49,7 @@ import {
 } from "@/components/hiv-selftest";
 import { SelfTestResultExplanation } from "@/components/hiv-selftest/SelfTestResultExplanation";
 import { LeanResultSubmissionFlow } from "@/components/hiv-selftest/LeanResultSubmissionFlow";
-import { PendingSelftestResultBanner } from "@/components/hiv-selftest/PendingSelftestResultBanner";
+
 import { useFormAutosave } from "@/hooks/useFormAutosave";
 
 export default function HIVSelfTest() {
