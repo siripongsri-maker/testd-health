@@ -1,6 +1,11 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import { runRuntimeVersionSelfCheck } from "@/lib/runtimeVersionSelfCheck";
+
+// Fire-and-forget: on version mismatch, unregister all SWs and purge all
+// Cache Storage entries before the app mounts. Idempotent when version matches.
+void runRuntimeVersionSelfCheck();
 
 const MODULE_RECOVERY_KEY = "testd-module-recovery-attempted";
 
