@@ -315,17 +315,31 @@ export default function HIVSelfTest() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.get('action')]);
 
-  // Determine which step to show based on active request status
+  // Determine which step to show based on active request status.
+  // Safety net: if the request already carries any result-submitted signal,
+  // do NOT re-enter the submission flow — that would loop the user back to
+  // "photo-result" / "confirm-receipt" after they already submitted.
   useEffect(() => {
-    if (activeRequest) {
-      if (activeRequest.status === 'pending' || activeRequest.status === 'approved' || activeRequest.status === 'shipped') {
-        setCurrentStep('intro');
-      } else if (activeRequest.status === 'delivered') {
-        setCurrentStep('confirm-receipt');
-      } else if (activeRequest.status === 'confirmed' || activeRequest.status === 'received') {
-        // Kit already confirmed as received — send straight to result submission.
-        setCurrentStep('photo-result');
-      }
+    if (!activeRequest) return;
+    const submittedStatuses = new Set([
+      'result_submitted', 'reviewed', 'result_reviewed', 'followed_up',
+      'completed', 'closed', 'cancelled',
+      'positive', 'negative', 'invalid', 'reactive', 'non_reactive',
+    ]);
+    const hasSubmittedResult =
+      submittedStatuses.has(activeRequest.status) ||
+      !!(activeRequest as { result_submitted_at?: string | null }).result_submitted_at ||
+      !!activeRequest.result_photo_url ||
+      !!activeRequest.test_result;
+    if (hasSubmittedResult) return;
+
+    if (activeRequest.status === 'pending' || activeRequest.status === 'approved' || activeRequest.status === 'shipped') {
+      setCurrentStep('intro');
+    } else if (activeRequest.status === 'delivered') {
+      setCurrentStep('confirm-receipt');
+    } else if (activeRequest.status === 'confirmed' || activeRequest.status === 'received') {
+      // Kit already confirmed as received — send straight to result submission.
+      setCurrentStep('photo-result');
     }
   }, [activeRequest]);
 
@@ -2009,7 +2023,19 @@ export default function HIVSelfTest() {
             }}
             cameFromMagicLink={searchParams.has('token')}
             onDone={() => {
+              // Clear stale in-memory pending state FIRST so the
+              // step-from-status useEffect below doesn't route the user
+              // back into the just-completed submission flow (this matters
+              // for magic-link / not-signed-in users where fetchRequests
+              // is a no-op and can't refresh activeRequest from the DB).
+              setActiveRequest(null);
               setCurrentStep('intro');
+              // Notify banner hook + refetch from Supabase so the
+              // recalculated activeRequest reflects the submitted row.
+              try {
+                localStorage.removeItem('hiv-selftest-timer');
+                window.dispatchEvent(new CustomEvent('selftest:pending-refresh'));
+              } catch { /* noop */ }
               fetchRequests();
             }}
             trackEvent={(name, props) => trackEvent(name, props as any)}
