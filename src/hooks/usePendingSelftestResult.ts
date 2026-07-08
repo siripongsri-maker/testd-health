@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { isActiveUnsubmittedSelfTestRequest } from "@/lib/selftestStatus";
 
 const TIMER_STORAGE_KEY = "hiv-selftest-timer";
 
