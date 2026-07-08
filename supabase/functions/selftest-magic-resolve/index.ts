@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
 
     const { data: reqRow } = await supa
       .from("hiv_selftest_requests")
-      .select("id, status, delivery_mode, user_id, pii_id, assigned_branch, self_reported_result, test_result, care_action, created_at")
+      .select("id, status, delivery_mode, user_id, pii_id, assigned_branch, self_reported_result, test_result, care_action, created_at, result_submitted_at, result_photo_url")
       .eq("id", tk.request_id)
       .maybeSingle();
 
@@ -72,6 +72,8 @@ Deno.serve(async (req) => {
               test_result: reqRow.test_result,
               care_action: reqRow.care_action,
               created_at: reqRow.created_at,
+              result_submitted_at: reqRow.result_submitted_at,
+              result_photo_url: reqRow.result_photo_url,
               phone: tk.purpose === "followup" ? null : phone,
             }
           : null,

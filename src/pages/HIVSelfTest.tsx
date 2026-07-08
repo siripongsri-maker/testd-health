@@ -49,6 +49,10 @@ import {
 } from "@/components/hiv-selftest";
 import { SelfTestResultExplanation } from "@/components/hiv-selftest/SelfTestResultExplanation";
 import { LeanResultSubmissionFlow } from "@/components/hiv-selftest/LeanResultSubmissionFlow";
+import {
+  hasSubmittedSelfTestResult,
+  isActiveUnsubmittedSelfTestRequest,
+} from "@/lib/selftestStatus";
 
 import { useFormAutosave } from "@/hooks/useFormAutosave";
 
@@ -202,9 +206,15 @@ export default function HIVSelfTest() {
     | { status: 'error'; reason: string }
   >({ status: 'idle' });
 
+  // Ref used to short-circuit the magic-link resolver right after a successful
+  // submission on the same mount (avoids re-entering the Lean flow if React
+  // re-runs effects before the URL has been cleared).
+  const justSubmittedRef = useRef(false);
+
   useEffect(() => {
     const token = searchParams.get('token');
     if (!token) return;
+    if (justSubmittedRef.current) return;
     setMagicLinkState({ status: 'resolving' });
     (async () => {
       try {
@@ -218,14 +228,42 @@ export default function HIVSelfTest() {
           return;
         }
         const reqRow = data.request;
+
+        // Hard guard: if the request already has a submitted result, do NOT
+        // route the user back into the submit-result flow. Clear stale local
+        // state, strip the token from the URL and send them to intro.
+        if (hasSubmittedSelfTestResult(reqRow)) {
+          try {
+            localStorage.removeItem('hiv-selftest-timer');
+            window.dispatchEvent(new CustomEvent('selftest:pending-refresh'));
+          } catch { /* noop */ }
+          setActiveRequest(null);
+          setCurrentStep('intro');
+          setMagicLinkState({ status: 'ok', phone: reqRow.phone ?? null });
+          toast.success(
+            language === 'th'
+              ? 'ผลตรวจนี้ถูกส่งเรียบร้อยแล้ว'
+              : 'This result has already been submitted.'
+          );
+          navigate('/th/hiv-selftest', { replace: true });
+          trackEvent('selftest_magic_link_already_submitted', {
+            request_id: reqRow.id,
+          });
+          return;
+        }
+
         setActiveRequest({
           id: reqRow.id,
           status: reqRow.status,
           tracking_number: null,
-          test_result: null,
+          test_result: reqRow.test_result ?? null,
           created_at: reqRow.created_at || new Date().toISOString(),
-          result_photo_url: null,
-        });
+          result_photo_url: reqRow.result_photo_url ?? null,
+          // Non-typed passthrough so downstream guards see the timestamp.
+          ...(reqRow.result_submitted_at
+            ? { result_submitted_at: reqRow.result_submitted_at }
+            : {}),
+        } as SelfTestRequest);
         if (reqRow.assigned_branch) setAssignedBranch(reqRow.assigned_branch);
         setMagicLinkState({ status: 'ok', phone: reqRow.phone ?? null });
         // Jump straight into Lean submission flow — bound to the original request id.
@@ -321,17 +359,18 @@ export default function HIVSelfTest() {
   // "photo-result" / "confirm-receipt" after they already submitted.
   useEffect(() => {
     if (!activeRequest) return;
-    const submittedStatuses = new Set([
-      'result_submitted', 'reviewed', 'result_reviewed', 'followed_up',
-      'completed', 'closed', 'cancelled',
-      'positive', 'negative', 'invalid', 'reactive', 'non_reactive',
-    ]);
-    const hasSubmittedResult =
-      submittedStatuses.has(activeRequest.status) ||
-      !!(activeRequest as { result_submitted_at?: string | null }).result_submitted_at ||
-      !!activeRequest.result_photo_url ||
-      !!activeRequest.test_result;
-    if (hasSubmittedResult) return;
+
+    // If the active request already has any result-submitted signal, clear it
+    // and route back to intro — never re-enter the submission flow.
+    if (hasSubmittedSelfTestResult(activeRequest)) {
+      setActiveRequest(null);
+      setCurrentStep('intro');
+      try {
+        localStorage.removeItem('hiv-selftest-timer');
+        window.dispatchEvent(new CustomEvent('selftest:pending-refresh'));
+      } catch { /* noop */ }
+      return;
+    }
 
     if (activeRequest.status === 'pending' || activeRequest.status === 'approved' || activeRequest.status === 'shipped') {
       setCurrentStep('intro');
@@ -404,28 +443,29 @@ export default function HIVSelfTest() {
 
     const { data } = await supabase
       .from('hiv_selftest_requests')
-      .select('id, status, tracking_number, test_result, created_at, result_photo_url, result_submitted_at')
+      .select('id, status, tracking_number, test_result, created_at, result_photo_url, result_submitted_at, self_reported_result')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
     if (data) {
       setRequests(data);
-      // A request is only "active" (i.e. still awaiting a submitted result)
-      // when BOTH:
-      //   (1) its status is one of the in-flight / pre-result statuses, AND
-      //   (2) no result has been submitted yet (no timestamp, no photo, no test_result value).
-      // Any row with a submitted result — regardless of what its status text is —
-      // must NOT block the user from requesting a new kit or seeing the "waiting for
-      // result" card.
-      const ACTIVE_STATUSES = new Set([
-        'pending', 'approved', 'confirmed', 'shipped', 'delivered', 'received',
-      ]);
-      const hasSubmittedResult = (r: typeof data[number]) =>
-        !!r.result_submitted_at || !!r.result_photo_url || !!r.test_result;
-      const active = data.find(
-        (r) => ACTIVE_STATUSES.has(r.status) && !hasSubmittedResult(r)
-      );
-      setActiveRequest(active ?? null);
+      // Single source of truth — matches magic-link + render guards.
+      const active = data.find((r) => isActiveUnsubmittedSelfTestRequest(r));
+      setActiveRequest((prev) => {
+        // If the row we currently render as "active" no longer qualifies
+        // (result was just submitted, status flipped, etc.), drop it and
+        // bounce the user back to intro to prevent the loop.
+        if (prev && !data.some((r) => r.id === prev.id && isActiveUnsubmittedSelfTestRequest(r))) {
+          setCurrentStep((step) =>
+            step === 'confirm-receipt' || step === 'video' || step === 'testing' ||
+            step === 'timer' || step === 'photo-result'
+              ? 'intro'
+              : step
+          );
+          try { localStorage.removeItem('hiv-selftest-timer'); } catch { /* noop */ }
+        }
+        return active ?? null;
+      });
     }
   };
 
@@ -2013,7 +2053,8 @@ export default function HIVSelfTest() {
           currentStep === 'video' ||
           currentStep === 'testing' ||
           currentStep === 'timer' ||
-          currentStep === 'photo-result') && activeRequest && (
+          currentStep === 'photo-result') && activeRequest &&
+         !hasSubmittedSelfTestResult(activeRequest) && (
           <LeanResultSubmissionFlow
             request={{
               id: activeRequest.id,
@@ -2023,6 +2064,10 @@ export default function HIVSelfTest() {
             }}
             cameFromMagicLink={searchParams.has('token')}
             onDone={() => {
+              // Mark this mount as post-submit so the magic-link resolver
+              // won't re-hydrate the just-completed request if it re-fires
+              // before the URL is cleaned up.
+              justSubmittedRef.current = true;
               // Clear stale in-memory pending state FIRST so the
               // step-from-status useEffect below doesn't route the user
               // back into the just-completed submission flow (this matters
@@ -2034,8 +2079,18 @@ export default function HIVSelfTest() {
               // recalculated activeRequest reflects the submitted row.
               try {
                 localStorage.removeItem('hiv-selftest-timer');
+                // Clear any lingering self-test session cache keys.
+                for (let i = sessionStorage.length - 1; i >= 0; i--) {
+                  const key = sessionStorage.key(i);
+                  if (key && key.startsWith('selftest:')) sessionStorage.removeItem(key);
+                }
                 window.dispatchEvent(new CustomEvent('selftest:pending-refresh'));
               } catch { /* noop */ }
+              // Strip ?token / ?action from the URL so a refresh cannot
+              // re-enter the submit-result flow.
+              if (searchParams.has('token') || searchParams.has('action')) {
+                navigate('/th/hiv-selftest', { replace: true });
+              }
               fetchRequests();
             }}
             trackEvent={(name, props) => trackEvent(name, props as any)}
