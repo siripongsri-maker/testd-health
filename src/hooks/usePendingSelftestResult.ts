@@ -98,10 +98,12 @@ export function usePendingSelftestResult(): PendingSelftestState {
     (async () => {
       const { data, error } = await supabase
         .from("hiv_selftest_requests")
-        .select("id, status, created_at, result_submitted_at")
+        .select("id, status, created_at, result_submitted_at, result_photo_url, test_result, self_reported_result")
         .eq("user_id", user.id)
         .in("status", PENDING_STATUSES)
         .is("result_submitted_at", null)
+        .is("result_photo_url", null)
+        .is("test_result", null)
         .order("created_at", { ascending: false });
       if (cancelled) return;
       if (error) {
