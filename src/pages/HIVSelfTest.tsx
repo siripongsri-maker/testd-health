@@ -206,9 +206,15 @@ export default function HIVSelfTest() {
     | { status: 'error'; reason: string }
   >({ status: 'idle' });
 
+  // Ref used to short-circuit the magic-link resolver right after a successful
+  // submission on the same mount (avoids re-entering the Lean flow if React
+  // re-runs effects before the URL has been cleared).
+  const justSubmittedRef = useRef(false);
+
   useEffect(() => {
     const token = searchParams.get('token');
     if (!token) return;
+    if (justSubmittedRef.current) return;
     setMagicLinkState({ status: 'resolving' });
     (async () => {
       try {
@@ -222,14 +228,42 @@ export default function HIVSelfTest() {
           return;
         }
         const reqRow = data.request;
+
+        // Hard guard: if the request already has a submitted result, do NOT
+        // route the user back into the submit-result flow. Clear stale local
+        // state, strip the token from the URL and send them to intro.
+        if (hasSubmittedSelfTestResult(reqRow)) {
+          try {
+            localStorage.removeItem('hiv-selftest-timer');
+            window.dispatchEvent(new CustomEvent('selftest:pending-refresh'));
+          } catch { /* noop */ }
+          setActiveRequest(null);
+          setCurrentStep('intro');
+          setMagicLinkState({ status: 'ok', phone: reqRow.phone ?? null });
+          toast.success(
+            language === 'th'
+              ? 'ผลตรวจนี้ถูกส่งเรียบร้อยแล้ว'
+              : 'This result has already been submitted.'
+          );
+          navigate('/th/hiv-selftest', { replace: true });
+          trackEvent('selftest_magic_link_already_submitted', {
+            request_id: reqRow.id,
+          });
+          return;
+        }
+
         setActiveRequest({
           id: reqRow.id,
           status: reqRow.status,
           tracking_number: null,
-          test_result: null,
+          test_result: reqRow.test_result ?? null,
           created_at: reqRow.created_at || new Date().toISOString(),
-          result_photo_url: null,
-        });
+          result_photo_url: reqRow.result_photo_url ?? null,
+          // Non-typed passthrough so downstream guards see the timestamp.
+          ...(reqRow.result_submitted_at
+            ? { result_submitted_at: reqRow.result_submitted_at }
+            : {}),
+        } as SelfTestRequest);
         if (reqRow.assigned_branch) setAssignedBranch(reqRow.assigned_branch);
         setMagicLinkState({ status: 'ok', phone: reqRow.phone ?? null });
         // Jump straight into Lean submission flow — bound to the original request id.
