@@ -49,7 +49,7 @@ import {
 } from "@/components/hiv-selftest";
 import { SelfTestResultExplanation } from "@/components/hiv-selftest/SelfTestResultExplanation";
 import { LeanResultSubmissionFlow } from "@/components/hiv-selftest/LeanResultSubmissionFlow";
-import { PendingSelftestResultBanner } from "@/components/hiv-selftest/PendingSelftestResultBanner";
+
 import { useFormAutosave } from "@/hooks/useFormAutosave";
 
 export default function HIVSelfTest() {
@@ -1916,9 +1916,11 @@ export default function HIVSelfTest() {
           </Card>
         )}
 
-        {magicLinkState.status !== 'error' && magicLinkState.status !== 'resolving' && currentStep === 'intro' && (
-          <PendingSelftestResultBanner className="mb-4" />
-        )}
+        {/* Pending-result banner intentionally omitted on this page — the
+            IntroStep card below already communicates the same "awaiting result"
+            status for an active request, so showing both was duplicative. */}
+
+
 
         {magicLinkState.status !== 'error' && renderStepIndicator()}
 
