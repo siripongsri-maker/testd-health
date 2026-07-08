@@ -2053,7 +2053,8 @@ export default function HIVSelfTest() {
           currentStep === 'video' ||
           currentStep === 'testing' ||
           currentStep === 'timer' ||
-          currentStep === 'photo-result') && activeRequest && (
+          currentStep === 'photo-result') && activeRequest &&
+         !hasSubmittedSelfTestResult(activeRequest) && (
           <LeanResultSubmissionFlow
             request={{
               id: activeRequest.id,
@@ -2063,6 +2064,10 @@ export default function HIVSelfTest() {
             }}
             cameFromMagicLink={searchParams.has('token')}
             onDone={() => {
+              // Mark this mount as post-submit so the magic-link resolver
+              // won't re-hydrate the just-completed request if it re-fires
+              // before the URL is cleaned up.
+              justSubmittedRef.current = true;
               // Clear stale in-memory pending state FIRST so the
               // step-from-status useEffect below doesn't route the user
               // back into the just-completed submission flow (this matters
@@ -2074,8 +2079,18 @@ export default function HIVSelfTest() {
               // recalculated activeRequest reflects the submitted row.
               try {
                 localStorage.removeItem('hiv-selftest-timer');
+                // Clear any lingering self-test session cache keys.
+                for (let i = sessionStorage.length - 1; i >= 0; i--) {
+                  const key = sessionStorage.key(i);
+                  if (key && key.startsWith('selftest:')) sessionStorage.removeItem(key);
+                }
                 window.dispatchEvent(new CustomEvent('selftest:pending-refresh'));
               } catch { /* noop */ }
+              // Strip ?token / ?action from the URL so a refresh cannot
+              // re-enter the submit-result flow.
+              if (searchParams.has('token') || searchParams.has('action')) {
+                navigate('/th/hiv-selftest', { replace: true });
+              }
               fetchRequests();
             }}
             trackEvent={(name, props) => trackEvent(name, props as any)}
