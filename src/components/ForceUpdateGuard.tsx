@@ -11,7 +11,7 @@ const RESET_KEY = "testd_forced_cache_reset";
 const SESSION_KEY = "testd_session_checked_version";
 const RETRY_KEY = "testd_refresh_retries";
 const MAX_RETRIES = 3;
-const CACHE_RESET_VERSION = `${APP_VERSION}:stale-sw-kill-2026-06-22`;
+const CACHE_RESET_VERSION = `${APP_VERSION}:selftest-fix-2026-07-09-v2`;
 
 function isPreviewOrDevHost(): boolean {
   const host = window.location.hostname;
