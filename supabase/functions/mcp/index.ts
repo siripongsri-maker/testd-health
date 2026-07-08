@@ -3,7 +3,7 @@
 // supabase function: mcp
 // Bundled from src/lib/mcp/index.ts by @lovable.dev/mcp-js.
 // src/lib/mcp/index.ts
-import { defineMcp } from "npm:@lovable.dev/mcp-js@0.20.0";
+import { auth, defineMcp } from "npm:@lovable.dev/mcp-js@0.20.0";
 
 // src/lib/mcp/tools/list-branches.ts
 import { defineTool } from "npm:@lovable.dev/mcp-js@0.20.0";
@@ -85,11 +85,16 @@ var search_articles_default = defineTool3({
 });
 
 // src/lib/mcp/index.ts
+var projectRef = "tzerhfvlrssrashrcbeg";
 var mcp_default = defineMcp({
   name: "testd-mcp",
   title: "testD Health MCP",
   version: "0.1.0",
   instructions: "Read-only tools for the testD \xD7 SWING Clinic app: list clinic branches, list bookable services, and search published health/harm-reduction articles.",
+  auth: auth.oauth.issuer({
+    issuer: `https://${projectRef}.supabase.co/auth/v1`,
+    acceptedAudiences: "authenticated"
+  }),
   tools: [list_branches_default, list_services_default, search_articles_default]
 });
 
