@@ -443,28 +443,29 @@ export default function HIVSelfTest() {
 
     const { data } = await supabase
       .from('hiv_selftest_requests')
-      .select('id, status, tracking_number, test_result, created_at, result_photo_url, result_submitted_at')
+      .select('id, status, tracking_number, test_result, created_at, result_photo_url, result_submitted_at, self_reported_result')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
     if (data) {
       setRequests(data);
-      // A request is only "active" (i.e. still awaiting a submitted result)
-      // when BOTH:
-      //   (1) its status is one of the in-flight / pre-result statuses, AND
-      //   (2) no result has been submitted yet (no timestamp, no photo, no test_result value).
-      // Any row with a submitted result — regardless of what its status text is —
-      // must NOT block the user from requesting a new kit or seeing the "waiting for
-      // result" card.
-      const ACTIVE_STATUSES = new Set([
-        'pending', 'approved', 'confirmed', 'shipped', 'delivered', 'received',
-      ]);
-      const hasSubmittedResult = (r: typeof data[number]) =>
-        !!r.result_submitted_at || !!r.result_photo_url || !!r.test_result;
-      const active = data.find(
-        (r) => ACTIVE_STATUSES.has(r.status) && !hasSubmittedResult(r)
-      );
-      setActiveRequest(active ?? null);
+      // Single source of truth — matches magic-link + render guards.
+      const active = data.find((r) => isActiveUnsubmittedSelfTestRequest(r));
+      setActiveRequest((prev) => {
+        // If the row we currently render as "active" no longer qualifies
+        // (result was just submitted, status flipped, etc.), drop it and
+        // bounce the user back to intro to prevent the loop.
+        if (prev && !data.some((r) => r.id === prev.id && isActiveUnsubmittedSelfTestRequest(r))) {
+          setCurrentStep((step) =>
+            step === 'confirm-receipt' || step === 'video' || step === 'testing' ||
+            step === 'timer' || step === 'photo-result'
+              ? 'intro'
+              : step
+          );
+          try { localStorage.removeItem('hiv-selftest-timer'); } catch { /* noop */ }
+        }
+        return active ?? null;
+      });
     }
   };
 
