@@ -32,6 +32,7 @@ const SelftestUpdateId = lazy(() => import("./pages/SelftestUpdateId"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Consent = lazy(() => import("./pages/Consent"));
+const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const SetupPrepDaily = lazy(() => import("./pages/SetupPrepDaily"));
 const SetupPrepOnDemand = lazy(() => import("./pages/SetupPrepOnDemand"));
@@ -137,6 +138,7 @@ function AppShell() {
               <Route path="/auth" element={<Auth />} />
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/consent" element={<Consent />} />
+              <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/setup/prep-daily" element={<SetupPrepDaily />} />
               <Route path="/setup/prep-ondemand" element={<SetupPrepOnDemand />} />
