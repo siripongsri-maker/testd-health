@@ -110,7 +110,8 @@ export function usePendingSelftestResult(): PendingSelftestState {
         setDbCount(0);
         setDbDetails(null);
       } else {
-        const rows = data ?? [];
+        // Defense in depth — post-filter to guarantee no submitted row leaks.
+        const rows = (data ?? []).filter((r) => isActiveUnsubmittedSelfTestRequest(r));
         setDbCount(rows.length);
         setDbDetails(
           rows[0]
