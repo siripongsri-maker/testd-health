@@ -49,6 +49,10 @@ import {
 } from "@/components/hiv-selftest";
 import { SelfTestResultExplanation } from "@/components/hiv-selftest/SelfTestResultExplanation";
 import { LeanResultSubmissionFlow } from "@/components/hiv-selftest/LeanResultSubmissionFlow";
+import {
+  hasSubmittedSelfTestResult,
+  isActiveUnsubmittedSelfTestRequest,
+} from "@/lib/selftestStatus";
 
 import { useFormAutosave } from "@/hooks/useFormAutosave";
 
