@@ -359,17 +359,18 @@ export default function HIVSelfTest() {
   // "photo-result" / "confirm-receipt" after they already submitted.
   useEffect(() => {
     if (!activeRequest) return;
-    const submittedStatuses = new Set([
-      'result_submitted', 'reviewed', 'result_reviewed', 'followed_up',
-      'completed', 'closed', 'cancelled',
-      'positive', 'negative', 'invalid', 'reactive', 'non_reactive',
-    ]);
-    const hasSubmittedResult =
-      submittedStatuses.has(activeRequest.status) ||
-      !!(activeRequest as { result_submitted_at?: string | null }).result_submitted_at ||
-      !!activeRequest.result_photo_url ||
-      !!activeRequest.test_result;
-    if (hasSubmittedResult) return;
+
+    // If the active request already has any result-submitted signal, clear it
+    // and route back to intro — never re-enter the submission flow.
+    if (hasSubmittedSelfTestResult(activeRequest)) {
+      setActiveRequest(null);
+      setCurrentStep('intro');
+      try {
+        localStorage.removeItem('hiv-selftest-timer');
+        window.dispatchEvent(new CustomEvent('selftest:pending-refresh'));
+      } catch { /* noop */ }
+      return;
+    }
 
     if (activeRequest.status === 'pending' || activeRequest.status === 'approved' || activeRequest.status === 'shipped') {
       setCurrentStep('intro');
