@@ -387,24 +387,30 @@ export default function HIVSelfTest() {
 
   const fetchRequests = async () => {
     if (!user) return;
-    
+
     const { data } = await supabase
       .from('hiv_selftest_requests')
-      .select('id, status, tracking_number, test_result, created_at, result_photo_url')
+      .select('id, status, tracking_number, test_result, created_at, result_photo_url, result_submitted_at')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
-    
+
     if (data) {
       setRequests(data);
-      // A request only counts as "active" while the kit is in-flight or awaiting
-      // a result. Once the user has submitted their result photo (or the case is
-      // closed/cancelled), it must NOT block a fresh request.
-      const CLOSED_STATUSES = [
-        'completed', 'cancelled',
-        'result_submitted', 'reviewed', 'result_reviewed',
-        'positive', 'negative', 'invalid', 'reactive', 'non_reactive',
-      ];
-      const active = data.find(r => !CLOSED_STATUSES.includes(r.status));
+      // A request is only "active" (i.e. still awaiting a submitted result)
+      // when BOTH:
+      //   (1) its status is one of the in-flight / pre-result statuses, AND
+      //   (2) no result has been submitted yet (no timestamp, no photo, no test_result value).
+      // Any row with a submitted result — regardless of what its status text is —
+      // must NOT block the user from requesting a new kit or seeing the "waiting for
+      // result" card.
+      const ACTIVE_STATUSES = new Set([
+        'pending', 'approved', 'confirmed', 'shipped', 'delivered', 'received',
+      ]);
+      const hasSubmittedResult = (r: typeof data[number]) =>
+        !!r.result_submitted_at || !!r.result_photo_url || !!r.test_result;
+      const active = data.find(
+        (r) => ACTIVE_STATUSES.has(r.status) && !hasSubmittedResult(r)
+      );
       setActiveRequest(active ?? null);
     }
   };
