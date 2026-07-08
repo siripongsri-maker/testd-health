@@ -1916,9 +1916,11 @@ export default function HIVSelfTest() {
           </Card>
         )}
 
-        {magicLinkState.status !== 'error' && magicLinkState.status !== 'resolving' && currentStep === 'intro' && (
-          <PendingSelftestResultBanner className="mb-4" />
-        )}
+        {/* Pending-result banner intentionally omitted on this page — the
+            IntroStep card below already communicates the same "awaiting result"
+            status for an active request, so showing both was duplicative. */}
+
+
 
         {magicLinkState.status !== 'error' && renderStepIndicator()}
 
