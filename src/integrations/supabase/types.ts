@@ -7303,6 +7303,56 @@ export type Database = {
           },
         ]
       }
+      pre_service_counseling_notes: {
+        Row: {
+          assigned_counselor_id: string | null
+          branch_id: string | null
+          created_at: string
+          follow_up_required: boolean
+          id: string
+          next_step: string | null
+          notes: string | null
+          status: string
+          survey_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          assigned_counselor_id?: string | null
+          branch_id?: string | null
+          created_at?: string
+          follow_up_required?: boolean
+          id?: string
+          next_step?: string | null
+          notes?: string | null
+          status?: string
+          survey_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          assigned_counselor_id?: string | null
+          branch_id?: string | null
+          created_at?: string
+          follow_up_required?: boolean
+          id?: string
+          next_step?: string | null
+          notes?: string | null
+          status?: string
+          survey_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pre_service_counseling_notes_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: true
+            referencedRelation: "appointment_pre_service_surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prevention_match_results: {
         Row: {
           answers: Json | null
@@ -11114,6 +11164,7 @@ export type Database = {
       }
       is_booking_staff: { Args: { p_branch_id: string }; Returns: boolean }
       is_booking_super_admin: { Args: never; Returns: boolean }
+      is_branch_counselor: { Args: { _user_id: string }; Returns: boolean }
       is_branch_staff: {
         Args: { _branch: string; _user_id: string }
         Returns: boolean
@@ -11278,6 +11329,10 @@ export type Database = {
           p_visitor_session_id: string
         }
         Returns: string
+      }
+      user_can_access_branch: {
+        Args: { _branch_id: string; _user_id: string }
+        Returns: boolean
       }
       user_liked_article: { Args: { p_article_id: string }; Returns: boolean }
       validate_thai_id: { Args: { thai_id: string }; Returns: boolean }
