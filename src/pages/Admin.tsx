@@ -78,6 +78,7 @@ const MelPartnersContent = lazy(() => import("@/components/admin/mel/MelPartners
 const MelPolicyContent = lazy(() => import("@/components/admin/mel/MelPolicyContent"));
 const MelEvaluationContent = lazy(() => import("@/components/admin/mel/MelEvaluationContent"));
 const MelReportingContent = lazy(() => import("@/components/admin/mel/MelReportingContent"));
+const AdminCounselorAccountsContent = lazy(() => import("@/components/admin/AdminCounselorAccountsContent"));
 
 const TabLoader = () => (
   <div className="flex items-center justify-center h-64">
