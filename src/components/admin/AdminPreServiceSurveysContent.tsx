@@ -85,9 +85,10 @@ export default function AdminPreServiceSurveysContent() {
   const [filterAnon, setFilterAnon] = useState<"all" | "anon" | "user">("all");
   const [filterService, setFilterService] = useState<string>("all");
   const [filterClinics, setFilterClinics] = useState<string[]>([]);
-  const [dateFrom, setDateFrom] = useState<string>(format(subDays(new Date(), 30), "yyyy-MM-dd"));
+  const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>(format(new Date(), "yyyy-MM-dd"));
-  const [trendRange, setTrendRange] = useState<7 | 30 | 90>(30);
+  const [trendRange, setTrendRange] = useState<7 | 30 | 90 | "all">(30);
+  const [realtimeStatus, setRealtimeStatus] = useState<"connecting" | "live" | "offline">("connecting");
 
   // Debounce search
   useEffect(() => {
