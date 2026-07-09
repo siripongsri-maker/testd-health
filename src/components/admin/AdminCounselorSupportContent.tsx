@@ -644,6 +644,27 @@ export default function AdminCounselorSupportContent() {
         <KpiCard icon={<Users className="h-4 w-4" />} label={tx("เวลาตอบเฉลี่ย (นาที)", "Avg response (min)")} value={summary.avgMinutes ? summary.avgMinutes.toFixed(1) : "—"} />
       </div>
 
+      {/* Post-counseling analytics */}
+      <Card className="p-4 border-teal-200 bg-teal-50/30 dark:bg-teal-950/10">
+        <div className="flex items-center gap-2 mb-3">
+          <Star className="h-4 w-4 text-teal-600" />
+          <h2 className="text-sm font-bold">{tx("ผลประเมินหลังรับคำปรึกษา", "Post-counseling evaluations")}</h2>
+          <Badge variant="outline" className="text-[10px] ml-auto">
+            {summary.evalCount} / {summary.completed} · {summary.evalRate.toFixed(0)}%
+          </Badge>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 text-xs">
+          <MiniStat label={tx("ประเมินแล้ว", "Evaluated")} value={summary.evalCount} />
+          <MiniStat label={tx("อัตราตอบ", "Response rate")} value={`${summary.evalRate.toFixed(0)}%`} />
+          <MiniStat label={tx("พึงพอใจเฉลี่ย", "Avg satisfaction")} value={summary.avgSatisfaction?.toFixed(1) ?? "—"} />
+          <MiniStat label={tx("เข้าใจเฉลี่ย", "Avg understanding")} value={summary.avgUnderstanding?.toFixed(1) ?? "—"} />
+          <MiniStat label={tx("ปลอดภัย/เชื่อใจ", "Avg safety")} value={summary.avgSafety?.toFixed(1) ?? "—"} />
+          <MiniStat label={tx("เคารพ", "Avg respect")} value={summary.avgRespect?.toFixed(1) ?? "—"} />
+          <MiniStat label={tx("อยากติดตามต่อ", "Wants follow-up")} value={summary.postFollowUpInterest} />
+        </div>
+      </Card>
+
+
       {/* Filters bar */}
       <Card className="p-3 space-y-3">
         <div className="flex flex-wrap items-center gap-2">
