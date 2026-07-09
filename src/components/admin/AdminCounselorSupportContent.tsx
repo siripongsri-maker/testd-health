@@ -1325,24 +1325,72 @@ function PrePostCompare({
 }
 
 function PostCounselingSection({
-  note, postEval, survey, tx,
+  note, postEval, survey, surveyId, statusDraft, readOnly, onSave, tx,
 }: {
   note?: CaseNote;
   postEval?: PostEval;
   survey?: SurveyRow;
+  surveyId: string;
+  statusDraft: CaseStatus;
+  readOnly: boolean;
+  onSave: (patch: Partial<CaseNote>) => void | Promise<void>;
   tx: (th: string, en: string) => string;
 }) {
   const [copied, setCopied] = useState(false);
+  const [generating, setGenerating] = useState(false);
 
-  if (!note) return null;
-  if (!note.post_eval_token) {
+  const completedLike = isCompletedLike(statusDraft) || isCompletedLike(note?.status);
+  const hasToken = !!note?.post_eval_token;
+
+  // Hide entirely only when the section provides no value: not completed AND no token
+  // AND we can't offer a generate action (read-only).
+  if (!completedLike && !hasToken && readOnly) return null;
+
+  const generate = async () => {
+    if (readOnly || generating) return;
+    setGenerating(true);
+    try {
+      const token = (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+      await onSave({ post_eval_token: token });
+      toast({ title: tx("สร้าง QR แล้ว", "QR link generated") });
+    } catch (e: any) {
+      toast({ title: tx("สร้างไม่สำเร็จ", "Could not generate"), description: e?.message, variant: "destructive" });
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  // No token yet — show a call-to-action panel so the counselor can mint one.
+  if (!hasToken) {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50/60 dark:bg-amber-950/20 p-3 text-xs text-amber-800 dark:text-amber-200">
-        {tx("กำลังสร้างลิงก์ประเมินหลังคำปรึกษา… โปรดรีเฟรช",
-            "Generating post-counseling link… please refresh.")}
+      <div className="rounded-lg border-2 border-dashed border-teal-300/70 bg-teal-50/30 dark:bg-teal-950/10 p-4 space-y-2">
+        <div className="flex items-center gap-2">
+          <QrCode className="h-4 w-4 text-teal-600" />
+          <div className="text-sm font-bold text-teal-800 dark:text-teal-200">
+            {tx("แบบประเมินหลังรับคำปรึกษา", "Post-counseling evaluation")}
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          {completedLike
+            ? tx("ยังไม่มีลิงก์ QR สำหรับเคสนี้ กด ‘สร้าง QR ประเมิน’ เพื่อสร้างทันที",
+                 "No QR link for this case yet. Click ‘Generate evaluation QR’ to create one now.")
+            : tx("เคสนี้ยังไม่ได้ปิด — สามารถสร้าง QR ล่วงหน้าให้ผู้รับบริการประเมินได้",
+                 "This case isn’t marked completed yet — you can still generate a QR for the client to evaluate.")}
+        </p>
+        <Button
+          size="sm"
+          variant={completedLike ? "default" : "outline"}
+          className={completedLike ? "h-8 bg-teal-600 hover:bg-teal-700" : "h-8"}
+          onClick={generate}
+          disabled={readOnly || generating}
+        >
+          {generating ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <QrCode className="h-3.5 w-3.5 mr-1" />}
+          {tx("สร้าง QR ประเมิน", "Generate evaluation QR")}
+        </Button>
       </div>
     );
   }
+
 
   const formUrl = `${window.location.origin}/post-counseling/${note.post_eval_token}`;
   const qrPageUrl = `${window.location.origin}/post-counseling-qr/${note.post_eval_token}`;
