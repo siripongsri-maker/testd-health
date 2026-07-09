@@ -322,16 +322,20 @@ export default function AdminCounselorSupportContent() {
         from += BATCH;
       }
 
-      const [notesRes, brRes, svRes] = await Promise.all([
+      const [notesRes, brRes, svRes, peRes] = await Promise.all([
         supabase.from("pre_service_counseling_notes").select("*"),
         supabase.from("booking_branches").select("id, name_th, name_en"),
         supabase.from("booking_services").select("id, name_th, name_en"),
+        supabase.from("post_counseling_evaluations").select("*"),
       ]);
       const map: Record<string, CaseNote> = {};
       ((notesRes.data as any[]) || []).forEach((n) => { map[n.survey_id] = n as CaseNote; });
+      const peMap: Record<string, PostEval> = {};
+      ((peRes.data as any[]) || []).forEach((e) => { peMap[e.note_id] = e as PostEval; });
 
       setSurveys(all as SurveyRow[]);
       setNotes(map);
+      setPostEvals(peMap);
       setBranches((brRes.data as any) || []);
       setServices((svRes.data as any) || []);
     } catch (e: any) {
