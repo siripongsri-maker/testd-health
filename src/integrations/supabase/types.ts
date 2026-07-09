@@ -11338,7 +11338,13 @@ export type Database = {
       validate_thai_id: { Args: { thai_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user" | "me_analyst" | "outreach_staff"
+      app_role:
+        | "admin"
+        | "moderator"
+        | "user"
+        | "me_analyst"
+        | "outreach_staff"
+        | "counselor"
       article_status: "draft" | "pending_review" | "published" | "archived"
       kg_entity_type:
         | "substance"
@@ -11503,7 +11509,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user", "me_analyst", "outreach_staff"],
+      app_role: [
+        "admin",
+        "moderator",
+        "user",
+        "me_analyst",
+        "outreach_staff",
+        "counselor",
+      ],
       article_status: ["draft", "pending_review", "published", "archived"],
       kg_entity_type: [
         "substance",
