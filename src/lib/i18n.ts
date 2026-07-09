@@ -1072,6 +1072,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.clinicSettings': 'SWING Clinic Settings',
     'admin.servicePathways': 'HR Service System',
     'admin.frontDesk': 'Front Desk',
+    'admin.counselorSupport': 'Counselor Queue',
     'admin.clientCRM': 'Client CRM',
     'admin.youthSurvey': 'Youth HIV Survey',
     'admin.virtualStories': 'Virtual Stories',
