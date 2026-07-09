@@ -39,8 +39,8 @@ export function useAdminRole(): AdminRoleState {
       // counselor (branch-scoped, must be active)
       const { data: counselorData } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'counselor' as any });
       if (counselorData) {
-        const { data: cp } = await supabase
-          .from('counselor_profiles' as any)
+        const { data: cp } = await (supabase as any)
+          .from('counselor_profiles')
           .select('branch_id, is_active')
           .eq('user_id', user.id)
           .maybeSingle();
