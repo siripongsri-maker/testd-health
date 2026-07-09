@@ -24,6 +24,18 @@ export interface PendingSelftestState {
   refresh: () => void;
 }
 
+function hasSeparateSubmittedCheckForRequest(
+  request: { created_at?: string | null },
+  checks: Array<{ created_at?: string | null }>
+) {
+  const requestTime = request.created_at ? new Date(request.created_at).getTime() : 0;
+  if (!requestTime || Number.isNaN(requestTime)) return false;
+  return checks.some((check) => {
+    const checkTime = check.created_at ? new Date(check.created_at).getTime() : 0;
+    return !!checkTime && !Number.isNaN(checkTime) && checkTime >= requestTime;
+  });
+}
+
 /**
  * Detects whether the current visitor has an outstanding HIV self-test result
  * to submit, combining:
@@ -33,7 +45,7 @@ export interface PendingSelftestState {
  * Used to render a non-error "submit result" reminder on Home and HIVSelfTest.
  */
 export function usePendingSelftestResult(): PendingSelftestState {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [dbCount, setDbCount] = useState(0);
   const [dbDetails, setDbDetails] = useState<PendingSelftestDetails | null>(null);
   const [hasLocalTimer, setHasLocalTimer] = useState(false);
@@ -62,8 +74,17 @@ export function usePendingSelftestResult(): PendingSelftestState {
     };
   }, []);
 
-  // Check localStorage timer (anonymous + logged-in both apply)
+  // Check localStorage timer. It is only authoritative for anonymous visitors.
+  // Logged-in users must be driven by fresh DB state; otherwise a stale timer
+  // can keep showing "awaiting result" after the result was submitted.
   useEffect(() => {
+    if (authLoading) return;
+    if (user) {
+      setHasLocalTimer(false);
+      setTimerDetails(null);
+      return;
+    }
+
     try {
       const stored = localStorage.getItem(TIMER_STORAGE_KEY);
       if (!stored) {
@@ -84,34 +105,58 @@ export function usePendingSelftestResult(): PendingSelftestState {
       setHasLocalTimer(false);
       setTimerDetails(null);
     }
-  }, [tick]);
+  }, [authLoading, user, tick]);
 
   // Check DB rows for logged-in users
   useEffect(() => {
     let cancelled = false;
     if (!user) {
       setDbCount(0);
-      setLoading(false);
+      setLoading(authLoading);
       return;
     }
     setLoading(true);
     (async () => {
-      const { data, error } = await supabase
-        .from("hiv_selftest_requests")
-        .select("id, status, created_at, result_submitted_at, result_photo_url, test_result, self_reported_result")
-        .eq("user_id", user.id)
-        .in("status", PENDING_STATUSES)
-        .is("result_submitted_at", null)
-        .is("result_photo_url", null)
-        .is("test_result", null)
-        .order("created_at", { ascending: false });
+      const [requestRes, checksRes] = await Promise.all([
+        supabase
+          .from("hiv_selftest_requests")
+          .select("id, status, created_at, result_submitted_at, result_photo_url, test_result, self_reported_result")
+          .eq("user_id", user.id)
+          .in("status", PENDING_STATUSES)
+          .is("result_submitted_at", null)
+          .is("result_photo_url", null)
+          .is("test_result", null)
+          .is("self_reported_result", null)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("hiv_self_test_checks")
+          .select("created_at")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(25),
+      ]);
       if (cancelled) return;
+      const { data, error } = requestRes;
       if (error) {
         setDbCount(0);
         setDbDetails(null);
       } else {
         // Defense in depth — post-filter to guarantee no submitted row leaks.
-        const rows = (data ?? []).filter((r) => isActiveUnsubmittedSelfTestRequest(r));
+        const checks = checksRes.data ?? [];
+        const rows = (data ?? []).filter(
+          (r) =>
+            isActiveUnsubmittedSelfTestRequest(r) &&
+            !hasSeparateSubmittedCheckForRequest(r, checks)
+        );
+        if (rows.length === 0) {
+          try {
+            localStorage.removeItem(TIMER_STORAGE_KEY);
+          } catch {
+            /* noop */
+          }
+          setHasLocalTimer(false);
+          setTimerDetails(null);
+        }
         setDbCount(rows.length);
         setDbDetails(
           rows[0]
@@ -128,10 +173,10 @@ export function usePendingSelftestResult(): PendingSelftestState {
     return () => {
       cancelled = true;
     };
-  }, [user, tick]);
+  }, [user, authLoading, tick]);
 
   return {
-    hasPending: dbCount > 0 || hasLocalTimer,
+    hasPending: dbCount > 0 || (!user && !authLoading && hasLocalTimer),
     dbCount,
     hasLocalTimer,
     loading,

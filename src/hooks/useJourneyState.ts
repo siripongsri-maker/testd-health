@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import {
+  hasSubmittedSelfTestResult,
+  isActiveUnsubmittedSelfTestRequest,
+} from '@/lib/selftestStatus';
 
 /**
  * Shared journey state derived from existing tables.
@@ -20,30 +24,32 @@ export interface JourneyState {
   hasChatThread: boolean;
 }
 
+function hasSeparateSubmittedCheckForRequest(
+  request: { created_at?: string | null },
+  checks: Array<{ created_at?: string | null }>
+) {
+  const requestTime = request.created_at ? new Date(request.created_at).getTime() : 0;
+  if (!requestTime || Number.isNaN(requestTime)) return false;
+  return checks.some((check) => {
+    const checkTime = check.created_at ? new Date(check.created_at).getTime() : 0;
+    return !!checkTime && !Number.isNaN(checkTime) && checkTime >= requestTime;
+  });
+}
+
 export async function evaluateJourney(userId: string): Promise<JourneyState> {
   const today = new Date().toISOString().split('T')[0];
   const in48h = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString().split('T')[0];
 
   const [
-    pendingResultRes,
     upcomingRes,
     totalBookingsRes,
-    totalSelftestsRes,
+    selftestsRes,
     matchRes,
     confirmedRes,
     completedRes,
-    resultSubmittedRes,
-    deliveredRes,
+    selftestChecksRes,
     chatRes,
   ] = await Promise.all([
-    // P1: selftest delivered/received but no result submitted
-    supabase
-      .from('hiv_selftest_requests')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .in('status', ['approved', 'shipped', 'delivered', 'received'])
-      .is('test_result', null),
-
     // P2: upcoming appointment within 48h
     supabase
       .from('appointments')
@@ -59,10 +65,11 @@ export async function evaluateJourney(userId: string): Promise<JourneyState> {
       .select('id', { count: 'exact', head: true })
       .eq('user_id', userId),
 
-    // Ever requested selftest
+    // Self-test rows used for all self-test journey decisions. Do not rely on
+    // status/test_result alone: submitted rows can remain delivered/received.
     supabase
       .from('hiv_selftest_requests')
-      .select('id', { count: 'exact', head: true })
+      .select('id, status, created_at, result_submitted_at, result_photo_url, test_result, self_reported_result')
       .eq('user_id', userId),
 
     // Prevention match completed
@@ -87,19 +94,14 @@ export async function evaluateJourney(userId: string): Promise<JourneyState> {
       .eq('user_id', userId)
       .in('status', ['completed', 'checked_out']),
 
-    // Has submitted selftest result
+    // Separate result/check table. If a check exists after a request was
+    // created, that request must not be treated as awaiting submission.
     supabase
-      .from('hiv_selftest_requests')
-      .select('id', { count: 'exact', head: true })
+      .from('hiv_self_test_checks')
+      .select('created_at')
       .eq('user_id', userId)
-      .not('test_result', 'is', null),
-
-    // Has selftest delivered/received
-    supabase
-      .from('hiv_selftest_requests')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .in('status', ['delivered', 'received', 'result_submitted']),
+      .order('created_at', { ascending: false })
+      .limit(50),
 
     // Has chat thread
     supabase
@@ -109,6 +111,25 @@ export async function evaluateJourney(userId: string): Promise<JourneyState> {
   ]);
 
   const hasMatch = (matchRes.data?.length ?? 0) > 0;
+  const selftestRows = selftestsRes.data ?? [];
+  const selftestChecks = selftestChecksRes.data ?? [];
+  const activeSelftestRows = selftestRows.filter(
+    (row) =>
+      isActiveUnsubmittedSelfTestRequest(row) &&
+      !hasSeparateSubmittedCheckForRequest(row, selftestChecks)
+  );
+  const submittedSelftestRows = selftestRows.filter(
+    (row) => hasSubmittedSelfTestResult(row) || hasSeparateSubmittedCheckForRequest(row, selftestChecks)
+  );
+  const deliveredSelftestRows = selftestRows.filter((row) => {
+    const status = String(row.status ?? '').toLowerCase();
+    return (
+      status === 'delivered' ||
+      status === 'received' ||
+      hasSubmittedSelfTestResult(row) ||
+      hasSeparateSubmittedCheckForRequest(row, selftestChecks)
+    );
+  });
   let hasBookedAfterMatch = false;
   if (hasMatch && matchRes.data?.[0]) {
     const matchDate = (matchRes.data[0] as any).created_at;
@@ -123,16 +144,16 @@ export async function evaluateJourney(userId: string): Promise<JourneyState> {
   }
 
   return {
-    hasPendingResultSubmission: (pendingResultRes.count ?? 0) > 0,
+    hasPendingResultSubmission: activeSelftestRows.length > 0,
     hasUpcomingAppointment: (upcomingRes.count ?? 0) > 0,
     hasEverBooked: (totalBookingsRes.count ?? 0) > 0,
-    hasRequestedSelfTest: (totalSelftestsRes.count ?? 0) > 0,
+    hasRequestedSelfTest: selftestRows.length > 0,
     hasCompletedPreventionMatch: hasMatch,
     hasBookedAfterMatch,
     hasConfirmedAppointment: (confirmedRes.count ?? 0) > 0,
     hasCompletedAppointment: (completedRes.count ?? 0) > 0,
-    hasSubmittedResult: (resultSubmittedRes.count ?? 0) > 0,
-    hasSelfTestDelivered: (deliveredRes.count ?? 0) > 0,
+    hasSubmittedResult: submittedSelftestRows.length > 0,
+    hasSelfTestDelivered: deliveredSelftestRows.length > 0,
     hasChatThread: (chatRes.count ?? 0) > 0,
   };
 }
@@ -140,14 +161,32 @@ export async function evaluateJourney(userId: string): Promise<JourneyState> {
 export function useJourneyState(userId: string | undefined) {
   const [state, setState] = useState<JourneyState | null>(null);
   const [loading, setLoading] = useState(true);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    const refresh = () => setTick((value) => value + 1);
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') refresh();
+    };
+    window.addEventListener('selftest:pending-refresh', refresh);
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('selftest:pending-refresh', refresh);
+      window.removeEventListener('focus', refresh);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, []);
 
   useEffect(() => {
     if (!userId) {
+      setState(null);
       setLoading(false);
       return;
     }
 
     let cancelled = false;
+    setLoading(true);
 
     evaluateJourney(userId)
       .then((s) => { if (!cancelled) setState(s); })
@@ -155,7 +194,7 @@ export function useJourneyState(userId: string | undefined) {
       .finally(() => { if (!cancelled) setLoading(false); });
 
     return () => { cancelled = true; };
-  }, [userId]);
+  }, [userId, tick]);
 
   return { state, loading };
 }
