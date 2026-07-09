@@ -127,14 +127,32 @@ export async function evaluateJourney(userId: string): Promise<JourneyState> {
 export function useJourneyState(userId: string | undefined) {
   const [state, setState] = useState<JourneyState | null>(null);
   const [loading, setLoading] = useState(true);
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    const refresh = () => setTick((value) => value + 1);
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') refresh();
+    };
+    window.addEventListener('selftest:pending-refresh', refresh);
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('selftest:pending-refresh', refresh);
+      window.removeEventListener('focus', refresh);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, []);
 
   useEffect(() => {
     if (!userId) {
+      setState(null);
       setLoading(false);
       return;
     }
 
     let cancelled = false;
+    setLoading(true);
 
     evaluateJourney(userId)
       .then((s) => { if (!cancelled) setState(s); })
@@ -142,7 +160,7 @@ export function useJourneyState(userId: string | undefined) {
       .finally(() => { if (!cancelled) setLoading(false); });
 
     return () => { cancelled = true; };
-  }, [userId]);
+  }, [userId, tick]);
 
   return { state, loading };
 }
