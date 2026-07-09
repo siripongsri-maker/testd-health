@@ -461,10 +461,14 @@ export default function AdminPreServiceSurveysContent() {
         <Card className="p-4 lg:col-span-2">
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-semibold text-sm">{tx("แนวโน้มความเสี่ยงสูง", "High-risk trend")}</h3>
-            <ToggleGroup type="single" size="sm" value={String(trendRange)} onValueChange={(v) => v && setTrendRange(Number(v) as 7 | 30 | 90)}>
+            <ToggleGroup type="single" size="sm" value={String(trendRange)} onValueChange={(v) => {
+              if (!v) return;
+              setTrendRange(v === "all" ? "all" : (Number(v) as 7 | 30 | 90));
+            }}>
               <ToggleGroupItem value="7">7d</ToggleGroupItem>
               <ToggleGroupItem value="30">30d</ToggleGroupItem>
               <ToggleGroupItem value="90">90d</ToggleGroupItem>
+              <ToggleGroupItem value="all">{tx("ทั้งหมด", "All")}</ToggleGroupItem>
             </ToggleGroup>
           </div>
           <div className="h-56">
