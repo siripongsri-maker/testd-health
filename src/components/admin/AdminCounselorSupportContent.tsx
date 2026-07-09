@@ -1168,6 +1168,11 @@ function CasePanel({
                 </Button>
               </div>
             </div>
+
+            {/* Post-counseling QR + evaluation */}
+            {(statusDraft === "counseling_completed" || note?.status === "counseling_completed") && (
+              <PostCounselingSection note={note} postEval={postEval} tx={tx} />
+            )}
           </div>
         </CollapsibleContent>
       </Card>
