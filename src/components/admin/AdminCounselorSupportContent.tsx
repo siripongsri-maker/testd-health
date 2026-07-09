@@ -396,10 +396,18 @@ export default function AdminCounselorSupportContent() {
 
   const grouped = useMemo<GroupedDay[]>(() => {
     // Bucket rows by day + collect distinct dates within "upcoming"
-    const byDay: Record<DayBucket, SurveyRow[]> = { today: [], tomorrow: [], upcoming: [], walkin: [] };
+    const byDay: Record<DayBucket, SurveyRow[]> = { today: [], today_past: [], tomorrow: [], upcoming: [], walkin: [] };
     filtered.forEach((r) => {
       const b = dayBucket(r.appointments?.appointment_date || null, todayISO, r.appointments?.source || null);
-      byDay[b].push(r);
+      if (b === "today") {
+        // Split today into upcoming (>= now) vs earlier today (< now).
+        // Rows without a start_time on today's date stay in "today" (unspecified bucket).
+        const t = r.appointments?.start_time || null;
+        if (t && t < nowHHMMSS) byDay.today_past.push(r);
+        else byDay.today.push(r);
+      } else {
+        byDay[b].push(r);
+      }
     });
 
     const buildTimes = (rows: SurveyRow[]): GroupedTime[] => {
@@ -422,16 +430,28 @@ export default function AdminCounselorSupportContent() {
         .filter((g) => g.rows.length > 0);
     };
 
+    // Descending time-order for "earlier today" so the most recently passed slot is on top.
+    const buildTimesDesc = (rows: SurveyRow[]): GroupedTime[] => {
+      const groups = buildTimes(rows);
+      groups.forEach((g) => g.rows.reverse());
+      // Reverse group order: evening → afternoon → morning → unspecified
+      const orderKey: Record<TimeBucket, number> = { evening: 0, afternoon: 1, morning: 2, unspecified: 3 };
+      groups.sort((a, b) => orderKey[a.key] - orderKey[b.key]);
+      return groups;
+    };
+
     const days: GroupedDay[] = [];
 
+    // 1) Today's upcoming (from now forward)
     if (byDay.today.length) {
       days.push({ key: "today", date: todayISO, times: buildTimes(byDay.today), totalRows: byDay.today.length });
     }
+    // 2) Tomorrow
     if (byDay.tomorrow.length) {
       days.push({ key: "tomorrow", date: addDaysISO(todayISO, 1), times: buildTimes(byDay.tomorrow), totalRows: byDay.tomorrow.length });
     }
+    // 3) Upcoming days (and any past-dated rows folded here)
     if (byDay.upcoming.length) {
-      // Split upcoming further by exact date, sorted ascending
       const byDate = new Map<string, SurveyRow[]>();
       byDay.upcoming.forEach((r) => {
         const d = r.appointments?.appointment_date || "9999-12-31";
@@ -446,12 +466,18 @@ export default function AdminCounselorSupportContent() {
           days.push({ key: "upcoming", date: d, times: buildTimes(rows), totalRows: rows.length });
         });
     }
+    // 4) Earlier today (below active queue) — completed cases won't dominate the top.
+    if (byDay.today_past.length) {
+      days.push({ key: "today_past", date: todayISO, times: buildTimesDesc(byDay.today_past), totalRows: byDay.today_past.length });
+    }
+    // 5) Walk-ins / no time
     if (byDay.walkin.length) {
       days.push({ key: "walkin", date: null, times: buildTimes(byDay.walkin), totalRows: byDay.walkin.length });
     }
 
     return days;
-  }, [filtered, todayISO, notes]);
+  }, [filtered, todayISO, notes, nowHHMMSS]);
+
 
   // Branch summary KPIs (all visible surveys, RLS-scoped)
   const summary = useMemo(() => {
