@@ -78,6 +78,7 @@ const MelPartnersContent = lazy(() => import("@/components/admin/mel/MelPartners
 const MelPolicyContent = lazy(() => import("@/components/admin/mel/MelPolicyContent"));
 const MelEvaluationContent = lazy(() => import("@/components/admin/mel/MelEvaluationContent"));
 const MelReportingContent = lazy(() => import("@/components/admin/mel/MelReportingContent"));
+const AdminCounselorAccountsContent = lazy(() => import("@/components/admin/AdminCounselorAccountsContent"));
 
 const TabLoader = () => (
   <div className="flex items-center justify-center h-64">
@@ -116,8 +117,9 @@ export default function Admin() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { language } = useLanguage();
   const { isAdmin, isModerator, isMeAnalyst, userBranch, loading, role } = useAdminRole();
+  const isCounselor = role === 'counselor';
 
-  const defaultTab = isAdmin ? "dashboard" : isMeAnalyst ? "dashboard" : "kit-orders";
+  const defaultTab = isAdmin ? "dashboard" : isMeAnalyst ? "dashboard" : isCounselor ? "counselor-support" : "kit-orders";
   const activeTab = searchParams.get("tab") || defaultTab;
   const handleTabChange = (value: string) => setSearchParams({ tab: value });
 
@@ -129,13 +131,19 @@ export default function Admin() {
   }, [loading, role, navigate]);
 
   useEffect(() => {
-    if (!loading && isModerator && !isAdmin && !searchParams.get("tab")) {
+    if (loading) return;
+    // Counselors are locked to the counselor-support tab
+    if (isCounselor && searchParams.get("tab") !== "counselor-support") {
+      setSearchParams({ tab: "counselor-support" });
+      return;
+    }
+    if (isModerator && !isAdmin && !searchParams.get("tab")) {
       setSearchParams({ tab: "kit-orders" });
     }
-    if (!loading && isMeAnalyst && !searchParams.get("tab")) {
+    if (isMeAnalyst && !searchParams.get("tab")) {
       setSearchParams({ tab: "dashboard" });
     }
-  }, [loading, isModerator, isMeAnalyst, isAdmin, searchParams, setSearchParams]);
+  }, [loading, isModerator, isMeAnalyst, isAdmin, isCounselor, searchParams, setSearchParams]);
 
   if (loading) {
     return <AdminLayout><div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div></AdminLayout>;
@@ -145,6 +153,7 @@ export default function Admin() {
 
   const canAccess = (tab: string) => {
     if (isAdmin) return true;
+    if (isCounselor) return tab === "counselor-support";
     if (isMeAnalyst) return ME_ANALYST_TABS.has(tab);
     if (isModerator) return MODERATOR_TABS.has(tab);
     return false;
@@ -162,7 +171,7 @@ export default function Admin() {
   return (
     <AdminLayout>
       <div className="p-4 md:p-6">
-        {isModerator && !isAdmin && userBranch && (
+        {(isModerator || isCounselor) && !isAdmin && userBranch && (
           <div className="mb-4 p-3 bg-primary/10 rounded-lg border border-primary/20">
             <p className="text-sm font-medium text-primary">
               {language === 'th' ? `สาขา: ${userBranch}` : `Branch: ${userBranch}`}
@@ -205,6 +214,7 @@ export default function Admin() {
 
           {/* People */}
           {renderTab("users", <AdminUsersContent />)}
+          {renderTab("counselor-accounts", <AdminCounselorAccountsContent />)}
           {renderTab("branch-staff", <AdminBranchStaffContent />)}
           {renderTab("quick-register", <AdminQuickRegister userBranch={userBranch} />)}
           {renderTab("abuse-logs", <AdminAbuseLogsContent />)}

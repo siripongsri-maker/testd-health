@@ -109,6 +109,7 @@ const menuGroups: MenuGroup[] = [
     labelKey: "admin.people",
     items: [
       { tab: "users", icon: Users, labelKey: "admin.users", adminOnly: true },
+      { tab: "counselor-accounts", icon: HeartHandshake, labelKey: "admin.counselorAccounts", adminOnly: true },
       { tab: "branch-staff", icon: Building2, labelKey: "admin.branchStaff", adminOnly: true },
       { tab: "quick-register", icon: UserPlus, labelKey: "admin.quickRegister" },
       { tab: "demographics", icon: Fingerprint, labelKey: "admin.demographics", adminOnly: true, meAnalyst: true },
@@ -198,7 +199,8 @@ export function AdminSidebar() {
   const { t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "dashboard";
-  const { isAdmin, isMeAnalyst } = useAdminRole();
+  const { isAdmin, isMeAnalyst, role } = useAdminRole();
+  const isCounselor = role === 'counselor';
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -211,6 +213,7 @@ export function AdminSidebar() {
   };
 
   const canSeeItem = (item: MenuItemDef) => {
+    if (isCounselor) return item.tab === "counselor-support";
     if (isAdmin) return true;
     if (isMeAnalyst && item.meAnalyst) return true;
     if (item.adminOnly) return false;

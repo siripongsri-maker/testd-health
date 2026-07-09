@@ -2527,6 +2527,44 @@ export type Database = {
           },
         ]
       }
+      counselor_profiles: {
+        Row: {
+          branch_id: string | null
+          created_at: string
+          full_name: string
+          is_active: boolean
+          nickname: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          branch_id?: string | null
+          created_at?: string
+          full_name: string
+          is_active?: boolean
+          nickname?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          branch_id?: string | null
+          created_at?: string
+          full_name?: string
+          is_active?: boolean
+          nickname?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "counselor_profiles_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       data_classifications: {
         Row: {
           classification: string
@@ -11338,7 +11376,13 @@ export type Database = {
       validate_thai_id: { Args: { thai_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user" | "me_analyst" | "outreach_staff"
+      app_role:
+        | "admin"
+        | "moderator"
+        | "user"
+        | "me_analyst"
+        | "outreach_staff"
+        | "counselor"
       article_status: "draft" | "pending_review" | "published" | "archived"
       kg_entity_type:
         | "substance"
@@ -11503,7 +11547,14 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user", "me_analyst", "outreach_staff"],
+      app_role: [
+        "admin",
+        "moderator",
+        "user",
+        "me_analyst",
+        "outreach_staff",
+        "counselor",
+      ],
       article_status: ["draft", "pending_review", "published", "archived"],
       kg_entity_type: [
         "substance",
