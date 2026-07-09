@@ -220,6 +220,7 @@ function AppShell() {
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/my-rewards" element={<MyRewards />} />
               <Route path="/feedback" element={<ClientFeedbackForm />} />
+              <Route path="/post-counseling/:token" element={<PostCounselingForm />} />
               <Route path="/virtual" element={<VirtualMode />} />
               <Route path="/virtual/clinic" element={<VirtualMode forceClinic />} />
               <Route path="/virtual/:slug" element={<VirtualMode />} />
