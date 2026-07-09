@@ -259,6 +259,7 @@ export default function AdminCounselorSupportContent() {
   const [services, setServices] = useState<ServiceInfo[]>([]);
   const [surveys, setSurveys] = useState<SurveyRow[]>([]);
   const [notes, setNotes] = useState<Record<string, CaseNote>>({});
+  const [postEvals, setPostEvals] = useState<Record<string, PostEval>>({}); // keyed by note_id
   const [loading, setLoading] = useState(true);
   const [realtimeStatus, setRealtimeStatus] = useState<"connecting" | "live" | "offline">("connecting");
   const [branchFilter, setBranchFilter] = useState<string>("all"); // admin only
