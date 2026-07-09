@@ -608,6 +608,11 @@ export default function AdminCounselorSupportContent() {
             {tx("ตารางเคสตามเวลานัดหมาย จัดกลุ่มตามวันและช่วงเวลา อัปเดตเรียลไทม์",
                 "Cases ordered by appointment time, grouped by day and period, live updates")}
           </p>
+          <p className="text-xs text-teal-700 dark:text-teal-300 mt-1 flex items-center gap-1">
+            <QrCode className="h-3 w-3" />
+            {tx("หลังปิดเคสด้วยสถานะ ‘Counseling completed’ กดปุ่ม ‘แสดง QR ประเมิน’ เพื่อเปิดหน้า QR ที่ปลอดภัยให้ผู้รับบริการสแกน",
+                "After marking counseling as completed, click ‘Show evaluation QR’ to open a safe QR screen for the service user.")}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <span
