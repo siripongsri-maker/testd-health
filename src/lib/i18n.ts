@@ -1074,6 +1074,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.servicePathways': 'HR Service System',
     'admin.frontDesk': 'Front Desk',
     'admin.counselorSupport': 'Counselor Queue',
+    'admin.counselorAccounts': 'Counselor Accounts',
     'admin.clientCRM': 'Client CRM',
     'admin.youthSurvey': 'Youth HIV Survey',
     'admin.virtualStories': 'Virtual Stories',
