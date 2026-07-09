@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -820,26 +820,65 @@ function CasePanel({
   const [followUp, setFollowUp] = useState<boolean>(!!note?.follow_up_required);
   const [statusDraft, setStatusDraft] = useState<CaseStatus>(status);
   const [saving, setSaving] = useState(false);
+  const [autoSavedAt, setAutoSavedAt] = useState<number | null>(null);
+  const [dirty, setDirty] = useState(false);
+  const dirtyRef = useRef(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const savingRef = useRef(false);
+  const latestRef = useRef({ notesDraft, nextStepDraft, followUp, statusDraft });
+  latestRef.current = { notesDraft, nextStepDraft, followUp, statusDraft };
 
   useEffect(() => {
+    // Hydrate from server only when not dirty locally, to avoid clobbering unsaved edits.
+    if (dirtyRef.current || savingRef.current) return;
     setNotesDraft(note?.notes || "");
     setNextStepDraft(note?.next_step || "");
     setFollowUp(!!note?.follow_up_required);
     setStatusDraft(note?.status || "not_reviewed");
   }, [note?.id, note?.updated_at]);
 
-  const handleSave = async () => {
+  const doSave = async () => {
+    if (readOnly) return;
+    savingRef.current = true;
     setSaving(true);
     try {
+      const { notesDraft: n, nextStepDraft: ns, followUp: fu, statusDraft: st } = latestRef.current;
       await onSave({
-        notes: notesDraft || null,
-        next_step: nextStepDraft || null,
-        follow_up_required: followUp,
-        status: statusDraft,
+        notes: n || null,
+        next_step: ns || null,
+        follow_up_required: fu,
+        status: st,
       });
+      dirtyRef.current = false;
+      setDirty(false);
+      setAutoSavedAt(Date.now());
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
+  };
+
+  const markDirtyAndSchedule = () => {
+    dirtyRef.current = true;
+    setDirty(true);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => { void doSave(); }, 1200);
+  };
+
+  // Flush pending save on unmount / collapse
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        if (dirtyRef.current) void doSave();
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSave = async () => {
+    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
+    await doSave();
   };
 
   const topics = suggestTopics(row, tx);
@@ -952,14 +991,14 @@ function CasePanel({
               <Textarea
                 rows={3}
                 value={notesDraft}
-                onChange={(e) => setNotesDraft(e.target.value)}
+                onChange={(e) => { setNotesDraft(e.target.value); markDirtyAndSchedule(); }}
                 placeholder={tx("บันทึกอย่างสุภาพและไม่ตัดสิน…", "Write a supportive, non-judgmental note…")}
                 disabled={readOnly}
               />
               <label className="text-xs font-semibold block">{tx("ขั้นตอนถัดไป", "Next step")}</label>
               <Input
                 value={nextStepDraft}
-                onChange={(e) => setNextStepDraft(e.target.value)}
+                onChange={(e) => { setNextStepDraft(e.target.value); markDirtyAndSchedule(); }}
                 placeholder={tx("เช่น นัด PrEP counsel สัปดาห์หน้า", "e.g. Schedule PrEP counseling next week")}
                 disabled={readOnly}
               />
@@ -968,7 +1007,7 @@ function CasePanel({
                   <label className="text-xs font-semibold block">{tx("อัปเดตสถานะ", "Update status")}</label>
                   <select
                     value={statusDraft}
-                    onChange={(e) => setStatusDraft(e.target.value as CaseStatus)}
+                    onChange={(e) => { setStatusDraft(e.target.value as CaseStatus); markDirtyAndSchedule(); }}
                     className="h-9 px-3 rounded-md border bg-background text-sm w-full"
                     disabled={readOnly}
                   >
@@ -978,19 +1017,31 @@ function CasePanel({
                   </select>
                 </div>
                 <label className="flex items-center gap-2 text-xs mt-6">
-                  <Switch checked={followUp} onCheckedChange={setFollowUp} disabled={readOnly} />
+                  <Switch
+                    checked={followUp}
+                    onCheckedChange={(v) => { setFollowUp(v); markDirtyAndSchedule(); }}
+                    disabled={readOnly}
+                  />
                   {tx("ต้องติดตามภายหลัง", "Requires follow-up")}
                 </label>
               </div>
               <div className="flex items-center justify-between pt-1">
-                <div className="text-[11px] text-muted-foreground">
-                  {note?.updated_at
-                    ? `${tx("อัปเดตล่าสุด", "Last updated")}: ${new Date(note.updated_at).toLocaleString()}`
-                    : tx("ยังไม่มีบันทึก", "No notes yet")}
+                <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+                  {saving ? (
+                    <><Loader2 className="h-3 w-3 animate-spin" />{tx("กำลังบันทึกอัตโนมัติ…", "Autosaving…")}</>
+                  ) : dirty ? (
+                    tx("มีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก…", "Unsaved changes…")
+                  ) : autoSavedAt ? (
+                    `${tx("บันทึกอัตโนมัติแล้ว", "Autosaved")} • ${new Date(autoSavedAt).toLocaleTimeString()}`
+                  ) : note?.updated_at ? (
+                    `${tx("อัปเดตล่าสุด", "Last updated")}: ${new Date(note.updated_at).toLocaleString()}`
+                  ) : (
+                    tx("ยังไม่มีบันทึก", "No notes yet")
+                  )}
                 </div>
-                <Button size="sm" onClick={handleSave} disabled={readOnly || saving}>
+                <Button size="sm" variant="outline" onClick={handleSave} disabled={readOnly || saving || !dirty}>
                   {saving && <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />}
-                  {tx("บันทึก", "Save")}
+                  {tx("บันทึกทันที", "Save now")}
                 </Button>
               </div>
             </div>
