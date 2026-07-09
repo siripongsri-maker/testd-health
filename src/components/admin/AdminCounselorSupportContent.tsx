@@ -911,10 +911,11 @@ function StatChip({ label, value, tone }: {
 // CasePanel — collapsible row
 // ────────────────────────────────────────────────────────────────
 function CasePanel({
-  row, note, dayKey, branchName, serviceName, tx, readOnly, onSave,
+  row, note, postEval, dayKey, branchName, serviceName, tx, readOnly, onSave,
 }: {
   row: SurveyRow;
   note?: CaseNote;
+  postEval?: PostEval;
   dayKey: DayBucket;
   branchName: (id: string | null | undefined) => string;
   serviceName: (id: string | null | undefined) => string;
