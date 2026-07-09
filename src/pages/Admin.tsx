@@ -66,6 +66,7 @@ const AdminSelftestFollowupContent = lazy(() => import("@/components/admin/Admin
 const AdminSelftestMapContent = lazy(() => import("@/components/admin/AdminSelftestMapContent"));
 const AdminSelftestMissingIdContent = lazy(() => import("@/components/admin/AdminSelftestMissingIdContent"));
 const AdminPreServiceSurveysContent = lazy(() => import("@/components/admin/AdminPreServiceSurveysContent"));
+const AdminCounselorSupportContent = lazy(() => import("@/components/admin/AdminCounselorSupportContent"));
 
 // MEL modules
 const MelServiceLedgerContent = lazy(() => import("@/components/admin/mel/MelServiceLedgerContent"));
@@ -85,7 +86,7 @@ const TabLoader = () => (
 );
 
 // Tabs accessible by moderators (branch staff)
-const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "selftest-results", "selftest-followup", "selftest-map", "selftest-missing-id", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk"]);
+const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "selftest-results", "selftest-followup", "selftest-map", "selftest-missing-id", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk", "counselor-support"]);
 
 // Tabs accessible by M&E Analyst (read-only analytics/reporting)
 const ME_ANALYST_TABS = new Set([
@@ -97,7 +98,7 @@ const ME_ANALYST_TABS = new Set([
   // SMS & Credits (read-only)
   "sms-relay", "credit-balances", "credit-purchases",
   // Reports
-  "analytics", "analytics-overview", "export-center", "attribution", "feedback-outcomes", "pre-service-surveys",
+  "analytics", "analytics-overview", "export-center", "attribution", "feedback-outcomes", "pre-service-surveys", "counselor-support",
   // MEL
   "mel-services", "mel-indicators", "mel-outreach", "mel-training",
   "mel-safe-spaces", "mel-partners", "mel-policy", "mel-evaluation", "mel-reporting",
@@ -224,6 +225,7 @@ export default function Admin() {
           {renderTab("attribution", <AdminAttributionContent />)}
           {renderTab("feedback-outcomes", <AdminFeedbackOutcomesContent />)}
           {renderTab("pre-service-surveys", <AdminPreServiceSurveysContent />)}
+          {renderTab("counselor-support", <AdminCounselorSupportContent />)}
           {renderTab("export-center", <AdminExportCenterContent />)}
           {renderTab("activity-logs", <AdminActivityLogsContent />)}
 
