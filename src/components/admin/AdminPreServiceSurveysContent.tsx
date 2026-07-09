@@ -100,32 +100,38 @@ export default function AdminPreServiceSurveysContent() {
     setLoading(true);
     console.log("PRE_SURVEY_FETCH_START");
     try {
-      const [surveysRes, brRes, svRes] = await Promise.all([
-        supabase
+      // Fetch ALL survey rows via range pagination (no artificial limit)
+      const BATCH = 1000;
+      let all: any[] = [];
+      let from = 0;
+      let firstErr: any = null;
+      while (true) {
+        const { data, error } = await supabase
           .from("appointment_pre_service_surveys")
           .select("*, appointments:booking_id(branch_id, appointment_date, user_id, service_id, source)")
           .order("created_at", { ascending: false })
-          .limit(2000),
+          .range(from, from + BATCH - 1);
+        if (error) { firstErr = error; break; }
+        if (!data || data.length === 0) break;
+        all = all.concat(data);
+        if (data.length < BATCH) break;
+        from += BATCH;
+      }
+      const [brRes, svRes] = await Promise.all([
         supabase.from("booking_branches").select("id, name_th, name_en"),
         supabase.from("booking_services").select("id, name_th, name_en"),
       ]);
-      if (surveysRes.error) {
-        console.error("PRE_SURVEY_FETCH_ERROR", {
-          code: (surveysRes.error as any).code,
-          message: surveysRes.error.message,
-          details: (surveysRes.error as any).details,
-          hint: (surveysRes.error as any).hint,
-        });
+      if (firstErr) {
+        console.error("PRE_SURVEY_FETCH_ERROR", firstErr);
         toast({
           title: "โหลดข้อมูลล้มเหลว",
-          description: surveysRes.error.message,
+          description: firstErr.message,
           variant: "destructive",
         });
       } else {
-        console.log("PRE_SURVEY_FETCH_SUCCESS", { rows: surveysRes.data?.length || 0 });
-        console.log("PRE_SURVEY_ROWS_COUNT", surveysRes.data?.length || 0);
+        console.log("PRE_SURVEY_FETCH_SUCCESS", { rows: all.length });
       }
-      setRows(((surveysRes.data as any) || []) as Row[]);
+      setRows(all as Row[]);
       setBranches((brRes.data as any) || []);
       setServices((svRes.data as any) || []);
     } catch (e: any) {
@@ -137,6 +143,35 @@ export default function AdminPreServiceSurveysContent() {
   };
 
   useEffect(() => { load(); }, []);
+
+  // Realtime: refetch on any change to surveys table so all admins see live updates
+  useEffect(() => {
+    let refetchTimer: any = null;
+    const scheduleRefetch = () => {
+      if (refetchTimer) clearTimeout(refetchTimer);
+      refetchTimer = setTimeout(() => { load(); }, 300);
+    };
+    const channel = supabase
+      .channel("admin-pre-service-surveys-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "appointment_pre_service_surveys" },
+        () => scheduleRefetch(),
+      )
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") setRealtimeStatus("live");
+        else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") setRealtimeStatus("offline");
+        else setRealtimeStatus("connecting");
+      });
+    // Reconnect on tab focus
+    const onVisible = () => { if (document.visibilityState === "visible") load(); };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      if (refetchTimer) clearTimeout(refetchTimer);
+      document.removeEventListener("visibilitychange", onVisible);
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const branchMap = useMemo(() => {
     const m = new Map<string, BranchInfo>();
