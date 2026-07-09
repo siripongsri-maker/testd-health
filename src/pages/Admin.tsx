@@ -98,7 +98,7 @@ const ME_ANALYST_TABS = new Set([
   // SMS & Credits (read-only)
   "sms-relay", "credit-balances", "credit-purchases",
   // Reports
-  "analytics", "analytics-overview", "export-center", "attribution", "feedback-outcomes", "pre-service-surveys",
+  "analytics", "analytics-overview", "export-center", "attribution", "feedback-outcomes", "pre-service-surveys", "counselor-support",
   // MEL
   "mel-services", "mel-indicators", "mel-outreach", "mel-training",
   "mel-safe-spaces", "mel-partners", "mel-policy", "mel-evaluation", "mel-reporting",
