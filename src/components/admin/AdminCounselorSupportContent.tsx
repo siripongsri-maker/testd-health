@@ -68,6 +68,26 @@ interface CaseNote {
   follow_up_required: boolean;
   updated_at: string;
   updated_by: string | null;
+  post_eval_token: string | null;
+  counseling_completed_at: string | null;
+}
+
+interface PostEval {
+  id: string;
+  note_id: string;
+  branch_id: string | null;
+  satisfaction_score: number | null;
+  understanding_score: number | null;
+  safety_score: number | null;
+  respect_score: number | null;
+  clarity_score: number | null;
+  next_step_confidence_score: number | null;
+  still_needs_support: string[] | null;
+  requested_service_after_counseling: string[] | null;
+  follow_up_interest: string | null;
+  open_feedback: string | null;
+  anonymous_feedback: string | null;
+  evaluation_submitted_at: string;
 }
 
 interface BranchInfo { id: string; name_th: string; name_en: string }
