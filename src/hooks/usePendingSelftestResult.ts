@@ -24,6 +24,18 @@ export interface PendingSelftestState {
   refresh: () => void;
 }
 
+function hasSeparateSubmittedCheckForRequest(
+  request: { created_at?: string | null },
+  checks: Array<{ created_at?: string | null }>
+) {
+  const requestTime = request.created_at ? new Date(request.created_at).getTime() : 0;
+  if (!requestTime || Number.isNaN(requestTime)) return false;
+  return checks.some((check) => {
+    const checkTime = check.created_at ? new Date(check.created_at).getTime() : 0;
+    return !!checkTime && !Number.isNaN(checkTime) && checkTime >= requestTime;
+  });
+}
+
 /**
  * Detects whether the current visitor has an outstanding HIV self-test result
  * to submit, combining:
@@ -105,23 +117,37 @@ export function usePendingSelftestResult(): PendingSelftestState {
     }
     setLoading(true);
     (async () => {
-      const { data, error } = await supabase
-        .from("hiv_selftest_requests")
-        .select("id, status, created_at, result_submitted_at, result_photo_url, test_result, self_reported_result")
-        .eq("user_id", user.id)
-        .in("status", PENDING_STATUSES)
-        .is("result_submitted_at", null)
-        .is("result_photo_url", null)
-        .is("test_result", null)
-        .is("self_reported_result", null)
-        .order("created_at", { ascending: false });
+      const [requestRes, checksRes] = await Promise.all([
+        supabase
+          .from("hiv_selftest_requests")
+          .select("id, status, created_at, result_submitted_at, result_photo_url, test_result, self_reported_result")
+          .eq("user_id", user.id)
+          .in("status", PENDING_STATUSES)
+          .is("result_submitted_at", null)
+          .is("result_photo_url", null)
+          .is("test_result", null)
+          .is("self_reported_result", null)
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("hiv_self_test_checks")
+          .select("created_at")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(25),
+      ]);
       if (cancelled) return;
+      const { data, error } = requestRes;
       if (error) {
         setDbCount(0);
         setDbDetails(null);
       } else {
         // Defense in depth — post-filter to guarantee no submitted row leaks.
-        const rows = (data ?? []).filter((r) => isActiveUnsubmittedSelfTestRequest(r));
+        const checks = checksRes.data ?? [];
+        const rows = (data ?? []).filter(
+          (r) =>
+            isActiveUnsubmittedSelfTestRequest(r) &&
+            !hasSeparateSubmittedCheckForRequest(r, checks)
+        );
         if (rows.length === 0) {
           try {
             localStorage.removeItem(TIMER_STORAGE_KEY);

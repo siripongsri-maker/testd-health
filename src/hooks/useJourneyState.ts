@@ -24,6 +24,18 @@ export interface JourneyState {
   hasChatThread: boolean;
 }
 
+function hasSeparateSubmittedCheckForRequest(
+  request: { created_at?: string | null },
+  checks: Array<{ created_at?: string | null }>
+) {
+  const requestTime = request.created_at ? new Date(request.created_at).getTime() : 0;
+  if (!requestTime || Number.isNaN(requestTime)) return false;
+  return checks.some((check) => {
+    const checkTime = check.created_at ? new Date(check.created_at).getTime() : 0;
+    return !!checkTime && !Number.isNaN(checkTime) && checkTime >= requestTime;
+  });
+}
+
 export async function evaluateJourney(userId: string): Promise<JourneyState> {
   const today = new Date().toISOString().split('T')[0];
   const in48h = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -35,6 +47,7 @@ export async function evaluateJourney(userId: string): Promise<JourneyState> {
     matchRes,
     confirmedRes,
     completedRes,
+    selftestChecksRes,
     chatRes,
   ] = await Promise.all([
     // P2: upcoming appointment within 48h
@@ -81,6 +94,15 @@ export async function evaluateJourney(userId: string): Promise<JourneyState> {
       .eq('user_id', userId)
       .in('status', ['completed', 'checked_out']),
 
+    // Separate result/check table. If a check exists after a request was
+    // created, that request must not be treated as awaiting submission.
+    supabase
+      .from('hiv_self_test_checks')
+      .select('created_at')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .limit(50),
+
     // Has chat thread
     supabase
       .from('direct_chat_threads')
@@ -90,11 +112,23 @@ export async function evaluateJourney(userId: string): Promise<JourneyState> {
 
   const hasMatch = (matchRes.data?.length ?? 0) > 0;
   const selftestRows = selftestsRes.data ?? [];
-  const activeSelftestRows = selftestRows.filter((row) => isActiveUnsubmittedSelfTestRequest(row));
-  const submittedSelftestRows = selftestRows.filter((row) => hasSubmittedSelfTestResult(row));
+  const selftestChecks = selftestChecksRes.data ?? [];
+  const activeSelftestRows = selftestRows.filter(
+    (row) =>
+      isActiveUnsubmittedSelfTestRequest(row) &&
+      !hasSeparateSubmittedCheckForRequest(row, selftestChecks)
+  );
+  const submittedSelftestRows = selftestRows.filter(
+    (row) => hasSubmittedSelfTestResult(row) || hasSeparateSubmittedCheckForRequest(row, selftestChecks)
+  );
   const deliveredSelftestRows = selftestRows.filter((row) => {
     const status = String(row.status ?? '').toLowerCase();
-    return status === 'delivered' || status === 'received' || hasSubmittedSelfTestResult(row);
+    return (
+      status === 'delivered' ||
+      status === 'received' ||
+      hasSubmittedSelfTestResult(row) ||
+      hasSeparateSubmittedCheckForRequest(row, selftestChecks)
+    );
   });
   let hasBookedAfterMatch = false;
   if (hasMatch && matchRes.data?.[0]) {
