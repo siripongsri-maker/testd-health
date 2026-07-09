@@ -109,6 +109,7 @@ const menuGroups: MenuGroup[] = [
     labelKey: "admin.people",
     items: [
       { tab: "users", icon: Users, labelKey: "admin.users", adminOnly: true },
+      { tab: "counselor-accounts", icon: HeartHandshake, labelKey: "admin.counselorAccounts", adminOnly: true },
       { tab: "branch-staff", icon: Building2, labelKey: "admin.branchStaff", adminOnly: true },
       { tab: "quick-register", icon: UserPlus, labelKey: "admin.quickRegister" },
       { tab: "demographics", icon: Fingerprint, labelKey: "admin.demographics", adminOnly: true, meAnalyst: true },
