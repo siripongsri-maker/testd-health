@@ -199,7 +199,8 @@ export function AdminSidebar() {
   const { t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "dashboard";
-  const { isAdmin, isMeAnalyst } = useAdminRole();
+  const { isAdmin, isMeAnalyst, role } = useAdminRole();
+  const isCounselor = role === 'counselor';
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -212,6 +213,7 @@ export function AdminSidebar() {
   };
 
   const canSeeItem = (item: MenuItemDef) => {
+    if (isCounselor) return item.tab === "counselor-support";
     if (isAdmin) return true;
     if (isMeAnalyst && item.meAnalyst) return true;
     if (item.adminOnly) return false;
