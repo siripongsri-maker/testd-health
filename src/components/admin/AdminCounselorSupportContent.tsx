@@ -820,26 +820,65 @@ function CasePanel({
   const [followUp, setFollowUp] = useState<boolean>(!!note?.follow_up_required);
   const [statusDraft, setStatusDraft] = useState<CaseStatus>(status);
   const [saving, setSaving] = useState(false);
+  const [autoSavedAt, setAutoSavedAt] = useState<number | null>(null);
+  const [dirty, setDirty] = useState(false);
+  const dirtyRef = useRef(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const savingRef = useRef(false);
+  const latestRef = useRef({ notesDraft, nextStepDraft, followUp, statusDraft });
+  latestRef.current = { notesDraft, nextStepDraft, followUp, statusDraft };
 
   useEffect(() => {
+    // Hydrate from server only when not dirty locally, to avoid clobbering unsaved edits.
+    if (dirtyRef.current || savingRef.current) return;
     setNotesDraft(note?.notes || "");
     setNextStepDraft(note?.next_step || "");
     setFollowUp(!!note?.follow_up_required);
     setStatusDraft(note?.status || "not_reviewed");
   }, [note?.id, note?.updated_at]);
 
-  const handleSave = async () => {
+  const doSave = async () => {
+    if (readOnly) return;
+    savingRef.current = true;
     setSaving(true);
     try {
+      const { notesDraft: n, nextStepDraft: ns, followUp: fu, statusDraft: st } = latestRef.current;
       await onSave({
-        notes: notesDraft || null,
-        next_step: nextStepDraft || null,
-        follow_up_required: followUp,
-        status: statusDraft,
+        notes: n || null,
+        next_step: ns || null,
+        follow_up_required: fu,
+        status: st,
       });
+      dirtyRef.current = false;
+      setDirty(false);
+      setAutoSavedAt(Date.now());
     } finally {
+      savingRef.current = false;
       setSaving(false);
     }
+  };
+
+  const markDirtyAndSchedule = () => {
+    dirtyRef.current = true;
+    setDirty(true);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => { void doSave(); }, 1200);
+  };
+
+  // Flush pending save on unmount / collapse
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        if (dirtyRef.current) void doSave();
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleSave = async () => {
+    if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
+    await doSave();
   };
 
   const topics = suggestTopics(row, tx);
