@@ -26,15 +26,14 @@ export const SUBMITTED_STATUSES = new Set([
   "invalid",
 ]);
 
+// A "pending result submission" ONLY means the kit is physically in the user's
+// hands (delivered/received) and no result evidence exists. Earlier stages
+// (pending / approved / shipped) must NEVER show the "submit result" card.
 export const ACTIVE_PRE_RESULT_STATUSES = new Set([
-  "pending",
-  "requested",
-  "approved",
-  "confirmed",
-  "shipped",
   "delivered",
   "received",
 ]);
+
 
 /** Anything that looks like a submitted result should count. */
 export function hasSubmittedSelfTestResult(r: unknown): boolean {
