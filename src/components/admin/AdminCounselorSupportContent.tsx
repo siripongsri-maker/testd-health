@@ -576,6 +576,7 @@ export default function AdminCounselorSupportContent() {
       follow_up_required: patch.follow_up_required ?? existing?.follow_up_required ?? false,
       updated_by: user?.id ?? null,
     };
+    if (patch.post_eval_token !== undefined) payload.post_eval_token = patch.post_eval_token;
     const { data, error } = await supabase
       .from("pre_service_counseling_notes")
       .upsert(payload, { onConflict: "survey_id" })
