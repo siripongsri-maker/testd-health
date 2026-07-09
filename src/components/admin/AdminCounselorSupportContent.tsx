@@ -1256,6 +1256,7 @@ function PostCounselingSection({
           <MiniStat label={tx("ชัดเจน", "Clarity")} value={postEval.clarity_score ?? "—"} />
           <MiniStat label={tx("รู้ขั้นถัดไป", "Next-step")} value={postEval.next_step_confidence_score ?? "—"} />
         </div>
+        <PrePostCompare survey={survey} postEval={postEval} tx={tx} />
         {(postEval.still_needs_support?.length ?? 0) > 0 && (
           <div className="text-xs">
             <span className="font-semibold">{tx("ยังต้องการ", "Still needs")}: </span>
