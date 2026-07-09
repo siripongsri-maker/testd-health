@@ -69,7 +69,7 @@ export async function evaluateJourney(userId: string): Promise<JourneyState> {
     // status/test_result alone: submitted rows can remain delivered/received.
     supabase
       .from('hiv_selftest_requests')
-      .select('id, status, result_submitted_at, result_photo_url, test_result, self_reported_result')
+      .select('id, status, created_at, result_submitted_at, result_photo_url, test_result, self_reported_result')
       .eq('user_id', userId),
 
     // Prevention match completed
