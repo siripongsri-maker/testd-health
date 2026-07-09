@@ -518,6 +518,17 @@ export default function AdminCounselorSupportContent() {
     const avgMinutes = reviewed.length
       ? reviewed.reduce((s, x) => s + (new Date(x.n!.updated_at).getTime() - new Date(x.r.created_at).getTime()), 0) / reviewed.length / 60000
       : 0;
+    // Post-counseling analytics
+    const evalRows = Object.values(postEvals);
+    const evalCount = evalRows.length;
+    const completedCount = completed.length;
+    const evalRate = completedCount > 0 ? (evalCount / completedCount) * 100 : 0;
+    const avg = (key: keyof PostEval) => {
+      const vals = evalRows.map((e) => e[key] as number | null).filter((v): v is number => typeof v === "number");
+      return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+    };
+    const followUpInterest = evalRows.filter((e) => e.follow_up_interest && e.follow_up_interest !== "no").length;
+
     return {
       todayCount: todayRows.length,
       urgent: urgentAll.length,
@@ -525,8 +536,17 @@ export default function AdminCounselorSupportContent() {
       followUp: pendingFollowUp.length,
       referred: referred.length,
       avgMinutes,
+      evalCount,
+      evalRate,
+      avgSatisfaction: avg("satisfaction_score"),
+      avgUnderstanding: avg("understanding_score"),
+      avgSafety: avg("safety_score"),
+      avgRespect: avg("respect_score"),
+      avgClarity: avg("clarity_score"),
+      avgNextStep: avg("next_step_confidence_score"),
+      postFollowUpInterest: followUpInterest,
     };
-  }, [surveys, notes, todayISO]);
+  }, [surveys, notes, todayISO, postEvals]);
 
   // Save note handler
   const saveNote = async (surveyId: string, patch: Partial<CaseNote>) => {
