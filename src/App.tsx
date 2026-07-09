@@ -87,6 +87,7 @@ const Partners = lazy(() => import("./pages/Partners"));
 
 const ClientFeedbackForm = lazy(() => import("./pages/ClientFeedbackForm"));
 const PostCounselingForm = lazy(() => import("./pages/PostCounselingForm"));
+const PostCounselingQR = lazy(() => import("./pages/PostCounselingQR"));
 const HarmReductionGuide = lazy(() => import("./pages/HarmReductionGuide"));
 const VirtualMode = lazy(() => import("./pages/VirtualMode"));
 const OutreachForm = lazy(() => import("./pages/OutreachForm"));
