@@ -245,6 +245,24 @@ export default function AdminCounselorSupportContent() {
 
   const todayISO = useMemo(() => bangkokTodayISO(), []);
 
+  // Bangkok wall-clock time, ticked every minute so the queue rolls forward without refresh.
+  const bangkokNow = () => {
+    const parts = new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Asia/Bangkok", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
+    }).formatToParts(new Date());
+    const h = parts.find(p => p.type === "hour")?.value ?? "00";
+    const m = parts.find(p => p.type === "minute")?.value ?? "00";
+    const s = parts.find(p => p.type === "second")?.value ?? "00";
+    return `${h}:${m}:${s}`;
+  };
+  const [nowHHMMSS, setNowHHMMSS] = useState<string>(() => bangkokNow());
+  useEffect(() => {
+    const tick = () => setNowHHMMSS(bangkokNow());
+    tick();
+    const id = window.setInterval(tick, 60_000);
+    return () => window.clearInterval(id);
+  }, []);
+
   // Resolve staff branch (moderators/counselors only)
   useEffect(() => {
     (async () => {
