@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import {
+  hasSubmittedSelfTestResult,
+  isActiveUnsubmittedSelfTestRequest,
+} from '@/lib/selftestStatus';
 
 /**
  * Shared journey state derived from existing tables.
@@ -25,25 +29,14 @@ export async function evaluateJourney(userId: string): Promise<JourneyState> {
   const in48h = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString().split('T')[0];
 
   const [
-    pendingResultRes,
     upcomingRes,
     totalBookingsRes,
-    totalSelftestsRes,
+    selftestsRes,
     matchRes,
     confirmedRes,
     completedRes,
-    resultSubmittedRes,
-    deliveredRes,
     chatRes,
   ] = await Promise.all([
-    // P1: selftest delivered/received but no result submitted
-    supabase
-      .from('hiv_selftest_requests')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .in('status', ['approved', 'shipped', 'delivered', 'received'])
-      .is('test_result', null),
-
     // P2: upcoming appointment within 48h
     supabase
       .from('appointments')
@@ -59,10 +52,11 @@ export async function evaluateJourney(userId: string): Promise<JourneyState> {
       .select('id', { count: 'exact', head: true })
       .eq('user_id', userId),
 
-    // Ever requested selftest
+    // Self-test rows used for all self-test journey decisions. Do not rely on
+    // status/test_result alone: submitted rows can remain delivered/received.
     supabase
       .from('hiv_selftest_requests')
-      .select('id', { count: 'exact', head: true })
+      .select('id, status, result_submitted_at, result_photo_url, test_result, self_reported_result')
       .eq('user_id', userId),
 
     // Prevention match completed
@@ -87,20 +81,6 @@ export async function evaluateJourney(userId: string): Promise<JourneyState> {
       .eq('user_id', userId)
       .in('status', ['completed', 'checked_out']),
 
-    // Has submitted selftest result
-    supabase
-      .from('hiv_selftest_requests')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .not('test_result', 'is', null),
-
-    // Has selftest delivered/received
-    supabase
-      .from('hiv_selftest_requests')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .in('status', ['delivered', 'received', 'result_submitted']),
-
     // Has chat thread
     supabase
       .from('direct_chat_threads')
@@ -109,6 +89,13 @@ export async function evaluateJourney(userId: string): Promise<JourneyState> {
   ]);
 
   const hasMatch = (matchRes.data?.length ?? 0) > 0;
+  const selftestRows = selftestsRes.data ?? [];
+  const activeSelftestRows = selftestRows.filter((row) => isActiveUnsubmittedSelfTestRequest(row));
+  const submittedSelftestRows = selftestRows.filter((row) => hasSubmittedSelfTestResult(row));
+  const deliveredSelftestRows = selftestRows.filter((row) => {
+    const status = String(row.status ?? '').toLowerCase();
+    return status === 'delivered' || status === 'received' || hasSubmittedSelfTestResult(row);
+  });
   let hasBookedAfterMatch = false;
   if (hasMatch && matchRes.data?.[0]) {
     const matchDate = (matchRes.data[0] as any).created_at;
@@ -123,16 +110,16 @@ export async function evaluateJourney(userId: string): Promise<JourneyState> {
   }
 
   return {
-    hasPendingResultSubmission: (pendingResultRes.count ?? 0) > 0,
+    hasPendingResultSubmission: activeSelftestRows.length > 0,
     hasUpcomingAppointment: (upcomingRes.count ?? 0) > 0,
     hasEverBooked: (totalBookingsRes.count ?? 0) > 0,
-    hasRequestedSelfTest: (totalSelftestsRes.count ?? 0) > 0,
+    hasRequestedSelfTest: selftestRows.length > 0,
     hasCompletedPreventionMatch: hasMatch,
     hasBookedAfterMatch,
     hasConfirmedAppointment: (confirmedRes.count ?? 0) > 0,
     hasCompletedAppointment: (completedRes.count ?? 0) > 0,
-    hasSubmittedResult: (resultSubmittedRes.count ?? 0) > 0,
-    hasSelfTestDelivered: (deliveredRes.count ?? 0) > 0,
+    hasSubmittedResult: submittedSelftestRows.length > 0,
+    hasSelfTestDelivered: deliveredSelftestRows.length > 0,
     hasChatThread: (chatRes.count ?? 0) > 0,
   };
 }

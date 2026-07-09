@@ -33,7 +33,7 @@ export interface PendingSelftestState {
  * Used to render a non-error "submit result" reminder on Home and HIVSelfTest.
  */
 export function usePendingSelftestResult(): PendingSelftestState {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [dbCount, setDbCount] = useState(0);
   const [dbDetails, setDbDetails] = useState<PendingSelftestDetails | null>(null);
   const [hasLocalTimer, setHasLocalTimer] = useState(false);
@@ -62,8 +62,17 @@ export function usePendingSelftestResult(): PendingSelftestState {
     };
   }, []);
 
-  // Check localStorage timer (anonymous + logged-in both apply)
+  // Check localStorage timer. It is only authoritative for anonymous visitors.
+  // Logged-in users must be driven by fresh DB state; otherwise a stale timer
+  // can keep showing "awaiting result" after the result was submitted.
   useEffect(() => {
+    if (authLoading) return;
+    if (user) {
+      setHasLocalTimer(false);
+      setTimerDetails(null);
+      return;
+    }
+
     try {
       const stored = localStorage.getItem(TIMER_STORAGE_KEY);
       if (!stored) {
@@ -84,14 +93,14 @@ export function usePendingSelftestResult(): PendingSelftestState {
       setHasLocalTimer(false);
       setTimerDetails(null);
     }
-  }, [tick]);
+  }, [authLoading, user, tick]);
 
   // Check DB rows for logged-in users
   useEffect(() => {
     let cancelled = false;
     if (!user) {
       setDbCount(0);
-      setLoading(false);
+      setLoading(authLoading);
       return;
     }
     setLoading(true);
@@ -104,6 +113,7 @@ export function usePendingSelftestResult(): PendingSelftestState {
         .is("result_submitted_at", null)
         .is("result_photo_url", null)
         .is("test_result", null)
+        .is("self_reported_result", null)
         .order("created_at", { ascending: false });
       if (cancelled) return;
       if (error) {
@@ -112,6 +122,15 @@ export function usePendingSelftestResult(): PendingSelftestState {
       } else {
         // Defense in depth — post-filter to guarantee no submitted row leaks.
         const rows = (data ?? []).filter((r) => isActiveUnsubmittedSelfTestRequest(r));
+        if (rows.length === 0) {
+          try {
+            localStorage.removeItem(TIMER_STORAGE_KEY);
+          } catch {
+            /* noop */
+          }
+          setHasLocalTimer(false);
+          setTimerDetails(null);
+        }
         setDbCount(rows.length);
         setDbDetails(
           rows[0]
@@ -128,10 +147,10 @@ export function usePendingSelftestResult(): PendingSelftestState {
     return () => {
       cancelled = true;
     };
-  }, [user, tick]);
+  }, [user, authLoading, tick]);
 
   return {
-    hasPending: dbCount > 0 || hasLocalTimer,
+    hasPending: dbCount > 0 || (!user && !authLoading && hasLocalTimer),
     dbCount,
     hasLocalTimer,
     loading,
