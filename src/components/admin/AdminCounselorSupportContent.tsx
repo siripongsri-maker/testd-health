@@ -355,6 +355,7 @@ export default function AdminCounselorSupportContent() {
       .channel("admin-counselor-support-realtime")
       .on("postgres_changes", { event: "*", schema: "public", table: "appointment_pre_service_surveys" }, schedule)
       .on("postgres_changes", { event: "*", schema: "public", table: "pre_service_counseling_notes" }, schedule)
+      .on("postgres_changes", { event: "*", schema: "public", table: "post_counseling_evaluations" }, schedule)
       .subscribe((s) => {
         if (s === "SUBSCRIBED") setRealtimeStatus("live");
         else if (s === "CHANNEL_ERROR" || s === "TIMED_OUT" || s === "CLOSED") setRealtimeStatus("offline");
