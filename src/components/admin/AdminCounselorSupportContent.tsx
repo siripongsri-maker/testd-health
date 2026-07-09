@@ -1206,10 +1206,11 @@ function MiniStat({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 function PostCounselingSection({
-  note, postEval, tx,
+  note, postEval, survey, tx,
 }: {
   note?: CaseNote;
   postEval?: PostEval;
+  survey?: SurveyRow;
   tx: (th: string, en: string) => string;
 }) {
   const [copied, setCopied] = useState(false);
