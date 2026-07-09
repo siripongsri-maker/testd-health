@@ -72,7 +72,7 @@ interface BranchInfo { id: string; name_th: string; name_en: string }
 interface ServiceInfo { id: string; name_th: string; name_en: string }
 
 type Priority = "urgent" | "follow_up" | "standard";
-type DayBucket = "today" | "tomorrow" | "upcoming" | "walkin";
+type DayBucket = "today" | "today_past" | "tomorrow" | "upcoming" | "walkin";
 type TimeBucket = "morning" | "afternoon" | "evening" | "unspecified";
 type QuickFilter =
   | "all"
