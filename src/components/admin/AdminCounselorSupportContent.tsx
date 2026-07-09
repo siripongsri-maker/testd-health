@@ -13,7 +13,7 @@ import {
   ChevronDown, Sunrise, Sun, Sunset, Calendar, CalendarDays, Footprints,
   QrCode, Copy, Star,
 } from "lucide-react";
-import { QRCodeSVG } from "qrcode.react";
+
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminRole } from "@/hooks/useAdminRole";
