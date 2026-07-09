@@ -2527,6 +2527,44 @@ export type Database = {
           },
         ]
       }
+      counselor_profiles: {
+        Row: {
+          branch_id: string | null
+          created_at: string
+          full_name: string
+          is_active: boolean
+          nickname: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          branch_id?: string | null
+          created_at?: string
+          full_name: string
+          is_active?: boolean
+          nickname?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          branch_id?: string | null
+          created_at?: string
+          full_name?: string
+          is_active?: boolean
+          nickname?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "counselor_profiles_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       data_classifications: {
         Row: {
           classification: string
