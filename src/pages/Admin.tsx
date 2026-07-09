@@ -66,6 +66,7 @@ const AdminSelftestFollowupContent = lazy(() => import("@/components/admin/Admin
 const AdminSelftestMapContent = lazy(() => import("@/components/admin/AdminSelftestMapContent"));
 const AdminSelftestMissingIdContent = lazy(() => import("@/components/admin/AdminSelftestMissingIdContent"));
 const AdminPreServiceSurveysContent = lazy(() => import("@/components/admin/AdminPreServiceSurveysContent"));
+const AdminCounselorSupportContent = lazy(() => import("@/components/admin/AdminCounselorSupportContent"));
 
 // MEL modules
 const MelServiceLedgerContent = lazy(() => import("@/components/admin/mel/MelServiceLedgerContent"));
