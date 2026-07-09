@@ -401,7 +401,7 @@ export default function AdminPreServiceSurveysContent() {
   const resetFilters = () => {
     setSearch(""); setFilterVisit("all"); setFilterRisk("all"); setFilterMH("all");
     setFilterAnon("all"); setFilterService("all"); setFilterClinics([]);
-    setDateFrom(format(subDays(new Date(), 30), "yyyy-MM-dd"));
+    setDateFrom(""); // "" = no lower bound (All Time)
     setDateTo(format(new Date(), "yyyy-MM-dd"));
   };
 
