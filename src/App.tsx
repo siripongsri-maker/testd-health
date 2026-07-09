@@ -86,6 +86,7 @@ const InteractionPage = lazy(() => import("./pages/InteractionPage"));
 const Partners = lazy(() => import("./pages/Partners"));
 
 const ClientFeedbackForm = lazy(() => import("./pages/ClientFeedbackForm"));
+const PostCounselingForm = lazy(() => import("./pages/PostCounselingForm"));
 const HarmReductionGuide = lazy(() => import("./pages/HarmReductionGuide"));
 const VirtualMode = lazy(() => import("./pages/VirtualMode"));
 const OutreachForm = lazy(() => import("./pages/OutreachForm"));
@@ -219,6 +220,7 @@ function AppShell() {
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/my-rewards" element={<MyRewards />} />
               <Route path="/feedback" element={<ClientFeedbackForm />} />
+              <Route path="/post-counseling/:token" element={<PostCounselingForm />} />
               <Route path="/virtual" element={<VirtualMode />} />
               <Route path="/virtual/clinic" element={<VirtualMode forceClinic />} />
               <Route path="/virtual/:slug" element={<VirtualMode />} />

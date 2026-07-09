@@ -11,7 +11,9 @@ import {
   Loader2, RefreshCw, HeartHandshake, AlertTriangle, ClipboardList,
   Users, Clock3, CheckCircle2, ArrowRightCircle, Building2, Filter,
   ChevronDown, Sunrise, Sun, Sunset, Calendar, CalendarDays, Footprints,
+  QrCode, Copy, Star,
 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminRole } from "@/hooks/useAdminRole";
@@ -66,6 +68,26 @@ interface CaseNote {
   follow_up_required: boolean;
   updated_at: string;
   updated_by: string | null;
+  post_eval_token: string | null;
+  counseling_completed_at: string | null;
+}
+
+interface PostEval {
+  id: string;
+  note_id: string;
+  branch_id: string | null;
+  satisfaction_score: number | null;
+  understanding_score: number | null;
+  safety_score: number | null;
+  respect_score: number | null;
+  clarity_score: number | null;
+  next_step_confidence_score: number | null;
+  still_needs_support: string[] | null;
+  requested_service_after_counseling: string[] | null;
+  follow_up_interest: string | null;
+  open_feedback: string | null;
+  anonymous_feedback: string | null;
+  evaluation_submitted_at: string;
 }
 
 interface BranchInfo { id: string; name_th: string; name_en: string }
@@ -237,6 +259,7 @@ export default function AdminCounselorSupportContent() {
   const [services, setServices] = useState<ServiceInfo[]>([]);
   const [surveys, setSurveys] = useState<SurveyRow[]>([]);
   const [notes, setNotes] = useState<Record<string, CaseNote>>({});
+  const [postEvals, setPostEvals] = useState<Record<string, PostEval>>({}); // keyed by note_id
   const [loading, setLoading] = useState(true);
   const [realtimeStatus, setRealtimeStatus] = useState<"connecting" | "live" | "offline">("connecting");
   const [branchFilter, setBranchFilter] = useState<string>("all"); // admin only
@@ -299,16 +322,20 @@ export default function AdminCounselorSupportContent() {
         from += BATCH;
       }
 
-      const [notesRes, brRes, svRes] = await Promise.all([
+      const [notesRes, brRes, svRes, peRes] = await Promise.all([
         supabase.from("pre_service_counseling_notes").select("*"),
         supabase.from("booking_branches").select("id, name_th, name_en"),
         supabase.from("booking_services").select("id, name_th, name_en"),
+        supabase.from("post_counseling_evaluations").select("*"),
       ]);
       const map: Record<string, CaseNote> = {};
       ((notesRes.data as any[]) || []).forEach((n) => { map[n.survey_id] = n as CaseNote; });
+      const peMap: Record<string, PostEval> = {};
+      ((peRes.data as any[]) || []).forEach((e) => { peMap[e.note_id] = e as PostEval; });
 
       setSurveys(all as SurveyRow[]);
       setNotes(map);
+      setPostEvals(peMap);
       setBranches((brRes.data as any) || []);
       setServices((svRes.data as any) || []);
     } catch (e: any) {
@@ -328,6 +355,7 @@ export default function AdminCounselorSupportContent() {
       .channel("admin-counselor-support-realtime")
       .on("postgres_changes", { event: "*", schema: "public", table: "appointment_pre_service_surveys" }, schedule)
       .on("postgres_changes", { event: "*", schema: "public", table: "pre_service_counseling_notes" }, schedule)
+      .on("postgres_changes", { event: "*", schema: "public", table: "post_counseling_evaluations" }, schedule)
       .subscribe((s) => {
         if (s === "SUBSCRIBED") setRealtimeStatus("live");
         else if (s === "CHANNEL_ERROR" || s === "TIMED_OUT" || s === "CLOSED") setRealtimeStatus("offline");
@@ -490,6 +518,17 @@ export default function AdminCounselorSupportContent() {
     const avgMinutes = reviewed.length
       ? reviewed.reduce((s, x) => s + (new Date(x.n!.updated_at).getTime() - new Date(x.r.created_at).getTime()), 0) / reviewed.length / 60000
       : 0;
+    // Post-counseling analytics
+    const evalRows = Object.values(postEvals);
+    const evalCount = evalRows.length;
+    const completedCount = completed.length;
+    const evalRate = completedCount > 0 ? (evalCount / completedCount) * 100 : 0;
+    const avg = (key: keyof PostEval) => {
+      const vals = evalRows.map((e) => e[key] as number | null).filter((v): v is number => typeof v === "number");
+      return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+    };
+    const followUpInterest = evalRows.filter((e) => e.follow_up_interest && e.follow_up_interest !== "no").length;
+
     return {
       todayCount: todayRows.length,
       urgent: urgentAll.length,
@@ -497,8 +536,17 @@ export default function AdminCounselorSupportContent() {
       followUp: pendingFollowUp.length,
       referred: referred.length,
       avgMinutes,
+      evalCount,
+      evalRate,
+      avgSatisfaction: avg("satisfaction_score"),
+      avgUnderstanding: avg("understanding_score"),
+      avgSafety: avg("safety_score"),
+      avgRespect: avg("respect_score"),
+      avgClarity: avg("clarity_score"),
+      avgNextStep: avg("next_step_confidence_score"),
+      postFollowUpInterest: followUpInterest,
     };
-  }, [surveys, notes, todayISO]);
+  }, [surveys, notes, todayISO, postEvals]);
 
   // Save note handler
   const saveNote = async (surveyId: string, patch: Partial<CaseNote>) => {
@@ -596,6 +644,27 @@ export default function AdminCounselorSupportContent() {
         <KpiCard icon={<Users className="h-4 w-4" />} label={tx("เวลาตอบเฉลี่ย (นาที)", "Avg response (min)")} value={summary.avgMinutes ? summary.avgMinutes.toFixed(1) : "—"} />
       </div>
 
+      {/* Post-counseling analytics */}
+      <Card className="p-4 border-teal-200 bg-teal-50/30 dark:bg-teal-950/10">
+        <div className="flex items-center gap-2 mb-3">
+          <Star className="h-4 w-4 text-teal-600" />
+          <h2 className="text-sm font-bold">{tx("ผลประเมินหลังรับคำปรึกษา", "Post-counseling evaluations")}</h2>
+          <Badge variant="outline" className="text-[10px] ml-auto">
+            {summary.evalCount} / {summary.completed} · {summary.evalRate.toFixed(0)}%
+          </Badge>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 text-xs">
+          <MiniStat label={tx("ประเมินแล้ว", "Evaluated")} value={summary.evalCount} />
+          <MiniStat label={tx("อัตราตอบ", "Response rate")} value={`${summary.evalRate.toFixed(0)}%`} />
+          <MiniStat label={tx("พึงพอใจเฉลี่ย", "Avg satisfaction")} value={summary.avgSatisfaction?.toFixed(1) ?? "—"} />
+          <MiniStat label={tx("เข้าใจเฉลี่ย", "Avg understanding")} value={summary.avgUnderstanding?.toFixed(1) ?? "—"} />
+          <MiniStat label={tx("ปลอดภัย/เชื่อใจ", "Avg safety")} value={summary.avgSafety?.toFixed(1) ?? "—"} />
+          <MiniStat label={tx("เคารพ", "Avg respect")} value={summary.avgRespect?.toFixed(1) ?? "—"} />
+          <MiniStat label={tx("อยากติดตามต่อ", "Wants follow-up")} value={summary.postFollowUpInterest} />
+        </div>
+      </Card>
+
+
       {/* Filters bar */}
       <Card className="p-3 space-y-3">
         <div className="flex flex-wrap items-center gap-2">
@@ -657,6 +726,7 @@ export default function AdminCounselorSupportContent() {
               key={`${day.key}-${day.date ?? "walkin"}-${idx}`}
               day={day}
               notes={notes}
+              postEvals={postEvals}
               language={language}
               tx={tx}
               branchName={branchName}
@@ -675,10 +745,11 @@ export default function AdminCounselorSupportContent() {
 // DaySection
 // ────────────────────────────────────────────────────────────────
 function DaySection({
-  day, notes, language, tx, branchName, serviceName, readOnly, onSave,
+  day, notes, postEvals, language, tx, branchName, serviceName, readOnly, onSave,
 }: {
   day: { key: DayBucket; date: string | null; times: { key: TimeBucket; rows: SurveyRow[] }[]; totalRows: number };
   notes: Record<string, CaseNote>;
+  postEvals: Record<string, PostEval>;
   language: string;
   tx: (th: string, en: string) => string;
   branchName: (id: string | null | undefined) => string;
@@ -720,6 +791,7 @@ function DaySection({
             dayKey={day.key}
             slot={slot}
             notes={notes}
+            postEvals={postEvals}
             language={language}
             tx={tx}
             branchName={branchName}
@@ -734,11 +806,12 @@ function DaySection({
 }
 
 function TimeSlot({
-  dayKey, slot, notes, language, tx, branchName, serviceName, readOnly, onSave,
+  dayKey, slot, notes, postEvals, language, tx, branchName, serviceName, readOnly, onSave,
 }: {
   dayKey: DayBucket;
   slot: { key: TimeBucket; rows: SurveyRow[] };
   notes: Record<string, CaseNote>;
+  postEvals: Record<string, PostEval>;
   language: string;
   tx: (th: string, en: string) => string;
   branchName: (id: string | null | undefined) => string;
@@ -749,7 +822,6 @@ function TimeSlot({
   const meta = TIME_META[slot.key];
   const Icon = meta.icon;
 
-  // Header stats
   const urgent = slot.rows.filter((r) => computePriority(r, notes[r.id]) === "urgent").length;
   const completed = slot.rows.filter((r) => {
     const s = notes[r.id]?.status;
@@ -776,19 +848,24 @@ function TimeSlot({
         </div>
       </div>
       <div className="space-y-2">
-        {slot.rows.map((r) => (
-          <CasePanel
-            key={r.id}
-            row={r}
-            note={notes[r.id]}
-            dayKey={dayKey}
-            branchName={branchName}
-            serviceName={serviceName}
-            tx={tx}
-            readOnly={readOnly}
-            onSave={(patch) => onSave(r.id, patch)}
-          />
-        ))}
+        {slot.rows.map((r) => {
+          const n = notes[r.id];
+          const pe = n ? postEvals[n.id] : undefined;
+          return (
+            <CasePanel
+              key={r.id}
+              row={r}
+              note={n}
+              postEval={pe}
+              dayKey={dayKey}
+              branchName={branchName}
+              serviceName={serviceName}
+              tx={tx}
+              readOnly={readOnly}
+              onSave={(patch) => onSave(r.id, patch)}
+            />
+          );
+        })}
       </div>
     </div>
   );
@@ -834,10 +911,11 @@ function StatChip({ label, value, tone }: {
 // CasePanel — collapsible row
 // ────────────────────────────────────────────────────────────────
 function CasePanel({
-  row, note, dayKey, branchName, serviceName, tx, readOnly, onSave,
+  row, note, postEval, dayKey, branchName, serviceName, tx, readOnly, onSave,
 }: {
   row: SurveyRow;
   note?: CaseNote;
+  postEval?: PostEval;
   dayKey: DayBucket;
   branchName: (id: string | null | undefined) => string;
   serviceName: (id: string | null | undefined) => string;
@@ -1090,6 +1168,11 @@ function CasePanel({
                 </Button>
               </div>
             </div>
+
+            {/* Post-counseling QR + evaluation */}
+            {(statusDraft === "counseling_completed" || note?.status === "counseling_completed") && (
+              <PostCounselingSection note={note} postEval={postEval} tx={tx} />
+            )}
           </div>
         </CollapsibleContent>
       </Card>
@@ -1112,3 +1195,134 @@ function Indicator({ label, value, tone }: {
     </div>
   );
 }
+
+function MiniStat({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="rounded-md border border-teal-200/60 bg-background/60 px-2 py-1.5">
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="text-base font-bold tabular-nums mt-0.5">{value}</div>
+    </div>
+  );
+}
+
+function PostCounselingSection({
+  note, postEval, tx,
+}: {
+  note?: CaseNote;
+  postEval?: PostEval;
+  tx: (th: string, en: string) => string;
+}) {
+  const [copied, setCopied] = useState(false);
+  const [showQR, setShowQR] = useState(true);
+
+  if (!note) return null;
+  if (!note.post_eval_token) {
+    return (
+      <div className="rounded-lg border border-amber-200 bg-amber-50/60 dark:bg-amber-950/20 p-3 text-xs text-amber-800 dark:text-amber-200">
+        {tx("กำลังสร้างลิงก์ประเมินหลังคำปรึกษา… โปรดรีเฟรช",
+            "Generating post-counseling link… please refresh.")}
+      </div>
+    );
+  }
+
+  const url = `${window.location.origin}/post-counseling/${note.post_eval_token}`;
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch { /* noop */ }
+  };
+
+  if (postEval) {
+    return (
+      <div className="rounded-lg border-2 border-teal-200 bg-teal-50/40 dark:bg-teal-950/20 p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="h-4 w-4 text-teal-600" />
+          <div className="text-sm font-bold text-teal-800 dark:text-teal-200">
+            {tx("ผลประเมินหลังรับคำปรึกษา", "Post-counseling evaluation submitted")}
+          </div>
+          <span className="ml-auto text-[10px] text-muted-foreground">
+            {new Date(postEval.evaluation_submitted_at).toLocaleString()}
+          </span>
+        </div>
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-2 text-xs">
+          <MiniStat label={tx("พึงพอใจ", "Satisfaction")} value={postEval.satisfaction_score ?? "—"} />
+          <MiniStat label={tx("เข้าใจ", "Understand")} value={postEval.understanding_score ?? "—"} />
+          <MiniStat label={tx("ปลอดภัย", "Safety")} value={postEval.safety_score ?? "—"} />
+          <MiniStat label={tx("เคารพ", "Respect")} value={postEval.respect_score ?? "—"} />
+          <MiniStat label={tx("ชัดเจน", "Clarity")} value={postEval.clarity_score ?? "—"} />
+          <MiniStat label={tx("รู้ขั้นถัดไป", "Next-step")} value={postEval.next_step_confidence_score ?? "—"} />
+        </div>
+        {(postEval.still_needs_support?.length ?? 0) > 0 && (
+          <div className="text-xs">
+            <span className="font-semibold">{tx("ยังต้องการ", "Still needs")}: </span>
+            {postEval.still_needs_support!.join(", ")}
+          </div>
+        )}
+        {(postEval.requested_service_after_counseling?.length ?? 0) > 0 && (
+          <div className="text-xs">
+            <span className="font-semibold">{tx("บริการที่อยากได้ต่อ", "Requested next service")}: </span>
+            {postEval.requested_service_after_counseling!.join(", ")}
+          </div>
+        )}
+        {postEval.follow_up_interest && (
+          <div className="text-xs">
+            <span className="font-semibold">{tx("ความตั้งใจติดตามคำแนะนำ", "Intent to follow")}: </span>
+            {postEval.follow_up_interest}
+          </div>
+        )}
+        {postEval.open_feedback && (
+          <div className="text-xs bg-background/60 rounded-md p-2 border">
+            <div className="font-semibold mb-0.5">{tx("ข้อเสนอแนะ", "Feedback")}</div>
+            <div className="whitespace-pre-wrap">{postEval.open_feedback}</div>
+          </div>
+        )}
+        {postEval.anonymous_feedback && (
+          <div className="text-xs bg-background/60 rounded-md p-2 border">
+            <div className="font-semibold mb-0.5">{tx("ความคิดเห็นแบบไม่ระบุตัวตน", "Anonymous feedback")}</div>
+            <div className="whitespace-pre-wrap">{postEval.anonymous_feedback}</div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-lg border-2 border-teal-300 bg-gradient-to-br from-teal-50 to-white dark:from-teal-950/30 dark:to-background p-4">
+      <div className="flex items-start gap-4">
+        {showQR && (
+          <div className="bg-white rounded-lg p-2 shadow-sm shrink-0">
+            <QRCodeSVG value={url} size={128} level="M" bgColor="#ffffff" fgColor="#0f766e" />
+          </div>
+        )}
+        <div className="flex-1 min-w-0 space-y-2">
+          <div className="flex items-center gap-2">
+            <QrCode className="h-4 w-4 text-teal-600" />
+            <div className="text-sm font-bold">
+              {tx("QR ประเมินหลังรับคำปรึกษา", "Post-counseling evaluation QR")}
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {tx("ให้ผู้รับบริการสแกน QR นี้เพื่อประเมินหลังรับคำปรึกษา ผลจะปรากฏที่นี่แบบเรียลไทม์",
+                "Ask the client to scan this QR to complete the post-counseling evaluation. Results appear here in real time.")}
+          </p>
+          <div className="flex items-center gap-1.5 text-[11px] font-mono bg-muted/60 rounded-md px-2 py-1 truncate">
+            {url}
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={copy}>
+              <Copy className="h-3 w-3 mr-1" />
+              {copied ? tx("คัดลอกแล้ว", "Copied") : tx("คัดลอกลิงก์", "Copy link")}
+            </Button>
+            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setShowQR((v) => !v)}>
+              {showQR ? tx("ซ่อน QR", "Hide QR") : tx("แสดง QR", "Show QR")}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
