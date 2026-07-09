@@ -806,11 +806,12 @@ function DaySection({
 }
 
 function TimeSlot({
-  dayKey, slot, notes, language, tx, branchName, serviceName, readOnly, onSave,
+  dayKey, slot, notes, postEvals, language, tx, branchName, serviceName, readOnly, onSave,
 }: {
   dayKey: DayBucket;
   slot: { key: TimeBucket; rows: SurveyRow[] };
   notes: Record<string, CaseNote>;
+  postEvals: Record<string, PostEval>;
   language: string;
   tx: (th: string, en: string) => string;
   branchName: (id: string | null | undefined) => string;
@@ -821,7 +822,6 @@ function TimeSlot({
   const meta = TIME_META[slot.key];
   const Icon = meta.icon;
 
-  // Header stats
   const urgent = slot.rows.filter((r) => computePriority(r, notes[r.id]) === "urgent").length;
   const completed = slot.rows.filter((r) => {
     const s = notes[r.id]?.status;
@@ -848,19 +848,24 @@ function TimeSlot({
         </div>
       </div>
       <div className="space-y-2">
-        {slot.rows.map((r) => (
-          <CasePanel
-            key={r.id}
-            row={r}
-            note={notes[r.id]}
-            dayKey={dayKey}
-            branchName={branchName}
-            serviceName={serviceName}
-            tx={tx}
-            readOnly={readOnly}
-            onSave={(patch) => onSave(r.id, patch)}
-          />
-        ))}
+        {slot.rows.map((r) => {
+          const n = notes[r.id];
+          const pe = n ? postEvals[n.id] : undefined;
+          return (
+            <CasePanel
+              key={r.id}
+              row={r}
+              note={n}
+              postEval={pe}
+              dayKey={dayKey}
+              branchName={branchName}
+              serviceName={serviceName}
+              tx={tx}
+              readOnly={readOnly}
+              onSave={(patch) => onSave(r.id, patch)}
+            />
+          );
+        })}
       </div>
     </div>
   );
