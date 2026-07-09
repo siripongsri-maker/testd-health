@@ -5,8 +5,10 @@ import { isActiveUnsubmittedSelfTestRequest } from "@/lib/selftestStatus";
 
 const TIMER_STORAGE_KEY = "hiv-selftest-timer";
 
-// Statuses where the kit is in the user's hands but a result has not been submitted yet.
-const PENDING_STATUSES = ["shipped", "delivered", "received", "approved"];
+// Only "delivered" or "received" kits are candidates for the "submit your
+// result" banner. Earlier stages (pending/approved/shipped) do NOT qualify.
+const PENDING_STATUSES = ["delivered", "received"];
+
 
 export interface PendingSelftestDetails {
   source: "db" | "timer";
