@@ -85,9 +85,10 @@ export default function AdminPreServiceSurveysContent() {
   const [filterAnon, setFilterAnon] = useState<"all" | "anon" | "user">("all");
   const [filterService, setFilterService] = useState<string>("all");
   const [filterClinics, setFilterClinics] = useState<string[]>([]);
-  const [dateFrom, setDateFrom] = useState<string>(format(subDays(new Date(), 30), "yyyy-MM-dd"));
+  const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>(format(new Date(), "yyyy-MM-dd"));
-  const [trendRange, setTrendRange] = useState<7 | 30 | 90>(30);
+  const [trendRange, setTrendRange] = useState<7 | 30 | 90 | "all">(30);
+  const [realtimeStatus, setRealtimeStatus] = useState<"connecting" | "live" | "offline">("connecting");
 
   // Debounce search
   useEffect(() => {
@@ -99,32 +100,38 @@ export default function AdminPreServiceSurveysContent() {
     setLoading(true);
     console.log("PRE_SURVEY_FETCH_START");
     try {
-      const [surveysRes, brRes, svRes] = await Promise.all([
-        supabase
+      // Fetch ALL survey rows via range pagination (no artificial limit)
+      const BATCH = 1000;
+      let all: any[] = [];
+      let from = 0;
+      let firstErr: any = null;
+      while (true) {
+        const { data, error } = await supabase
           .from("appointment_pre_service_surveys")
           .select("*, appointments:booking_id(branch_id, appointment_date, user_id, service_id, source)")
           .order("created_at", { ascending: false })
-          .limit(2000),
+          .range(from, from + BATCH - 1);
+        if (error) { firstErr = error; break; }
+        if (!data || data.length === 0) break;
+        all = all.concat(data);
+        if (data.length < BATCH) break;
+        from += BATCH;
+      }
+      const [brRes, svRes] = await Promise.all([
         supabase.from("booking_branches").select("id, name_th, name_en"),
         supabase.from("booking_services").select("id, name_th, name_en"),
       ]);
-      if (surveysRes.error) {
-        console.error("PRE_SURVEY_FETCH_ERROR", {
-          code: (surveysRes.error as any).code,
-          message: surveysRes.error.message,
-          details: (surveysRes.error as any).details,
-          hint: (surveysRes.error as any).hint,
-        });
+      if (firstErr) {
+        console.error("PRE_SURVEY_FETCH_ERROR", firstErr);
         toast({
           title: "โหลดข้อมูลล้มเหลว",
-          description: surveysRes.error.message,
+          description: firstErr.message,
           variant: "destructive",
         });
       } else {
-        console.log("PRE_SURVEY_FETCH_SUCCESS", { rows: surveysRes.data?.length || 0 });
-        console.log("PRE_SURVEY_ROWS_COUNT", surveysRes.data?.length || 0);
+        console.log("PRE_SURVEY_FETCH_SUCCESS", { rows: all.length });
       }
-      setRows(((surveysRes.data as any) || []) as Row[]);
+      setRows(all as Row[]);
       setBranches((brRes.data as any) || []);
       setServices((svRes.data as any) || []);
     } catch (e: any) {
@@ -136,6 +143,35 @@ export default function AdminPreServiceSurveysContent() {
   };
 
   useEffect(() => { load(); }, []);
+
+  // Realtime: refetch on any change to surveys table so all admins see live updates
+  useEffect(() => {
+    let refetchTimer: any = null;
+    const scheduleRefetch = () => {
+      if (refetchTimer) clearTimeout(refetchTimer);
+      refetchTimer = setTimeout(() => { load(); }, 300);
+    };
+    const channel = supabase
+      .channel("admin-pre-service-surveys-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "appointment_pre_service_surveys" },
+        () => scheduleRefetch(),
+      )
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") setRealtimeStatus("live");
+        else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") setRealtimeStatus("offline");
+        else setRealtimeStatus("connecting");
+      });
+    // Reconnect on tab focus
+    const onVisible = () => { if (document.visibilityState === "visible") load(); };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      if (refetchTimer) clearTimeout(refetchTimer);
+      document.removeEventListener("visibilitychange", onVisible);
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const branchMap = useMemo(() => {
     const m = new Map<string, BranchInfo>();
@@ -211,23 +247,42 @@ export default function AdminPreServiceSurveysContent() {
       { name: tx("กลับมาซ้ำ", "Repeat"), value: repeat },
     ];
 
-    // Risk trend (use trendRange)
-    const days = trendRange;
+    // Risk trend (use trendRange; "all" spans oldest→today, bucketed by month if >120d, else daily)
     const today = startOfDay(new Date());
-    const trendBuckets: Record<string, number> = {};
-    for (let i = days - 1; i >= 0; i--) {
-      const d = format(subDays(today, i), "yyyy-MM-dd");
-      trendBuckets[d] = 0;
+    let trend: { date: string; count: number }[] = [];
+    if (trendRange === "all") {
+      if (filtered.length === 0) {
+        trend = [];
+      } else {
+        const times = filtered.map((r) => new Date(r.created_at).getTime());
+        const minTs = Math.min(...times);
+        const spanDays = Math.ceil((today.getTime() - minTs) / (86400 * 1000)) + 1;
+        const monthly = spanDays > 120;
+        const buckets: Record<string, number> = {};
+        filtered.forEach((r) => {
+          if (riskOf(r) !== "high") return;
+          const d = new Date(r.created_at);
+          const key = monthly ? format(d, "yyyy-MM") : format(startOfDay(d), "yyyy-MM-dd");
+          buckets[key] = (buckets[key] || 0) + 1;
+        });
+        trend = Object.entries(buckets)
+          .sort(([a], [b]) => (a < b ? -1 : 1))
+          .map(([date, count]) => ({ date: monthly ? date : date.slice(5), count }));
+      }
+    } else {
+      const days = trendRange;
+      const trendBuckets: Record<string, number> = {};
+      for (let i = days - 1; i >= 0; i--) {
+        const d = format(subDays(today, i), "yyyy-MM-dd");
+        trendBuckets[d] = 0;
+      }
+      filtered.forEach((r) => {
+        if (riskOf(r) !== "high") return;
+        const d = format(startOfDay(new Date(r.created_at)), "yyyy-MM-dd");
+        if (d in trendBuckets) trendBuckets[d]++;
+      });
+      trend = Object.entries(trendBuckets).map(([date, count]) => ({ date: date.slice(5), count }));
     }
-    filtered.forEach((r) => {
-      if (riskOf(r) !== "high") return;
-      const d = format(startOfDay(new Date(r.created_at)), "yyyy-MM-dd");
-      if (d in trendBuckets) trendBuckets[d]++;
-    });
-    const trend = Object.entries(trendBuckets).map(([date, count]) => ({
-      date: date.slice(5),
-      count,
-    }));
 
     // Clinic comparison
     const byBranch = new Map<string, Row[]>();
@@ -346,7 +401,7 @@ export default function AdminPreServiceSurveysContent() {
   const resetFilters = () => {
     setSearch(""); setFilterVisit("all"); setFilterRisk("all"); setFilterMH("all");
     setFilterAnon("all"); setFilterService("all"); setFilterClinics([]);
-    setDateFrom(format(subDays(new Date(), 30), "yyyy-MM-dd"));
+    setDateFrom(""); // "" = no lower bound (All Time)
     setDateTo(format(new Date(), "yyyy-MM-dd"));
   };
 
@@ -364,6 +419,24 @@ export default function AdminPreServiceSurveysContent() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <span
+            className={`inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded-full border ${
+              realtimeStatus === "live"
+                ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
+                : realtimeStatus === "offline"
+                ? "border-rose-300 bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300"
+                : "border-amber-300 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
+            }`}
+            title={tx("การซิงก์แบบเรียลไทม์", "Realtime sync")}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${
+              realtimeStatus === "live" ? "bg-emerald-500 animate-pulse"
+              : realtimeStatus === "offline" ? "bg-rose-500" : "bg-amber-500 animate-pulse"
+            }`} />
+            {realtimeStatus === "live" ? tx("เรียลไทม์", "Live")
+              : realtimeStatus === "offline" ? tx("ออฟไลน์", "Offline")
+              : tx("กำลังเชื่อมต่อ", "Connecting")}
+          </span>
           <Button onClick={load} variant="outline" size="sm" disabled={loading}>
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
             {tx("รีเฟรช", "Refresh")}
@@ -406,10 +479,14 @@ export default function AdminPreServiceSurveysContent() {
         <Card className="p-4 lg:col-span-2">
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-semibold text-sm">{tx("แนวโน้มความเสี่ยงสูง", "High-risk trend")}</h3>
-            <ToggleGroup type="single" size="sm" value={String(trendRange)} onValueChange={(v) => v && setTrendRange(Number(v) as 7 | 30 | 90)}>
+            <ToggleGroup type="single" size="sm" value={String(trendRange)} onValueChange={(v) => {
+              if (!v) return;
+              setTrendRange(v === "all" ? "all" : (Number(v) as 7 | 30 | 90));
+            }}>
               <ToggleGroupItem value="7">7d</ToggleGroupItem>
               <ToggleGroupItem value="30">30d</ToggleGroupItem>
               <ToggleGroupItem value="90">90d</ToggleGroupItem>
+              <ToggleGroupItem value="all">{tx("ทั้งหมด", "All")}</ToggleGroupItem>
             </ToggleGroup>
           </div>
           <div className="h-56">
