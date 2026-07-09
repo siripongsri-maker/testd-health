@@ -526,6 +526,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.clinicSettings': 'ตั้งค่าคลินิก SWING',
     'admin.servicePathways': 'ระบบบริการ HR',
     'admin.frontDesk': 'แผนกต้อนรับ',
+    'admin.counselorSupport': 'คิวให้คำปรึกษา',
     'admin.clientCRM': 'จัดการผู้รับบริการ',
     'admin.youthSurvey': 'แบบสำรวจเยาวชน HIV',
     'admin.virtualStories': 'Virtual Stories',
