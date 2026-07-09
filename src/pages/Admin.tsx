@@ -171,7 +171,7 @@ export default function Admin() {
   return (
     <AdminLayout>
       <div className="p-4 md:p-6">
-        {isModerator && !isAdmin && userBranch && (
+        {(isModerator || isCounselor) && !isAdmin && userBranch && (
           <div className="mb-4 p-3 bg-primary/10 rounded-lg border border-primary/20">
             <p className="text-sm font-medium text-primary">
               {language === 'th' ? `สาขา: ${userBranch}` : `Branch: ${userBranch}`}
