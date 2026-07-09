@@ -419,6 +419,24 @@ export default function AdminPreServiceSurveysContent() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <span
+            className={`inline-flex items-center gap-1.5 text-xs px-2 py-1 rounded-full border ${
+              realtimeStatus === "live"
+                ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
+                : realtimeStatus === "offline"
+                ? "border-rose-300 bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300"
+                : "border-amber-300 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
+            }`}
+            title={tx("การซิงก์แบบเรียลไทม์", "Realtime sync")}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${
+              realtimeStatus === "live" ? "bg-emerald-500 animate-pulse"
+              : realtimeStatus === "offline" ? "bg-rose-500" : "bg-amber-500 animate-pulse"
+            }`} />
+            {realtimeStatus === "live" ? tx("เรียลไทม์", "Live")
+              : realtimeStatus === "offline" ? tx("ออฟไลน์", "Offline")
+              : tx("กำลังเชื่อมต่อ", "Connecting")}
+          </span>
           <Button onClick={load} variant="outline" size="sm" disabled={loading}>
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
             {tx("รีเฟรช", "Refresh")}
