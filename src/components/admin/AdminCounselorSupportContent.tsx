@@ -1171,7 +1171,7 @@ function CasePanel({
 
             {/* Post-counseling QR + evaluation */}
             {(statusDraft === "counseling_completed" || note?.status === "counseling_completed") && (
-              <PostCounselingSection note={note} postEval={postEval} tx={tx} />
+              <PostCounselingSection note={note} postEval={postEval} survey={row} tx={tx} />
             )}
           </div>
         </CollapsibleContent>
@@ -1205,11 +1205,107 @@ function MiniStat({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
+function PrePostCompare({
+  survey, postEval, tx,
+}: {
+  survey?: SurveyRow;
+  postEval: PostEval;
+  tx: (th: string, en: string) => string;
+}) {
+  const preConcerns: { label: string; value: string }[] = [];
+  if (survey) {
+    if (survey.mental_health_interest === "yes")
+      preConcerns.push({ label: tx("สุขภาพจิต", "Mental health"), value: tx("สนใจ", "Interested") });
+    if (survey.recommend)
+      preConcerns.push({ label: tx("แนะนำ", "Recommend"), value: survey.recommend });
+    if (survey.suggestions?.trim())
+      preConcerns.push({ label: tx("ข้อกังวล", "Concern"), value: survey.suggestions.trim() });
+  }
+
+  const rows: { label: string; pre: number | null; post: number | null }[] = [
+    { label: tx("ปลอดภัย", "Safety"), pre: survey?.safety ?? null, post: postEval.safety_score },
+    { label: tx("มั่นใจในขั้นถัดไป", "Next-step confidence"), pre: survey?.confidence ?? null, post: postEval.next_step_confidence_score },
+  ];
+  const postOnly: { label: string; value: number | null }[] = [
+    { label: tx("พึงพอใจ", "Satisfaction"), value: postEval.satisfaction_score },
+    { label: tx("เข้าใจ", "Understanding"), value: postEval.understanding_score },
+    { label: tx("เคารพ", "Respect"), value: postEval.respect_score },
+    { label: tx("ชัดเจน", "Clarity"), value: postEval.clarity_score },
+  ];
+
+  const deltaColor = (d: number | null) =>
+    d === null ? "text-muted-foreground"
+      : d > 0 ? "text-emerald-600 dark:text-emerald-400"
+      : d < 0 ? "text-rose-600 dark:text-rose-400"
+      : "text-muted-foreground";
+  const deltaLabel = (d: number | null) => d === null ? "—" : d > 0 ? `+${d}` : `${d}`;
+
+  return (
+    <div className="rounded-md border bg-background/70 p-3 space-y-3">
+      <div className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+        {tx("เปรียบเทียบก่อน–หลังคำปรึกษา", "Pre vs. post-counseling comparison")}
+      </div>
+
+      {preConcerns.length > 0 && (
+        <div className="space-y-1">
+          <div className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {tx("ข้อกังวลก่อนรับคำปรึกษา", "Pre-counseling concerns")}
+          </div>
+          <ul className="text-xs space-y-0.5">
+            {preConcerns.map((c, i) => (
+              <li key={i}><span className="font-semibold">{c.label}:</span> {c.value}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div className="overflow-hidden rounded-md border">
+        <table className="w-full text-xs">
+          <thead className="bg-muted/60">
+            <tr className="text-left">
+              <th className="px-2 py-1 font-semibold">{tx("มิติ", "Dimension")}</th>
+              <th className="px-2 py-1 font-semibold text-center">{tx("ก่อน", "Pre")}</th>
+              <th className="px-2 py-1 font-semibold text-center">{tx("หลัง", "Post")}</th>
+              <th className="px-2 py-1 font-semibold text-center">Δ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, i) => {
+              const delta = r.pre !== null && r.post !== null ? r.post - r.pre : null;
+              return (
+                <tr key={i} className="border-t">
+                  <td className="px-2 py-1">{r.label}</td>
+                  <td className="px-2 py-1 text-center tabular-nums">{r.pre ?? "—"}</td>
+                  <td className="px-2 py-1 text-center tabular-nums font-semibold">{r.post ?? "—"}</td>
+                  <td className={`px-2 py-1 text-center tabular-nums font-bold ${deltaColor(delta)}`}>
+                    {deltaLabel(delta)}
+                  </td>
+                </tr>
+              );
+            })}
+            {postOnly.map((r, i) => (
+              <tr key={`p-${i}`} className="border-t bg-muted/20">
+                <td className="px-2 py-1 text-muted-foreground">{r.label}</td>
+                <td className="px-2 py-1 text-center text-muted-foreground">—</td>
+                <td className="px-2 py-1 text-center tabular-nums font-semibold">{r.value ?? "—"}</td>
+                <td className="px-2 py-1 text-center text-muted-foreground">
+                  <span className="text-[10px]">{tx("หลังเท่านั้น", "post only")}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 function PostCounselingSection({
-  note, postEval, tx,
+  note, postEval, survey, tx,
 }: {
   note?: CaseNote;
   postEval?: PostEval;
+  survey?: SurveyRow;
   tx: (th: string, en: string) => string;
 }) {
   const [copied, setCopied] = useState(false);
@@ -1255,6 +1351,7 @@ function PostCounselingSection({
           <MiniStat label={tx("ชัดเจน", "Clarity")} value={postEval.clarity_score ?? "—"} />
           <MiniStat label={tx("รู้ขั้นถัดไป", "Next-step")} value={postEval.next_step_confidence_score ?? "—"} />
         </div>
+        <PrePostCompare survey={survey} postEval={postEval} tx={tx} />
         {(postEval.still_needs_support?.length ?? 0) > 0 && (
           <div className="text-xs">
             <span className="font-semibold">{tx("ยังต้องการ", "Still needs")}: </span>
