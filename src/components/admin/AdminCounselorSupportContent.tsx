@@ -107,6 +107,15 @@ type QuickFilter =
   | "completed";
 
 // ────────────────────────────────────────────────────────────────
+// Completed-like statuses (any of these should surface the post-eval QR).
+// ────────────────────────────────────────────────────────────────
+const COMPLETED_STATUSES: CaseStatus[] = ["counseling_completed", "case_closed"];
+function isCompletedLike(status?: CaseStatus | string | null): boolean {
+  if (!status) return false;
+  return COMPLETED_STATUSES.includes(status as CaseStatus);
+}
+
+// ────────────────────────────────────────────────────────────────
 // Priority & risk logic
 // ────────────────────────────────────────────────────────────────
 function computePriority(r: SurveyRow, note?: CaseNote): Priority {
