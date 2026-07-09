@@ -225,6 +225,7 @@ export default function Admin() {
           {renderTab("attribution", <AdminAttributionContent />)}
           {renderTab("feedback-outcomes", <AdminFeedbackOutcomesContent />)}
           {renderTab("pre-service-surveys", <AdminPreServiceSurveysContent />)}
+          {renderTab("counselor-support", <AdminCounselorSupportContent />)}
           {renderTab("export-center", <AdminExportCenterContent />)}
           {renderTab("activity-logs", <AdminActivityLogsContent />)}
 
