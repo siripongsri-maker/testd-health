@@ -214,6 +214,7 @@ export default function Admin() {
 
           {/* People */}
           {renderTab("users", <AdminUsersContent />)}
+          {renderTab("counselor-accounts", <AdminCounselorAccountsContent />)}
           {renderTab("branch-staff", <AdminBranchStaffContent />)}
           {renderTab("quick-register", <AdminQuickRegister userBranch={userBranch} />)}
           {renderTab("abuse-logs", <AdminAbuseLogsContent />)}
