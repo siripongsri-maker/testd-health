@@ -7341,15 +7341,110 @@ export type Database = {
           },
         ]
       }
+      post_counseling_evaluations: {
+        Row: {
+          anonymous_feedback: string | null
+          anonymous_id: string | null
+          branch_id: string | null
+          clarity_score: number | null
+          counseling_completed_at: string | null
+          counselor_id: string | null
+          created_at: string
+          evaluation_submitted_at: string
+          follow_up_interest: string | null
+          id: string
+          language: string | null
+          next_step_confidence_score: number | null
+          note_id: string
+          open_feedback: string | null
+          requested_service_after_counseling: string[] | null
+          respect_score: number | null
+          safety_score: number | null
+          satisfaction_score: number | null
+          still_needs_support: string[] | null
+          survey_id: string | null
+          uic_hash: string | null
+          understanding_score: number | null
+          updated_at: string
+        }
+        Insert: {
+          anonymous_feedback?: string | null
+          anonymous_id?: string | null
+          branch_id?: string | null
+          clarity_score?: number | null
+          counseling_completed_at?: string | null
+          counselor_id?: string | null
+          created_at?: string
+          evaluation_submitted_at?: string
+          follow_up_interest?: string | null
+          id?: string
+          language?: string | null
+          next_step_confidence_score?: number | null
+          note_id: string
+          open_feedback?: string | null
+          requested_service_after_counseling?: string[] | null
+          respect_score?: number | null
+          safety_score?: number | null
+          satisfaction_score?: number | null
+          still_needs_support?: string[] | null
+          survey_id?: string | null
+          uic_hash?: string | null
+          understanding_score?: number | null
+          updated_at?: string
+        }
+        Update: {
+          anonymous_feedback?: string | null
+          anonymous_id?: string | null
+          branch_id?: string | null
+          clarity_score?: number | null
+          counseling_completed_at?: string | null
+          counselor_id?: string | null
+          created_at?: string
+          evaluation_submitted_at?: string
+          follow_up_interest?: string | null
+          id?: string
+          language?: string | null
+          next_step_confidence_score?: number | null
+          note_id?: string
+          open_feedback?: string | null
+          requested_service_after_counseling?: string[] | null
+          respect_score?: number | null
+          safety_score?: number | null
+          satisfaction_score?: number | null
+          still_needs_support?: string[] | null
+          survey_id?: string | null
+          uic_hash?: string | null
+          understanding_score?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_counseling_evaluations_note_id_fkey"
+            columns: ["note_id"]
+            isOneToOne: false
+            referencedRelation: "pre_service_counseling_notes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_counseling_evaluations_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "appointment_pre_service_surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pre_service_counseling_notes: {
         Row: {
           assigned_counselor_id: string | null
           branch_id: string | null
+          counseling_completed_at: string | null
           created_at: string
           follow_up_required: boolean
           id: string
           next_step: string | null
           notes: string | null
+          post_eval_token: string | null
           status: string
           survey_id: string
           updated_at: string
@@ -7358,11 +7453,13 @@ export type Database = {
         Insert: {
           assigned_counselor_id?: string | null
           branch_id?: string | null
+          counseling_completed_at?: string | null
           created_at?: string
           follow_up_required?: boolean
           id?: string
           next_step?: string | null
           notes?: string | null
+          post_eval_token?: string | null
           status?: string
           survey_id: string
           updated_at?: string
@@ -7371,11 +7468,13 @@ export type Database = {
         Update: {
           assigned_counselor_id?: string | null
           branch_id?: string | null
+          counseling_completed_at?: string | null
           created_at?: string
           follow_up_required?: boolean
           id?: string
           next_step?: string | null
           notes?: string | null
+          post_eval_token?: string | null
           status?: string
           survey_id?: string
           updated_at?: string
@@ -11040,6 +11139,17 @@ export type Database = {
           session_id: string
         }[]
       }
+      get_post_eval_context: {
+        Args: { _token: string }
+        Returns: {
+          already_submitted: boolean
+          branch_id: string
+          branch_name_en: string
+          branch_name_th: string
+          counseling_completed_at: string
+          note_id: string
+        }[]
+      }
       get_pre_post_score: {
         Args: { p_name: string }
         Returns: {
@@ -11325,6 +11435,10 @@ export type Database = {
           p_thai_id: string
           p_wants_callback: boolean
         }
+        Returns: string
+      }
+      submit_post_counseling_evaluation: {
+        Args: { _payload: Json; _token: string }
         Returns: string
       }
       submit_pre_service_survey: {
