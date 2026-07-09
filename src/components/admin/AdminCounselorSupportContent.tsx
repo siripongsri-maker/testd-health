@@ -1184,10 +1184,19 @@ function CasePanel({
               </div>
             </div>
 
-            {/* Post-counseling QR + evaluation */}
-            {(statusDraft === "counseling_completed" || note?.status === "counseling_completed") && (
-              <PostCounselingSection note={note} postEval={postEval} survey={row} tx={tx} />
-            )}
+            {/* Post-counseling QR + evaluation.
+                Visible when case is completed-like OR a token already exists (defensive),
+                and also offers a manual "Generate QR" fallback for other statuses. */}
+            <PostCounselingSection
+              note={note}
+              postEval={postEval}
+              survey={row}
+              surveyId={row.id}
+              statusDraft={statusDraft}
+              readOnly={readOnly}
+              onSave={onSave}
+              tx={tx}
+            />
           </div>
         </CollapsibleContent>
       </Card>
