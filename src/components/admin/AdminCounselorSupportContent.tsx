@@ -1195,3 +1195,134 @@ function Indicator({ label, value, tone }: {
     </div>
   );
 }
+
+function MiniStat({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="rounded-md border border-teal-200/60 bg-background/60 px-2 py-1.5">
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="text-base font-bold tabular-nums mt-0.5">{value}</div>
+    </div>
+  );
+}
+
+function PostCounselingSection({
+  note, postEval, tx,
+}: {
+  note?: CaseNote;
+  postEval?: PostEval;
+  tx: (th: string, en: string) => string;
+}) {
+  const [copied, setCopied] = useState(false);
+  const [showQR, setShowQR] = useState(true);
+
+  if (!note) return null;
+  if (!note.post_eval_token) {
+    return (
+      <div className="rounded-lg border border-amber-200 bg-amber-50/60 dark:bg-amber-950/20 p-3 text-xs text-amber-800 dark:text-amber-200">
+        {tx("กำลังสร้างลิงก์ประเมินหลังคำปรึกษา… โปรดรีเฟรช",
+            "Generating post-counseling link… please refresh.")}
+      </div>
+    );
+  }
+
+  const url = `${window.location.origin}/post-counseling/${note.post_eval_token}`;
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch { /* noop */ }
+  };
+
+  if (postEval) {
+    return (
+      <div className="rounded-lg border-2 border-teal-200 bg-teal-50/40 dark:bg-teal-950/20 p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="h-4 w-4 text-teal-600" />
+          <div className="text-sm font-bold text-teal-800 dark:text-teal-200">
+            {tx("ผลประเมินหลังรับคำปรึกษา", "Post-counseling evaluation submitted")}
+          </div>
+          <span className="ml-auto text-[10px] text-muted-foreground">
+            {new Date(postEval.evaluation_submitted_at).toLocaleString()}
+          </span>
+        </div>
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-2 text-xs">
+          <MiniStat label={tx("พึงพอใจ", "Satisfaction")} value={postEval.satisfaction_score ?? "—"} />
+          <MiniStat label={tx("เข้าใจ", "Understand")} value={postEval.understanding_score ?? "—"} />
+          <MiniStat label={tx("ปลอดภัย", "Safety")} value={postEval.safety_score ?? "—"} />
+          <MiniStat label={tx("เคารพ", "Respect")} value={postEval.respect_score ?? "—"} />
+          <MiniStat label={tx("ชัดเจน", "Clarity")} value={postEval.clarity_score ?? "—"} />
+          <MiniStat label={tx("รู้ขั้นถัดไป", "Next-step")} value={postEval.next_step_confidence_score ?? "—"} />
+        </div>
+        {(postEval.still_needs_support?.length ?? 0) > 0 && (
+          <div className="text-xs">
+            <span className="font-semibold">{tx("ยังต้องการ", "Still needs")}: </span>
+            {postEval.still_needs_support!.join(", ")}
+          </div>
+        )}
+        {(postEval.requested_service_after_counseling?.length ?? 0) > 0 && (
+          <div className="text-xs">
+            <span className="font-semibold">{tx("บริการที่อยากได้ต่อ", "Requested next service")}: </span>
+            {postEval.requested_service_after_counseling!.join(", ")}
+          </div>
+        )}
+        {postEval.follow_up_interest && (
+          <div className="text-xs">
+            <span className="font-semibold">{tx("ความตั้งใจติดตามคำแนะนำ", "Intent to follow")}: </span>
+            {postEval.follow_up_interest}
+          </div>
+        )}
+        {postEval.open_feedback && (
+          <div className="text-xs bg-background/60 rounded-md p-2 border">
+            <div className="font-semibold mb-0.5">{tx("ข้อเสนอแนะ", "Feedback")}</div>
+            <div className="whitespace-pre-wrap">{postEval.open_feedback}</div>
+          </div>
+        )}
+        {postEval.anonymous_feedback && (
+          <div className="text-xs bg-background/60 rounded-md p-2 border">
+            <div className="font-semibold mb-0.5">{tx("ความคิดเห็นแบบไม่ระบุตัวตน", "Anonymous feedback")}</div>
+            <div className="whitespace-pre-wrap">{postEval.anonymous_feedback}</div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-lg border-2 border-teal-300 bg-gradient-to-br from-teal-50 to-white dark:from-teal-950/30 dark:to-background p-4">
+      <div className="flex items-start gap-4">
+        {showQR && (
+          <div className="bg-white rounded-lg p-2 shadow-sm shrink-0">
+            <QRCodeSVG value={url} size={128} level="M" bgColor="#ffffff" fgColor="#0f766e" />
+          </div>
+        )}
+        <div className="flex-1 min-w-0 space-y-2">
+          <div className="flex items-center gap-2">
+            <QrCode className="h-4 w-4 text-teal-600" />
+            <div className="text-sm font-bold">
+              {tx("QR ประเมินหลังรับคำปรึกษา", "Post-counseling evaluation QR")}
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {tx("ให้ผู้รับบริการสแกน QR นี้เพื่อประเมินหลังรับคำปรึกษา ผลจะปรากฏที่นี่แบบเรียลไทม์",
+                "Ask the client to scan this QR to complete the post-counseling evaluation. Results appear here in real time.")}
+          </p>
+          <div className="flex items-center gap-1.5 text-[11px] font-mono bg-muted/60 rounded-md px-2 py-1 truncate">
+            {url}
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" className="h-7 text-xs" onClick={copy}>
+              <Copy className="h-3 w-3 mr-1" />
+              {copied ? tx("คัดลอกแล้ว", "Copied") : tx("คัดลอกลิงก์", "Copy link")}
+            </Button>
+            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setShowQR((v) => !v)}>
+              {showQR ? tx("ซ่อน QR", "Hide QR") : tx("แสดง QR", "Show QR")}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
