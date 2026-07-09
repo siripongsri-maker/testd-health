@@ -726,6 +726,7 @@ export default function AdminCounselorSupportContent() {
               key={`${day.key}-${day.date ?? "walkin"}-${idx}`}
               day={day}
               notes={notes}
+              postEvals={postEvals}
               language={language}
               tx={tx}
               branchName={branchName}
