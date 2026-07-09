@@ -209,10 +209,11 @@ const PRIORITY_META: Record<Priority, { pill: string; dot: string; label_th: str
 };
 
 const DAY_META: Record<DayBucket, { icon: React.ComponentType<{ className?: string }>; label_th: string; label_en: string; accent: string }> = {
-  today:    { icon: CalendarDays,  label_th: "วันนี้",   label_en: "Today",    accent: "text-primary" },
-  tomorrow: { icon: Calendar,      label_th: "พรุ่งนี้", label_en: "Tomorrow", accent: "text-sky-600 dark:text-sky-400" },
-  upcoming: { icon: Calendar,      label_th: "เร็ว ๆ นี้", label_en: "Upcoming", accent: "text-violet-600 dark:text-violet-400" },
-  walkin:   { icon: Footprints,    label_th: "Walk-in / ไม่ระบุเวลา", label_en: "Walk-in / no time", accent: "text-muted-foreground" },
+  today:      { icon: CalendarDays,  label_th: "วันนี้ (ถัดไป)",  label_en: "Today (upcoming)", accent: "text-primary" },
+  tomorrow:   { icon: Calendar,      label_th: "พรุ่งนี้", label_en: "Tomorrow", accent: "text-sky-600 dark:text-sky-400" },
+  upcoming:   { icon: Calendar,      label_th: "เร็ว ๆ นี้", label_en: "Upcoming", accent: "text-violet-600 dark:text-violet-400" },
+  today_past: { icon: Clock3,        label_th: "เมื่อสักครู่ (วันนี้)", label_en: "Earlier today", accent: "text-muted-foreground" },
+  walkin:     { icon: Footprints,    label_th: "Walk-in / ไม่ระบุเวลา", label_en: "Walk-in / no time", accent: "text-muted-foreground" },
 };
 
 const TIME_META: Record<TimeBucket, { icon: React.ComponentType<{ className?: string }>; label_th: string; label_en: string; range: string }> = {
