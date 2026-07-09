@@ -745,10 +745,11 @@ export default function AdminCounselorSupportContent() {
 // DaySection
 // ────────────────────────────────────────────────────────────────
 function DaySection({
-  day, notes, language, tx, branchName, serviceName, readOnly, onSave,
+  day, notes, postEvals, language, tx, branchName, serviceName, readOnly, onSave,
 }: {
   day: { key: DayBucket; date: string | null; times: { key: TimeBucket; rows: SurveyRow[] }[]; totalRows: number };
   notes: Record<string, CaseNote>;
+  postEvals: Record<string, PostEval>;
   language: string;
   tx: (th: string, en: string) => string;
   branchName: (id: string | null | undefined) => string;
@@ -790,6 +791,7 @@ function DaySection({
             dayKey={day.key}
             slot={slot}
             notes={notes}
+            postEvals={postEvals}
             language={language}
             tx={tx}
             branchName={branchName}
