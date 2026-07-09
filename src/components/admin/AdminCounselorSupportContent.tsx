@@ -991,14 +991,14 @@ function CasePanel({
               <Textarea
                 rows={3}
                 value={notesDraft}
-                onChange={(e) => setNotesDraft(e.target.value)}
+                onChange={(e) => { setNotesDraft(e.target.value); markDirtyAndSchedule(); }}
                 placeholder={tx("บันทึกอย่างสุภาพและไม่ตัดสิน…", "Write a supportive, non-judgmental note…")}
                 disabled={readOnly}
               />
               <label className="text-xs font-semibold block">{tx("ขั้นตอนถัดไป", "Next step")}</label>
               <Input
                 value={nextStepDraft}
-                onChange={(e) => setNextStepDraft(e.target.value)}
+                onChange={(e) => { setNextStepDraft(e.target.value); markDirtyAndSchedule(); }}
                 placeholder={tx("เช่น นัด PrEP counsel สัปดาห์หน้า", "e.g. Schedule PrEP counseling next week")}
                 disabled={readOnly}
               />
@@ -1007,7 +1007,7 @@ function CasePanel({
                   <label className="text-xs font-semibold block">{tx("อัปเดตสถานะ", "Update status")}</label>
                   <select
                     value={statusDraft}
-                    onChange={(e) => setStatusDraft(e.target.value as CaseStatus)}
+                    onChange={(e) => { setStatusDraft(e.target.value as CaseStatus); markDirtyAndSchedule(); }}
                     className="h-9 px-3 rounded-md border bg-background text-sm w-full"
                     disabled={readOnly}
                   >
@@ -1017,19 +1017,31 @@ function CasePanel({
                   </select>
                 </div>
                 <label className="flex items-center gap-2 text-xs mt-6">
-                  <Switch checked={followUp} onCheckedChange={setFollowUp} disabled={readOnly} />
+                  <Switch
+                    checked={followUp}
+                    onCheckedChange={(v) => { setFollowUp(v); markDirtyAndSchedule(); }}
+                    disabled={readOnly}
+                  />
                   {tx("ต้องติดตามภายหลัง", "Requires follow-up")}
                 </label>
               </div>
               <div className="flex items-center justify-between pt-1">
-                <div className="text-[11px] text-muted-foreground">
-                  {note?.updated_at
-                    ? `${tx("อัปเดตล่าสุด", "Last updated")}: ${new Date(note.updated_at).toLocaleString()}`
-                    : tx("ยังไม่มีบันทึก", "No notes yet")}
+                <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+                  {saving ? (
+                    <><Loader2 className="h-3 w-3 animate-spin" />{tx("กำลังบันทึกอัตโนมัติ…", "Autosaving…")}</>
+                  ) : dirty ? (
+                    tx("มีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก…", "Unsaved changes…")
+                  ) : autoSavedAt ? (
+                    `${tx("บันทึกอัตโนมัติแล้ว", "Autosaved")} • ${new Date(autoSavedAt).toLocaleTimeString()}`
+                  ) : note?.updated_at ? (
+                    `${tx("อัปเดตล่าสุด", "Last updated")}: ${new Date(note.updated_at).toLocaleString()}`
+                  ) : (
+                    tx("ยังไม่มีบันทึก", "No notes yet")
+                  )}
                 </div>
-                <Button size="sm" onClick={handleSave} disabled={readOnly || saving}>
+                <Button size="sm" variant="outline" onClick={handleSave} disabled={readOnly || saving || !dirty}>
                   {saving && <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />}
-                  {tx("บันทึก", "Save")}
+                  {tx("บันทึกทันที", "Save now")}
                 </Button>
               </div>
             </div>
