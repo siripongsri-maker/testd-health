@@ -247,23 +247,42 @@ export default function AdminPreServiceSurveysContent() {
       { name: tx("กลับมาซ้ำ", "Repeat"), value: repeat },
     ];
 
-    // Risk trend (use trendRange)
-    const days = trendRange;
+    // Risk trend (use trendRange; "all" spans oldest→today, bucketed by month if >120d, else daily)
     const today = startOfDay(new Date());
-    const trendBuckets: Record<string, number> = {};
-    for (let i = days - 1; i >= 0; i--) {
-      const d = format(subDays(today, i), "yyyy-MM-dd");
-      trendBuckets[d] = 0;
+    let trend: { date: string; count: number }[] = [];
+    if (trendRange === "all") {
+      if (filtered.length === 0) {
+        trend = [];
+      } else {
+        const times = filtered.map((r) => new Date(r.created_at).getTime());
+        const minTs = Math.min(...times);
+        const spanDays = Math.ceil((today.getTime() - minTs) / (86400 * 1000)) + 1;
+        const monthly = spanDays > 120;
+        const buckets: Record<string, number> = {};
+        filtered.forEach((r) => {
+          if (riskOf(r) !== "high") return;
+          const d = new Date(r.created_at);
+          const key = monthly ? format(d, "yyyy-MM") : format(startOfDay(d), "yyyy-MM-dd");
+          buckets[key] = (buckets[key] || 0) + 1;
+        });
+        trend = Object.entries(buckets)
+          .sort(([a], [b]) => (a < b ? -1 : 1))
+          .map(([date, count]) => ({ date: monthly ? date : date.slice(5), count }));
+      }
+    } else {
+      const days = trendRange;
+      const trendBuckets: Record<string, number> = {};
+      for (let i = days - 1; i >= 0; i--) {
+        const d = format(subDays(today, i), "yyyy-MM-dd");
+        trendBuckets[d] = 0;
+      }
+      filtered.forEach((r) => {
+        if (riskOf(r) !== "high") return;
+        const d = format(startOfDay(new Date(r.created_at)), "yyyy-MM-dd");
+        if (d in trendBuckets) trendBuckets[d]++;
+      });
+      trend = Object.entries(trendBuckets).map(([date, count]) => ({ date: date.slice(5), count }));
     }
-    filtered.forEach((r) => {
-      if (riskOf(r) !== "high") return;
-      const d = format(startOfDay(new Date(r.created_at)), "yyyy-MM-dd");
-      if (d in trendBuckets) trendBuckets[d]++;
-    });
-    const trend = Object.entries(trendBuckets).map(([date, count]) => ({
-      date: date.slice(5),
-      count,
-    }));
 
     // Clinic comparison
     const byBranch = new Map<string, Row[]>();
