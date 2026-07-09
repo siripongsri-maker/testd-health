@@ -91,21 +91,27 @@ Deno.serve(async (req) => {
     }
 
     // Use Gemini via Lovable AI to extract text from Thai ID card
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: `Extract text from this Thai National ID card image. Return ONLY a JSON object with these fields (use null if not found):
+    // Abort if the upstream vision call is slower than the edge function's runtime cap.
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 45_000);
+    let response: Response;
+    try {
+      response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [
+            {
+              role: "user",
+              content: [
+                {
+                  type: "text",
+                  text: `Extract text from this Thai National ID card image. Return ONLY a JSON object with these fields (use null if not found):
 {
   "thaiId": "13-digit number without dashes",
   "fullNameTh": "Thai full name (ชื่อ-นามสกุล)",
@@ -118,18 +124,30 @@ Deno.serve(async (req) => {
   "province": "จังหวัด name only (without prefix จังหวัด)"
 }
 Do NOT include any markdown formatting. Return ONLY the JSON object.`,
-              },
-              {
-                type: "image_url",
-                image_url: { url: imageBase64 },
-              },
-            ],
-          },
-        ],
-        max_tokens: 500,
-        temperature: 0.1,
-      }),
-    });
+                },
+                {
+                  type: "image_url",
+                  image_url: { url: imageBase64 },
+                },
+              ],
+            },
+          ],
+          max_tokens: 500,
+          temperature: 0.1,
+        }),
+      });
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if ((err as Error)?.name === "AbortError") {
+        console.error("scan-thai-id: upstream vision call timed out after 45s");
+        return new Response(
+          JSON.stringify({ error: "Scan timed out. Please retake the photo in good lighting and try again." }),
+          { status: 504, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+        );
+      }
+      throw err;
+    }
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       const errText = await response.text();
@@ -153,6 +171,7 @@ Do NOT include any markdown formatting. Return ONLY the JSON object.`,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
 
     const aiResult = await response.json();
     const content = aiResult.choices?.[0]?.message?.content || "";
