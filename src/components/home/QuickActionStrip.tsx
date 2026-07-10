@@ -7,12 +7,12 @@ import { openSupportChat } from '@/lib/openSupportChat';
 const actions = [
   {
     icon: TestTube,
-    labelTh: 'ตรวจทันที',
-    labelEn: 'Test Now',
-    descTh: 'รู้ผลเร็ว',
-    descEn: 'Quick results',
-    path: '/booking',
-    event: 'homepage_quick_booking',
+    labelTh: 'ขอชุดตรวจ',
+    labelEn: 'Request Kit',
+    descTh: 'ด้วยตัวเอง',
+    descEn: 'Self-request',
+    path: '/hiv-selftest',
+    event: 'homepage_quick_selftest_request',
   },
   {
     icon: Package,
@@ -43,7 +43,7 @@ export function QuickActionStrip() {
       <div className="grid grid-cols-3 gap-2">
         {actions.map((a) => (
           <button
-            key={a.path}
+            key={a.event}
             onClick={() => {
               trackEvent(a.event, { source: 'homepage', section: 'quick_strip' });
               if (a.path === '/support-chat') {
