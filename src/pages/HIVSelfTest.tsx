@@ -213,9 +213,12 @@ export default function HIVSelfTest() {
   // Lean flow doesn't re-enter "submit your result" while the refetch is
   // in flight, then re-reads from the DB (which excludes result_submitted).
   useEffect(() => {
-    const onActiveRefresh = () => {
+    const onActiveRefresh = (event: Event) => {
+      const requestId = (event as CustomEvent<{ requestId?: string }>).detail?.requestId;
+      if (requestId) completedRequestIdsRef.current.add(requestId);
       justSubmittedRef.current = true;
       setActiveRequest(null);
+      setCurrentStep('intro');
       if (user) fetchRequests();
     };
     window.addEventListener('selftest:active-request-refresh', onActiveRefresh);
@@ -469,21 +472,57 @@ export default function HIVSelfTest() {
   const fetchRequests = async () => {
     if (!user) return;
 
-    const { data } = await supabase
-      .from('hiv_selftest_requests')
-      .select('id, status, tracking_number, test_result, created_at, result_photo_url, result_submitted_at, self_reported_result')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
+    const [requestRes, checksRes] = await Promise.all([
+      supabase
+        .from('hiv_selftest_requests')
+        .select('id, status, tracking_number, test_result, created_at, updated_at, result_photo_url, result_submitted_at, self_reported_result')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false }),
+      supabase
+        .from('hiv_self_test_checks')
+        .select('created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(50),
+    ]);
+
+    if (requestRes.error) {
+      console.error('[selftest fetchRequests]', requestRes.error);
+      return;
+    }
+
+    const data = requestRes.data ?? [];
 
     if (data) {
+      const submittedTimes = [
+        ...data
+          .map((row) => getSelfTestSubmittedTime(row))
+          .filter((time): time is number => time !== null),
+        ...((checksRes.data ?? [])
+          .map((row) => {
+            const time = row.created_at ? new Date(row.created_at).getTime() : NaN;
+            return Number.isFinite(time) ? time : null;
+          })
+          .filter((time): time is number => time !== null)),
+      ];
+
+      const isOpenUnsubmittedCycle = (row: typeof data[number]) => {
+        const status = String(row.status ?? '').toLowerCase();
+        return (
+          OPEN_SELFTEST_REQUEST_STATUSES.has(status) &&
+          !completedRequestIdsRef.current.has(row.id) &&
+          !hasSubmittedSelfTestResult(row) &&
+          !isSupersededBySelfTestSubmission(row, submittedTimes)
+        );
+      };
+
       setRequests(data);
-      // Single source of truth — matches magic-link + render guards.
-      const active = data.find((r) => isActiveUnsubmittedSelfTestRequest(r));
+      const active = data.find((r) => isOpenUnsubmittedCycle(r));
       setActiveRequest((prev) => {
         // If the row we currently render as "active" no longer qualifies
         // (result was just submitted, status flipped, etc.), drop it and
         // bounce the user back to intro to prevent the loop.
-        if (prev && !data.some((r) => r.id === prev.id && isActiveUnsubmittedSelfTestRequest(r))) {
+        if (prev && !data.some((r) => r.id === prev.id && isOpenUnsubmittedCycle(r))) {
           setCurrentStep((step) =>
             step === 'confirm-receipt' || step === 'video' || step === 'testing' ||
             step === 'timer' || step === 'photo-result'
