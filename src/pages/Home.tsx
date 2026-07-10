@@ -164,7 +164,7 @@ export default function Home() {
           </div>
         </div>
 
-        <PendingSelftestResultBanner className="mb-4" />
+        {/* Homepage self-test result reminder removed — submission remains available on /hiv-selftest */}
 
         <QuickActionStrip />
 
