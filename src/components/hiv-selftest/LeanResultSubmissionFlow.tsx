@@ -32,6 +32,8 @@ interface Props {
   cameFromMagicLink?: boolean;
   /** When true, the visitor is anonymous: collect name/phone and call the guest RPC instead of UPDATE. */
   guestMode?: boolean;
+  /** Skip the readiness screen and show the actual result form immediately. */
+  startAtResult?: boolean;
   onDone: () => void;
   trackEvent: (name: string, props?: Record<string, unknown>) => void;
 }
@@ -149,10 +151,10 @@ const T = {
   },
 };
 
-export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode, onDone, trackEvent }: Props) {
+export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode, startAtResult, onDone, trackEvent }: Props) {
   const { language } = useLanguage();
   const t = T[language === "en" ? "en" : "th"];
-  const [step, setStep] = useState<"ready" | "result" | "outcome">("ready");
+  const [step, setStep] = useState<"ready" | "result" | "outcome">(startAtResult ? "result" : "ready");
   const [result, setResult] = useState<ResultType | null>(null);
   const [photo, setPhoto] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
