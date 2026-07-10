@@ -7,12 +7,12 @@ import { openSupportChat } from '@/lib/openSupportChat';
 const actions = [
   {
     icon: TestTube,
-    labelTh: 'ตรวจทันที',
-    labelEn: 'Test Now',
-    descTh: 'รู้ผลเร็ว',
-    descEn: 'Quick results',
-    path: '/booking',
-    event: 'homepage_quick_booking',
+    labelTh: 'ขอชุดตรวจ',
+    labelEn: 'Request Kit',
+    descTh: 'ด้วยตัวเอง',
+    descEn: 'Self-request',
+    path: '/hiv-selftest',
+    event: 'homepage_quick_selftest_request',
   },
   {
     icon: Package,
