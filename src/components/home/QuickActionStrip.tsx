@@ -15,15 +15,6 @@ const actions = [
     event: 'homepage_quick_selftest_request',
   },
   {
-    icon: Package,
-    labelTh: 'ชุดตรวจถึงบ้าน',
-    labelEn: 'Home Kit',
-    descTh: 'ฟรี',
-    descEn: 'Free',
-    path: '/hiv-selftest',
-    event: 'homepage_quick_selftest',
-  },
-  {
     icon: MessageCircle,
     labelTh: 'คุยเจ้าหน้าที่',
     labelEn: 'Chat Support',
@@ -40,7 +31,7 @@ export function QuickActionStrip() {
 
   return (
     <section className="mb-6">
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         {actions.map((a) => (
           <button
             key={a.event}
