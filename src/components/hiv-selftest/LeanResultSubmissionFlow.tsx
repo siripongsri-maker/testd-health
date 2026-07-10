@@ -12,6 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/lib/i18n";
 import { openSupportChat } from "@/lib/openSupportChat";
 import { isValidThaiId, normalizeThaiId } from "@/lib/thaiId";
+import { hasSubmittedSelfTestResult } from "@/lib/selftestStatus";
 import { ArrowRight, Loader2, Camera } from "lucide-react";
 import selftestImgNegative from "@/assets/selftest-result-negative.jpg";
 import selftestImgReactive from "@/assets/selftest-result-reactive.jpg";
@@ -840,8 +841,13 @@ async function submitResult(
   const { error } = await supabase
     .from("hiv_selftest_requests")
     .update(update)
-    .eq("id", request.id);
+    .eq("id", request.id)
+    .select("id, status, result_submitted_at, result_photo_url, test_result, self_reported_result")
+    .maybeSingle();
   if (error) throw error;
+  if (!hasSubmittedSelfTestResult(data)) {
+    throw new Error("Result submission did not update the active request");
+  }
 
   // Best-effort: mirror province onto the linked PII row so future analyses
   // see it on the canonical record too.
