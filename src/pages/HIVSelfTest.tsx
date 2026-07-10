@@ -73,6 +73,7 @@ export default function HIVSelfTest() {
   const { trackSelftestRequest } = useQuestProgress();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const isDirectSubmitAction = searchParams.get('action') === 'submit';
   
   const [currentStep, setCurrentStep] = useState<Step>('intro');
   const [activeRequest, setActiveRequest] = useState<SelfTestRequest | null>(null);
@@ -377,12 +378,12 @@ export default function HIVSelfTest() {
   // Direct submission channel: `?action=submit` drops the visitor straight onto the
   // "submit result from existing kit" step (shared via /submit-result short links).
   useEffect(() => {
-    if (searchParams.get('action') === 'submit') {
-      setCurrentStep('existing-kit-upload');
+    if (isDirectSubmitAction) {
+      setCurrentStep('photo-result');
       trackEvent('selftest_direct_submit_link_opened', {});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams.get('action')]);
+  }, [isDirectSubmitAction]);
 
   // Determine which step to show based on active request status.
   // Safety net: if the request already carries any result-submitted signal,
@@ -390,6 +391,17 @@ export default function HIVSelfTest() {
   // "photo-result" / "confirm-receipt" after they already submitted.
   useEffect(() => {
     if (!activeRequest) return;
+
+    // Direct submit links must always show the actual result form. If a user
+    // has an active unsubmitted kit, the form binds to it; otherwise the
+    // standalone fallback below records a new result through the guest endpoint.
+    if (isDirectSubmitAction) {
+      if (hasSubmittedSelfTestResult(activeRequest)) {
+        setActiveRequest(null);
+      }
+      setCurrentStep('photo-result');
+      return;
+    }
 
     // If the active request already has any result-submitted signal, clear it
     // and route back to intro — never re-enter the submission flow.
@@ -403,12 +415,6 @@ export default function HIVSelfTest() {
       return;
     }
 
-    // Respect explicit ?action=submit — never override with intro/confirm-receipt.
-    if (searchParams.get('action') === 'submit') {
-      setCurrentStep('existing-kit-upload');
-      return;
-    }
-
     if (activeRequest.status === 'pending' || activeRequest.status === 'approved' || activeRequest.status === 'shipped') {
       setCurrentStep('intro');
     } else if (activeRequest.status === 'delivered') {
@@ -417,7 +423,7 @@ export default function HIVSelfTest() {
       // Kit already confirmed as received — send straight to result submission.
       setCurrentStep('photo-result');
     }
-  }, [activeRequest]);
+  }, [activeRequest, isDirectSubmitAction]);
 
   // Timer effect
   useEffect(() => {
