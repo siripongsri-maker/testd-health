@@ -43,7 +43,7 @@ export function QuickActionStrip() {
       <div className="grid grid-cols-3 gap-2">
         {actions.map((a) => (
           <button
-            key={a.path}
+            key={a.event}
             onClick={() => {
               trackEvent(a.event, { source: 'homepage', section: 'quick_strip' });
               if (a.path === '/support-chat') {
