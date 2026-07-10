@@ -15,15 +15,6 @@ const actions = [
     event: 'homepage_quick_selftest_request',
   },
   {
-    icon: Package,
-    labelTh: 'ชุดตรวจถึงบ้าน',
-    labelEn: 'Home Kit',
-    descTh: 'ฟรี',
-    descEn: 'Free',
-    path: '/hiv-selftest',
-    event: 'homepage_quick_selftest',
-  },
-  {
     icon: MessageCircle,
     labelTh: 'คุยเจ้าหน้าที่',
     labelEn: 'Chat Support',
