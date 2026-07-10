@@ -34,6 +34,41 @@ export const ACTIVE_PRE_RESULT_STATUSES = new Set([
   "received",
 ]);
 
+function toTime(value: unknown): number | null {
+  if (!value) return null;
+  const time = new Date(String(value)).getTime();
+  return Number.isFinite(time) ? time : null;
+}
+
+
+/** Best-known timestamp for a submitted/completed result signal. */
+export function getSelfTestSubmittedTime(r: unknown): number | null {
+  if (!r || typeof r !== "object") return null;
+  if (!hasSubmittedSelfTestResult(r)) return null;
+  const row = r as Record<string, unknown>;
+  const candidates = [
+    row.result_submitted_at,
+    row.submitted_at,
+    row.updated_at,
+    row.created_at,
+  ]
+    .map(toTime)
+    .filter((time): time is number => time !== null);
+  return candidates.length ? Math.max(...candidates) : null;
+}
+
+
+/** True when a later submitted/check signal means this older active row is no longer the current cycle. */
+export function isSupersededBySelfTestSubmission(
+  request: unknown,
+  submittedTimes: number[]
+): boolean {
+  if (!request || typeof request !== "object") return false;
+  const requestTime = toTime((request as Record<string, unknown>).created_at);
+  if (requestTime === null) return false;
+  return submittedTimes.some((submittedTime) => submittedTime >= requestTime);
+}
+
 
 /** Anything that looks like a submitted result should count. */
 export function hasSubmittedSelfTestResult(r: unknown): boolean {
