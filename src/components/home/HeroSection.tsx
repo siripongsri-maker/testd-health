@@ -55,11 +55,6 @@ export function HeroSection() {
         </Button>
       </div>
 
-      <div className="flex items-center justify-center sm:justify-start gap-4 text-xs text-muted-foreground pt-1">
-        <span>🔒 {isTh ? 'เป็นความลับ' : 'Confidential'}</span>
-        <span>{isTh ? 'ฟรี' : 'Free'}</span>
-        <span>{isTh ? 'ใช้เวลาไม่นาน' : 'Quick'}</span>
-      </div>
     </section>
   );
 }
