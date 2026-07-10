@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { TestTube, Package, MessageCircle } from 'lucide-react';
+import { TestTube, Calendar, MessageCircle } from 'lucide-react';
 import { trackEvent } from '@/hooks/useAnalytics';
 import { useLanguage } from '@/lib/i18n';
 import { openSupportChat } from '@/lib/openSupportChat';
@@ -13,6 +13,15 @@ const actions = [
     descEn: 'Self-request',
     path: '/hiv-selftest',
     event: 'homepage_quick_selftest_request',
+  },
+  {
+    icon: Calendar,
+    labelTh: 'จองตรวจ',
+    labelEn: 'Book Test',
+    descTh: 'ที่คลินิก',
+    descEn: 'At clinic',
+    path: '/booking',
+    event: 'homepage_quick_booking',
   },
   {
     icon: MessageCircle,
@@ -31,7 +40,7 @@ export function QuickActionStrip() {
 
   return (
     <section className="mb-6">
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         {actions.map((a) => (
           <button
             key={a.event}
