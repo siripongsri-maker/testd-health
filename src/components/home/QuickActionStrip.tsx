@@ -1,8 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import { TestTube, MessageCircle } from 'lucide-react';
+import { TestTube, ClipboardCheck } from 'lucide-react';
 import { trackEvent } from '@/hooks/useAnalytics';
 import { useLanguage } from '@/lib/i18n';
-import { openSupportChat } from '@/lib/openSupportChat';
 
 const actions = [
   {
@@ -15,13 +14,13 @@ const actions = [
     event: 'homepage_quick_selftest_request',
   },
   {
-    icon: MessageCircle,
-    labelTh: 'คุยเจ้าหน้าที่',
-    labelEn: 'Chat Support',
-    descTh: 'ไม่ระบุตัวตน',
-    descEn: 'Anonymous',
-    path: '/support-chat',
-    event: 'homepage_quick_support',
+    icon: ClipboardCheck,
+    labelTh: 'รายงานผลชุดตรวจ',
+    labelEn: 'Report Result',
+    descTh: 'ส่งผลตรวจ',
+    descEn: 'Submit result',
+    path: '/hiv-selftest?action=submit',
+    event: 'homepage_quick_report_result',
   },
 ];
 
@@ -37,12 +36,9 @@ export function QuickActionStrip() {
             key={a.event}
             onClick={() => {
               trackEvent(a.event, { source: 'homepage', section: 'quick_strip' });
-              if (a.path === '/support-chat') {
-                openSupportChat();
-                return;
-              }
               navigate(a.path);
             }}
+
             className="group flex flex-col items-center gap-2 rounded-2xl glass border border-border/30 p-3 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
           >
             <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
