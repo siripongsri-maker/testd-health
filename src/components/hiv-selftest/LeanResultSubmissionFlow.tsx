@@ -552,10 +552,17 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
                   .catch((err) => console.warn("[notify-reactive-case]", err));
               }
 
-              // Clear the on-device timer + notify pending-banner hook so the
-              // "submit your result" reminder disappears immediately.
+              // Clear the on-device timer + notify the parent hook to
+              // invalidate/refetch the active request query so this row
+              // (now status="result_submitted") no longer counts as active.
               try {
                 localStorage.removeItem("hiv-selftest-timer");
+                window.dispatchEvent(
+                  new CustomEvent("selftest:active-request-refresh", {
+                    detail: { requestId: submittedId },
+                  })
+                );
+                // Back-compat: keep pending-banner listeners in sync too.
                 window.dispatchEvent(new CustomEvent("selftest:pending-refresh"));
               } catch {
                 /* noop */
