@@ -197,6 +197,22 @@ export default function HIVSelfTest() {
     }
   }, [user]);
 
+  // Dedicated event for invalidating the active self-test request after a
+  // successful result submission. Clears in-memory state immediately so the
+  // Lean flow doesn't re-enter "submit your result" while the refetch is
+  // in flight, then re-reads from the DB (which excludes result_submitted).
+  useEffect(() => {
+    const onActiveRefresh = () => {
+      justSubmittedRef.current = true;
+      setActiveRequest(null);
+      if (user) fetchRequests();
+    };
+    window.addEventListener('selftest:active-request-refresh', onActiveRefresh);
+    return () => {
+      window.removeEventListener('selftest:active-request-refresh', onActiveRefresh);
+    };
+  }, [user]);
+
   // Magic link resolution: ?token=... lets users re-enter the result submission flow
   // bound to the original kit request (no new request will be created).
   const [magicLinkState, setMagicLinkState] = useState<
