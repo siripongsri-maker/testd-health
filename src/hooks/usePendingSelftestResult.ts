@@ -1,13 +1,13 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { isActiveUnsubmittedSelfTestRequest } from "@/lib/selftestStatus";
+import {
+  getSelfTestSubmittedTime,
+  isActiveUnsubmittedSelfTestRequest,
+  isSupersededBySelfTestSubmission,
+} from "@/lib/selftestStatus";
 
 const TIMER_STORAGE_KEY = "hiv-selftest-timer";
-
-// Only "delivered" or "received" kits are candidates for the "submit your
-// result" banner. Earlier stages (pending/approved/shipped) do NOT qualify.
-const PENDING_STATUSES = ["delivered", "received"];
 
 
 export interface PendingSelftestDetails {
@@ -122,13 +122,8 @@ export function usePendingSelftestResult(): PendingSelftestState {
       const [requestRes, checksRes] = await Promise.all([
         supabase
           .from("hiv_selftest_requests")
-          .select("id, status, created_at, result_submitted_at, result_photo_url, test_result, self_reported_result")
+          .select("id, status, created_at, updated_at, result_submitted_at, result_photo_url, test_result, self_reported_result")
           .eq("user_id", user.id)
-          .in("status", PENDING_STATUSES)
-          .is("result_submitted_at", null)
-          .is("result_photo_url", null)
-          .is("test_result", null)
-          .is("self_reported_result", null)
           .order("created_at", { ascending: false }),
         supabase
           .from("hiv_self_test_checks")
@@ -145,9 +140,21 @@ export function usePendingSelftestResult(): PendingSelftestState {
       } else {
         // Defense in depth — post-filter to guarantee no submitted row leaks.
         const checks = checksRes.data ?? [];
+        const submittedTimes = [
+          ...(data ?? [])
+            .map((row) => getSelfTestSubmittedTime(row))
+            .filter((time): time is number => time !== null),
+          ...checks
+            .map((check) => {
+              const time = check.created_at ? new Date(check.created_at).getTime() : NaN;
+              return Number.isFinite(time) ? time : null;
+            })
+            .filter((time): time is number => time !== null),
+        ];
         const rows = (data ?? []).filter(
           (r) =>
             isActiveUnsubmittedSelfTestRequest(r) &&
+            !isSupersededBySelfTestSubmission(r, submittedTimes) &&
             !hasSeparateSubmittedCheckForRequest(r, checks)
         );
         if (rows.length === 0) {
