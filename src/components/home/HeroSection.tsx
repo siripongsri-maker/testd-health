@@ -41,16 +41,6 @@ export function HeroSection() {
           <ArrowRight className="h-4 w-4" />
         </Button>
 
-        <Button
-          variant="outline"
-          className="h-12 px-5 rounded-full text-sm font-medium gap-2 bg-card/70 backdrop-blur border-border/60 text-foreground hover:bg-card hover:border-primary/40"
-          onClick={() => {
-            trackEvent('homepage_cta_book_click', { source: 'homepage', section: 'hero' });
-            navigate('/booking');
-          }}
-        >
-          {isTh ? 'จองตรวจฟรี' : 'Book Free HIV Test'}
-        </Button>
 
         <Button
           variant="ghost"
