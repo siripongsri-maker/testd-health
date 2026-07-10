@@ -19,7 +19,7 @@ const actions = [
     labelEn: 'Report Result',
     descTh: 'ส่งผลตรวจ',
     descEn: 'Submit result',
-    path: '/hiv-selftest?action=submit',
+    path: '/hiv-selftest',
     event: 'homepage_quick_report_result',
   },
 ];
