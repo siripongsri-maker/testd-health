@@ -46,15 +46,12 @@ export function getSelfTestSubmittedTime(r: unknown): number | null {
   if (!r || typeof r !== "object") return null;
   if (!hasSubmittedSelfTestResult(r)) return null;
   const row = r as Record<string, unknown>;
-  const candidates = [
-    row.result_submitted_at,
-    row.submitted_at,
-    row.updated_at,
-    row.created_at,
-  ]
-    .map(toTime)
-    .filter((time): time is number => time !== null);
-  return candidates.length ? Math.max(...candidates) : null;
+  return (
+    toTime(row.result_submitted_at) ??
+    toTime(row.submitted_at) ??
+    toTime(row.updated_at) ??
+    toTime(row.created_at)
+  );
 }
 
 
