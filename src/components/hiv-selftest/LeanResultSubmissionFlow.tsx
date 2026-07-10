@@ -654,6 +654,14 @@ function OutcomeScreen({
         </div>
         <div className="flex flex-col gap-2 pt-2">
           <Button
+            onClick={async () => {
+              await onCareAction("requested_new_kit");
+              onDone();
+            }}
+          >
+            {t.requestNewKit}
+          </Button>
+          <Button
             variant="outline"
             onClick={async () => {
               await onCareAction("subscribe_reminder");
