@@ -536,16 +536,30 @@ export default function HIVSelfTest() {
         // bounce the user back to intro to prevent the loop.
         if (prev && !data.some((r) => r.id === prev.id && isOpenUnsubmittedCycle(r))) {
           setCurrentStep((step) =>
-            step === 'confirm-receipt' || step === 'video' || step === 'testing' ||
-            step === 'timer' || step === 'photo-result'
-              ? 'intro'
-              : step
+            isDirectSubmitAction
+              ? 'photo-result'
+              : step === 'confirm-receipt' || step === 'video' || step === 'testing' ||
+                step === 'timer' || step === 'photo-result'
+                ? 'intro'
+                : step
           );
           try { localStorage.removeItem('hiv-selftest-timer'); } catch { /* noop */ }
         }
         return active ?? null;
       });
     }
+  };
+
+  const handleStandaloneSubmitDone = () => {
+    setCurrentStep('intro');
+    try {
+      localStorage.removeItem('hiv-selftest-timer');
+      window.dispatchEvent(new CustomEvent('selftest:pending-refresh'));
+    } catch { /* noop */ }
+    if (searchParams.has('action')) {
+      navigate('/th/hiv-selftest', { replace: true });
+    }
+    if (user) fetchRequests();
   };
 
   const calculateDaysSinceRisk = (date: string): number => {
@@ -1173,6 +1187,7 @@ export default function HIVSelfTest() {
   const renderStepIndicator = () => {
     // Only show indicator during the request flow and testing flow (not on success screen)
     if (currentStep === 'intro' || currentStep === 'account-success') return null;
+    if (isDirectSubmitAction && currentStep === 'photo-result') return null;
     
     const requestSteps = ['shipping', 'nhso-verify'];
     const testingSteps = ['confirm-receipt', 'video', 'testing', 'timer', 'photo-result'];
@@ -2178,16 +2193,16 @@ export default function HIVSelfTest() {
 
         {/* Guest path — same unified Lean flow (1 ขีด / 2 ขีด), no login required.
             Anonymous visitors land here via /submit-result → ?action=submit → existing-kit-upload → photo-result. */}
-        {!activeRequest && !user && currentStep === 'photo-result' && (
+        {!activeRequest && currentStep === 'photo-result' && (isDirectSubmitAction || !user) && (
           <LeanResultSubmissionFlow
             request={{
               id: 'guest-pending',
-              user_id: null,
+              user_id: user?.id ?? null,
               delivery_mode: null,
               status: 'guest',
             }}
             guestMode
-            onDone={() => setCurrentStep('intro')}
+            onDone={handleStandaloneSubmitDone}
             trackEvent={(name, props) => trackEvent(name, props as any)}
           />
         )}
