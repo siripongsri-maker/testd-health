@@ -10,7 +10,7 @@ const actions = [
     labelEn: 'Request Kit',
     descTh: 'ด้วยตัวเอง',
     descEn: 'Self-request',
-    path: '/hiv-selftest?action=request',
+    path: '/hiv-selftest',
     event: 'homepage_quick_selftest_request',
   },
   {
@@ -19,7 +19,7 @@ const actions = [
     labelEn: 'Report Result',
     descTh: 'ส่งผลตรวจ',
     descEn: 'Submit result',
-    path: '/hiv-selftest?action=submit',
+    path: '/submit-result',
     event: 'homepage_quick_report_result',
   },
 ];
