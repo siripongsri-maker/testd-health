@@ -403,6 +403,12 @@ export default function HIVSelfTest() {
       return;
     }
 
+    // Respect explicit ?action=submit — never override with intro/confirm-receipt.
+    if (searchParams.get('action') === 'submit') {
+      setCurrentStep('existing-kit-upload');
+      return;
+    }
+
     if (activeRequest.status === 'pending' || activeRequest.status === 'approved' || activeRequest.status === 'shipped') {
       setCurrentStep('intro');
     } else if (activeRequest.status === 'delivered') {
