@@ -184,13 +184,6 @@ export default function Home() {
           ) : <SectionSkeleton h={120} />}
         </div>
 
-        <div className="mb-6">
-          {loadDeferredSections ? (
-            <Suspense fallback={<SectionSkeleton h={140} />}>
-              <MyPreventionJourneyCard />
-            </Suspense>
-          ) : <SectionSkeleton h={140} />}
-        </div>
 
         <div className="mb-6">
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-semibold px-1 mb-3">
