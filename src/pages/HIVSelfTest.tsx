@@ -50,11 +50,22 @@ import {
 import { SelfTestResultExplanation } from "@/components/hiv-selftest/SelfTestResultExplanation";
 import { LeanResultSubmissionFlow } from "@/components/hiv-selftest/LeanResultSubmissionFlow";
 import {
+  getSelfTestSubmittedTime,
   hasSubmittedSelfTestResult,
-  isActiveUnsubmittedSelfTestRequest,
+  isSupersededBySelfTestSubmission,
 } from "@/lib/selftestStatus";
 
 import { useFormAutosave } from "@/hooks/useFormAutosave";
+
+const OPEN_SELFTEST_REQUEST_STATUSES = new Set([
+  'pending',
+  'approved',
+  'shipped',
+  'delivered',
+  'received',
+  'confirmed',
+  'received_confirmed',
+]);
 
 export default function HIVSelfTest() {
   const { language } = useLanguage();
@@ -226,6 +237,7 @@ export default function HIVSelfTest() {
   // submission on the same mount (avoids re-entering the Lean flow if React
   // re-runs effects before the URL has been cleared).
   const justSubmittedRef = useRef(false);
+  const completedRequestIdsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     const token = searchParams.get('token');
