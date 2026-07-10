@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import {
+  getSelfTestSubmittedTime,
   hasSubmittedSelfTestResult,
   isActiveUnsubmittedSelfTestRequest,
+  isSupersededBySelfTestSubmission,
 } from '@/lib/selftestStatus';
 
 /**
@@ -69,7 +71,7 @@ export async function evaluateJourney(userId: string): Promise<JourneyState> {
     // status/test_result alone: submitted rows can remain delivered/received.
     supabase
       .from('hiv_selftest_requests')
-      .select('id, status, created_at, result_submitted_at, result_photo_url, test_result, self_reported_result')
+      .select('id, status, created_at, updated_at, result_submitted_at, result_photo_url, test_result, self_reported_result')
       .eq('user_id', userId),
 
     // Prevention match completed
@@ -113,9 +115,21 @@ export async function evaluateJourney(userId: string): Promise<JourneyState> {
   const hasMatch = (matchRes.data?.length ?? 0) > 0;
   const selftestRows = selftestsRes.data ?? [];
   const selftestChecks = selftestChecksRes.data ?? [];
+  const submittedTimes = [
+    ...selftestRows
+      .map((row) => getSelfTestSubmittedTime(row))
+      .filter((time): time is number => time !== null),
+    ...selftestChecks
+      .map((check) => {
+        const time = check.created_at ? new Date(check.created_at).getTime() : NaN;
+        return Number.isFinite(time) ? time : null;
+      })
+      .filter((time): time is number => time !== null),
+  ];
   const activeSelftestRows = selftestRows.filter(
     (row) =>
       isActiveUnsubmittedSelfTestRequest(row) &&
+      !isSupersededBySelfTestSubmission(row, submittedTimes) &&
       !hasSeparateSubmittedCheckForRequest(row, selftestChecks)
   );
   const submittedSelftestRows = selftestRows.filter(
