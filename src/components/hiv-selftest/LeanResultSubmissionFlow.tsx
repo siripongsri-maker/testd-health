@@ -838,7 +838,7 @@ async function submitResult(
   };
   if (photoPath) update.result_photo_url = photoPath;
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("hiv_selftest_requests")
     .update(update)
     .eq("id", request.id)
