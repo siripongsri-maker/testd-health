@@ -2157,6 +2157,7 @@ export default function HIVSelfTest() {
               status: activeRequest.status,
             }}
             cameFromMagicLink={searchParams.has('token')}
+            startAtResult={isDirectSubmitAction}
             onDone={() => {
               // Mark this mount as post-submit so the magic-link resolver
               // won't re-hydrate the just-completed request if it re-fires
@@ -2202,6 +2203,7 @@ export default function HIVSelfTest() {
               status: 'guest',
             }}
             guestMode
+            startAtResult={isDirectSubmitAction}
             onDone={handleStandaloneSubmitDone}
             trackEvent={(name, props) => trackEvent(name, props as any)}
           />
