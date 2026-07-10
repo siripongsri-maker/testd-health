@@ -31,7 +31,7 @@ export function QuickActionStrip() {
 
   return (
     <section className="mb-6">
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         {actions.map((a) => (
           <button
             key={a.event}
