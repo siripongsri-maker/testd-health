@@ -1,17 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLanguage } from '@/lib/i18n';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TrendingUp, Users, MousePointerClick, Target, Globe } from 'lucide-react';
+import { TrendingUp, Users, MousePointerClick, Target, Globe, Radio } from 'lucide-react';
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--accent))', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
 
 export function AttributionDashboard() {
   const { language } = useLanguage();
   const [touchModel, setTouchModel] = useState<'first' | 'last'>('last');
+  const [live, setLive] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
+  const qc = useQueryClient();
+
+  // Realtime: refresh on new visitor_attribution rows / tracked_links clicks
+  useEffect(() => {
+    const invalidateAll = () => {
+      qc.invalidateQueries({ queryKey: ['attribution-channels'] });
+      qc.invalidateQueries({ queryKey: ['attribution-campaigns'] });
+      qc.invalidateQueries({ queryKey: ['attribution-partners'] });
+      qc.invalidateQueries({ queryKey: ['attribution-summary'] });
+      setLastUpdate(new Date());
+    };
+    const channel = supabase
+      .channel('attribution-dashboard-live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'visitor_attribution' }, invalidateAll)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tracked_links' }, invalidateAll)
+      .subscribe((status) => setLive(status === 'SUBSCRIBED'));
+    return () => { supabase.removeChannel(channel); };
+  }, [qc]);
 
   // Channel performance
   const { data: channelData } = useQuery({
