@@ -177,7 +177,7 @@ export async function getServiceTimeline(userId: string) {
       .from("followup_events")
       .select("*")
       .eq("user_id", userId)
-      .order("due_date", { ascending: true })
+      .order("scheduled_at", { ascending: true })
       .limit(10),
   ]);
 
