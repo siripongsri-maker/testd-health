@@ -111,14 +111,20 @@ export function LinkGenerator() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <h3 className="text-lg font-semibold">
           {language === 'th' ? '🔗 สร้างลิงก์แคมเปญ' : '🔗 Campaign Link Generator'}
         </h3>
-        <Button onClick={() => setShowForm(!showForm)} size="sm">
-          <Plus className="h-4 w-4 mr-1" />
-          {language === 'th' ? 'สร้างลิงก์' : 'Create Link'}
-        </Button>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Radio className={`h-3.5 w-3.5 ${live ? 'text-emerald-500 animate-pulse' : ''}`} />
+            <span>{live ? (language === 'th' ? 'เรียลไทม์' : 'Live') : (language === 'th' ? 'กำลังเชื่อมต่อ…' : 'Connecting…')}</span>
+          </div>
+          <Button onClick={() => setShowForm(!showForm)} size="sm">
+            <Plus className="h-4 w-4 mr-1" />
+            {language === 'th' ? 'สร้างลิงก์' : 'Create Link'}
+          </Button>
+        </div>
       </div>
 
       {showForm && (
