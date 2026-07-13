@@ -3,8 +3,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LinkGenerator } from './attribution/LinkGenerator';
 import { AttributionDashboard } from './attribution/AttributionDashboard';
 import { JourneyFunnel } from './attribution/JourneyFunnel';
+import { LinkCaseTrace } from './attribution/LinkCaseTrace';
 import { useLanguage } from '@/lib/i18n';
-import { Link2, BarChart3, TrendingUp } from 'lucide-react';
+import { Link2, BarChart3, TrendingUp, GitBranch } from 'lucide-react';
 
 export default function AdminAttributionContent() {
   const { language } = useLanguage();
@@ -24,7 +25,7 @@ export default function AdminAttributionContent() {
       </div>
 
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="grid grid-cols-3 w-full max-w-md">
+        <TabsList className="grid grid-cols-4 w-full max-w-2xl">
           <TabsTrigger value="links" className="flex items-center gap-1.5">
             <Link2 className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">{language === 'th' ? 'ลิงก์' : 'Links'}</span>
@@ -37,6 +38,10 @@ export default function AdminAttributionContent() {
             <TrendingUp className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">{language === 'th' ? 'เส้นทาง' : 'Journey'}</span>
           </TabsTrigger>
+          <TabsTrigger value="trace" className="flex items-center gap-1.5">
+            <GitBranch className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">{language === 'th' ? 'โยงเคส' : 'Trace'}</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="links" className="mt-4">
@@ -47,6 +52,9 @@ export default function AdminAttributionContent() {
         </TabsContent>
         <TabsContent value="journey" className="mt-4">
           <JourneyFunnel />
+        </TabsContent>
+        <TabsContent value="trace" className="mt-4">
+          <LinkCaseTrace />
         </TabsContent>
       </Tabs>
     </div>
