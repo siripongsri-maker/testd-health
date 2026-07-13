@@ -22,6 +22,17 @@ export function LinkGenerator() {
   const [showForm, setShowForm] = useState(false);
   const [showQR, setShowQR] = useState<string | null>(null);
   const [expandedCascade, setExpandedCascade] = useState<string | null>(null);
+  const [live, setLive] = useState(false);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('tracked-links-live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tracked_links' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['tracked-links'] });
+      })
+      .subscribe((status) => setLive(status === 'SUBSCRIBED'));
+    return () => { supabase.removeChannel(channel); };
+  }, [queryClient]);
   const [form, setForm] = useState({
     slug: generateSlug(),
     destination_path: '/booking',
