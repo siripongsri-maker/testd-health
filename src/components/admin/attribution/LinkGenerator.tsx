@@ -59,6 +59,7 @@ export function LinkGenerator() {
       if (error) throw error;
       return data as any[];
     },
+    refetchInterval: 30_000,
   });
 
   const createMutation = useMutation({
