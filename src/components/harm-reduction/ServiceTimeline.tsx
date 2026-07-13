@@ -89,7 +89,7 @@ export default function ServiceTimeline({ userId }: Props) {
                 {isEn ? `Follow-up: ${f.followup_type?.replace(/_/g, " ")}` : `ติดตามผล: ${f.followup_type?.replace(/_/g, " ")}`}
               </p>
               <p className="text-xs text-muted-foreground">
-                {isEn ? `Due: ${format(new Date(f.due_date), "dd MMM yyyy")}` : `กำหนด: ${format(new Date(f.due_date), "dd MMM yyyy")}`}
+                {isEn ? `Due: ${format(new Date(f.scheduled_at), "dd MMM yyyy")}` : `กำหนด: ${format(new Date(f.scheduled_at), "dd MMM yyyy")}`}
               </p>
             </div>
             <Badge className={STATUS_COLORS.pending} variant="secondary">
