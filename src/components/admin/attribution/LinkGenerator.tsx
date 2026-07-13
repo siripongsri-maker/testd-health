@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Copy, QrCode, Plus, ExternalLink, Trash2, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
+import { Copy, QrCode, Plus, ExternalLink, Trash2, RefreshCw, ChevronDown, ChevronUp, Radio } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { QRCodeSVG } from 'qrcode.react';
 import { useLanguage } from '@/lib/i18n';
@@ -22,6 +22,17 @@ export function LinkGenerator() {
   const [showForm, setShowForm] = useState(false);
   const [showQR, setShowQR] = useState<string | null>(null);
   const [expandedCascade, setExpandedCascade] = useState<string | null>(null);
+  const [live, setLive] = useState(false);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('tracked-links-live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tracked_links' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['tracked-links'] });
+      })
+      .subscribe((status) => setLive(status === 'SUBSCRIBED'));
+    return () => { supabase.removeChannel(channel); };
+  }, [queryClient]);
   const [form, setForm] = useState({
     slug: generateSlug(),
     destination_path: '/booking',
@@ -48,6 +59,7 @@ export function LinkGenerator() {
       if (error) throw error;
       return data as any[];
     },
+    refetchInterval: 30_000,
   });
 
   const createMutation = useMutation({
@@ -99,14 +111,20 @@ export function LinkGenerator() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <h3 className="text-lg font-semibold">
           {language === 'th' ? '🔗 สร้างลิงก์แคมเปญ' : '🔗 Campaign Link Generator'}
         </h3>
-        <Button onClick={() => setShowForm(!showForm)} size="sm">
-          <Plus className="h-4 w-4 mr-1" />
-          {language === 'th' ? 'สร้างลิงก์' : 'Create Link'}
-        </Button>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Radio className={`h-3.5 w-3.5 ${live ? 'text-emerald-500 animate-pulse' : ''}`} />
+            <span>{live ? (language === 'th' ? 'เรียลไทม์' : 'Live') : (language === 'th' ? 'กำลังเชื่อมต่อ…' : 'Connecting…')}</span>
+          </div>
+          <Button onClick={() => setShowForm(!showForm)} size="sm">
+            <Plus className="h-4 w-4 mr-1" />
+            {language === 'th' ? 'สร้างลิงก์' : 'Create Link'}
+          </Button>
+        </div>
       </div>
 
       {showForm && (
