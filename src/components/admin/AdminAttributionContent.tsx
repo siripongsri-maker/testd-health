@@ -3,8 +3,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LinkGenerator } from './attribution/LinkGenerator';
 import { AttributionDashboard } from './attribution/AttributionDashboard';
 import { JourneyFunnel } from './attribution/JourneyFunnel';
+import { LinkCaseTrace } from './attribution/LinkCaseTrace';
 import { useLanguage } from '@/lib/i18n';
-import { Link2, BarChart3, TrendingUp } from 'lucide-react';
+import { Link2, BarChart3, TrendingUp, GitBranch } from 'lucide-react';
 
 export default function AdminAttributionContent() {
   const { language } = useLanguage();
