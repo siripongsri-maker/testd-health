@@ -1,13 +1,26 @@
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLanguage } from '@/lib/i18n';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, FunnelChart, Funnel, LabelList } from 'recharts';
-import { Download, ArrowDown } from 'lucide-react';
+import { Download, ArrowDown, Radio } from 'lucide-react';
 
 export function JourneyFunnel() {
   const { language } = useLanguage();
+  const qc = useQueryClient();
+  const [live, setLive] = useState(false);
+
+  useEffect(() => {
+    const invalidate = () => qc.invalidateQueries({ queryKey: ['journey-funnel-v3'] });
+    const channel = supabase
+      .channel('journey-funnel-live')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'analytics_events' }, invalidate)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'appointments' }, invalidate)
+      .subscribe((status) => setLive(status === 'SUBSCRIBED'));
+    return () => { supabase.removeChannel(channel); };
+  }, [qc]);
 
   // Funnel data — analytics_events for top of funnel, appointments table for check-in/checkout
   // (because check_in/check_out aren't tracked as analytics_events; they live as timestamps on appointments).
@@ -188,6 +201,10 @@ export function JourneyFunnel() {
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center justify-end gap-1.5 text-xs text-muted-foreground">
+        <Radio className={`h-3.5 w-3.5 ${live ? 'text-emerald-500 animate-pulse' : ''}`} />
+        <span>{live ? (language === 'th' ? 'เรียลไทม์' : 'Live') : (language === 'th' ? 'กำลังเชื่อมต่อ…' : 'Connecting…')}</span>
+      </div>
       {/* Conversion funnel */}
       <Card>
         <CardHeader className="pb-2 flex flex-row items-center justify-between">
