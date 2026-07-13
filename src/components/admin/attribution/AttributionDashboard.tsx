@@ -154,8 +154,8 @@ export function AttributionDashboard() {
         ))}
       </div>
 
-      {/* Touch model toggle */}
-      <div className="flex items-center gap-2">
+      {/* Touch model toggle + live indicator */}
+      <div className="flex items-center gap-2 flex-wrap">
         <Globe className="h-4 w-4 text-muted-foreground" />
         <Select value={touchModel} onValueChange={v => setTouchModel(v as 'first' | 'last')}>
           <SelectTrigger className="w-48">
@@ -166,6 +166,11 @@ export function AttributionDashboard() {
             <SelectItem value="last">{language === 'th' ? 'Last Touch (ล่าสุด)' : 'Last Touch'}</SelectItem>
           </SelectContent>
         </Select>
+        <div className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Radio className={`h-3.5 w-3.5 ${live ? 'text-emerald-500 animate-pulse' : 'text-muted-foreground'}`} />
+          <span>{live ? (language === 'th' ? 'เรียลไทม์' : 'Live') : (language === 'th' ? 'กำลังเชื่อมต่อ…' : 'Connecting…')}</span>
+          <span className="opacity-60">· {lastUpdate.toLocaleTimeString(language === 'th' ? 'th-TH' : 'en-US')}</span>
+        </div>
       </div>
 
       {/* Channel chart */}
