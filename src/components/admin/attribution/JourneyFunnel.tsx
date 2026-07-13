@@ -201,6 +201,10 @@ export function JourneyFunnel() {
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center justify-end gap-1.5 text-xs text-muted-foreground">
+        <Radio className={`h-3.5 w-3.5 ${live ? 'text-emerald-500 animate-pulse' : ''}`} />
+        <span>{live ? (language === 'th' ? 'เรียลไทม์' : 'Live') : (language === 'th' ? 'กำลังเชื่อมต่อ…' : 'Connecting…')}</span>
+      </div>
       {/* Conversion funnel */}
       <Card>
         <CardHeader className="pb-2 flex flex-row items-center justify-between">
