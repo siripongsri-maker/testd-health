@@ -659,7 +659,9 @@ function OutcomeScreen({
           <Button
             onClick={async () => {
               await onCareAction("requested_new_kit");
-              onDone();
+              toast({ title: t.careSaved });
+              const lang = typeof window !== "undefined" && window.location.pathname.startsWith("/en") ? "en" : "th";
+              window.location.assign(`/${lang}/hiv-selftest?action=order`);
             }}
           >
             {t.requestNewKit}
