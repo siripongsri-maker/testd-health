@@ -127,6 +127,7 @@ export function AttributionDashboard() {
         conversionRate: totalVisitors ? Math.round(((identified || 0) / totalVisitors) * 100) : 0,
       };
     },
+    refetchInterval: 60_000,
   });
 
   const statCards = [
