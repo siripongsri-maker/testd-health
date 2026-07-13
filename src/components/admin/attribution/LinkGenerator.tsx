@@ -251,9 +251,18 @@ export function LinkGenerator() {
                     {link.campaign && <span className="text-xs bg-accent px-1.5 py-0.5 rounded">{link.campaign}</span>}
                     {link.partner_name && <span className="text-xs bg-secondary px-1.5 py-0.5 rounded">{link.partner_name}</span>}
                   </div>
-                  <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
                     <span>→ {link.destination_path}</span>
                     <span className="font-medium">{link.click_count} clicks</span>
+                    <span title={language === 'th' ? 'ผู้ใช้ที่ระบุตัวตน' : 'Identified users'}>
+                      👥 {link.attributed_users ?? 0}
+                    </span>
+                    <span className="text-primary font-medium" title={language === 'th' ? 'นัดคลินิก' : 'Clinic appointments'}>
+                      🗓 {link.appointment_count ?? 0}
+                    </span>
+                    <span className="text-emerald-600 font-medium" title="HIVST requests">
+                      🧪 {link.selftest_count ?? 0}
+                    </span>
                     {link.label && <span>• {link.label}</span>}
                   </div>
                 </div>
