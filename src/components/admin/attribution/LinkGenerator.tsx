@@ -57,7 +57,51 @@ export function LinkGenerator() {
         .order('created_at', { ascending: false })
         .limit(100);
       if (error) throw error;
-      return data as any[];
+      const rows = (data as any[]) || [];
+      if (!rows.length) return rows;
+
+      // Attach attributed_users / appointments / selftests per link (same logic as Trace tab)
+      const linkIds = rows.map((r) => r.id);
+      const { data: attr } = await supabase
+        .from('visitor_attribution')
+        .select('user_id, last_touch_link_id')
+        .in('last_touch_link_id', linkIds)
+        .not('user_id', 'is', null)
+        .limit(10000);
+
+      const usersByLink = new Map<string, Set<string>>();
+      (attr as any[])?.forEach((r) => {
+        const set = usersByLink.get(r.last_touch_link_id) || new Set<string>();
+        set.add(r.user_id);
+        usersByLink.set(r.last_touch_link_id, set);
+      });
+
+      const allUsers = Array.from(new Set((attr as any[])?.map((r) => r.user_id) || []));
+      const apptByUser = new Map<string, number>();
+      const stByUser = new Map<string, number>();
+      const chunk = <T,>(arr: T[], n: number) => {
+        const out: T[][] = [];
+        for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n));
+        return out;
+      };
+      for (const batch of chunk(allUsers, 500)) {
+        const [{ data: a }, { data: s }] = await Promise.all([
+          supabase.from('appointments').select('user_id').in('user_id', batch),
+          supabase.from('hiv_selftest_requests').select('user_id').in('user_id', batch),
+        ]);
+        (a as any[])?.forEach((r) => apptByUser.set(r.user_id, (apptByUser.get(r.user_id) || 0) + 1));
+        (s as any[])?.forEach((r) => stByUser.set(r.user_id, (stByUser.get(r.user_id) || 0) + 1));
+      }
+
+      return rows.map((l) => {
+        const users = Array.from(usersByLink.get(l.id) || []);
+        let appts = 0, selftests = 0;
+        users.forEach((u) => {
+          appts += apptByUser.get(u) || 0;
+          selftests += stByUser.get(u) || 0;
+        });
+        return { ...l, attributed_users: users.length, appointment_count: appts, selftest_count: selftests };
+      });
     },
     refetchInterval: 30_000,
   });
@@ -207,9 +251,18 @@ export function LinkGenerator() {
                     {link.campaign && <span className="text-xs bg-accent px-1.5 py-0.5 rounded">{link.campaign}</span>}
                     {link.partner_name && <span className="text-xs bg-secondary px-1.5 py-0.5 rounded">{link.partner_name}</span>}
                   </div>
-                  <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
                     <span>→ {link.destination_path}</span>
                     <span className="font-medium">{link.click_count} clicks</span>
+                    <span title={language === 'th' ? 'ผู้ใช้ที่ระบุตัวตน' : 'Identified users'}>
+                      👥 {link.attributed_users ?? 0}
+                    </span>
+                    <span className="text-primary font-medium" title={language === 'th' ? 'นัดคลินิก' : 'Clinic appointments'}>
+                      🗓 {link.appointment_count ?? 0}
+                    </span>
+                    <span className="text-emerald-600 font-medium" title="HIVST requests">
+                      🧪 {link.selftest_count ?? 0}
+                    </span>
                     {link.label && <span>• {link.label}</span>}
                   </div>
                 </div>
