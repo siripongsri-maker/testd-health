@@ -624,37 +624,15 @@ export default function Booking() {
         setConfirmedCode((data as any).referral_code);
         setConfirmedAppointmentId((data as any).id);
 
-        // Send appointment action email for logged-in user
+        // Send appointment action email server-side (ownership verified via auth)
         if (user.email) {
           try {
-            const { data: codeData } = await supabase.functions.invoke('appointment-email-actions', {
-              body: { action: 'generate', appointment_id: (data as any).id },
+            await supabase.functions.invoke('appointment-email-actions', {
+              body: {
+                action: 'send_action_email',
+                appointment_id: (data as any).id,
+              },
             });
-            const code = codeData?.code;
-            if (code) {
-              const appUrl = 'https://testd-health.lovable.app';
-              await supabase.functions.invoke('send-transactional-email', {
-                body: {
-                  templateName: 'appointment-action',
-                  recipientEmail: user.email,
-                  idempotencyKey: `apt-action-${(data as any).id}`,
-                  templateData: {
-                    branchName: loc(selectedBranch.name_th, selectedBranch.name_en),
-                    landmark: getBranchLandmark(selectedBranch),
-                    googleMapsUrl: selectedBranch.google_maps_url || undefined,
-                    serviceName: selectedServices.map(s => loc(s.name_th, s.name_en)).join(', '),
-                    appointmentDate: format(selectedDate, 'd MMMM yyyy'),
-                    appointmentTime: selectedTime,
-                    verificationCode: code,
-                    referralCode: (data as any).referral_code,
-                    checkinUrl: `${appUrl}/my-appointments`,
-                    confirmUrl: `${appUrl}/my-appointments`,
-                    rescheduleUrl: `${appUrl}/booking`,
-                    cancelUrl: `${appUrl}/my-appointments`,
-                  },
-                },
-              });
-            }
           } catch (emailErr) {
             console.warn('Appointment action email failed:', emailErr);
           }
