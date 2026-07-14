@@ -111,3 +111,28 @@ export const captureAttribution = async (data: AttributionData) => {
     console.warn('captureAttribution error:', err);
   }
 };
+
+/** Initialise attribution capture on app boot */
+export const initAttribution = () => {
+  const data = parseAttributionParams();
+  if (data) {
+    captureAttribution(data);
+  } else {
+    // Still touch last_seen / session count via anonymous_id only
+    captureAttribution({});
+  }
+};
+
+/** Link the current anonymous visitor row to a signed-in user (auth-required). */
+export const linkVisitorToUser = async (userId: string) => {
+  const anonymousId = getVisitorId();
+  try {
+    await supabase
+      .from('visitor_attribution')
+      .update({ user_id: userId, identified_at: new Date().toISOString() } as any)
+      .eq('anonymous_id', anonymousId)
+      .is('user_id', null);
+  } catch (err) {
+    console.warn('linkVisitorToUser error:', err);
+  }
+};
