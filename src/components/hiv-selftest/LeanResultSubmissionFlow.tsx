@@ -888,11 +888,14 @@ async function submitGuestResult(
 ): Promise<string> {
   let photoPath: string | null = null;
   if (photo) {
-    // Upload to the guest/<token>/<file> path — anon insert is permitted there
-    // by the storage policy, and the unguessable token segment prevents another
-    // user from targeting/overwriting this upload.
+    // Mint a server-validated upload token so storage policy can positively
+    // link this upload to an active guest intent (not just path pattern).
+    const { data: mintedToken, error: mintErr } = await supabase.rpc(
+      'mint_selftest_guest_upload_token'
+    );
+    if (mintErr || !mintedToken) throw (mintErr || new Error('Failed to mint upload token'));
     const ext = (photo.name.split(".").pop() || "jpg").toLowerCase();
-    photoPath = `guest/${crypto.randomUUID()}/${Date.now()}.${ext}`;
+    photoPath = `guest/${mintedToken}/${Date.now()}.${ext}`;
     const { error: upErr } = await supabase.storage
       .from("selftest-results")
       .upload(photoPath, photo, { upsert: false, contentType: photo.type });

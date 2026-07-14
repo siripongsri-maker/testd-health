@@ -1018,9 +1018,13 @@ export default function HIVSelfTest() {
       setUploading(true);
       try {
         const fileExt = resultPhoto.name.split('.').pop() || 'jpg';
-        // Path includes an unguessable per-upload token segment so guest photos
-        // cannot be targeted/overwritten by guessing predictable paths.
-        const fileName = `guest/${crypto.randomUUID()}/${Date.now()}.${fileExt}`;
+        // Mint a server-issued upload token — storage policy validates it exists,
+        // hasn't expired, and hasn't been consumed. Prevents unlinked pattern-only uploads.
+        const { data: mintedToken, error: mintErr } = await supabase.rpc(
+          'mint_selftest_guest_upload_token'
+        );
+        if (mintErr || !mintedToken) throw (mintErr || new Error('Failed to mint upload token'));
+        const fileName = `guest/${mintedToken}/${Date.now()}.${fileExt}`;
 
         const { error: uploadError } = await supabase.storage
           .from('selftest-results')

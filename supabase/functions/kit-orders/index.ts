@@ -196,9 +196,43 @@ Deno.serve(async (req) => {
       );
     }
 
-    // GET /kit-orders/by-user/{user_id} - Get orders by user
+    // GET /kit-orders/by-user/{user_id} - Get orders by user (auth required; owner or admin only)
     if (req.method === "GET" && action === "by-user" && id) {
-      const supabase = createClient(supabaseUrl, supabaseAnonKey);
+      if (!authHeader) {
+        return new Response(
+          JSON.stringify({ error: "Authorization required" }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: { user }, error: authErr } = await userClient.auth.getUser();
+      if (authErr || !user) {
+        return new Response(
+          JSON.stringify({ error: "Invalid token" }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Allow only the requested user themselves, or an admin, to list orders
+      let allowed = user.id === id;
+      if (!allowed) {
+        const { data: isAdmin } = await userClient.rpc("has_role", {
+          _user_id: user.id,
+          _role: "admin",
+        });
+        allowed = !!isAdmin;
+      }
+      if (!allowed) {
+        return new Response(
+          JSON.stringify({ error: "Forbidden" }),
+          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
       const { data: orders, error } = await supabase
         .from("kit_orders")

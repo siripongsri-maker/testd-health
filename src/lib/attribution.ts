@@ -82,7 +82,9 @@ export const setSessionAttribution = (data: AttributionData) => {
   sessionStorage.setItem(ATTR_SESSION_KEY, JSON.stringify(data));
 };
 
-/** Upsert visitor_attribution in DB */
+/** Upsert visitor_attribution in DB via SECURITY DEFINER RPC.
+ *  Direct anon UPDATE on the table is no longer permitted — all writes flow
+ *  through this narrow, ownership-scoped surface. */
 export const captureAttribution = async (data: AttributionData) => {
   const anonymousId = getVisitorId();
   setSessionAttribution(data);
@@ -91,80 +93,46 @@ export const captureAttribution = async (data: AttributionData) => {
     /Tablet|iPad/i.test(navigator.userAgent) ? 'tablet' : 'desktop';
 
   try {
-    // Check if exists
-    const { data: existing } = await supabase
-      .from('visitor_attribution')
-      .select('id')
-      .eq('anonymous_id', anonymousId)
-      .maybeSingle();
-
-    if (existing) {
-      // Update last-touch + increment sessions
-      await supabase.from('visitor_attribution').update({
-        last_touch_campaign: data.campaign || null,
-        last_touch_channel: data.channel || null,
-        last_touch_source: data.source || null,
-        last_touch_medium: data.medium || null,
-        last_touch_content: data.content || null,
-        last_touch_term: data.term || null,
-        last_touch_partner: data.partner_name || null,
-        last_touch_link_id: data.link_id || null,
-        last_touch_landing_page: data.landing_page || null,
-        last_touch_referrer: data.referrer || null,
-        last_touch_at: new Date().toISOString(),
-        last_seen_at: new Date().toISOString(),
-        total_sessions: (existing as any).total_sessions ? (existing as any).total_sessions + 1 : 1,
-      } as any).eq('id', existing.id);
-    } else {
-      // First-touch insert
-      const now = new Date().toISOString();
-      await supabase.from('visitor_attribution').insert({
-        anonymous_id: anonymousId,
-        first_touch_campaign: data.campaign || null,
-        first_touch_channel: data.channel || null,
-        first_touch_source: data.source || null,
-        first_touch_medium: data.medium || null,
-        first_touch_content: data.content || null,
-        first_touch_term: data.term || null,
-        first_touch_partner: data.partner_name || null,
-        first_touch_link_id: data.link_id || null,
-        first_touch_landing_page: data.landing_page || null,
-        first_touch_referrer: data.referrer || null,
-        first_touch_at: now,
-        last_touch_campaign: data.campaign || null,
-        last_touch_channel: data.channel || null,
-        last_touch_source: data.source || null,
-        last_touch_medium: data.medium || null,
-        last_touch_content: data.content || null,
-        last_touch_term: data.term || null,
-        last_touch_partner: data.partner_name || null,
-        last_touch_link_id: data.link_id || null,
-        last_touch_landing_page: data.landing_page || null,
-        last_touch_referrer: data.referrer || null,
-        last_touch_at: now,
-        device_type: deviceType,
-        user_agent: navigator.userAgent,
-      } as any);
-    }
+    await supabase.rpc('upsert_visitor_attribution_touch', {
+      p_anonymous_id: anonymousId,
+      p_campaign: data.campaign || null,
+      p_channel: data.channel || null,
+      p_source: data.source || null,
+      p_medium: data.medium || null,
+      p_content: data.content || null,
+      p_term: data.term || null,
+      p_partner: data.partner_name || null,
+      p_link_id: data.link_id || null,
+      p_landing_page: data.landing_page || null,
+      p_referrer: data.referrer || null,
+      p_device_type: deviceType,
+    } as any);
   } catch (err) {
-    console.error('Attribution capture error:', err);
+    console.warn('captureAttribution error:', err);
   }
 };
 
-/** Link anonymous visitor to authenticated user */
-export const linkVisitorToUser = async (userId: string) => {
-  const anonymousId = getVisitorId();
-  try {
-    await supabase.from('visitor_attribution')
-      .update({ user_id: userId } as any)
-      .eq('anonymous_id', anonymousId);
-  } catch { /* silent */ }
-};
-
-/** Init attribution on app load */
+/** Initialise attribution capture on app boot */
 export const initAttribution = () => {
   const data = parseAttributionParams();
   if (data) {
     captureAttribution(data);
+  } else {
+    // Still touch last_seen / session count via anonymous_id only
+    captureAttribution({});
+  }
+};
+
+/** Link the current anonymous visitor row to a signed-in user (auth-required). */
+export const linkVisitorToUser = async (userId: string) => {
+  const anonymousId = getVisitorId();
+  try {
+    await supabase
+      .from('visitor_attribution')
+      .update({ user_id: userId, identified_at: new Date().toISOString() } as any)
+      .eq('anonymous_id', anonymousId)
+      .is('user_id', null);
+  } catch (err) {
+    console.warn('linkVisitorToUser error:', err);
   }
 };

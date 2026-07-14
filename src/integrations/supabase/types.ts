@@ -8387,6 +8387,27 @@ export type Database = {
           },
         ]
       }
+      selftest_guest_upload_tokens: {
+        Row: {
+          consumed_at: string | null
+          created_at: string
+          expires_at: string
+          token: string
+        }
+        Insert: {
+          consumed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          token: string
+        }
+        Update: {
+          consumed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          token?: string
+        }
+        Relationships: []
+      }
       selftest_import_batches: {
         Row: {
           branch: string
@@ -11321,6 +11342,10 @@ export type Database = {
         Args: { _pii_id: string; _user_id: string }
         Returns: boolean
       }
+      is_valid_selftest_guest_upload_token: {
+        Args: { p_token: string }
+        Returns: boolean
+      }
       is_valid_thai_id: { Args: { _id: string }; Returns: boolean }
       join_partner_session: {
         Args: { p_participant_sid: string; p_session_code: string }
@@ -11340,6 +11365,7 @@ export type Database = {
         }[]
       }
       mark_no_show_expired: { Args: { p_branch_id?: string }; Returns: number }
+      mint_selftest_guest_upload_token: { Args: never; Returns: string }
       move_to_dlq: {
         Args: {
           dlq_name: string
@@ -11481,6 +11507,23 @@ export type Database = {
           p_visitor_session_id: string
         }
         Returns: string
+      }
+      upsert_visitor_attribution_touch: {
+        Args: {
+          p_anonymous_id: string
+          p_campaign?: string
+          p_channel?: string
+          p_content?: string
+          p_device_type?: string
+          p_landing_page?: string
+          p_link_id?: string
+          p_medium?: string
+          p_partner?: string
+          p_referrer?: string
+          p_source?: string
+          p_term?: string
+        }
+        Returns: undefined
       }
       user_can_access_branch: {
         Args: { _branch_id: string; _user_id: string }
