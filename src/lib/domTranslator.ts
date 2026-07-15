@@ -8,6 +8,13 @@
 // walks the DOM, batches unique visible text into `translate-ui`, and swaps
 // the text nodes in place (plus a few common attributes). It stops and
 // restores originals when the language returns to th/en.
+//
+// Performance notes (why switching feels fast):
+//   • Fires the first batch immediately on activation (no debounce).
+//   • Sends up to MAX_PARALLEL batches concurrently.
+//   • Indexes every seen text-node / attribute by its source ("core") string
+//     so returned translations are applied by direct lookup, never by
+//     re-walking the DOM.
 
 import { supabase } from "@/integrations/supabase/client";
 
@@ -21,11 +28,23 @@ let cache: Cache = load();
 let currentLang: CLVM | null = null;
 let observer: MutationObserver | null = null;
 let flushTimer: ReturnType<typeof setTimeout> | null = null;
+
 const pending = new Set<string>();
 const inFlight = new Set<string>();
+let activeRequests = 0;
+
+const BATCH_SIZE = 80;
+const MAX_PARALLEL = 4;
+const DEBOUNCE_MS = 80;
+
 // Preserve source strings so we can restore or re-translate.
 const nodeOriginals = new WeakMap<Text, string>();
 const attrOriginals = new WeakMap<Element, Map<string, string>>();
+// Reverse index: source-string → Set of nodes/attrs using it. Enables O(1)
+// application of new translations without re-walking the DOM.
+const nodesByCore = new Map<string, Set<Text>>();
+type AttrRef = { el: Element; attr: string };
+const attrsByCore = new Map<string, Set<AttrRef>>();
 // Prevent our own mutations from being reprocessed forever.
 const nodeSuppress = new WeakSet<Text>();
 
@@ -56,7 +75,6 @@ function isTranslatable(text: string): boolean {
   if (!text) return false;
   const t = text.trim();
   if (t.length < 2) return false;
-  // Skip pure numbers/punctuation/whitespace.
   if (/^[\s\d\p{P}\p{S}]+$/u.test(t)) return false;
   return true;
 }
@@ -69,9 +87,26 @@ function shouldSkipElement(el: Element | null): boolean {
   return false;
 }
 
-function scheduleFlush() {
-  if (flushTimer || !currentLang) return;
-  flushTimer = setTimeout(flush, 350);
+function indexNode(core: string, node: Text) {
+  let set = nodesByCore.get(core);
+  if (!set) { set = new Set(); nodesByCore.set(core, set); }
+  set.add(node);
+}
+function indexAttr(core: string, ref: AttrRef) {
+  let set = attrsByCore.get(core);
+  if (!set) { set = new Set(); attrsByCore.set(core, set); }
+  set.add(ref);
+}
+
+function scheduleFlush(immediate = false) {
+  if (!currentLang) return;
+  if (immediate) {
+    if (flushTimer) { clearTimeout(flushTimer); flushTimer = null; }
+    void flush();
+    return;
+  }
+  if (flushTimer) return;
+  flushTimer = setTimeout(flush, DEBOUNCE_MS);
 }
 
 async function flush() {
@@ -79,22 +114,25 @@ async function flush() {
   const lang = currentLang;
   if (!lang || pending.size === 0) return;
 
-  const batch: string[] = [];
-  for (const text of pending) {
-    if (inFlight.has(text)) continue;
-    batch.push(text);
-    if (batch.length >= 150) break;
+  // Fill parallelism budget with as many batches as we can.
+  while (activeRequests < MAX_PARALLEL && pending.size > 0) {
+    const batch: string[] = [];
+    for (const text of pending) {
+      if (inFlight.has(text)) continue;
+      batch.push(text);
+      if (batch.length >= BATCH_SIZE) break;
+    }
+    if (batch.length === 0) break;
+    batch.forEach((t) => { pending.delete(t); inFlight.add(t); });
+    activeRequests++;
+    void sendBatch(lang, batch);
   }
-  batch.forEach((t) => {
-    pending.delete(t);
-    inFlight.add(t);
-  });
-  if (batch.length === 0) return;
+}
 
+async function sendBatch(lang: CLVM, batch: string[]) {
   const items = batch.map((text) => ({
     key: text,
     source_text: text,
-    // Heuristic: ASCII-only source is treated as English, otherwise Thai.
     source_lang: /^[\x00-\x7F]+$/.test(text) ? "en" : "th",
   }));
 
@@ -102,17 +140,53 @@ async function flush() {
     const { data, error } = await supabase.functions.invoke("translate-ui", {
       body: { target_lang: lang, items },
     });
-    if (!error && data?.translations) {
+    if (!error && data?.translations && currentLang === lang) {
       const bucket = (cache[lang] ||= {});
       Object.assign(bucket, data.translations);
       persist();
-      retranslateAll();
+      // Apply targeted updates — no DOM re-walk.
+      for (const key of Object.keys(data.translations)) {
+        applyTranslationForCore(key);
+      }
     }
   } catch {
     // Silent — will retry on next mutation.
   } finally {
     batch.forEach((t) => inFlight.delete(t));
-    if (pending.size > 0) scheduleFlush();
+    activeRequests--;
+    if (pending.size > 0) scheduleFlush(true);
+  }
+}
+
+function applyTranslationForCore(core: string) {
+  if (!currentLang) return;
+  const translated = cache[currentLang]?.[core];
+  if (!translated) return;
+
+  const nodes = nodesByCore.get(core);
+  if (nodes) {
+    nodes.forEach((node) => {
+      if (!node.isConnected) { nodes.delete(node); return; }
+      const raw = nodeOriginals.get(node) ?? node.nodeValue ?? "";
+      const lead = (raw.match(/^\s*/) || [""])[0];
+      const tail = (raw.match(/\s*$/) || [""])[0];
+      const next = lead + translated + tail;
+      if (node.nodeValue !== next) {
+        nodeSuppress.add(node);
+        node.nodeValue = next;
+        queueMicrotask(() => nodeSuppress.delete(node));
+      }
+    });
+  }
+
+  const attrs = attrsByCore.get(core);
+  if (attrs) {
+    attrs.forEach((ref) => {
+      if (!ref.el.isConnected) { attrs.delete(ref); return; }
+      if (ref.el.getAttribute(ref.attr) !== translated) {
+        ref.el.setAttribute(ref.attr, translated);
+      }
+    });
   }
 }
 
@@ -129,6 +203,7 @@ function translateTextNode(node: Text) {
   const lead = (raw.match(/^\s*/) || [""])[0];
   const tail = (raw.match(/\s*$/) || [""])[0];
   const core = raw.slice(lead.length, raw.length - tail.length);
+  indexNode(core, node);
 
   const translated = cache[currentLang]?.[core];
   if (translated) {
@@ -140,7 +215,6 @@ function translateTextNode(node: Text) {
     }
   } else {
     pending.add(core);
-    scheduleFlush();
   }
 }
 
@@ -150,18 +224,16 @@ function translateAttributes(el: Element) {
     const raw = el.getAttribute(attr);
     if (!raw || !isTranslatable(raw)) continue;
     let map = attrOriginals.get(el);
-    if (!map) {
-      map = new Map();
-      attrOriginals.set(el, map);
-    }
+    if (!map) { map = new Map(); attrOriginals.set(el, map); }
     const source = map.get(attr) ?? raw;
     if (!map.has(attr)) map.set(attr, source);
-    const translated = cache[currentLang]?.[source.trim()];
+    const core = source.trim();
+    indexAttr(core, { el, attr });
+    const translated = cache[currentLang]?.[core];
     if (translated) {
       if (el.getAttribute(attr) !== translated) el.setAttribute(attr, translated);
     } else {
-      pending.add(source.trim());
-      scheduleFlush();
+      pending.add(core);
     }
   }
 }
@@ -192,7 +264,6 @@ function walkAndTranslate(root: Node) {
   while ((node = walker.nextNode())) {
     if (node.nodeType === Node.TEXT_NODE) translateTextNode(node as Text);
   }
-  // Attributes for descendants.
   el.querySelectorAll("[placeholder],[aria-label],[title],[alt]").forEach((child) => {
     translateAttributes(child);
   });
@@ -227,7 +298,6 @@ function handleMutations(muts: MutationRecord[]) {
     if (m.type === "characterData") {
       const t = m.target as Text;
       if (nodeSuppress.has(t)) continue;
-      // React replaced the text — invalidate stored original so we re-capture.
       nodeOriginals.delete(t);
       translateTextNode(t);
     } else if (m.type === "childList") {
@@ -239,6 +309,7 @@ function handleMutations(muts: MutationRecord[]) {
       translateAttributes(el);
     }
   }
+  if (pending.size > 0) scheduleFlush();
 }
 
 export function setDomTranslatorLanguage(lang: string) {
@@ -247,24 +318,24 @@ export function setDomTranslatorLanguage(lang: string) {
   if (target === currentLang) return;
 
   if (!target) {
-    // Turning off.
-    if (observer) {
-      observer.disconnect();
-      observer = null;
-    }
+    if (observer) { observer.disconnect(); observer = null; }
     currentLang = null;
     pending.clear();
     inFlight.clear();
-    if (flushTimer) {
-      clearTimeout(flushTimer);
-      flushTimer = null;
-    }
+    nodesByCore.clear();
+    attrsByCore.clear();
+    if (flushTimer) { clearTimeout(flushTimer); flushTimer = null; }
     if (document.body) restoreAll();
     return;
   }
 
   currentLang = target;
+  // Reset the reverse index so the new language builds its own mapping.
+  nodesByCore.clear();
+  attrsByCore.clear();
   if (document.body) retranslateAll();
+  // Kick the first batch immediately for a snappier switch.
+  if (pending.size > 0) scheduleFlush(true);
   if (!observer) {
     observer = new MutationObserver(handleMutations);
     observer.observe(document.body, {
