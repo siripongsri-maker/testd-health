@@ -11,6 +11,12 @@ interface AnalyticsProviderProps {
 
 export const AnalyticsProvider = ({ children }: AnalyticsProviderProps) => {
   useAnalytics();
+  const language = useLanguage((s) => s.language);
+
+  // Drive the site-wide DOM translator off the current language selection.
+  useEffect(() => {
+    setDomTranslatorLanguage(language);
+  }, [language]);
 
   // Init attribution capture on first load
   useEffect(() => {
