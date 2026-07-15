@@ -18,16 +18,31 @@ export function LanguageToggle() {
     document.documentElement.lang = lang;
   };
 
+  // Warm the translation cache for every non-current language once the menu opens,
+  // so switching feels instant. Also re-runs on hover/focus of a specific item.
+  const handleOpenChange = (open: boolean) => {
+    if (!open) return;
+    for (const l of SUPPORTED_LANGUAGES) {
+      if (l.code !== language) prefetchTranslations(l.code);
+    }
+  };
+
+  const handlePrefetch = (lang: Language) => {
+    if (lang !== language) prefetchTranslations(lang);
+  };
+
   const current = SUPPORTED_LANGUAGES.find(l => l.code === language);
 
   return (
-    <DropdownMenu>
+    <DropdownMenu onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
           size="sm"
           className="gap-1.5 text-muted-foreground hover:text-foreground h-8 px-2"
           aria-label={`Change language, current: ${current?.nativeLabel || 'ไทย'}`}
+          onMouseEnter={() => handleOpenChange(true)}
+          onFocus={() => handleOpenChange(true)}
         >
           <Languages className="h-4 w-4" />
           <span className="text-xs font-medium">{current?.nativeLabel || 'ไทย'}</span>
@@ -38,6 +53,9 @@ export function LanguageToggle() {
           <DropdownMenuItem
             key={lang.code}
             onClick={() => handleSelect(lang.code)}
+            onMouseEnter={() => handlePrefetch(lang.code)}
+            onFocus={() => handlePrefetch(lang.code)}
+            onPointerEnter={() => handlePrefetch(lang.code)}
             className="flex items-center justify-between gap-2 cursor-pointer"
           >
             <span className="text-sm">{lang.nativeLabel}</span>
@@ -50,3 +68,4 @@ export function LanguageToggle() {
     </DropdownMenu>
   );
 }
+
