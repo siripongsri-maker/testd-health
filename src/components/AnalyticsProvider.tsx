@@ -2,6 +2,8 @@ import { ReactNode, useEffect } from 'react';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { initAttribution, linkVisitorToUser } from '@/lib/attribution';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/lib/i18n';
+import { setDomTranslatorLanguage } from '@/lib/domTranslator';
 
 interface AnalyticsProviderProps {
   children: ReactNode;
