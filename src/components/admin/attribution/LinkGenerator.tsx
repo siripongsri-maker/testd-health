@@ -280,6 +280,25 @@ export function LinkGenerator() {
                   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyLink(link.slug)}>
                     <Copy className="h-3.5 w-3.5" />
                   </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    title={language === 'th' ? 'ดาวน์โหลดรายงาน CSV' : 'Download report (CSV)'}
+                    onClick={async () => {
+                      try {
+                        toast.info(language === 'th' ? 'กำลังสร้างรายงาน…' : 'Building report…');
+                        const csv = await generateLinkReportCsv(link);
+                        const stamp = new Date().toISOString().slice(0, 10);
+                        downloadCsv(`link-report_${link.slug}_${stamp}.csv`, csv);
+                        toast.success(language === 'th' ? 'ดาวน์โหลดแล้ว' : 'Report downloaded');
+                      } catch (e: any) {
+                        toast.error(e.message || 'Failed to generate report');
+                      }
+                    }}
+                  >
+                    <FileDown className="h-3.5 w-3.5" />
+                  </Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowQR(showQR === link.id ? null : link.id)}>
                     <QrCode className="h-3.5 w-3.5" />
                   </Button>
