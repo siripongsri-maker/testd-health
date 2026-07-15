@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import { supabase } from '@/integrations/supabase/client';
 
 // ── Language types ──────────────────────────────────────────────
-export type Language = 'th' | 'en' | 'km' | 'lo' | 'vi' | 'my';
+export type Language = 'th' | 'en' | 'km' | 'lo' | 'vi' | 'my' | 'ar' | 'he' | 'ur' | 'fa';
 
 export const SUPPORTED_LANGUAGES: { code: Language; label: string; nativeLabel: string }[] = [
   { code: 'th', label: 'Thai', nativeLabel: 'ไทย' },
@@ -12,7 +12,17 @@ export const SUPPORTED_LANGUAGES: { code: Language; label: string; nativeLabel: 
   { code: 'lo', label: 'Lao', nativeLabel: 'ລາວ' },
   { code: 'vi', label: 'Vietnamese', nativeLabel: 'Tiếng Việt' },
   { code: 'my', label: 'Burmese', nativeLabel: 'မြန်မာ' },
+  { code: 'ar', label: 'Arabic', nativeLabel: 'العربية' },
+  { code: 'he', label: 'Hebrew', nativeLabel: 'עברית' },
+  { code: 'ur', label: 'Urdu', nativeLabel: 'اردو' },
+  { code: 'fa', label: 'Persian', nativeLabel: 'فارسی' },
 ];
+
+// ── RTL support ─────────────────────────────────────────────────
+export const RTL_LANGUAGES: ReadonlySet<Language> = new Set<Language>(['ar', 'he', 'ur', 'fa']);
+export function isRtlLanguage(lang: Language): boolean {
+  return RTL_LANGUAGES.has(lang);
+}
 
 // ── Static dictionaries (th + en only) ──────────────────────────
 const translations: Record<'th' | 'en', Record<string, string>> = {

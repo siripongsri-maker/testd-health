@@ -587,3 +587,103 @@
   50% { transform: translateX(100%); }
   100% { transform: translateX(100%); }
 }
+/* ============================================================
+   RTL (Right-to-Left) Layout Mirroring
+   Activated when <html dir="rtl"> is set (see AnalyticsProvider).
+   Auto-mirrors common Tailwind directional utilities so existing
+   ltr-authored components render correctly for ar / he / ur / fa.
+   ============================================================ */
+[dir="rtl"] {
+  /* Base text alignment */
+  text-align: right;
+}
+
+/* Flip flex/grid row direction so leading items stay on the leading edge */
+[dir="rtl"] .flex-row { flex-direction: row-reverse; }
+[dir="rtl"] .flex-row-reverse { flex-direction: row; }
+
+/* Mirror margin-left/right (ml-*, mr-*) → treat as logical inline start/end */
+[dir="rtl"] [class*="ml-"]:not([class*="!ml-"]) { margin-left: 0 !important; }
+[dir="rtl"] [class*="mr-"]:not([class*="!mr-"]) { margin-right: 0 !important; }
+[dir="rtl"] .ml-1  { margin-right: 0.25rem !important; }
+[dir="rtl"] .ml-2  { margin-right: 0.5rem  !important; }
+[dir="rtl"] .ml-3  { margin-right: 0.75rem !important; }
+[dir="rtl"] .ml-4  { margin-right: 1rem    !important; }
+[dir="rtl"] .ml-6  { margin-right: 1.5rem  !important; }
+[dir="rtl"] .ml-8  { margin-right: 2rem    !important; }
+[dir="rtl"] .ml-auto { margin-right: auto  !important; }
+[dir="rtl"] .mr-1  { margin-left:  0.25rem !important; }
+[dir="rtl"] .mr-2  { margin-left:  0.5rem  !important; }
+[dir="rtl"] .mr-3  { margin-left:  0.75rem !important; }
+[dir="rtl"] .mr-4  { margin-left:  1rem    !important; }
+[dir="rtl"] .mr-6  { margin-left:  1.5rem  !important; }
+[dir="rtl"] .mr-8  { margin-left:  2rem    !important; }
+[dir="rtl"] .mr-auto { margin-left: auto   !important; }
+
+/* Mirror padding-left/right */
+[dir="rtl"] .pl-1  { padding-left: 0 !important; padding-right: 0.25rem !important; }
+[dir="rtl"] .pl-2  { padding-left: 0 !important; padding-right: 0.5rem  !important; }
+[dir="rtl"] .pl-3  { padding-left: 0 !important; padding-right: 0.75rem !important; }
+[dir="rtl"] .pl-4  { padding-left: 0 !important; padding-right: 1rem    !important; }
+[dir="rtl"] .pl-6  { padding-left: 0 !important; padding-right: 1.5rem  !important; }
+[dir="rtl"] .pl-8  { padding-left: 0 !important; padding-right: 2rem    !important; }
+[dir="rtl"] .pr-1  { padding-right: 0 !important; padding-left: 0.25rem !important; }
+[dir="rtl"] .pr-2  { padding-right: 0 !important; padding-left: 0.5rem  !important; }
+[dir="rtl"] .pr-3  { padding-right: 0 !important; padding-left: 0.75rem !important; }
+[dir="rtl"] .pr-4  { padding-right: 0 !important; padding-left: 1rem    !important; }
+[dir="rtl"] .pr-6  { padding-right: 0 !important; padding-left: 1.5rem  !important; }
+[dir="rtl"] .pr-8  { padding-right: 0 !important; padding-left: 2rem    !important; }
+
+/* Text alignment */
+[dir="rtl"] .text-left  { text-align: right !important; }
+[dir="rtl"] .text-right { text-align: left  !important; }
+
+/* Justify content mirroring for common cases */
+[dir="rtl"] .justify-start { justify-content: flex-end   !important; }
+[dir="rtl"] .justify-end   { justify-content: flex-start !important; }
+
+/* Absolute positioning left/right */
+[dir="rtl"] .left-0  { left: auto !important; right: 0 !important; }
+[dir="rtl"] .right-0 { right: auto !important; left: 0 !important; }
+[dir="rtl"] .left-2  { left: auto !important; right: 0.5rem !important; }
+[dir="rtl"] .right-2 { right: auto !important; left: 0.5rem !important; }
+[dir="rtl"] .left-4  { left: auto !important; right: 1rem !important; }
+[dir="rtl"] .right-4 { right: auto !important; left: 1rem !important; }
+
+/* Rounded corners on leading/trailing sides */
+[dir="rtl"] .rounded-l-lg  { border-radius: 0 var(--radius) var(--radius) 0 !important; }
+[dir="rtl"] .rounded-r-lg  { border-radius: var(--radius) 0 0 var(--radius) !important; }
+[dir="rtl"] .rounded-l-md  { border-radius: 0 calc(var(--radius) - 2px) calc(var(--radius) - 2px) 0 !important; }
+[dir="rtl"] .rounded-r-md  { border-radius: calc(var(--radius) - 2px) 0 0 calc(var(--radius) - 2px) !important; }
+
+/* Mirror decorative/navigational icons (chevrons, arrows). Skip icons that
+   convey non-directional meaning by opting out with data-no-flip. */
+[dir="rtl"] svg.lucide-chevron-left,
+[dir="rtl"] svg.lucide-chevron-right,
+[dir="rtl"] svg.lucide-arrow-left,
+[dir="rtl"] svg.lucide-arrow-right,
+[dir="rtl"] svg.lucide-arrow-up-right,
+[dir="rtl"] svg.lucide-arrow-down-left,
+[dir="rtl"] svg.lucide-corner-down-left,
+[dir="rtl"] svg.lucide-corner-down-right,
+[dir="rtl"] svg.lucide-log-in,
+[dir="rtl"] svg.lucide-log-out,
+[dir="rtl"] svg.lucide-send {
+  transform: scaleX(-1);
+}
+[dir="rtl"] [data-no-flip] { transform: none !important; }
+
+/* Sidebar / drawer edges */
+[dir="rtl"] .border-l { border-left: 0 !important; border-right: 1px solid hsl(var(--border)) !important; }
+[dir="rtl"] .border-r { border-right: 0 !important; border-left: 1px solid hsl(var(--border)) !important; }
+
+/* Numeric strings, phone numbers, and code stay LTR inside RTL text */
+[dir="rtl"] .ltr,
+[dir="rtl"] code,
+[dir="rtl"] kbd,
+[dir="rtl"] samp,
+[dir="rtl"] time,
+[dir="rtl"] [data-ltr] {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
