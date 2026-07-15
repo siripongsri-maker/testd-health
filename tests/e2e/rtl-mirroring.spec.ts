@@ -100,7 +100,7 @@ test.describe('RTL mirroring — computed styles reflect direction', () => {
       const row = document.createElement('div');
       row.className = 'flex flex-row';
       const child = document.createElement('span');
-      child.className = 'ml-4';
+      child.className = 'ml-3';
       child.textContent = 'x';
       row.appendChild(child);
       document.body.appendChild(row);
@@ -116,9 +116,9 @@ test.describe('RTL mirroring — computed styles reflect direction', () => {
     });
 
     expect(result.flexDirection).toBe('row-reverse');
-    // ml-4 (1rem = 16px) should become inline-end → margin-right in RTL.
+    // ml-3 (0.75rem = 12px) should become inline-end → margin-right in RTL.
     expect(result.marginLeft).toBe('0px');
-    expect(result.marginRight).toBe('16px');
+    expect(result.marginRight).toBe('12px');
   });
 
   test('LTR baseline is unchanged (no accidental mirroring for English)', async ({ page }) => {
@@ -130,7 +130,7 @@ test.describe('RTL mirroring — computed styles reflect direction', () => {
       const row = document.createElement('div');
       row.className = 'flex flex-row';
       const child = document.createElement('span');
-      child.className = 'ml-4 text-left';
+      child.className = 'ml-3 text-left';
       child.textContent = 'x';
       row.appendChild(child);
       document.body.appendChild(row);
@@ -147,7 +147,7 @@ test.describe('RTL mirroring — computed styles reflect direction', () => {
     });
 
     expect(result.flexDirection).toBe('row');
-    expect(result.marginLeft).toBe('16px');
+    expect(result.marginLeft).toBe('12px');
     expect(result.marginRight).toBe('0px');
     expect(result.textAlign).toBe('left');
   });
