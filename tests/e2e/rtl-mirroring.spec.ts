@@ -69,7 +69,7 @@ test.describe('RTL mirroring — <html dir> and lang', () => {
 test.describe('RTL mirroring — computed styles reflect direction', () => {
   test('body inherits rtl direction and text-align flips on .text-left', async ({ page }) => {
     await preselectLanguage(page, 'ar');
-    await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${BASE}/auth`, { waitUntil: 'domcontentloaded' });
     await waitForDir(page, 'rtl');
 
     // Body direction must be rtl (inherited from <html dir="rtl">).
@@ -93,7 +93,7 @@ test.describe('RTL mirroring — computed styles reflect direction', () => {
 
   test('.flex-row reverses under RTL and margin utilities mirror', async ({ page }) => {
     await preselectLanguage(page, 'he');
-    await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${BASE}/auth`, { waitUntil: 'domcontentloaded' });
     await waitForDir(page, 'rtl');
 
     const result = await page.evaluate(() => {
@@ -123,7 +123,7 @@ test.describe('RTL mirroring — computed styles reflect direction', () => {
 
   test('LTR baseline is unchanged (no accidental mirroring for English)', async ({ page }) => {
     await preselectLanguage(page, 'en');
-    await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${BASE}/auth`, { waitUntil: 'domcontentloaded' });
     await waitForDir(page, 'ltr');
 
     const result = await page.evaluate(() => {
@@ -156,7 +156,7 @@ test.describe('RTL mirroring — computed styles reflect direction', () => {
 test.describe('RTL mirroring — switching languages at runtime', () => {
   test('toggling from Arabic back to English restores dir="ltr"', async ({ page }) => {
     await preselectLanguage(page, 'ar');
-    await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${BASE}/auth`, { waitUntil: 'domcontentloaded' });
     await waitForDir(page, 'rtl');
 
     // Flip the persisted language and reload — mirrors what LanguageToggle does.
