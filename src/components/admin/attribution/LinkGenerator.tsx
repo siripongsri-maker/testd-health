@@ -6,11 +6,12 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Copy, QrCode, Plus, ExternalLink, Trash2, RefreshCw, ChevronDown, ChevronUp, Radio } from 'lucide-react';
+import { Copy, QrCode, Plus, ExternalLink, Trash2, RefreshCw, ChevronDown, ChevronUp, Radio, FileDown } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { QRCodeSVG } from 'qrcode.react';
 import { useLanguage } from '@/lib/i18n';
 import { LinkCascade } from './LinkCascade';
+import { generateLinkReportCsv, downloadCsv } from '@/lib/linkReport';
 
 const CHANNELS = ['facebook', 'instagram', 'line', 'x', 'tiktok', 'website', 'qr', 'outreach', 'partner', 'influencer', 'email', 'sms'];
 
