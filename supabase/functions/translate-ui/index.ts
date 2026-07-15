@@ -13,6 +13,10 @@ const LANG_NAMES: Record<string, string> = {
   my: 'Burmese (Myanmar)',
   th: 'Thai',
   en: 'English',
+  ar: 'Arabic',
+  he: 'Hebrew',
+  ur: 'Urdu',
+  fa: 'Persian (Farsi)',
 };
 
 const BATCH_SIZE = 40;
