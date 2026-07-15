@@ -15,12 +15,14 @@ import { test, expect, type Page } from '@playwright/test';
 
 const BASE = process.env.E2E_BASE_URL ?? 'http://localhost:8080';
 
-// Routes that should exercise a variety of layout primitives (header,
-// bottom nav, cards, buttons, forms).
-const ROUTES = ['/', '/auth', '/settings', '/harm-reduction', '/info'];
+// Routes that MUST NOT carry a locale prefix (see src/lib/seoLocalePrefix.ts
+// NEVER_PREFIX list). These respect the language chosen in localStorage,
+// so RTL selections actually take effect. SEO-prefixed routes like `/`,
+// `/harm-reduction`, `/info` force `th` or `en` via <LocaleRouter> and are
+// therefore not valid targets for RTL assertions.
+const ROUTES = ['/auth', '/settings'];
 
 const RTL_LANGS = ['ar', 'he', 'ur', 'fa'] as const;
-type RtlLang = (typeof RTL_LANGS)[number];
 
 async function preselectLanguage(page: Page, lang: string) {
   // Set zustand-persist entry before any app JS runs.
@@ -44,7 +46,7 @@ async function waitForDir(page: Page, dir: 'rtl' | 'ltr') {
 
 test.describe('RTL mirroring — <html dir> and lang', () => {
   for (const lang of RTL_LANGS) {
-    test(`sets dir="rtl" and lang="${lang}" on <html> for every key route`, async ({ page }) => {
+    test(`sets dir="rtl" and lang="${lang}" on <html> for non-SEO routes`, async ({ page }) => {
       await preselectLanguage(page, lang);
       for (const route of ROUTES) {
         await page.goto(`${BASE}${route}`, { waitUntil: 'domcontentloaded' });
@@ -54,13 +56,13 @@ test.describe('RTL mirroring — <html dir> and lang', () => {
     });
   }
 
-  test('stays dir="ltr" for English on every key route', async ({ page }) => {
-    await preselectLanguage(page, 'en');
-    for (const route of ROUTES) {
-      await page.goto(`${BASE}${route}`, { waitUntil: 'domcontentloaded' });
-      await waitForDir(page, 'ltr');
-      await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-    }
+  test('/en SEO route keeps dir="ltr" and lang="en" (LocaleRouter forces en)', async ({ page }) => {
+    // Even if the user had an RTL selection persisted, /en/... explicitly
+    // pins English via LocaleRouter — a good sanity check on the SEO prefix.
+    await preselectLanguage(page, 'ar');
+    await page.goto(`${BASE}/en/harm-reduction`, { waitUntil: 'domcontentloaded' });
+    await waitForDir(page, 'ltr');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   });
 });
 
