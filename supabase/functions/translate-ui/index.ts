@@ -27,7 +27,7 @@ async function sha256(text: string): Promise<string> {
 
 // Simple in-memory IP rate limiter (resets on cold start, ~5 min window)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const IP_RATE_LIMIT_MAX = 20; // 20 batches / 5 min / IP
+const IP_RATE_LIMIT_MAX = 120; // 120 batches / 5 min / IP (DOM translator can fan-out on first switch)
 const IP_RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000;
 function checkIpRateLimit(ip: string): boolean {
   const now = Date.now();
