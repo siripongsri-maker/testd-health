@@ -215,6 +215,26 @@ Deno.serve(async (req) => {
       const appUrl = "https://testd-health.lovable.app";
       const guestTokenParam = guest_token ? `?token=${encodeURIComponent(guest_token)}` : "";
       const guestUrl = `${appUrl}/guest-appointments${guestTokenParam}`;
+      // Signed-in users should land on their own appointment list, not the guest lookup page.
+      const authedActionUrl = `${appUrl}/my-appointments`;
+      const actionUrl = fullApt.user_id ? authedActionUrl : guestUrl;
+
+      // Format date/time for humans. DB serializes as YYYY-MM-DD and HH:MM:SS.
+      const formatApptDate = (d: string | null | undefined): string => {
+        if (!d) return "";
+        const parsed = new Date(`${d}T00:00:00`);
+        if (isNaN(parsed.getTime())) return String(d);
+        try {
+          return new Intl.DateTimeFormat("en-GB", {
+            day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Bangkok",
+          }).format(parsed);
+        } catch { return String(d); }
+      };
+      const formatApptTime = (t: string | null | undefined): string => {
+        if (!t) return "";
+        const m = String(t).match(/^(\d{2}):(\d{2})/);
+        return m ? `${m[1]}:${m[2]}` : String(t);
+      };
 
       const { error: sendErr } = await supabase.functions.invoke("send-transactional-email", {
         body: {
@@ -226,14 +246,14 @@ Deno.serve(async (req) => {
             landmark,
             googleMapsUrl,
             serviceName: serviceNames,
-            appointmentDate: fullApt.appointment_date,
-            appointmentTime: fullApt.start_time,
+            appointmentDate: formatApptDate(fullApt.appointment_date),
+            appointmentTime: formatApptTime(fullApt.start_time),
             verificationCode,
             referralCode: fullApt.referral_code,
-            checkinUrl: guestUrl,
-            confirmUrl: guestUrl,
+            checkinUrl: actionUrl,
+            confirmUrl: actionUrl,
             rescheduleUrl: `${appUrl}/booking`,
-            cancelUrl: guestUrl,
+            cancelUrl: actionUrl,
           },
         },
       });
@@ -427,7 +447,17 @@ Deno.serve(async (req) => {
             landmark: branchLandmark || undefined,
             googleMapsUrl: branchMapUrl || undefined,
             serviceName: serviceNames,
-            appointmentDate: apt.appointment_date,
+            appointmentDate: (() => {
+              const d = apt.appointment_date;
+              if (!d) return '';
+              const parsed = new Date(`${d}T00:00:00`);
+              if (isNaN(parsed.getTime())) return String(d);
+              try {
+                return new Intl.DateTimeFormat('en-GB', {
+                  day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Bangkok',
+                }).format(parsed);
+              } catch { return String(d); }
+            })(),
             reviewUrl,
           },
         },
