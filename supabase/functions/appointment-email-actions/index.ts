@@ -447,7 +447,17 @@ Deno.serve(async (req) => {
             landmark: branchLandmark || undefined,
             googleMapsUrl: branchMapUrl || undefined,
             serviceName: serviceNames,
-            appointmentDate: apt.appointment_date,
+            appointmentDate: (() => {
+              const d = apt.appointment_date;
+              if (!d) return '';
+              const parsed = new Date(`${d}T00:00:00`);
+              if (isNaN(parsed.getTime())) return String(d);
+              try {
+                return new Intl.DateTimeFormat('en-GB', {
+                  day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Bangkok',
+                }).format(parsed);
+              } catch { return String(d); }
+            })(),
             reviewUrl,
           },
         },
