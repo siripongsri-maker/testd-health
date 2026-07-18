@@ -1233,7 +1233,7 @@ interface LanguageState {
 export const useLanguage = create<LanguageState>()(
   persist(
     (set, get) => ({
-      language: 'th' as Language,
+      language: detectBrowserLanguage(),
       _cacheVersion: 0,
       setLanguage: (lang) => set({ language: lang }),
       t: (key) => {
