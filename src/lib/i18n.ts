@@ -3,11 +3,14 @@ import { persist } from 'zustand/middleware';
 import { supabase } from '@/integrations/supabase/client';
 
 // ── Language types ──────────────────────────────────────────────
-export type Language = 'th' | 'en' | 'km' | 'lo' | 'vi' | 'my' | 'ar' | 'he' | 'ur' | 'fa';
+export type Language = 'th' | 'en' | 'km' | 'lo' | 'vi' | 'my' | 'ar' | 'he' | 'ur' | 'fa' | 'zh' | 'ja' | 'ko';
 
 export const SUPPORTED_LANGUAGES: { code: Language; label: string; nativeLabel: string }[] = [
   { code: 'th', label: 'Thai', nativeLabel: 'ไทย' },
   { code: 'en', label: 'English', nativeLabel: 'EN' },
+  { code: 'zh', label: 'Chinese', nativeLabel: '中文' },
+  { code: 'ja', label: 'Japanese', nativeLabel: '日本語' },
+  { code: 'ko', label: 'Korean', nativeLabel: '한국어' },
   { code: 'km', label: 'Khmer', nativeLabel: 'ខ្មែរ' },
   { code: 'lo', label: 'Lao', nativeLabel: 'ລາວ' },
   { code: 'vi', label: 'Vietnamese', nativeLabel: 'Tiếng Việt' },
@@ -17,6 +20,24 @@ export const SUPPORTED_LANGUAGES: { code: Language; label: string; nativeLabel: 
   { code: 'ur', label: 'Urdu', nativeLabel: 'اردو' },
   { code: 'fa', label: 'Persian', nativeLabel: 'فارسی' },
 ];
+
+// ── Browser language detection ──────────────────────────────────
+// Maps navigator.language(s) to our supported set. Used only when the user
+// has not made an explicit choice yet (no persisted preference in storage).
+export function detectBrowserLanguage(): Language {
+  if (typeof navigator === 'undefined') return 'th';
+  const supported = new Set(SUPPORTED_LANGUAGES.map((l) => l.code));
+  const candidates = [
+    ...((navigator as Navigator).languages || []),
+    (navigator as Navigator).language || '',
+  ].filter(Boolean);
+  for (const raw of candidates) {
+    const primary = raw.toLowerCase().split('-')[0];
+    if (primary === 'zh') return 'zh'; // handle zh-CN, zh-TW, zh-Hant, etc.
+    if (supported.has(primary as Language)) return primary as Language;
+  }
+  return 'th';
+}
 
 // ── RTL support ─────────────────────────────────────────────────
 export const RTL_LANGUAGES: ReadonlySet<Language> = new Set<Language>(['ar', 'he', 'ur', 'fa']);
@@ -1212,7 +1233,7 @@ interface LanguageState {
 export const useLanguage = create<LanguageState>()(
   persist(
     (set, get) => ({
-      language: 'th' as Language,
+      language: detectBrowserLanguage(),
       _cacheVersion: 0,
       setLanguage: (lang) => set({ language: lang }),
       t: (key) => {

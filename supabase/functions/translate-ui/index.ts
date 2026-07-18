@@ -17,6 +17,9 @@ const LANG_NAMES: Record<string, string> = {
   he: 'Hebrew',
   ur: 'Urdu',
   fa: 'Persian (Farsi)',
+  zh: 'Simplified Chinese',
+  ja: 'Japanese',
+  ko: 'Korean',
 };
 
 const BATCH_SIZE = 40;
