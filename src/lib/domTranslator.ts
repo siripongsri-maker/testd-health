@@ -18,8 +18,8 @@
 
 import { supabase } from "@/integrations/supabase/client";
 
-type CLVM = "km" | "lo" | "vi" | "my" | "ar" | "he" | "ur" | "fa";
-const CLVM_SET = new Set<CLVM>(["km", "lo", "vi", "my", "ar", "he", "ur", "fa"]);
+type CLVM = "km" | "lo" | "vi" | "my" | "ar" | "he" | "ur" | "fa" | "zh" | "ja" | "ko" | "en";
+const CLVM_SET = new Set<CLVM>(["km", "lo", "vi", "my", "ar", "he", "ur", "fa", "zh", "ja", "ko", "en"]);
 const CACHE_KEY = "testd-dom-translations";
 
 type Cache = Partial<Record<CLVM, Record<string, string>>>;
