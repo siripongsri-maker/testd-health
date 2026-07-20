@@ -64,6 +64,35 @@ async function verifyAppointmentOwnership(
   return null;
 }
 
+// Invoke send-transactional-email with the service-role bearer.
+// supabase.functions.invoke() forwards the caller's auth header (anon/user JWT),
+// which the send function rejects as 403 non-service-role. We must fetch directly.
+async function invokeSendTransactionalEmail(
+  supabaseUrl: string,
+  serviceKey: string,
+  payload: Record<string, unknown>,
+): Promise<{ error: { message: string; status?: number } | null }> {
+  try {
+    const res = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${serviceKey}`,
+        apikey: serviceKey,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      return { error: { message: text || `HTTP ${res.status}`, status: res.status } };
+    }
+    await res.text().catch(() => "");
+    return { error: null };
+  } catch (e) {
+    return { error: { message: e instanceof Error ? e.message : String(e) } };
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -236,25 +265,23 @@ Deno.serve(async (req) => {
         return m ? `${m[1]}:${m[2]}` : String(t);
       };
 
-      const { error: sendErr } = await supabase.functions.invoke("send-transactional-email", {
-        body: {
-          templateName: "appointment-action",
-          recipientEmail: email,
-          idempotencyKey: `apt-action-${appointment_id}`,
-          templateData: {
-            branchName,
-            landmark,
-            googleMapsUrl,
-            serviceName: serviceNames,
-            appointmentDate: formatApptDate(fullApt.appointment_date),
-            appointmentTime: formatApptTime(fullApt.start_time),
-            verificationCode,
-            referralCode: fullApt.referral_code,
-            checkinUrl: actionUrl,
-            confirmUrl: actionUrl,
-            rescheduleUrl: `${appUrl}/booking`,
-            cancelUrl: actionUrl,
-          },
+      const { error: sendErr } = await invokeSendTransactionalEmail(supabaseUrl, serviceKey, {
+        templateName: "appointment-action",
+        recipientEmail: email,
+        idempotencyKey: `apt-action-${appointment_id}`,
+        templateData: {
+          branchName,
+          landmark,
+          googleMapsUrl,
+          serviceName: serviceNames,
+          appointmentDate: formatApptDate(fullApt.appointment_date),
+          appointmentTime: formatApptTime(fullApt.start_time),
+          verificationCode,
+          referralCode: fullApt.referral_code,
+          checkinUrl: actionUrl,
+          confirmUrl: actionUrl,
+          rescheduleUrl: `${appUrl}/booking`,
+          cancelUrl: actionUrl,
         },
       });
 
@@ -437,29 +464,27 @@ Deno.serve(async (req) => {
       const branchMapUrl = apt.booking_branches?.google_maps_url || '';
       const reviewUrl = `https://testd-health.lovable.app/my-appointments`;
 
-      const { error: sendErr } = await supabase.functions.invoke('send-transactional-email', {
-        body: {
-          templateName: 'post-service-review',
-          recipientEmail: email,
-          idempotencyKey: `review-${appointment_id}`,
-          templateData: {
-            branchName,
-            landmark: branchLandmark || undefined,
-            googleMapsUrl: branchMapUrl || undefined,
-            serviceName: serviceNames,
-            appointmentDate: (() => {
-              const d = apt.appointment_date;
-              if (!d) return '';
-              const parsed = new Date(`${d}T00:00:00`);
-              if (isNaN(parsed.getTime())) return String(d);
-              try {
-                return new Intl.DateTimeFormat('en-GB', {
-                  day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Bangkok',
-                }).format(parsed);
-              } catch { return String(d); }
-            })(),
-            reviewUrl,
-          },
+      const { error: sendErr } = await invokeSendTransactionalEmail(supabaseUrl, serviceKey, {
+        templateName: 'post-service-review',
+        recipientEmail: email,
+        idempotencyKey: `review-${appointment_id}`,
+        templateData: {
+          branchName,
+          landmark: branchLandmark || undefined,
+          googleMapsUrl: branchMapUrl || undefined,
+          serviceName: serviceNames,
+          appointmentDate: (() => {
+            const d = apt.appointment_date;
+            if (!d) return '';
+            const parsed = new Date(`${d}T00:00:00`);
+            if (isNaN(parsed.getTime())) return String(d);
+            try {
+              return new Intl.DateTimeFormat('en-GB', {
+                day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Bangkok',
+              }).format(parsed);
+            } catch { return String(d); }
+          })(),
+          reviewUrl,
         },
       });
 
