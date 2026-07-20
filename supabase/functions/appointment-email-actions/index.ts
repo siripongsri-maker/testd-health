@@ -464,29 +464,27 @@ Deno.serve(async (req) => {
       const branchMapUrl = apt.booking_branches?.google_maps_url || '';
       const reviewUrl = `https://testd-health.lovable.app/my-appointments`;
 
-      const { error: sendErr } = await supabase.functions.invoke('send-transactional-email', {
-        body: {
-          templateName: 'post-service-review',
-          recipientEmail: email,
-          idempotencyKey: `review-${appointment_id}`,
-          templateData: {
-            branchName,
-            landmark: branchLandmark || undefined,
-            googleMapsUrl: branchMapUrl || undefined,
-            serviceName: serviceNames,
-            appointmentDate: (() => {
-              const d = apt.appointment_date;
-              if (!d) return '';
-              const parsed = new Date(`${d}T00:00:00`);
-              if (isNaN(parsed.getTime())) return String(d);
-              try {
-                return new Intl.DateTimeFormat('en-GB', {
-                  day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Bangkok',
-                }).format(parsed);
-              } catch { return String(d); }
-            })(),
-            reviewUrl,
-          },
+      const { error: sendErr } = await invokeSendTransactionalEmail(supabaseUrl, serviceKey, {
+        templateName: 'post-service-review',
+        recipientEmail: email,
+        idempotencyKey: `review-${appointment_id}`,
+        templateData: {
+          branchName,
+          landmark: branchLandmark || undefined,
+          googleMapsUrl: branchMapUrl || undefined,
+          serviceName: serviceNames,
+          appointmentDate: (() => {
+            const d = apt.appointment_date;
+            if (!d) return '';
+            const parsed = new Date(`${d}T00:00:00`);
+            if (isNaN(parsed.getTime())) return String(d);
+            try {
+              return new Intl.DateTimeFormat('en-GB', {
+                day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Bangkok',
+              }).format(parsed);
+            } catch { return String(d); }
+          })(),
+          reviewUrl,
         },
       });
 
