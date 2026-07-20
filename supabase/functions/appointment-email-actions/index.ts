@@ -265,25 +265,23 @@ Deno.serve(async (req) => {
         return m ? `${m[1]}:${m[2]}` : String(t);
       };
 
-      const { error: sendErr } = await supabase.functions.invoke("send-transactional-email", {
-        body: {
-          templateName: "appointment-action",
-          recipientEmail: email,
-          idempotencyKey: `apt-action-${appointment_id}`,
-          templateData: {
-            branchName,
-            landmark,
-            googleMapsUrl,
-            serviceName: serviceNames,
-            appointmentDate: formatApptDate(fullApt.appointment_date),
-            appointmentTime: formatApptTime(fullApt.start_time),
-            verificationCode,
-            referralCode: fullApt.referral_code,
-            checkinUrl: actionUrl,
-            confirmUrl: actionUrl,
-            rescheduleUrl: `${appUrl}/booking`,
-            cancelUrl: actionUrl,
-          },
+      const { error: sendErr } = await invokeSendTransactionalEmail(supabaseUrl, serviceKey, {
+        templateName: "appointment-action",
+        recipientEmail: email,
+        idempotencyKey: `apt-action-${appointment_id}`,
+        templateData: {
+          branchName,
+          landmark,
+          googleMapsUrl,
+          serviceName: serviceNames,
+          appointmentDate: formatApptDate(fullApt.appointment_date),
+          appointmentTime: formatApptTime(fullApt.start_time),
+          verificationCode,
+          referralCode: fullApt.referral_code,
+          checkinUrl: actionUrl,
+          confirmUrl: actionUrl,
+          rescheduleUrl: `${appUrl}/booking`,
+          cancelUrl: actionUrl,
         },
       });
 
