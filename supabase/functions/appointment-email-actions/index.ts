@@ -64,6 +64,35 @@ async function verifyAppointmentOwnership(
   return null;
 }
 
+// Invoke send-transactional-email with the service-role bearer.
+// supabase.functions.invoke() forwards the caller's auth header (anon/user JWT),
+// which the send function rejects as 403 non-service-role. We must fetch directly.
+async function invokeSendTransactionalEmail(
+  supabaseUrl: string,
+  serviceKey: string,
+  payload: Record<string, unknown>,
+): Promise<{ error: { message: string; status?: number } | null }> {
+  try {
+    const res = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${serviceKey}`,
+        apikey: serviceKey,
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      return { error: { message: text || `HTTP ${res.status}`, status: res.status } };
+    }
+    await res.text().catch(() => "");
+    return { error: null };
+  } catch (e) {
+    return { error: { message: e instanceof Error ? e.message : String(e) } };
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
