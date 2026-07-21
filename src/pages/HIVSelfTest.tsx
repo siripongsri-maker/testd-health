@@ -1862,11 +1862,13 @@ export default function HIVSelfTest() {
 
             {analysisResult && (
               <>
-                <SelfTestResultExplanation
-                  result={analysisResult}
-                  confidence={analysisDetails?.confidence}
-                  language={language}
-                />
+                <Suspense fallback={<div className="h-24 flex items-center justify-center"><Loader2 className="animate-spin" /></div>}>
+                  <SelfTestResultExplanation
+                    result={analysisResult}
+                    confidence={analysisDetails?.confidence}
+                    language={language}
+                  />
+                </Suspense>
 
                 {!user && (
                   <Card className="p-4 space-y-3 bg-muted/30">
@@ -2078,6 +2080,7 @@ export default function HIVSelfTest() {
 
         {magicLinkState.status !== 'error' && renderStepIndicator()}
 
+        <Suspense fallback={<div className="min-h-[240px] flex items-center justify-center"><Loader2 className="animate-spin text-muted-foreground" /></div>}>
         {magicLinkState.status !== 'error' && magicLinkState.status !== 'resolving' && currentStep === 'intro' && (
           <IntroStep 
             activeRequest={activeRequest}
@@ -2165,30 +2168,17 @@ export default function HIVSelfTest() {
             cameFromMagicLink={searchParams.has('token')}
             startAtResult={isDirectSubmitAction}
             onDone={() => {
-              // Mark this mount as post-submit so the magic-link resolver
-              // won't re-hydrate the just-completed request if it re-fires
-              // before the URL is cleaned up.
               justSubmittedRef.current = true;
-              // Clear stale in-memory pending state FIRST so the
-              // step-from-status useEffect below doesn't route the user
-              // back into the just-completed submission flow (this matters
-              // for magic-link / not-signed-in users where fetchRequests
-              // is a no-op and can't refresh activeRequest from the DB).
               setActiveRequest(null);
               setCurrentStep('intro');
-              // Notify banner hook + refetch from Supabase so the
-              // recalculated activeRequest reflects the submitted row.
               try {
                 localStorage.removeItem('hiv-selftest-timer');
-                // Clear any lingering self-test session cache keys.
                 for (let i = sessionStorage.length - 1; i >= 0; i--) {
                   const key = sessionStorage.key(i);
                   if (key && key.startsWith('selftest:')) sessionStorage.removeItem(key);
                 }
                 window.dispatchEvent(new CustomEvent('selftest:pending-refresh'));
               } catch { /* noop */ }
-              // Strip ?token / ?action from the URL so a refresh cannot
-              // re-enter the submit-result flow.
               if (searchParams.has('token') || searchParams.has('action')) {
                 navigate('/th/hiv-selftest', { replace: true });
               }
@@ -2198,8 +2188,7 @@ export default function HIVSelfTest() {
           />
         )}
 
-        {/* Guest path — same unified Lean flow (1 ขีด / 2 ขีด), no login required.
-            Anonymous visitors land here via /submit-result → ?action=submit → existing-kit-upload → photo-result. */}
+        {/* Guest path — same unified Lean flow (1 ขีด / 2 ขีด), no login required. */}
         {!activeRequest && currentStep === 'photo-result' && (isDirectSubmitAction || !user) && (
           <LeanResultSubmissionFlow
             request={{
@@ -2214,7 +2203,7 @@ export default function HIVSelfTest() {
             trackEvent={(name, props) => trackEvent(name, props as any)}
           />
         )}
-      </PageContainer>
+        </Suspense>
       <BottomNav />
     </>
   );
