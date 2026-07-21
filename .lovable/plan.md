@@ -1,125 +1,107 @@
-## Root cause
 
-The `/th/hiv-selftest` page shows "พร้อมส่งผลแล้วใช่ไหม?" again after a successful submission because the code has **two entry points that set `activeRequest` without checking result evidence**:
+# Bundle & PWA cache audit — implementation plan
 
-1. **Magic link resolver** (`src/pages/HIVSelfTest.tsx` lines 205–243)
-   - Calls `selftest-magic-resolve`, then unconditionally does `setActiveRequest({... result_photo_url: null, test_result: null ...})` and `setCurrentStep('photo-result')`. It ignores `result_submitted_at`, `result_photo_url`, `test_result`, and post-submit statuses. Even a fully submitted request re-enters the Lean flow.
-   - The edge function returns whatever row it finds, so the client must guard.
+## Findings from the current build
 
-2. **`fetchRequests` / step-from-status effect** (lines 322–344, 402–429)
-   - `fetchRequests` filters correctly by evidence, but `SelfTestRequest` type is missing `result_submitted_at`, and the effect at line 322 falls back to `activeRequest.status` for other paths. Combined with the magic-link path stuffing a non-fetched row, the "hard guard" doesn't fire.
+Measured `dist/assets` after `vite build`:
 
-3. **Post-submit local state** — `onDone` clears `activeRequest`, but the `?token=...` still sits in the URL, and any remount (React StrictMode, focus, HMR, PWA reload) re-runs the magic-link effect and re-enters the flow. There is no "already submitted" branch in the resolver.
+```text
+2255 KB  HIVSelfTest-*.js       ← single-page monster (self-test flow)
+ 671 KB  index-*.js             ← main entry, everything shared
+ 341 KB  generateCategoricalChart (recharts)
+ 315 KB  HarmReduction-*.js
+ 168 KB  VirtualMode-*.js
+ 146 KB  leaflet-*.js
+ 238 KB  index-*.css            ← Tailwind bundle
+Total: ~13 MB of JS+CSS in /assets
+```
 
-4. **`hasSubmittedResult` logic is duplicated** in three places with slightly different sets of statuses, making it easy to miss a case.
+Two orphaned service worker files (`public/sw.js`, `public/service-worker.js`) still ship the old kill-switch. `vite-plugin-pwa` and `workbox-window` are installed but **not** used anywhere in `src/` — they add nothing at runtime but bloat `node_modules`. No `NetworkFirst` policy for HTML exists, so caching relies entirely on Lovable's revalidation headers.
 
-## Fix scope
+## Goals
 
-Frontend-only, HIV self-test flow. No schema changes. No unrelated UI.
+1. Get the initial JS (`index-*.js` + first route chunk) under ~350 KB gzip on mobile.
+2. Split HIVSelfTest into request / submit / admin-support sub-chunks so a user reporting a result no longer downloads the entire self-test surface.
+3. Make sure returning visitors on old installed builds always get the current HTML, and remove dead PWA code.
+4. Verify with Lighthouse before/after on `/th` and `/th/hiv-selftest`.
 
-## Plan
+## Work items
 
-### 1. Single source-of-truth helper — `src/lib/selftestStatus.ts` (new)
+### 1. Split the HIVSelfTest 2.2 MB chunk
+- Convert the step components inside `src/pages/HIVSelfTest.tsx` (request flow, `LeanResultSubmissionFlow`, `SelftestPii` capture, admin/case history views) to `React.lazy` boundaries wrapped in `Suspense` with a light skeleton.
+- The `?action=submit` path should load only the result submission bundle, not the request flow, and vice versa.
+
+### 2. Split shared heavies out of `index-*.js` (671 KB)
+- Add a small `manualChunks` policy in `vite.config.ts`:
+  - `react-vendor`: react, react-dom, react-router-dom
+  - `radix`: all `@radix-ui/*`
+  - `charts`: recharts (already isolates categorical chart, extend to whole lib)
+  - `supabase`: `@supabase/supabase-js`
+  - `forms`: react-hook-form + zod + hookform/resolvers
+- Keeps admin/staff bundles from re-importing these on every route change.
+
+### 3. Route-level lazy loading audit
+- Confirm every top-level route in `src/App.tsx` uses `React.lazy` (spot check shows some do, but a few admin panels may be eager). Convert any that aren't.
+- Preload the next likely route on hover for the three homepage CTAs (uses existing `src/lib/routePrefetch.ts`).
+
+### 4. CSS
+- 238 KB CSS is mostly Tailwind + hand-written RTL rules. Enable `content` scanning to prune unused RTL selectors, and move the `index.css` RTL block behind `[dir="rtl"]` selectors (already partly done) so Tailwind's JIT can drop unused variants.
+
+### 5. PWA / cache hygiene
+- **Keep** `public/sw.js` and `public/service-worker.js` as the kill-switch cleanup workers — they're the only thing that evicts stale installs. Do not delete.
+- Remove unused `vite-plugin-pwa` and `workbox-window` from `package.json` (nothing imports them; confirmed).
+- Add a small runtime check in `src/hooks/useVersionCheck.ts` (already exists) to log & report cache-reset events consistently.
+
+### 6. Measurement
+- Add `tests/e2e/lighthouse.spec.ts` that drives Chromium via Playwright, runs a Lighthouse audit against `/th` and `/th/hiv-selftest?action=submit`, and asserts:
+  - Performance ≥ 75 mobile
+  - Total JS transfer ≤ 900 KB on `/th`
+  - Largest chunk ≤ 500 KB
+- Record baseline vs. post-change in the PR summary.
+
+## Out of scope
+
+- Image optimization (separate audit).
+- Any server-side rendering.
+- Changes to the translator DOM walker (already optimized last week).
+
+## Technical details (for the record)
+
+`vite.config.ts` addition:
 
 ```ts
-export const SUBMITTED_STATUSES = new Set([
-  'result_submitted','submitted','reviewed','result_reviewed',
-  'followed_up','completed','closed','cancelled',
-  'positive','negative','reactive','non_reactive','invalid',
-]);
-
-export const ACTIVE_PRE_RESULT_STATUSES = new Set([
-  'pending','requested','approved','confirmed','shipped','delivered','received',
-]);
-
-export function hasSubmittedSelfTestResult(r: any): boolean {
-  if (!r) return false;
-  return (
-    SUBMITTED_STATUSES.has(String(r.status ?? '').toLowerCase()) ||
-    !!r.result_submitted_at ||
-    !!r.result_photo_url ||
-    !!r.result_image_url ||
-    !!r.test_result ||
-    !!r.self_reported_result
-  );
-}
-
-export function isActiveUnsubmittedSelfTestRequest(r: any): boolean {
-  if (!r) return false;
-  if (hasSubmittedSelfTestResult(r)) return false;
-  return ACTIVE_PRE_RESULT_STATUSES.has(String(r.status ?? '').toLowerCase());
-}
+build: {
+  rollupOptions: {
+    output: {
+      manualChunks: {
+        "react-vendor": ["react", "react-dom", "react-router-dom"],
+        "radix": [/* enumerate @radix-ui/* actually used */],
+        "charts": ["recharts"],
+        "supabase": ["@supabase/supabase-js"],
+        "forms": ["react-hook-form", "zod", "@hookform/resolvers"],
+      },
+    },
+  },
+  chunkSizeWarningLimit: 600,
+},
 ```
 
-Dev-only `console.debug('[selftest]', reqId, {status, has_result_ts, has_photo, has_test_result, decided})` inside the helper when `import.meta.env.DEV`.
-
-### 2. Fix magic-link resolver (`HIVSelfTest.tsx` ~205–243)
-
-- Request more fields from `selftest-magic-resolve` (best-effort — if the edge function doesn't return them, immediately re-fetch the row from `hiv_selftest_requests` by id via the anon/authenticated client using the id returned).
-- After resolving, run `hasSubmittedSelfTestResult(row)`:
-  - If **true**: do NOT set `activeRequest`; set `currentStep = 'intro'`; clear `hiv-selftest-timer`; dispatch `selftest:pending-refresh`; toast "ผลตรวจนี้ถูกส่งแล้ว"; strip `?token=` from the URL via `navigate('/th/hiv-selftest', { replace: true })` so a refresh cannot re-trigger.
-  - If **false**: proceed as today.
-
-Also patch the edge function `supabase/functions/selftest-magic-resolve/index.ts` to include `result_submitted_at, result_photo_url, test_result, self_reported_result` in its response payload so the guard has authoritative data. No schema change.
-
-### 3. Fix `fetchRequests` (`HIVSelfTest.tsx` ~402–430)
-
-- Select `self_reported_result` in addition to existing fields.
-- Replace inline logic with `isActiveUnsubmittedSelfTestRequest`.
-- On every fetch: if the currently-held `activeRequest` no longer satisfies `isActiveUnsubmittedSelfTestRequest` (or is missing from `data`), `setActiveRequest(null)` and, if `currentStep` is one of `confirm-receipt | video | testing | timer | photo-result`, force `setCurrentStep('intro')` and clear the timer key.
-
-### 4. Fix step-from-status effect (`HIVSelfTest.tsx` ~322–344)
-
-- Replace the inline `hasSubmittedResult` calculation with the shared helper.
-- If submitted: `setActiveRequest(null)` (not just early-return) + `setCurrentStep('intro')` + clear timer + dispatch `selftest:pending-refresh`.
-
-### 5. Render-time hard guard (`HIVSelfTest.tsx` ~2012)
-
-Before the `LeanResultSubmissionFlow` block, add:
+`HIVSelfTest.tsx` skeleton:
 
 ```tsx
-{(currentStep === 'confirm-receipt' || ... || currentStep === 'photo-result') &&
- activeRequest &&
- !hasSubmittedSelfTestResult(activeRequest) && ( ... )}
+const LeanResultSubmissionFlow = lazy(() => import("@/components/hiv-selftest/LeanResultSubmissionFlow"));
+const KitRequestFlow = lazy(() => import("@/components/hiv-selftest/KitRequestFlow"));
+// ...
+<Suspense fallback={<StepSkeleton />}>
+  {step === "photo-result" ? <LeanResultSubmissionFlow ... /> : <KitRequestFlow ... />}
+</Suspense>
 ```
 
-If the guard blocks render, run a one-shot cleanup effect: `setActiveRequest(null); setCurrentStep('intro')`.
+## Expected outcome
 
-### 6. Post-submit cleanup — `onDone` handler (~2025–2040)
+- Homepage first-load JS: ~670 KB → ~300 KB gzip.
+- Self-test submit page first-load: ~2.9 MB → ~600 KB gzip.
+- LCP on mid-tier Android over 4G: ~3.5s → ~2.0s (target).
+- No behavioral change; kill-switch SW remains in place so already-installed users pick up the new hashed chunks on next visit.
 
-Currently: `setActiveRequest(null)` → `setCurrentStep('intro')` → clear timer → `fetchRequests()`.
-
-Add:
-- Strip `?token=` and `?action=submit` from URL: `navigate(location.pathname, { replace: true })`.
-- Clear extra keys: `localStorage.removeItem('hiv-selftest-timer')`; also clear any `sessionStorage` entries starting with `selftest:`.
-- Set a local ref `justSubmittedRef.current = true` so the magic-link `useEffect` guard exits early on this same mount if it re-fires.
-
-### 7. Defensive fetch filter in `usePendingSelftestResult`
-
-Update the query to also `.is('result_photo_url', null).is('test_result', null)`, and post-filter with `isActiveUnsubmittedSelfTestRequest`. Prevents stale rows where `status='delivered'` but a result was already submitted from ever surfacing the banner.
-
-### 8. Stale-state audit — no other restore points found
-
-- `localStorage`: only `hiv-selftest-timer` (cleared).
-- `sessionStorage`: none used for self-test step.
-- No React Query / SWR cache for self-test requests.
-- No URL-param step restoration other than `?token` and `?action=submit` (both handled above).
-- Home banner uses `usePendingSelftestResult` (fixed in step 7).
-- `IntroStep`/`TownHub` don't restore step state.
-
-### 9. Verification
-
-- `bun run build` must pass.
-- Manual repro via Playwright: seed a row with `status='delivered'` + `result_submitted_at=now()` + `result_photo_url='x'`, navigate to `/th/hiv-selftest?token=<magic>`, confirm the Lean "พร้อมส่งผลแล้ว" card does NOT render and user lands on intro.
-- Refresh the page → still intro (no loop).
-- A user with a truly-pending row still sees the submit flow.
-- Requesting a new kit after a submitted result works.
-
-## Files touched
-
-- `src/lib/selftestStatus.ts` (new)
-- `src/pages/HIVSelfTest.tsx` (magic-link resolver, fetchRequests, step effect, render guard, onDone)
-- `src/hooks/usePendingSelftestResult.ts` (defensive filter)
-- `supabase/functions/selftest-magic-resolve/index.ts` (return result evidence fields; no schema change)
-
-No changes to database schema, unrelated UI, or other features.
+Approve to proceed, or tell me which of the six items to drop or reorder.
