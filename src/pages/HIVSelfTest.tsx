@@ -2204,6 +2204,7 @@ export default function HIVSelfTest() {
           />
         )}
         </Suspense>
+      </PageContainer>
       <BottomNav />
     </>
   );
