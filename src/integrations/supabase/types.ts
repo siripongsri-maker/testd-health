@@ -11447,6 +11447,10 @@ export type Database = {
         Args: { p_message: string; p_thread_id: string }
         Returns: string
       }
+      staff_can_access_appointment: {
+        Args: { _appointment_id: string }
+        Returns: boolean
+      }
       start_walkin_service: {
         Args: { p_appointment_id: string }
         Returns: undefined
