@@ -28,6 +28,7 @@ export default defineConfig(({ mode }) => ({
         // route bundles stop re-embedding them. Order matters: more specific
         // matches (leaflet, recharts) go first.
         manualChunks(id) {
+          if (id.endsWith("thailand-geography.json")) return "vendor-thai-geo";
           if (!id.includes("node_modules")) return;
           if (id.includes("/leaflet/")) return "vendor-leaflet";
           if (id.includes("/recharts/") || id.includes("/d3-")) return "vendor-charts";
