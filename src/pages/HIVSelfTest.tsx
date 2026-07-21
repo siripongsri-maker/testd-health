@@ -1,5 +1,5 @@
 import { openSupportChat } from "@/lib/openSupportChat";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { trackEvent } from "@/hooks/useAnalytics";
 import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
@@ -36,19 +36,21 @@ import { useQuestProgress } from "@/hooks/useQuestProgress";
 import { toast } from "sonner";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-import { 
-  IntroStep, 
-  LiteRequestStep,
-  AccountSuccessStep,
+import {
   Step,
   DeliveryMode,
   SelfTestRequest,
   ShippingFormData,
   NHSOFormData,
-  TESTING_STEPS
+  TESTING_STEPS,
 } from "@/components/hiv-selftest";
-import { SelfTestResultExplanation } from "@/components/hiv-selftest/SelfTestResultExplanation";
-import { LeanResultSubmissionFlow } from "@/components/hiv-selftest/LeanResultSubmissionFlow";
+// Heavy step components split into their own chunks so the initial page bundle
+// (and especially the `?action=submit` path) stays small.
+const IntroStep = lazy(() => import("@/components/hiv-selftest/IntroStep").then(m => ({ default: m.IntroStep })));
+const LiteRequestStep = lazy(() => import("@/components/hiv-selftest/LiteRequestStep").then(m => ({ default: m.LiteRequestStep })));
+const AccountSuccessStep = lazy(() => import("@/components/hiv-selftest/AccountSuccessStep").then(m => ({ default: m.AccountSuccessStep })));
+const SelfTestResultExplanation = lazy(() => import("@/components/hiv-selftest/SelfTestResultExplanation").then(m => ({ default: m.SelfTestResultExplanation })));
+const LeanResultSubmissionFlow = lazy(() => import("@/components/hiv-selftest/LeanResultSubmissionFlow").then(m => ({ default: m.LeanResultSubmissionFlow })));
 import {
   getSelfTestSubmittedTime,
   hasSubmittedSelfTestResult,
