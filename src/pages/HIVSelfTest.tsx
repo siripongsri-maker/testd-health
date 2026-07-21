@@ -43,7 +43,7 @@ import {
   ShippingFormData,
   NHSOFormData,
   TESTING_STEPS,
-} from "@/components/hiv-selftest";
+} from "@/components/hiv-selftest/types";
 // Heavy step components split into their own chunks so the initial page bundle
 // (and especially the `?action=submit` path) stays small.
 const IntroStep = lazy(() => import("@/components/hiv-selftest/IntroStep").then(m => ({ default: m.IntroStep })));
