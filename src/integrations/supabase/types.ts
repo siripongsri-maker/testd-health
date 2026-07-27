@@ -11342,6 +11342,10 @@ export type Database = {
         Args: { _pii_id: string; _user_id: string }
         Returns: boolean
       }
+      is_open_anon_screening: {
+        Args: { _screening_id: string }
+        Returns: boolean
+      }
       is_valid_selftest_guest_upload_token: {
         Args: { p_token: string }
         Returns: boolean
