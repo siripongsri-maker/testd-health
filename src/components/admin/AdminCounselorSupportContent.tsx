@@ -682,6 +682,9 @@ export default function AdminCounselorSupportContent() {
       </Card>
 
 
+      {/* Harm reduction referral queue (bridged from the HR zone) */}
+      <HrReferralQueue tx={tx} readOnly={isMeAnalyst} />
+
       {/* Filters bar */}
       <Card className="p-3 space-y-3">
         <div className="flex flex-wrap items-center gap-2">
