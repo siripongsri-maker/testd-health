@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { SwingClinicCard } from "./SwingClinicCard";
 import { RecoveryMode } from "./RecoveryMode";
 import { SafetyEscalation } from "./SafetyEscalation";
+import { getLastScreening, riskToPriority } from "@/lib/hrCounselingBridge";
 import {
   MessageCircle, Phone, CalendarDays, Send, Shield,
   CheckCircle2, HeartHandshake, AlertTriangle, Sunrise,
