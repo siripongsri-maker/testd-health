@@ -4736,15 +4736,21 @@ export type Database = {
         Row: {
           anonymous_token: string | null
           assigned_to: string | null
+          branch_id: string | null
           completed_at: string | null
           contact_method: string | null
           contact_value: string | null
+          counselor_notes: string | null
           created_at: string | null
+          handled_at: string | null
+          handled_by: string | null
           id: string
           notes: string | null
           priority: string | null
           referral_type: string
+          risk_level: string | null
           scheduled_at: string | null
+          screening_id: string | null
           status: string | null
           updated_at: string | null
           user_id: string | null
@@ -4752,15 +4758,21 @@ export type Database = {
         Insert: {
           anonymous_token?: string | null
           assigned_to?: string | null
+          branch_id?: string | null
           completed_at?: string | null
           contact_method?: string | null
           contact_value?: string | null
+          counselor_notes?: string | null
           created_at?: string | null
+          handled_at?: string | null
+          handled_by?: string | null
           id?: string
           notes?: string | null
           priority?: string | null
           referral_type: string
+          risk_level?: string | null
           scheduled_at?: string | null
+          screening_id?: string | null
           status?: string | null
           updated_at?: string | null
           user_id?: string | null
@@ -4768,20 +4780,41 @@ export type Database = {
         Update: {
           anonymous_token?: string | null
           assigned_to?: string | null
+          branch_id?: string | null
           completed_at?: string | null
           contact_method?: string | null
           contact_value?: string | null
+          counselor_notes?: string | null
           created_at?: string | null
+          handled_at?: string | null
+          handled_by?: string | null
           id?: string
           notes?: string | null
           priority?: string | null
           referral_type?: string
+          risk_level?: string | null
           scheduled_at?: string | null
+          screening_id?: string | null
           status?: string | null
           updated_at?: string | null
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "hr_referrals_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hr_referrals_screening_id_fkey"
+            columns: ["screening_id"]
+            isOneToOne: false
+            referencedRelation: "hr_screenings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       hr_reminders: {
         Row: {
@@ -10739,6 +10772,10 @@ export type Database = {
         Args: { target_user_id: string; xp_amount: number }
         Returns: undefined
       }
+      can_view_client_hr_context: {
+        Args: { _client_id: string }
+        Returns: boolean
+      }
       check_booking_rate_limit: {
         Args: {
           p_branch_id: string
@@ -11008,6 +11045,10 @@ export type Database = {
       }
       get_branch_today_board: {
         Args: { p_branch_id: string; p_date: string }
+        Returns: Json
+      }
+      get_client_hr_context: {
+        Args: { _client_id: string; _reason?: string }
         Returns: Json
       }
       get_daily_cap_status: {

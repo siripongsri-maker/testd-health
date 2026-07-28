@@ -18,6 +18,8 @@ import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import { toast } from "@/hooks/use-toast";
+import ClientHrContextPanel from "./ClientHrContextPanel";
+import HrReferralQueue from "./HrReferralQueue";
 
 // ────────────────────────────────────────────────────────────────
 // Types
@@ -680,6 +682,9 @@ export default function AdminCounselorSupportContent() {
       </Card>
 
 
+      {/* Harm reduction referral queue (bridged from the HR zone) */}
+      <HrReferralQueue tx={tx} readOnly={isMeAnalyst} />
+
       {/* Filters bar */}
       <Card className="p-3 space-y-3">
         <div className="flex flex-wrap items-center gap-2">
@@ -1093,6 +1098,11 @@ function CasePanel({
               <Indicator label={tx("ความปลอดภัย", "Safety")} value={row.safety !== null ? `${row.safety}/5` : "—"} />
               <Indicator label={tx("สุขภาพจิต", "Mental health")} value={row.mental_health_interest || "—"} tone={row.mental_health_interest === "yes" ? "urgent" : row.mental_health_interest === "maybe" ? "warn" : undefined} />
             </div>
+
+            {/* Harm reduction context bridged from the HR screening */}
+            <ClientHrContextPanel clientId={row.appointments?.user_id ?? null} tx={tx} />
+
+
 
             {row.suggestions && (
               <div className="text-xs bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 rounded-md p-3">

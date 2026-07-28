@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { CitationChips } from "@/components/seo/CitationChips";
 import { PageReferences } from "@/components/seo/PageReferences";
 import { DistressCard } from "@/components/harm-reduction/DistressCard";
+import { saveLastScreening } from "@/lib/hrCounselingBridge";
 import {
   Shield, ChevronRight, ChevronLeft, CheckCircle2,
   ShieldAlert, ShieldCheck, Heart, Brain, Pill,
@@ -343,14 +344,30 @@ export function RiskScreening({ userId, onNavigateSupport }: Props) {
       setSaving(true);
       try {
         const anonToken = userId ? undefined : `anon-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-        await supabase.from("hr_screenings").insert({
-          user_id: userId || null,
-          anonymous_token: anonToken || null,
-          status: "completed",
-          risk_level: riskLevel,
-          recommendations: [...new Set(recommendations)],
-          completed_at: new Date().toISOString(),
-        });
+        const completedAt = new Date().toISOString();
+        const { data: inserted } = await supabase
+          .from("hr_screenings")
+          .insert({
+            user_id: userId || null,
+            anonymous_token: anonToken || null,
+            status: "completed",
+            risk_level: riskLevel,
+            recommendations: [...new Set(recommendations)],
+            completed_at: completedAt,
+          })
+          .select("id")
+          .maybeSingle();
+
+        // Bridge the screening to the pre-counselling flow so a counselor
+        // can see this context if the user asks for support next.
+        if (inserted?.id) {
+          saveLastScreening({
+            id: inserted.id,
+            riskLevel,
+            anonymousToken: anonToken || null,
+            completedAt,
+          });
+        }
         trackEvent("hr_screening_completed", { risk_level: riskLevel, method: "validated" });
       } catch (err) {
         console.error("Save error:", err);

@@ -16,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { SwingClinicCard } from "./SwingClinicCard";
 import { RecoveryMode } from "./RecoveryMode";
 import { SafetyEscalation } from "./SafetyEscalation";
+import { getLastScreening, riskToPriority } from "@/lib/hrCounselingBridge";
 import {
   MessageCircle, Phone, CalendarDays, Send, Shield,
   CheckCircle2, HeartHandshake, AlertTriangle, Sunrise,
@@ -56,9 +57,13 @@ export function CounselingReferral({ userId }: Props) {
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      const anonToken = userId ? undefined : `anon-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const lastScreening = getLastScreening();
+      const anonToken = userId
+        ? undefined
+        : lastScreening?.anonymousToken || `anon-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
-      // Insert referral
+      // Insert referral — linked to the latest harm reduction screening so the
+      // counselor queue can open the client's pre-counselling context.
       const { error } = await supabase.from("hr_referrals").insert({
         user_id: userId || null,
         anonymous_token: anonToken || null,
@@ -67,7 +72,9 @@ export function CounselingReferral({ userId }: Props) {
         contact_value: contactValue || null,
         notes: notes || null,
         status: "requested",
-        priority: urgency === "urgent" ? "high" : "normal",
+        screening_id: lastScreening?.id || null,
+        risk_level: lastScreening?.riskLevel || null,
+        priority: riskToPriority(lastScreening?.riskLevel, urgency === "urgent"),
       });
       if (error) throw error;
 
