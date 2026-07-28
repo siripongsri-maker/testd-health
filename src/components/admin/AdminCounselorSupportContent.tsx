@@ -1094,6 +1094,11 @@ function CasePanel({
               <Indicator label={tx("สุขภาพจิต", "Mental health")} value={row.mental_health_interest || "—"} tone={row.mental_health_interest === "yes" ? "urgent" : row.mental_health_interest === "maybe" ? "warn" : undefined} />
             </div>
 
+            {/* Harm reduction context bridged from the HR screening */}
+            <ClientHrContextPanel clientId={row.appointments?.user_id ?? null} tx={tx} />
+
+
+
             {row.suggestions && (
               <div className="text-xs bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 rounded-md p-3">
                 <div className="font-semibold text-teal-800 dark:text-teal-200 mb-1">
