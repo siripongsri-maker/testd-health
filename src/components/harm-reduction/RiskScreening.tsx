@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { CitationChips } from "@/components/seo/CitationChips";
 import { PageReferences } from "@/components/seo/PageReferences";
 import { DistressCard } from "@/components/harm-reduction/DistressCard";
+import { saveLastScreening } from "@/lib/hrCounselingBridge";
 import {
   Shield, ChevronRight, ChevronLeft, CheckCircle2,
   ShieldAlert, ShieldCheck, Heart, Brain, Pill,
