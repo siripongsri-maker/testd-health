@@ -188,11 +188,17 @@ export default function WriteArticle() {
       return;
     }
 
+    if (!user) {
+      toast.error(language === 'th' ? 'กรุณาเข้าสู่ระบบ' : 'Please login first');
+      return;
+    }
+
     setIsUploading(true);
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
-      const filePath = `covers/${fileName}`;
+      const filePath = `covers/${user.id}/${fileName}`;
+
 
       const { error: uploadError } = await supabase.storage
         .from('blog-images')
