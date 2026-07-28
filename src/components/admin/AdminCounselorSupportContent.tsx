@@ -18,6 +18,8 @@ import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import { toast } from "@/hooks/use-toast";
+import ClientHrContextPanel from "./ClientHrContextPanel";
+import HrReferralQueue from "./HrReferralQueue";
 
 // ────────────────────────────────────────────────────────────────
 // Types
