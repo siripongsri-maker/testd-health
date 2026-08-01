@@ -253,11 +253,14 @@ serve(async (req) => {
         });
       }
 
-      // Upsert into cache
-      if (rowsToInsert.length > 0) {
+      // Upsert into cache (dedupe by conflict target to avoid SQLSTATE 21000)
+      const dedupedRows = Array.from(
+        new Map(rowsToInsert.map((r) => [r.hash, r])).values()
+      );
+      if (dedupedRows.length > 0) {
         const { error: insertError } = await supabase
           .from('translation_cache')
-          .upsert(rowsToInsert, { onConflict: 'hash' });
+          .upsert(dedupedRows, { onConflict: 'hash' });
 
         if (insertError) {
           console.error('Cache insert error:', insertError);
