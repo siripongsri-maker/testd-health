@@ -319,8 +319,16 @@ export default function AdminCounselingPayoutsContent() {
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-semibold text-sm">{c.account_holder_name}</span>
                 <Badge className={`text-[10px] ${STATUS_CLASS[c.status]}`}>{STATUS_LABEL[c.status]}</Badge>
+                {c.duplicate_flag && (
+                  <Badge variant="outline" className="text-[10px] border-rose-300 text-rose-600 flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" />
+                    บัญชีนี้เคยรับแล้ว {c.duplicate_count ?? 1} ครั้ง/90 วัน
+                  </Badge>
+                )}
+                {c.batch_id && <Badge variant="outline" className="text-[10px]">อยู่ในรอบจ่าย</Badge>}
                 <span className="text-xs text-muted-foreground">{branches[c.branch_id ?? ""] ?? "ไม่ระบุสาขา"}</span>
                 <span className="ml-auto font-bold tabular-nums">{baht(c.amount)}</span>
+
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
                 <Field label="ธนาคาร" value={c.bank_name} />
