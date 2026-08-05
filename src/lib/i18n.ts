@@ -559,6 +559,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.frontDesk': 'แผนกต้อนรับ',
     'admin.counselorSupport': 'คิวให้คำปรึกษา',
     'admin.dailyBranchBrief': 'สรุปรายวันรายสาขา',
+    'admin.counselingPayouts': 'ค่าเดินทางผู้รับบริการ',
     'admin.counselorAccounts': 'บัญชีนักให้คำปรึกษา',
     'admin.clientCRM': 'จัดการผู้รับบริการ',
     'admin.youthSurvey': 'แบบสำรวจเยาวชน HIV',
