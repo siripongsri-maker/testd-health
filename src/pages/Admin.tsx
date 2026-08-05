@@ -239,6 +239,7 @@ export default function Admin() {
           {renderTab("pre-service-surveys", <AdminPreServiceSurveysContent />)}
           {renderTab("counselor-support", <AdminCounselorSupportContent />)}
           {renderTab("daily-branch-brief", <AdminDailyBranchBriefContent />)}
+          {renderTab("counseling-payouts", <AdminCounselingPayoutsContent />)}
           {renderTab("export-center", <AdminExportCenterContent />)}
           {renderTab("activity-logs", <AdminActivityLogsContent />)}
 
