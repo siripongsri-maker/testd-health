@@ -70,6 +70,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "queue-board", icon: ListOrdered, labelKey: "admin.queueBoard" },
       { tab: "front-desk", icon: ClipboardList, labelKey: "admin.frontDesk", meAnalyst: true },
       { tab: "counselor-support", icon: HeartHandshake, labelKey: "admin.counselorSupport", meAnalyst: true },
+      { tab: "daily-branch-brief", icon: ClipboardList, labelKey: "admin.dailyBranchBrief", meAnalyst: true },
       { tab: "client-crm", icon: Users, labelKey: "admin.clientCRM", adminOnly: true },
       { tab: "service-pathways", icon: HeartHandshake, labelKey: "admin.servicePathways", adminOnly: true, meAnalyst: true },
       { tab: "clinic-settings", icon: Stethoscope, labelKey: "admin.clinicSettings", adminOnly: true },
@@ -213,7 +214,7 @@ export function AdminSidebar() {
   };
 
   const canSeeItem = (item: MenuItemDef) => {
-    if (isCounselor) return item.tab === "counselor-support";
+    if (isCounselor) return item.tab === "counselor-support" || item.tab === "daily-branch-brief";
     if (isAdmin) return true;
     if (isMeAnalyst && item.meAnalyst) return true;
     if (item.adminOnly) return false;
