@@ -7465,6 +7465,13 @@ export type Database = {
             referencedRelation: "appointment_pre_service_surveys"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "post_counseling_evaluations_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "pre_service_survey_base"
+            referencedColumns: ["id"]
+          },
         ]
       }
       pre_service_counseling_notes: {
@@ -7519,6 +7526,13 @@ export type Database = {
             columns: ["survey_id"]
             isOneToOne: true
             referencedRelation: "appointment_pre_service_surveys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pre_service_counseling_notes_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: true
+            referencedRelation: "pre_service_survey_base"
             referencedColumns: ["id"]
           },
         ]
@@ -9526,6 +9540,66 @@ export type Database = {
           },
         ]
       }
+      survey_question_registry: {
+        Row: {
+          answer_type: string
+          collected_from: string | null
+          collected_to: string | null
+          created_at: string
+          display_order: number
+          group_key: string | null
+          id: string
+          json_column: string | null
+          label_en: string
+          label_th: string
+          notes: string | null
+          question_key: string
+          scale_max: number | null
+          scale_min: number | null
+          source_table: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          answer_type: string
+          collected_from?: string | null
+          collected_to?: string | null
+          created_at?: string
+          display_order?: number
+          group_key?: string | null
+          id?: string
+          json_column?: string | null
+          label_en: string
+          label_th: string
+          notes?: string | null
+          question_key: string
+          scale_max?: number | null
+          scale_min?: number | null
+          source_table?: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          answer_type?: string
+          collected_from?: string | null
+          collected_to?: string | null
+          created_at?: string
+          display_order?: number
+          group_key?: string | null
+          id?: string
+          json_column?: string | null
+          label_en?: string
+          label_th?: string
+          notes?: string | null
+          question_key?: string
+          scale_max?: number | null
+          scale_min?: number | null
+          source_table?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
       survey_questions: {
         Row: {
           created_at: string
@@ -10645,6 +10719,36 @@ export type Database = {
         }
         Relationships: []
       }
+      pre_service_survey_base: {
+        Row: {
+          behavior: Json | null
+          branch_id: string | null
+          channel: string | null
+          confidence: number | null
+          created_at: string | null
+          id: string | null
+          is_anonymous: boolean | null
+          knowledge: Json | null
+          language: string | null
+          mental_health_interest: string | null
+          recommend: string | null
+          risk_level: string | null
+          safety: number | null
+          suggestions: string | null
+          uic_display: string | null
+          uic_hash: string | null
+          visit_sequence: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "appointments_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       public_article_comments: {
         Row: {
           article_id: string | null
@@ -11224,6 +11328,93 @@ export type Database = {
           pre_total: number
         }[]
       }
+      get_pre_service_crosstab: {
+        Args: {
+          p_anon?: string
+          p_branch_ids?: string[]
+          p_channels?: string[]
+          p_dimension: string
+          p_from?: string
+          p_question_key: string
+          p_risk?: string
+          p_to?: string
+          p_visit?: string
+        }
+        Returns: {
+          answer_value: string
+          cnt: number
+          dim_value: string
+        }[]
+      }
+      get_pre_service_open_text: {
+        Args: {
+          p_anon?: string
+          p_branch_ids?: string[]
+          p_channels?: string[]
+          p_from?: string
+          p_keywords?: string[]
+          p_limit?: number
+          p_risk?: string
+          p_to?: string
+          p_visit?: string
+        }
+        Returns: {
+          cnt: number
+          keyword: string
+          sample: string
+        }[]
+      }
+      get_pre_service_question_stats: {
+        Args: {
+          p_anon?: string
+          p_branch_ids?: string[]
+          p_channels?: string[]
+          p_from?: string
+          p_risk?: string
+          p_to?: string
+          p_visit?: string
+        }
+        Returns: {
+          answer_type: string
+          answered: number
+          collected_from: string
+          collected_to: string
+          display_order: number
+          distribution: Json
+          group_key: string
+          label_en: string
+          label_th: string
+          mean_value: number
+          median_value: number
+          question_key: string
+          skip_rate: number
+          skipped: number
+          total_responses: number
+        }[]
+      }
+      get_pre_service_rowlevel_export: {
+        Args: {
+          p_anon?: string
+          p_branch_ids?: string[]
+          p_channels?: string[]
+          p_from?: string
+          p_limit?: number
+          p_risk?: string
+          p_to?: string
+          p_visit?: string
+        }
+        Returns: {
+          answers: Json
+          branch_id: string
+          channel: string
+          created_at: string
+          is_anonymous: boolean
+          language: string
+          risk_level: string
+          uic_hash: string
+          visit_type: string
+        }[]
+      }
       get_public_demand_hints: {
         Args: { p_branch_id: string; p_horizon_days?: number }
         Returns: Json
@@ -11421,6 +11612,7 @@ export type Database = {
         Returns: number
       }
       normalize_text_for_fp: { Args: { input: string }; Returns: string }
+      pre_service_can_analyze: { Args: never; Returns: boolean }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {

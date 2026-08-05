@@ -1,0 +1,10 @@
+REVOKE EXECUTE ON FUNCTION public.pre_service_can_analyze() FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.get_pre_service_question_stats(timestamptz,timestamptz,uuid[],text[],text,text,text) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.get_pre_service_crosstab(text,text,timestamptz,timestamptz,uuid[],text[],text,text,text) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.get_pre_service_open_text(timestamptz,timestamptz,uuid[],text[],text,text,text,text[],integer) FROM PUBLIC, anon;
+REVOKE EXECUTE ON FUNCTION public.get_pre_service_rowlevel_export(timestamptz,timestamptz,uuid[],text[],text,text,text,integer) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.get_pre_service_question_stats(timestamptz,timestamptz,uuid[],text[],text,text,text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_pre_service_crosstab(text,text,timestamptz,timestamptz,uuid[],text[],text,text,text) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_pre_service_open_text(timestamptz,timestamptz,uuid[],text[],text,text,text,text[],integer) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_pre_service_rowlevel_export(timestamptz,timestamptz,uuid[],text[],text,text,text,integer) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.pre_service_can_analyze() TO authenticated;
