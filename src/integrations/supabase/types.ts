@@ -2427,6 +2427,154 @@ export type Database = {
         }
         Relationships: []
       }
+      counseling_payout_batches: {
+        Row: {
+          batch_code: string
+          claim_count: number
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          paid_at: string | null
+          period_from: string
+          period_to: string
+          status: string
+          submitted_at: string | null
+          total_amount: number
+          updated_at: string
+        }
+        Insert: {
+          batch_code: string
+          claim_count?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          period_from: string
+          period_to: string
+          status?: string
+          submitted_at?: string | null
+          total_amount?: number
+          updated_at?: string
+        }
+        Update: {
+          batch_code?: string
+          claim_count?: number
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          period_from?: string
+          period_to?: string
+          status?: string
+          submitted_at?: string | null
+          total_amount?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      counseling_payout_claims: {
+        Row: {
+          account_holder_name: string
+          amount: number
+          approved_at: string | null
+          approved_by: string | null
+          bank_account_hash: string | null
+          bank_account_no: string
+          bank_name: string
+          batch_id: string | null
+          branch_id: string | null
+          created_at: string
+          currency: string
+          evaluation_id: string
+          id: string
+          id_card_delete_after: string
+          id_card_deleted_at: string | null
+          id_card_path: string | null
+          note_id: string | null
+          paid_at: string | null
+          paid_by: string | null
+          payment_ref: string | null
+          rejection_reason: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          account_holder_name: string
+          amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          bank_account_hash?: string | null
+          bank_account_no: string
+          bank_name: string
+          batch_id?: string | null
+          branch_id?: string | null
+          created_at?: string
+          currency?: string
+          evaluation_id: string
+          id?: string
+          id_card_delete_after?: string
+          id_card_deleted_at?: string | null
+          id_card_path?: string | null
+          note_id?: string | null
+          paid_at?: string | null
+          paid_by?: string | null
+          payment_ref?: string | null
+          rejection_reason?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          account_holder_name?: string
+          amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          bank_account_hash?: string | null
+          bank_account_no?: string
+          bank_name?: string
+          batch_id?: string | null
+          branch_id?: string | null
+          created_at?: string
+          currency?: string
+          evaluation_id?: string
+          id?: string
+          id_card_delete_after?: string
+          id_card_deleted_at?: string | null
+          id_card_path?: string | null
+          note_id?: string | null
+          paid_at?: string | null
+          paid_by?: string | null
+          payment_ref?: string | null
+          rejection_reason?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "counseling_payout_claims_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "counseling_payout_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "counseling_payout_claims_evaluation_id_fkey"
+            columns: ["evaluation_id"]
+            isOneToOne: true
+            referencedRelation: "post_counseling_evaluations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "counseling_payout_claims_note_id_fkey"
+            columns: ["note_id"]
+            isOneToOne: false
+            referencedRelation: "pre_service_counseling_notes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       counseling_sessions: {
         Row: {
           action_plan: Json | null
@@ -7477,6 +7625,59 @@ export type Database = {
           },
         ]
       }
+      post_eval_sms_dispatches: {
+        Row: {
+          branch_id: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          note_id: string
+          phone_hash: string | null
+          phone_last4: string | null
+          provider_message_id: string | null
+          sent_at: string | null
+          sent_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          branch_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          note_id: string
+          phone_hash?: string | null
+          phone_last4?: string | null
+          provider_message_id?: string | null
+          sent_at?: string | null
+          sent_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          branch_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          note_id?: string
+          phone_hash?: string | null
+          phone_last4?: string | null
+          provider_message_id?: string | null
+          sent_at?: string | null
+          sent_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_eval_sms_dispatches_note_id_fkey"
+            columns: ["note_id"]
+            isOneToOne: false
+            referencedRelation: "pre_service_counseling_notes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pre_service_counseling_notes: {
         Row: {
           assigned_counselor_id: string | null
@@ -11331,6 +11532,15 @@ export type Database = {
           session_id: string
         }[]
       }
+      get_post_eval_claim_status: {
+        Args: { _token: string }
+        Returns: {
+          amount: number
+          claim_status: string
+          has_claim: boolean
+          has_evaluation: boolean
+        }[]
+      }
       get_post_eval_context: {
         Args: { _token: string }
         Returns: {
@@ -11717,6 +11927,10 @@ export type Database = {
       start_walkin_service: {
         Args: { p_appointment_id: string }
         Returns: undefined
+      }
+      submit_counseling_payout_claim: {
+        Args: { _payload: Json; _token: string }
+        Returns: string
       }
       submit_guest_selftest_result: {
         Args: {

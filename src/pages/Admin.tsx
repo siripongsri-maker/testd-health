@@ -68,6 +68,7 @@ const AdminSelftestMissingIdContent = lazy(() => import("@/components/admin/Admi
 const AdminPreServiceSurveysContent = lazy(() => import("@/components/admin/AdminPreServiceHubContent"));
 const AdminCounselorSupportContent = lazy(() => import("@/components/admin/AdminCounselorSupportContent"));
 const AdminDailyBranchBriefContent = lazy(() => import("@/components/admin/AdminDailyBranchBriefContent"));
+const AdminCounselingPayoutsContent = lazy(() => import("@/components/admin/AdminCounselingPayoutsContent"));
 
 // MEL modules
 const MelServiceLedgerContent = lazy(() => import("@/components/admin/mel/MelServiceLedgerContent"));
@@ -238,6 +239,7 @@ export default function Admin() {
           {renderTab("pre-service-surveys", <AdminPreServiceSurveysContent />)}
           {renderTab("counselor-support", <AdminCounselorSupportContent />)}
           {renderTab("daily-branch-brief", <AdminDailyBranchBriefContent />)}
+          {renderTab("counseling-payouts", <AdminCounselingPayoutsContent />)}
           {renderTab("export-center", <AdminExportCenterContent />)}
           {renderTab("activity-logs", <AdminActivityLogsContent />)}
 

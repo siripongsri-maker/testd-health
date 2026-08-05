@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2, CheckCircle2, ShieldCheck, HeartHandshake, Sparkles } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import TravelAllowanceClaim from "@/components/postcounseling/TravelAllowanceClaim";
+
 
 interface Ctx {
   note_id: string;
@@ -147,23 +149,27 @@ export default function PostCounselingForm() {
 
   if (done) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-background">
-        <Card className="max-w-md w-full p-8 text-center space-y-4 border-teal-200">
-          <div className="mx-auto h-16 w-16 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center">
-            <CheckCircle2 className="h-9 w-9 text-teal-600" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold">{tx("ขอบคุณสำหรับคำตอบ 🙏", "Thanks for sharing 🙏")}</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              {tx("ความคิดเห็นของคุณจะช่วยพัฒนาบริการให้ดีขึ้น โดยไม่เปิดเผยตัวตน",
-                  "Your feedback helps improve the service — anonymously.")}
-            </p>
-          </div>
-          <Button asChild variant="outline"><Link to="/">{tx("กลับหน้าหลัก", "Back to home")}</Link></Button>
-        </Card>
+      <div className="min-h-screen flex items-start justify-center p-6 bg-background">
+        <div className="max-w-md w-full space-y-4">
+          <Card className="p-8 text-center space-y-4 border-teal-200">
+            <div className="mx-auto h-16 w-16 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center">
+              <CheckCircle2 className="h-9 w-9 text-teal-600" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold">{tx("ขอบคุณสำหรับคำตอบ 🙏", "Thanks for sharing 🙏")}</h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                {tx("ความคิดเห็นของคุณจะช่วยพัฒนาบริการให้ดีขึ้น โดยไม่เปิดเผยตัวตน",
+                    "Your feedback helps improve the service — anonymously.")}
+              </p>
+            </div>
+          </Card>
+          {token && <TravelAllowanceClaim token={token} />}
+          <Button asChild variant="outline" className="w-full"><Link to="/">{tx("กลับหน้าหลัก", "Back to home")}</Link></Button>
+        </div>
       </div>
     );
   }
+
 
   const branchName = language === "th" ? ctx.branch_name_th : ctx.branch_name_en;
 

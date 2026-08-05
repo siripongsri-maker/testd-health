@@ -1,0 +1,274 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Loader2, Download, Banknote, Check, X, Eye, RefreshCw } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+
+type ClaimStatus = "pending" | "approved" | "paid" | "rejected";
+
+interface Claim {
+  id: string;
+  branch_id: string | null;
+  amount: number;
+  account_holder_name: string;
+  bank_name: string;
+  bank_account_no: string;
+  id_card_path: string | null;
+  status: ClaimStatus;
+  payment_ref: string | null;
+  created_at: string;
+  paid_at: string | null;
+}
+
+const STATUS_LABEL: Record<ClaimStatus, string> = {
+  pending: "รออนุมัติ",
+  approved: "อนุมัติแล้ว",
+  paid: "จ่ายแล้ว",
+  rejected: "ปฏิเสธ",
+};
+
+const STATUS_CLASS: Record<ClaimStatus, string> = {
+  pending: "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-200",
+  approved: "bg-sky-100 text-sky-800 dark:bg-sky-950/40 dark:text-sky-200",
+  paid: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200",
+  rejected: "bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200",
+};
+
+/** Mask all but the last 4 digits of a bank account number. */
+function maskAccount(no: string) {
+  const digits = (no || "").replace(/\D/g, "");
+  if (digits.length <= 4) return digits;
+  return "•".repeat(digits.length - 4) + digits.slice(-4);
+}
+
+const baht = (n: number) => `฿${Number(n || 0).toLocaleString("th-TH", { minimumFractionDigits: 0 })}`;
+
+export default function AdminCounselingPayoutsContent() {
+  const [claims, setClaims] = useState<Claim[]>([]);
+  const [branches, setBranches] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<ClaimStatus | "all">("pending");
+  const [busy, setBusy] = useState<string | null>(null);
+  const [revealed, setRevealed] = useState<Record<string, boolean>>({});
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const [{ data: rows }, { data: brs }] = await Promise.all([
+      supabase
+        .from("counseling_payout_claims")
+        .select("id, branch_id, amount, account_holder_name, bank_name, bank_account_no, id_card_path, status, payment_ref, created_at, paid_at")
+        .order("created_at", { ascending: false })
+        .limit(1000),
+      supabase.from("booking_branches").select("id, name_th"),
+    ]);
+    setClaims((rows as Claim[]) ?? []);
+    setBranches(Object.fromEntries(((brs as any[]) ?? []).map((b) => [b.id, b.name_th])));
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    const ch = supabase
+      .channel("payout-claims-rt")
+      .on("postgres_changes", { event: "*", schema: "public", table: "counseling_payout_claims" }, () => load())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [load]);
+
+  const filtered = useMemo(() => claims.filter((c) => {
+    if (filter !== "all" && c.status !== filter) return false;
+    const d = c.created_at.slice(0, 10);
+    if (from && d < from) return false;
+    if (to && d > to) return false;
+    return true;
+  }), [claims, filter, from, to]);
+
+  const totals = useMemo(() => ({
+    count: filtered.length,
+    amount: filtered.reduce((s, c) => s + Number(c.amount), 0),
+    pending: claims.filter((c) => c.status === "pending").length,
+    unpaid: claims.filter((c) => c.status !== "paid" && c.status !== "rejected")
+      .reduce((s, c) => s + Number(c.amount), 0),
+  }), [filtered, claims]);
+
+  const setStatus = async (id: string, status: ClaimStatus) => {
+    setBusy(id);
+    const patch: Record<string, unknown> = { status };
+    if (status === "paid") patch.paid_at = new Date().toISOString();
+    const { error } = await supabase.from("counseling_payout_claims").update(patch).eq("id", id);
+    setBusy(null);
+    if (error) {
+      toast({ title: "อัปเดตไม่สำเร็จ", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: `อัปเดตเป็น "${STATUS_LABEL[status]}" แล้ว` });
+    load();
+  };
+
+  const viewIdCard = async (path: string) => {
+    const { data, error } = await supabase.storage.from("identity-docs").createSignedUrl(path, 300);
+    if (error || !data?.signedUrl) {
+      toast({ title: "เปิดไฟล์ไม่สำเร็จ", description: error?.message, variant: "destructive" });
+      return;
+    }
+    window.open(data.signedUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const exportCsv = () => {
+    const header = ["วันที่ขอ", "สาขา", "ชื่อบัญชี", "ธนาคาร", "เลขบัญชี", "จำนวนเงิน", "สถานะ", "อ้างอิงการจ่าย"];
+    const lines = filtered.map((c) => [
+      new Date(c.created_at).toLocaleDateString("th-TH"),
+      branches[c.branch_id ?? ""] ?? "-",
+      c.account_holder_name,
+      c.bank_name,
+      `="${c.bank_account_no}"`,
+      String(c.amount),
+      STATUS_LABEL[c.status],
+      c.payment_ref ?? "",
+    ]);
+    const csv = "\uFEFF" + [header, ...lines].map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `counseling-payouts-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <Banknote className="h-5 w-5 text-amber-600" />
+            สรุปค่าเดินทางเพื่อส่งฝ่ายบัญชี
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            ค่าเดินทาง 200 บาท/ครั้ง สำหรับผู้ที่ตอบแบบประเมินหลังรับคำปรึกษา
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" onClick={load}>
+            <RefreshCw className="h-3.5 w-3.5 mr-1" />รีเฟรช
+          </Button>
+          <Button size="sm" onClick={exportCsv} className="bg-amber-600 hover:bg-amber-700">
+            <Download className="h-3.5 w-3.5 mr-1" />ส่งออก CSV
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Stat label="รายการที่แสดง" value={totals.count.toLocaleString()} />
+        <Stat label="ยอดรวมที่แสดง" value={baht(totals.amount)} />
+        <Stat label="รออนุมัติ" value={totals.pending.toLocaleString()} />
+        <Stat label="ค้างจ่ายทั้งหมด" value={baht(totals.unpaid)} />
+      </div>
+
+      <Card className="p-3 flex flex-wrap items-center gap-2">
+        {(["pending", "approved", "paid", "rejected", "all"] as const).map((s) => (
+          <Button key={s} size="sm" variant={filter === s ? "default" : "outline"}
+            className="h-8" onClick={() => setFilter(s)}>
+            {s === "all" ? "ทั้งหมด" : STATUS_LABEL[s]}
+          </Button>
+        ))}
+        <div className="flex items-center gap-2 ml-auto">
+          <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="h-8 w-auto text-xs" />
+          <span className="text-xs text-muted-foreground">ถึง</span>
+          <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="h-8 w-auto text-xs" />
+        </div>
+      </Card>
+
+      {loading ? (
+        <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+      ) : filtered.length === 0 ? (
+        <Card className="p-10 text-center text-sm text-muted-foreground">ไม่มีรายการในเงื่อนไขที่เลือก</Card>
+      ) : (
+        <div className="space-y-2">
+          {filtered.map((c) => (
+            <Card key={c.id} className="p-3 space-y-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-semibold text-sm">{c.account_holder_name}</span>
+                <Badge className={`text-[10px] ${STATUS_CLASS[c.status]}`}>{STATUS_LABEL[c.status]}</Badge>
+                <span className="text-xs text-muted-foreground">{branches[c.branch_id ?? ""] ?? "ไม่ระบุสาขา"}</span>
+                <span className="ml-auto font-bold tabular-nums">{baht(c.amount)}</span>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                <Field label="ธนาคาร" value={c.bank_name} />
+                <Field
+                  label="เลขที่บัญชี"
+                  value={
+                    <span className="inline-flex items-center gap-1">
+                      <span className="tabular-nums">
+                        {revealed[c.id] ? c.bank_account_no : maskAccount(c.bank_account_no)}
+                      </span>
+                      <button className="text-muted-foreground hover:text-foreground"
+                        onClick={() => setRevealed((r) => ({ ...r, [c.id]: !r[c.id] }))}
+                        aria-label="แสดง/ซ่อนเลขบัญชี">
+                        <Eye className="h-3 w-3" />
+                      </button>
+                    </span>
+                  }
+                />
+                <Field label="วันที่ขอ" value={new Date(c.created_at).toLocaleString("th-TH")} />
+                <Field label="วันที่จ่าย" value={c.paid_at ? new Date(c.paid_at).toLocaleDateString("th-TH") : "—"} />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {c.id_card_path && (
+                  <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => viewIdCard(c.id_card_path!)}>
+                    <Eye className="h-3 w-3 mr-1" />ดูบัตรประชาชน
+                  </Button>
+                )}
+                {c.status === "pending" && (
+                  <>
+                    <Button size="sm" className="h-7 text-xs bg-sky-600 hover:bg-sky-700"
+                      disabled={busy === c.id} onClick={() => setStatus(c.id, "approved")}>
+                      <Check className="h-3 w-3 mr-1" />อนุมัติ
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-7 text-xs text-rose-600"
+                      disabled={busy === c.id} onClick={() => setStatus(c.id, "rejected")}>
+                      <X className="h-3 w-3 mr-1" />ปฏิเสธ
+                    </Button>
+                  </>
+                )}
+                {c.status === "approved" && (
+                  <Button size="sm" className="h-7 text-xs bg-emerald-600 hover:bg-emerald-700"
+                    disabled={busy === c.id} onClick={() => setStatus(c.id, "paid")}>
+                    <Banknote className="h-3 w-3 mr-1" />ทำเครื่องหมายว่าจ่ายแล้ว
+                  </Button>
+                )}
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      <p className="text-[11px] text-muted-foreground">
+        🔒 เลขบัญชีถูกปิดบังโดยค่าเริ่มต้น รูปบัตรประชาชนเปิดผ่านลิงก์ชั่วคราว 5 นาที และถูกลบอัตโนมัติภายใน 180 วัน
+      </p>
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <Card className="p-3">
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="text-lg font-bold tabular-nums mt-0.5">{value}</div>
+    </Card>
+  );
+}
+
+function Field({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="rounded-md border bg-muted/30 px-2 py-1.5">
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className="font-medium mt-0.5">{value}</div>
+    </div>
+  );
+}
