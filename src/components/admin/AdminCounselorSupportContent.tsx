@@ -12,6 +12,7 @@ import {
   Users, Clock3, CheckCircle2, ArrowRightCircle, Building2, Filter,
   ChevronDown, Sunrise, Sun, Sunset, Calendar, CalendarDays, Footprints,
   QrCode, Copy, Star,
+  Send,
 } from "lucide-react";
 
 import { useLanguage } from "@/lib/i18n";
@@ -1348,6 +1349,28 @@ function PostCounselingSection({
 }) {
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [smsPhone, setSmsPhone] = useState("");
+  const [smsSending, setSmsSending] = useState(false);
+  const [smsSent, setSmsSent] = useState(false);
+
+  const sendSms = async () => {
+    if (!note?.id || smsSending) return;
+    setSmsSending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-post-eval-sms", {
+        body: { note_id: note.id, phone: smsPhone },
+      });
+      if (error || (data as any)?.error) throw new Error((data as any)?.error || error?.message);
+      setSmsSent(true);
+      setSmsPhone("");
+      toast({ title: tx("ส่ง SMS แล้ว", "SMS sent") });
+    } catch (e: any) {
+      toast({ title: tx("ส่ง SMS ไม่สำเร็จ", "Could not send SMS"), description: e?.message, variant: "destructive" });
+    } finally {
+      setSmsSending(false);
+    }
+  };
+
 
   const completedLike = isCompletedLike(statusDraft) || isCompletedLike(note?.status);
   const hasToken = !!note?.post_eval_token;
@@ -1475,10 +1498,44 @@ function PostCounselingSection({
         </Button>
       </div>
 
+      {!submitted && (
+        <div className="rounded-md border bg-background/60 p-2 space-y-2">
+          <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+            {tx("ส่งลิงก์ประเมินทาง SMS (ค่าเดินทาง 200 บาท)", "Send evaluation link by SMS (200 THB allowance)")}
+          </div>
+          <div className="flex gap-2">
+            <Input
+              value={smsPhone}
+              onChange={(e) => setSmsPhone(e.target.value.replace(/[^0-9+\-\s]/g, ""))}
+              placeholder="08xxxxxxxx"
+              inputMode="tel"
+              className="h-8 text-xs"
+              disabled={readOnly || smsSending || smsSent}
+            />
+            <Button
+              size="sm"
+              className="h-8 shrink-0 bg-teal-600 hover:bg-teal-700"
+              disabled={readOnly || smsSending || smsSent || smsPhone.replace(/\D/g, "").length < 9}
+              onClick={sendSms}
+            >
+              {smsSending
+                ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                : <Send className="h-3.5 w-3.5 mr-1" />}
+              {smsSent ? tx("ส่งแล้ว", "Sent") : tx("ส่ง SMS", "Send SMS")}
+            </Button>
+          </div>
+          <p className="text-[10px] text-muted-foreground">
+            {tx("ระบบเก็บเฉพาะเลข 4 ตัวท้ายและค่าแฮชของเบอร์ ไม่เก็บเบอร์เต็ม",
+                "Only the last 4 digits and a hash of the number are stored.")}
+          </p>
+        </div>
+      )}
+
       <p className="text-[11px] text-muted-foreground">
         {tx("🔒 QR จะเปิดในหน้าใหม่ที่ไม่มีข้อมูลผู้รับบริการหรือแดชบอร์ด สามารถหันจอให้ผู้รับบริการสแกนได้อย่างปลอดภัย",
             "🔒 The QR opens in a clean page with no client info or dashboard — safe to show the client for scanning.")}
       </p>
+
 
       {submitted && postEval && (
         <div className="pt-3 border-t space-y-3">
