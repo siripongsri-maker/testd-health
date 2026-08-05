@@ -2488,6 +2488,8 @@ export type Database = {
           branch_id: string | null
           created_at: string
           currency: string
+          duplicate_count: number
+          duplicate_flag: boolean
           evaluation_id: string
           id: string
           id_card_delete_after: string
@@ -2513,6 +2515,8 @@ export type Database = {
           branch_id?: string | null
           created_at?: string
           currency?: string
+          duplicate_count?: number
+          duplicate_flag?: boolean
           evaluation_id: string
           id?: string
           id_card_delete_after?: string
@@ -2538,6 +2542,8 @@ export type Database = {
           branch_id?: string | null
           created_at?: string
           currency?: string
+          duplicate_count?: number
+          duplicate_flag?: boolean
           evaluation_id?: string
           id?: string
           id_card_delete_after?: string
@@ -7627,6 +7633,9 @@ export type Database = {
       }
       post_eval_sms_dispatches: {
         Row: {
+          appointment_id: string | null
+          attempts: number
+          auto_queued: boolean
           branch_id: string | null
           created_at: string
           error_message: string | null
@@ -7635,12 +7644,16 @@ export type Database = {
           phone_hash: string | null
           phone_last4: string | null
           provider_message_id: string | null
+          scheduled_for: string | null
           sent_at: string | null
           sent_by: string | null
           status: string
           updated_at: string
         }
         Insert: {
+          appointment_id?: string | null
+          attempts?: number
+          auto_queued?: boolean
           branch_id?: string | null
           created_at?: string
           error_message?: string | null
@@ -7649,12 +7662,16 @@ export type Database = {
           phone_hash?: string | null
           phone_last4?: string | null
           provider_message_id?: string | null
+          scheduled_for?: string | null
           sent_at?: string | null
           sent_by?: string | null
           status?: string
           updated_at?: string
         }
         Update: {
+          appointment_id?: string | null
+          attempts?: number
+          auto_queued?: boolean
           branch_id?: string | null
           created_at?: string
           error_message?: string | null
@@ -7663,6 +7680,7 @@ export type Database = {
           phone_hash?: string | null
           phone_last4?: string | null
           provider_message_id?: string | null
+          scheduled_for?: string | null
           sent_at?: string | null
           sent_by?: string | null
           status?: string
@@ -11536,9 +11554,14 @@ export type Database = {
         Args: { _token: string }
         Returns: {
           amount: number
+          approved_at: string
+          bank_last4: string
           claim_status: string
           has_claim: boolean
           has_evaluation: boolean
+          paid_at: string
+          rejection_reason: string
+          submitted_at: string
         }[]
       }
       get_post_eval_context: {

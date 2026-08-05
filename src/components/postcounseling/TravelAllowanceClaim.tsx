@@ -53,6 +53,13 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
   const [checking, setChecking] = useState(true);
   const [claimed, setClaimed] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
+  const [claimInfo, setClaimInfo] = useState<{
+    submitted_at?: string | null;
+    approved_at?: string | null;
+    paid_at?: string | null;
+    rejection_reason?: string | null;
+    bank_last4?: string | null;
+  }>({});
   const [open, setOpen] = useState(false);
 
   const [holder, setHolder] = useState("");
@@ -63,14 +70,30 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
   const [consent, setConsent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  const refresh = async () => {
+    const { data } = await supabase.rpc("get_post_eval_claim_status", { _token: token } as any);
+    const row = (data as any[])?.[0];
+    if (row?.has_claim) {
+      setClaimed(true);
+      setStatus(row.claim_status);
+      setClaimInfo({
+        submitted_at: row.submitted_at,
+        approved_at: row.approved_at,
+        paid_at: row.paid_at,
+        rejection_reason: row.rejection_reason,
+        bank_last4: row.bank_last4,
+      });
+    }
+  };
+
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.rpc("get_post_eval_claim_status", { _token: token } as any);
-      const row = (data as any[])?.[0];
-      if (row?.has_claim) { setClaimed(true); setStatus(row.claim_status); }
+      await refresh();
       setChecking(false);
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
+
 
   const pickFile = async (file?: File | null) => {
     if (!file) return;
@@ -116,6 +139,8 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
 
       setClaimed(true);
       setStatus("pending");
+      await refresh();
+
       toast({ title: tx("ส่งคำขอค่าเดินทางแล้ว 🎉", "Travel allowance request submitted 🎉") });
     } catch (e: any) {
       toast({
@@ -131,19 +156,76 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
   if (checking) return null;
 
   if (claimed) {
+    const steps = [
+      {
+        key: "submitted",
+        label: tx("ส่งคำขอแล้ว", "Request submitted"),
+        at: claimInfo.submitted_at,
+        done: true,
+      },
+      {
+        key: "approved",
+        label: status === "rejected" ? tx("ไม่ผ่านการตรวจสอบ", "Not approved") : tx("ตรวจสอบ/อนุมัติ", "Verified & approved"),
+        at: claimInfo.approved_at,
+        done: status === "approved" || status === "paid" || status === "rejected",
+      },
+      {
+        key: "paid",
+        label: tx("โอนเงิน 200 บาท", "200 THB transferred"),
+        at: claimInfo.paid_at,
+        done: status === "paid",
+      },
+    ];
+
     return (
-      <Card className="p-5 rounded-3xl border-2 border-teal-200 text-center space-y-2">
-        <BadgeCheck className="h-8 w-8 text-teal-600 mx-auto" />
-        <p className="font-bold">{tx("ได้รับคำขอค่าเดินทางแล้ว", "Travel allowance request received")}</p>
-        <p className="text-xs text-muted-foreground">
-          {status === "paid"
-            ? tx("โอนเงินเรียบร้อยแล้ว", "Payment completed")
-            : tx("ทีมงานจะตรวจสอบและโอน 200 บาทภายใน 7–14 วันทำการ",
-                 "Our team will verify and transfer 200 THB within 7–14 business days")}
-        </p>
+      <Card className="p-5 rounded-3xl border-2 border-teal-200 space-y-3">
+        <div className="text-center space-y-1">
+          <BadgeCheck className="h-8 w-8 text-teal-600 mx-auto" />
+          <p className="font-bold">{tx("สถานะคำขอค่าเดินทาง", "Travel allowance status")}</p>
+          {claimInfo.bank_last4 && (
+            <p className="text-xs text-muted-foreground">
+              {tx("บัญชีลงท้าย", "Account ending")} •••{claimInfo.bank_last4}
+            </p>
+          )}
+        </div>
+
+        <ol className="space-y-2">
+          {steps.map((s) => (
+            <li key={s.key} className="flex items-start gap-2 text-sm">
+              <span className={`mt-1 h-2.5 w-2.5 rounded-full shrink-0 ${s.done ? (s.key === "approved" && status === "rejected" ? "bg-rose-500" : "bg-teal-500") : "bg-muted-foreground/30"}`} />
+              <div>
+                <p className={s.done ? "font-medium" : "text-muted-foreground"}>{s.label}</p>
+                {s.at && (
+                  <p className="text-[11px] text-muted-foreground">
+                    {new Date(s.at).toLocaleString(language === "th" ? "th-TH" : "en-GB")}
+                  </p>
+                )}
+              </div>
+            </li>
+          ))}
+        </ol>
+
+        {status === "rejected" ? (
+          <p className="text-xs text-rose-600">
+            {claimInfo.rejection_reason ||
+              tx("กรุณาติดต่อเจ้าหน้าที่เพื่อตรวจสอบข้อมูลบัญชีอีกครั้ง", "Please contact staff to review your bank details.")}
+          </p>
+        ) : status === "paid" ? (
+          <p className="text-xs text-teal-700 dark:text-teal-300">{tx("โอนเงินเรียบร้อยแล้ว ขอบคุณครับ/ค่ะ", "Payment completed. Thank you!")}</p>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            {tx("ทีมงานจะตรวจสอบและโอน 200 บาทภายใน 7–14 วันทำการ",
+                "Our team will verify and transfer 200 THB within 7–14 business days")}
+          </p>
+        )}
+
+        <Button variant="outline" className="w-full h-9 rounded-full text-xs" onClick={refresh}>
+          {tx("รีเฟรชสถานะ", "Refresh status")}
+        </Button>
       </Card>
     );
   }
+
 
   if (!open) {
     return (
