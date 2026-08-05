@@ -4,8 +4,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Loader2, Download, Banknote, Check, X, Eye, RefreshCw } from "lucide-react";
+import { Loader2, Download, Banknote, Check, X, Eye, RefreshCw, AlertTriangle, Layers } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import PostEvalSmsQueueCard from "./PostEvalSmsQueueCard";
 
 type ClaimStatus = "pending" | "approved" | "paid" | "rejected";
 
@@ -21,7 +22,23 @@ interface Claim {
   payment_ref: string | null;
   created_at: string;
   paid_at: string | null;
+  duplicate_flag: boolean | null;
+  duplicate_count: number | null;
+  batch_id: string | null;
 }
+
+interface Batch {
+  id: string;
+  batch_code: string;
+  period_from: string;
+  period_to: string;
+  status: string;
+  claim_count: number;
+  total_amount: number;
+  paid_at: string | null;
+  created_at: string;
+}
+
 
 const STATUS_LABEL: Record<ClaimStatus, string> = {
   pending: "รออนุมัติ",
@@ -48,6 +65,7 @@ const baht = (n: number) => `฿${Number(n || 0).toLocaleString("th-TH", { minim
 
 export default function AdminCounselingPayoutsContent() {
   const [claims, setClaims] = useState<Claim[]>([]);
+  const [batches, setBatches] = useState<Batch[]>([]);
   const [branches, setBranches] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<ClaimStatus | "all">("pending");
@@ -58,18 +76,25 @@ export default function AdminCounselingPayoutsContent() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [{ data: rows }, { data: brs }] = await Promise.all([
+    const [{ data: rows }, { data: brs }, { data: bts }] = await Promise.all([
       supabase
         .from("counseling_payout_claims")
-        .select("id, branch_id, amount, account_holder_name, bank_name, bank_account_no, id_card_path, status, payment_ref, created_at, paid_at")
+        .select("id, branch_id, amount, account_holder_name, bank_name, bank_account_no, id_card_path, status, payment_ref, created_at, paid_at, duplicate_flag, duplicate_count, batch_id")
         .order("created_at", { ascending: false })
         .limit(1000),
       supabase.from("booking_branches").select("id, name_th"),
+      supabase
+        .from("counseling_payout_batches")
+        .select("id, batch_code, period_from, period_to, status, claim_count, total_amount, paid_at, created_at")
+        .order("created_at", { ascending: false })
+        .limit(20),
     ]);
     setClaims((rows as Claim[]) ?? []);
+    setBatches((bts as Batch[]) ?? []);
     setBranches(Object.fromEntries(((brs as any[]) ?? []).map((b) => [b.id, b.name_th])));
     setLoading(false);
   }, []);
+
 
   useEffect(() => { load(); }, [load]);
 
@@ -141,6 +166,64 @@ export default function AdminCounselingPayoutsContent() {
     URL.revokeObjectURL(url);
   };
 
+  /** Group every approved, unbatched claim into a new payout round for finance. */
+  const createBatch = async () => {
+    const eligible = claims.filter((c) => c.status === "approved" && !c.batch_id);
+    if (eligible.length === 0) {
+      toast({ title: "ไม่มีรายการที่อนุมัติแล้วรอจัดรอบจ่าย" });
+      return;
+    }
+    setBusy("batch");
+    const dates = eligible.map((c) => c.created_at.slice(0, 10)).sort();
+    const code = `PAY-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${String(batches.length + 1).padStart(2, "0")}`;
+    const { data: batch, error } = await supabase
+      .from("counseling_payout_batches")
+      .insert({
+        batch_code: code,
+        period_from: dates[0],
+        period_to: dates[dates.length - 1],
+        status: "submitted",
+        claim_count: eligible.length,
+        total_amount: eligible.reduce((s, c) => s + Number(c.amount), 0),
+        submitted_at: new Date().toISOString(),
+      })
+      .select("id")
+      .single();
+    if (error || !batch) {
+      setBusy(null);
+      toast({ title: "สร้างรอบจ่ายไม่สำเร็จ", description: error?.message, variant: "destructive" });
+      return;
+    }
+    await supabase.from("counseling_payout_claims")
+      .update({ batch_id: batch.id })
+      .in("id", eligible.map((c) => c.id));
+    setBusy(null);
+    toast({ title: `สร้างรอบจ่าย ${code} แล้ว`, description: `${eligible.length} รายการ` });
+    load();
+  };
+
+  /** Mark an entire round as paid (claims + batch). */
+  const payBatch = async (batch: Batch) => {
+    setBusy(batch.id);
+    const now = new Date().toISOString();
+    await supabase.from("counseling_payout_claims")
+      .update({ status: "paid", paid_at: now, payment_ref: batch.batch_code })
+      .eq("batch_id", batch.id)
+      .neq("status", "rejected");
+    const { error } = await supabase.from("counseling_payout_batches")
+      .update({ status: "paid", paid_at: now })
+      .eq("id", batch.id);
+    setBusy(null);
+    if (error) {
+      toast({ title: "อัปเดตรอบจ่ายไม่สำเร็จ", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: `รอบ ${batch.batch_code} จ่ายเรียบร้อย` });
+    load();
+  };
+
+
+
   return (
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-3 flex-wrap">
@@ -169,6 +252,47 @@ export default function AdminCounselingPayoutsContent() {
         <Stat label="รออนุมัติ" value={totals.pending.toLocaleString()} />
         <Stat label="ค้างจ่ายทั้งหมด" value={baht(totals.unpaid)} />
       </div>
+
+      <PostEvalSmsQueueCard />
+
+      <Card className="p-4 space-y-3">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Layers className="h-4 w-4 text-amber-600" />
+          <span className="font-semibold text-sm">รอบจ่ายเงิน (ส่งฝ่ายบัญชี)</span>
+          <Button size="sm" className="ml-auto h-7 text-xs bg-amber-600 hover:bg-amber-700"
+            disabled={busy === "batch"} onClick={createBatch}>
+            {busy === "batch" ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Layers className="h-3 w-3 mr-1" />}
+            สร้างรอบจ่ายจากรายการที่อนุมัติแล้ว
+          </Button>
+        </div>
+        {batches.length === 0 ? (
+          <p className="text-xs text-muted-foreground">ยังไม่มีรอบจ่าย</p>
+        ) : (
+          <div className="space-y-1.5">
+            {batches.map((b) => (
+              <div key={b.id} className="flex items-center gap-2 text-xs rounded-md border bg-muted/30 px-2 py-1.5 flex-wrap">
+                <span className="font-semibold">{b.batch_code}</span>
+                <Badge className={`text-[10px] ${b.status === "paid" ? STATUS_CLASS.paid : STATUS_CLASS.approved}`}>
+                  {b.status === "paid" ? "จ่ายแล้ว" : "รอจ่าย"}
+                </Badge>
+                <span className="text-muted-foreground">
+                  {new Date(b.period_from).toLocaleDateString("th-TH")} – {new Date(b.period_to).toLocaleDateString("th-TH")}
+                </span>
+                <span className="text-muted-foreground">{b.claim_count} รายการ</span>
+                <span className="ml-auto font-bold tabular-nums">{baht(Number(b.total_amount))}</span>
+                {b.status !== "paid" && (
+                  <Button size="sm" className="h-6 text-[11px] bg-emerald-600 hover:bg-emerald-700"
+                    disabled={busy === b.id} onClick={() => payBatch(b)}>
+                    ทำเครื่องหมายจ่ายทั้งรอบ
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
+
+
 
       <Card className="p-3 flex flex-wrap items-center gap-2">
         {(["pending", "approved", "paid", "rejected", "all"] as const).map((s) => (
