@@ -71,6 +71,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "front-desk", icon: ClipboardList, labelKey: "admin.frontDesk", meAnalyst: true },
       { tab: "counselor-support", icon: HeartHandshake, labelKey: "admin.counselorSupport", meAnalyst: true },
       { tab: "daily-branch-brief", icon: ClipboardList, labelKey: "admin.dailyBranchBrief", meAnalyst: true },
+      { tab: "counseling-payouts", icon: ClipboardList, labelKey: "admin.counselingPayouts", adminOnly: true },
       { tab: "client-crm", icon: Users, labelKey: "admin.clientCRM", adminOnly: true },
       { tab: "service-pathways", icon: HeartHandshake, labelKey: "admin.servicePathways", adminOnly: true, meAnalyst: true },
       { tab: "clinic-settings", icon: Stethoscope, labelKey: "admin.clinicSettings", adminOnly: true },
