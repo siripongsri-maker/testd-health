@@ -67,6 +67,7 @@ const AdminSelftestMapContent = lazy(() => import("@/components/admin/AdminSelft
 const AdminSelftestMissingIdContent = lazy(() => import("@/components/admin/AdminSelftestMissingIdContent"));
 const AdminPreServiceSurveysContent = lazy(() => import("@/components/admin/AdminPreServiceHubContent"));
 const AdminCounselorSupportContent = lazy(() => import("@/components/admin/AdminCounselorSupportContent"));
+const AdminDailyBranchBriefContent = lazy(() => import("@/components/admin/AdminDailyBranchBriefContent"));
 
 // MEL modules
 const MelServiceLedgerContent = lazy(() => import("@/components/admin/mel/MelServiceLedgerContent"));
@@ -87,7 +88,7 @@ const TabLoader = () => (
 );
 
 // Tabs accessible by moderators (branch staff)
-const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "selftest-results", "selftest-followup", "selftest-map", "selftest-missing-id", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk", "counselor-support"]);
+const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "selftest-results", "selftest-followup", "selftest-map", "selftest-missing-id", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk", "counselor-support", "daily-branch-brief"]);
 
 // Tabs accessible by M&E Analyst (read-only analytics/reporting)
 const ME_ANALYST_TABS = new Set([
@@ -99,7 +100,7 @@ const ME_ANALYST_TABS = new Set([
   // SMS & Credits (read-only)
   "sms-relay", "credit-balances", "credit-purchases",
   // Reports
-  "analytics", "analytics-overview", "export-center", "attribution", "feedback-outcomes", "pre-service-surveys", "counselor-support",
+  "analytics", "analytics-overview", "export-center", "attribution", "feedback-outcomes", "pre-service-surveys", "counselor-support", "daily-branch-brief",
   // MEL
   "mel-services", "mel-indicators", "mel-outreach", "mel-training",
   "mel-safe-spaces", "mel-partners", "mel-policy", "mel-evaluation", "mel-reporting",
@@ -133,7 +134,7 @@ export default function Admin() {
   useEffect(() => {
     if (loading) return;
     // Counselors are locked to the counselor-support tab
-    if (isCounselor && searchParams.get("tab") !== "counselor-support") {
+    if (isCounselor && !["counselor-support", "daily-branch-brief"].includes(searchParams.get("tab") || "")) {
       setSearchParams({ tab: "counselor-support" });
       return;
     }
@@ -153,7 +154,7 @@ export default function Admin() {
 
   const canAccess = (tab: string) => {
     if (isAdmin) return true;
-    if (isCounselor) return tab === "counselor-support";
+    if (isCounselor) return tab === "counselor-support" || tab === "daily-branch-brief";
     if (isMeAnalyst) return ME_ANALYST_TABS.has(tab);
     if (isModerator) return MODERATOR_TABS.has(tab);
     return false;
@@ -236,6 +237,7 @@ export default function Admin() {
           {renderTab("feedback-outcomes", <AdminFeedbackOutcomesContent />)}
           {renderTab("pre-service-surveys", <AdminPreServiceSurveysContent />)}
           {renderTab("counselor-support", <AdminCounselorSupportContent />)}
+          {renderTab("daily-branch-brief", <AdminDailyBranchBriefContent />)}
           {renderTab("export-center", <AdminExportCenterContent />)}
           {renderTab("activity-logs", <AdminActivityLogsContent />)}
 

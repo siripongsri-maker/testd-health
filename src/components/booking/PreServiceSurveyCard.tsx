@@ -39,6 +39,15 @@ const BEHAVIOR_LABELS: Record<(typeof BEHAVIOR_KEYS)[number], [string, string]> 
   b_help: ["ขอความช่วยเหลือเมื่อจำเป็น", "Ask for help when needed"],
 };
 
+const HELP_TOPICS = [
+  { v: "mental_health", th: "สุขภาพจิต", en: "Mental health" },
+  { v: "violence", th: "ความรุนแรง / ความปลอดภัย", en: "Violence / safety" },
+  { v: "substance_use", th: "การใช้สาร", en: "Substance use" },
+  { v: "access_to_care", th: "สิทธิการเข้ารักษา", en: "Access to care" },
+  { v: "legal", th: "กฎหมาย", en: "Legal" },
+  { v: "financial", th: "การเงิน", en: "Financial" },
+] as const;
+
 export function PreServiceSurveyCard({ bookingId, channel, uicCode }: Props) {
   const { language } = useLanguage();
   const [open, setOpen] = useState(false);
@@ -53,6 +62,10 @@ export function PreServiceSurveyCard({ bookingId, channel, uicCode }: Props) {
   const [recommend, setRecommend] = useState<string>("");
   const [mhInterest, setMhInterest] = useState<string>("");
   const [suggestions, setSuggestions] = useState("");
+  const [helpTopics, setHelpTopics] = useState<string[]>([]);
+
+  const toggleTopic = (v: string) =>
+    setHelpTopics((prev) => (prev.includes(v) ? prev.filter((x) => x !== v) : [...prev, v]));
 
   const canSubmit =
     KNOWLEDGE_KEYS.every((k) => knowledge[k]) &&
@@ -78,6 +91,7 @@ export function PreServiceSurveyCard({ bookingId, channel, uicCode }: Props) {
         recommend,
         mental_health_interest: mhInterest,
         suggestions: suggestions.trim() || null,
+        help_topics: helpTopics,
       });
       if (error) {
         // Duplicate = already submitted, treat as done
@@ -274,8 +288,25 @@ export function PreServiceSurveyCard({ bookingId, channel, uicCode }: Props) {
         </div>
       </Section>
 
+      {/* Help topics */}
+      <Section
+        title={tx(
+          "5. มีประเด็นไหนที่อยากให้ช่วยไหม (เลือกได้หลายข้อ / ไม่บังคับ)",
+          "5. Anything you'd like help with? (multi-select / optional)",
+          language,
+        )}
+      >
+        <div className="flex flex-wrap gap-2">
+          {HELP_TOPICS.map((t) => (
+            <PillButton key={t.v} active={helpTopics.includes(t.v)} onClick={() => toggleTopic(t.v)}>
+              {tx(t.th, t.en, language)}
+            </PillButton>
+          ))}
+        </div>
+      </Section>
+
       {/* Suggestions */}
-      <Section title={tx("5. มีอะไรอยากให้ทีมรู้ไหม (ไม่บังคับ)", "5. Anything to share? (optional)", language)}>
+      <Section title={tx("6. มีอะไรอยากให้ทีมรู้ไหม (ไม่บังคับ)", "6. Anything to share? (optional)", language)}>
         <Textarea
           value={suggestions}
           onChange={(e) => setSuggestions(e.target.value)}
