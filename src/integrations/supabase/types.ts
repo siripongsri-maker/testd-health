@@ -396,6 +396,7 @@ export type Database = {
           channel: string | null
           confidence: number | null
           created_at: string
+          help_topics: string[]
           id: string
           knowledge: Json | null
           language: string | null
@@ -415,6 +416,7 @@ export type Database = {
           channel?: string | null
           confidence?: number | null
           created_at?: string
+          help_topics?: string[]
           id?: string
           knowledge?: Json | null
           language?: string | null
@@ -434,6 +436,7 @@ export type Database = {
           channel?: string | null
           confidence?: number | null
           created_at?: string
+          help_topics?: string[]
           id?: string
           knowledge?: Json | null
           language?: string | null
@@ -10726,6 +10729,7 @@ export type Database = {
           channel: string | null
           confidence: number | null
           created_at: string | null
+          help_topics: string[] | null
           id: string | null
           is_anonymous: boolean | null
           knowledge: Json | null
@@ -11154,6 +11158,28 @@ export type Database = {
       get_client_hr_context: {
         Args: { _client_id: string; _reason?: string }
         Returns: Json
+      }
+      get_daily_branch_brief: {
+        Args: { p_branch_ids?: string[]; p_date?: string }
+        Returns: {
+          assigned_counselor_id: string
+          branch_id: string
+          case_code: string
+          case_id: string
+          derived_topics: string[]
+          help_topics: string[]
+          hours_open: number
+          is_anonymous: boolean
+          main_concern: string
+          prep_note: string
+          risk_level: string
+          sla_breached: boolean
+          sla_hours: number
+          status: string
+          submitted_at: string
+          survey_id: string
+          visit_type: string
+        }[]
       }
       get_daily_cap_status: {
         Args: { p_branch_id: string; p_date: string }
