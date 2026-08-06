@@ -762,6 +762,14 @@ export default function MyAppointments() {
         serviceSlug={medServiceSlug}
         serviceName={medServiceName}
       />
+
+      <RescheduleSuggestDialog
+        open={!!rescheduleBranch}
+        onOpenChange={(v) => { if (!v) setRescheduleBranch(null); }}
+        branchId={rescheduleBranch?.id}
+        branchSlug={rescheduleBranch?.slug}
+      />
+
     </>
   );
 }
