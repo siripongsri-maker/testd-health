@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SEOHead } from "@/components/seo/SEOHead";
+import { ConnectStatusCheck } from "@/components/mcp/ConnectStatusCheck";
+
 
 const PROJECT_REF = import.meta.env.VITE_SUPABASE_PROJECT_ID as string;
 const MCP_URL = `https://${PROJECT_REF}.supabase.co/functions/v1/mcp`;
@@ -72,6 +74,11 @@ export default function ConnectAgent() {
             <CopyButton value={MCP_URL} label="คัดลอกลิงก์เซิร์ฟเวอร์" />
           </CardContent>
         </Card>
+
+        <ConnectStatusCheck mcpUrl={MCP_URL} />
+
+
+
 
         <section className="space-y-4">
           <h2 className="text-xl font-semibold">ขั้นตอนการเชื่อมต่อ</h2>
