@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
 import { SEOHead } from "@/components/seo/SEOHead";
+import { usePageLocale } from "@/components/seo/LocaleRouter";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/lib/i18n";
 import { ArrowLeft, Loader2, Search } from "lucide-react";
@@ -21,6 +22,7 @@ import { cn } from "@/lib/utils";
 export default function InfoCategory() {
   const { slug = "" } = useParams();
   const { language } = useLanguage();
+  const pageLocale = usePageLocale();
   const navigate = useNavigate();
   const isTh = language === "th";
   const [categories, setCategories] = useState<BlogCategory[]>([]);
@@ -85,8 +87,8 @@ export default function InfoCategory() {
             ? `รวมบทความหมวด ${name} จาก testD ความรู้สุขภาพทางเพศและการลดอันตรายที่เชื่อถือได้`
             : `All ${name} articles from testD — trusted sexual health and harm reduction knowledge.`)
         }
-        canonicalPath={localePath(`/info/category/${slug}`, language)}
-        lang={language}
+        canonicalPath={localePath(`/info/category/${slug}`, pageLocale)}
+        lang={pageLocale}
         jsonLd={jsonLd}
       />
       <PageContainer>
