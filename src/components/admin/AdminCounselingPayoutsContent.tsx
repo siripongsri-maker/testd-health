@@ -184,7 +184,7 @@ export default function AdminCounselingPayoutsContent() {
   };
 
   const exportCsv = () => {
-    const header = ["วันที่ขอ", "สาขา", "ชื่อบัญชี", "ธนาคาร", "เลขบัญชี", "จำนวนเงิน", "สถานะ", "อ้างอิงการจ่าย"];
+    const header = ["วันที่ขอ", "สาขา", "ชื่อบัญชี", "ธนาคาร", "เลขบัญชี", "จำนวนเงิน", "สถานะ", "อ้างอิงการจ่าย", "เบอร์ (4 ตัวท้าย)", "ยืนยันผู้รับบริการ"];
     const lines = filtered.map((c) => [
       new Date(c.created_at).toLocaleDateString("th-TH"),
       branches[c.branch_id ?? ""] ?? "-",
@@ -194,7 +194,10 @@ export default function AdminCounselingPayoutsContent() {
       String(c.amount),
       STATUS_LABEL[c.status],
       c.payment_ref ?? "",
+      c.phone_last4 ?? "",
+      isRealClient(c) ? "ยืนยันแล้ว" : "ยังไม่ยืนยัน",
     ]);
+
     const csv = "\uFEFF" + [header, ...lines].map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
     const a = document.createElement("a");
@@ -206,11 +209,12 @@ export default function AdminCounselingPayoutsContent() {
 
   /** Group every approved, unbatched claim into a new payout round for finance. */
   const createBatch = async () => {
-    const eligible = claims.filter((c) => c.status === "approved" && !c.batch_id);
+    const eligible = claims.filter((c) => c.status === "approved" && !c.batch_id && isRealClient(c));
     if (eligible.length === 0) {
-      toast({ title: "ไม่มีรายการที่อนุมัติแล้วรอจัดรอบจ่าย" });
+      toast({ title: "ไม่มีรายการที่ยืนยันผู้รับบริการจริงและอนุมัติแล้วรอจัดรอบจ่าย" });
       return;
     }
+
     setBusy("batch");
     const dates = eligible.map((c) => c.created_at.slice(0, 10)).sort();
     const code = `PAY-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${String(batches.length + 1).padStart(2, "0")}`;
