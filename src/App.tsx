@@ -99,6 +99,7 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const YouthHivSurvey = lazy(() => import("./pages/YouthHivSurvey"));
 const MyRewards = lazy(() => import("./pages/MyRewards"));
+const ConnectAgent = lazy(() => import("./pages/ConnectAgent"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -150,6 +151,7 @@ function AppShell() {
               <Route path="/pep" element={<PEPEmergency />} />
               
               <Route path="/progress" element={<Progress />} />
+              <Route path="/connect" element={<ConnectAgent />} />
               <Route path="/info" element={<Info />} />
               <Route path="/info/categories" element={<InfoCategories />} />
               <Route path="/info/category/:slug" element={<InfoCategory />} />
