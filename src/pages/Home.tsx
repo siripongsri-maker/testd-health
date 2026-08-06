@@ -232,7 +232,14 @@ export default function Home() {
               loading="lazy"
             />
           </div>
+          <Link
+            to="/connect"
+            className="inline-block text-[10px] text-muted-foreground/70 underline underline-offset-2"
+          >
+            เชื่อมต่อผู้ช่วย AI (MCP)
+          </Link>
         </footer>
+
       </main>
 
       {/* Rainbow bar */}
