@@ -104,16 +104,24 @@ export default function MyAppointments() {
     setCancellingId(appointmentId);
     try {
       await updateAppointmentStatusRPC(appointmentId, 'cancelled', 'Cancelled by user');
+      const cancelled = appointments.find(a => a.id === appointmentId);
       setAppointments(prev =>
         prev.map(a => a.id === appointmentId ? { ...a, status: 'cancelled', cancelled_at: new Date().toISOString() } : a)
       );
       toast.success(language === 'th' ? 'ยกเลิกนัดหมายแล้ว' : 'Appointment cancelled');
+      if (cancelled) {
+        setRescheduleBranch({
+          id: cancelled.branch_id,
+          slug: cancelled.booking_branches?.slug || null,
+        });
+      }
     } catch {
       toast.error(language === 'th' ? 'เกิดข้อผิดพลาด' : 'Something went wrong');
     } finally {
       setCancellingId(null);
     }
   };
+
 
   const handleCheckin = async (appointmentId: string) => {
     setCheckinLoadingId(appointmentId);
@@ -195,8 +203,9 @@ export default function MyAppointments() {
     }
   };
 
-  const upcoming = appointments.filter(a => ACTIVE_STATUSES.has(a.status));
-  const past = appointments.filter(a => !ACTIVE_STATUSES.has(a.status));
+  const upcoming = appointments.filter(a => ACTIVE_STATUSES.has(normalizeStatus(a.status)));
+  const past = appointments.filter(a => !ACTIVE_STATUSES.has(normalizeStatus(a.status)));
+
 
   if (authLoading || loading) {
     return (
