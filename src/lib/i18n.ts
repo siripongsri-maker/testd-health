@@ -1064,7 +1064,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.blog': 'Blog',
     'admin.seoArticles': 'SEO Articles',
     'admin.seoHealth': 'SEO Health Check',
-    'admin.jsonLdCheck': 'JSON-LD Check',
+    'admin.jsonLdCheck': 'ตรวจ JSON-LD',
     'admin.surveys': 'Surveys',
     'admin.operations': 'Operations',
     'admin.kitOrders': 'Kit Orders',
