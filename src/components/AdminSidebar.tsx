@@ -125,6 +125,7 @@ const menuGroups: MenuGroup[] = [
     items: [
       { tab: "blog", icon: FileText, labelKey: "admin.blog", adminOnly: true },
       { tab: "seo-articles", icon: Sparkles, labelKey: "admin.seoArticles", adminOnly: true },
+      { tab: "seo-health", icon: Activity, labelKey: "admin.seoHealth", adminOnly: true },
       { tab: "surveys", icon: ClipboardList, labelKey: "admin.surveys", adminOnly: true },
       { tab: "youth-survey", icon: ClipboardList, labelKey: "admin.youthSurvey", adminOnly: true, meAnalyst: true },
       { tab: "virtual-stories", icon: Play, labelKey: "admin.virtualStories", adminOnly: true, meAnalyst: true },
