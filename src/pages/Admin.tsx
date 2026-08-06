@@ -36,6 +36,7 @@ const AdminExportCenterContent = lazy(() => import("@/components/admin/AdminExpo
 const AdminDiagnosticsContent = lazy(() => import("@/components/admin/AdminDiagnosticsContent"));
 const AdminSystemHealthContent = lazy(() => import("@/components/admin/AdminSystemHealthContent"));
 const AdminRouteHealthContent = lazy(() => import("@/components/admin/AdminRouteHealthContent"));
+const AdminGlyphQaContent = lazy(() => import("@/components/admin/AdminGlyphQaContent"));
 const AdminMilestonesContent = lazy(() => import("@/components/admin/AdminMilestonesContent"));
 const AdminUserChatsContent = lazy(() => import("@/components/admin/AdminUserChatsContent"));
 const AdminIPDocsContent = lazy(() => import("@/components/admin/AdminIPDocsContent"));
@@ -249,6 +250,7 @@ export default function Admin() {
           {renderTab("app-updates", <AdminAppUpdatesContent />)}
           {renderTab("system-health", <AdminSystemHealthContent />)}
           {renderTab("route-health", <AdminRouteHealthContent />)}
+          {renderTab("glyph-qa", <AdminGlyphQaContent />)}
           {renderTab("ip-docs", <AdminIPDocsContent />)}
           {renderTab("harm-reduction", <AdminHarmReductionContent />)}
           {renderTab("safety-planner", <AdminSafetyPlannerContent />)}
