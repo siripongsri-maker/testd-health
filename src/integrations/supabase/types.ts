@@ -2542,6 +2542,7 @@ export type Database = {
         Row: {
           account_holder_name: string
           amount: number
+          appointment_id: string | null
           approved_at: string | null
           approved_by: string | null
           bank_account_hash: string | null
@@ -2549,6 +2550,7 @@ export type Database = {
           bank_name: string
           batch_id: string | null
           branch_id: string | null
+          claim_seq: number | null
           created_at: string
           currency: string
           duplicate_count: number
@@ -2562,6 +2564,8 @@ export type Database = {
           paid_at: string | null
           paid_by: string | null
           payment_ref: string | null
+          phone_hash: string | null
+          phone_last4: string | null
           rejection_reason: string | null
           status: string
           updated_at: string
@@ -2569,6 +2573,7 @@ export type Database = {
         Insert: {
           account_holder_name: string
           amount?: number
+          appointment_id?: string | null
           approved_at?: string | null
           approved_by?: string | null
           bank_account_hash?: string | null
@@ -2576,6 +2581,7 @@ export type Database = {
           bank_name: string
           batch_id?: string | null
           branch_id?: string | null
+          claim_seq?: number | null
           created_at?: string
           currency?: string
           duplicate_count?: number
@@ -2589,6 +2595,8 @@ export type Database = {
           paid_at?: string | null
           paid_by?: string | null
           payment_ref?: string | null
+          phone_hash?: string | null
+          phone_last4?: string | null
           rejection_reason?: string | null
           status?: string
           updated_at?: string
@@ -2596,6 +2604,7 @@ export type Database = {
         Update: {
           account_holder_name?: string
           amount?: number
+          appointment_id?: string | null
           approved_at?: string | null
           approved_by?: string | null
           bank_account_hash?: string | null
@@ -2603,6 +2612,7 @@ export type Database = {
           bank_name?: string
           batch_id?: string | null
           branch_id?: string | null
+          claim_seq?: number | null
           created_at?: string
           currency?: string
           duplicate_count?: number
@@ -2616,6 +2626,8 @@ export type Database = {
           paid_at?: string | null
           paid_by?: string | null
           payment_ref?: string | null
+          phone_hash?: string | null
+          phone_last4?: string | null
           rejection_reason?: string | null
           status?: string
           updated_at?: string
@@ -2643,6 +2655,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      counseling_payout_settings: {
+        Row: {
+          amount: number
+          created_at: string
+          id: boolean
+          max_claims: number
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: boolean
+          max_claims?: number
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: boolean
+          max_claims?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       counseling_sessions: {
         Row: {
@@ -11613,16 +11649,30 @@ export type Database = {
           session_id: string
         }[]
       }
+      get_post_eval_booking: {
+        Args: { _note_id: string }
+        Returns: {
+          appointment_id: string
+          attended: boolean
+          contact_phone: string
+        }[]
+      }
       get_post_eval_claim_status: {
         Args: { _token: string }
         Returns: {
           amount: number
           approved_at: string
+          attendance_verified: boolean
           bank_last4: string
           claim_status: string
           has_claim: boolean
           has_evaluation: boolean
           paid_at: string
+          phone_already_claimed: boolean
+          phone_last4: string
+          quota_limit: number
+          quota_remaining: number
+          quota_used: number
           rejection_reason: string
           submitted_at: string
         }[]
