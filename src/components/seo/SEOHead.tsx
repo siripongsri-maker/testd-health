@@ -71,8 +71,13 @@ export function SEOHead({
     setMeta("property", "og:description", description);
     setMeta("property", "og:type", ogType);
     setMeta("property", "og:image", ogImage || DEFAULT_OG_IMAGE);
-    if (canonicalPath) {
-      setMeta("property", "og:url", `${BASE_URL}${canonicalPath}`);
+    const selfPath = canonicalPath
+      ? (isSeoPath(canonicalPath)
+          ? canonicalPathFor(canonicalPath, lang === "en" ? "en" : "th")
+          : canonicalPath)
+      : null;
+    if (selfPath) {
+      setMeta("property", "og:url", `${BASE_URL}${selfPath}`);
     }
     setMeta("property", "og:locale", lang === "th" ? "th_TH" : "en_US");
 
@@ -82,18 +87,15 @@ export function SEOHead({
     setMeta("name", "twitter:image", ogImage || DEFAULT_OG_IMAGE);
     setMeta("name", "twitter:card", "summary_large_image");
 
-    // Canonical link — for SEO routes, use the locale-prefixed canonical.
-    if (canonicalPath) {
-      const canonicalHref = isSeoPath(canonicalPath)
-        ? canonicalPathFor(canonicalPath)
-        : canonicalPath;
+    // Canonical link — self-referencing, locale-prefixed for SEO routes.
+    if (selfPath) {
       let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
       if (!link) {
         link = document.createElement("link");
         link.setAttribute("rel", "canonical");
         document.head.appendChild(link);
       }
-      link.setAttribute("href", `${BASE_URL}${canonicalHref}`);
+      link.setAttribute("href", `${BASE_URL}${selfPath}`);
     }
 
     // hreflang alternates. If caller didn't pass any but it's a SEO route,
