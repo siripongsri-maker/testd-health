@@ -45,10 +45,25 @@ const STATE_ICON: Record<CheckState, JSX.Element> = {
   fail: <XCircle className="h-4 w-4 text-destructive" />,
 };
 
-export function ConnectStatusCheck({ mcpUrl }: { mcpUrl: string }) {
+export type ConnectCheckStatus = "pass" | "warn" | "fail";
+
+export function ConnectStatusCheck({
+  mcpUrl,
+  autoRun = true,
+  onResult,
+  lastCheck,
+}: {
+  mcpUrl: string;
+  autoRun?: boolean;
+  onResult?: (status: ConnectCheckStatus) => void;
+  lastCheck?: { status: ConnectCheckStatus; at: string } | null;
+}) {
   const [checks, setChecks] = useState<CheckResult[]>([]);
   const [running, setRunning] = useState(false);
   const [ranAt, setRanAt] = useState<Date | null>(null);
+  const onResultRef = useRef(onResult);
+  onResultRef.current = onResult;
+
   const mounted = useRef(true);
 
   useEffect(() => {
