@@ -1847,6 +1847,69 @@ export type Database = {
         }
         Relationships: []
       }
+      client_status_notifications: {
+        Row: {
+          appointment_id: string | null
+          attempts: number
+          branch_id: string | null
+          channel: string
+          claim_id: string | null
+          created_at: string
+          error_message: string | null
+          event_type: string
+          id: string
+          message: string
+          note_id: string | null
+          phone_hash: string | null
+          phone_last4: string | null
+          provider_message_id: string | null
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          appointment_id?: string | null
+          attempts?: number
+          branch_id?: string | null
+          channel?: string
+          claim_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          event_type: string
+          id?: string
+          message: string
+          note_id?: string | null
+          phone_hash?: string | null
+          phone_last4?: string | null
+          provider_message_id?: string | null
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          appointment_id?: string | null
+          attempts?: number
+          branch_id?: string | null
+          channel?: string
+          claim_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          message?: string
+          note_id?: string | null
+          phone_hash?: string | null
+          phone_last4?: string | null
+          provider_message_id?: string | null
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       client_visit_flow_steps: {
         Row: {
           assigned_staff_id: string | null
@@ -11871,6 +11934,7 @@ export type Database = {
         Returns: number
       }
       normalize_text_for_fp: { Args: { input: string }; Returns: string }
+      note_appointment_id: { Args: { _note_id: string }; Returns: string }
       pre_service_can_analyze: { Args: never; Returns: boolean }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
