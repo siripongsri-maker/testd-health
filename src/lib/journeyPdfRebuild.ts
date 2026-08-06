@@ -85,7 +85,10 @@ function buildCoverElement(opts: {
 
   el.innerHTML = `
     <div style="border-bottom:4px solid #c0275e;padding-bottom:20px;margin-bottom:32px;">
-      <div style="font-size:20px;color:#c0275e;font-weight:700;letter-spacing:1px;">testD × SWING</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:20px;color:#c0275e;font-weight:700;letter-spacing:1px;">testD × SWING</div>
+        <div style="font-size:20px;color:#111827;font-weight:700;border:2px solid #c0275e;border-radius:999px;padding:6px 18px;">${version}</div>
+      </div>
       <div style="font-size:44px;font-weight:800;margin-top:8px;line-height:1.25;">${title}</div>
       <div style="font-size:22px;color:#4b5563;margin-top:10px;">${subtitle}</div>
     </div>
@@ -93,8 +96,9 @@ function buildCoverElement(opts: {
       ${isTh ? "ข้อมูล ณ เวลาที่สร้างไฟล์" : "Live data at generation time"}
     </div>
     <div style="font-size:18px;color:#6b7280;margin-bottom:24px;">
-      ${isTh ? "สร้างเมื่อ" : "Generated"} ${stamp} (${isTh ? "เวลาไทย" : "Asia/Bangkok"})
+      ${isTh ? "สร้างเมื่อ" : "Generated"} ${stamp} (${isTh ? "เวลาไทย" : "Asia/Bangkok"}) · ${isTh ? "เวอร์ชัน" : "Version"} ${version}
     </div>
+
     <table style="width:100%;border-collapse:collapse;font-size:22px;">
       ${stats.rows
         .map(
