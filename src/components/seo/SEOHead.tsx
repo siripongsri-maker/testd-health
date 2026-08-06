@@ -4,12 +4,20 @@ import {
   canonicalPathFor,
   isSeoPath,
 } from "@/lib/seoLocalePrefix";
+import {
+  OG_IMAGE_HEIGHT,
+  OG_IMAGE_WIDTH,
+  ogImageType,
+  resolveOgImage,
+} from "@/lib/ogImage";
 
 interface SEOHeadProps {
   title: string;
   description: string;
   canonicalPath?: string;
   ogImage?: string;
+  /** Alt text for the share image (falls back to the page title). */
+  ogImageAlt?: string;
   ogType?: string;
   lang?: string;
   robots?: string;
@@ -20,7 +28,7 @@ interface SEOHeadProps {
 }
 
 const BASE_URL = "https://testd.website";
-const DEFAULT_OG_IMAGE = "https://storage.googleapis.com/gpt-engineer-file-uploads/KT2ExYhzQvVnbWOZrapb2296DWu1/social-images/social-1770910470399-testD_logo.png";
+
 
 /**
  * SEOHead — dynamically sets document <head> metadata for SEO & AI discoverability.
@@ -31,6 +39,8 @@ export function SEOHead({
   description,
   canonicalPath,
   ogImage,
+  ogImageAlt,
+
   ogType = "website",
   lang = "th",
   robots,
@@ -70,7 +80,15 @@ export function SEOHead({
     setMeta("property", "og:title", fullTitle);
     setMeta("property", "og:description", description);
     setMeta("property", "og:type", ogType);
-    setMeta("property", "og:image", ogImage || DEFAULT_OG_IMAGE);
+
+    // Share image — always a 1200x630 absolute URL, with branded fallback.
+    const shareImage = resolveOgImage(ogImage);
+    setMeta("property", "og:image", shareImage);
+    setMeta("property", "og:image:secure_url", shareImage);
+    setMeta("property", "og:image:type", ogImageType(shareImage));
+    setMeta("property", "og:image:width", String(OG_IMAGE_WIDTH));
+    setMeta("property", "og:image:height", String(OG_IMAGE_HEIGHT));
+    setMeta("property", "og:image:alt", ogImageAlt || fullTitle);
     const selfPath = canonicalPath
       ? (isSeoPath(canonicalPath)
           ? canonicalPathFor(canonicalPath, lang === "en" ? "en" : "th")
@@ -80,12 +98,15 @@ export function SEOHead({
       setMeta("property", "og:url", `${BASE_URL}${selfPath}`);
     }
     setMeta("property", "og:locale", lang === "th" ? "th_TH" : "en_US");
+    setMeta("property", "og:site_name", "testD");
 
     // Twitter
     setMeta("name", "twitter:title", fullTitle);
     setMeta("name", "twitter:description", description);
-    setMeta("name", "twitter:image", ogImage || DEFAULT_OG_IMAGE);
+    setMeta("name", "twitter:image", shareImage);
+    setMeta("name", "twitter:image:alt", ogImageAlt || fullTitle);
     setMeta("name", "twitter:card", "summary_large_image");
+
 
     // Canonical link — self-referencing, locale-prefixed for SEO routes.
     if (selfPath) {
@@ -150,7 +171,7 @@ export function SEOHead({
       document.querySelectorAll("meta[data-seo-extra]").forEach((el) => el.remove());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [title, description, canonicalPath, ogImage, ogType, lang, robots, altKey, jsonLdKey, extraMetaKey]);
+  }, [title, description, canonicalPath, ogImage, ogImageAlt, ogType, lang, robots, altKey, jsonLdKey, extraMetaKey]);
 
   return null;
 }
