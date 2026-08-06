@@ -86,14 +86,39 @@ Deno.serve(async (req) => {
   }
   const responseId = body.response_id;
   if (!responseId) return ok({ skipped: "missing_response_id" });
-  const recipient =
-    typeof body.to_override === "string" && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.to_override)
-      ? body.to_override
-      : NOTIFY_TO;
-  const testMode = body.test_mode === true;
-
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+
+  // A custom recipient (and test mode) exposes the cumulative dataset, so it is
+  // only honored for authenticated admin callers. Everyone else can only ever
+  // trigger delivery to the fixed internal address.
+  const wantsOverride =
+    typeof body.to_override === "string" &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.to_override);
+  let isAdminCaller = false;
+  const authHeader = req.headers.get("Authorization");
+  if ((wantsOverride || body.test_mode === true) && authHeader) {
+    try {
+      const admin = createClient(supabaseUrl, serviceKey);
+      const userClient = createClient(supabaseUrl, anonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const { data: { user } } = await userClient.auth.getUser();
+      if (user) {
+        const { data: hasAdmin } = await admin.rpc("has_role", {
+          _user_id: user.id,
+          _role: "admin",
+        });
+        isAdminCaller = hasAdmin === true;
+      }
+    } catch { /* ignore */ }
+  }
+  if ((wantsOverride || body.test_mode === true) && !isAdminCaller) {
+    return ok({ skipped: "forbidden_override" });
+  }
+  const recipient = wantsOverride && isAdminCaller ? (body.to_override as string) : NOTIFY_TO;
+  const testMode = body.test_mode === true && isAdminCaller;
   const resendKey = Deno.env.get("RESEND_API_KEY");
   if (!resendKey) {
     console.error("[notify-pre-post] RESEND_API_KEY not configured");
