@@ -283,6 +283,7 @@ function JourneyPdfCards({ isTh }: { isTh: boolean }) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [versions, setVersions] = useState<Record<string, string>>({});
   const [openPages, setOpenPages] = useState<string | null>(null);
+  const [previewDoc, setPreviewDoc] = useState<typeof journeyDocs[number] | null>(null);
   const [rebuilding, setRebuilding] = useState<string | null>(null);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [lastBuild, setLastBuild] = useState<Record<string, { version: string; at: Date }>>({});
