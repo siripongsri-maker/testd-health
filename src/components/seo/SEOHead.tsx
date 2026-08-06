@@ -101,8 +101,10 @@ export function SEOHead({
     // hreflang alternates. If caller didn't pass any but it's a SEO route,
     // auto-derive distinct /th and /en URLs.
     document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(el => el.remove());
-    const alts =
-      alternateLanguages && alternateLanguages.length > 0
+    const noindex = !!robots && /noindex/i.test(robots);
+    const alts = noindex
+      ? []
+      : alternateLanguages && alternateLanguages.length > 0
         ? alternateLanguages
         : canonicalPath && isSeoPath(canonicalPath)
           ? alternateLanguagePaths(canonicalPath)

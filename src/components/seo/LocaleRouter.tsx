@@ -61,3 +61,16 @@ export function LocaleRedirector({ children }: { children: ReactNode }) {
 
   return <>{children}</>;
 }
+
+/**
+ * usePageLocale — the locale the *URL* declares (/th or /en), which is what
+ * canonical + hreflang must follow. Falls back to the user's language pref
+ * only on unprefixed routes.
+ */
+export function usePageLocale(): Locale {
+  const location = useLocation();
+  const { language } = useLanguage();
+  const { locale } = stripLocalePrefix(location.pathname);
+  if (locale && SUPPORTED_LOCALES.includes(locale)) return locale;
+  return language === "en" ? "en" : DEFAULT_LOCALE;
+}

@@ -4,6 +4,7 @@ import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
 import { PageHeader } from "@/components/PageHeader";
 import { SEOHead } from "@/components/seo/SEOHead";
+import { usePageLocale } from "@/components/seo/LocaleRouter";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/lib/i18n";
 import { Loader2, Search, ChevronRight } from "lucide-react";
@@ -20,6 +21,7 @@ import { cn } from "@/lib/utils";
 /** /info/categories — hub listing every article category with counts. */
 export default function InfoCategories() {
   const { language } = useLanguage();
+  const pageLocale = usePageLocale();
   const navigate = useNavigate();
   const isTh = language === "th";
   const [categories, setCategories] = useState<BlogCategory[]>([]);
@@ -61,8 +63,8 @@ export default function InfoCategories() {
             ? "รวมหมวดหมู่บทความสุขภาพทางเพศและการลดอันตราย เลือกอ่านตามหัวข้อที่สนใจ พร้อมค้นหาบทความด้วยคีย์เวิร์ด"
             : "Browse every sexual health and harm reduction article category, or search articles by keyword."
         }
-        canonicalPath={localePath("/info/categories", language)}
-        lang={language}
+        canonicalPath={localePath("/info/categories", pageLocale)}
+        lang={pageLocale}
         jsonLd={jsonLd}
       />
       <PageContainer>

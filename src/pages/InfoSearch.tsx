@@ -4,6 +4,7 @@ import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
 import { PageHeader } from "@/components/PageHeader";
 import { SEOHead } from "@/components/seo/SEOHead";
+import { usePageLocale } from "@/components/seo/LocaleRouter";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/lib/i18n";
 import { Loader2, Search, X } from "lucide-react";
@@ -21,6 +22,7 @@ import { cn } from "@/lib/utils";
 /** /info/search?q=&category= — keyword + category filtering with URL-synced state. */
 export default function InfoSearch() {
   const { language } = useLanguage();
+  const pageLocale = usePageLocale();
   const navigate = useNavigate();
   const isTh = language === "th";
   const [params, setParams] = useSearchParams();
@@ -85,8 +87,8 @@ export default function InfoSearch() {
             ? "ค้นหาบทความเรื่อง HIV, PrEP, PEP, โรคติดต่อทางเพศสัมพันธ์ สุขภาพจิต และการลดอันตราย กรองตามหมวดหมู่และคีย์เวิร์ด"
             : "Search testD articles on HIV, PrEP, PEP, STIs, mental health and harm reduction. Filter by category and keyword."
         }
-        canonicalPath={localePath("/info/search", language)}
-        lang={language}
+        canonicalPath={localePath("/info/search", pageLocale)}
+        lang={pageLocale}
         robots="noindex, follow"
       />
       <PageContainer>
