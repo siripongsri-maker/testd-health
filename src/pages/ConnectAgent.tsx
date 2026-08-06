@@ -159,15 +159,8 @@ export default function ConnectAgent() {
           </p>
         </header>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">ลิงก์เซิร์ฟเวอร์ (MCP server URL)</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <code className="flex-1 overflow-x-auto rounded-lg bg-muted px-3 py-2 text-xs sm:text-sm">{MCP_URL}</code>
-            <CopyButton value={MCP_URL} label="คัดลอกลิงก์เซิร์ฟเวอร์" />
-          </CardContent>
-        </Card>
+        <McpUrlCard />
+
 
         <ConnectStatusCheck
           mcpUrl={MCP_URL}
