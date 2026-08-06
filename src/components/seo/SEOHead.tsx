@@ -145,7 +145,8 @@ export function SEOHead({
       document.querySelectorAll('script[data-seo-jsonld]').forEach(el => el.remove());
       document.querySelectorAll("meta[data-seo-extra]").forEach((el) => el.remove());
     };
-  }, [title, description, canonicalPath, ogImage, ogType, lang, robots, alternateLanguages, jsonLd, extraMeta]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [title, description, canonicalPath, ogImage, ogType, lang, robots, altKey, jsonLdKey, extraMetaKey]);
 
   return null;
 }
