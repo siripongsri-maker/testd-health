@@ -163,11 +163,23 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
 
       toast({ title: tx("ส่งคำขอค่าเดินทางแล้ว 🎉", "Travel allowance request submitted 🎉") });
     } catch (e: any) {
+      const raw = String(e?.message || "");
+      const friendly = raw.includes("Quota exhausted")
+        ? tx("สิทธิ์ค่าเดินทางเต็มแล้ว (ครบ 100 คน)", "The travel allowance quota (100 people) is full")
+        : raw.includes("Phone already claimed")
+        ? tx("เบอร์โทรนี้ได้รับค่าเดินทางไปแล้ว", "This phone number has already claimed the allowance")
+        : raw.includes("Visit not verified") || raw.includes("Booking phone missing")
+        ? tx("ยังยืนยันการเข้ารับบริการจากการจองไม่ได้ กรุณาติดต่อเจ้าหน้าที่", "We could not verify your visit from the booking. Please contact staff.")
+        : raw.includes("Evaluation not submitted")
+        ? tx("กรุณากรอกแบบประเมินหลังรับคำปรึกษาก่อน", "Please complete the post-counseling evaluation first")
+        : raw;
       toast({
         title: tx("ส่งคำขอไม่สำเร็จ", "Could not submit request"),
-        description: e?.message,
+        description: friendly,
         variant: "destructive",
       });
+      await refresh();
+
     } finally {
       setSubmitting(false);
     }
