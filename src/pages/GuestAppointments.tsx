@@ -20,6 +20,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog';
 import { MedicationSetupDialog, isMedicationService } from '@/components/MedicationSetupDialog';
+import { RescheduleSuggestDialog } from '@/components/appointments/RescheduleSuggestDialog';
 
 interface GuestAppointment {
   appointment_id: string;
