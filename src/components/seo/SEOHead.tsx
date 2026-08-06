@@ -15,6 +15,8 @@ interface SEOHeadProps {
   robots?: string;
   alternateLanguages?: { lang: string; path: string }[];
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  /** Extra page-specific meta tags (e.g. article:published_time, twitter:label1). */
+  extraMeta?: { attr: "name" | "property"; key: string; content: string }[];
 }
 
 const BASE_URL = "https://testd.website";
@@ -34,7 +36,13 @@ export function SEOHead({
   robots,
   alternateLanguages,
   jsonLd,
+  extraMeta,
 }: SEOHeadProps) {
+  // Serialize object/array props so inline literals don't retrigger the effect each render.
+  const jsonLdKey = jsonLd ? JSON.stringify(jsonLd) : "";
+  const extraMetaKey = extraMeta ? JSON.stringify(extraMeta) : "";
+  const altKey = alternateLanguages ? JSON.stringify(alternateLanguages) : "";
+
   useEffect(() => {
     // Title
     const fullTitle = title.includes("testD") ? title : `${title} | testD`;
@@ -107,6 +115,18 @@ export function SEOHead({
       });
     }
 
+    // Page-specific extra meta (article:*, twitter:label*, og:site_name …)
+    document.querySelectorAll("meta[data-seo-extra]").forEach((el) => el.remove());
+    (extraMeta ?? []).forEach(({ attr, key, content }) => {
+      const existing = document.querySelector(`meta[${attr}="${key}"]`);
+      if (existing) existing.remove();
+      const el = document.createElement("meta");
+      el.setAttribute(attr, key);
+      el.setAttribute("content", content);
+      el.setAttribute("data-seo-extra", "true");
+      document.head.appendChild(el);
+    });
+
     // JSON-LD structured data
     document.querySelectorAll('script[data-seo-jsonld]').forEach(el => el.remove());
     if (jsonLd) {
@@ -123,8 +143,10 @@ export function SEOHead({
     // Cleanup on unmount
     return () => {
       document.querySelectorAll('script[data-seo-jsonld]').forEach(el => el.remove());
+      document.querySelectorAll("meta[data-seo-extra]").forEach((el) => el.remove());
     };
-  }, [title, description, canonicalPath, ogImage, ogType, lang, alternateLanguages, jsonLd]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [title, description, canonicalPath, ogImage, ogType, lang, robots, altKey, jsonLdKey, extraMetaKey]);
 
   return null;
 }

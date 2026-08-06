@@ -12,6 +12,14 @@ import { ArticleLikeButton } from "@/components/ArticleLikeButton";
 import { ArticleComments } from "@/components/ArticleComments";
 import { useQuestProgress } from "@/hooks/useQuestProgress";
 import { SEOHead } from "@/components/seo/SEOHead";
+import {
+  buildArticleJsonLd,
+  buildArticleBreadcrumbJsonLd,
+  buildArticleFaqJsonLd,
+  buildArticleMeta,
+  extractFaqsFromContent,
+  estimateReadingMinutes,
+} from "@/lib/articleSeo";
 
 // Helper to extract YouTube video ID from various URL formats
 const extractYouTubeVideoId = (url: string): string | null => {
@@ -75,6 +83,7 @@ interface Article {
   view_count: number;
   like_count: number;
   published_at: string | null;
+  updated_at?: string | null;
   category_id: string | null;
   video_url: string | null;
 }
@@ -235,22 +244,37 @@ export default function InfoArticle() {
         ? 'อ่านบทความสุขภาพจาก testD โดยมูลนิธิ SWING — ข้อมูลที่เชื่อถือได้ เป็นความลับ'
         : 'Read trusted, confidential health articles from testD by SWING Foundation.');
   const canonicalPath = `/info/article/${article.slug}`;
-  const articleJsonLd: Record<string, unknown> = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: title,
-    description: excerpt || seoDesc,
-    image: article.cover_url ? [article.cover_url] : undefined,
-    datePublished: article.published_at || undefined,
-    author: { "@type": "Person", name: article.author_name || "SWING Foundation" },
-    publisher: {
-      "@type": "Organization",
-      name: "testD by SWING Foundation",
-      url: "https://testd.website",
-    },
-    inLanguage: language === 'th' ? 'th' : 'en',
-    mainEntityOfPage: `https://testd.website${canonicalPath}`,
-  };
+  const lang: "th" | "en" = language === 'th' ? 'th' : 'en';
+  const categoryName = category ? (lang === 'th' ? category.name_th : category.name_en) : null;
+  const faqs = extractFaqsFromContent(content);
+  const readingMinutes = estimateReadingMinutes(content);
+
+  const jsonLdBlocks: Record<string, unknown>[] = [
+    buildArticleJsonLd({
+      title,
+      description: seoDesc,
+      canonicalPath,
+      content,
+      coverUrl: article.cover_url,
+      authorName: article.author_name,
+      publishedAt: article.published_at,
+      updatedAt: article.updated_at ?? null,
+      categoryName,
+      language: lang,
+    }),
+    buildArticleBreadcrumbJsonLd({ title, canonicalPath, categoryName, language: lang }),
+  ];
+  const faqJsonLd = buildArticleFaqJsonLd(faqs);
+  if (faqJsonLd) jsonLdBlocks.push(faqJsonLd);
+
+  const extraMeta = buildArticleMeta({
+    authorName: article.author_name,
+    publishedAt: article.published_at,
+    updatedAt: article.updated_at ?? null,
+    categoryName,
+    readingMinutes,
+    language: lang,
+  });
 
   return (
     <>
@@ -260,9 +284,11 @@ export default function InfoArticle() {
         canonicalPath={canonicalPath}
         ogImage={article.cover_url || undefined}
         ogType="article"
-        lang={language === 'th' ? 'th' : 'en'}
-        jsonLd={articleJsonLd}
+        lang={lang}
+        jsonLd={jsonLdBlocks}
+        extraMeta={extraMeta}
       />
+
       <PageContainer className="pb-8">
         {/* Header */}
         <div className="mb-6 flex items-center gap-4">
