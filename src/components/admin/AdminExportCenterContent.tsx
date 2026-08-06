@@ -272,27 +272,75 @@ const journeyDocs = [
 
 function JourneyPdfCards({ isTh }: { isTh: boolean }) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [versions, setVersions] = useState<Record<string, string>>({});
 
-  const copyLink = async (id: string, file: string) => {
-    const url = `${window.location.origin}${file}`;
+  // Resolve the latest published version of each PDF (from Last-Modified) so the
+  // copied link always busts caches for the review team.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const entries = await Promise.all(
+        journeyDocs.map(async doc => {
+          try {
+            const res = await fetch(doc.file, { method: 'HEAD', cache: 'no-store' });
+            const lm = res.headers.get('last-modified');
+            const stamp = lm ? new Date(lm).getTime() : Date.now();
+            return [doc.id, String(stamp)] as const;
+          } catch {
+            return [doc.id, String(Date.now())] as const;
+          }
+        })
+      );
+      if (!cancelled) setVersions(Object.fromEntries(entries));
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const urlFor = (doc: typeof journeyDocs[number]) =>
+    `${window.location.origin}${doc.file}?v=${versions[doc.id] ?? 'latest'}`;
+
+  const versionLabel = (id: string) => {
+    const v = versions[id];
+    if (!v) return isTh ? 'กำลังตรวจสอบเวอร์ชัน…' : 'Checking version…';
+    const d = new Date(Number(v));
+    return `${isTh ? 'อัปเดตล่าสุด' : 'Updated'} ${d.toLocaleDateString(isTh ? 'th-TH' : 'en-GB')} ${d.toLocaleTimeString(isTh ? 'th-TH' : 'en-GB', { hour: '2-digit', minute: '2-digit' })}`;
+  };
+
+  const copy = async (id: string, text: string) => {
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(text);
       setCopiedId(id);
       setTimeout(() => setCopiedId(null), 2000);
-      toast.success(isTh ? 'คัดลอกลิงก์แล้ว' : 'Link copied', { description: url });
+      toast.success(isTh ? 'คัดลอกลิงก์แล้ว' : 'Link copied', { description: text.split('\n')[0] });
     } catch {
       toast.error(isTh ? 'คัดลอกลิงก์ไม่สำเร็จ' : 'Could not copy link');
     }
   };
 
+  const copyAll = () => {
+    const header = isTh
+      ? 'สรุป Journey เวอร์ชันล่าสุด (สำหรับทีมตรวจสอบ):'
+      : 'Latest Journey summaries (for the review team):';
+    const body = journeyDocs
+      .map(doc => `• ${isTh ? doc.nameTh : doc.name}\n  ${urlFor(doc)}`)
+      .join('\n');
+    copy('all', `${header}\n${body}`);
+  };
+
   return (
     <Card className="border border-border/50">
       <CardContent className="p-4 space-y-3">
-        <div className="flex items-center gap-2">
-          <FileText className="h-4 w-4 text-primary" />
-          <h3 className="text-sm font-semibold text-foreground">
-            {isTh ? 'สรุป Journey (PDF) สำหรับส่งทีมตรวจสอบ' : 'Journey summaries (PDF) for review teams'}
-          </h3>
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-primary" />
+            <h3 className="text-sm font-semibold text-foreground">
+              {isTh ? 'สรุป Journey (PDF) สำหรับส่งทีมตรวจสอบ' : 'Journey summaries (PDF) for review teams'}
+            </h3>
+          </div>
+          <Button size="sm" className="h-8 text-xs gap-1" onClick={copyAll}>
+            {copiedId === 'all' ? <Check className="h-3.5 w-3.5" /> : <Link2 className="h-3.5 w-3.5" />}
+            {isTh ? 'คัดลอกลิงก์เวอร์ชันล่าสุด' : 'Copy latest version links'}
+          </Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {journeyDocs.map(doc => (
@@ -301,10 +349,11 @@ function JourneyPdfCards({ isTh }: { isTh: boolean }) {
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm text-foreground">{isTh ? doc.nameTh : doc.name}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">{isTh ? doc.descriptionTh : doc.description}</p>
+                <p className="text-[11px] text-muted-foreground/80 mt-1">{versionLabel(doc.id)}</p>
                 <div className="flex gap-2 mt-2">
-                  <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => copyLink(doc.id, doc.file)}>
+                  <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => copy(doc.id, urlFor(doc))}>
                     {copiedId === doc.id ? <Check className="h-3 w-3" /> : <Link2 className="h-3 w-3" />}
-                    {isTh ? 'คัดลอกลิงก์' : 'Copy link'}
+                    {isTh ? 'คัดลอกลิงก์ล่าสุด' : 'Copy latest link'}
                   </Button>
                   <Button asChild variant="outline" size="sm" className="h-7 text-xs gap-1">
                     <a href={doc.file} download target="_blank" rel="noopener noreferrer">
