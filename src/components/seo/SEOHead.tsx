@@ -81,7 +81,15 @@ export function SEOHead({
     setMeta("property", "og:title", fullTitle);
     setMeta("property", "og:description", description);
     setMeta("property", "og:type", ogType);
-    setMeta("property", "og:image", ogImage || DEFAULT_OG_IMAGE);
+
+    // Share image — always a 1200x630 absolute URL, with branded fallback.
+    const shareImage = resolveOgImage(ogImage);
+    setMeta("property", "og:image", shareImage);
+    setMeta("property", "og:image:secure_url", shareImage);
+    setMeta("property", "og:image:type", ogImageType(shareImage));
+    setMeta("property", "og:image:width", String(OG_IMAGE_WIDTH));
+    setMeta("property", "og:image:height", String(OG_IMAGE_HEIGHT));
+    setMeta("property", "og:image:alt", ogImageAlt || fullTitle);
     const selfPath = canonicalPath
       ? (isSeoPath(canonicalPath)
           ? canonicalPathFor(canonicalPath, lang === "en" ? "en" : "th")
@@ -91,12 +99,15 @@ export function SEOHead({
       setMeta("property", "og:url", `${BASE_URL}${selfPath}`);
     }
     setMeta("property", "og:locale", lang === "th" ? "th_TH" : "en_US");
+    setMeta("property", "og:site_name", "testD");
 
     // Twitter
     setMeta("name", "twitter:title", fullTitle);
     setMeta("name", "twitter:description", description);
-    setMeta("name", "twitter:image", ogImage || DEFAULT_OG_IMAGE);
+    setMeta("name", "twitter:image", shareImage);
+    setMeta("name", "twitter:image:alt", ogImageAlt || fullTitle);
     setMeta("name", "twitter:card", "summary_large_image");
+
 
     // Canonical link — self-referencing, locale-prefixed for SEO routes.
     if (selfPath) {
