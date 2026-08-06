@@ -76,6 +76,14 @@ async function fetchRows(table: string, query: string): Promise<any[]> {
 async function collectEntries(): Promise<SitemapEntry[]> {
   const entries = [...staticEntries];
 
+  // Blog category landing pages
+  const categories = await fetchRows("blog_categories", "select=slug&order=display_order");
+  for (const c of categories) {
+    if (!c.slug) continue;
+    entries.push({ path: `/info/category/${c.slug}`, changefreq: "weekly", priority: "0.7" });
+  }
+
+
   // Published SEO / blog articles (Thai + English content live on the same slug)
   const articles = await fetchRows(
     "blog_articles",
