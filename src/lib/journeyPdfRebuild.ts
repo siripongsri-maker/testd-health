@@ -129,7 +129,7 @@ export async function regenerateJourneyPdf(opts: {
   pages: number;
   isTh: boolean;
   onProgress?: (done: number, total: number) => void;
-}): Promise<Blob> {
+}): Promise<{ blob: Blob; version: string; generatedAt: Date }> {
   const { title, subtitle, pngDir, pages, isTh, onProgress } = opts;
   const [{ default: jsPDF }, { default: html2canvas }, stats] = await Promise.all([
     import("jspdf"),
