@@ -112,11 +112,17 @@ export function withLocalePrefix(path: string, locale: Locale): string {
   return `/${locale}${pathname}`;
 }
 
-/** Build the canonical URL path (always Thai for SEO routes). */
-export function canonicalPathFor(path: string): string {
+/**
+ * Build the canonical URL path. Canonicals must self-reference the locale
+ * actually being rendered, otherwise Google attributes the /en page to /th.
+ */
+export function canonicalPathFor(
+  path: string,
+  locale: Locale = DEFAULT_LOCALE,
+): string {
   const { pathname } = stripLocalePrefix(path);
   if (!isSeoPath(pathname)) return pathname;
-  return withLocalePrefix(pathname, DEFAULT_LOCALE);
+  return withLocalePrefix(pathname, locale);
 }
 
 /** Build alternate-language URL paths for a SEO route. */
