@@ -289,7 +289,7 @@ export function AdminJsonLdCheckContent() {
           status: r.issues.some((i) => i.level === "error") ? "needs_fix" : "confirmed",
           error_count: r.issues.filter((i) => i.level === "error").length,
           warning_count: r.issues.filter((i) => i.level === "warn").length,
-          snapshot: r.blocks as unknown as Record<string, unknown>,
+          snapshot: r.blocks as unknown as never,
           confirmed_by: auth.user?.id ?? null,
           confirmed_at: new Date().toISOString(),
         },
@@ -323,7 +323,7 @@ export function AdminJsonLdCheckContent() {
         status: "confirmed",
         error_count: 0,
         warning_count: r.issues.length,
-        snapshot: r.blocks as unknown as Record<string, unknown>,
+        snapshot: r.blocks as unknown as never,
         confirmed_by: auth.user?.id ?? null,
         confirmed_at: new Date().toISOString(),
       }));
