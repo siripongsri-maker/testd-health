@@ -36,6 +36,7 @@ export function SEOHead({
   robots,
   alternateLanguages,
   jsonLd,
+  extraMeta,
 }: SEOHeadProps) {
   useEffect(() => {
     // Title
