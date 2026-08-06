@@ -350,7 +350,18 @@ export default function AdminCounselingPayoutsContent() {
           <span className="text-xs text-muted-foreground">ถึง</span>
           <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="h-8 w-auto text-xs" />
         </div>
+        <div className="w-full flex items-center gap-2 flex-wrap border-t pt-2">
+          <Button size="sm" variant={verifiedOnly ? "default" : "outline"} className="h-7 text-xs"
+            onClick={() => setVerifiedOnly((v) => !v)}>
+            {verifiedOnly ? "แสดงเฉพาะผู้รับบริการจริง" : "แสดงทุกรายการ (รวมที่ยังไม่ยืนยัน)"}
+          </Button>
+          <span className="text-[11px] text-muted-foreground">
+            ยืนยันจากการจองที่เช็คอิน/เช็คเอาท์จริงเท่านั้น
+            {verifiedOnly && hiddenCount > 0 && ` • ซ่อนอยู่ ${hiddenCount} รายการที่ยังไม่ยืนยัน`}
+          </span>
+        </div>
       </Card>
+
 
       {loading ? (
         <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
