@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SEOHead } from "@/components/seo/SEOHead";
+import { ConnectStatusCheck } from "@/components/mcp/ConnectStatusCheck";
+
 
 const PROJECT_REF = import.meta.env.VITE_SUPABASE_PROJECT_ID as string;
 const MCP_URL = `https://${PROJECT_REF}.supabase.co/functions/v1/mcp`;
