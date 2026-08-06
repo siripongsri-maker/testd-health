@@ -284,6 +284,8 @@ function JourneyPdfCards({ isTh }: { isTh: boolean }) {
   const [openPages, setOpenPages] = useState<string | null>(null);
   const [rebuilding, setRebuilding] = useState<string | null>(null);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+  const [lastBuild, setLastBuild] = useState<Record<string, { version: string; at: Date }>>({});
+
 
   const rebuild = async (doc: typeof journeyDocs[number]) => {
     setRebuilding(doc.id);
