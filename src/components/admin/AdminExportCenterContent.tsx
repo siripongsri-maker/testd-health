@@ -290,7 +290,7 @@ function JourneyPdfCards({ isTh }: { isTh: boolean }) {
     setProgress({ done: 0, total: doc.pages + 1 });
     try {
       const { regenerateJourneyPdf } = await import('@/lib/journeyPdfRebuild');
-      const blob = await regenerateJourneyPdf({
+      const { blob, version, generatedAt } = await regenerateJourneyPdf({
         title: isTh ? doc.nameTh : doc.name,
         subtitle: isTh ? doc.descriptionTh : doc.description,
         pngDir: doc.pngDir,
@@ -298,14 +298,20 @@ function JourneyPdfCards({ isTh }: { isTh: boolean }) {
         isTh,
         onProgress: (done, total) => setProgress({ done, total }),
       });
-      const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `journey-${doc.id}-latest-${stamp}.pdf`;
+      a.download = `journey-${doc.id}-${version}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
-      toast.success(isTh ? 'สร้าง PDF ใหม่พร้อมข้อมูลล่าสุดแล้ว' : 'Fresh PDF generated with latest data');
+      setLastBuild(prev => ({ ...prev, [doc.id]: { version, at: generatedAt } }));
+      toast.success(
+        isTh ? `สร้าง PDF ใหม่แล้ว (${version})` : `Fresh PDF generated (${version})`,
+        {
+          description: `${isTh ? 'ข้อมูล ณ' : 'Data as of'} ${generatedAt.toLocaleString(isTh ? 'th-TH' : 'en-GB', { timeZone: 'Asia/Bangkok' })}`,
+        }
+      );
+
     } catch (e: any) {
       toast.error(isTh ? 'สร้าง PDF ใหม่ไม่สำเร็จ' : 'Could not regenerate PDF', { description: e?.message });
     } finally {
