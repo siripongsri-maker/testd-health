@@ -5,7 +5,6 @@ import {
   isSeoPath,
 } from "@/lib/seoLocalePrefix";
 import {
-  DEFAULT_OG_IMAGE,
   OG_IMAGE_HEIGHT,
   OG_IMAGE_WIDTH,
   ogImageType,

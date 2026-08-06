@@ -11,7 +11,7 @@ const BASE_URL = "https://testd.website";
 function absUrl(path: string, language: "th" | "en"): string {
   return `${BASE_URL}${canonicalPathFor(path, language)}`;
 }
-import { resolveOgImage } from "@/lib/ogImage";
+import { DEFAULT_OG_IMAGE, resolveOgImage } from "@/lib/ogImage";
 
 export interface ArticleFaq {
   question: string;
