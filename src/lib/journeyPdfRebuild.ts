@@ -141,21 +141,76 @@ export async function regenerateJourneyPdf(opts: {
   }
   onProgress?.(1, pages + 1);
 
+  const headerH = Math.round(height * 0.032);
+  const footerH = Math.round(height * 0.032);
+  const fontFamily = "'Noto Sans Thai','Sarabun',system-ui,-apple-system,'Segoe UI',sans-serif";
+  const stampText = stats.generatedAt.toLocaleString(isTh ? "th-TH" : "en-GB", { timeZone: BKK });
+
   for (let page = 1; page <= pages; page++) {
     const src = `${pngDir}/page-${String(page).padStart(2, "0")}.png?ts=${Date.now()}`;
     const img = page === 1 ? first : await loadImage(src);
     const canvas = document.createElement("canvas");
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
+    canvas.width = width;
+    canvas.height = height;
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Canvas unavailable");
     ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0);
+    ctx.fillRect(0, 0, width, height);
+
+    // Fit the capture between the header and footer bands, keeping aspect ratio.
+    const availH = height - headerH - footerH;
+    const scale = Math.min(width / img.naturalWidth, availH / img.naturalHeight);
+    const drawW = img.naturalWidth * scale;
+    const drawH = img.naturalHeight * scale;
+    ctx.drawImage(img, (width - drawW) / 2, headerH + (availH - drawH) / 2, drawW, drawH);
+
+    // Header band: document title + version
+    ctx.fillStyle = "#c0275e";
+    ctx.fillRect(0, 0, width, headerH);
+    ctx.fillStyle = "#ffffff";
+    const hFont = Math.round(headerH * 0.46);
+    ctx.font = `600 ${hFont}px ${fontFamily}`;
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "left";
+    ctx.fillText(`testD × SWING — ${title}`, Math.round(width * 0.02), headerH / 2);
+    ctx.textAlign = "right";
+    ctx.fillText(version, width - Math.round(width * 0.02), headerH / 2);
+
+    // Footer band: generated date/time + page numbering
+    ctx.fillStyle = "#f3f4f6";
+    ctx.fillRect(0, height - footerH, width, footerH);
+    ctx.fillStyle = "#e5e7eb";
+    ctx.fillRect(0, height - footerH, width, 2);
+    ctx.fillStyle = "#4b5563";
+    const fFont = Math.round(footerH * 0.42);
+    ctx.font = `400 ${fFont}px ${fontFamily}`;
+    ctx.textAlign = "left";
+    ctx.fillText(
+      `${isTh ? "สร้างเมื่อ" : "Generated"} ${stampText} (${isTh ? "เวลาไทย" : "Asia/Bangkok"})`,
+      Math.round(width * 0.02),
+      height - footerH / 2
+    );
+    ctx.textAlign = "center";
+    ctx.fillText(version, width / 2, height - footerH / 2);
+    ctx.textAlign = "right";
+    ctx.fillText(
+      `${isTh ? "หน้า" : "Page"} ${page + 1} / ${pages + 1}`,
+      width - Math.round(width * 0.02),
+      height - footerH / 2
+    );
+
     pdf.addPage([width, height], width >= height ? "landscape" : "portrait");
     pdf.addImage(canvas.toDataURL("image/jpeg", 0.9), "JPEG", 0, 0, width, height);
     onProgress?.(page + 1, pages + 1);
   }
 
+  pdf.setProperties({
+    title: `${title} — ${version}`,
+    subject: subtitle,
+    creator: "testD Console",
+    keywords: `journey,${version},${stats.generatedAt.toISOString()}`,
+  });
+
   return pdf.output("blob");
 }
+
