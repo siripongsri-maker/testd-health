@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import { Copy, Check, ExternalLink, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,15 +25,65 @@ const CLAUDE_ADD = `https://claude.ai/customize/connectors?modal=add-custom-conn
   APP_NAME,
 )}&connectorUrl=${encodeURIComponent(MCP_URL)}`;
 
-function CopyButton({ value, label }: { value: string; label: string }) {
+function shortenUrl(url: string) {
+  try {
+    const u = new URL(url);
+    const parts = u.pathname.split("/").filter(Boolean);
+    const host = u.hostname.length > 24 ? `${u.hostname.slice(0, 10)}…${u.hostname.slice(-12)}` : u.hostname;
+    const tail = parts.length ? `/…/${parts[parts.length - 1]}` : "";
+    return `${host}${tail}`;
+  } catch {
+    return url.length > 40 ? `${url.slice(0, 20)}…${url.slice(-16)}` : url;
+  }
+}
+
+async function writeClipboard(value: string) {
+  try {
+    await navigator.clipboard.writeText(value);
+    return true;
+  } catch {
+    try {
+      const el = document.createElement("textarea");
+      el.value = value;
+      el.setAttribute("readonly", "");
+      el.style.position = "fixed";
+      el.style.opacity = "0";
+      document.body.appendChild(el);
+      el.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(el);
+      return ok;
+    } catch {
+      return false;
+    }
+  }
+}
+
+function CopyButton({
+  value,
+  label,
+  toastLabel,
+  className,
+}: {
+  value: string;
+  label: string;
+  toastLabel?: string;
+  className?: string;
+}) {
   const [copied, setCopied] = useState(false);
   return (
     <Button
-      variant="secondary"
+      variant={copied ? "default" : "secondary"}
       size="sm"
-      onClick={() => {
-        navigator.clipboard.writeText(value);
+      className={className}
+      onClick={async () => {
+        const ok = await writeClipboard(value);
+        if (!ok) {
+          toast.error("คัดลอกไม่สำเร็จ", { description: "กรุณาเลือกข้อความแล้วคัดลอกด้วยตัวเอง" });
+          return;
+        }
         setCopied(true);
+        toast.success(`คัดลอก${toastLabel ?? "แล้ว"}`, { description: shortenUrl(value) });
         setTimeout(() => setCopied(false), 1800);
       }}
       aria-label={label}
@@ -42,6 +93,37 @@ function CopyButton({ value, label }: { value: string; label: string }) {
     </Button>
   );
 }
+
+function McpUrlCard() {
+  const [showFull, setShowFull] = useState(false);
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">ลิงก์เซิร์ฟเวอร์ (MCP server URL)</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <code
+            className="flex-1 overflow-x-auto rounded-lg bg-muted px-3 py-2 text-xs sm:text-sm"
+            title={MCP_URL}
+          >
+            {showFull ? MCP_URL : shortenUrl(MCP_URL)}
+          </code>
+          <CopyButton value={MCP_URL} label="คัดลอกลิงก์เซิร์ฟเวอร์" toastLabel="ลิงก์เซิร์ฟเวอร์แล้ว" />
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-xs text-muted-foreground">
+            {showFull ? "นี่คือลิงก์เต็มสำหรับวางในผู้ช่วย AI" : "แสดงแบบย่อเพื่ออ่านง่าย ปุ่มคัดลอกจะคัดลอกลิงก์เต็มเสมอ"}
+          </p>
+          <Button variant="ghost" size="sm" onClick={() => setShowFull((v) => !v)}>
+            {showFull ? "ย่อลิงก์" : "แสดงลิงก์เต็ม"}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 
 function Steps({
   items,
@@ -107,15 +189,8 @@ export default function ConnectAgent() {
           </p>
         </header>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">ลิงก์เซิร์ฟเวอร์ (MCP server URL)</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <code className="flex-1 overflow-x-auto rounded-lg bg-muted px-3 py-2 text-xs sm:text-sm">{MCP_URL}</code>
-            <CopyButton value={MCP_URL} label="คัดลอกลิงก์เซิร์ฟเวอร์" />
-          </CardContent>
-        </Card>
+        <McpUrlCard />
+
 
         <ConnectStatusCheck
           mcpUrl={MCP_URL}
@@ -215,7 +290,7 @@ export default function ConnectAgent() {
                 <code className="flex-1 overflow-x-auto rounded-lg bg-muted px-3 py-2 text-xs sm:text-sm">
                   {CLAUDE_CODE_CMD}
                 </code>
-                <CopyButton value={CLAUDE_CODE_CMD} label="คัดลอกคำสั่งติดตั้ง" />
+                <CopyButton value={CLAUDE_CODE_CMD} label="คัดลอกคำสั่งติดตั้ง" toastLabel="คำสั่งติดตั้งแล้ว" />
               </div>
               <Steps
                 group="claude-code"
