@@ -141,6 +141,8 @@ export async function regenerateJourneyPdf(opts: {
   const width = first.naturalWidth;
   const height = first.naturalHeight;
 
+  const version = journeyVersionLabel(stats.generatedAt);
+
   const pdf = new jsPDF({
     orientation: width >= height ? "landscape" : "portrait",
     unit: "px",
@@ -148,7 +150,8 @@ export async function regenerateJourneyPdf(opts: {
     compress: true,
   });
 
-  const cover = buildCoverElement({ title, subtitle, stats, isTh, width, height });
+  const cover = buildCoverElement({ title, subtitle, stats, version, isTh, width, height });
+
   document.body.appendChild(cover);
   try {
     const canvas = await html2canvas(cover, { scale: 1, backgroundColor: "#ffffff", logging: false });
