@@ -1128,6 +1128,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.diagnostics': 'Diagnostics',
     'admin.systemHealth': 'System Health',
     'admin.routeHealth': 'Route Health',
+    'admin.glyphQa': 'Glyph & Emoji QA',
     'admin.ipDocs': 'IP Documentation',
     'admin.servicesCare': 'Services & Care',
     'admin.melReportingGroup': 'MEL & Reporting',
