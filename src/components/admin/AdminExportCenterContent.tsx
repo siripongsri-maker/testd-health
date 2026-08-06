@@ -282,6 +282,38 @@ function JourneyPdfCards({ isTh }: { isTh: boolean }) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [versions, setVersions] = useState<Record<string, string>>({});
   const [openPages, setOpenPages] = useState<string | null>(null);
+  const [rebuilding, setRebuilding] = useState<string | null>(null);
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+
+  const rebuild = async (doc: typeof journeyDocs[number]) => {
+    setRebuilding(doc.id);
+    setProgress({ done: 0, total: doc.pages + 1 });
+    try {
+      const { regenerateJourneyPdf } = await import('@/lib/journeyPdfRebuild');
+      const blob = await regenerateJourneyPdf({
+        title: isTh ? doc.nameTh : doc.name,
+        subtitle: isTh ? doc.descriptionTh : doc.description,
+        pngDir: doc.pngDir,
+        pages: doc.pages,
+        isTh,
+        onProgress: (done, total) => setProgress({ done, total }),
+      });
+      const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `journey-${doc.id}-latest-${stamp}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success(isTh ? 'สร้าง PDF ใหม่พร้อมข้อมูลล่าสุดแล้ว' : 'Fresh PDF generated with latest data');
+    } catch (e: any) {
+      toast.error(isTh ? 'สร้าง PDF ใหม่ไม่สำเร็จ' : 'Could not regenerate PDF', { description: e?.message });
+    } finally {
+      setRebuilding(null);
+      setProgress(null);
+    }
+  };
+
 
   // Resolve the latest published version of each PDF (from Last-Modified) so the
   // copied link always busts caches for the review team.
