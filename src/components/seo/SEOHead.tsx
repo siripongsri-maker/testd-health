@@ -172,7 +172,7 @@ export function SEOHead({
       document.querySelectorAll("meta[data-seo-extra]").forEach((el) => el.remove());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [title, description, canonicalPath, ogImage, ogType, lang, robots, altKey, jsonLdKey, extraMetaKey]);
+  }, [title, description, canonicalPath, ogImage, ogImageAlt, ogType, lang, robots, altKey, jsonLdKey, extraMetaKey]);
 
   return null;
 }
