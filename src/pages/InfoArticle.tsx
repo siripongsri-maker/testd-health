@@ -12,6 +12,8 @@ import { ArticleLikeButton } from "@/components/ArticleLikeButton";
 import { ArticleComments } from "@/components/ArticleComments";
 import { useQuestProgress } from "@/hooks/useQuestProgress";
 import { SEOHead } from "@/components/seo/SEOHead";
+import { usePageLocale } from "@/components/seo/LocaleRouter";
+import { alternateLanguagePathsFor, type Locale } from "@/lib/seoLocalePrefix";
 import { RelatedArticles } from "@/components/blog/RelatedArticles";
 import {
   buildArticleJsonLd,
@@ -104,6 +106,7 @@ export default function InfoArticle() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { t, language } = useLanguage();
+  const pageLocale = usePageLocale();
   const { trackArticleRead } = useQuestProgress();
   const [article, setArticle] = useState<Article | null>(null);
   const [category, setCategory] = useState<Category | null>(null);
@@ -236,6 +239,21 @@ export default function InfoArticle() {
     );
   }
 
+  // SEO locale follows the URL (/th or /en), never the user's UI preference —
+  // otherwise the same URL emits different canonicals per visitor.
+  const hasTh = !!(article.title_th && article.content_th);
+  const hasEn = !!(article.title_en && article.content_en);
+  const availableLocales: Locale[] = [
+    ...(hasTh ? (['th'] as Locale[]) : []),
+    ...(hasEn ? (['en'] as Locale[]) : []),
+  ];
+  // If this locale has no translation, canonicalise to the one that exists
+  // instead of publishing a duplicate of the other language.
+  const seoLocale: Locale =
+    availableLocales.includes(pageLocale)
+      ? pageLocale
+      : (availableLocales[0] ?? 'th');
+
   const title = language === 'th' ? article.title_th : article.title_en;
   const content = language === 'th' ? article.content_th : article.content_en;
   const excerpt = (language === 'th' ? article.excerpt_th : article.excerpt_en) || '';
@@ -246,7 +264,7 @@ export default function InfoArticle() {
         ? 'อ่านบทความสุขภาพจาก testD โดยมูลนิธิ SWING — ข้อมูลที่เชื่อถือได้ เป็นความลับ'
         : 'Read trusted, confidential health articles from testD by SWING Foundation.');
   const canonicalPath = `/info/article/${article.slug}`;
-  const lang: "th" | "en" = language === 'th' ? 'th' : 'en';
+  const lang: Locale = seoLocale;
   const categoryName = category ? (lang === 'th' ? category.name_th : category.name_en) : null;
   const faqs = extractFaqsFromContent(content);
   const readingMinutes = estimateReadingMinutes(content);
@@ -284,6 +302,7 @@ export default function InfoArticle() {
         title={seoTitle}
         description={seoDesc}
         canonicalPath={canonicalPath}
+        alternateLanguages={alternateLanguagePathsFor(canonicalPath, availableLocales)}
         ogImage={article.cover_url || undefined}
         ogType="article"
         lang={lang}
