@@ -3,7 +3,7 @@ import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FileDown, Download, Calendar, Loader2, Fingerprint, Link2, Check, FileText } from "lucide-react";
+import { FileDown, Download, Calendar, Loader2, Fingerprint, Link2, Check, FileText, Images, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminRole } from "@/hooks/useAdminRole";
@@ -253,6 +253,9 @@ const journeyDocs = [
   {
     id: 'client',
     file: '/docs/journey-client.pdf',
+    pngDir: '/docs/journey-client',
+    pngZip: '/docs/journey-client-pages.zip',
+    pages: 18,
     icon: '🧑‍💼',
     name: 'Client Journey (full data)',
     nameTh: 'Journey ผู้รับบริการ (ข้อมูลครบ)',
@@ -262,6 +265,9 @@ const journeyDocs = [
   {
     id: 'admin',
     file: '/docs/journey-admin-counselor.pdf',
+    pngDir: '/docs/journey-admin-counselor',
+    pngZip: '/docs/journey-admin-counselor-pages.zip',
+    pages: 11,
     icon: '🧑‍⚕️',
     name: 'Staff & Counselor Journey',
     nameTh: 'Journey เจ้าหน้าที่และผู้ให้คำปรึกษา',
@@ -270,9 +276,12 @@ const journeyDocs = [
   },
 ];
 
+const pngPath = (dir: string, page: number) => `${dir}/page-${String(page).padStart(2, '0')}.png`;
+
 function JourneyPdfCards({ isTh }: { isTh: boolean }) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [versions, setVersions] = useState<Record<string, string>>({});
+  const [openPages, setOpenPages] = useState<string | null>(null);
 
   // Resolve the latest published version of each PDF (from Last-Modified) so the
   // copied link always busts caches for the review team.
@@ -350,7 +359,7 @@ function JourneyPdfCards({ isTh }: { isTh: boolean }) {
                 <p className="font-semibold text-sm text-foreground">{isTh ? doc.nameTh : doc.name}</p>
                 <p className="text-xs text-muted-foreground mt-0.5">{isTh ? doc.descriptionTh : doc.description}</p>
                 <p className="text-[11px] text-muted-foreground/80 mt-1">{versionLabel(doc.id)}</p>
-                <div className="flex gap-2 mt-2">
+                <div className="flex flex-wrap gap-2 mt-2">
                   <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => copy(doc.id, urlFor(doc))}>
                     {copiedId === doc.id ? <Check className="h-3 w-3" /> : <Link2 className="h-3 w-3" />}
                     {isTh ? 'คัดลอกลิงก์ล่าสุด' : 'Copy latest link'}
@@ -361,10 +370,54 @@ function JourneyPdfCards({ isTh }: { isTh: boolean }) {
                       {isTh ? 'ดาวน์โหลด PDF' : 'Download PDF'}
                     </a>
                   </Button>
+                  <Button asChild variant="outline" size="sm" className="h-7 text-xs gap-1">
+                    <a href={doc.pngZip} download>
+                      <Images className="h-3 w-3" />
+                      {isTh ? `ดาวน์โหลดรูปทุกหน้า (ZIP · ${doc.pages})` : `All pages (ZIP · ${doc.pages})`}
+                    </a>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 text-xs gap-1"
+                    onClick={() => setOpenPages(openPages === doc.id ? null : doc.id)}
+                  >
+                    {openPages === doc.id ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                    {isTh ? 'รูปรายหน้า (PNG)' : 'Per-page PNGs'}
+                  </Button>
                 </div>
+
+                {openPages === doc.id && (
+                  <div className="mt-3 grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    {Array.from({ length: doc.pages }, (_, i) => i + 1).map(page => {
+                      const src = pngPath(doc.pngDir, page);
+                      return (
+                        <div key={page} className="rounded-lg border border-border/50 overflow-hidden bg-muted/30">
+                          <a href={src} target="_blank" rel="noopener noreferrer">
+                            <img
+                              src={src}
+                              alt={`${isTh ? doc.nameTh : doc.name} — ${isTh ? 'หน้า' : 'page'} ${page}`}
+                              loading="lazy"
+                              className="w-full h-24 object-cover object-top bg-background"
+                            />
+                          </a>
+                          <a
+                            href={src}
+                            download={`${doc.id}-page-${String(page).padStart(2, '0')}.png`}
+                            className="flex items-center justify-center gap-1 py-1 text-[11px] text-muted-foreground hover:text-foreground"
+                          >
+                            <Download className="h-3 w-3" />
+                            {isTh ? `หน้า ${page}` : `Page ${page}`}
+                          </a>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           ))}
+
         </div>
       </CardContent>
     </Card>
