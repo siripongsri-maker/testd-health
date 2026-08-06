@@ -191,6 +191,24 @@ export default function ConnectAgent() {
 
         <McpUrlCard />
 
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <ShieldCheck className="h-5 w-5" /> ความปลอดภัยและความเป็นส่วนตัว
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-muted-foreground">
+            <p>
+              การเชื่อมต่อจะส่งเฉพาะคำสั่งที่คุณเลือกใช้และข้อมูลที่จำเป็นต่อการตอบกลับไปยังผู้ช่วย AI
+              ไม่ควรส่งรหัสผ่าน โทเค็น หรือข้อมูลระบุตัวบุคคลที่ไม่จำเป็นในแชท
+            </p>
+            <ul className="list-disc space-y-1.5 pl-5">
+              <li>ใช้บัญชีแบบไม่ระบุตัวตนและหลีกเลี่ยงการใส่ชื่อจริง เบอร์โทร หรืออีเมลในคำสั่ง</li>
+              <li>ตรวจสอบสิทธิ์และข้อมูลที่จะถูกแชร์ก่อนกดอนุญาตใน ChatGPT, Claude หรือผู้ช่วยอื่น</li>
+              <li>ลบการเชื่อมต่อจากผู้ช่วย AI เมื่อเลิกใช้ และล้างประวัติแชทที่มีข้อมูลอ่อนไหว</li>
+            </ul>
+          </CardContent>
+        </Card>
 
         <ConnectStatusCheck
           mcpUrl={MCP_URL}
