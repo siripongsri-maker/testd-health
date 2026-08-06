@@ -56,7 +56,29 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    let resolvedUserId: string | null = user_id || null;
+    // A client-supplied user_id must be proven: the caller has to present a
+    // valid session bearer token whose uid matches. Otherwise anyone could
+    // attach PII / kit requests to someone else's account.
+    let resolvedUserId: string | null = null;
+    if (user_id) {
+      const authHeader = req.headers.get("Authorization");
+      let verifiedId: string | null = null;
+      if (authHeader) {
+        try {
+          const userClient = createClient(
+            Deno.env.get("SUPABASE_URL")!,
+            Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+            { global: { headers: { Authorization: authHeader } } },
+          );
+          const { data: { user } } = await userClient.auth.getUser();
+          verifiedId = user?.id ?? null;
+        } catch { /* ignore */ }
+      }
+      if (!verifiedId || verifiedId !== user_id) {
+        return json({ error: "unauthorized_user_id" }, 401);
+      }
+      resolvedUserId = verifiedId;
+    }
     let isNew = false;
 
     // Create user if email + password are provided and no user_id yet
