@@ -469,9 +469,45 @@ export function PostCounselingCasesTab({ variant }: { variant: "cases" | "compar
           </table>
         </div>
       </Card>
+
+      {/* Manual follow-up SMS dialog */}
+      <Dialog open={!!smsNote} onOpenChange={(o) => { if (!o) setSmsNote(null); }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <MessageSquare className="h-4 w-4 text-sky-600" />
+              {tx("ส่ง SMS ลิงก์แบบประเมิน", "Send evaluation link by SMS")}
+            </DialogTitle>
+            <DialogDescription className="text-xs">
+              {tx("ระบบจะส่งลิงก์ประเมิน + ค่าเดินทาง 200 บาท และเก็บเฉพาะเลขท้าย 4 ตัวเท่านั้น",
+                  "Sends the evaluation link (200 THB allowance). Only the last 4 digits are stored.")}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2">
+            <Label className="text-xs">{tx("เบอร์โทรผู้รับบริการ", "Client phone number")}</Label>
+            <Input
+              value={smsPhone}
+              inputMode="numeric"
+              maxLength={15}
+              placeholder="08xxxxxxxx"
+              onChange={(e) => setSmsPhone(e.target.value.replace(/[^0-9+\- ]/g, ""))}
+            />
+          </div>
+          <Button
+            className="w-full bg-sky-600 hover:bg-sky-700"
+            disabled={smsSending || smsPhone.replace(/\D/g, "").length < 9}
+            onClick={sendSms}
+          >
+            {smsSending
+              ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />{tx("กำลังส่ง...", "Sending...")}</>
+              : <><Send className="h-4 w-4 mr-2" />{tx("ส่ง SMS", "Send SMS")}</>}
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+
 
 // ── Small helpers ─────────────────────────────────────────────────
 function Kpi({ icon, label, value, highlight }: {
