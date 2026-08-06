@@ -26,7 +26,10 @@ interface Claim {
   duplicate_flag: boolean | null;
   duplicate_count: number | null;
   batch_id: string | null;
+  appointment_id: string | null;
+  phone_last4: string | null;
 }
+
 
 interface Batch {
   id: string;
