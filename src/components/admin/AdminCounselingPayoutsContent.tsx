@@ -256,6 +256,8 @@ export default function AdminCounselingPayoutsContent() {
 
       <PostEvalSmsQueueCard />
 
+      <ClientNotificationsCard />
+
       <Card className="p-4 space-y-3">
         <div className="flex items-center gap-2 flex-wrap">
           <Layers className="h-4 w-4 text-amber-600" />
