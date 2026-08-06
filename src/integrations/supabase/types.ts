@@ -9045,6 +9045,54 @@ export type Database = {
           },
         ]
       }
+      seo_article_runs: {
+        Row: {
+          category: string | null
+          cover_generated: boolean
+          created_at: string
+          duration_ms: number | null
+          error_message: string | null
+          finished_at: string | null
+          id: string
+          publish_status: string | null
+          slug: string
+          status: string
+          topic_index: number | null
+          triggered_by: string | null
+          version: number
+        }
+        Insert: {
+          category?: string | null
+          cover_generated?: boolean
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          publish_status?: string | null
+          slug: string
+          status?: string
+          topic_index?: number | null
+          triggered_by?: string | null
+          version?: number
+        }
+        Update: {
+          category?: string | null
+          cover_generated?: boolean
+          created_at?: string
+          duration_ms?: number | null
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          publish_status?: string | null
+          slug?: string
+          status?: string
+          topic_index?: number | null
+          triggered_by?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
       service_events: {
         Row: {
           anonymous_token: string | null

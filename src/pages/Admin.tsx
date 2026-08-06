@@ -12,6 +12,7 @@ const BranchDashboardContent = lazy(() => import("@/components/admin/BranchDashb
 const AdminKitOrdersContent = lazy(() => import("@/components/admin/AdminKitOrdersContent"));
 const AdminAnalyticsContent = lazy(() => import("@/components/admin/AdminAnalyticsContent"));
 const AdminBlogContent = lazy(() => import("@/components/admin/AdminBlogContent"));
+const AdminSeoArticlesContent = lazy(() => import("@/components/admin/AdminSeoArticlesContent"));
 const AdminNotificationsContent = lazy(() => import("@/components/admin/AdminNotificationsContent"));
 const AdminUsersContent = lazy(() => import("@/components/admin/AdminUsersContent").then(m => ({ default: m.AdminUsersContent })));
 const AdminBranchStaffContent = lazy(() => import("@/components/admin/AdminBranchStaffContent"));
@@ -224,6 +225,7 @@ export default function Admin() {
 
           {/* Content */}
           {renderTab("blog", <AdminBlogContent />)}
+          {renderTab("seo-articles", <AdminSeoArticlesContent />)}
           {renderTab("surveys", <AdminSurveysContent />)}
           {renderTab("rewards", <AdminRewardsContent />)}
           {renderTab("monthly-draw", <AdminMonthlyDrawContent />)}
