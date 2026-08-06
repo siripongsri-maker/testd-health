@@ -94,6 +94,8 @@ export default function GuestAppointments() {
   const [cancelReason, setCancelReason] = useState<string>('');
   const [cancelNote, setCancelNote] = useState('');
   const [cancelLoading, setCancelLoading] = useState(false);
+  const [rescheduleSlug, setRescheduleSlug] = useState<string | null>(null);
+
 
   // Bangkok time helper
   const getBangkokNow = () => {
@@ -242,9 +244,11 @@ export default function GuestAppointments() {
         });
       } catch {}
       toast.success(language === 'th' ? 'ยกเลิกการนัดหมายแล้ว' : 'Appointment cancelled');
+      setRescheduleSlug(cancelApt.branch_slug || null);
       setCancelApt(null);
       setCancelReason('');
       setCancelNote('');
+
     } catch (err: any) {
       const msg = err?.message || '';
       if (msg.includes('not_cancellable')) {
