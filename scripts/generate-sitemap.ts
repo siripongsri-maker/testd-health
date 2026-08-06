@@ -14,8 +14,9 @@ const SUPABASE_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? "";
 
 interface ImageEntry {
   loc: string;
-  title?: string;
-  caption?: string;
+  /** Per-locale title/caption so the /en entry isn't labelled in Thai. */
+  title?: Partial<Record<(typeof LOCALES)[number], string>>;
+  caption?: Partial<Record<(typeof LOCALES)[number], string>>;
 }
 
 interface SitemapEntry {
@@ -102,7 +103,13 @@ async function collectEntries(): Promise<SitemapEntry[]> {
     entries.push({
       path: a.slug ? `/info/article/${a.slug}` : `/info/${a.id}`,
       images: cover
-        ? [{ loc: cover, title: a.title_th || a.title_en || undefined, caption: a.excerpt_th || a.excerpt_en || undefined }]
+        ? [
+            {
+              loc: cover,
+              title: { th: a.title_th || a.title_en || undefined, en: a.title_en || a.title_th || undefined },
+              caption: { th: a.excerpt_th || a.excerpt_en || undefined, en: a.excerpt_en || a.excerpt_th || undefined },
+            },
+          ]
         : undefined,
       lastmod: stamp ? new Date(stamp).toISOString().slice(0, 10) : undefined,
       changefreq: "weekly",
@@ -134,17 +141,19 @@ function renderImageSitemap(entries: SitemapEntry[]) {
   for (const e of entries) {
     if (!e.images || e.images.length === 0) continue;
     for (const locale of LOCALES) {
-      const images = e.images.map((img) =>
-        [
+      const images = e.images.map((img) => {
+        const title = img.title?.[locale];
+        const caption = img.caption?.[locale];
+        return [
           `    <image:image>`,
           `      <image:loc>${escapeXml(img.loc)}</image:loc>`,
-          img.title ? `      <image:title>${escapeXml(img.title.slice(0, 160))}</image:title>` : null,
-          img.caption ? `      <image:caption>${escapeXml(img.caption.slice(0, 300))}</image:caption>` : null,
+          title ? `      <image:title>${escapeXml(title.slice(0, 160))}</image:title>` : null,
+          caption ? `      <image:caption>${escapeXml(caption.slice(0, 300))}</image:caption>` : null,
           `    </image:image>`,
         ]
           .filter(Boolean)
-          .join("\n"),
-      );
+          .join("\n");
+      });
       urls.push(
         [
           `  <url>`,
