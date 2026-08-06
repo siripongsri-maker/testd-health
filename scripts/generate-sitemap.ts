@@ -238,3 +238,135 @@ console.log(
   `sitemap.xml index written -> sitemap-pages.xml (${entries.length * LOCALES.length} URLs), ` +
     `sitemap-images.xml (${imageCount * LOCALES.length} image URLs)`,
 );
+
+/* ------------------------------------------------------------------ *
+ * RSS 2.0 + Atom 1.0 feeds of the latest published articles (TH / EN) *
+ * ------------------------------------------------------------------ */
+
+const FEED_LIMIT = 50;
+
+interface FeedArticle {
+  slug: string;
+  title: string;
+  summary: string;
+  cover: string | null;
+  published: string;
+  updated: string;
+}
+
+function feedArticles(rows: any[], locale: "th" | "en"): FeedArticle[] {
+  const other = locale === "th" ? "en" : "th";
+  return rows
+    .map((a) => {
+      const title = a[`title_${locale}`] || a[`title_${other}`];
+      if (!a.slug || !title) return null;
+      const published = a.published_at || a.updated_at || new Date().toISOString();
+      return {
+        slug: a.slug as string,
+        title: String(title),
+        summary: String(a[`excerpt_${locale}`] || a[`excerpt_${other}`] || ""),
+        cover: typeof a.cover_url === "string" && /^https?:\/\//.test(a.cover_url) ? a.cover_url : null,
+        published: new Date(published).toISOString(),
+        updated: new Date(a.updated_at || published).toISOString(),
+      } as FeedArticle;
+    })
+    .filter(Boolean)
+    .slice(0, FEED_LIMIT) as FeedArticle[];
+}
+
+const FEED_TITLE = {
+  th: "testD — บทความสุขภาพทางเพศและลดอันตราย",
+  en: "testD — Sexual health & harm reduction articles",
+};
+const FEED_DESC = {
+  th: "อัปเดตบทความใหม่จาก testD เรื่อง HIV, PrEP, PEP, โรคติดต่อทางเพศสัมพันธ์ และการลดอันตรายจากการใช้สาร",
+  en: "New articles from testD on HIV, PrEP, PEP, STIs and harm reduction.",
+};
+
+function renderRss(items: FeedArticle[], locale: "th" | "en", file: string) {
+  const self = `${BASE_URL}/${file}`;
+  const home = `${BASE_URL}/${locale}/info`;
+  const latest = items[0]?.updated ?? new Date().toISOString();
+  return [
+    `<?xml version="1.0" encoding="UTF-8"?>`,
+    `<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">`,
+    `<channel>`,
+    `  <title>${escapeXml(FEED_TITLE[locale])}</title>`,
+    `  <link>${escapeXml(home)}</link>`,
+    `  <description>${escapeXml(FEED_DESC[locale])}</description>`,
+    `  <language>${locale === "th" ? "th-TH" : "en"}</language>`,
+    `  <lastBuildDate>${new Date(latest).toUTCString()}</lastBuildDate>`,
+    `  <atom:link href="${escapeXml(self)}" rel="self" type="application/rss+xml" />`,
+    ...items.map((it) => {
+      const url = `${BASE_URL}/${locale}/info/article/${it.slug}`;
+      return [
+        `  <item>`,
+        `    <title>${escapeXml(it.title)}</title>`,
+        `    <link>${escapeXml(url)}</link>`,
+        `    <guid isPermaLink="true">${escapeXml(url)}</guid>`,
+        `    <pubDate>${new Date(it.published).toUTCString()}</pubDate>`,
+        it.summary ? `    <description>${escapeXml(it.summary)}</description>` : null,
+        it.cover ? `    <enclosure url="${escapeXml(it.cover)}" type="image/jpeg" length="0" />` : null,
+        `  </item>`,
+      ]
+        .filter(Boolean)
+        .join("\n");
+    }),
+    `</channel>`,
+    `</rss>`,
+  ].join("\n");
+}
+
+function renderAtom(items: FeedArticle[], locale: "th" | "en", file: string) {
+  const self = `${BASE_URL}/${file}`;
+  const home = `${BASE_URL}/${locale}/info`;
+  const latest = items[0]?.updated ?? new Date().toISOString();
+  return [
+    `<?xml version="1.0" encoding="UTF-8"?>`,
+    `<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="${locale}">`,
+    `  <title>${escapeXml(FEED_TITLE[locale])}</title>`,
+    `  <subtitle>${escapeXml(FEED_DESC[locale])}</subtitle>`,
+    `  <id>${escapeXml(self)}</id>`,
+    `  <updated>${latest}</updated>`,
+    `  <link rel="self" type="application/atom+xml" href="${escapeXml(self)}" />`,
+    `  <link rel="alternate" type="text/html" href="${escapeXml(home)}" />`,
+    `  <author><name>testD</name></author>`,
+    ...items.map((it) => {
+      const url = `${BASE_URL}/${locale}/info/article/${it.slug}`;
+      return [
+        `  <entry>`,
+        `    <title>${escapeXml(it.title)}</title>`,
+        `    <id>${escapeXml(url)}</id>`,
+        `    <link rel="alternate" type="text/html" href="${escapeXml(url)}" />`,
+        `    <published>${it.published}</published>`,
+        `    <updated>${it.updated}</updated>`,
+        it.summary ? `    <summary type="text">${escapeXml(it.summary)}</summary>` : null,
+        it.cover ? `    <link rel="enclosure" type="image/jpeg" href="${escapeXml(it.cover)}" />` : null,
+        `  </entry>`,
+      ]
+        .filter(Boolean)
+        .join("\n");
+    }),
+    `</feed>`,
+  ].join("\n");
+}
+
+const feedRows = await fetchRows(
+  "blog_articles",
+  "select=slug,updated_at,published_at,cover_url,title_th,title_en,excerpt_th,excerpt_en&status=eq.published&order=published_at.desc&limit=200",
+);
+
+const feedFiles: Record<"th" | "en", { rss: string; atom: string }> = {
+  th: { rss: "feed.xml", atom: "atom.xml" },
+  en: { rss: "feed-en.xml", atom: "atom-en.xml" },
+};
+
+let feedItemCount = 0;
+for (const locale of LOCALES) {
+  const items = feedArticles(feedRows, locale);
+  feedItemCount += items.length;
+  writeFileSync(resolve(`public/${feedFiles[locale].rss}`), renderRss(items, locale, feedFiles[locale].rss));
+  writeFileSync(resolve(`public/${feedFiles[locale].atom}`), renderAtom(items, locale, feedFiles[locale].atom));
+}
+
+console.log(`feeds written -> feed.xml / atom.xml (th), feed-en.xml / atom-en.xml (en) — ${feedItemCount} items`);
