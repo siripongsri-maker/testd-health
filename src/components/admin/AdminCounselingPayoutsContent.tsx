@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2, Download, Banknote, Check, X, Eye, RefreshCw, AlertTriangle, Layers } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import PostEvalSmsQueueCard from "./PostEvalSmsQueueCard";
+import ClientNotificationsCard from "./ClientNotificationsCard";
 
 type ClaimStatus = "pending" | "approved" | "paid" | "rejected";
 
@@ -254,6 +255,8 @@ export default function AdminCounselingPayoutsContent() {
       </div>
 
       <PostEvalSmsQueueCard />
+
+      <ClientNotificationsCard />
 
       <Card className="p-4 space-y-3">
         <div className="flex items-center gap-2 flex-wrap">
