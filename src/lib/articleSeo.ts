@@ -3,7 +3,14 @@
  * and OpenGraph/Twitter article metadata for /info/article/:slug pages.
  */
 
+import { canonicalPathFor } from "@/lib/seoLocalePrefix";
+
 const BASE_URL = "https://testd.website";
+
+/** Absolute, locale-prefixed URL so JSON-LD self-references the rendered page. */
+function absUrl(path: string, language: "th" | "en"): string {
+  return `${BASE_URL}${canonicalPathFor(path, language)}`;
+}
 const DEFAULT_OG_IMAGE =
   "https://storage.googleapis.com/gpt-engineer-file-uploads/KT2ExYhzQvVnbWOZrapb2296DWu1/social-images/social-1770910470399-testD_logo.png";
 
@@ -82,7 +89,7 @@ export function buildArticleJsonLd(opts: {
   categoryName?: string | null;
   language: "th" | "en";
 }): Record<string, unknown> {
-  const url = `${BASE_URL}${opts.canonicalPath}`;
+  const url = absUrl(opts.canonicalPath, opts.language);
   return {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -133,7 +140,7 @@ export function buildArticleBreadcrumbJsonLd(opts: {
       "@type": "ListItem",
       position: i + 1,
       name: c.name,
-      item: `${BASE_URL}${c.path}`,
+      item: absUrl(c.path, opts.language),
     })),
   };
 }
