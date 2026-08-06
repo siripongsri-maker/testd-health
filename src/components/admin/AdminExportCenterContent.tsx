@@ -253,6 +253,9 @@ const journeyDocs = [
   {
     id: 'client',
     file: '/docs/journey-client.pdf',
+    pngDir: '/docs/journey-client',
+    pngZip: '/docs/journey-client-pages.zip',
+    pages: 18,
     icon: '🧑‍💼',
     name: 'Client Journey (full data)',
     nameTh: 'Journey ผู้รับบริการ (ข้อมูลครบ)',
@@ -262,6 +265,9 @@ const journeyDocs = [
   {
     id: 'admin',
     file: '/docs/journey-admin-counselor.pdf',
+    pngDir: '/docs/journey-admin-counselor',
+    pngZip: '/docs/journey-admin-counselor-pages.zip',
+    pages: 11,
     icon: '🧑‍⚕️',
     name: 'Staff & Counselor Journey',
     nameTh: 'Journey เจ้าหน้าที่และผู้ให้คำปรึกษา',
@@ -269,6 +275,8 @@ const journeyDocs = [
     descriptionTh: '11 ขั้นตอนในหน้าจอแอดมิน พร้อมข้อมูลจริง',
   },
 ];
+
+const pngPath = (dir: string, page: number) => `${dir}/page-${String(page).padStart(2, '0')}.png`;
 
 function JourneyPdfCards({ isTh }: { isTh: boolean }) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
