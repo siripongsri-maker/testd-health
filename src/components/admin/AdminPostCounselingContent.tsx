@@ -451,7 +451,16 @@ export function PostCounselingCasesTab({ variant }: { variant: "cases" | "compar
                             </Button>
                           </>
                         )}
+                        <Button
+                          size="sm" variant="outline"
+                          className="h-7 text-xs border-sky-300 text-sky-700 hover:bg-sky-50 dark:text-sky-300"
+                          disabled={readOnly || submitted}
+                          onClick={() => { setSmsNote(note); setSmsPhone(""); }}
+                        >
+                          <MessageSquare className="h-3 w-3 mr-1" />{tx("ส่ง SMS", "Send SMS")}
+                        </Button>
                       </div>
+
                     </td>
                   </tr>
                 );
