@@ -411,6 +411,15 @@ function JourneyPdfCards({ isTh }: { isTh: boolean }) {
                 <div className="flex flex-wrap gap-2 mt-2">
                   <Button
                     size="sm"
+                    variant="secondary"
+                    className="h-7 text-xs gap-1"
+                    onClick={() => setPreviewDoc(doc)}
+                  >
+                    <Eye className="h-3 w-3" />
+                    {isTh ? 'ดูตัวอย่างก่อนดาวน์โหลด' : 'Preview before download'}
+                  </Button>
+                  <Button
+                    size="sm"
                     className="h-7 text-xs gap-1"
                     disabled={rebuilding !== null}
                     onClick={() => rebuild(doc)}
