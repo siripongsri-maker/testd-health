@@ -241,9 +241,9 @@ export function AdminSeoHealthContent() {
       const imageLocs = images ? parseLocs(images.text) : [];
       const { data: articles } = await supabase
         .from("blog_articles")
-        .select("slug, cover_url, published")
-        .eq("published", true);
-      const published = articles ?? [];
+        .select("slug, cover_url")
+        .eq("status", "published");
+      const published: { slug: string | null; cover_url: string | null }[] = articles ?? [];
       const missingFromSitemap = published
         .filter((a) => a.slug && !pageLocs.some((l) => l.endsWith(`/info/article/${a.slug}`)))
         .map((a) => `/info/article/${a.slug}`);
