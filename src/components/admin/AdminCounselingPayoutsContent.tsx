@@ -380,7 +380,17 @@ export default function AdminCounselingPayoutsContent() {
                     บัญชีนี้เคยรับแล้ว {c.duplicate_count ?? 1} ครั้ง/90 วัน
                   </Badge>
                 )}
+                {isRealClient(c) ? (
+                  <Badge variant="outline" className="text-[10px] border-emerald-300 text-emerald-700">
+                    ผู้รับบริการจริง{c.phone_last4 ? ` • xxx${c.phone_last4}` : ""}
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="text-[10px] border-muted-foreground/40 text-muted-foreground">
+                    ยังไม่ยืนยันการเข้ารับบริการ
+                  </Badge>
+                )}
                 {c.batch_id && <Badge variant="outline" className="text-[10px]">อยู่ในรอบจ่าย</Badge>}
+
                 <span className="text-xs text-muted-foreground">{branches[c.branch_id ?? ""] ?? "ไม่ระบุสาขา"}</span>
                 <span className="ml-auto font-bold tabular-nums">{baht(c.amount)}</span>
 
