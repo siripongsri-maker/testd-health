@@ -31,19 +31,20 @@ import {
 import { VisitProgressCard } from '@/components/VisitProgressCard';
 import { MedicationSetupDialog, isMedicationService } from '@/components/MedicationSetupDialog';
 import { GeofenceCheckinBanner } from '@/components/appointments/GeofenceCheckinBanner';
+import { RescheduleSuggestDialog } from '@/components/appointments/RescheduleSuggestDialog';
+import { ACTIVE_APPOINTMENT_STATUSES, normalizeStatus } from '@/lib/appointmentStatus';
+
 
 const STATUS_CONFIG: Record<string, { labelTh: string; labelEn: string; color: string; icon: typeof CheckCircle2 }> = {
   booked: { labelTh: 'จองแล้ว', labelEn: 'Booked', color: 'text-blue-600 bg-blue-100 dark:bg-blue-900/30', icon: Calendar },
-  confirmed: { labelTh: 'ยืนยันแล้ว', labelEn: 'Confirmed', color: 'text-green-600 bg-green-100 dark:bg-green-900/30', icon: CheckCircle2 },
-  arrived: { labelTh: 'เช็คอินแล้ว', labelEn: 'Checked In', color: 'text-amber-600 bg-amber-100 dark:bg-amber-900/30', icon: LogIn },
-  in_progress: { labelTh: 'กำลังรับบริการ', labelEn: 'In Progress', color: 'text-amber-600 bg-amber-100 dark:bg-amber-900/30', icon: Clock },
-  completed: { labelTh: 'บริการเสร็จสิ้น', labelEn: 'Service Completed', color: 'text-green-700 bg-green-100 dark:bg-green-900/30', icon: CheckCircle2 },
-  checked_out: { labelTh: 'เสร็จสิ้น', labelEn: 'Completed', color: 'text-green-700 bg-green-100 dark:bg-green-900/30', icon: CheckCircle2 },
+  arrived: { labelTh: 'มาเข้ารับบริการ', labelEn: 'Checked in', color: 'text-amber-600 bg-amber-100 dark:bg-amber-900/30', icon: LogIn },
+  checked_out: { labelTh: 'เช็คเอาท์แล้ว', labelEn: 'Checked out', color: 'text-green-700 bg-green-100 dark:bg-green-900/30', icon: CheckCircle2 },
   cancelled: { labelTh: 'ยกเลิก', labelEn: 'Cancelled', color: 'text-red-600 bg-red-100 dark:bg-red-900/30', icon: XCircle },
   no_show: { labelTh: 'ไม่มาตามนัด', labelEn: 'No Show', color: 'text-gray-600 bg-gray-100 dark:bg-gray-900/30', icon: AlertCircle },
 };
 
-const ACTIVE_STATUSES = new Set(['booked', 'confirmed', 'arrived', 'in_progress', 'completed']);
+const ACTIVE_STATUSES = new Set(ACTIVE_APPOINTMENT_STATUSES);
+
 
 export default function MyAppointments() {
   const { language } = useLanguage();
@@ -55,6 +56,8 @@ export default function MyAppointments() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [checkinLoadingId, setCheckinLoadingId] = useState<string | null>(null);
+  const [rescheduleBranch, setRescheduleBranch] = useState<{ id: string; slug: string | null } | null>(null);
+
 
   // Check-out dialog state
   const [checkoutApt, setCheckoutApt] = useState<FullAppointment | null>(null);
@@ -103,16 +106,24 @@ export default function MyAppointments() {
     setCancellingId(appointmentId);
     try {
       await updateAppointmentStatusRPC(appointmentId, 'cancelled', 'Cancelled by user');
+      const cancelled = appointments.find(a => a.id === appointmentId);
       setAppointments(prev =>
         prev.map(a => a.id === appointmentId ? { ...a, status: 'cancelled', cancelled_at: new Date().toISOString() } : a)
       );
       toast.success(language === 'th' ? 'ยกเลิกนัดหมายแล้ว' : 'Appointment cancelled');
+      if (cancelled) {
+        setRescheduleBranch({
+          id: cancelled.branch_id,
+          slug: cancelled.booking_branches?.slug || null,
+        });
+      }
     } catch {
       toast.error(language === 'th' ? 'เกิดข้อผิดพลาด' : 'Something went wrong');
     } finally {
       setCancellingId(null);
     }
   };
+
 
   const handleCheckin = async (appointmentId: string) => {
     setCheckinLoadingId(appointmentId);
@@ -194,8 +205,9 @@ export default function MyAppointments() {
     }
   };
 
-  const upcoming = appointments.filter(a => ACTIVE_STATUSES.has(a.status));
-  const past = appointments.filter(a => !ACTIVE_STATUSES.has(a.status));
+  const upcoming = appointments.filter(a => ACTIVE_STATUSES.has(normalizeStatus(a.status)));
+  const past = appointments.filter(a => !ACTIVE_STATUSES.has(normalizeStatus(a.status)));
+
 
   if (authLoading || loading) {
     return (
@@ -750,6 +762,14 @@ export default function MyAppointments() {
         serviceSlug={medServiceSlug}
         serviceName={medServiceName}
       />
+
+      <RescheduleSuggestDialog
+        open={!!rescheduleBranch}
+        onOpenChange={(v) => { if (!v) setRescheduleBranch(null); }}
+        branchId={rescheduleBranch?.id}
+        branchSlug={rescheduleBranch?.slug}
+      />
+
     </>
   );
 }

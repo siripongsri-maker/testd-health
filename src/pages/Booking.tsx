@@ -182,6 +182,18 @@ export default function Booking() {
         }
         // Graceful fallback: if slug not found (removed/inactive), just show full list
       }
+
+      // Preselect a suggested slot from ?date=YYYY-MM-DD&time=HH:mm (reschedule suggestions)
+      const dateParam = searchParams.get('date');
+      const timeParam = searchParams.get('time');
+      if (dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
+        const d = new Date(`${dateParam}T00:00:00`);
+        if (!isNaN(d.getTime())) setSelectedDate(d);
+      }
+      if (timeParam && /^\d{2}:\d{2}$/.test(timeParam)) {
+        setSelectedTime(timeParam);
+      }
+
     };
     load();
   }, [searchParams]);

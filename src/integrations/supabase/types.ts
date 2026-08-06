@@ -12102,6 +12102,14 @@ export type Database = {
         }
         Returns: Json
       }
+      suggest_reschedule_slots: {
+        Args: { _branch_id: string; _from_date?: string; _limit?: number }
+        Returns: {
+          load_count: number
+          start_time: string
+          suggested_date: string
+        }[]
+      }
       update_abuse_flag_status: {
         Args: { p_flag_id: string; p_note?: string; p_status: string }
         Returns: undefined

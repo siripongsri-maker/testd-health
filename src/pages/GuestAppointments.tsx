@@ -20,6 +20,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog';
 import { MedicationSetupDialog, isMedicationService } from '@/components/MedicationSetupDialog';
+import { RescheduleSuggestDialog } from '@/components/appointments/RescheduleSuggestDialog';
 
 interface GuestAppointment {
   appointment_id: string;
@@ -48,15 +49,12 @@ const STORAGE_KEY = 'guest_appointments_v1';
 
 const STATUS_CONFIG: Record<string, { labelTh: string; labelEn: string; color: string; icon: typeof CheckCircle2 }> = {
   booked: { labelTh: 'จองแล้ว', labelEn: 'Booked', color: 'text-blue-600 bg-blue-100 dark:bg-blue-900/30', icon: Calendar },
-  confirmed: { labelTh: 'ยืนยันแล้ว', labelEn: 'Confirmed', color: 'text-green-600 bg-green-100 dark:bg-green-900/30', icon: CheckCircle2 },
-  arrived: { labelTh: 'เช็คอินแล้ว', labelEn: 'Checked In', color: 'text-amber-600 bg-amber-100 dark:bg-amber-900/30', icon: LogIn },
-  in_progress: { labelTh: 'กำลังรับบริการ', labelEn: 'In Progress', color: 'text-amber-600 bg-amber-100 dark:bg-amber-900/30', icon: Clock },
-  completed: { labelTh: 'เสร็จสิ้น', labelEn: 'Completed', color: 'text-green-700 bg-green-100 dark:bg-green-900/30', icon: CheckCircle2 },
-  checked_out: { labelTh: 'เสร็จสิ้น', labelEn: 'Completed', color: 'text-green-700 bg-green-100 dark:bg-green-900/30', icon: CheckCircle2 },
+  arrived: { labelTh: 'มาเข้ารับบริการ', labelEn: 'Checked in', color: 'text-amber-600 bg-amber-100 dark:bg-amber-900/30', icon: LogIn },
+  checked_out: { labelTh: 'เช็คเอาท์แล้ว', labelEn: 'Checked out', color: 'text-green-700 bg-green-100 dark:bg-green-900/30', icon: CheckCircle2 },
   cancelled: { labelTh: 'ยกเลิก', labelEn: 'Cancelled', color: 'text-red-600 bg-red-100 dark:bg-red-900/30', icon: XCircle },
   no_show: { labelTh: 'ไม่มาตามนัด', labelEn: 'No Show', color: 'text-muted-foreground bg-muted', icon: AlertCircle },
-  waiting: { labelTh: 'รอคิว', labelEn: 'Waiting', color: 'text-amber-600 bg-amber-100 dark:bg-amber-900/30', icon: Clock },
 };
+
 
 function getSavedAppointments(): SavedGuestAppointment[] {
   try {
@@ -97,6 +95,8 @@ export default function GuestAppointments() {
   const [cancelReason, setCancelReason] = useState<string>('');
   const [cancelNote, setCancelNote] = useState('');
   const [cancelLoading, setCancelLoading] = useState(false);
+  const [rescheduleSlug, setRescheduleSlug] = useState<string | null>(null);
+
 
   // Bangkok time helper
   const getBangkokNow = () => {
@@ -245,9 +245,11 @@ export default function GuestAppointments() {
         });
       } catch {}
       toast.success(language === 'th' ? 'ยกเลิกการนัดหมายแล้ว' : 'Appointment cancelled');
+      setRescheduleSlug(cancelApt.branch_slug || null);
       setCancelApt(null);
       setCancelReason('');
       setCancelNote('');
+
     } catch (err: any) {
       const msg = err?.message || '';
       if (msg.includes('not_cancellable')) {
@@ -861,6 +863,13 @@ export default function GuestAppointments() {
         serviceSlug={medServiceSlug}
         serviceName={medServiceName}
       />
+
+      <RescheduleSuggestDialog
+        open={!!rescheduleSlug}
+        onOpenChange={(v) => { if (!v) setRescheduleSlug(null); }}
+        branchSlug={rescheduleSlug}
+      />
+
     </>
   );
 }
