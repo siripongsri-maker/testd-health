@@ -77,13 +77,15 @@ export default function AdminCounselingPayoutsContent() {
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
+  const [verifiedOnly, setVerifiedOnly] = useState(true);
+  const [attended, setAttended] = useState<Record<string, boolean>>({});
 
   const load = useCallback(async () => {
     setLoading(true);
     const [{ data: rows }, { data: brs }, { data: bts }] = await Promise.all([
       supabase
         .from("counseling_payout_claims")
-        .select("id, branch_id, amount, account_holder_name, bank_name, bank_account_no, id_card_path, status, payment_ref, created_at, paid_at, duplicate_flag, duplicate_count, batch_id")
+        .select("id, branch_id, amount, account_holder_name, bank_name, bank_account_no, id_card_path, status, payment_ref, created_at, paid_at, duplicate_flag, duplicate_count, batch_id, appointment_id, phone_last4")
         .order("created_at", { ascending: false })
         .limit(1000),
       supabase.from("booking_branches").select("id, name_th"),
@@ -93,14 +95,36 @@ export default function AdminCounselingPayoutsContent() {
         .order("created_at", { ascending: false })
         .limit(20),
     ]);
-    setClaims((rows as Claim[]) ?? []);
+    const list = (rows as Claim[]) ?? [];
+    setClaims(list);
     setBatches((bts as Batch[]) ?? []);
     setBranches(Object.fromEntries(((brs as any[]) ?? []).map((b) => [b.id, b.name_th])));
+
+    // Verify each claim against a real, attended appointment (checked in / checked out).
+    const apptIds = Array.from(new Set(list.map((c) => c.appointment_id).filter(Boolean))) as string[];
+    if (apptIds.length) {
+      const { data: appts } = await supabase
+        .from("appointments")
+        .select("id, status, checked_out_at, arrived_at")
+        .in("id", apptIds);
+      const map: Record<string, boolean> = {};
+      for (const a of (appts as any[]) ?? []) {
+        map[a.id] = a.status === "checked_out" || a.status === "arrived" || !!a.checked_out_at || !!a.arrived_at;
+      }
+      setAttended(map);
+    } else {
+      setAttended({});
+    }
     setLoading(false);
   }, []);
 
+  const isRealClient = useCallback(
+    (c: Claim) => !!c.appointment_id && attended[c.appointment_id] === true,
+    [attended],
+  );
 
   useEffect(() => { load(); }, [load]);
+
 
   useEffect(() => {
     const ch = supabase
