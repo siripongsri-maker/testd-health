@@ -304,6 +304,7 @@ export default function InfoArticle() {
         canonicalPath={canonicalPath}
         alternateLanguages={alternateLanguagePathsFor(canonicalPath, availableLocales)}
         ogImage={article.cover_url || undefined}
+        ogImageAlt={seoTitle}
         ogType="article"
         lang={lang}
         jsonLd={jsonLdBlocks}

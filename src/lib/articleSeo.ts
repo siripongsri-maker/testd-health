@@ -11,8 +11,7 @@ const BASE_URL = "https://testd.website";
 function absUrl(path: string, language: "th" | "en"): string {
   return `${BASE_URL}${canonicalPathFor(path, language)}`;
 }
-const DEFAULT_OG_IMAGE =
-  "https://storage.googleapis.com/gpt-engineer-file-uploads/KT2ExYhzQvVnbWOZrapb2296DWu1/social-images/social-1770910470399-testD_logo.png";
+import { resolveOgImage } from "@/lib/ogImage";
 
 export interface ArticleFaq {
   question: string;
@@ -95,7 +94,7 @@ export function buildArticleJsonLd(opts: {
     "@type": "Article",
     headline: opts.title.slice(0, 110),
     description: opts.description,
-    image: [opts.coverUrl || DEFAULT_OG_IMAGE],
+    image: [resolveOgImage(opts.coverUrl)],
     url,
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
     datePublished: opts.publishedAt || undefined,
