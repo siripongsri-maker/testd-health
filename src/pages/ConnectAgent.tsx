@@ -24,15 +24,65 @@ const CLAUDE_ADD = `https://claude.ai/customize/connectors?modal=add-custom-conn
   APP_NAME,
 )}&connectorUrl=${encodeURIComponent(MCP_URL)}`;
 
-function CopyButton({ value, label }: { value: string; label: string }) {
+function shortenUrl(url: string) {
+  try {
+    const u = new URL(url);
+    const parts = u.pathname.split("/").filter(Boolean);
+    const host = u.hostname.length > 24 ? `${u.hostname.slice(0, 10)}…${u.hostname.slice(-12)}` : u.hostname;
+    const tail = parts.length ? `/…/${parts[parts.length - 1]}` : "";
+    return `${host}${tail}`;
+  } catch {
+    return url.length > 40 ? `${url.slice(0, 20)}…${url.slice(-16)}` : url;
+  }
+}
+
+async function writeClipboard(value: string) {
+  try {
+    await navigator.clipboard.writeText(value);
+    return true;
+  } catch {
+    try {
+      const el = document.createElement("textarea");
+      el.value = value;
+      el.setAttribute("readonly", "");
+      el.style.position = "fixed";
+      el.style.opacity = "0";
+      document.body.appendChild(el);
+      el.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(el);
+      return ok;
+    } catch {
+      return false;
+    }
+  }
+}
+
+function CopyButton({
+  value,
+  label,
+  toastLabel,
+  className,
+}: {
+  value: string;
+  label: string;
+  toastLabel?: string;
+  className?: string;
+}) {
   const [copied, setCopied] = useState(false);
   return (
     <Button
-      variant="secondary"
+      variant={copied ? "default" : "secondary"}
       size="sm"
-      onClick={() => {
-        navigator.clipboard.writeText(value);
+      className={className}
+      onClick={async () => {
+        const ok = await writeClipboard(value);
+        if (!ok) {
+          toast.error("คัดลอกไม่สำเร็จ", { description: "กรุณาเลือกข้อความแล้วคัดลอกด้วยตัวเอง" });
+          return;
+        }
         setCopied(true);
+        toast.success(`คัดลอก${toastLabel ?? "แล้ว"}`, { description: shortenUrl(value) });
         setTimeout(() => setCopied(false), 1800);
       }}
       aria-label={label}
@@ -42,6 +92,7 @@ function CopyButton({ value, label }: { value: string; label: string }) {
     </Button>
   );
 }
+
 
 function Steps({
   items,
