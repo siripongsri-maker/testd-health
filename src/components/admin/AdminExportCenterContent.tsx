@@ -3,7 +3,8 @@ import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FileDown, Download, Calendar, Loader2, Fingerprint, Link2, Check, FileText, Images, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
+import { FileDown, Download, Calendar, Loader2, Fingerprint, Link2, Check, FileText, Images, ChevronDown, ChevronUp, RefreshCw, Eye } from "lucide-react";
+import { JourneyPreviewDialog } from "@/components/admin/JourneyPreviewDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminRole } from "@/hooks/useAdminRole";
@@ -282,6 +283,7 @@ function JourneyPdfCards({ isTh }: { isTh: boolean }) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [versions, setVersions] = useState<Record<string, string>>({});
   const [openPages, setOpenPages] = useState<string | null>(null);
+  const [previewDoc, setPreviewDoc] = useState<typeof journeyDocs[number] | null>(null);
   const [rebuilding, setRebuilding] = useState<string | null>(null);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [lastBuild, setLastBuild] = useState<Record<string, { version: string; at: Date }>>({});
@@ -409,6 +411,15 @@ function JourneyPdfCards({ isTh }: { isTh: boolean }) {
                 <div className="flex flex-wrap gap-2 mt-2">
                   <Button
                     size="sm"
+                    variant="secondary"
+                    className="h-7 text-xs gap-1"
+                    onClick={() => setPreviewDoc(doc)}
+                  >
+                    <Eye className="h-3 w-3" />
+                    {isTh ? 'ดูตัวอย่างก่อนดาวน์โหลด' : 'Preview before download'}
+                  </Button>
+                  <Button
+                    size="sm"
                     className="h-7 text-xs gap-1"
                     disabled={rebuilding !== null}
                     onClick={() => rebuild(doc)}
@@ -480,6 +491,16 @@ function JourneyPdfCards({ isTh }: { isTh: boolean }) {
           ))}
 
         </div>
+
+        <JourneyPreviewDialog
+          doc={previewDoc}
+          isTh={isTh}
+          open={previewDoc !== null}
+          onOpenChange={(v) => { if (!v) setPreviewDoc(null); }}
+          downloading={rebuilding !== null}
+          progressLabel={progress ? `${isTh ? 'กำลังสร้าง' : 'Generating'} ${progress.done}/${progress.total}` : null}
+          onDownload={(d) => rebuild(journeyDocs.find(j => j.id === d.id)!)}
+        />
       </CardContent>
     </Card>
   );
