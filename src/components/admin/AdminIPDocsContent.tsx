@@ -540,7 +540,7 @@ Generated: ${new Date().toISOString()}
             IP Documentation Center
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Intellectual property documentation for testD platform
+            Intellectual property documentation for testD platform · {AUTO_FEATURES.length} modules · v{APP_VERSION} · updated {new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Bangkok" })}
           </p>
         </div>
         <div className="flex items-center gap-3">
