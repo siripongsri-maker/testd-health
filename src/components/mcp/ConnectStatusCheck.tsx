@@ -232,8 +232,16 @@ export function ConnectStatusCheck({
         )}
 
         <ul className="space-y-3">
-          {(checks.length ? checks : [{ id: "init", label: "กำลังเริ่มตรวจสอบ…", state: "running" as CheckState }]).map(
+          {(checks.length
+            ? checks
+            : [
+                running
+                  ? { id: "init", label: "กำลังเริ่มตรวจสอบ…", state: "running" as CheckState }
+                  : { id: "init", label: "ยังไม่ได้ตรวจ — กด “ตรวจอีกครั้ง” เพื่อเริ่ม", state: "idle" as CheckState },
+              ]
+          ).map(
             (check) => (
+
               <li key={check.id} className="flex items-start gap-3">
                 <span className="mt-0.5 shrink-0">{STATE_ICON[check.state]}</span>
                 <div className="min-w-0 space-y-0.5">
