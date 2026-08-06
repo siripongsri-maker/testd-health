@@ -58,18 +58,31 @@ const loadImage = (src: string) =>
     img.src = src;
   });
 
+/** Version label derived from the generation moment in Bangkok time, e.g. v2026.08.07-0025 */
+export function journeyVersionLabel(date: Date) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: BKK,
+    year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", hour12: false,
+  }).formatToParts(date);
+  const g = (t: string) => parts.find(p => p.type === t)?.value ?? "00";
+  return `v${g("year")}.${g("month")}.${g("day")}-${g("hour")}${g("minute")}`;
+}
+
 function buildCoverElement(opts: {
   title: string;
   subtitle: string;
   stats: JourneyLiveStats;
+  version: string;
   isTh: boolean;
   width: number;
   height: number;
 }) {
-  const { title, subtitle, stats, isTh, width, height } = opts;
+  const { title, subtitle, stats, version, isTh, width, height } = opts;
   const el = document.createElement("div");
   el.style.cssText = `position:fixed;left:-10000px;top:0;width:${width}px;height:${height}px;background:#ffffff;color:#111827;padding:64px;box-sizing:border-box;font-family:'Noto Sans Thai','Sarabun',system-ui,-apple-system,'Segoe UI',sans-serif;`;
   const stamp = stats.generatedAt.toLocaleString(isTh ? "th-TH" : "en-GB", { timeZone: BKK });
+
   el.innerHTML = `
     <div style="border-bottom:4px solid #c0275e;padding-bottom:20px;margin-bottom:32px;">
       <div style="font-size:20px;color:#c0275e;font-weight:700;letter-spacing:1px;">testD × SWING</div>
