@@ -258,6 +258,41 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
     );
   }
 
+  const blocked =
+    quota.remaining <= 0
+      ? tx(`สิทธิ์ค่าเดินทางเต็มแล้ว (จำกัด ${quota.limit} คน)`, `Quota full (limit ${quota.limit} people)`)
+      : phoneClaimed
+      ? tx("เบอร์โทรที่ใช้จองนี้ได้รับค่าเดินทางไปแล้ว", "The phone number used for this booking has already claimed")
+      : !hasEvaluation
+      ? tx("กรุณากรอกแบบประเมินหลังรับคำปรึกษาให้เสร็จก่อน", "Please complete the post-counseling evaluation first")
+      : !attended
+      ? tx("ยังยืนยันการเข้ารับคำปรึกษาจากการจองไม่ได้ กรุณาติดต่อเจ้าหน้าที่", "We cannot verify your counseling visit yet. Please contact staff.")
+      : null;
+
+  const quotaLine = (
+    <p className="text-[11px] text-muted-foreground">
+      {tx(`สิทธิ์คงเหลือ ${quota.remaining} / ${quota.limit} คน`, `${quota.remaining} of ${quota.limit} slots left`)}
+      {phoneLast4 ? tx(` · เบอร์จอง •••${phoneLast4}`, ` · booking phone •••${phoneLast4}`) : ""}
+    </p>
+  );
+
+  if (blocked) {
+    return (
+      <Card className="p-5 rounded-3xl border-2 border-muted space-y-2">
+        <div className="flex items-start gap-3">
+          <Banknote className="h-6 w-6 text-muted-foreground shrink-0" />
+          <div>
+            <p className="font-bold text-sm">{tx("ค่าเดินทาง 200 บาท", "200 THB travel allowance")}</p>
+            <p className="text-xs text-muted-foreground mt-1">{blocked}</p>
+          </div>
+        </div>
+        {quotaLine}
+        <Button variant="outline" className="w-full h-9 rounded-full text-xs" onClick={refresh}>
+          {tx("ตรวจสอบอีกครั้ง", "Check again")}
+        </Button>
+      </Card>
+    );
+  }
 
   if (!open) {
     return (
@@ -267,11 +302,12 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
           <div>
             <p className="font-bold text-sm">{tx("รับค่าเดินทาง 200 บาท", "Get a 200 THB travel allowance")}</p>
             <p className="text-xs text-muted-foreground mt-1">
-              {tx("สำหรับผู้ที่ตอบแบบประเมินครบ · โอนเข้าบัญชีธนาคารของคุณ (1 ครั้งต่อการรับบริการ)",
-                  "For completing this evaluation · transferred to your bank account (once per visit)")}
+              {tx("สำหรับผู้ที่มารับคำปรึกษาจริงและตอบแบบประเมินครบ · จำกัด 100 คนแรก · 1 เบอร์โทรต่อ 1 สิทธิ์",
+                  "For verified visits with a completed evaluation · first 100 people only · one claim per phone number")}
             </p>
           </div>
         </div>
+        {quotaLine}
         <Button onClick={() => setOpen(true)} className="w-full h-11 rounded-full bg-amber-600 hover:bg-amber-700 text-white">
           {tx("ขอรับค่าเดินทาง", "Request travel allowance")}
         </Button>
@@ -286,7 +322,9 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
         <p className="text-xs text-muted-foreground">
           {tx(`จำนวน ${AMOUNT} บาท ต่อการรับบริการ 1 ครั้ง`, `${AMOUNT} THB per visit`)}
         </p>
+        {quotaLine}
       </div>
+
 
       <div className="space-y-1">
         <Label className="text-xs">{tx("ชื่อ–นามสกุล เจ้าของบัญชี", "Account holder name")}</Label>
