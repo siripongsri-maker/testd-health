@@ -163,12 +163,19 @@ export function ConnectStatusCheck({ mcpUrl }: { mcpUrl: string }) {
     if (mounted.current) {
       setRanAt(new Date());
       setRunning(false);
+      const status = results.some((r) => r.state === "fail")
+        ? "fail"
+        : results.some((r) => r.state === "warn")
+          ? "warn"
+          : "pass";
+      onResultRef.current?.(status);
     }
   }, [mcpUrl]);
 
   useEffect(() => {
-    void run();
-  }, [run]);
+    if (autoRun) void run();
+  }, [run, autoRun]);
+
 
   const hasFail = checks.some((c) => c.state === "fail");
   const hasWarn = checks.some((c) => c.state === "warn");
