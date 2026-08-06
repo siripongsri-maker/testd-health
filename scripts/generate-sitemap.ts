@@ -27,6 +27,7 @@ const staticEntries: SitemapEntry[] = [
   { path: "/drug-combination-risk", changefreq: "weekly", priority: "0.9" },
   { path: "/booking", changefreq: "daily", priority: "0.8" },
   { path: "/info", changefreq: "daily", priority: "0.8" },
+  { path: "/info/categories", changefreq: "weekly", priority: "0.7" },
   { path: "/ghb-overdose", changefreq: "monthly", priority: "0.8" },
   { path: "/meth-harm-reduction", changefreq: "monthly", priority: "0.8" },
   { path: "/hiv-self-test-guide", changefreq: "monthly", priority: "0.8" },
