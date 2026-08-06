@@ -83,6 +83,33 @@ export type Database = {
         }
         Relationships: []
       }
+      agent_connect_settings: {
+        Row: {
+          anonymous_id: string
+          created_at: string
+          id: string
+          settings: Json
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          anonymous_id: string
+          created_at?: string
+          id?: string
+          settings?: Json
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          anonymous_id?: string
+          created_at?: string
+          id?: string
+          settings?: Json
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       analytics_daily_summary: {
         Row: {
           created_at: string
@@ -11519,6 +11546,10 @@ export type Database = {
               tone: string
             }[]
           }
+      get_agent_connect_settings: {
+        Args: { p_anonymous_id: string }
+        Returns: Json
+      }
       get_appointment_density: {
         Args: { p_branch_id?: string; p_end_date: string; p_start_date: string }
         Returns: {
@@ -12140,6 +12171,10 @@ export type Database = {
           p_visit_id: string
         }
         Returns: undefined
+      }
+      save_agent_connect_settings: {
+        Args: { p_anonymous_id: string; p_settings: Json }
+        Returns: Json
       }
       self_checkin_appointment: {
         Args: { p_appointment_id: string }

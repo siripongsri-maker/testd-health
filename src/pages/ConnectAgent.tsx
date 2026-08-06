@@ -5,6 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { ConnectStatusCheck } from "@/components/mcp/ConnectStatusCheck";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { useAgentConnectSettings } from "@/hooks/useAgentConnectSettings";
 
 
 const PROJECT_REF = import.meta.env.VITE_SUPABASE_PROJECT_ID as string;
@@ -38,19 +42,56 @@ function CopyButton({ value, label }: { value: string; label: string }) {
   );
 }
 
-function Steps({ items }: { items: React.ReactNode[] }) {
+function Steps({
+  items,
+  group,
+  completed,
+  onToggle,
+}: {
+  items: React.ReactNode[];
+  group?: string;
+  completed?: string[];
+  onToggle?: (stepId: string) => void;
+}) {
+  if (!group || !onToggle) {
+    return (
+      <ol className="list-decimal space-y-3 pl-5 text-sm text-muted-foreground">
+        {items.map((item, i) => (
+          <li key={i} className="leading-relaxed">
+            {item}
+          </li>
+        ))}
+      </ol>
+    );
+  }
   return (
-    <ol className="list-decimal space-y-3 pl-5 text-sm text-muted-foreground">
-      {items.map((item, i) => (
-        <li key={i} className="leading-relaxed">
-          {item}
-        </li>
-      ))}
+    <ol className="space-y-3 text-sm text-muted-foreground">
+      {items.map((item, i) => {
+        const stepId = `${group}:${i}`;
+        const done = completed?.includes(stepId) ?? false;
+        return (
+          <li key={stepId} className="flex items-start gap-3 leading-relaxed">
+            <Checkbox
+              id={stepId}
+              checked={done}
+              onCheckedChange={() => onToggle(stepId)}
+              className="mt-0.5 shrink-0"
+              aria-label={`ทำขั้นตอนที่ ${i + 1} แล้ว`}
+            />
+            <label htmlFor={stepId} className={done ? "cursor-pointer line-through opacity-60" : "cursor-pointer"}>
+              <span className="mr-1 font-medium text-foreground">{i + 1}.</span>
+              {item}
+            </label>
+          </li>
+        );
+      })}
     </ol>
   );
 }
 
 export default function ConnectAgent() {
+  const { settings, syncState, update, toggleStep, reset } = useAgentConnectSettings();
+  const stepProps = { completed: settings.completedSteps, onToggle: toggleStep };
   return (
     <>
       <SEOHead
@@ -75,14 +116,48 @@ export default function ConnectAgent() {
           </CardContent>
         </Card>
 
-        <ConnectStatusCheck mcpUrl={MCP_URL} />
+        <ConnectStatusCheck
+          mcpUrl={MCP_URL}
+          autoRun={settings.autoCheck}
+          lastCheck={settings.lastCheck}
+          onResult={(status) => update({ lastCheck: { status, at: new Date().toISOString() } })}
+        />
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">การตั้งค่าของคุณ</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <Label htmlFor="auto-check" className="text-sm font-normal text-muted-foreground">
+                ตรวจสถานะอัตโนมัติเมื่อเปิดหน้านี้
+              </Label>
+              <Switch
+                id="auto-check"
+                checked={settings.autoCheck}
+                onCheckedChange={(v) => update({ autoCheck: v })}
+              />
+            </div>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-xs text-muted-foreground">
+                ระบบจำแท็บผู้ช่วย AI ที่คุณเลือกและขั้นตอนที่ทำแล้วไว้แบบไม่ระบุตัวตน (ไม่ต้องล็อกอิน) และจะกลับมาเหมือนเดิมเมื่อเปิดใหม่
+                {syncState === "saving" && " · กำลังบันทึก…"}
+                {syncState === "saved" && " · บันทึกแล้ว"}
+                {syncState === "error" && " · บันทึกบนเซิร์ฟเวอร์ไม่สำเร็จ (เก็บไว้ในเครื่องแล้ว)"}
+              </p>
+              <Button variant="outline" size="sm" onClick={reset}>
+                ล้างความคืบหน้า
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
 
 
 
         <section className="space-y-4">
           <h2 className="text-xl font-semibold">ขั้นตอนการเชื่อมต่อ</h2>
-          <Tabs defaultValue="chatgpt">
+          <Tabs value={settings.client} onValueChange={(v) => update({ client: v })}>
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
               <TabsTrigger value="chatgpt">ChatGPT</TabsTrigger>
               <TabsTrigger value="claude">Claude</TabsTrigger>
@@ -92,6 +167,8 @@ export default function ConnectAgent() {
 
             <TabsContent value="chatgpt" className="pt-4">
               <Steps
+                group="chatgpt"
+                {...stepProps}
                 items={[
                   <>
                     เปิด{" "}
@@ -115,6 +192,8 @@ export default function ConnectAgent() {
 
             <TabsContent value="claude" className="pt-4">
               <Steps
+                group="claude"
+                {...stepProps}
                 items={[
                   <>
                     เปิด{" "}
@@ -138,6 +217,8 @@ export default function ConnectAgent() {
                 <CopyButton value={CLAUDE_CODE_CMD} label="คัดลอกคำสั่งติดตั้ง" />
               </div>
               <Steps
+                group="claude-code"
+                {...stepProps}
                 items={[
                   <>รันคำสั่งด้านบนใน terminal</>,
                   <>เปิด Claude Code แล้วพิมพ์ <code className="rounded bg-muted px-1">/mcp</code> เพื่อยืนยันว่าเชื่อมต่อแล้ว (ถ้าเครื่องมือต้องล็อกอิน Claude Code จะให้เข้าสู่ระบบจากเมนูนี้)</>,
@@ -148,6 +229,8 @@ export default function ConnectAgent() {
 
             <TabsContent value="other" className="pt-4">
               <Steps
+                group="other"
+                {...stepProps}
                 items={[
                   <>เปิดหน้าตั้งค่า MCP server หรือ custom connector ของผู้ช่วย AI ที่คุณใช้</>,
                   <>สร้างการเชื่อมต่อแบบ remote MCP server</>,
@@ -167,16 +250,18 @@ export default function ConnectAgent() {
           <p className="text-sm text-muted-foreground">
             ผู้ช่วย AI จะจำรายการเครื่องมือไว้ เมื่อแอปมีการอัปเดตให้รีเฟรชการเชื่อมต่อเพื่อดึงเครื่องมือล่าสุด
           </p>
-          <Tabs defaultValue="chatgpt-r">
+          <Tabs value={`${settings.client}-r`} onValueChange={(v) => update({ client: v.replace(/-r$/, "") })}>
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4">
               <TabsTrigger value="chatgpt-r">ChatGPT</TabsTrigger>
               <TabsTrigger value="claude-r">Claude</TabsTrigger>
-              <TabsTrigger value="cc-r">Claude Code</TabsTrigger>
+              <TabsTrigger value="claude-code-r">Claude Code</TabsTrigger>
               <TabsTrigger value="other-r">อื่น ๆ</TabsTrigger>
             </TabsList>
 
             <TabsContent value="chatgpt-r" className="pt-4">
               <Steps
+                group="chatgpt-r"
+                {...stepProps}
                 items={[
                   <>เปิดหน้า Plugins ของ ChatGPT แล้วเลือกแอปนี้</>,
                   <>เลื่อนลงไปที่ “Information” แล้วกด “Refresh”</>,
@@ -187,6 +272,8 @@ export default function ConnectAgent() {
             </TabsContent>
             <TabsContent value="claude-r" className="pt-4">
               <Steps
+                group="claude-r"
+                {...stepProps}
                 items={[
                   <>เปิดหน้า Connectors แล้วเลือก connector นี้</>,
                   <>กดรีเฟรช/อัปเดตรายการเครื่องมือของ connector</>,
@@ -195,8 +282,10 @@ export default function ConnectAgent() {
                 ]}
               />
             </TabsContent>
-            <TabsContent value="cc-r" className="pt-4">
+            <TabsContent value="claude-code-r" className="pt-4">
               <Steps
+                group="claude-code-r"
+                {...stepProps}
                 items={[
                   <>เริ่มเซสชัน Claude Code ใหม่ ระบบจะโหลดเครื่องมือล่าสุดตอนเชื่อมต่อ</>,
                   <>
@@ -208,6 +297,8 @@ export default function ConnectAgent() {
             </TabsContent>
             <TabsContent value="other-r" className="pt-4">
               <Steps
+                group="other-r"
+                {...stepProps}
                 items={[
                   <>เปิดหน้าตั้งค่า MCP server หรือ connector ของผู้ช่วย AI</>,
                   <>เลือกการเชื่อมต่อที่สร้างไว้สำหรับแอปนี้</>,

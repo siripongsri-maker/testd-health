@@ -45,10 +45,25 @@ const STATE_ICON: Record<CheckState, JSX.Element> = {
   fail: <XCircle className="h-4 w-4 text-destructive" />,
 };
 
-export function ConnectStatusCheck({ mcpUrl }: { mcpUrl: string }) {
+export type ConnectCheckStatus = "pass" | "warn" | "fail";
+
+export function ConnectStatusCheck({
+  mcpUrl,
+  autoRun = true,
+  onResult,
+  lastCheck,
+}: {
+  mcpUrl: string;
+  autoRun?: boolean;
+  onResult?: (status: ConnectCheckStatus) => void;
+  lastCheck?: { status: ConnectCheckStatus; at: string } | null;
+}) {
   const [checks, setChecks] = useState<CheckResult[]>([]);
   const [running, setRunning] = useState(false);
   const [ranAt, setRanAt] = useState<Date | null>(null);
+  const onResultRef = useRef(onResult);
+  onResultRef.current = onResult;
+
   const mounted = useRef(true);
 
   useEffect(() => {
@@ -163,12 +178,19 @@ export function ConnectStatusCheck({ mcpUrl }: { mcpUrl: string }) {
     if (mounted.current) {
       setRanAt(new Date());
       setRunning(false);
+      const status = results.some((r) => r.state === "fail")
+        ? "fail"
+        : results.some((r) => r.state === "warn")
+          ? "warn"
+          : "pass";
+      onResultRef.current?.(status);
     }
   }, [mcpUrl]);
 
   useEffect(() => {
-    void run();
-  }, [run]);
+    if (autoRun) void run();
+  }, [run, autoRun]);
+
 
   const hasFail = checks.some((c) => c.state === "fail");
   const hasWarn = checks.some((c) => c.state === "warn");
@@ -210,8 +232,16 @@ export function ConnectStatusCheck({ mcpUrl }: { mcpUrl: string }) {
         )}
 
         <ul className="space-y-3">
-          {(checks.length ? checks : [{ id: "init", label: "กำลังเริ่มตรวจสอบ…", state: "running" as CheckState }]).map(
+          {(checks.length
+            ? checks
+            : [
+                running
+                  ? { id: "init", label: "กำลังเริ่มตรวจสอบ…", state: "running" as CheckState }
+                  : { id: "init", label: "ยังไม่ได้ตรวจ — กด “ตรวจอีกครั้ง” เพื่อเริ่ม", state: "idle" as CheckState },
+              ]
+          ).map(
             (check) => (
+
               <li key={check.id} className="flex items-start gap-3">
                 <span className="mt-0.5 shrink-0">{STATE_ICON[check.state]}</span>
                 <div className="min-w-0 space-y-0.5">
@@ -228,11 +258,18 @@ export function ConnectStatusCheck({ mcpUrl }: { mcpUrl: string }) {
           )}
         </ul>
 
-        {ranAt && (
+        {ranAt ? (
           <p className="text-xs text-muted-foreground">
             ตรวจล่าสุด {ranAt.toLocaleTimeString("th-TH")} · {mcpUrl}
           </p>
-        )}
+        ) : lastCheck ? (
+          <p className="text-xs text-muted-foreground">
+            ผลตรวจครั้งก่อน:{" "}
+            {lastCheck.status === "pass" ? "พร้อมใช้งาน" : lastCheck.status === "warn" ? "มีข้อควรตรวจสอบ" : "เชื่อมต่อไม่สำเร็จ"} ·{" "}
+            {new Date(lastCheck.at).toLocaleString("th-TH")}
+          </p>
+        ) : null}
+
       </CardContent>
     </Card>
   );
