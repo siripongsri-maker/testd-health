@@ -7,11 +7,14 @@ import { Input } from "@/components/ui/input";
 import {
   Loader2, RefreshCw, ClipboardCheck, QrCode, Copy, ExternalLink,
   CheckCircle2, ClipboardList, Inbox, HeartPulse, Users, TrendingUp,
-  ArrowLeftRight, ShieldCheck,
+  ArrowLeftRight, ShieldCheck, MessageSquare, Send,
 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { useLanguage } from "@/lib/i18n";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import { toast } from "@/hooks/use-toast";
+
 
 // Statuses that mean "counseling finished" (per project-wide convention).
 const COMPLETED_STATUSES = ["counseling_completed", "case_closed"] as const;
