@@ -258,11 +258,18 @@ export function ConnectStatusCheck({
           )}
         </ul>
 
-        {ranAt && (
+        {ranAt ? (
           <p className="text-xs text-muted-foreground">
             ตรวจล่าสุด {ranAt.toLocaleTimeString("th-TH")} · {mcpUrl}
           </p>
-        )}
+        ) : lastCheck ? (
+          <p className="text-xs text-muted-foreground">
+            ผลตรวจครั้งก่อน:{" "}
+            {lastCheck.status === "pass" ? "พร้อมใช้งาน" : lastCheck.status === "warn" ? "มีข้อควรตรวจสอบ" : "เชื่อมต่อไม่สำเร็จ"} ·{" "}
+            {new Date(lastCheck.at).toLocaleString("th-TH")}
+          </p>
+        ) : null}
+
       </CardContent>
     </Card>
   );
