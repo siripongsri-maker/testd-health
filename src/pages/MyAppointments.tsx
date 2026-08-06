@@ -56,6 +56,8 @@ export default function MyAppointments() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [checkinLoadingId, setCheckinLoadingId] = useState<string | null>(null);
+  const [rescheduleBranch, setRescheduleBranch] = useState<{ id: string; slug: string | null } | null>(null);
+
 
   // Check-out dialog state
   const [checkoutApt, setCheckoutApt] = useState<FullAppointment | null>(null);
