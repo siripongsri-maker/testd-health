@@ -70,8 +70,10 @@ export default function ConnectAgent() {
           <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <code className="flex-1 overflow-x-auto rounded-lg bg-muted px-3 py-2 text-xs sm:text-sm">{MCP_URL}</code>
             <CopyButton value={MCP_URL} label="คัดลอกลิงก์เซิร์ฟเวอร์" />
-          </CardContent>
         </Card>
+
+        <ConnectStatusCheck mcpUrl={MCP_URL} />
+
 
         <section className="space-y-4">
           <h2 className="text-xl font-semibold">ขั้นตอนการเชื่อมต่อ</h2>
