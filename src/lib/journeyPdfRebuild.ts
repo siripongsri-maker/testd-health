@@ -231,6 +231,6 @@ export async function regenerateJourneyPdf(opts: {
     keywords: `journey,${version},${stats.generatedAt.toISOString()}`,
   });
 
-  return pdf.output("blob");
+  return { blob: pdf.output("blob"), version, generatedAt: stats.generatedAt };
 }
 
