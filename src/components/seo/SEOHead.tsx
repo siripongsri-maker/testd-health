@@ -110,6 +110,18 @@ export function SEOHead({
       });
     }
 
+    // Page-specific extra meta (article:*, twitter:label*, og:site_name …)
+    document.querySelectorAll("meta[data-seo-extra]").forEach((el) => el.remove());
+    (extraMeta ?? []).forEach(({ attr, key, content }) => {
+      const existing = document.querySelector(`meta[${attr}="${key}"]`);
+      if (existing) existing.remove();
+      const el = document.createElement("meta");
+      el.setAttribute(attr, key);
+      el.setAttribute("content", content);
+      el.setAttribute("data-seo-extra", "true");
+      document.head.appendChild(el);
+    });
+
     // JSON-LD structured data
     document.querySelectorAll('script[data-seo-jsonld]').forEach(el => el.remove());
     if (jsonLd) {
@@ -126,8 +138,9 @@ export function SEOHead({
     // Cleanup on unmount
     return () => {
       document.querySelectorAll('script[data-seo-jsonld]').forEach(el => el.remove());
+      document.querySelectorAll("meta[data-seo-extra]").forEach((el) => el.remove());
     };
-  }, [title, description, canonicalPath, ogImage, ogType, lang, alternateLanguages, jsonLd]);
+  }, [title, description, canonicalPath, ogImage, ogType, lang, robots, alternateLanguages, jsonLd, extraMeta]);
 
   return null;
 }
