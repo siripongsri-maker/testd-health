@@ -168,7 +168,20 @@ export default function Info() {
           <PenSquare className="h-4 w-4" />
           {language === 'th' ? 'เขียนบทความ' : 'Write Article'}
         </Button>
-        
+
+        {/* Browse by category / advanced search */}
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          <Button variant="outline" className="gap-2" onClick={() => navigate(`/${language === 'en' ? 'en' : 'th'}/info/categories`)}>
+            <BookOpen className="h-4 w-4" />
+            {language === 'th' ? 'หมวดหมู่ทั้งหมด' : 'All categories'}
+          </Button>
+          <Button variant="outline" className="gap-2" onClick={() => navigate(`/${language === 'en' ? 'en' : 'th'}/info/search`)}>
+            <Search className="h-4 w-4" />
+            {language === 'th' ? 'ค้นหาบทความ' : 'Search articles'}
+          </Button>
+        </div>
+
+
         {/* Search */}
         <div className="mb-6 relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
