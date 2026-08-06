@@ -5,6 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { ConnectStatusCheck } from "@/components/mcp/ConnectStatusCheck";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { useAgentConnectSettings } from "@/hooks/useAgentConnectSettings";
 
 
 const PROJECT_REF = import.meta.env.VITE_SUPABASE_PROJECT_ID as string;
@@ -38,14 +42,49 @@ function CopyButton({ value, label }: { value: string; label: string }) {
   );
 }
 
-function Steps({ items }: { items: React.ReactNode[] }) {
+function Steps({
+  items,
+  group,
+  completed,
+  onToggle,
+}: {
+  items: React.ReactNode[];
+  group?: string;
+  completed?: string[];
+  onToggle?: (stepId: string) => void;
+}) {
+  if (!group || !onToggle) {
+    return (
+      <ol className="list-decimal space-y-3 pl-5 text-sm text-muted-foreground">
+        {items.map((item, i) => (
+          <li key={i} className="leading-relaxed">
+            {item}
+          </li>
+        ))}
+      </ol>
+    );
+  }
   return (
-    <ol className="list-decimal space-y-3 pl-5 text-sm text-muted-foreground">
-      {items.map((item, i) => (
-        <li key={i} className="leading-relaxed">
-          {item}
-        </li>
-      ))}
+    <ol className="space-y-3 text-sm text-muted-foreground">
+      {items.map((item, i) => {
+        const stepId = `${group}:${i}`;
+        const done = completed?.includes(stepId) ?? false;
+        return (
+          <li key={stepId} className="flex items-start gap-3 leading-relaxed">
+            <Checkbox
+              id={stepId}
+              checked={done}
+              onCheckedChange={() => onToggle(stepId)}
+              className="mt-0.5 shrink-0"
+              aria-label={`ทำขั้นตอนที่ ${i + 1} แล้ว`}
+            />
+            <label htmlFor={stepId} className={done ? "cursor-pointer line-through opacity-60" : "cursor-pointer"}>
+              <span className="mr-1 font-medium text-foreground">{i + 1}.</span>
+              {item}
+            </label>
+          </li>
+        );
+      })}
     </ol>
   );
 }
