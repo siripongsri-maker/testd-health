@@ -248,3 +248,76 @@ export default function AdminExportCenterContent() {
     </div>
   );
 }
+
+const journeyDocs = [
+  {
+    id: 'client',
+    file: '/docs/journey-client.pdf',
+    icon: '🧑‍💼',
+    name: 'Client Journey (full data)',
+    nameTh: 'Journey ผู้รับบริการ (ข้อมูลครบ)',
+    description: '17 steps: booking → survey → counseling → SMS → travel allowance',
+    descriptionTh: '17 ขั้นตอน: จอง → แบบสำรวจ → รับคำปรึกษา → SMS → ขอค่าเดินทาง',
+  },
+  {
+    id: 'admin',
+    file: '/docs/journey-admin-counselor.pdf',
+    icon: '🧑‍⚕️',
+    name: 'Staff & Counselor Journey',
+    nameTh: 'Journey เจ้าหน้าที่และผู้ให้คำปรึกษา',
+    description: '11 steps across admin console screens with live data',
+    descriptionTh: '11 ขั้นตอนในหน้าจอแอดมิน พร้อมข้อมูลจริง',
+  },
+];
+
+function JourneyPdfCards({ isTh }: { isTh: boolean }) {
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const copyLink = async (id: string, file: string) => {
+    const url = `${window.location.origin}${file}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+      toast.success(isTh ? 'คัดลอกลิงก์แล้ว' : 'Link copied', { description: url });
+    } catch {
+      toast.error(isTh ? 'คัดลอกลิงก์ไม่สำเร็จ' : 'Could not copy link');
+    }
+  };
+
+  return (
+    <Card className="border border-border/50">
+      <CardContent className="p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <FileText className="h-4 w-4 text-primary" />
+          <h3 className="text-sm font-semibold text-foreground">
+            {isTh ? 'สรุป Journey (PDF) สำหรับส่งทีมตรวจสอบ' : 'Journey summaries (PDF) for review teams'}
+          </h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {journeyDocs.map(doc => (
+            <div key={doc.id} className="rounded-xl border border-border/50 p-3 flex items-start gap-3">
+              <span className="text-2xl">{doc.icon}</span>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm text-foreground">{isTh ? doc.nameTh : doc.name}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{isTh ? doc.descriptionTh : doc.description}</p>
+                <div className="flex gap-2 mt-2">
+                  <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => copyLink(doc.id, doc.file)}>
+                    {copiedId === doc.id ? <Check className="h-3 w-3" /> : <Link2 className="h-3 w-3" />}
+                    {isTh ? 'คัดลอกลิงก์' : 'Copy link'}
+                  </Button>
+                  <Button asChild variant="outline" size="sm" className="h-7 text-xs gap-1">
+                    <a href={doc.file} download target="_blank" rel="noopener noreferrer">
+                      <Download className="h-3 w-3" />
+                      {isTh ? 'ดาวน์โหลด PDF' : 'Download PDF'}
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
