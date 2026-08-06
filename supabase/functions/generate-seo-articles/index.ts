@@ -225,11 +225,40 @@ serve(async (req) => {
     const body = await req.json().catch(() => ({}));
 
     if (body.action === "list") {
-      const { data: existing } = await admin.from("blog_articles").select("slug");
-      const done = new Set((existing || []).map((a: { slug: string }) => a.slug));
+      const { data: existing } = await admin
+        .from("blog_articles")
+        .select("slug, status, updated_at, published_at, cover_url, title_th");
+      const bySlug = new Map(
+        (existing || []).map((a: Record<string, unknown>) => [a.slug as string, a]),
+      );
+      const { data: runs } = await admin
+        .from("seo_article_runs")
+        .select("slug, version, status")
+        .eq("status", "success");
+      const versions = new Map<string, number>();
+      for (const r of runs || []) {
+        const v = Number((r as { version: number }).version) || 1;
+        const s = (r as { slug: string }).slug;
+        versions.set(s, Math.max(versions.get(s) ?? 0, v));
+      }
       return json({
         total: TOPICS.length,
-        topics: TOPICS.map((t, i) => ({ index: i, slug: t.slug, category: t.category, title: t.th, exists: done.has(t.slug) })),
+        topics: TOPICS.map((t, i) => {
+          const a = bySlug.get(t.slug) as Record<string, unknown> | undefined;
+          return {
+            index: i,
+            slug: t.slug,
+            category: t.category,
+            title: t.th,
+            exists: !!a,
+            publish_status: (a?.status as string) ?? null,
+            article_title: (a?.title_th as string) ?? null,
+            updated_at: (a?.updated_at as string) ?? null,
+            published_at: (a?.published_at as string) ?? null,
+            has_cover: !!a?.cover_url,
+            version: versions.get(t.slug) ?? (a ? 1 : 0),
+          };
+        }),
       });
     }
 
@@ -237,49 +266,94 @@ serve(async (req) => {
     const topic = TOPICS[index];
     if (!topic) return json({ error: "Invalid topic index" }, 400);
 
-    const { data: existing } = await admin.from("blog_articles").select("id").eq("slug", topic.slug).maybeSingle();
-    if (existing && !body.force) return json({ skipped: true, slug: topic.slug });
+    const startedAt = Date.now();
+    const { data: prevRuns } = await admin
+      .from("seo_article_runs")
+      .select("version")
+      .eq("slug", topic.slug)
+      .eq("status", "success");
+    const nextVersion =
+      (prevRuns || []).reduce((m: number, r: { version: number }) => Math.max(m, Number(r.version) || 0), 0) + 1;
 
-    const { data: cat } = await admin.from("blog_categories").select("id").eq("slug", topic.category).maybeSingle();
+    const { data: runRow } = await admin
+      .from("seo_article_runs")
+      .insert({
+        topic_index: index,
+        slug: topic.slug,
+        category: topic.category,
+        status: "running",
+        version: nextVersion,
+        triggered_by: user.id,
+      })
+      .select("id")
+      .maybeSingle();
+    const runId = (runRow as { id?: string } | null)?.id ?? null;
 
-    const article = await generateArticle(lovableKey, topic);
-
-    let coverUrl: string | null = null;
-    const image = await generateCover(lovableKey, article.image_prompt || topic.th);
-    if (image) {
-      const path = `covers/seo/${topic.slug}-${Date.now()}.png`;
-      const { error: upErr } = await admin.storage.from("blog-images").upload(path, image, {
-        contentType: "image/png",
-        upsert: true,
-      });
-      if (!upErr) {
-        coverUrl = admin.storage.from("blog-images").getPublicUrl(path).data.publicUrl;
-      }
-    }
-
-    const row = {
-      slug: topic.slug,
-      category_id: cat?.id ?? null,
-      title_th: article.title_th,
-      title_en: article.title_en,
-      excerpt_th: article.excerpt_th,
-      excerpt_en: article.excerpt_en,
-      content_th: article.content_th,
-      content_en: article.content_en,
-      cover_url: coverUrl,
-      author_name: "ทีม testD",
-      status: body.status || "published",
-      published_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
+    const finishRun = async (patch: Record<string, unknown>) => {
+      if (!runId) return;
+      await admin
+        .from("seo_article_runs")
+        .update({ ...patch, duration_ms: Date.now() - startedAt, finished_at: new Date().toISOString() })
+        .eq("id", runId);
     };
 
-    const { error } = existing
-      ? await admin.from("blog_articles").update(row).eq("id", existing.id)
-      : await admin.from("blog_articles").insert(row);
-    if (error) return json({ error: error.message }, 500);
+    try {
+      const { data: existing } = await admin.from("blog_articles").select("id").eq("slug", topic.slug).maybeSingle();
+      if (existing && !body.force) {
+        await finishRun({ status: "skipped" });
+        return json({ skipped: true, slug: topic.slug });
+      }
 
-    return json({ ok: true, slug: topic.slug, title: article.title_th, cover: !!coverUrl });
+      const { data: cat } = await admin.from("blog_categories").select("id").eq("slug", topic.category).maybeSingle();
+
+      const article = await generateArticle(lovableKey, topic);
+
+      let coverUrl: string | null = null;
+      const image = await generateCover(lovableKey, article.image_prompt || topic.th);
+      if (image) {
+        const path = `covers/seo/${topic.slug}-${Date.now()}.png`;
+        const { error: upErr } = await admin.storage.from("blog-images").upload(path, image, {
+          contentType: "image/png",
+          upsert: true,
+        });
+        if (!upErr) {
+          coverUrl = admin.storage.from("blog-images").getPublicUrl(path).data.publicUrl;
+        }
+      }
+
+      const publishStatus = body.status || "published";
+      const row = {
+        slug: topic.slug,
+        category_id: cat?.id ?? null,
+        title_th: article.title_th,
+        title_en: article.title_en,
+        excerpt_th: article.excerpt_th,
+        excerpt_en: article.excerpt_en,
+        content_th: article.content_th,
+        content_en: article.content_en,
+        cover_url: coverUrl,
+        author_name: "ทีม testD",
+        status: publishStatus,
+        published_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      const { error } = existing
+        ? await admin.from("blog_articles").update(row).eq("id", existing.id)
+        : await admin.from("blog_articles").insert(row);
+      if (error) {
+        await finishRun({ status: "error", error_message: error.message });
+        return json({ error: error.message }, 500);
+      }
+
+      await finishRun({ status: "success", publish_status: publishStatus, cover_generated: !!coverUrl });
+      return json({ ok: true, slug: topic.slug, title: article.title_th, cover: !!coverUrl, version: nextVersion });
+    } catch (inner) {
+      await finishRun({ status: "error", error_message: (inner as Error).message });
+      throw inner;
+    }
   } catch (e) {
+
     return json({ error: (e as Error).message }, 500);
   }
 });
