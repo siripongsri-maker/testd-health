@@ -1,5 +1,6 @@
-import {
-  Code2, useLanguage } from "@/lib/i18n";
+import { useLanguage } from "@/lib/i18n";
+import { Code2 } from "lucide-react";
+
 import { useSearchParams } from "react-router-dom";
 import {
   Sidebar,
