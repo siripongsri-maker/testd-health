@@ -578,6 +578,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.diagnostics': 'วินิจฉัยระบบ',
     'admin.systemHealth': 'สุขภาพระบบ',
     'admin.routeHealth': 'Route Health',
+    'admin.glyphQa': 'QA การแสดงผลตัวอักษร',
     'admin.ipDocs': 'ศูนย์เอกสาร IP',
     'admin.servicesCare': 'บริการและการดูแล',
     'admin.melReportingGroup': 'MEL และรายงาน',

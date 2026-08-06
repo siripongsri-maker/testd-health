@@ -189,6 +189,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "app-updates", icon: RefreshCw, labelKey: "admin.appUpdates", adminOnly: true },
       { tab: "system-health", icon: Monitor, labelKey: "admin.systemHealth", adminOnly: true, meAnalyst: true },
       { tab: "route-health", icon: Monitor, labelKey: "admin.routeHealth", adminOnly: true },
+      { tab: "glyph-qa", icon: Monitor, labelKey: "admin.glyphQa", adminOnly: true },
       { tab: "ip-docs", icon: Fingerprint, labelKey: "admin.ipDocs", adminOnly: true },
     ],
   },
