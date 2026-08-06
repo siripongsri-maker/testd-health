@@ -27,6 +27,7 @@ const staticEntries: SitemapEntry[] = [
   { path: "/drug-combination-risk", changefreq: "weekly", priority: "0.9" },
   { path: "/booking", changefreq: "daily", priority: "0.8" },
   { path: "/info", changefreq: "daily", priority: "0.8" },
+  { path: "/info/categories", changefreq: "weekly", priority: "0.7" },
   { path: "/ghb-overdose", changefreq: "monthly", priority: "0.8" },
   { path: "/meth-harm-reduction", changefreq: "monthly", priority: "0.8" },
   { path: "/hiv-self-test-guide", changefreq: "monthly", priority: "0.8" },
@@ -74,6 +75,14 @@ async function fetchRows(table: string, query: string): Promise<any[]> {
 
 async function collectEntries(): Promise<SitemapEntry[]> {
   const entries = [...staticEntries];
+
+  // Blog category landing pages
+  const categories = await fetchRows("blog_categories", "select=slug&order=display_order");
+  for (const c of categories) {
+    if (!c.slug) continue;
+    entries.push({ path: `/info/category/${c.slug}`, changefreq: "weekly", priority: "0.7" });
+  }
+
 
   // Published SEO / blog articles (Thai + English content live on the same slug)
   const articles = await fetchRows(

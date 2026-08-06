@@ -12,6 +12,7 @@ import { ArticleLikeButton } from "@/components/ArticleLikeButton";
 import { ArticleComments } from "@/components/ArticleComments";
 import { useQuestProgress } from "@/hooks/useQuestProgress";
 import { SEOHead } from "@/components/seo/SEOHead";
+import { RelatedArticles } from "@/components/blog/RelatedArticles";
 import {
   buildArticleJsonLd,
   buildArticleBreadcrumbJsonLd,
@@ -496,6 +497,12 @@ export default function InfoArticle() {
             </div>
           </div>
         )}
+
+        <RelatedArticles
+          categoryId={article.category_id}
+          categorySlug={category?.slug ?? null}
+          currentArticleId={article.id}
+        />
 
         {/* Comments Section */}
         <ArticleComments articleId={article.id} />

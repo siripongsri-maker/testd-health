@@ -41,6 +41,9 @@ const PEPEmergency = lazy(() => import("./pages/PEPEmergency"));
 const Progress = lazy(() => import("./pages/Progress"));
 const Info = lazy(() => import("./pages/Info"));
 const InfoArticle = lazy(() => import("./pages/InfoArticle"));
+const InfoCategories = lazy(() => import("./pages/InfoCategories"));
+const InfoCategory = lazy(() => import("./pages/InfoCategory"));
+const InfoSearch = lazy(() => import("./pages/InfoSearch"));
 
 const Settings = lazy(() => import("./pages/Settings"));
 const Community = lazy(() => import("./pages/Community"));
@@ -148,6 +151,9 @@ function AppShell() {
               
               <Route path="/progress" element={<Progress />} />
               <Route path="/info" element={<Info />} />
+              <Route path="/info/categories" element={<InfoCategories />} />
+              <Route path="/info/category/:slug" element={<InfoCategory />} />
+              <Route path="/info/search" element={<InfoSearch />} />
               <Route path="/info/:id" element={<InfoArticle />} />
               <Route path="/info/article/:slug" element={<InfoArticle />} />
               <Route path="/info/write" element={<WriteArticle />} />
