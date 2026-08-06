@@ -94,6 +94,7 @@ interface Category {
   name_en: string;
   name_th: string;
   icon: string;
+  slug: string;
 }
 
 // Base URL for sharing
@@ -189,7 +190,7 @@ export default function InfoArticle() {
         if (articleData.category_id) {
           const { data: categoryData } = await supabase
             .from('blog_categories')
-            .select('id, name_en, name_th, icon')
+            .select('id, name_en, name_th, icon, slug')
             .eq('id', articleData.category_id)
             .maybeSingle();
           

@@ -114,6 +114,22 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info" />
   </url>
   <url>
+    <loc>https://testd.website/th/info/categories</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/categories" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/categories" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/categories" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/categories</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/categories" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/categories" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/categories" />
+  </url>
+  <url>
     <loc>https://testd.website/th/ghb-overdose</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -352,6 +368,102 @@
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/privacy-policy" />
     <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/privacy-policy" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/privacy-policy" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/category/prep</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/category/prep" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/category/prep" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/category/prep" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/category/prep</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/category/prep" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/category/prep" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/category/prep" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/category/pep</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/category/pep" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/category/pep" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/category/pep" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/category/pep</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/category/pep" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/category/pep" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/category/pep" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/category/sti</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/category/sti" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/category/sti" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/category/sti" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/category/sti</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/category/sti" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/category/sti" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/category/sti" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/category/mental-health</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/category/mental-health" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/category/mental-health" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/category/mental-health" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/category/mental-health</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/category/mental-health" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/category/mental-health" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/category/mental-health" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/category/harm-reduction</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/category/harm-reduction" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/category/harm-reduction" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/category/harm-reduction" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/category/harm-reduction</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/category/harm-reduction" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/category/harm-reduction" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/category/harm-reduction" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/category/lifestyle</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/category/lifestyle" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/category/lifestyle" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/category/lifestyle" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/category/lifestyle</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/category/lifestyle" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/category/lifestyle" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/category/lifestyle" />
   </url>
   <url>
     <loc>https://testd.website/th/info/article/long-acting-injectable-prep</loc>

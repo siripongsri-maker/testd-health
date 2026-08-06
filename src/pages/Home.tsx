@@ -1,5 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -232,7 +232,14 @@ export default function Home() {
               loading="lazy"
             />
           </div>
+          <Link
+            to="/connect"
+            className="inline-block text-[10px] text-muted-foreground/70 underline underline-offset-2"
+          >
+            เชื่อมต่อผู้ช่วย AI (MCP)
+          </Link>
         </footer>
+
       </main>
 
       {/* Rainbow bar */}
