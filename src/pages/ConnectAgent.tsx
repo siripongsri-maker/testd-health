@@ -290,7 +290,7 @@ export default function ConnectAgent() {
                 <code className="flex-1 overflow-x-auto rounded-lg bg-muted px-3 py-2 text-xs sm:text-sm">
                   {CLAUDE_CODE_CMD}
                 </code>
-                <CopyButton value={CLAUDE_CODE_CMD} label="คัดลอกคำสั่งติดตั้ง" />
+                <CopyButton value={CLAUDE_CODE_CMD} label="คัดลอกคำสั่งติดตั้ง" toastLabel="คำสั่งติดตั้งแล้ว" />
               </div>
               <Steps
                 group="claude-code"
