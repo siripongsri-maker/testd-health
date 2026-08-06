@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Copy, Check, ExternalLink, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -310,6 +311,20 @@ export default function ConnectAgent() {
             </TabsContent>
           </Tabs>
         </section>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">เชื่อมต่อไม่สำเร็จ?</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-muted-foreground">
+              ดูปัญหาที่พบบ่อยและวิธีแก้ทีละขั้นตอนสำหรับ ChatGPT, Claude และ Claude Code
+            </p>
+            <Button asChild variant="secondary" size="sm">
+              <Link to="/connect/troubleshooting">แก้ปัญหาการเชื่อมต่อ</Link>
+            </Button>
+          </CardContent>
+        </Card>
       </main>
     </>
   );
