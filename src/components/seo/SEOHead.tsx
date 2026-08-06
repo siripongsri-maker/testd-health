@@ -40,6 +40,8 @@ export function SEOHead({
   description,
   canonicalPath,
   ogImage,
+  ogImageAlt,
+
   ogType = "website",
   lang = "th",
   robots,
