@@ -12,8 +12,15 @@ const DEFAULT_LOCALE = "th";
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL ?? "";
 const SUPABASE_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? "";
 
+interface ImageEntry {
+  loc: string;
+  title?: string;
+  caption?: string;
+}
+
 interface SitemapEntry {
   path: string;
+  images?: ImageEntry[];
   lastmod?: string;
   changefreq?: string;
   priority?: string;
@@ -87,12 +94,16 @@ async function collectEntries(): Promise<SitemapEntry[]> {
   // Published SEO / blog articles (Thai + English content live on the same slug)
   const articles = await fetchRows(
     "blog_articles",
-    "select=id,slug,updated_at,published_at&status=eq.published&order=published_at.desc&limit=5000",
+    "select=id,slug,updated_at,published_at,cover_url,title_th,title_en,excerpt_th,excerpt_en&status=eq.published&order=published_at.desc&limit=5000",
   );
   for (const a of articles) {
     const stamp = a.updated_at || a.published_at;
+    const cover = typeof a.cover_url === "string" && /^https?:\/\//.test(a.cover_url) ? a.cover_url : null;
     entries.push({
       path: a.slug ? `/info/article/${a.slug}` : `/info/${a.id}`,
+      images: cover
+        ? [{ loc: cover, title: a.title_th || a.title_en || undefined, caption: a.excerpt_th || a.excerpt_en || undefined }]
+        : undefined,
       lastmod: stamp ? new Date(stamp).toISOString().slice(0, 10) : undefined,
       changefreq: "weekly",
       priority: "0.7",
@@ -115,6 +126,55 @@ async function collectEntries(): Promise<SitemapEntry[]> {
   }
 
   return entries;
+}
+
+/** Image sitemap: one <url> per article page (per locale) carrying its cover image. */
+function renderImageSitemap(entries: SitemapEntry[]) {
+  const urls: string[] = [];
+  for (const e of entries) {
+    if (!e.images || e.images.length === 0) continue;
+    for (const locale of LOCALES) {
+      const images = e.images.map((img) =>
+        [
+          `    <image:image>`,
+          `      <image:loc>${escapeXml(img.loc)}</image:loc>`,
+          img.title ? `      <image:title>${escapeXml(img.title.slice(0, 160))}</image:title>` : null,
+          img.caption ? `      <image:caption>${escapeXml(img.caption.slice(0, 300))}</image:caption>` : null,
+          `    </image:image>`,
+        ]
+          .filter(Boolean)
+          .join("\n"),
+      );
+      urls.push(
+        [
+          `  <url>`,
+          `    <loc>${escapeXml(BASE_URL + withLocale(e.path, locale))}</loc>`,
+          e.lastmod ? `    <lastmod>${e.lastmod}</lastmod>` : null,
+          ...images,
+          `  </url>`,
+        ]
+          .filter(Boolean)
+          .join("\n"),
+      );
+    }
+  }
+  return [
+    `<?xml version="1.0" encoding="UTF-8"?>`,
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"`,
+    `        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">`,
+    ...urls,
+    `</urlset>`,
+  ].join("\n");
+}
+
+/** Index that links the page sitemap and the image sitemap together. */
+function renderSitemapIndex(files: string[]) {
+  return [
+    `<?xml version="1.0" encoding="UTF-8"?>`,
+    `<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`,
+    ...files.map((f) => `  <sitemap>\n    <loc>${escapeXml(`${BASE_URL}/${f}`)}</loc>\n  </sitemap>`),
+    `</sitemapindex>`,
+  ].join("\n");
 }
 
 function renderSitemap(entries: SitemapEntry[]) {
@@ -156,5 +216,16 @@ function renderSitemap(entries: SitemapEntry[]) {
 }
 
 const entries = await collectEntries();
-writeFileSync(resolve("public/sitemap.xml"), renderSitemap(entries));
-console.log(`sitemap.xml written (${entries.length * LOCALES.length} URLs, ${entries.length} pages x ${LOCALES.length} locales)`);
+const imageCount = entries.reduce((n, e) => n + (e.images?.length ?? 0), 0);
+
+writeFileSync(resolve("public/sitemap-pages.xml"), renderSitemap(entries));
+writeFileSync(resolve("public/sitemap-images.xml"), renderImageSitemap(entries));
+writeFileSync(
+  resolve("public/sitemap.xml"),
+  renderSitemapIndex(["sitemap-pages.xml", "sitemap-images.xml"]),
+);
+
+console.log(
+  `sitemap.xml index written -> sitemap-pages.xml (${entries.length * LOCALES.length} URLs), ` +
+    `sitemap-images.xml (${imageCount * LOCALES.length} image URLs)`,
+);
