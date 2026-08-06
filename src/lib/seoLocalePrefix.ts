@@ -137,3 +137,23 @@ export function alternateLanguagePaths(
     { lang: "x-default", path: withLocalePrefix(pathname, DEFAULT_LOCALE) },
   ];
 }
+
+/**
+ * Build hreflang alternates limited to the locales a page actually exists in.
+ * Non-reciprocal or 404-ish alternates are worse than none, so callers pass
+ * only the locales with real content (e.g. an article with an EN translation).
+ * x-default points at Thai when available, otherwise the first available.
+ */
+export function alternateLanguagePathsFor(
+  path: string,
+  available: Locale[],
+): { lang: string; path: string }[] {
+  const { pathname } = stripLocalePrefix(path);
+  if (!isSeoPath(pathname)) return [];
+  const locales = SUPPORTED_LOCALES.filter((l) => available.includes(l));
+  if (locales.length === 0) return [];
+  const alts = locales.map((l) => ({ lang: l as string, path: withLocalePrefix(pathname, l) }));
+  const fallback = locales.includes(DEFAULT_LOCALE) ? DEFAULT_LOCALE : locales[0];
+  alts.push({ lang: "x-default", path: withLocalePrefix(pathname, fallback) });
+  return alts;
+}
