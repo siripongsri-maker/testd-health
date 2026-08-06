@@ -38,6 +38,11 @@ export function SEOHead({
   jsonLd,
   extraMeta,
 }: SEOHeadProps) {
+  // Serialize object/array props so inline literals don't retrigger the effect each render.
+  const jsonLdKey = jsonLd ? JSON.stringify(jsonLd) : "";
+  const extraMetaKey = extraMeta ? JSON.stringify(extraMeta) : "";
+  const altKey = alternateLanguages ? JSON.stringify(alternateLanguages) : "";
+
   useEffect(() => {
     // Title
     const fullTitle = title.includes("testD") ? title : `${title} | testD`;
