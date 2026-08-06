@@ -15,6 +15,8 @@ interface SEOHeadProps {
   robots?: string;
   alternateLanguages?: { lang: string; path: string }[];
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  /** Extra page-specific meta tags (e.g. article:published_time, twitter:label1). */
+  extraMeta?: { attr: "name" | "property"; key: string; content: string }[];
 }
 
 const BASE_URL = "https://testd.website";
