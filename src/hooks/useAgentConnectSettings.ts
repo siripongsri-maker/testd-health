@@ -107,7 +107,7 @@ export function useAgentConnectSettings() {
     saveTimer.current = setTimeout(async () => {
       const { error } = await supabase.rpc("save_agent_connect_settings", {
         p_anonymous_id: getVisitorId(),
-        p_settings: next as unknown as Record<string, unknown>,
+        p_settings: JSON.parse(JSON.stringify(next)),
       });
       if (!mounted.current) return;
       setSyncState(error ? "error" : "saved");
