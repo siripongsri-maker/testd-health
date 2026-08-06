@@ -135,20 +135,30 @@ export default function AdminCounselingPayoutsContent() {
   }, [load]);
 
   const filtered = useMemo(() => claims.filter((c) => {
+    if (verifiedOnly && !isRealClient(c)) return false;
     if (filter !== "all" && c.status !== filter) return false;
     const d = c.created_at.slice(0, 10);
     if (from && d < from) return false;
     if (to && d > to) return false;
     return true;
-  }), [claims, filter, from, to]);
+  }), [claims, filter, from, to, verifiedOnly, isRealClient]);
 
-  const totals = useMemo(() => ({
-    count: filtered.length,
-    amount: filtered.reduce((s, c) => s + Number(c.amount), 0),
-    pending: claims.filter((c) => c.status === "pending").length,
-    unpaid: claims.filter((c) => c.status !== "paid" && c.status !== "rejected")
-      .reduce((s, c) => s + Number(c.amount), 0),
-  }), [filtered, claims]);
+  const hiddenCount = useMemo(
+    () => (verifiedOnly ? claims.filter((c) => !isRealClient(c)).length : 0),
+    [claims, verifiedOnly, isRealClient],
+  );
+
+  const totals = useMemo(() => {
+    const real = claims.filter(isRealClient);
+    return {
+      count: filtered.length,
+      amount: filtered.reduce((s, c) => s + Number(c.amount), 0),
+      pending: real.filter((c) => c.status === "pending").length,
+      unpaid: real.filter((c) => c.status !== "paid" && c.status !== "rejected")
+        .reduce((s, c) => s + Number(c.amount), 0),
+    };
+  }, [filtered, claims, isRealClient]);
+
 
   const setStatus = async (id: string, status: ClaimStatus) => {
     setBusy(id);
