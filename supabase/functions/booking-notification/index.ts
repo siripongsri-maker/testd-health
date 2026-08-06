@@ -5,6 +5,14 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+async function sha256Hex(input: string): Promise<string> {
+  const buf = new TextEncoder().encode(input);
+  const digest = await crypto.subtle.digest("SHA-256", buf);
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 function maskEmail(email: string): string {
   const [local, domain] = email.split("@");
   if (!domain) return "***";
@@ -25,6 +33,7 @@ Deno.serve(async (req) => {
     );
 
     const { appointment_id, notification_type, guest_token } = await req.json();
+    const authHeader = req.headers.get("Authorization");
 
     if (!appointment_id || !notification_type) {
       return new Response(
@@ -55,6 +64,34 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({ error: "Appointment not found" }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Ownership check: caller must either be the authenticated owner of the
+    // appointment, or present a guest token whose hash matches the stored one.
+    let owns = false;
+    if (authHeader) {
+      try {
+        const userClient = createClient(
+          Deno.env.get("SUPABASE_URL") ?? "",
+          Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+          { global: { headers: { Authorization: authHeader } } }
+        );
+        const { data: { user } } = await userClient.auth.getUser();
+        if (user && appointment.user_id && user.id === appointment.user_id) owns = true;
+      } catch { /* ignore */ }
+    }
+    if (!owns && guest_token && appointment.guest_access_hash) {
+      const hashed = await sha256Hex(guest_token);
+      const notExpired = !appointment.guest_access_expires_at ||
+        new Date(appointment.guest_access_expires_at) > new Date();
+      if (hashed === appointment.guest_access_hash && notExpired) owns = true;
+    }
+
+    if (!owns) {
+      return new Response(
+        JSON.stringify({ error: "forbidden" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
