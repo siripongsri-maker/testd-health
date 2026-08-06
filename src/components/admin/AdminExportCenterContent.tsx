@@ -392,6 +392,19 @@ function JourneyPdfCards({ isTh }: { isTh: boolean }) {
                 <p className="text-xs text-muted-foreground mt-0.5">{isTh ? doc.descriptionTh : doc.description}</p>
                 <p className="text-[11px] text-muted-foreground/80 mt-1">{versionLabel(doc.id)}</p>
                 <div className="flex flex-wrap gap-2 mt-2">
+                  <Button
+                    size="sm"
+                    className="h-7 text-xs gap-1"
+                    disabled={rebuilding !== null}
+                    onClick={() => rebuild(doc)}
+                  >
+                    {rebuilding === doc.id
+                      ? <Loader2 className="h-3 w-3 animate-spin" />
+                      : <RefreshCw className="h-3 w-3" />}
+                    {rebuilding === doc.id
+                      ? `${isTh ? 'กำลังสร้าง' : 'Generating'} ${progress ? `${progress.done}/${progress.total}` : ''}`
+                      : (isTh ? 'สร้าง PDF ใหม่ (ข้อมูลล่าสุด)' : 'Generate fresh PDF (latest data)')}
+                  </Button>
                   <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => copy(doc.id, urlFor(doc))}>
                     {copiedId === doc.id ? <Check className="h-3 w-3" /> : <Link2 className="h-3 w-3" />}
                     {isTh ? 'คัดลอกลิงก์ล่าสุด' : 'Copy latest link'}
@@ -402,6 +415,7 @@ function JourneyPdfCards({ isTh }: { isTh: boolean }) {
                       {isTh ? 'ดาวน์โหลด PDF' : 'Download PDF'}
                     </a>
                   </Button>
+
                   <Button asChild variant="outline" size="sm" className="h-7 text-xs gap-1">
                     <a href={doc.pngZip} download>
                       <Images className="h-3 w-3" />
