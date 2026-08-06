@@ -238,6 +238,36 @@ export function PostCounselingCasesTab({ variant }: { variant: "cases" | "compar
     } catch { /* noop */ }
   };
 
+  // ── Manual follow-up SMS ─────────────────────────────────────────
+  const [smsNote, setSmsNote] = useState<NoteRow | null>(null);
+  const [smsPhone, setSmsPhone] = useState("");
+  const [smsSending, setSmsSending] = useState(false);
+
+  const sendSms = async () => {
+    if (!smsNote) return;
+    const digits = smsPhone.replace(/\D/g, "");
+    if (digits.length < 9) {
+      toast({ title: tx("เบอร์โทรไม่ถูกต้อง", "Invalid phone number"), variant: "destructive" });
+      return;
+    }
+    setSmsSending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-post-eval-sms", {
+        body: { note_id: smsNote.id, phone: digits },
+      });
+      if (error || (data as any)?.error) throw new Error((data as any)?.error || error?.message);
+      toast({ title: tx("ส่ง SMS แล้ว 📩", "SMS sent 📩") });
+      setSmsNote(null);
+      setSmsPhone("");
+      await load();
+    } catch (e: any) {
+      toast({ title: tx("ส่ง SMS ไม่สำเร็จ", "Could not send SMS"), description: e?.message, variant: "destructive" });
+    } finally {
+      setSmsSending(false);
+    }
+  };
+
+
   if (loading) {
     return (
       <div className="py-24 flex items-center justify-center text-muted-foreground">
