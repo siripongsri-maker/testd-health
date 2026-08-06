@@ -9093,6 +9093,59 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_jsonld_reviews: {
+        Row: {
+          article_id: string
+          confirmed_at: string
+          confirmed_by: string | null
+          created_at: string
+          error_count: number
+          id: string
+          locale: string
+          notes: string | null
+          snapshot: Json | null
+          status: string
+          updated_at: string
+          warning_count: number
+        }
+        Insert: {
+          article_id: string
+          confirmed_at?: string
+          confirmed_by?: string | null
+          created_at?: string
+          error_count?: number
+          id?: string
+          locale: string
+          notes?: string | null
+          snapshot?: Json | null
+          status?: string
+          updated_at?: string
+          warning_count?: number
+        }
+        Update: {
+          article_id?: string
+          confirmed_at?: string
+          confirmed_by?: string | null
+          created_at?: string
+          error_count?: number
+          id?: string
+          locale?: string
+          notes?: string | null
+          snapshot?: Json | null
+          status?: string
+          updated_at?: string
+          warning_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_jsonld_reviews_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "blog_articles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_events: {
         Row: {
           anonymous_token: string | null
