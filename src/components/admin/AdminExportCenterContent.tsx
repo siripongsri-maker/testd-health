@@ -3,7 +3,7 @@ import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FileDown, Download, Calendar, Loader2, Fingerprint } from "lucide-react";
+import { FileDown, Download, Calendar, Loader2, Fingerprint, Link2, Check, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminRole } from "@/hooks/useAdminRole";
@@ -203,6 +203,9 @@ export default function AdminExportCenterContent() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Journey summaries (PDF) */}
+      <JourneyPdfCards isTh={isTh} />
 
       {/* Report Templates */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
