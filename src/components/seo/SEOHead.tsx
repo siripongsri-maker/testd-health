@@ -4,12 +4,21 @@ import {
   canonicalPathFor,
   isSeoPath,
 } from "@/lib/seoLocalePrefix";
+import {
+  DEFAULT_OG_IMAGE,
+  OG_IMAGE_HEIGHT,
+  OG_IMAGE_WIDTH,
+  ogImageType,
+  resolveOgImage,
+} from "@/lib/ogImage";
 
 interface SEOHeadProps {
   title: string;
   description: string;
   canonicalPath?: string;
   ogImage?: string;
+  /** Alt text for the share image (falls back to the page title). */
+  ogImageAlt?: string;
   ogType?: string;
   lang?: string;
   robots?: string;
@@ -20,7 +29,7 @@ interface SEOHeadProps {
 }
 
 const BASE_URL = "https://testd.website";
-const DEFAULT_OG_IMAGE = "https://storage.googleapis.com/gpt-engineer-file-uploads/KT2ExYhzQvVnbWOZrapb2296DWu1/social-images/social-1770910470399-testD_logo.png";
+
 
 /**
  * SEOHead — dynamically sets document <head> metadata for SEO & AI discoverability.
