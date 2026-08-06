@@ -94,6 +94,36 @@ function CopyButton({
   );
 }
 
+function McpUrlCard() {
+  const [showFull, setShowFull] = useState(false);
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">ลิงก์เซิร์ฟเวอร์ (MCP server URL)</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <code
+            className="flex-1 overflow-x-auto rounded-lg bg-muted px-3 py-2 text-xs sm:text-sm"
+            title={MCP_URL}
+          >
+            {showFull ? MCP_URL : shortenUrl(MCP_URL)}
+          </code>
+          <CopyButton value={MCP_URL} label="คัดลอกลิงก์เซิร์ฟเวอร์" toastLabel="ลิงก์เซิร์ฟเวอร์แล้ว" />
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-xs text-muted-foreground">
+            {showFull ? "นี่คือลิงก์เต็มสำหรับวางในผู้ช่วย AI" : "แสดงแบบย่อเพื่ออ่านง่าย ปุ่มคัดลอกจะคัดลอกลิงก์เต็มเสมอ"}
+          </p>
+          <Button variant="ghost" size="sm" onClick={() => setShowFull((v) => !v)}>
+            {showFull ? "ย่อลิงก์" : "แสดงลิงก์เต็ม"}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 
 function Steps({
   items,
