@@ -240,6 +240,7 @@ export default function GuestAppointments() {
           body: {
             appointment_id: cancelApt.appointment_id,
             notification_type: 'booking_cancelled',
+            guest_token: searchParams.get('token') || undefined,
           },
         });
       } catch {}
