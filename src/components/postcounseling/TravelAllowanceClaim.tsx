@@ -60,6 +60,15 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
     rejection_reason?: string | null;
     bank_last4?: string | null;
   }>({});
+  const [quota, setQuota] = useState<{ limit: number; used: number; remaining: number }>({
+    limit: 100,
+    used: 0,
+    remaining: 100,
+  });
+  const [attended, setAttended] = useState(false);
+  const [hasEvaluation, setHasEvaluation] = useState(false);
+  const [phoneLast4, setPhoneLast4] = useState<string | null>(null);
+  const [phoneClaimed, setPhoneClaimed] = useState(false);
   const [open, setOpen] = useState(false);
 
   const [holder, setHolder] = useState("");
@@ -73,6 +82,16 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
   const refresh = async () => {
     const { data } = await supabase.rpc("get_post_eval_claim_status", { _token: token } as any);
     const row = (data as any[])?.[0];
+    if (!row) return;
+    setQuota({
+      limit: row.quota_limit ?? 100,
+      used: row.quota_used ?? 0,
+      remaining: row.quota_remaining ?? 0,
+    });
+    setAttended(!!row.attendance_verified);
+    setHasEvaluation(!!row.has_evaluation);
+    setPhoneLast4(row.phone_last4 || null);
+    setPhoneClaimed(!!row.phone_already_claimed);
     if (row?.has_claim) {
       setClaimed(true);
       setStatus(row.claim_status);
@@ -93,6 +112,7 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
+
 
 
   const pickFile = async (file?: File | null) => {
