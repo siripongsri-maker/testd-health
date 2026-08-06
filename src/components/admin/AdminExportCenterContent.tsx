@@ -3,7 +3,7 @@ import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FileDown, Download, Calendar, Loader2, Fingerprint, Link2, Check, FileText, Images, ChevronDown, ChevronUp } from "lucide-react";
+import { FileDown, Download, Calendar, Loader2, Fingerprint, Link2, Check, FileText, Images, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminRole } from "@/hooks/useAdminRole";
@@ -282,6 +282,38 @@ function JourneyPdfCards({ isTh }: { isTh: boolean }) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [versions, setVersions] = useState<Record<string, string>>({});
   const [openPages, setOpenPages] = useState<string | null>(null);
+  const [rebuilding, setRebuilding] = useState<string | null>(null);
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
+
+  const rebuild = async (doc: typeof journeyDocs[number]) => {
+    setRebuilding(doc.id);
+    setProgress({ done: 0, total: doc.pages + 1 });
+    try {
+      const { regenerateJourneyPdf } = await import('@/lib/journeyPdfRebuild');
+      const blob = await regenerateJourneyPdf({
+        title: isTh ? doc.nameTh : doc.name,
+        subtitle: isTh ? doc.descriptionTh : doc.description,
+        pngDir: doc.pngDir,
+        pages: doc.pages,
+        isTh,
+        onProgress: (done, total) => setProgress({ done, total }),
+      });
+      const stamp = new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-');
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `journey-${doc.id}-latest-${stamp}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success(isTh ? 'สร้าง PDF ใหม่พร้อมข้อมูลล่าสุดแล้ว' : 'Fresh PDF generated with latest data');
+    } catch (e: any) {
+      toast.error(isTh ? 'สร้าง PDF ใหม่ไม่สำเร็จ' : 'Could not regenerate PDF', { description: e?.message });
+    } finally {
+      setRebuilding(null);
+      setProgress(null);
+    }
+  };
+
 
   // Resolve the latest published version of each PDF (from Last-Modified) so the
   // copied link always busts caches for the review team.
@@ -360,6 +392,19 @@ function JourneyPdfCards({ isTh }: { isTh: boolean }) {
                 <p className="text-xs text-muted-foreground mt-0.5">{isTh ? doc.descriptionTh : doc.description}</p>
                 <p className="text-[11px] text-muted-foreground/80 mt-1">{versionLabel(doc.id)}</p>
                 <div className="flex flex-wrap gap-2 mt-2">
+                  <Button
+                    size="sm"
+                    className="h-7 text-xs gap-1"
+                    disabled={rebuilding !== null}
+                    onClick={() => rebuild(doc)}
+                  >
+                    {rebuilding === doc.id
+                      ? <Loader2 className="h-3 w-3 animate-spin" />
+                      : <RefreshCw className="h-3 w-3" />}
+                    {rebuilding === doc.id
+                      ? `${isTh ? 'กำลังสร้าง' : 'Generating'} ${progress ? `${progress.done}/${progress.total}` : ''}`
+                      : (isTh ? 'สร้าง PDF ใหม่ (ข้อมูลล่าสุด)' : 'Generate fresh PDF (latest data)')}
+                  </Button>
                   <Button variant="outline" size="sm" className="h-7 text-xs gap-1" onClick={() => copy(doc.id, urlFor(doc))}>
                     {copiedId === doc.id ? <Check className="h-3 w-3" /> : <Link2 className="h-3 w-3" />}
                     {isTh ? 'คัดลอกลิงก์ล่าสุด' : 'Copy latest link'}
@@ -370,6 +415,7 @@ function JourneyPdfCards({ isTh }: { isTh: boolean }) {
                       {isTh ? 'ดาวน์โหลด PDF' : 'Download PDF'}
                     </a>
                   </Button>
+
                   <Button asChild variant="outline" size="sm" className="h-7 text-xs gap-1">
                     <a href={doc.pngZip} download>
                       <Images className="h-3 w-3" />
