@@ -491,6 +491,16 @@ function JourneyPdfCards({ isTh }: { isTh: boolean }) {
           ))}
 
         </div>
+
+        <JourneyPreviewDialog
+          doc={previewDoc}
+          isTh={isTh}
+          open={previewDoc !== null}
+          onOpenChange={(v) => { if (!v) setPreviewDoc(null); }}
+          downloading={rebuilding !== null}
+          progressLabel={progress ? `${isTh ? 'กำลังสร้าง' : 'Generating'} ${progress.done}/${progress.total}` : null}
+          onDownload={(d) => rebuild(journeyDocs.find(j => j.id === d.id)!)}
+        />
       </CardContent>
     </Card>
   );
