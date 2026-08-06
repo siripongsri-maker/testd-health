@@ -35,12 +35,19 @@ export function RescheduleSuggestDialog({ open, onOpenChange, branchId, branchSl
   const [slots, setSlots] = useState<Slot[]>([]);
 
   useEffect(() => {
-    if (!open || !branchId) return;
+    if (!open || (!branchId && !branchSlug)) return;
     let cancelled = false;
     (async () => {
       setLoading(true);
+      let id = branchId || null;
+      if (!id && branchSlug) {
+        const { data: b } = await supabase
+          .from('booking_branches').select('id').eq('slug', branchSlug).maybeSingle();
+        id = b?.id || null;
+      }
+      if (!id) { if (!cancelled) { setSlots([]); setLoading(false); } return; }
       const { data } = await supabase.rpc('suggest_reschedule_slots', {
-        _branch_id: branchId,
+        _branch_id: id,
         _from_date: null,
         _limit: 6,
       } as any);
@@ -50,7 +57,8 @@ export function RescheduleSuggestDialog({ open, onOpenChange, branchId, branchSl
       }
     })();
     return () => { cancelled = true; };
-  }, [open, branchId]);
+  }, [open, branchId, branchSlug]);
+
 
   const go = (slot?: Slot) => {
     const params = new URLSearchParams();
