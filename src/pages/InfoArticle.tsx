@@ -83,6 +83,7 @@ interface Article {
   view_count: number;
   like_count: number;
   published_at: string | null;
+  updated_at?: string | null;
   category_id: string | null;
   video_url: string | null;
 }
