@@ -862,6 +862,13 @@ export default function GuestAppointments() {
         serviceSlug={medServiceSlug}
         serviceName={medServiceName}
       />
+
+      <RescheduleSuggestDialog
+        open={!!rescheduleSlug}
+        onOpenChange={(v) => { if (!v) setRescheduleSlug(null); }}
+        branchSlug={rescheduleSlug}
+      />
+
     </>
   );
 }
