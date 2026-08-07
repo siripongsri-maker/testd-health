@@ -4,7 +4,19 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Download, FlaskConical, ShieldAlert, CheckCircle2, AlertTriangle } from "lucide-react";
+import { Download, FlaskConical, ShieldAlert, CheckCircle2, AlertTriangle, LineChart as LineChartIcon, BarChart3 } from "lucide-react";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from "recharts";
 import { useLanguage } from "@/lib/i18n";
 import { bkkDay, formatBkkDayLabel } from "./FollowupStatsPanel";
 
