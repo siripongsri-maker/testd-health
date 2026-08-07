@@ -166,10 +166,13 @@ export default function TrackOrder() {
     toast.success(language === 'th' ? 'คัดลอกแล้ว' : 'Copied!');
   };
 
-  const getTrackingUrl = (carrier: string | null, trackingNumber: string | null) => {
-    if (!carrier || !trackingNumber) return null;
-    const baseUrl = CARRIER_TRACKING_URLS[carrier];
-    return baseUrl ? baseUrl + trackingNumber : null;
+  const getTrackingUrl = (carrier: string | null, trackingNumber: string | null, customUrl?: string | null) => {
+    if (!trackingNumber) return null;
+    if (customUrl) return customUrl;
+    const baseUrl = carrier
+      ? CARRIER_TRACKING_URLS[carrier.toLowerCase()]
+      : CARRIER_TRACKING_URLS.thailand_post;
+    return baseUrl ? `${baseUrl}${encodeURIComponent(trackingNumber)}` : null;
   };
 
   const getStatusIndex = (status: OrderStatus) => {
@@ -325,17 +328,29 @@ export default function TrackOrder() {
                   <span>{getCarrierName(order.shipping_carrier)}</span>
                 </div>
                 {order.tracking_number && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">
+                  <div className="flex justify-between items-center gap-3">
+                    <span className="text-muted-foreground shrink-0">
                       {language === 'th' ? 'เลขพัสดุ' : 'Tracking #'}
                     </span>
-                    <div className="flex items-center gap-2">
-                      <code className="font-mono">{order.tracking_number}</code>
+                    <div className="flex items-center gap-2 min-w-0">
+                      {getTrackingUrl(order.shipping_carrier, order.tracking_number, order.tracking_url) ? (
+                        <a
+                          href={getTrackingUrl(order.shipping_carrier, order.tracking_number, order.tracking_url) || undefined}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="font-mono text-primary hover:underline truncate"
+                          aria-label={language === 'th' ? 'เปิดหน้าเช็คพัสดุ' : 'Open parcel tracking'}
+                        >
+                          {order.tracking_number}
+                        </a>
+                      ) : (
+                        <code className="font-mono truncate">{order.tracking_number}</code>
+                      )}
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6"
-                        onClick={() => copyCode(order.tracking_number!)}
+                        className="h-6 w-6 shrink-0"
+                        onClick={() => copyCode(order.tracking_number || '')}
                       >
                         <Copy className="h-3 w-3" />
                       </Button>
@@ -343,12 +358,15 @@ export default function TrackOrder() {
                   </div>
                 )}
               </div>
-              {getTrackingUrl(order.shipping_carrier, order.tracking_number) && (
+              {getTrackingUrl(order.shipping_carrier, order.tracking_number, order.tracking_url) && (
                 <Button
                   variant="outline"
                   size="sm"
                   className="w-full mt-3 gap-2"
-                  onClick={() => window.open(getTrackingUrl(order.shipping_carrier, order.tracking_number)!, '_blank')}
+                  onClick={() => {
+                    const trackingUrl = getTrackingUrl(order.shipping_carrier, order.tracking_number, order.tracking_url);
+                    if (trackingUrl) window.open(trackingUrl, '_blank', 'noopener,noreferrer');
+                  }}
                 >
                   <ExternalLink className="h-4 w-4" />
                   {language === 'th' ? 'ติดตามพัสดุ' : 'Track Shipment'}

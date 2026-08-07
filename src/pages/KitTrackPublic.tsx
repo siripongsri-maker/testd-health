@@ -127,8 +127,15 @@ export default function KitTrackPublic() {
     });
   };
 
+  const getTrackingUrl = (currentOrder: PublicOrder) => {
+    if (!currentOrder.tracking_number) return null;
+    if (currentOrder.carrier_tracking_url) return currentOrder.carrier_tracking_url;
+    return `https://track.thailandpost.co.th/?trackNumber=${encodeURIComponent(currentOrder.tracking_number)}`;
+  };
+
   const currentIndex = order ? STATUS_STEPS.findIndex((s) => s.key === order.status) : -1;
   const badge = order ? STATUS_BADGE[order.status] : null;
+  const trackingUrl = order ? getTrackingUrl(order) : null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -231,18 +238,28 @@ export default function KitTrackPublic() {
                   </div>
                 )}
                 {order.tracking_number && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">{t("เลขพัสดุ", "Tracking #")}</span>
-                    <code className="font-mono">{order.tracking_number}</code>
+                  <div className="flex justify-between items-center gap-3">
+                    <span className="text-muted-foreground shrink-0">{t("เลขพัสดุ", "Tracking #")}</span>
+                    <a
+                      href={trackingUrl || undefined}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-mono text-primary hover:underline truncate"
+                      aria-label={t("เปิดหน้าเช็คพัสดุ", "Open parcel tracking")}
+                    >
+                      {order.tracking_number}
+                    </a>
                   </div>
                 )}
-                {order.carrier_tracking_url && (
+                {trackingUrl && (
                   <Button
+                    asChild
                     variant="outline" size="sm" className="w-full mt-2 gap-2"
-                    onClick={() => window.open(order.carrier_tracking_url!, "_blank", "noopener")}
                   >
-                    <ExternalLink className="h-4 w-4" />
-                    {t("ติดตามกับขนส่ง", "Track with carrier")}
+                    <a href={trackingUrl} target="_blank" rel="noreferrer">
+                      <ExternalLink className="h-4 w-4" />
+                      {t("ติดตามกับขนส่ง", "Track with carrier")}
+                    </a>
                   </Button>
                 )}
               </div>
