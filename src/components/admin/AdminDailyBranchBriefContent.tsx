@@ -23,6 +23,8 @@ interface BriefCase {
   survey_id: string;
   branch_id: string | null;
   submitted_at: string;
+  appointment_date: string | null;
+  appointment_time: string | null;
   case_code: string;
   is_anonymous: boolean;
   visit_type: "first" | "repeat";
