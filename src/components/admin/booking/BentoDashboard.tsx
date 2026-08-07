@@ -12,7 +12,7 @@ import {
 import { cn } from '@/lib/utils';
 import { getDisplayServices } from '@/lib/appointments';
 import type { EnrichedAppointment, BranchOption, DensityDay } from './types';
-import { getStatusInfo } from './types';
+import { getStatusInfo, getUrgentSupportSignals } from './types';
 import { BranchSettingsDrawer } from './BranchSettingsDrawer';
 
 interface Props {

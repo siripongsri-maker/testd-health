@@ -19,14 +19,19 @@ export function AppointmentPill({ appointment: apt, selected, onToggleSelect, on
   const { language } = useLanguage();
   const services = getDisplayServices(apt);
   const statusInfo = getStatusInfo(apt.status);
+  const urgentSignals = getUrgentSupportSignals(apt);
+  const urgentLabel = urgentSignals.map(signal => language === 'th' ? signal.labelTh : signal.labelEn).join(' · ');
 
   return (
     <div
       className={cn(
         "group flex items-center gap-2 p-2 rounded-xl border transition-all cursor-pointer hover:shadow-sm",
-        selected ? "border-primary bg-primary/5" : "border-border/30 bg-background hover:border-primary/20",
+        urgentSignals.length > 0
+          ? "border-destructive/60 bg-destructive/5 shadow-sm"
+          : selected ? "border-primary bg-primary/5" : "border-border/30 bg-background hover:border-primary/20",
         compact && "p-1.5"
       )}
+      title={urgentSignals.length > 0 ? `${language === 'th' ? 'เคสเร่งด่วน' : 'Urgent case'}: ${urgentLabel}` : undefined}
       onClick={() => onClick(apt)}
     >
       <div className="shrink-0" onClick={(e) => { e.stopPropagation(); onToggleSelect(apt.id); }}>
@@ -38,6 +43,14 @@ export function AppointmentPill({ appointment: apt, selected, onToggleSelect, on
 
       {/* Service icons (1-2) */}
       <span className="text-sm shrink-0">{services.slice(0, 2).map(s => s.icon).join('')}</span>
+
+      {urgentSignals.length > 0 && (
+        <Badge variant="destructive" className="h-5 gap-1 px-1.5 text-[9px] font-bold shrink-0">
+          <AlertTriangle className="h-3 w-3" />
+          <span className="hidden sm:inline">{language === 'th' ? 'เร่งด่วน' : 'Urgent'}</span>
+          <span className="sm:hidden">!</span>
+        </Badge>
+      )}
 
       {/* Referral code */}
       {apt.referral_code && (
