@@ -45,6 +45,12 @@ const STATUS_TABS = [
 
 const CARE_ACTIONS = STATUS_TABS.map((s) => ({ value: s.value, labelTh: s.labelTh, labelEn: s.labelEn }));
 
+const RESULT_OPTIONS = [
+  { value: "negative", labelTh: "ผลลบ (Negative)", labelEn: "Negative" },
+  { value: "reactive", labelTh: "ผลบวก/Reactive", labelEn: "Reactive" },
+  { value: "invalid", labelTh: "อ่านผลไม่ได้ (Invalid)", labelEn: "Invalid" },
+];
+
 // 3-7-7 schedule: attempt 1 at day 0, attempt 2 +3 days, attempt 3 +7 days, then auto-close +7 days
 const ATTEMPT_OFFSETS_DAYS = [0, 3, 10, 17];
 
