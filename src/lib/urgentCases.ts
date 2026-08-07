@@ -80,4 +80,56 @@ export async function fetchSurveyAppointmentMap(surveyIds: string[]): Promise<Ma
   return map;
 }
 
+export interface UrgentAppointmentRef {
+  appointment_id: string;
+  branch_id: string | null;
+  appointment_date: string;
+  start_time: string | null;
+  referral_code: string | null;
+  status: string;
+  case: UrgentCaseRef;
+}
+
+/**
+ * Urgent appointments for a given day (optionally one branch).
+ *
+ * This is the SAME source the appointments page and the counseling queue use
+ * (open referrals in `hr_referrals` tagged with `[APPT:<id>]`), so the counts on
+ * the daily branch brief line up instead of only counting cases that happen to
+ * have a pre-service survey row.
+ */
+export async function fetchUrgentAppointmentsForDay(
+  day: string,
+  branchId?: string | null,
+): Promise<UrgentAppointmentRef[]> {
+  const urgentMap = await fetchUrgentCaseMap();
+  const ids = Array.from(urgentMap.keys());
+  if (ids.length === 0) return [];
+
+  let q = supabase
+    .from('appointments')
+    .select('id, branch_id, appointment_date, start_time, referral_code, status')
+    .in('id', ids)
+    .eq('appointment_date', day)
+    .not('status', 'in', '("cancelled","no_show")');
+  if (branchId) q = q.eq('branch_id', branchId);
+
+  const { data, error } = await q;
+  if (error) {
+    console.error('URGENT_APPOINTMENTS_DAY_FAILED', error);
+    return [];
+  }
+
+  return ((data as any[]) || []).map((a) => ({
+    appointment_id: a.id,
+    branch_id: a.branch_id ?? null,
+    appointment_date: a.appointment_date,
+    start_time: a.start_time ?? null,
+    referral_code: a.referral_code ?? null,
+    status: a.status,
+    case: urgentMap.get(a.id) as UrgentCaseRef,
+  }));
+}
+
 export { APPT_TAG };
+

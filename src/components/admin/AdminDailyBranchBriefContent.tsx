@@ -17,7 +17,9 @@ import { useAdminRole } from "@/hooks/useAdminRole";
 import { toast } from "@/hooks/use-toast";
 import { exportToCsv, type CsvColumn } from "@/lib/adminCsvExport";
 import { format } from "date-fns";
-import { fetchUrgentCaseMap, fetchSurveyAppointmentMap } from "@/lib/urgentCases";
+import { fetchUrgentCaseMap, fetchSurveyAppointmentMap, fetchUrgentAppointmentsForDay, type UrgentAppointmentRef } from "@/lib/urgentCases";
+import PrintButton from "./PrintButton";
+
 
 
 interface BriefCase {
@@ -81,6 +83,10 @@ export default function AdminDailyBranchBriefContent() {
   const [live, setLive] = useState<"connecting" | "live" | "offline">("connecting");
   const [savingId, setSavingId] = useState<string | null>(null);
   const [urgentSurveyIds, setUrgentSurveyIds] = useState<Set<string>>(new Set());
+  const [urgentAppointments, setUrgentAppointments] = useState<UrgentAppointmentRef[]>([]);
+  const [linkedUrgentApptIds, setLinkedUrgentApptIds] = useState<Set<string>>(new Set());
+
+
 
 
   const branchName = useCallback(
@@ -121,25 +127,32 @@ export default function AdminDailyBranchBriefContent() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Match urgent cases flagged on the appointments page (shared source: hr_referrals)
+  // Match urgent cases flagged on the appointments page (shared source: hr_referrals).
+  // The urgent COUNT comes from the appointments of the day so it matches the
+  // appointments page and the counseling queue — not only cases that have a survey row.
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      if (rows.length === 0) { setUrgentSurveyIds(new Set()); return; }
-      const [urgentMap, surveyMap] = await Promise.all([
+      const [urgentMap, surveyMap, apptUrgent] = await Promise.all([
         fetchUrgentCaseMap(),
         fetchSurveyAppointmentMap(rows.map((r) => r.survey_id)),
+        fetchUrgentAppointmentsForDay(day, branchFilter === "all" ? null : branchFilter),
       ]);
       if (cancelled) return;
       const flagged = new Set<string>();
+      const linked = new Set<string>();
       rows.forEach((r) => {
         const apptId = surveyMap.get(r.survey_id);
-        if (apptId && urgentMap.has(apptId)) flagged.add(r.survey_id);
+        if (apptId && urgentMap.has(apptId)) { flagged.add(r.survey_id); linked.add(apptId); }
       });
       setUrgentSurveyIds(flagged);
+      setLinkedUrgentApptIds(linked);
+      setUrgentAppointments(apptUrgent);
+
     })();
     return () => { cancelled = true; };
-  }, [rows]);
+  }, [rows, day, branchFilter]);
+
 
 
   // Realtime: reflect status changes made in Counselor Support and vice versa
@@ -208,11 +221,14 @@ export default function AdminDailyBranchBriefContent() {
       high: rows.filter((r) => r.risk_level === "high").length,
       medium: rows.filter((r) => r.risk_level === "medium").length,
       breached,
-      urgent: rows.filter((r) => urgentSurveyIds.has(r.survey_id)).length,
+      urgent: urgentAppointments.length,
+      urgentUnlinked: urgentAppointments.filter((u) => !linkedUrgentApptIds.has(u.appointment_id)),
       topBranch: top ? `${branchName(top[0] === "unknown" ? null : top[0])} (${top[1].length})` : "—",
       topics: Array.from(byTopic.entries()).sort((a, b) => b[1] - a[1]),
     };
-  }, [rows, grouped, branchName, urgentSurveyIds]);
+  }, [rows, grouped, branchName, urgentSurveyIds, urgentAppointments, linkedUrgentApptIds]);
+
+
 
 
   const exportCsv = () => {
@@ -270,9 +286,8 @@ export default function AdminDailyBranchBriefContent() {
           <Button variant="outline" size="sm" onClick={exportCsv} disabled={!rows.length}>
             <Download className="h-4 w-4 mr-1" />CSV
           </Button>
-          <Button variant="outline" size="sm" onClick={() => window.print()} disabled={!rows.length}>
-            <Printer className="h-4 w-4 mr-1" />{tx("พิมพ์ / PDF", "Print / PDF")}
-          </Button>
+          <PrintButton documentTitle={`daily-branch-brief-${day}`} />
+
           <Badge variant="outline" className="gap-1">
             <Radio className={`h-3 w-3 ${live === "live" ? "text-emerald-500" : "text-muted-foreground"}`} />
             {live === "live" ? tx("เรียลไทม์", "Live") : tx("กำลังเชื่อมต่อ", "Connecting")}
@@ -300,6 +315,37 @@ export default function AdminDailyBranchBriefContent() {
           <p className="text-sm font-semibold mt-1">{summary.topBranch}</p>
         </Card>
       </div>
+
+      {/* Urgent cases from the appointments page that have no pre-service survey yet —
+          shown so this page's urgent count reconciles with the appointments page. */}
+      {summary.urgentUnlinked.length > 0 && (
+        <Card className="p-4 space-y-2 border-rose-300 bg-rose-50/40 dark:bg-rose-950/20 print-block">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 text-rose-600" />
+            <p className="text-sm font-semibold">
+              {tx("เคสเร่งด่วนจากหน้านัดหมาย (ยังไม่มีแบบสอบถามก่อนรับบริการ)",
+                  "Urgent cases from appointments (no pre-service survey yet)")}
+            </p>
+            <Badge className="bg-rose-600 text-white">{summary.urgentUnlinked.length}</Badge>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {summary.urgentUnlinked.map((u) => (
+              <div key={u.appointment_id} className="rounded-md border border-rose-300/60 bg-background p-2 text-xs">
+                <div className="flex items-center gap-1.5 font-semibold">
+                  <Clock className="h-3 w-3 text-rose-600" />
+                  {String(u.start_time || "").slice(0, 5) || "—"}
+                  <span className="font-normal text-muted-foreground">{branchName(u.branch_id)}</span>
+                </div>
+                <div className="mt-1 flex flex-wrap items-center gap-1 text-muted-foreground">
+                  <Badge variant="outline" className="text-[10px]">{u.case?.referral_type}</Badge>
+                  {u.referral_code && <span className="font-mono">{u.referral_code}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
 
       {summary.topics.length > 0 && (
         <Card className="p-4 print-block">

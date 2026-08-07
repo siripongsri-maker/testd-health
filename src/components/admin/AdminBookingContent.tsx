@@ -24,6 +24,8 @@ import { BookingAnalyticsPanel } from './booking/BookingAnalyticsPanel';
 import { ForecastPanel } from './booking/ForecastPanel';
 import { AppointmentDetailDrawer } from './booking/AppointmentDetailDrawer';
 import { UrgentCasesPanel } from './booking/UrgentCasesPanel';
+import PrintButton from './PrintButton';
+
 import type { EnrichedAppointment, DensityDay, BranchOption, ViewMode } from './booking/types';
 import { STATUS_OPTIONS } from './booking/types';
 
@@ -308,6 +310,8 @@ export default function AdminBookingContent({ userBranch }: Props) {
               <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleRefresh}>
                 <RefreshCcw className="h-3.5 w-3.5" />
               </Button>
+              <PrintButton documentTitle="appointments" className="h-8" />
+
               <div className={`flex items-center gap-1 text-[10px] px-2 py-1 rounded-full ${isLive ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : 'bg-muted text-muted-foreground'}`}>
                 {isLive ? <Wifi className="h-3 w-3" /> : <WifiOff className="h-3 w-3" />}
                 {isLive ? 'Live' : 'Offline'}
