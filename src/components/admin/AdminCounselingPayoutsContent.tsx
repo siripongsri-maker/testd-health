@@ -372,6 +372,13 @@ export default function AdminCounselingPayoutsContent() {
             onClick={() => setVerifiedOnly((v) => !v)}>
             {verifiedOnly ? "แสดงเฉพาะผู้รับบริการจริง" : "แสดงทุกรายการ (รวมที่ยังไม่ยืนยัน)"}
           </Button>
+          <Button size="sm" variant={urgentOnly ? "default" : "outline"}
+            className={`h-7 text-xs ${urgentOnly ? "bg-rose-600 hover:bg-rose-700" : "border-rose-300 text-rose-600"}`}
+            onClick={() => setUrgentOnly((v) => !v)}>
+            <AlertTriangle className="h-3 w-3 mr-1" />
+            เฉพาะเคสเร่งด่วน ({claims.filter(isUrgentClaim).length})
+          </Button>
+
           <span className="text-[11px] text-muted-foreground">
             ยืนยันจากการจองที่เช็คอิน/เช็คเอาท์จริงเท่านั้น
             {verifiedOnly && hiddenCount > 0 && ` • ซ่อนอยู่ ${hiddenCount} รายการที่ยังไม่ยืนยัน`}
