@@ -330,6 +330,51 @@ export default function AdminCounselorAccountsContent() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Provisioned credentials (shown once) */}
+      <Dialog open={!!provisionResults} onOpenChange={(v) => { if (!v) setProvisionResults(null); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{tx("บัญชีนักให้คำปรึกษาตามสาขา", "Branch counselor accounts")}</DialogTitle>
+            <DialogDescription>
+              {tx("บันทึกรหัสผ่านทันที ระบบจะไม่แสดงอีก", "Copy these passwords now — they will not be shown again.")}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 max-h-[50vh] overflow-y-auto text-sm">
+            {(provisionResults ?? []).map((r, i) => (
+              <div key={i} className="rounded-md border p-3">
+                <div className="font-medium">{r.branch}</div>
+                {r.created ? (
+                  <div className="font-mono text-xs mt-1 break-all">
+                    <div>{r.email}</div>
+                    <div className="text-primary">{r.password}</div>
+                  </div>
+                ) : (
+                  <div className="text-muted-foreground text-xs mt-1">
+                    {r.skipped ? tx("มีบัญชีอยู่แล้ว", "Already has an account") : r.error}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                const txt = (provisionResults ?? [])
+                  .filter((r) => r.created)
+                  .map((r) => `${r.branch}\t${r.email}\t${r.password}`)
+                  .join("\n");
+                navigator.clipboard.writeText(txt);
+                toast.success(tx("คัดลอกแล้ว", "Copied"));
+              }}
+            >
+              {tx("คัดลอกทั้งหมด", "Copy all")}
+            </Button>
+            <Button onClick={() => setProvisionResults(null)}>{tx("เสร็จสิ้น", "Done")}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
