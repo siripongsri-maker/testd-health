@@ -519,16 +519,29 @@ export default function AdminSelftestResultsContent() {
                             </SelectContent>
                           </Select>
                         </TableCell>
-                        <TableCell>
-                          <Input
-                            className="h-8 w-32"
-                            placeholder="—"
-                            value={e.tracking_number}
-                            onChange={(ev) =>
-                              setEdits((prev) => ({ ...prev, [r.id]: { ...e, tracking_number: ev.target.value } }))
-                            }
-                          />
-                        </TableCell>
+                         <TableCell>
+                           <div className="flex items-center gap-2">
+                             <Input
+                               className="h-8 w-32"
+                               placeholder="—"
+                               value={e.tracking_number}
+                               onChange={(ev) =>
+                                 setEdits((prev) => ({ ...prev, [r.id]: { ...e, tracking_number: ev.target.value } }))
+                               }
+                             />
+                             {e.tracking_number && (
+                               <a
+                                 href={`https://track.thailandpost.co.th/?trackNumber=${encodeURIComponent(e.tracking_number)}`}
+                                 target="_blank"
+                                 rel="noreferrer"
+                                 className="text-primary hover:underline text-xs whitespace-nowrap"
+                                 aria-label={t("เปิดหน้าเช็คพัสดุ", "Open parcel tracking")}
+                               >
+                                 {t("เช็ค", "Track")}
+                               </a>
+                             )}
+                           </div>
+                         </TableCell>
                         <TableCell><span className="text-xs">{r.assigned_branch || "—"}</span></TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-1">
