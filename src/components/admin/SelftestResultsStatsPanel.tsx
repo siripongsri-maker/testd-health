@@ -43,6 +43,7 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
   const { language } = useLanguage();
   const t = (th: string, en: string) => (language === "th" ? th : en);
   const [rangeDays, setRangeDays] = useState("30");
+  const [drill, setDrill] = useState<{ type: "day" | "province"; key: string } | null>(null);
 
   const rangeBounds = useMemo(() => {
     const todayDay = bkkDay(new Date().toISOString());
