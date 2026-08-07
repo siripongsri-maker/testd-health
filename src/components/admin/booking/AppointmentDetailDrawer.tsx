@@ -28,6 +28,7 @@ export function AppointmentDetailDrawer({ appointment: apt, onClose, onRefresh }
 
   const services = getDisplayServices(apt);
   const statusInfo = getStatusInfo(apt.status);
+  const urgentSignals = getUrgentSupportSignals(apt);
 
   const handleStatusChange = async (newStatus: string) => {
     setUpdating(true);
@@ -68,6 +69,22 @@ export function AppointmentDetailDrawer({ appointment: apt, onClose, onRefresh }
         </SheetHeader>
 
         <div className="space-y-4 mt-4">
+          {urgentSignals.length > 0 && (
+            <div className="rounded-lg border border-destructive/60 bg-destructive/5 p-3" role="alert">
+              <div className="flex items-center gap-2 text-destructive">
+                <AlertTriangle className="h-4 w-4 shrink-0" />
+                <p className="text-xs font-bold">{language === 'th' ? 'เคสเร่งด่วน' : 'Urgent case'}</p>
+              </div>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {urgentSignals.map(signal => (
+                  <Badge key={signal.kind} variant="destructive" className="text-[10px]">
+                    {language === 'th' ? signal.labelTh : signal.labelEn}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Status + New/Returning */}
           <div className="flex items-center gap-2 flex-wrap">
             <span className={cn("text-xs font-semibold px-2 py-1 rounded-full", statusInfo.color)}>

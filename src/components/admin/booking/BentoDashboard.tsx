@@ -455,14 +455,28 @@ function SummaryCard({ icon: Icon, value, label, accent }: { icon: any; value: n
 function CompactPill({ apt, language, onClick }: { apt: EnrichedAppointment; language: string; onClick: (a: EnrichedAppointment) => void }) {
   const services = getDisplayServices(apt);
   const statusInfo = getStatusInfo(apt.status);
+  const urgentSignals = getUrgentSupportSignals(apt);
 
   return (
     <button
       onClick={() => onClick(apt)}
-      className="w-full flex items-center gap-2 p-2 rounded-xl border border-border/30 bg-background hover:border-primary/20 hover:shadow-sm transition-all text-left"
+      className={cn(
+        "w-full flex items-center gap-2 p-2 rounded-xl border hover:shadow-sm transition-all text-left",
+        urgentSignals.length > 0
+          ? "border-destructive/60 bg-destructive/5"
+          : "border-border/30 bg-background hover:border-primary/20"
+      )}
+      title={urgentSignals.length > 0 ? (language === 'th' ? 'เคสเร่งด่วน' : 'Urgent case') : undefined}
     >
       <span className="text-xs font-bold text-foreground shrink-0 w-10">{(apt.start_time as string).slice(0, 5)}</span>
       <span className="text-sm shrink-0">{services.map(s => s.icon).join(' ')}</span>
+      {urgentSignals.length > 0 && (
+        <Badge variant="destructive" className="h-5 gap-1 px-1.5 text-[9px] font-bold shrink-0">
+          <AlertTriangle className="h-3 w-3" />
+          <span className="hidden sm:inline">{language === 'th' ? 'เร่งด่วน' : 'Urgent'}</span>
+          <span className="sm:hidden">!</span>
+        </Badge>
+      )}
       {apt.referral_code && (
         <span className="text-[10px] font-mono font-bold text-primary shrink-0">{apt.referral_code}</span>
       )}
