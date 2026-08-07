@@ -1,7 +1,61 @@
 import type { FullAppointment } from '@/lib/appointments';
 
+export interface AppointmentServiceEvent {
+  appointment_id: string;
+  service_category: string | null;
+  service_subtype: string | null;
+  event_type: string;
+  urgency_level: string | null;
+  counseling_needed: boolean | null;
+  mental_health_referral_needed: boolean | null;
+  meta: unknown;
+}
+
+export interface UrgentSupportSignal {
+  kind: 'chemsex' | 'harm_reduction' | 'mental_health';
+  labelTh: string;
+  labelEn: string;
+}
+
 export interface EnrichedAppointment extends FullAppointment {
   is_returning: boolean;
+  serviceEvents?: AppointmentServiceEvent[];
+}
+
+export function getUrgentSupportSignals(apt: EnrichedAppointment): UrgentSupportSignal[] {
+  const signals = new Map<UrgentSupportSignal['kind'], UrgentSupportSignal>();
+
+  for (const event of apt.serviceEvents || []) {
+    const urgency = (event.urgency_level || '').toLowerCase();
+    if (!['urgent', 'crisis'].includes(urgency)) continue;
+
+    const eventText = [
+      event.service_category,
+      event.service_subtype,
+      event.event_type,
+      typeof event.meta === 'string' ? event.meta : JSON.stringify(event.meta || {}),
+    ].join(' ').toLowerCase();
+
+    if (eventText.includes('chemsex')) {
+      signals.set('chemsex', { kind: 'chemsex', labelTh: 'Chemsex', labelEn: 'Chemsex' });
+    }
+    if (
+      eventText.includes('harm_reduction') ||
+      eventText.includes('harm reduction') ||
+      event.counseling_needed
+    ) {
+      signals.set('harm_reduction', { kind: 'harm_reduction', labelTh: 'ลดอันตราย', labelEn: 'Harm reduction' });
+    }
+    if (
+      eventText.includes('mental_health') ||
+      eventText.includes('mental health') ||
+      event.mental_health_referral_needed
+    ) {
+      signals.set('mental_health', { kind: 'mental_health', labelTh: 'สุขภาพจิต', labelEn: 'Mental health' });
+    }
+  }
+
+  return Array.from(signals.values());
 }
 
 export interface DensityDay {

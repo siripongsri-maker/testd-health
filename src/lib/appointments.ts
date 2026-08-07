@@ -277,13 +277,23 @@ export function subscribeToAppointments(
     () => onUpdate()
   );
 
-  // Also listen to appointment_logs for activity updates
+  // Also listen to appointment_logs and linked service events for activity/risk updates
   channel = channel.on(
     'postgres_changes',
     {
       event: 'INSERT',
       schema: 'public',
       table: 'appointment_logs',
+    },
+    () => onUpdate()
+  );
+
+  channel = channel.on(
+    'postgres_changes',
+    {
+      event: '*',
+      schema: 'public',
+      table: 'service_events',
     },
     () => onUpdate()
   );
