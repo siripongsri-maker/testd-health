@@ -316,6 +316,37 @@ export default function AdminDailyBranchBriefContent() {
         </Card>
       </div>
 
+      {/* Urgent cases from the appointments page that have no pre-service survey yet —
+          shown so this page's urgent count reconciles with the appointments page. */}
+      {summary.urgentUnlinked.length > 0 && (
+        <Card className="p-4 space-y-2 border-rose-300 bg-rose-50/40 dark:bg-rose-950/20 print-block">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 text-rose-600" />
+            <p className="text-sm font-semibold">
+              {tx("เคสเร่งด่วนจากหน้านัดหมาย (ยังไม่มีแบบสอบถามก่อนรับบริการ)",
+                  "Urgent cases from appointments (no pre-service survey yet)")}
+            </p>
+            <Badge className="bg-rose-600 text-white">{summary.urgentUnlinked.length}</Badge>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {summary.urgentUnlinked.map((u) => (
+              <div key={u.appointment_id} className="rounded-md border border-rose-300/60 bg-background p-2 text-xs">
+                <div className="flex items-center gap-1.5 font-semibold">
+                  <Clock className="h-3 w-3 text-rose-600" />
+                  {String(u.start_time || "").slice(0, 5) || "—"}
+                  <span className="font-normal text-muted-foreground">{branchName(u.branch_id)}</span>
+                </div>
+                <div className="mt-1 flex flex-wrap items-center gap-1 text-muted-foreground">
+                  <Badge variant="outline" className="text-[10px]">{u.case?.referral_type}</Badge>
+                  {u.referral_code && <span className="font-mono">{u.referral_code}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+
       {summary.topics.length > 0 && (
         <Card className="p-4 print-block">
           <p className="text-xs text-muted-foreground mb-2">{tx("ประเด็นที่ต้องช่วยเหลือ (รวมทุกสาขา)", "Support topics (all branches)")}</p>
