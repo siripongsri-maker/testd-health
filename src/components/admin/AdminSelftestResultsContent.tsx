@@ -481,7 +481,7 @@ export default function AdminSelftestResultsContent() {
                     const name = r.pii?.full_name || r.full_name || "—";
                     const phone = r.pii?.phone || r.phone || "";
                     const date = r.result_submitted_at || r.created_at;
-                    const e = edits[r.id] || { status: r.status, tracking_number: r.tracking_number || "" };
+                    const e = edits[r.id] || { status: r.status, tracking_number: r.tracking_number || "", result: r.self_reported_result || r.test_result || "" };
                     const dirty = isDirty(r);
                     return (
                       <TableRow key={r.id}>
