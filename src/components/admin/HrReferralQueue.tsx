@@ -52,6 +52,9 @@ export default function HrReferralQueue({ tx, readOnly = false }: Props) {
   const [openId, setOpenId] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [branches, setBranches] = useState<Record<string, string>>({});
+  const [branchFilter, setBranchFilter] = useState<string>("all");
+
 
   const load = useCallback(async () => {
     setLoading(true);
