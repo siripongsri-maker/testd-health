@@ -133,19 +133,62 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
   const photoRate = totals.total > 0 ? Math.round((totals.withPhoto / totals.total) * 100) : 0;
   const followRate = totals.total > 0 ? Math.round((totals.followedUp / totals.total) * 100) : 0;
 
+  const downloadCsv = (csvBody: string, name: string) => {
+    const csv = "\uFEFF" + csvBody;
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const esc = (v: unknown) => {
+    const s = v == null ? "" : String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+
+  // Daily summary CSV — scoped to the selected date range and the active list filters
   const exportCsv = () => {
     const header = ["date", "total", "negative", "reactive", "invalid", "with_photo", "followed_up"];
     const lines = daily.map((d) =>
       [d.day, d.total, d.negative, d.reactive, d.invalid, d.withPhoto, d.followedUp].join(",")
     );
-    const csv = "\uFEFF" + [header.join(","), ...lines].join("\n");
-    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `selftest-results-daily-stats-${rangeBounds.from}-to-${rangeBounds.to}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadCsv(
+      [header.join(","), ...lines].join("\n"),
+      `selftest-results-daily-stats-${rangeBounds.from}-to-${rangeBounds.to}.csv`,
+    );
   };
+
+  // Case-level CSV — same scope: date range + active filters
+  const exportCasesCsv = () => {
+    const header = ["id", "date", "result", "province", "name", "phone", "tracking", "has_photo", "followed_up"];
+    const lines = rangeRows
+      .slice()
+      .sort((a, b) =>
+        (b.result_submitted_at || b.created_at).localeCompare(a.result_submitted_at || a.created_at),
+      )
+      .map((r) =>
+        [
+          r.id,
+          bkkDay(r.result_submitted_at || r.created_at),
+          resultOf(r),
+          r.province || "",
+          r.full_name || "",
+          r.phone || "",
+          r.tracking_number || "",
+          r.result_photo_url ? "yes" : "no",
+          r.care_action && r.care_action !== "pending" ? "yes" : "no",
+        ]
+          .map(esc)
+          .join(","),
+      );
+    downloadCsv(
+      [header.join(","), ...lines].join("\n"),
+      `selftest-results-cases-${rangeBounds.from}-to-${rangeBounds.to}.csv`,
+    );
+  };
+
 
   const kpis = [
     { icon: FlaskConical, label: t("ผลที่ส่งทั้งหมด", "Total results"), value: totals.total, tone: "text-primary" },
@@ -202,13 +245,28 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
       </div>
 
       <Card>
-        <CardHeader className="pb-3 flex flex-row items-center justify-between gap-2">
-          <CardTitle className="text-base">{t("สถิติรายวัน", "Daily statistics")}</CardTitle>
-          <Button variant="outline" size="sm" onClick={exportCsv} className="gap-1.5">
-            <Download className="h-4 w-4" />
-            CSV
-          </Button>
+        <CardHeader className="pb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <CardTitle className="text-base">{t("สถิติรายวัน", "Daily statistics")}</CardTitle>
+            <div className="text-xs text-muted-foreground mt-0.5">
+              {t(
+                `ดาวน์โหลดเฉพาะข้อมูลตามช่วงวันที่และตัวกรองที่เลือก (${rangeBounds.from} ถึง ${rangeBounds.to}, ${totals.total} เคส)`,
+                `Downloads only the selected date range and active filters (${rangeBounds.from} to ${rangeBounds.to}, ${totals.total} cases)`,
+              )}
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={exportCsv} className="gap-1.5">
+              <Download className="h-4 w-4" />
+              {t("CSV รายวัน", "Daily CSV")}
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportCasesCsv} className="gap-1.5">
+              <Download className="h-4 w-4" />
+              {t("CSV รายเคส", "Cases CSV")}
+            </Button>
+          </div>
         </CardHeader>
+
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
