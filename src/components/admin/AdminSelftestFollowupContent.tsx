@@ -170,16 +170,26 @@ export default function AdminSelftestFollowupContent() {
     return () => { clearTimeout(tm); clearTimeout(clr); };
   }, [targetRequestId, loading, rows]);
 
+  const dayOptions = useMemo(() => {
+    const m = new Map<string, number>();
+    rows.forEach((r) => {
+      const d = bkkDay(r.result_submitted_at || r.created_at);
+      m.set(d, (m.get(d) || 0) + 1);
+    });
+    return Array.from(m.entries()).sort((a, b) => (a[0] < b[0] ? 1 : -1));
+  }, [rows]);
+
   const filtered = useMemo(() => {
     return rows.filter((r) => {
       const action = r.care_action || "pending";
       if (statusFilter !== "all" && action !== statusFilter) return false;
+      if (dayFilter !== "all" && bkkDay(r.result_submitted_at || r.created_at) !== dayFilter) return false;
       if (!search.trim()) return true;
       const q = search.toLowerCase();
       return (r.pii?.full_name || r.full_name || "").toLowerCase().includes(q)
         || (r.pii?.phone || r.phone || "").includes(q);
     });
-  }, [rows, search, statusFilter]);
+  }, [rows, search, statusFilter, dayFilter]);
 
   const updateRow = async (id: string, patch: Partial<Row>) => {
     setSavingId(id);
