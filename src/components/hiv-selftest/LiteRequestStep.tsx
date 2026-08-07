@@ -27,6 +27,7 @@ interface LiteRequestStepProps {
   hasSavedData?: boolean;
   deliveryMode: 'ship' | 'pickup';
   assignedBranch?: string;
+  showBranchSelector?: boolean;
   onBranchChange?: (branch: string) => void;
   pickupLocation: LocationData | null;
   onPickupLocationCaptured: (data: LocationData) => void;
@@ -34,7 +35,8 @@ interface LiteRequestStepProps {
 
 export function LiteRequestStep({
   shippingData, nhsoData, onShippingChange, onNhsoChange,
-  onSubmit, onBack, loading, hasSavedData, deliveryMode, assignedBranch, onBranchChange,
+  onSubmit, onBack, loading, hasSavedData, deliveryMode, assignedBranch,
+  showBranchSelector = true, onBranchChange,
   pickupLocation, onPickupLocationCaptured,
 }: LiteRequestStepProps) {
   const { language } = useLanguage();
