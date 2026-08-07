@@ -41,17 +41,19 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
   const t = (th: string, en: string) => (language === "th" ? th : en);
   const [rangeDays, setRangeDays] = useState("30");
 
-  const rangeStartDay = useMemo(() => {
-    const today = new Date();
-    const todayDay = bkkDay(today.toISOString());
+  const rangeBounds = useMemo(() => {
+    const todayDay = bkkDay(new Date().toISOString());
     const start = new Date(`${todayDay}T00:00:00+07:00`);
-    start.setUTCDate(start.getUTCDate() - (Number(rangeDays) - 1));
-    return bkkDay(start.toISOString());
+    const rangeStart = new Date(start.getTime() - (Number(rangeDays) - 1) * 24 * 60 * 60 * 1000);
+    return { from: bkkDay(rangeStart.toISOString()), to: todayDay };
   }, [rangeDays]);
 
   const rangeRows = useMemo(
-    () => rows.filter((r) => bkkDay(r.result_submitted_at || r.created_at) >= rangeStartDay),
-    [rows, rangeStartDay],
+    () => rows.filter((r) => {
+      const day = bkkDay(r.result_submitted_at || r.created_at);
+      return day >= rangeBounds.from && day <= rangeBounds.to;
+    }),
+    [rows, rangeBounds],
   );
 
   const daily = useMemo<DailyStat[]>(() => {
