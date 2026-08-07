@@ -332,13 +332,27 @@ export default function AdminDailyBranchBriefContent() {
                 const n = cases.filter((c) => c.risk_level === r).length;
                 return n ? <Badge key={r} className={RISK_STYLE[r]}>{r} {n}</Badge> : null;
               })}
+              {cases.filter((c) => urgentSurveyIds.has(c.survey_id)).length > 0 && (
+                <Badge className="bg-rose-600 text-white">
+                  {tx("เร่งด่วน", "Urgent")} {cases.filter((c) => urgentSurveyIds.has(c.survey_id)).length}
+                </Badge>
+              )}
             </div>
 
             <div className="space-y-3">
               {cases.map((c) => (
-                <div key={c.survey_id} className="rounded-lg border p-3 space-y-2">
+                <div
+                  key={c.survey_id}
+                  className={`rounded-lg border p-3 space-y-2 ${urgentSurveyIds.has(c.survey_id) ? "border-rose-400 bg-rose-50/40 dark:bg-rose-950/20" : ""}`}
+                >
                   <div className="flex flex-wrap items-center gap-2 text-xs">
                     <span className="font-mono font-medium">{c.case_code}</span>
+                    {urgentSurveyIds.has(c.survey_id) && (
+                      <Badge className="bg-rose-600 text-white gap-1">
+                        <AlertTriangle className="h-3 w-3" />{tx("เคสเร่งด่วน", "Urgent case")}
+                      </Badge>
+                    )}
+
                     <Badge className={RISK_STYLE[c.risk_level]}>{c.risk_level}</Badge>
                     <Badge variant="outline">
                       {c.visit_type === "repeat" ? tx("เคยรับบริการ", "Repeat") : tx("ครั้งแรก", "First visit")}
