@@ -199,7 +199,7 @@ export default function AdminCounselingPayoutsContent() {
   };
 
   const exportCsv = () => {
-    const header = ["วันที่ขอ", "สาขา", "ชื่อบัญชี", "ธนาคาร", "เลขบัญชี", "จำนวนเงิน", "สถานะ", "อ้างอิงการจ่าย", "เบอร์ (4 ตัวท้าย)", "ยืนยันผู้รับบริการ"];
+    const header = ["วันที่ขอ", "สาขา", "ชื่อบัญชี", "ธนาคาร", "เลขบัญชี", "จำนวนเงิน", "สถานะ", "อ้างอิงการจ่าย", "เบอร์ (4 ตัวท้าย)", "ยืนยันผู้รับบริการ", "เคสเร่งด่วน"];
     const lines = filtered.map((c) => [
       new Date(c.created_at).toLocaleDateString("th-TH"),
       branches[c.branch_id ?? ""] ?? "-",
@@ -211,7 +211,9 @@ export default function AdminCounselingPayoutsContent() {
       c.payment_ref ?? "",
       c.phone_last4 ?? "",
       isRealClient(c) ? "ยืนยันแล้ว" : "ยังไม่ยืนยัน",
+      isUrgentClaim(c) ? "เร่งด่วน" : "—",
     ]);
+
 
     const csv = "\uFEFF" + [header, ...lines].map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
