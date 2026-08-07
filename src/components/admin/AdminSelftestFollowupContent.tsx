@@ -611,6 +611,9 @@ export default function AdminSelftestFollowupContent() {
           })}
         </CardContent>
       </Card>
+      </>
+      )}
+
 
       <SelftestSmsDialog
         open={smsOpen}
