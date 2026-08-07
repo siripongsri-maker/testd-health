@@ -232,6 +232,8 @@ export default function AdminDailyBranchBriefContent() {
       { key: "prep_note", header: "สิ่งที่ควรเตรียม" },
       { key: "status", header: "สถานะ", format: (r) => STATUS_OPTIONS.find((s) => s.value === r.status)?.th || r.status },
       { key: "sla", header: "เกิน SLA", format: (r) => (r.sla_breached ? `เกิน (${r.hours_open} ชม. / ${r.sla_hours} ชม.)` : "ปกติ") },
+      { key: "urgent", header: "เคสเร่งด่วน", format: (r) => (urgentSurveyIds.has(r.survey_id) ? "เร่งด่วน" : "—") },
+
     ];
     exportToCsv(
       rows, cols, "daily_branch_brief", { from: day, to: day },
