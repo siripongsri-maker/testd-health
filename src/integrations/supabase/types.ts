@@ -11612,6 +11612,8 @@ export type Database = {
       get_daily_branch_brief: {
         Args: { p_branch_ids?: string[]; p_date?: string }
         Returns: {
+          appointment_date: string
+          appointment_time: string
           assigned_counselor_id: string
           branch_id: string
           case_code: string
