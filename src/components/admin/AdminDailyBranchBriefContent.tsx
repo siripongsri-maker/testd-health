@@ -84,6 +84,8 @@ export default function AdminDailyBranchBriefContent() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [urgentSurveyIds, setUrgentSurveyIds] = useState<Set<string>>(new Set());
   const [urgentAppointments, setUrgentAppointments] = useState<UrgentAppointmentRef[]>([]);
+  const [linkedUrgentApptIds, setLinkedUrgentApptIds] = useState<Set<string>>(new Set());
+
 
 
 
