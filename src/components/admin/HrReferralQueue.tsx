@@ -73,6 +73,12 @@ export default function HrReferralQueue({ tx, readOnly = false }: Props) {
   }, []);
 
   useEffect(() => {
+    supabase.from("booking_branches").select("id, name_th").then(({ data }) => {
+      setBranches(Object.fromEntries(((data as any[]) || []).map((b) => [b.id, b.name_th])));
+    });
+  }, []);
+
+  useEffect(() => {
     load();
     const channel = supabase
       .channel("hr-referral-queue")
@@ -82,6 +88,7 @@ export default function HrReferralQueue({ tx, readOnly = false }: Props) {
       supabase.removeChannel(channel);
     };
   }, [load]);
+
 
   const update = async (row: Referral, patch: Partial<Referral>) => {
     setSavingId(row.id);
