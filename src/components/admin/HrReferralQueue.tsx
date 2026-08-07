@@ -101,7 +101,14 @@ export default function HrReferralQueue({ tx, readOnly = false }: Props) {
     load();
   };
 
-  const pending = rows.filter((r) => !r.status || r.status === "requested").length;
+  const isNew = (r: Referral) => !r.status || r.status === "requested" || r.status === "pending";
+  const pending = rows.filter(isNew).length;
+  const fromAppointment = (r: Referral) => /\[APPT:[0-9a-f-]+\]/i.test(r.notes || "");
+  const sorted = [...rows].sort((a, b) => {
+    const score = (r: Referral) => (isNew(r) ? 0 : 2) + (r.priority === "urgent" ? -1 : 0);
+    return score(a) - score(b) || (a.created_at < b.created_at ? 1 : -1);
+  });
+
 
   return (
     <Card className="p-4 space-y-3 border-teal-200 bg-teal-50/20 dark:bg-teal-950/10">
