@@ -138,7 +138,7 @@ export default function HrReferralQueue({ tx, readOnly = false }: Props) {
         </div>
       ) : (
         <div className="space-y-2">
-          {rows.map((r) => {
+          {sorted.map((r) => {
             const open = openId === r.id;
             return (
               <div key={r.id} className="rounded-md border bg-background">
