@@ -177,6 +177,10 @@ export default function AdminCounselorAccountsContent() {
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
             {tx("รีเฟรช", "Refresh")}
           </Button>
+          <Button variant="secondary" size="sm" onClick={provisionAll} disabled={provisioning}>
+            {provisioning ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <KeyRound className="h-4 w-4 mr-2" />}
+            {tx("สร้างบัญชีครบทุกสาขา", "Provision all branches")}
+          </Button>
           <Button size="sm" onClick={() => setOpenCreate(true)}>
             <Plus className="h-4 w-4 mr-2" />
             {tx("เพิ่มนักให้คำปรึกษา", "Add counselor")}
