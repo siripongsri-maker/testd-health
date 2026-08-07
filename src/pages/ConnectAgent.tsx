@@ -184,7 +184,8 @@ function Steps({
 }
 
 export default function ConnectAgent() {
-  const { settings, syncState, update, toggleStep, reset } = useAgentConnectSettings();
+  const { settings, syncState, storedLocal, storedRemote, update, setSavePref, toggleStep, reset } =
+    useAgentConnectSettings();
   const stepProps = { completed: settings.completedSteps, onToggle: toggleStep };
   return (
     <>
