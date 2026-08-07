@@ -23,6 +23,8 @@ interface BriefCase {
   survey_id: string;
   branch_id: string | null;
   submitted_at: string;
+  appointment_date: string | null;
+  appointment_time: string | null;
   case_code: string;
   is_anonymous: boolean;
   visit_type: "first" | "repeat";
@@ -189,6 +191,7 @@ export default function AdminDailyBranchBriefContent() {
   const exportCsv = () => {
     const cols: CsvColumn<BriefCase>[] = [
       { key: "submitted_at", header: "เวลาที่ส่งเข้ามา", format: (r) => format(new Date(r.submitted_at), "yyyy-MM-dd HH:mm") },
+      { key: "appointment_slot", header: "เวลาที่จองเข้ามา", format: (r) => (r.appointment_date ? `${r.appointment_date}${r.appointment_time ? " " + r.appointment_time : ""}` : "—") },
       { key: "branch", header: "สาขา", format: (r) => branchName(r.branch_id) },
       { key: "case_code", header: "รหัสเคส / UIC" },
       { key: "visit_type", header: "ครั้งแรก/เคยรับบริการ", format: (r) => (r.visit_type === "repeat" ? "เคยรับบริการ" : "ครั้งแรก") },
@@ -310,8 +313,17 @@ export default function AdminDailyBranchBriefContent() {
                       {c.visit_type === "repeat" ? tx("เคยรับบริการ", "Repeat") : tx("ครั้งแรก", "First visit")}
                     </Badge>
                     {c.is_anonymous && <Badge variant="secondary">{tx("ไม่ระบุตัวตน", "Anonymous")}</Badge>}
+                    {(c.appointment_date || c.appointment_time) && (
+                      <Badge variant="outline" className="gap-1 font-normal">
+                        <Clock className="h-3 w-3" />
+                        {tx("จองเวลา", "Booked")} {c.appointment_time || "—"}
+                        {c.appointment_date && c.appointment_date !== day
+                          ? ` · ${format(new Date(c.appointment_date + "T00:00:00"), "dd/MM")}`
+                          : ""}
+                      </Badge>
+                    )}
                     <span className="text-muted-foreground">
-                      {format(new Date(c.submitted_at), "HH:mm")} · {c.hours_open} {tx("ชม.", "h")}
+                      {tx("ส่งแบบสอบถาม", "Submitted")} {format(new Date(c.submitted_at), "HH:mm")} · {c.hours_open} {tx("ชม.", "h")}
                     </span>
                     {c.sla_breached && (
                       <Badge variant="destructive" className="gap-1">
