@@ -245,13 +245,28 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
       </div>
 
       <Card>
-        <CardHeader className="pb-3 flex flex-row items-center justify-between gap-2">
-          <CardTitle className="text-base">{t("สถิติรายวัน", "Daily statistics")}</CardTitle>
-          <Button variant="outline" size="sm" onClick={exportCsv} className="gap-1.5">
-            <Download className="h-4 w-4" />
-            CSV
-          </Button>
+        <CardHeader className="pb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <CardTitle className="text-base">{t("สถิติรายวัน", "Daily statistics")}</CardTitle>
+            <div className="text-xs text-muted-foreground mt-0.5">
+              {t(
+                `ดาวน์โหลดเฉพาะข้อมูลตามช่วงวันที่และตัวกรองที่เลือก (${rangeBounds.from} ถึง ${rangeBounds.to}, ${totals.total} เคส)`,
+                `Downloads only the selected date range and active filters (${rangeBounds.from} to ${rangeBounds.to}, ${totals.total} cases)`,
+              )}
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={exportCsv} className="gap-1.5">
+              <Download className="h-4 w-4" />
+              {t("CSV รายวัน", "Daily CSV")}
+            </Button>
+            <Button variant="outline" size="sm" onClick={exportCasesCsv} className="gap-1.5">
+              <Download className="h-4 w-4" />
+              {t("CSV รายเคส", "Cases CSV")}
+            </Button>
+          </div>
         </CardHeader>
+
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
