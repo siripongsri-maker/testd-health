@@ -49,6 +49,23 @@ export default function AdminCounselorAccountsContent() {
   const [cActive, setCActive] = useState(true);
 
   const [resetPwd, setResetPwd] = useState("");
+  const [provisioning, setProvisioning] = useState(false);
+  const [provisionResults, setProvisionResults] = useState<any[] | null>(null);
+
+  const provisionAll = async () => {
+    setProvisioning(true);
+    const { data, error } = await supabase.functions.invoke("manage-counselor-account", {
+      body: { action: "provision_branches" },
+    });
+    setProvisioning(false);
+    if (error || (data as any)?.error) {
+      toast.error((data as any)?.error || error?.message || "Failed");
+      return;
+    }
+    setProvisionResults(((data as any)?.results ?? []) as any[]);
+    toast.success(tx("สร้างบัญชีตามสาขาเรียบร้อย", "Branch accounts provisioned"));
+    load();
+  };
 
   const load = async () => {
     setLoading(true);
@@ -159,6 +176,10 @@ export default function AdminCounselorAccountsContent() {
           <Button variant="outline" size="sm" onClick={load} disabled={loading}>
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
             {tx("รีเฟรช", "Refresh")}
+          </Button>
+          <Button variant="secondary" size="sm" onClick={provisionAll} disabled={provisioning}>
+            {provisioning ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <KeyRound className="h-4 w-4 mr-2" />}
+            {tx("สร้างบัญชีครบทุกสาขา", "Provision all branches")}
           </Button>
           <Button size="sm" onClick={() => setOpenCreate(true)}>
             <Plus className="h-4 w-4 mr-2" />
@@ -306,6 +327,51 @@ export default function AdminCounselorAccountsContent() {
               {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
               {tx("บันทึก", "Save")}
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Provisioned credentials (shown once) */}
+      <Dialog open={!!provisionResults} onOpenChange={(v) => { if (!v) setProvisionResults(null); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{tx("บัญชีนักให้คำปรึกษาตามสาขา", "Branch counselor accounts")}</DialogTitle>
+            <DialogDescription>
+              {tx("บันทึกรหัสผ่านทันที ระบบจะไม่แสดงอีก", "Copy these passwords now — they will not be shown again.")}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 max-h-[50vh] overflow-y-auto text-sm">
+            {(provisionResults ?? []).map((r, i) => (
+              <div key={i} className="rounded-md border p-3">
+                <div className="font-medium">{r.branch}</div>
+                {r.created ? (
+                  <div className="font-mono text-xs mt-1 break-all">
+                    <div>{r.email}</div>
+                    <div className="text-primary">{r.password}</div>
+                  </div>
+                ) : (
+                  <div className="text-muted-foreground text-xs mt-1">
+                    {r.skipped ? tx("มีบัญชีอยู่แล้ว", "Already has an account") : r.error}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                const txt = (provisionResults ?? [])
+                  .filter((r) => r.created)
+                  .map((r) => `${r.branch}\t${r.email}\t${r.password}`)
+                  .join("\n");
+                navigator.clipboard.writeText(txt);
+                toast.success(tx("คัดลอกแล้ว", "Copied"));
+              }}
+            >
+              {tx("คัดลอกทั้งหมด", "Copy all")}
+            </Button>
+            <Button onClick={() => setProvisionResults(null)}>{tx("เสร็จสิ้น", "Done")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
