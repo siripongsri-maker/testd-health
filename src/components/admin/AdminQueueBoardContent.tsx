@@ -25,9 +25,13 @@ const STEP_ICONS: Record<string, React.ElementType> = {
 
 interface Props {
   userBranch?: string | null;
+  /** Lock the branch selector (branch-scoped staff such as counselors) */
+  lockBranch?: boolean;
+  /** Hide mutating actions */
+  readOnly?: boolean;
 }
 
-export default function AdminQueueBoardContent({ userBranch }: Props) {
+export default function AdminQueueBoardContent({ userBranch, lockBranch = false, readOnly = false }: Props) {
   const { language } = useLanguage();
   const isEn = language === 'en';
   const [branches, setBranches] = useState<{ id: string; name_th: string; name_en: string; slug: string }[]>([]);
@@ -36,6 +40,7 @@ export default function AdminQueueBoardContent({ userBranch }: Props) {
   const [routeDialog, setRouteDialog] = useState<{ visit: VisitFlow; step: VisitStep; action: 'complete' } | null>(null);
   const [selectedNextStep, setSelectedNextStep] = useState('');
   const [roomNumber, setRoomNumber] = useState('');
+  const lockedBranch = lockBranch && !!userBranch;
 
   const { visits, steps, loading, registerVisit, routeStep } = useQueueData(selectedBranch || null);
 
@@ -44,13 +49,13 @@ export default function AdminQueueBoardContent({ userBranch }: Props) {
       const list = data || [];
       setBranches(list as any);
       if (userBranch) {
-        const match = list.find((b: any) => b.slug === userBranch);
-        if (match) setSelectedBranch((match as any).id);
-      } else if (list.length > 0) {
-        setSelectedBranch((list[0] as any).id);
+        const match = list.find((b: any) => b.slug === userBranch || b.id === userBranch);
+        if (match) { setSelectedBranch((match as any).id); return; }
+        if (lockBranch) return; // branch-scoped user with unknown branch → no data
       }
+      if (list.length > 0) setSelectedBranch((list[0] as any).id);
     });
-  }, [userBranch]);
+  }, [userBranch, lockBranch]);
 
   const handleRegister = async () => {
     try {
@@ -128,20 +133,31 @@ export default function AdminQueueBoardContent({ userBranch }: Props) {
           <p className="text-sm text-muted-foreground">{isEn ? 'Manage service queue routing' : 'จัดการเส้นทางคิวบริการ'}</p>
         </div>
         <div className="flex gap-2 items-center">
-          <Select value={selectedBranch} onValueChange={setSelectedBranch}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder={isEn ? 'Select branch' : 'เลือกสาขา'} />
-            </SelectTrigger>
-            <SelectContent>
-              {branches.map(b => (
-                <SelectItem key={b.id} value={b.id}>{isEn ? b.name_en : b.name_th}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button onClick={handleRegister} disabled={!selectedBranch}>
-            <Plus className="h-4 w-4 mr-1" />
-            {isEn ? 'Register Visit' : 'ลงทะเบียนคิว'}
-          </Button>
+          {lockedBranch ? (
+            <Badge variant="secondary" className="h-9 px-3 text-sm">
+              {(() => {
+                const b = branches.find(x => x.id === selectedBranch);
+                return b ? (isEn ? b.name_en : b.name_th) : (isEn ? 'Your branch' : 'สาขาของคุณ');
+              })()}
+            </Badge>
+          ) : (
+            <Select value={selectedBranch} onValueChange={setSelectedBranch}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder={isEn ? 'Select branch' : 'เลือกสาขา'} />
+              </SelectTrigger>
+              <SelectContent>
+                {branches.map(b => (
+                  <SelectItem key={b.id} value={b.id}>{isEn ? b.name_en : b.name_th}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          {!readOnly && (
+            <Button onClick={handleRegister} disabled={!selectedBranch}>
+              <Plus className="h-4 w-4 mr-1" />
+              {isEn ? 'Register Visit' : 'ลงทะเบียนคิว'}
+            </Button>
+          )}
         </div>
       </div>
 

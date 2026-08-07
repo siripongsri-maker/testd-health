@@ -118,6 +118,8 @@ const ME_ANALYST_TABS = new Set([
   "system-health",
 ]);
 
+const COUNSELOR_TABS = ["counselor-support", "daily-branch-brief", "queue-board"];
+
 export default function Admin() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -139,7 +141,7 @@ export default function Admin() {
   useEffect(() => {
     if (loading) return;
     // Counselors are locked to the counselor-support tab
-    if (isCounselor && !["counselor-support", "daily-branch-brief"].includes(searchParams.get("tab") || "")) {
+    if (isCounselor && !COUNSELOR_TABS.includes(searchParams.get("tab") || "")) {
       setSearchParams({ tab: "counselor-support" });
       return;
     }
@@ -159,7 +161,7 @@ export default function Admin() {
 
   const canAccess = (tab: string) => {
     if (isAdmin) return true;
-    if (isCounselor) return tab === "counselor-support" || tab === "daily-branch-brief";
+    if (isCounselor) return COUNSELOR_TABS.includes(tab);
     if (isMeAnalyst) return ME_ANALYST_TABS.has(tab);
     if (isModerator) return MODERATOR_TABS.has(tab);
     return false;
@@ -206,7 +208,7 @@ export default function Admin() {
           {renderTab("bookings", <AdminBookingContent userBranch={userBranch} />)}
           {renderTab("today", <AdminTodayBoard userBranch={userBranch} />)}
           {renderTab("schedule", <AdminScheduleContent />)}
-          {renderTab("queue-board", <AdminQueueBoardContent userBranch={userBranch} />)}
+          {renderTab("queue-board", <AdminQueueBoardContent userBranch={userBranch} lockBranch={isCounselor || isModerator} />)}
 
           {/* Partner Network */}
           {renderTab("partner-invites", <AdminPartnerInvitesContent />)}

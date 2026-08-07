@@ -221,7 +221,7 @@ export function AdminSidebar() {
   };
 
   const canSeeItem = (item: MenuItemDef) => {
-    if (isCounselor) return item.tab === "counselor-support" || item.tab === "daily-branch-brief";
+    if (isCounselor) return ["counselor-support", "daily-branch-brief", "queue-board"].includes(item.tab);
     if (isAdmin) return true;
     if (isMeAnalyst && item.meAnalyst) return true;
     if (item.adminOnly) return false;
