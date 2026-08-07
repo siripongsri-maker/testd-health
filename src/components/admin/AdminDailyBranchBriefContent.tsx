@@ -222,13 +222,12 @@ export default function AdminDailyBranchBriefContent() {
       medium: rows.filter((r) => r.risk_level === "medium").length,
       breached,
       urgent: urgentAppointments.length,
-      urgentUnlinked: urgentAppointments.filter(
-        (u) => !rows.some((r) => urgentSurveyIds.has(r.survey_id) && r.branch_id === u.branch_id),
-      ),
+      urgentUnlinked: urgentAppointments.filter((u) => !linkedUrgentApptIds.has(u.appointment_id)),
       topBranch: top ? `${branchName(top[0] === "unknown" ? null : top[0])} (${top[1].length})` : "—",
       topics: Array.from(byTopic.entries()).sort((a, b) => b[1] - a[1]),
     };
-  }, [rows, grouped, branchName, urgentSurveyIds, urgentAppointments]);
+  }, [rows, grouped, branchName, urgentSurveyIds, urgentAppointments, linkedUrgentApptIds]);
+
 
 
 
