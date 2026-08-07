@@ -496,7 +496,29 @@ export default function AdminSelftestResultsContent() {
                         </TableCell>
                         <TableCell className="text-xs">{r.province || <span className="text-muted-foreground">—</span>}</TableCell>
                         <TableCell>
-                          <Badge variant="outline" className={RESULT_COLOR[result] || ""}>{result}</Badge>
+                          <Select
+                            value={e.result || "unset"}
+                            onValueChange={(v) =>
+                              setEdits((prev) => ({ ...prev, [r.id]: { ...e, result: v === "unset" ? "" : v } }))
+                            }
+                          >
+                            <SelectTrigger className={cn("h-8 w-36", RESULT_COLOR[e.result] || "")}>
+                              <SelectValue placeholder={t("ยังไม่ระบุ","Not set")} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="unset">{t("ยังไม่ระบุ","Not set")}</SelectItem>
+                              {RESULT_OPTIONS.map((o) => (
+                                <SelectItem key={o.value} value={o.value}>
+                                  {language === "th" ? o.labelTh : o.labelEn}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {(r.self_reported_result || r.test_result || "") !== e.result && (
+                            <div className="text-[10px] text-amber-600 mt-1">
+                              {t(`เดิม: ${result}`, `Was: ${result}`)}
+                            </div>
+                          )}
                         </TableCell>
                         <TableCell>
                           <Select
