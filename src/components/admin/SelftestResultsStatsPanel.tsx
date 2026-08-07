@@ -62,6 +62,8 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
   const [drill, setDrill] = useState<{ type: "day" | "province"; key: string } | null>(null);
   const [chartType, setChartType] = useState<"line" | "bar">("line");
   const [hiddenSeries, setHiddenSeries] = useState<string[]>([]);
+  const [compare, setCompare] = useState(false);
+
   const chartRef = useRef<HTMLDivElement>(null);
 
   const rangeBounds = useMemo(() => {
