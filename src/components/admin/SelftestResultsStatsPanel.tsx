@@ -231,8 +231,19 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
                   </tr>
                 ) : (
                   daily.map((d) => (
-                    <tr key={d.day} className="border-t">
-                      <td className="p-2 whitespace-nowrap">{formatBkkDayLabel(d.day, language)}</td>
+                    <tr
+                      key={d.day}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => setDrill({ type: "day", key: d.day })}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") setDrill({ type: "day", key: d.day });
+                      }}
+                      className="border-t cursor-pointer hover:bg-muted/50 focus:bg-muted/50 outline-none"
+                    >
+                      <td className="p-2 whitespace-nowrap underline decoration-dotted underline-offset-4">
+                        {formatBkkDayLabel(d.day, language)}
+                      </td>
                       <td className="text-center p-2 font-semibold">{d.total}</td>
                       <td className="text-center p-2 text-emerald-600">{d.negative}</td>
                       <td className="text-center p-2 text-rose-600">{d.reactive}</td>
@@ -256,15 +267,75 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
           {byProvince.length === 0 ? (
             <div className="text-sm text-muted-foreground">{t("ไม่มีข้อมูล", "No data")}</div>
           ) : (
-            byProvince.map(([p, n]) => (
-              <div key={p} className="flex items-center justify-between text-sm">
-                <span>{p}</span>
-                <span className="font-semibold">{n}</span>
-              </div>
-            ))
+            byProvince.map(([p, n]) => {
+              const max = byProvince[0][1] || 1;
+              return (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setDrill({ type: "province", key: p })}
+                  className="w-full text-left rounded-md px-2 py-1.5 hover:bg-muted/60 transition-colors"
+                >
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="underline decoration-dotted underline-offset-4">{p}</span>
+                    <span className="font-semibold">{n}</span>
+                  </div>
+                  <div className="mt-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                    <div className="h-full bg-primary/70" style={{ width: `${Math.round((n / max) * 100)}%` }} />
+                  </div>
+                </button>
+              );
+            })
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={!!drill} onOpenChange={(o) => !o && setDrill(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-base">
+              {drill?.type === "day"
+                ? `${t("เคสวันที่", "Cases on")} ${drill ? formatBkkDayLabel(drill.key, language) : ""}`
+                : `${t("เคสในจังหวัด", "Cases in")} ${drill?.key ?? ""}`}
+              <span className="ml-2 text-muted-foreground font-normal">({drillRows.length})</span>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="max-h-[60vh] overflow-y-auto -mx-2 px-2">
+            {drillRows.length === 0 ? (
+              <div className="text-sm text-muted-foreground py-6 text-center">{t("ไม่มีข้อมูล", "No data")}</div>
+            ) : (
+              <div className="space-y-2">
+                {drillRows.map((r) => {
+                  const lbl = resultLabel(r);
+                  return (
+                    <div key={r.id} className="rounded-lg border p-3 text-sm">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-medium">
+                          {r.full_name || t("ไม่ระบุชื่อ", "Unnamed")}
+                        </span>
+                        <span className={`text-xs font-semibold ${lbl.cls}`}>{lbl.text}</span>
+                      </div>
+                      <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                        {r.phone && <span>{r.phone}</span>}
+                        <span>{r.province || unknownProvince}</span>
+                        <span>{formatBkkDayLabel(bkkDay(r.result_submitted_at || r.created_at), language)}</span>
+                        {r.tracking_number && <span>#{r.tracking_number}</span>}
+                        {r.result_photo_url && <span>{t("มีรูปผล", "Has photo")}</span>}
+                        {r.care_action && r.care_action !== "pending" && (
+                          <span className="text-emerald-600">{t("ติดตามแล้ว", "Followed up")}</span>
+                        )}
+                      </div>
+                      <div className="mt-1 text-[11px] text-muted-foreground/70 font-mono">
+                        {r.id.slice(0, 8)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
