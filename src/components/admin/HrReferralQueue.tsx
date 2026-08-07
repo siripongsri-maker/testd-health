@@ -143,10 +143,12 @@ export default function HrReferralQueue({ tx, readOnly = false }: Props) {
             {tx("เคสเร่งด่วน", "Urgent")}: {urgentCount}
           </Badge>
         )}
-        <Button size="sm" variant="outline" className="ml-auto h-8" onClick={load} disabled={loading}>
+        <Button size="sm" variant="outline" className="ml-auto h-8 no-print" onClick={load} disabled={loading}>
           <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${loading ? "animate-spin" : ""}`} />
           {tx("รีเฟรช", "Refresh")}
         </Button>
+        <PrintButton documentTitle="counseling-queue" className="h-8" />
+
       </div>
 
       {/* Branch split */}
