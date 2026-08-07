@@ -288,6 +288,115 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
       </div>
 
       <Card>
+        <CardHeader className="pb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <CardTitle className="text-base">{t("แนวโน้มตามเวลา", "Trend over time")}</CardTitle>
+            <div className="text-xs text-muted-foreground mt-0.5">
+              {t("คลิกที่จุด/แท่งเพื่อดูรายชื่อเคสของวันนั้น", "Click a point or bar to see that day's cases")}
+            </div>
+          </div>
+          <div className="flex gap-1">
+            <Button
+              variant={chartType === "line" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setChartType("line")}
+              className="gap-1.5"
+            >
+              <LineChartIcon className="h-4 w-4" />
+              {t("เส้น", "Line")}
+            </Button>
+            <Button
+              variant={chartType === "bar" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setChartType("bar")}
+              className="gap-1.5"
+            >
+              <BarChart3 className="h-4 w-4" />
+              {t("แท่ง", "Bar")}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {seriesDefs.map((s) => {
+              const off = hiddenSeries.includes(s.key);
+              return (
+                <button
+                  key={s.key}
+                  type="button"
+                  onClick={() => toggleSeries(s.key)}
+                  className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs transition-opacity ${off ? "opacity-40" : ""}`}
+                >
+                  <span className="h-2 w-2 rounded-full" style={{ background: s.color }} />
+                  {s.label}
+                </button>
+              );
+            })}
+          </div>
+          {chartData.length === 0 ? (
+            <div className="py-10 text-center text-sm text-muted-foreground">{t("ไม่มีข้อมูล", "No data")}</div>
+          ) : (
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                {chartType === "line" ? (
+                  <LineChart data={chartData} onClick={onPointClick} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="label" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
+                    <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                    <Tooltip
+                      contentStyle={{
+                        background: "hsl(var(--popover))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: 8,
+                        fontSize: 12,
+                      }}
+                    />
+                    <Legend wrapperStyle={{ fontSize: 11 }} />
+                    {seriesDefs
+                      .filter((s) => !hiddenSeries.includes(s.key))
+                      .map((s) => (
+                        <Line
+                          key={s.key}
+                          type="monotone"
+                          dataKey={s.key}
+                          name={s.label}
+                          stroke={s.color}
+                          strokeWidth={2}
+                          dot={{ r: 2 }}
+                          activeDot={{ r: 5 }}
+                        />
+                      ))}
+                  </LineChart>
+                ) : (
+                  <BarChart data={chartData} onClick={onPointClick} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="label" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
+                    <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                    <Tooltip
+                      cursor={{ fill: "hsl(var(--muted))", opacity: 0.4 }}
+                      contentStyle={{
+                        background: "hsl(var(--popover))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: 8,
+                        fontSize: 12,
+                      }}
+                    />
+                    <Legend wrapperStyle={{ fontSize: 11 }} />
+                    {seriesDefs
+                      .filter((s) => !hiddenSeries.includes(s.key))
+                      .map((s) => (
+                        <Bar key={s.key} dataKey={s.key} name={s.label} fill={s.color} radius={[3, 3, 0, 0]} />
+                      ))}
+                  </BarChart>
+                )}
+              </ResponsiveContainer>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+
+      <Card>
         <CardHeader className="pb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
             <CardTitle className="text-base">{t("สถิติรายวัน", "Daily statistics")}</CardTitle>
