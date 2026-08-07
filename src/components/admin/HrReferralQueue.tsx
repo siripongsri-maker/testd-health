@@ -161,6 +161,12 @@ export default function HrReferralQueue({ tx, readOnly = false }: Props) {
                           {tx("มีผลคัดกรอง", "Screening linked")}
                         </Badge>
                       )}
+                      {fromAppointment(r) && (
+                        <Badge variant="outline" className="text-[10px] text-rose-700 dark:text-rose-300 border-rose-300">
+                          {tx("เคสเร่งด่วนจากนัดหมาย", "Urgent from appointment")}
+                        </Badge>
+                      )}
+
                       {!r.user_id && (
                         <Badge variant="outline" className="text-[10px] text-muted-foreground">
                           {tx("ไม่ระบุตัวตน", "Anonymous")}
