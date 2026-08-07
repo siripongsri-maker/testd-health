@@ -184,7 +184,8 @@ function Steps({
 }
 
 export default function ConnectAgent() {
-  const { settings, syncState, update, toggleStep, reset } = useAgentConnectSettings();
+  const { settings, syncState, storedLocal, storedRemote, update, setSavePref, toggleStep, reset } =
+    useAgentConnectSettings();
   const stepProps = { completed: settings.completedSteps, onToggle: toggleStep };
   return (
     <>
@@ -246,6 +247,74 @@ export default function ConnectAgent() {
                 onCheckedChange={(v) => update({ autoCheck: v })}
               />
             </div>
+            <div className="rounded-lg border bg-muted/30 p-3 space-y-3">
+              <p className="text-sm font-medium">ข้อมูลที่ถูกบันทึกไว้</p>
+              {(
+                [
+                  {
+                    key: "client" as const,
+                    label: "แท็บผู้ช่วย AI ที่เลือก",
+                    local: storedLocal?.client ?? null,
+                    remote: storedRemote?.client ?? null,
+                    fmt: (v: string | null) => (v ? v : "—"),
+                  },
+                  {
+                    key: "steps" as const,
+                    label: "ขั้นตอนที่ติ๊กแล้ว",
+                    local: storedLocal?.completedSteps?.length ?? 0,
+                    remote: storedRemote?.completedSteps?.length ?? 0,
+                    fmt: (v: number) => (v > 0 ? `${v} ขั้นตอน` : "—"),
+                  },
+                  {
+                    key: "lastCheck" as const,
+                    label: "ผลตรวจสถานะล่าสุด",
+                    local: storedLocal?.lastCheck?.at ?? null,
+                    remote: storedRemote?.lastCheck?.at ?? null,
+                    fmt: (v: string | null) =>
+                      v ? new Date(v).toLocaleString("th-TH", { timeZone: "Asia/Bangkok" }) : "—",
+                  },
+                ] as const
+              ).map((row) => (
+                <div key={row.key} className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <Label htmlFor={`save-${row.key}`} className="text-sm font-normal">
+                      {row.label}
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      ในเครื่อง: {(row.fmt as (v: never) => string)(row.local as never)} · บนเซิร์ฟเวอร์:{" "}
+                      {settings.savePrefs.server
+                        ? (row.fmt as (v: never) => string)(row.remote as never)
+                        : "ปิดการบันทึก"}
+                    </p>
+                  </div>
+                  <Switch
+                    id={`save-${row.key}`}
+                    checked={settings.savePrefs[row.key]}
+                    onCheckedChange={(v) => setSavePref(row.key, v)}
+                  />
+                </div>
+              ))}
+              <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-3">
+                <div className="min-w-0">
+                  <Label htmlFor="save-server" className="text-sm font-normal">
+                    สำรองข้อมูลบนเซิร์ฟเวอร์ (แบบไม่ระบุตัวตน)
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    {settings.savePrefs.server
+                      ? storedRemote
+                        ? "มีสำเนาบนเซิร์ฟเวอร์แล้ว"
+                        : "ยังไม่มีสำเนาบนเซิร์ฟเวอร์"
+                      : "ปิดอยู่ — เก็บเฉพาะในเครื่องนี้"}
+                  </p>
+                </div>
+                <Switch
+                  id="save-server"
+                  checked={settings.savePrefs.server}
+                  onCheckedChange={(v) => setSavePref("server", v)}
+                />
+              </div>
+            </div>
+
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-xs text-muted-foreground">
                 ระบบจำแท็บผู้ช่วย AI ที่คุณเลือกและขั้นตอนที่ทำแล้วไว้แบบไม่ระบุตัวตน (ไม่ต้องล็อกอิน) และจะกลับมาเหมือนเดิมเมื่อเปิดใหม่
