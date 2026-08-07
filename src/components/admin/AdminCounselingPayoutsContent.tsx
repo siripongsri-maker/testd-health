@@ -120,12 +120,20 @@ export default function AdminCounselingPayoutsContent() {
     } else {
       setAttended({});
     }
+
+    // Match urgent cases flagged on the appointments page (shared source: hr_referrals)
+    setUrgentMap(await fetchUrgentCaseMap());
     setLoading(false);
   }, []);
 
   const isRealClient = useCallback(
     (c: Claim) => !!c.appointment_id && attended[c.appointment_id] === true,
     [attended],
+  );
+
+  const isUrgentClaim = useCallback(
+    (c: Claim) => !!c.appointment_id && urgentMap.has(c.appointment_id),
+    [urgentMap],
   );
 
   useEffect(() => { load(); }, [load]);
@@ -141,12 +149,14 @@ export default function AdminCounselingPayoutsContent() {
 
   const filtered = useMemo(() => claims.filter((c) => {
     if (verifiedOnly && !isRealClient(c)) return false;
+    if (urgentOnly && !isUrgentClaim(c)) return false;
     if (filter !== "all" && c.status !== filter) return false;
     const d = c.created_at.slice(0, 10);
     if (from && d < from) return false;
     if (to && d > to) return false;
     return true;
-  }), [claims, filter, from, to, verifiedOnly, isRealClient]);
+  }), [claims, filter, from, to, verifiedOnly, urgentOnly, isRealClient, isUrgentClaim]);
+
 
   const hiddenCount = useMemo(
     () => (verifiedOnly ? claims.filter((c) => !isRealClient(c)).length : 0),
