@@ -10,7 +10,7 @@ import { useLanguage } from "@/lib/i18n";
 import { getUserData } from "@/lib/store";
 import { getProvinces, getDistricts, getSubdistricts, getPostalCode, Subdistrict } from "@/lib/thailand-address";
 import { ShippingFormData } from "./types";
-import { AddressDetailFields } from "./AddressDetailFields";
+import { AddressDetailFields, validateHouseNo } from "./AddressDetailFields";
 
 interface ShippingStepProps {
   formData: ShippingFormData;
