@@ -281,13 +281,15 @@ export default function AdminDailyBranchBriefContent() {
       </Card>
 
       {/* Summary header */}
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-5 print-block">
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-6 print-block">
         {[
           { label: tx("เคสที่ต้องช่วยวันนี้", "Cases needing support"), value: summary.total, icon: AlertTriangle },
+          { label: tx("เคสเร่งด่วน (จากนัดหมาย)", "Urgent (from appointments)"), value: summary.urgent, icon: AlertTriangle },
           { label: tx("ความเสี่ยงวิกฤต", "Critical"), value: summary.critical, icon: AlertTriangle },
           { label: tx("ความเสี่ยงสูง", "High"), value: summary.high, icon: AlertTriangle },
           { label: tx("เกิน SLA", "SLA breached"), value: summary.breached, icon: Clock },
         ].map((k) => (
+
           <Card key={k.label} className="p-4">
             <p className="text-xs text-muted-foreground">{k.label}</p>
             <p className="text-2xl font-bold">{k.value}</p>
