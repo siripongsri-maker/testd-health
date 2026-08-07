@@ -70,38 +70,95 @@ async function writeClipboard(value: string) {
   }
 }
 
+/** Short explanation shown before a connect link is copied or opened. */
+function LinkConfirmBody({ preview }: { preview: string }) {
+  return (
+    <>
+      <span className="block">
+        ลิงก์นี้ใช้ให้ผู้ช่วย AI ของคุณดึง “ข้อมูลการตั้งค่าการเชื่อมต่อ” แบบไม่ระบุตัวตนเท่านั้น
+        ไม่มีชื่อ เบอร์โทร หรือข้อมูลสุขภาพส่วนบุคคลอยู่ในลิงก์
+      </span>
+      <span className="mt-2 block break-all rounded-md bg-muted px-2 py-1 font-mono text-xs">{preview}</span>
+      <span className="mt-2 block text-xs">
+        แชร์ลิงก์นี้เฉพาะกับผู้ช่วย AI ที่คุณไว้ใจ และยกเลิกการเชื่อมต่อได้ทุกเมื่อ
+      </span>
+    </>
+  );
+}
+
+function ConfirmLinkDialog({
+  value,
+  actionLabel,
+  onConfirm,
+  children,
+}: {
+  value: string;
+  actionLabel: string;
+  onConfirm: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>ยืนยันก่อนใช้ลิงก์เชื่อมต่อ</AlertDialogTitle>
+          <AlertDialogDescription asChild>
+            <div>
+              <LinkConfirmBody preview={shortenUrl(value)} />
+            </div>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm}>{actionLabel}</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 function CopyButton({
   value,
   label,
   toastLabel,
   className,
+  confirm,
 }: {
   value: string;
   label: string;
   toastLabel?: string;
   className?: string;
+  confirm?: boolean;
 }) {
   const [copied, setCopied] = useState(false);
-  return (
+  const doCopy = async () => {
+    const ok = await writeClipboard(value);
+    if (!ok) {
+      toast.error("คัดลอกไม่สำเร็จ", { description: "กรุณาเลือกข้อความแล้วคัดลอกด้วยตัวเอง" });
+      return;
+    }
+    setCopied(true);
+    toast.success(`คัดลอก${toastLabel ?? "แล้ว"}`, { description: shortenUrl(value) });
+    setTimeout(() => setCopied(false), 1800);
+  };
+  const button = (
     <Button
       variant={copied ? "default" : "secondary"}
       size="sm"
       className={className}
-      onClick={async () => {
-        const ok = await writeClipboard(value);
-        if (!ok) {
-          toast.error("คัดลอกไม่สำเร็จ", { description: "กรุณาเลือกข้อความแล้วคัดลอกด้วยตัวเอง" });
-          return;
-        }
-        setCopied(true);
-        toast.success(`คัดลอก${toastLabel ?? "แล้ว"}`, { description: shortenUrl(value) });
-        setTimeout(() => setCopied(false), 1800);
-      }}
+      onClick={confirm ? undefined : doCopy}
       aria-label={label}
     >
       {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
       <span className="ml-2">{copied ? "คัดลอกแล้ว" : "คัดลอก"}</span>
     </Button>
+  );
+  if (!confirm) return button;
+  return (
+    <ConfirmLinkDialog value={value} actionLabel="คัดลอกลิงก์" onConfirm={doCopy}>
+      {button}
+    </ConfirmLinkDialog>
   );
 }
 
@@ -120,7 +177,24 @@ function McpUrlCard() {
           >
             {showFull ? MCP_URL : shortenUrl(MCP_URL)}
           </code>
-          <CopyButton value={MCP_URL} label="คัดลอกลิงก์เซิร์ฟเวอร์" toastLabel="ลิงก์เซิร์ฟเวอร์แล้ว" />
+          <div className="flex gap-2">
+            <CopyButton
+              value={MCP_URL}
+              label="คัดลอกลิงก์เซิร์ฟเวอร์"
+              toastLabel="ลิงก์เซิร์ฟเวอร์แล้ว"
+              confirm
+            />
+            <ConfirmLinkDialog
+              value={MCP_URL}
+              actionLabel="เปิดลิงก์"
+              onConfirm={() => window.open(MCP_URL, "_blank", "noopener,noreferrer")}
+            >
+              <Button variant="outline" size="sm" aria-label="เปิดลิงก์เซิร์ฟเวอร์">
+                <ExternalLink className="h-4 w-4" />
+                <span className="ml-2">เปิดลิงก์</span>
+              </Button>
+            </ConfirmLinkDialog>
+          </div>
         </div>
         <div className="flex items-center justify-between gap-3">
           <p className="text-xs text-muted-foreground">
@@ -401,9 +475,15 @@ export default function ConnectAgent() {
                 items={[
                   <>
                     เปิด{" "}
-                    <a className="underline" href={CLAUDE_ADD} target="_blank" rel="noreferrer">
-                      หน้าต่างเพิ่ม custom connector ของ Claude <ExternalLink className="inline h-3 w-3" />
-                    </a>{" "}
+                    <ConfirmLinkDialog
+                      value={CLAUDE_ADD}
+                      actionLabel="เปิดหน้าต่าง Claude"
+                      onConfirm={() => window.open(CLAUDE_ADD, "_blank", "noopener,noreferrer")}
+                    >
+                      <button type="button" className="underline">
+                        หน้าต่างเพิ่ม custom connector ของ Claude <ExternalLink className="inline h-3 w-3" />
+                      </button>
+                    </ConfirmLinkDialog>{" "}
                     (ชื่อและลิงก์จะถูกกรอกให้อัตโนมัติ)
                   </>,
                   <>ตรวจรายละเอียด แล้วกด “Add”</>,
