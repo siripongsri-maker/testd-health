@@ -418,7 +418,24 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
         <Badge variant="outline" className="text-xs">
           {t("ติดตามแล้ว", "Followed up")}: {followRate}%
         </Badge>
+        {compare && (
+          <>
+            <Badge variant="secondary" className="text-xs">
+              {t("เทียบช่วงก่อนหน้า", "vs previous")}: {prevBounds.from} – {prevBounds.to}
+            </Badge>
+            <Badge variant="outline" className="text-xs">
+              {t("ผลรวม", "Total")}: {deltaText(totals.total, prevTotals.total)}
+            </Badge>
+            <Badge variant="outline" className="text-xs">
+              Reactive: {deltaText(totals.reactive, prevTotals.reactive)}
+            </Badge>
+            <Badge variant="outline" className="text-xs">
+              {t("ติดตามแล้ว", "Followed up")}: {deltaText(totals.followedUp, prevTotals.followedUp)}
+            </Badge>
+          </>
+        )}
       </div>
+
 
       <Card>
         <CardHeader className="pb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
