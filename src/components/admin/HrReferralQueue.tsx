@@ -193,7 +193,11 @@ export default function HrReferralQueue({ tx, readOnly = false }: Props) {
             const open = openId === r.id;
             return (
 
-              <div key={r.id} className="rounded-md border bg-background">
+              <div
+                key={r.id}
+                className={`rounded-md border bg-background ${isUrgent(r) ? "border-rose-400 ring-1 ring-rose-300/60" : ""}`}
+              >
+
                 <button
                   type="button"
                   className="w-full text-left p-3 flex items-center gap-3 hover:bg-muted/40 transition-colors"
