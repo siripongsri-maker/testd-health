@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MapPin } from "lucide-react";
@@ -17,9 +18,23 @@ export function composeAddress(houseNo?: string, village?: string, moo?: string)
   ].filter(Boolean).join(' ');
 }
 
+// เลขที่บ้าน: ตัวเลข 1-6 หลัก ตามด้วย / หรือ - และเลข/อักษรได้สูงสุด 2 ส่วน (เช่น 99, 99/1, 123/45-6)
+const HOUSE_NO_PATTERN = /^\d{1,6}([/-][0-9a-zA-Zก-๙]{1,6}){0,2}$/;
+
+export function validateHouseNo(value?: string): boolean {
+  const v = (value || '').trim();
+  return v.length > 0 && v.length <= 20 && HOUSE_NO_PATTERN.test(v);
+}
+
 export function AddressDetailFields({ data, onChange }: Props) {
   const { language } = useLanguage();
   const isTh = language === 'th';
+  const [touched, setTouched] = useState(false);
+
+  const houseNo = data.houseNo || '';
+  const isEmpty = houseNo.trim().length === 0;
+  const invalid = !validateHouseNo(houseNo);
+  const showError = touched && invalid;
 
   const update = (patch: Partial<ShippingFormData>) => {
     const next = { ...data, ...patch };
@@ -43,12 +58,24 @@ export function AddressDetailFields({ data, onChange }: Props) {
           </Label>
           <Input
             id="houseNo"
-            value={data.houseNo || ''}
-            onChange={(e) => update({ houseNo: e.target.value })}
+            value={houseNo}
+            onChange={(e) => update({ houseNo: e.target.value.slice(0, 20) })}
+            onBlur={() => setTouched(true)}
             placeholder={isTh ? 'เช่น 99/1' : 'e.g. 99/1'}
+            aria-invalid={showError}
+            aria-describedby="houseNo-error"
+            className={showError ? 'border-destructive focus-visible:ring-destructive' : ''}
             required
           />
+          {showError && (
+            <p id="houseNo-error" className="text-xs text-destructive">
+              {isEmpty
+                ? (isTh ? 'กรุณากรอกเลขที่บ้าน' : 'House number is required')
+                : (isTh ? 'รูปแบบไม่ถูกต้อง เช่น 99 หรือ 99/1' : 'Invalid format, e.g. 99 or 99/1')}
+            </p>
+          )}
         </div>
+
         <div className="space-y-1.5">
           <Label htmlFor="village" className="text-xs text-muted-foreground">
             {isTh ? 'หมู่บ้าน' : 'Village / building'}
