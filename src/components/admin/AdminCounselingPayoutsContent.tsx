@@ -8,6 +8,8 @@ import { Loader2, Download, Banknote, Check, X, Eye, RefreshCw, AlertTriangle, L
 import { toast } from "@/hooks/use-toast";
 import PostEvalSmsQueueCard from "./PostEvalSmsQueueCard";
 import ClientNotificationsCard from "./ClientNotificationsCard";
+import { fetchUrgentCaseMap, type UrgentCaseRef } from "@/lib/urgentCases";
+
 
 type ClaimStatus = "pending" | "approved" | "paid" | "rejected";
 
