@@ -119,12 +119,17 @@ export default function AdminBookingContent({ userBranch }: Props) {
 
     if (rows.length > 0) {
       const ids = rows.map(r => r.id);
-      const [{ data: flags }, { data: serviceEvents }] = await Promise.all([
+      const [{ data: flags }, { data: serviceEvents }, { data: surveys }] = await Promise.all([
         supabase.rpc('get_returning_flags', { p_appointment_ids: ids }),
         supabase
           .from('service_events')
           .select('appointment_id, service_category, service_subtype, event_type, urgency_level, counseling_needed, mental_health_referral_needed, meta')
           .in('appointment_id', ids)
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('appointment_pre_service_surveys')
+          .select('booking_id, confidence, safety, mental_health_interest, help_topics, knowledge, behavior, suggestions')
+          .in('booking_id', ids)
           .order('created_at', { ascending: false }),
       ]);
       const flagMap: Record<string, boolean> = {};
@@ -134,11 +139,17 @@ export default function AdminBookingContent({ userBranch }: Props) {
         if (!eventMap[event.appointment_id]) eventMap[event.appointment_id] = [];
         eventMap[event.appointment_id].push(event);
       });
+      const surveyMap: Record<string, any> = {};
+      ((surveys as any[]) || []).forEach((s: any) => {
+        if (s.booking_id && !surveyMap[s.booking_id]) surveyMap[s.booking_id] = s;
+      });
       const enriched: EnrichedAppointment[] = rows.map(r => ({
         ...r,
         is_returning: flagMap[r.id] || false,
         serviceEvents: eventMap[r.id] || [],
+        preServiceSurvey: surveyMap[r.id] || null,
       }));
+
 
       let filtered = enriched;
       if (returningFilter === 'new') filtered = enriched.filter(a => !a.is_returning);
