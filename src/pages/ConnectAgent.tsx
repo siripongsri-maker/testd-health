@@ -207,6 +207,9 @@ export default function ConnectAgent() {
               <li>ตรวจสอบสิทธิ์และข้อมูลที่จะถูกแชร์ก่อนกดอนุญาตใน ChatGPT, Claude หรือผู้ช่วยอื่น</li>
               <li>ลบการเชื่อมต่อจากผู้ช่วย AI เมื่อเลิกใช้ และล้างประวัติแชทที่มีข้อมูลอ่อนไหว</li>
             </ul>
+            <Link className="inline-flex text-sm font-medium text-primary underline underline-offset-4" to="/privacy-summary">
+              อ่าน Privacy แบบย่อ: ระยะเวลาเก็บข้อมูล วิธีลบ และช่องทางช่วยเหลือ
+            </Link>
           </CardContent>
         </Card>
 
