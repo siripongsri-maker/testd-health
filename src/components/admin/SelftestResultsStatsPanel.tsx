@@ -344,6 +344,11 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
                     <XAxis dataKey="label" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
                     <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
                     <Tooltip
+                      labelFormatter={(label, payload) => {
+                        const day = payload?.[0]?.payload?.day;
+                        return `${t("วันที่", "Date")}: ${day ? formatBkkDayLabel(day, language) : label}`;
+                      }}
+                      formatter={(value, name) => [value, name]}
                       contentStyle={{
                         background: "hsl(var(--popover))",
                         border: "1px solid hsl(var(--border))",
@@ -374,6 +379,11 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
                     <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
                     <Tooltip
                       cursor={{ fill: "hsl(var(--muted))", opacity: 0.4 }}
+                      labelFormatter={(label, payload) => {
+                        const day = payload?.[0]?.payload?.day;
+                        return `${t("วันที่", "Date")}: ${day ? formatBkkDayLabel(day, language) : label}`;
+                      }}
+                      formatter={(value, name) => [value, name]}
                       contentStyle={{
                         background: "hsl(var(--popover))",
                         border: "1px solid hsl(var(--border))",
