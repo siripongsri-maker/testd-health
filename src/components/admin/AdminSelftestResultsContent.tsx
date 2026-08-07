@@ -22,6 +22,8 @@ import { toast } from "sonner";
 import { usePdpaAudit } from "@/hooks/usePdpaAudit";
 import SelftestSmsDialog, { SmsRecipient } from "./SelftestSmsDialog";
 import SmsHistoryDialog from "./SmsHistoryDialog";
+import SelftestResultsStatsPanel from "./SelftestResultsStatsPanel";
+
 
 interface Row {
   id: string;
