@@ -216,11 +216,15 @@ export default function AdminDailyBranchBriefContent() {
       high: rows.filter((r) => r.risk_level === "high").length,
       medium: rows.filter((r) => r.risk_level === "medium").length,
       breached,
-      urgent: rows.filter((r) => urgentSurveyIds.has(r.survey_id)).length,
+      urgent: urgentAppointments.length,
+      urgentUnlinked: urgentAppointments.filter(
+        (u) => !rows.some((r) => urgentSurveyIds.has(r.survey_id) && r.branch_id === u.branch_id),
+      ),
       topBranch: top ? `${branchName(top[0] === "unknown" ? null : top[0])} (${top[1].length})` : "—",
       topics: Array.from(byTopic.entries()).sort((a, b) => b[1] - a[1]),
     };
-  }, [rows, grouped, branchName, urgentSurveyIds]);
+  }, [rows, grouped, branchName, urgentSurveyIds, urgentAppointments]);
+
 
 
   const exportCsv = () => {
