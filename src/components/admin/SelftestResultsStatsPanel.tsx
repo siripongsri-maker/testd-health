@@ -157,14 +157,82 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
     [language],
   );
 
-  const chartData = useMemo(
-    () =>
-      daily
-        .slice()
-        .sort((a, b) => (a.day < b.day ? -1 : 1))
-        .map((d) => ({ ...d, label: formatBkkDayLabel(d.day, language) })),
-    [daily, language],
+  const prevBounds = useMemo(() => {
+    const n = Number(rangeDays);
+    const start = new Date(`${rangeBounds.from}T00:00:00+07:00`);
+    const prevTo = new Date(start.getTime() - 24 * 60 * 60 * 1000);
+    const prevFrom = new Date(prevTo.getTime() - (n - 1) * 24 * 60 * 60 * 1000);
+    return { from: bkkDay(prevFrom.toISOString()), to: bkkDay(prevTo.toISOString()) };
+  }, [rangeBounds, rangeDays]);
+
+  const emptyStat = (day: string): DailyStat => ({
+    day, total: 0, negative: 0, reactive: 0, invalid: 0, withPhoto: 0, followedUp: 0,
+  });
+
+  const aggregateByDay = (list: ResultStatRow[]) => {
+    const map = new Map<string, DailyStat>();
+    for (const r of list) {
+      const day = bkkDay(r.result_submitted_at || r.created_at);
+      let s = map.get(day);
+      if (!s) { s = emptyStat(day); map.set(day, s); }
+      s.total++;
+      const res = resultOf(r);
+      if (res === "negative") s.negative++;
+      else if (res === "reactive") s.reactive++;
+      else if (res === "invalid") s.invalid++;
+      if (r.result_photo_url) s.withPhoto++;
+      if (r.care_action && r.care_action !== "pending") s.followedUp++;
+    }
+    return map;
+  };
+
+  const prevRows = useMemo(
+    () => rows.filter((r) => {
+      const day = bkkDay(r.result_submitted_at || r.created_at);
+      return day >= prevBounds.from && day <= prevBounds.to;
+    }),
+    [rows, prevBounds],
   );
+
+  const prevTotals = useMemo(() => {
+    const stats = Array.from(aggregateByDay(prevRows).values());
+    return stats.reduce(
+      (acc, d) => ({
+        total: acc.total + d.total,
+        negative: acc.negative + d.negative,
+        reactive: acc.reactive + d.reactive,
+        invalid: acc.invalid + d.invalid,
+        withPhoto: acc.withPhoto + d.withPhoto,
+        followedUp: acc.followedUp + d.followedUp,
+      }),
+      { total: 0, negative: 0, reactive: 0, invalid: 0, withPhoto: 0, followedUp: 0 },
+    );
+  }, [prevRows]);
+
+  const chartData = useMemo(() => {
+    const n = Number(rangeDays);
+    const curMap = aggregateByDay(rangeRows);
+    const prevMap = aggregateByDay(prevRows);
+    const start = new Date(`${rangeBounds.from}T00:00:00+07:00`).getTime();
+    const prevStart = new Date(`${prevBounds.from}T00:00:00+07:00`).getTime();
+    const dayMs = 24 * 60 * 60 * 1000;
+    return Array.from({ length: n }, (_, i) => {
+      const day = bkkDay(new Date(start + i * dayMs).toISOString());
+      const prevDay = bkkDay(new Date(prevStart + i * dayMs).toISOString());
+      const cur = curMap.get(day) || emptyStat(day);
+      const prev = prevMap.get(prevDay) || emptyStat(prevDay);
+      return {
+        ...cur,
+        label: formatBkkDayLabel(day, language),
+        prevDay,
+        prev_negative: prev.negative,
+        prev_reactive: prev.reactive,
+        prev_invalid: prev.invalid,
+        prev_withPhoto: prev.withPhoto,
+        prev_followedUp: prev.followedUp,
+      };
+    });
+  }, [rangeRows, prevRows, rangeBounds, prevBounds, rangeDays, language]);
 
   const toggleSeries = (key: string) =>
     setHiddenSeries((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
@@ -178,6 +246,14 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
   const reactiveRate = totals.total > 0 ? Math.round((totals.reactive / totals.total) * 100) : 0;
   const photoRate = totals.total > 0 ? Math.round((totals.withPhoto / totals.total) * 100) : 0;
   const followRate = totals.total > 0 ? Math.round((totals.followedUp / totals.total) * 100) : 0;
+
+  const deltaText = (cur: number, prev: number) => {
+    const diff = cur - prev;
+    const pct = prev > 0 ? Math.round((diff / prev) * 100) : null;
+    const sign = diff > 0 ? "+" : "";
+    return `${sign}${diff}${pct !== null ? ` (${sign}${pct}%)` : ""}`;
+  };
+
 
   const downloadBlob = (body: BlobPart, name: string, type: string) => {
     const url = URL.createObjectURL(new Blob([body], { type }));
