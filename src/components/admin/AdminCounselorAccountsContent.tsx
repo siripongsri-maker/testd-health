@@ -49,6 +49,23 @@ export default function AdminCounselorAccountsContent() {
   const [cActive, setCActive] = useState(true);
 
   const [resetPwd, setResetPwd] = useState("");
+  const [provisioning, setProvisioning] = useState(false);
+  const [provisionResults, setProvisionResults] = useState<any[] | null>(null);
+
+  const provisionAll = async () => {
+    setProvisioning(true);
+    const { data, error } = await supabase.functions.invoke("manage-counselor-account", {
+      body: { action: "provision_branches" },
+    });
+    setProvisioning(false);
+    if (error || (data as any)?.error) {
+      toast.error((data as any)?.error || error?.message || "Failed");
+      return;
+    }
+    setProvisionResults(((data as any)?.results ?? []) as any[]);
+    toast.success(tx("สร้างบัญชีตามสาขาเรียบร้อย", "Branch accounts provisioned"));
+    load();
+  };
 
   const load = async () => {
     setLoading(true);
