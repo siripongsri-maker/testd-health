@@ -86,10 +86,19 @@ export function UrgentCasesPanel({ appointments, onClickAppointment }: Props) {
                 </div>
                 <div className="mt-1 flex flex-wrap items-center gap-1">
                   {signals.map(s => (
-                    <Badge key={s.kind} variant="destructive" className="text-[10px]">
+                    <Badge
+                      key={s.kind}
+                      variant="destructive"
+                      className="text-[10px]"
+                      title={(th ? s.sourceTh : s.sourceEn) || undefined}
+                    >
                       {th ? s.labelTh : s.labelEn}
+                      {(th ? s.sourceTh : s.sourceEn) && (
+                        <span className="ml-1 font-normal opacity-80">· {th ? s.sourceTh : s.sourceEn}</span>
+                      )}
                     </Badge>
                   ))}
+
                 </div>
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
                   {apt.booking_branches && (
