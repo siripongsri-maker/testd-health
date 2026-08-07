@@ -169,6 +169,13 @@ function AppShell() {
               <Route path="/community/interests" element={<Interests />} />
               <Route path="/self-care" element={<SelfCare />} />
               <Route path="/hiv-selftest" element={<HIVSelfTest />} />
+              {/* Branch-dedicated kit request links — no branch picker shown to the client. */}
+              <Route path="/kit/bangkok" element={<Navigate to="/th/hiv-selftest?branch=silom" replace />} />
+              <Route path="/kit/pattaya" element={<Navigate to="/th/hiv-selftest?branch=pattaya" replace />} />
+              <Route path="/th/kit/bangkok" element={<Navigate to="/th/hiv-selftest?branch=silom" replace />} />
+              <Route path="/th/kit/pattaya" element={<Navigate to="/th/hiv-selftest?branch=pattaya" replace />} />
+              <Route path="/en/kit/bangkok" element={<Navigate to="/en/hiv-selftest?branch=silom" replace />} />
+              <Route path="/en/kit/pattaya" element={<Navigate to="/en/hiv-selftest?branch=pattaya" replace />} />
               {/* Direct submission channel: share-friendly short links that drop clients into the submit-result flow.
                   All aliases below MUST resolve to the same destination — /hiv-selftest?action=submit. */}
               <Route path="/submit-result" element={<Navigate to="/hiv-selftest?action=submit" replace />} />
