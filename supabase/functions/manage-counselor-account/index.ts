@@ -28,7 +28,18 @@ interface ResetPayload {
   user_id: string;
   password: string;
 }
-type Payload = CreatePayload | UpdatePayload | ResetPayload;
+interface ProvisionPayload {
+  action: "provision_branches";
+  branch_ids?: string[];
+}
+type Payload = CreatePayload | UpdatePayload | ResetPayload | ProvisionPayload;
+
+function genPassword(len = 14): string {
+  const charset = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const arr = new Uint8Array(len);
+  crypto.getRandomValues(arr);
+  return Array.from(arr, (b) => charset[b % charset.length]).join("");
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
