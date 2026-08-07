@@ -82,6 +82,20 @@ export function AppointmentDetailDrawer({ appointment: apt, onClose, onRefresh }
                   </Badge>
                 ))}
               </div>
+              <Button
+                size="sm"
+                variant="destructive"
+                className="mt-2 w-full h-8 text-xs"
+                disabled={referring}
+                onClick={handleRefer}
+              >
+                {referring ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : (
+                  <>
+                    <UserPlus className="h-3.5 w-3.5 mr-1" />
+                    {language === 'th' ? 'ส่งต่อผู้ให้คำปรึกษา' : 'Refer to counselor'}
+                  </>
+                )}
+              </Button>
             </div>
           )}
 
