@@ -2131,6 +2131,7 @@ export default function HIVSelfTest() {
             hasSavedData={!!savedUserData?.thaiId}
             deliveryMode={deliveryMode}
             assignedBranch={assignedBranch}
+            showBranchSelector={!hasBranchParam}
             onBranchChange={setAssignedBranch}
             pickupLocation={pickupLocation as any}
             onPickupLocationCaptured={setPickupLocation as any}
