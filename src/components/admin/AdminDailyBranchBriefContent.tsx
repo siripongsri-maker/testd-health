@@ -208,10 +208,12 @@ export default function AdminDailyBranchBriefContent() {
       high: rows.filter((r) => r.risk_level === "high").length,
       medium: rows.filter((r) => r.risk_level === "medium").length,
       breached,
+      urgent: rows.filter((r) => urgentSurveyIds.has(r.survey_id)).length,
       topBranch: top ? `${branchName(top[0] === "unknown" ? null : top[0])} (${top[1].length})` : "—",
       topics: Array.from(byTopic.entries()).sort((a, b) => b[1] - a[1]),
     };
-  }, [rows, grouped, branchName]);
+  }, [rows, grouped, branchName, urgentSurveyIds]);
+
 
   const exportCsv = () => {
     const cols: CsvColumn<BriefCase>[] = [
