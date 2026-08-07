@@ -475,9 +475,15 @@ export default function ConnectAgent() {
                 items={[
                   <>
                     เปิด{" "}
-                    <a className="underline" href={CLAUDE_ADD} target="_blank" rel="noreferrer">
-                      หน้าต่างเพิ่ม custom connector ของ Claude <ExternalLink className="inline h-3 w-3" />
-                    </a>{" "}
+                    <ConfirmLinkDialog
+                      value={CLAUDE_ADD}
+                      actionLabel="เปิดหน้าต่าง Claude"
+                      onConfirm={() => window.open(CLAUDE_ADD, "_blank", "noopener,noreferrer")}
+                    >
+                      <button type="button" className="underline">
+                        หน้าต่างเพิ่ม custom connector ของ Claude <ExternalLink className="inline h-3 w-3" />
+                      </button>
+                    </ConfirmLinkDialog>{" "}
                     (ชื่อและลิงก์จะถูกกรอกให้อัตโนมัติ)
                   </>,
                   <>ตรวจรายละเอียด แล้วกด “Add”</>,
