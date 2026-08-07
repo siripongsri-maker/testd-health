@@ -340,7 +340,10 @@ export default function AdminDailyBranchBriefContent() {
             </div>
 
             <div className="space-y-3">
-              {cases.map((c) => (
+              {[...cases]
+                .sort((a, b) => Number(urgentSurveyIds.has(b.survey_id)) - Number(urgentSurveyIds.has(a.survey_id)))
+                .map((c) => (
+
                 <div
                   key={c.survey_id}
                   className={`rounded-lg border p-3 space-y-2 ${urgentSurveyIds.has(c.survey_id) ? "border-rose-400 bg-rose-50/40 dark:bg-rose-950/20" : ""}`}
