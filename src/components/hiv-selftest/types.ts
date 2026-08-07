@@ -16,6 +16,9 @@ export interface SelfTestRequest {
 export interface ShippingFormData {
   fullName: string;
   phone: string;
+  houseNo?: string;
+  village?: string;
+  moo?: string;
   lineId: string;
   address: string;
   subdistrict: string;
