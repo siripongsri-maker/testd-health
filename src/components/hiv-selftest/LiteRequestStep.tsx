@@ -380,15 +380,8 @@ export function LiteRequestStep({
           {/* Address fields — show always if no scanned address, or when user toggles different address */}
           {(!idCardAddress || useDifferentAddress) && (
             <>
-              <div className="space-y-2">
-                <Label className="whitespace-pre-line">{language === 'th' ? 'ที่อยู่ *\n(โครงการขอสงวนสิทธิ์ในการไม่จัดส่งหากที่อยู่ไม่ครบ)' : 'Address *'}</Label>
-                <Textarea
-                  value={shippingData.address}
-                  onChange={(e) => onShippingChange({ ...shippingData, address: e.target.value })}
-                  placeholder={language === 'th' ? 'บ้านเลขที่ ซอย ถนน' : 'House number, street'}
-                  className="min-h-[50px]"
-                />
-              </div>
+              <AddressDetailFields data={shippingData} onChange={onShippingChange} />
+
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
