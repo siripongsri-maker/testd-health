@@ -17,7 +17,9 @@ import { useAdminRole } from "@/hooks/useAdminRole";
 import { toast } from "@/hooks/use-toast";
 import { exportToCsv, type CsvColumn } from "@/lib/adminCsvExport";
 import { format } from "date-fns";
-import { fetchUrgentCaseMap, fetchSurveyAppointmentMap } from "@/lib/urgentCases";
+import { fetchUrgentCaseMap, fetchSurveyAppointmentMap, fetchUrgentAppointmentsForDay, type UrgentAppointmentRef } from "@/lib/urgentCases";
+import PrintButton from "./PrintButton";
+
 
 
 interface BriefCase {
