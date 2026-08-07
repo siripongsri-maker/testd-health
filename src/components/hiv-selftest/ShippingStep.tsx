@@ -10,7 +10,7 @@ import { useLanguage } from "@/lib/i18n";
 import { getUserData } from "@/lib/store";
 import { getProvinces, getDistricts, getSubdistricts, getPostalCode, Subdistrict } from "@/lib/thailand-address";
 import { ShippingFormData } from "./types";
-import { AddressDetailFields } from "./AddressDetailFields";
+import { AddressDetailFields, validateHouseNo } from "./AddressDetailFields";
 
 interface ShippingStepProps {
   formData: ShippingFormData;
@@ -85,7 +85,7 @@ export function ShippingStep({ formData, onFormChange, onNext, onBack }: Shippin
   };
 
   const daysSinceRisk = calculateDaysSinceRisk(formData.lastRiskDate);
-  const isFormValid = formData.fullName && formData.phone && formData.address && formData.province && formData.district && formData.subdistrict;
+  const isFormValid = formData.fullName && formData.phone && validateHouseNo(formData.houseNo) && formData.province && formData.district && formData.subdistrict;
 
   return (
     <div className="space-y-4 animate-fade-in">

@@ -13,7 +13,7 @@ import { useLanguage } from '@/lib/i18n';
 import { ShippingFormData, NHSOFormData, GENDER_OPTIONS, validateThaiId } from './types';
 import { ThaiIdScanner, ScannedData } from './ThaiIdScanner';
 import { getProvinces, getDistricts, getSubdistricts, getPostalCode, Subdistrict } from '@/lib/thailand-address';
-import { AddressDetailFields } from './AddressDetailFields';
+import { AddressDetailFields, validateHouseNo } from './AddressDetailFields';
 import { LocationCapture, LocationData } from './LocationCapture';
 
 interface LiteRequestStepProps {
@@ -157,9 +157,11 @@ export function LiteRequestStep({
     ? !!(nhsoData.passportNo && nhsoData.passportNo.trim().length >= 5 && nhsoData.dateOfBirth && nhsoData.gender)
     : (nhsoData.thaiId.length === 13 && !thaiIdError && nhsoData.dateOfBirth && nhsoData.gender);
   const isPickupLocationValid = true; // location is optional, never blocks submission
+  const needsManualAddress = !idCardAddress || useDifferentAddress;
+  const isHouseNoValid = deliveryMode === 'pickup' || !needsManualAddress || validateHouseNo(shippingData.houseNo);
   const isShippingValid = deliveryMode === 'pickup'
     ? !!(shippingData.fullName && shippingData.province)
-    : !!(shippingData.fullName && shippingData.phone && shippingData.province && assignedBranch);
+    : !!(shippingData.fullName && shippingData.phone && shippingData.province && assignedBranch && isHouseNoValid);
   const isFormValid = isNhsoValid && isShippingValid && isPickupLocationValid;
 
   const handleSubmit = async (e: React.FormEvent) => {
