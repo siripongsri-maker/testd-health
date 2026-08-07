@@ -327,6 +327,11 @@ export default function AdminBookingContent({ userBranch }: Props) {
         </>
       )}
 
+      {/* Urgent cases banner */}
+      {!loading && !inDrillDown && (
+        <UrgentCasesPanel appointments={appointments} onClickAppointment={setDrawerApt} />
+      )}
+
       {/* Main content */}
       {loading ? (
         <div className="flex justify-center py-12">
