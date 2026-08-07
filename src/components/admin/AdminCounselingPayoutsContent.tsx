@@ -9,6 +9,8 @@ import { toast } from "@/hooks/use-toast";
 import PostEvalSmsQueueCard from "./PostEvalSmsQueueCard";
 import ClientNotificationsCard from "./ClientNotificationsCard";
 import { fetchUrgentCaseMap, type UrgentCaseRef } from "@/lib/urgentCases";
+import PrintButton from "./PrintButton";
+
 
 
 type ClaimStatus = "pending" | "approved" | "paid" | "rejected";
