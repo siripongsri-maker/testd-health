@@ -75,6 +75,8 @@ export default function AdminSelftestFollowupContent() {
   const [rows, setRows] = useState<Row[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("pending");
+  const [dayFilter, setDayFilter] = useState<string>("all");
+  const [view, setView] = useState<"list" | "stats">("list");
   const [savingId, setSavingId] = useState<string | null>(null);
   const [openHistory, setOpenHistory] = useState<Record<string, boolean>>({});
   const [historyMap, setHistoryMap] = useState<Record<string, HistoryRow[]>>({});
