@@ -191,6 +191,7 @@ export default function AdminDailyBranchBriefContent() {
   const exportCsv = () => {
     const cols: CsvColumn<BriefCase>[] = [
       { key: "submitted_at", header: "เวลาที่ส่งเข้ามา", format: (r) => format(new Date(r.submitted_at), "yyyy-MM-dd HH:mm") },
+      { key: "appointment_slot", header: "เวลาที่จองเข้ามา", format: (r) => (r.appointment_date ? `${r.appointment_date}${r.appointment_time ? " " + r.appointment_time : ""}` : "—") },
       { key: "branch", header: "สาขา", format: (r) => branchName(r.branch_id) },
       { key: "case_code", header: "รหัสเคส / UIC" },
       { key: "visit_type", header: "ครั้งแรก/เคยรับบริการ", format: (r) => (r.visit_type === "repeat" ? "เคยรับบริการ" : "ครั้งแรก") },
