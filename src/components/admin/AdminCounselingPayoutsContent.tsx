@@ -295,14 +295,16 @@ export default function AdminCounselingPayoutsContent() {
             ค่าเดินทาง 200 บาท/ครั้ง สำหรับผู้ที่ตอบแบบประเมินหลังรับคำปรึกษา
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 no-print">
           <Button size="sm" variant="outline" onClick={load}>
             <RefreshCw className="h-3.5 w-3.5 mr-1" />รีเฟรช
           </Button>
+          <PrintButton documentTitle="counseling-travel-allowance" />
           <Button size="sm" onClick={exportCsv} className="bg-amber-600 hover:bg-amber-700">
             <Download className="h-3.5 w-3.5 mr-1" />ส่งออก CSV
           </Button>
         </div>
+
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
