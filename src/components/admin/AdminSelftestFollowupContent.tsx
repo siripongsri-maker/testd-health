@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SelftestSmsDialog, { type SmsRecipient } from "./SelftestSmsDialog";
 import SmsHistoryDialog from "./SmsHistoryDialog";
+import FollowupStatsPanel, { bkkDay, formatBkkDayLabel } from "./FollowupStatsPanel";
 
 interface Row {
   id: string;
