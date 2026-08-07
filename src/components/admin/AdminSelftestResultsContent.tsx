@@ -22,6 +22,8 @@ import { toast } from "sonner";
 import { usePdpaAudit } from "@/hooks/usePdpaAudit";
 import SelftestSmsDialog, { SmsRecipient } from "./SelftestSmsDialog";
 import SmsHistoryDialog from "./SmsHistoryDialog";
+import SelftestResultsStatsPanel from "./SelftestResultsStatsPanel";
+
 
 interface Row {
   id: string;
@@ -87,6 +89,8 @@ export default function AdminSelftestResultsContent() {
   const [smsRecipients, setSmsRecipients] = useState<SmsRecipient[]>([]);
   const [smsTemplateKey, setSmsTemplateKey] = useState<string>("negative_prep_invite");
   const [smsHistoryOpen, setSmsHistoryOpen] = useState(false);
+  const [view, setView] = useState<"list" | "stats">("list");
+
 
   const load = async () => {
     setLoading(true);
@@ -442,7 +446,27 @@ export default function AdminSelftestResultsContent() {
                 <ArrowUpDown className="h-3.5 w-3.5" />
                 {sortKey === "province" ? (sortDir === "asc" ? t("จังหวัด ก-ฮ","Province A→Z") : t("จังหวัด ฮ-ก","Province Z→A")) : t("เรียงจังหวัด","Sort by province")}
               </Button>
+              <div className="inline-flex rounded-md border p-0.5">
+                <Button
+                  variant={view === "list" ? "secondary" : "ghost"}
+                  size="sm"
+                  className="h-8"
+                  onClick={() => setView("list")}
+                >
+                  {t("รายการ", "List")}
+                </Button>
+                <Button
+                  variant={view === "stats" ? "secondary" : "ghost"}
+                  size="sm"
+                  className="h-8 gap-1.5"
+                  onClick={() => setView("stats")}
+                >
+                  <ClipboardList className="h-3.5 w-3.5" />
+                  {t("สรุปสถิติ", "Stats")}
+                </Button>
+              </div>
               <Button variant="outline" size="sm" onClick={() => setSmsHistoryOpen(true)} className="gap-1.5">
+
                 <History className="h-4 w-4" />
                 {t("ประวัติ SMS / CSV", "SMS history / CSV")}
               </Button>
@@ -486,9 +510,12 @@ export default function AdminSelftestResultsContent() {
         <CardContent>
           {loading ? (
             <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary"/></div>
+          ) : view === "stats" ? (
+            <SelftestResultsStatsPanel rows={filtered} />
           ) : filtered.length === 0 ? (
             <div className="text-center py-12 text-sm text-muted-foreground">{t("ไม่มีข้อมูล","No data")}</div>
           ) : (
+
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
