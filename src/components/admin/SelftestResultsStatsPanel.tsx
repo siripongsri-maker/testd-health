@@ -105,6 +105,29 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
     return Array.from(map.entries()).sort((a, b) => b[1] - a[1]).slice(0, 8);
   }, [rangeRows, language]);
 
+  const unknownProvince = t("ไม่ระบุ", "Unknown");
+  const drillRows = useMemo(() => {
+    if (!drill) return [];
+    return rangeRows
+      .filter((r) =>
+        drill.type === "day"
+          ? bkkDay(r.result_submitted_at || r.created_at) === drill.key
+          : (r.province || unknownProvince) === drill.key,
+      )
+      .sort((a, b) =>
+        (b.result_submitted_at || b.created_at).localeCompare(a.result_submitted_at || a.created_at),
+      );
+  }, [drill, rangeRows, unknownProvince]);
+
+  const resultLabel = (r: ResultStatRow) => {
+    const res = resultOf(r);
+    if (res === "negative") return { text: t("ผลลบ", "Negative"), cls: "text-emerald-600" };
+    if (res === "reactive") return { text: "Reactive", cls: "text-rose-600" };
+    if (res === "invalid") return { text: t("อ่านไม่ได้", "Invalid"), cls: "text-amber-600" };
+    return { text: t("ไม่ระบุ", "Unknown"), cls: "text-muted-foreground" };
+  };
+
+
   const reactiveRate = totals.total > 0 ? Math.round((totals.reactive / totals.total) * 100) : 0;
   const photoRate = totals.total > 0 ? Math.round((totals.withPhoto / totals.total) * 100) : 0;
   const followRate = totals.total > 0 ? Math.round((totals.followedUp / totals.total) * 100) : 0;
