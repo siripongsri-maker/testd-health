@@ -114,7 +114,7 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
     const a = document.createElement("a");
     a.href = url;
-    a.download = `selftest-results-daily-stats-${rangeStartDay}-to-${bkkDay(new Date().toISOString())}.csv`;
+    a.download = `selftest-results-daily-stats-${rangeBounds.from}-to-${rangeBounds.to}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
