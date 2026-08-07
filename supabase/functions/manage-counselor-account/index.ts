@@ -94,6 +94,56 @@ Deno.serve(async (req) => {
       return json({ success: true, user_id: uid });
     }
 
+    if (body.action === "provision_branches") {
+      const { data: branches, error: bErr } = await admin
+        .from("booking_branches")
+        .select("id, slug, name_th")
+        .order("name_th");
+      if (bErr) return json({ error: bErr.message }, 400);
+
+      const targets = (branches ?? []).filter(
+        (b: { id: string }) => !body.branch_ids?.length || body.branch_ids.includes(b.id),
+      );
+
+      const { data: existing } = await admin.from("counselor_profiles").select("branch_id");
+      const taken = new Set((existing ?? []).map((r: { branch_id: string | null }) => r.branch_id));
+
+      const results: Array<Record<string, unknown>> = [];
+      for (const b of targets as Array<{ id: string; slug: string; name_th: string }>) {
+        if (taken.has(b.id)) {
+          results.push({ branch_id: b.id, branch: b.name_th, skipped: true, reason: "already_exists" });
+          continue;
+        }
+        const email = `counselor.${b.slug}@swingth.local`;
+        const password = genPassword();
+        const full_name = `Counselor ${b.name_th}`;
+
+        const { data: created, error: cErr } = await admin.auth.admin.createUser({
+          email,
+          password,
+          email_confirm: true,
+          user_metadata: { display_name: full_name },
+        });
+        if (cErr || !created?.user) {
+          results.push({ branch_id: b.id, branch: b.name_th, error: cErr?.message || "create failed" });
+          continue;
+        }
+        const uid = created.user.id;
+        await admin.from("user_roles").insert({ user_id: uid, role: "counselor" });
+        const { error: pErr } = await admin.from("counselor_profiles").insert({
+          user_id: uid, full_name, nickname: b.name_th, branch_id: b.id, is_active: true,
+        });
+        if (pErr) {
+          await admin.auth.admin.deleteUser(uid).catch(() => {});
+          results.push({ branch_id: b.id, branch: b.name_th, error: pErr.message });
+          continue;
+        }
+        await admin.from("profiles").update({ display_name: full_name }).eq("id", uid);
+        results.push({ branch_id: b.id, branch: b.name_th, email, password, user_id: uid, created: true });
+      }
+      return json({ success: true, results });
+    }
+
     if (body.action === "update") {
       const { user_id, full_name, nickname, branch_id, is_active } = body;
       if (!user_id) return json({ error: "user_id required" }, 400);
