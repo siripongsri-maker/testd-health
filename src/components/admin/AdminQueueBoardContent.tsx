@@ -128,20 +128,31 @@ export default function AdminQueueBoardContent({ userBranch }: Props) {
           <p className="text-sm text-muted-foreground">{isEn ? 'Manage service queue routing' : 'จัดการเส้นทางคิวบริการ'}</p>
         </div>
         <div className="flex gap-2 items-center">
-          <Select value={selectedBranch} onValueChange={setSelectedBranch}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder={isEn ? 'Select branch' : 'เลือกสาขา'} />
-            </SelectTrigger>
-            <SelectContent>
-              {branches.map(b => (
-                <SelectItem key={b.id} value={b.id}>{isEn ? b.name_en : b.name_th}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button onClick={handleRegister} disabled={!selectedBranch}>
-            <Plus className="h-4 w-4 mr-1" />
-            {isEn ? 'Register Visit' : 'ลงทะเบียนคิว'}
-          </Button>
+          {lockedBranch ? (
+            <Badge variant="secondary" className="h-9 px-3 text-sm">
+              {(() => {
+                const b = branches.find(x => x.id === selectedBranch);
+                return b ? (isEn ? b.name_en : b.name_th) : (isEn ? 'Your branch' : 'สาขาของคุณ');
+              })()}
+            </Badge>
+          ) : (
+            <Select value={selectedBranch} onValueChange={setSelectedBranch}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder={isEn ? 'Select branch' : 'เลือกสาขา'} />
+              </SelectTrigger>
+              <SelectContent>
+                {branches.map(b => (
+                  <SelectItem key={b.id} value={b.id}>{isEn ? b.name_en : b.name_th}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+          {!readOnly && (
+            <Button onClick={handleRegister} disabled={!selectedBranch}>
+              <Plus className="h-4 w-4 mr-1" />
+              {isEn ? 'Register Visit' : 'ลงทะเบียนคิว'}
+            </Button>
+          )}
         </div>
       </div>
 
