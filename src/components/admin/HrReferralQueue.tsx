@@ -7,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { HeartHandshake, RefreshCw, Loader2, Inbox } from "lucide-react";
 import ClientHrContextPanel from "./ClientHrContextPanel";
+import PrintButton from "./PrintButton";
+
 
 interface Props {
   tx: (th: string, en: string) => string;
