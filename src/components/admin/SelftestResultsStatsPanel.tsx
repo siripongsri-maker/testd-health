@@ -39,10 +39,24 @@ function resultOf(r: ResultStatRow): "negative" | "reactive" | "invalid" | "othe
 export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRow[] }) {
   const { language } = useLanguage();
   const t = (th: string, en: string) => (language === "th" ? th : en);
+  const [rangeDays, setRangeDays] = useState("30");
+
+  const rangeStartDay = useMemo(() => {
+    const today = new Date();
+    const todayDay = bkkDay(today.toISOString());
+    const start = new Date(`${todayDay}T00:00:00+07:00`);
+    start.setUTCDate(start.getUTCDate() - (Number(rangeDays) - 1));
+    return bkkDay(start.toISOString());
+  }, [rangeDays]);
+
+  const rangeRows = useMemo(
+    () => rows.filter((r) => bkkDay(r.result_submitted_at || r.created_at) >= rangeStartDay),
+    [rows, rangeStartDay],
+  );
 
   const daily = useMemo<DailyStat[]>(() => {
     const map = new Map<string, DailyStat>();
-    for (const r of rows) {
+    for (const r of rangeRows) {
       const day = bkkDay(r.result_submitted_at || r.created_at);
       let s = map.get(day);
       if (!s) {
@@ -58,7 +72,7 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
       if (r.care_action && r.care_action !== "pending") s.followedUp++;
     }
     return Array.from(map.values()).sort((a, b) => (a.day < b.day ? 1 : -1));
-  }, [rows]);
+  }, [rangeRows]);
 
   const totals = useMemo(
     () =>
