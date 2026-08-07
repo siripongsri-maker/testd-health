@@ -80,6 +80,8 @@ export default function AdminDailyBranchBriefContent() {
   const [loading, setLoading] = useState(true);
   const [live, setLive] = useState<"connecting" | "live" | "offline">("connecting");
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [urgentSurveyIds, setUrgentSurveyIds] = useState<Set<string>>(new Set());
+
 
   const branchName = useCallback(
     (id: string | null) => {
