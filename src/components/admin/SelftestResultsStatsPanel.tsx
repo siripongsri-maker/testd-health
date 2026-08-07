@@ -529,8 +529,11 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
                     <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
                     <Tooltip
                       labelFormatter={(label, payload) => {
-                        const day = payload?.[0]?.payload?.day;
-                        return `${t("วันที่", "Date")}: ${day ? formatBkkDayLabel(day, language) : label}`;
+                        const p = payload?.[0]?.payload as { day?: string; prevDay?: string } | undefined;
+                        const main = `${t("วันที่", "Date")}: ${p?.day ? formatBkkDayLabel(p.day, language) : label}`;
+                        return compare && p?.prevDay
+                          ? `${main} · ${t("ก่อนหน้า", "Prev")}: ${formatBkkDayLabel(p.prevDay, language)}`
+                          : main;
                       }}
                       formatter={(value, name) => [value, name]}
                       contentStyle={{
@@ -555,6 +558,22 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
                           activeDot={{ r: 5 }}
                         />
                       ))}
+                    {compare &&
+                      seriesDefs
+                        .filter((s) => !hiddenSeries.includes(s.key))
+                        .map((s) => (
+                          <Line
+                            key={`prev_${s.key}`}
+                            type="monotone"
+                            dataKey={`prev_${s.key}`}
+                            name={`${s.label} (${t("ก่อนหน้า", "prev")})`}
+                            stroke={s.color}
+                            strokeWidth={1.5}
+                            strokeDasharray="4 3"
+                            strokeOpacity={0.6}
+                            dot={false}
+                          />
+                        ))}
                   </LineChart>
                 ) : (
                   <BarChart data={chartData} onClick={onPointClick} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
@@ -564,8 +583,11 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
                     <Tooltip
                       cursor={{ fill: "hsl(var(--muted))", opacity: 0.4 }}
                       labelFormatter={(label, payload) => {
-                        const day = payload?.[0]?.payload?.day;
-                        return `${t("วันที่", "Date")}: ${day ? formatBkkDayLabel(day, language) : label}`;
+                        const p = payload?.[0]?.payload as { day?: string; prevDay?: string } | undefined;
+                        const main = `${t("วันที่", "Date")}: ${p?.day ? formatBkkDayLabel(p.day, language) : label}`;
+                        return compare && p?.prevDay
+                          ? `${main} · ${t("ก่อนหน้า", "Prev")}: ${formatBkkDayLabel(p.prevDay, language)}`
+                          : main;
                       }}
                       formatter={(value, name) => [value, name]}
                       contentStyle={{
@@ -581,7 +603,21 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
                       .map((s) => (
                         <Bar key={s.key} dataKey={s.key} name={s.label} fill={s.color} radius={[3, 3, 0, 0]} />
                       ))}
+                    {compare &&
+                      seriesDefs
+                        .filter((s) => !hiddenSeries.includes(s.key))
+                        .map((s) => (
+                          <Bar
+                            key={`prev_${s.key}`}
+                            dataKey={`prev_${s.key}`}
+                            name={`${s.label} (${t("ก่อนหน้า", "prev")})`}
+                            fill={s.color}
+                            fillOpacity={0.35}
+                            radius={[3, 3, 0, 0]}
+                          />
+                        ))}
                   </BarChart>
+
                 )}
               </ResponsiveContainer>
             </div>
