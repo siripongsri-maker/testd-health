@@ -1201,10 +1201,29 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                       {getStatusBadge(order.status)}
                     </div>
 
-                    <div className="text-sm text-muted-foreground mb-3">
-                      {order.recipient_name && <p>{order.recipient_name}</p>}
-                      <p className="truncate">{order.recipient_address}</p>
-                    </div>
+                     <div className="text-sm text-muted-foreground mb-3">
+                       {order.recipient_name && <p>{order.recipient_name}</p>}
+                       <p className="truncate">{order.recipient_address}</p>
+                       {order.tracking_number && (
+                         <div className="flex items-center gap-1.5 mt-1">
+                           <Truck className="h-3.5 w-3.5" />
+                           <span>{language === 'th' ? 'เลขพัสดุ:' : 'Tracking:'}</span>
+                           {getTrackingUrl(order.shipping_carrier, order.tracking_number, order.tracking_url) ? (
+                             <a
+                               href={getTrackingUrl(order.shipping_carrier, order.tracking_number, order.tracking_url) || undefined}
+                               target="_blank"
+                               rel="noreferrer"
+                               className="font-mono text-primary hover:underline"
+                               aria-label={language === 'th' ? 'เปิดหน้าเช็คพัสดุ' : 'Open parcel tracking'}
+                             >
+                               {order.tracking_number}
+                             </a>
+                           ) : (
+                             <code className="font-mono">{order.tracking_number}</code>
+                           )}
+                         </div>
+                       )}
+                     </div>
 
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-xs text-muted-foreground">
