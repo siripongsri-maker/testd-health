@@ -16,6 +16,9 @@ export interface ResultStatRow {
   result_photo_url: string | null;
   care_action: string | null;
   province: string | null;
+  full_name?: string | null;
+  phone?: string | null;
+  tracking_number?: string | null;
 }
 
 interface DailyStat {
