@@ -81,6 +81,9 @@ export default function AdminCounselingPayoutsContent() {
   const [to, setTo] = useState("");
   const [verifiedOnly, setVerifiedOnly] = useState(true);
   const [attended, setAttended] = useState<Record<string, boolean>>({});
+  const [urgentMap, setUrgentMap] = useState<Map<string, UrgentCaseRef>>(new Map());
+  const [urgentOnly, setUrgentOnly] = useState(false);
+
 
   const load = useCallback(async () => {
     setLoading(true);
