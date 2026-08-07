@@ -117,6 +117,27 @@ export default function AdminDailyBranchBriefContent() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Match urgent cases flagged on the appointments page (shared source: hr_referrals)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (rows.length === 0) { setUrgentSurveyIds(new Set()); return; }
+      const [urgentMap, surveyMap] = await Promise.all([
+        fetchUrgentCaseMap(),
+        fetchSurveyAppointmentMap(rows.map((r) => r.survey_id)),
+      ]);
+      if (cancelled) return;
+      const flagged = new Set<string>();
+      rows.forEach((r) => {
+        const apptId = surveyMap.get(r.survey_id);
+        if (apptId && urgentMap.has(apptId)) flagged.add(r.survey_id);
+      });
+      setUrgentSurveyIds(flagged);
+    })();
+    return () => { cancelled = true; };
+  }, [rows]);
+
+
   // Realtime: reflect status changes made in Counselor Support and vice versa
   useEffect(() => {
     const channel = supabase
