@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { AlertTriangle, ArrowRight, Clock, MapPin, Loader2, UserPlus, Hash } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { AlertTriangle, ArrowRight, Clock, MapPin, Loader2, UserPlus, Hash, CheckCircle2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useLanguage } from '@/lib/i18n';
 import { getDisplayServices } from '@/lib/appointments';
-import { referAppointmentToCounselor } from '@/lib/urgentReferral';
+import { referAppointmentToCounselor, fetchReferredAppointmentIds } from '@/lib/urgentReferral';
 import type { EnrichedAppointment } from './types';
 import { getUrgentSupportSignals } from './types';
 
@@ -19,10 +19,42 @@ export function UrgentCasesPanel({ appointments, onClickAppointment }: Props) {
   const th = language === 'th';
   const [busyId, setBusyId] = useState<string | null>(null);
   const [referred, setReferred] = useState<Set<string>>(new Set());
+  const autoSynced = useRef<Set<string>>(new Set());
 
-  const urgent = appointments
-    .map(apt => ({ apt, signals: getUrgentSupportSignals(apt) }))
-    .filter(x => x.signals.length > 0 && !['cancelled', 'no_show'].includes(x.apt.status));
+  const urgent = useMemo(
+    () => appointments
+      .map(apt => ({ apt, signals: getUrgentSupportSignals(apt) }))
+      .filter(x => x.signals.length > 0 && !['cancelled', 'no_show'].includes(x.apt.status)),
+    [appointments],
+  );
+
+  // Auto-push urgent cases into the counseling queue (idempotent) so counselors
+  // always see them without relying on a manual click.
+  useEffect(() => {
+    if (urgent.length === 0) return;
+    let cancelled = false;
+
+    (async () => {
+      const ids = urgent.map(u => u.apt.id);
+      const existing = await fetchReferredAppointmentIds(ids);
+      if (cancelled) return;
+      if (existing.size > 0) setReferred(prev => new Set([...prev, ...existing]));
+
+      for (const { apt, signals } of urgent) {
+        if (existing.has(apt.id) || autoSynced.current.has(apt.id)) continue;
+        autoSynced.current.add(apt.id);
+        try {
+          await referAppointmentToCounselor(apt, signals);
+          if (!cancelled) setReferred(prev => new Set(prev).add(apt.id));
+        } catch (err) {
+          console.error('URGENT_AUTO_REFERRAL_FAILED', apt.id, err);
+          autoSynced.current.delete(apt.id);
+        }
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [urgent]);
 
   if (urgent.length === 0) return null;
 
@@ -33,7 +65,7 @@ export function UrgentCasesPanel({ appointments, onClickAppointment }: Props) {
       setReferred(prev => new Set(prev).add(apt.id));
       toast.success(
         res.status === 'exists'
-          ? (th ? 'เคสนี้ถูกส่งต่อไปแล้ว' : 'Already referred')
+          ? (th ? 'เคสนี้อยู่ในคิวให้คำปรึกษาแล้ว' : 'Already in the counseling queue')
           : (th ? 'ส่งต่อให้ผู้ให้คำปรึกษาแล้ว' : 'Referred to counselor'),
       );
     } catch {
@@ -41,6 +73,7 @@ export function UrgentCasesPanel({ appointments, onClickAppointment }: Props) {
     }
     setBusyId(null);
   };
+
 
   return (
     <section
