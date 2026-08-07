@@ -138,12 +138,15 @@ export default function AdminDailyBranchBriefContent() {
       ]);
       if (cancelled) return;
       const flagged = new Set<string>();
+      const linked = new Set<string>();
       rows.forEach((r) => {
         const apptId = surveyMap.get(r.survey_id);
-        if (apptId && urgentMap.has(apptId)) flagged.add(r.survey_id);
+        if (apptId && urgentMap.has(apptId)) { flagged.add(r.survey_id); linked.add(apptId); }
       });
       setUrgentSurveyIds(flagged);
+      setLinkedUrgentApptIds(linked);
       setUrgentAppointments(apptUrgent);
+
     })();
     return () => { cancelled = true; };
   }, [rows, day, branchFilter]);
