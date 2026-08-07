@@ -286,9 +286,8 @@ export default function AdminDailyBranchBriefContent() {
           <Button variant="outline" size="sm" onClick={exportCsv} disabled={!rows.length}>
             <Download className="h-4 w-4 mr-1" />CSV
           </Button>
-          <Button variant="outline" size="sm" onClick={() => window.print()} disabled={!rows.length}>
-            <Printer className="h-4 w-4 mr-1" />{tx("พิมพ์ / PDF", "Print / PDF")}
-          </Button>
+          <PrintButton documentTitle={`daily-branch-brief-${day}`} />
+
           <Badge variant="outline" className="gap-1">
             <Radio className={`h-3 w-3 ${live === "live" ? "text-emerald-500" : "text-muted-foreground"}`} />
             {live === "live" ? tx("เรียลไทม์", "Live") : tx("กำลังเชื่อมต่อ", "Connecting")}
