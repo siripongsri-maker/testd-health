@@ -272,6 +272,17 @@ export default function AdminSelftestFollowupContent() {
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input className="pl-8 w-64" placeholder={t("ค้นหา ชื่อ/เบอร์","Search name/phone")} value={search} onChange={(e)=>setSearch(e.target.value)} />
               </div>
+              <Select value={dayFilter} onValueChange={setDayFilter}>
+                <SelectTrigger className="w-56 h-10 text-xs">
+                  <SelectValue placeholder={t("ทุกวัน", "All days")} />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="all">{t(`ทุกวัน (${rows.length})`, `All days (${rows.length})`)}</SelectItem>
+                  {dayOptions.map(([d, c]) => (
+                    <SelectItem key={d} value={d}>{formatBkkDayLabel(d, language)} ({c})</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Button variant="outline" size="sm" onClick={() => setSmsHistoryOpen(true)} className="gap-1.5">
                 <History className="h-4 w-4" />
                 {t("ประวัติ SMS / CSV", "SMS history / CSV")}
