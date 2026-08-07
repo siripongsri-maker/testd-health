@@ -118,12 +118,25 @@ export default function AdminBookingContent({ userBranch }: Props) {
 
     if (rows.length > 0) {
       const ids = rows.map(r => r.id);
-      const { data: flags } = await supabase.rpc('get_returning_flags', { p_appointment_ids: ids });
+      const [{ data: flags }, { data: serviceEvents }] = await Promise.all([
+        supabase.rpc('get_returning_flags', { p_appointment_ids: ids }),
+        supabase
+          .from('service_events')
+          .select('appointment_id, service_category, service_subtype, event_type, urgency_level, counseling_needed, mental_health_referral_needed, meta')
+          .in('appointment_id', ids)
+          .order('created_at', { ascending: false }),
+      ]);
       const flagMap: Record<string, boolean> = {};
       ((flags as any[]) || []).forEach((f: any) => { flagMap[f.appointment_id] = f.is_returning; });
+      const eventMap: Record<string, any[]> = {};
+      ((serviceEvents as any[]) || []).forEach((event: any) => {
+        if (!eventMap[event.appointment_id]) eventMap[event.appointment_id] = [];
+        eventMap[event.appointment_id].push(event);
+      });
       const enriched: EnrichedAppointment[] = rows.map(r => ({
         ...r,
         is_returning: flagMap[r.id] || false,
+        serviceEvents: eventMap[r.id] || [],
       }));
 
       let filtered = enriched;

@@ -7,10 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { getDisplayServices, updateAppointmentStatusRPC, addStaffNoteRPC } from '@/lib/appointments';
 import { toast } from 'sonner';
-import { Clock, MapPin, Hash, User, MessageSquarePlus, Loader2, Calendar } from 'lucide-react';
+import { AlertTriangle, Clock, MapPin, Hash, User, MessageSquarePlus, Loader2, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { EnrichedAppointment } from './types';
-import { STATUS_OPTIONS, getStatusInfo } from './types';
+import { STATUS_OPTIONS, getStatusInfo, getUrgentSupportSignals } from './types';
 
 interface Props {
   appointment: EnrichedAppointment | null;

@@ -2,10 +2,10 @@ import { useLanguage } from '@/lib/i18n';
 import { getDisplayServices } from '@/lib/appointments';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { Hash, Bot, Zap, User, UserCheck } from 'lucide-react';
+import { AlertTriangle, Bot, User, UserCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { EnrichedAppointment } from './types';
-import { getStatusInfo } from './types';
+import { getStatusInfo, getUrgentSupportSignals } from './types';
 
 interface Props {
   appointment: EnrichedAppointment;
