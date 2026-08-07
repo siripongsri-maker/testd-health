@@ -48,6 +48,12 @@ const RESULT_COLOR: Record<string, string> = {
   invalid: "bg-amber-500/15 text-amber-700 border-amber-500/30",
 };
 
+const RESULT_OPTIONS = [
+  { value: "negative", labelTh: "ผลลบ (Negative)", labelEn: "Negative" },
+  { value: "reactive", labelTh: "ผลบวก/Reactive", labelEn: "Reactive" },
+  { value: "invalid", labelTh: "อ่านผลไม่ได้ (Invalid)", labelEn: "Invalid" },
+];
+
 const STATUS_OPTIONS = [
   { value: "pending", labelTh: "รอตรวจสอบ", labelEn: "Pending" },
   { value: "approved", labelTh: "อนุมัติแล้ว", labelEn: "Approved" },
@@ -73,7 +79,7 @@ export default function AdminSelftestResultsContent() {
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const [photo, setPhoto] = useState<string | null>(null);
-  const [edits, setEdits] = useState<Record<string, { status: string; tracking_number: string }>>({});
+  const [edits, setEdits] = useState<Record<string, { status: string; tracking_number: string; result: string }>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Row | null>(null);
@@ -115,7 +121,7 @@ export default function AdminSelftestResultsContent() {
     setRows(merged);
     setEdits(
       Object.fromEntries(
-        merged.map((r) => [r.id, { status: r.status, tracking_number: r.tracking_number || "" }])
+        merged.map((r) => [r.id, { status: r.status, tracking_number: r.tracking_number || "", result: r.self_reported_result || r.test_result || "" }])
       )
     );
     setLoading(false);
@@ -212,20 +218,30 @@ export default function AdminSelftestResultsContent() {
   const isDirty = (r: Row) => {
     const e = edits[r.id];
     if (!e) return false;
-    return e.status !== r.status || (e.tracking_number || "") !== (r.tracking_number || "");
+    const currentResult = r.self_reported_result || r.test_result || "";
+    return e.status !== r.status
+      || (e.tracking_number || "") !== (r.tracking_number || "")
+      || (e.result || "") !== currentResult;
   };
 
   const save = async (r: Row) => {
     const e = edits[r.id];
     if (!e) return;
+    const currentResult = r.self_reported_result || r.test_result || "";
+    const resultChanged = (e.result || "") !== currentResult;
     setSavingId(r.id);
+    const patch: Record<string, unknown> = {
+      status: e.status,
+      tracking_number: e.tracking_number || null,
+      updated_at: new Date().toISOString(),
+    };
+    if (resultChanged) {
+      patch.self_reported_result = e.result || null;
+      patch.test_result = e.result || null;
+    }
     const { error } = await supabase
       .from("hiv_selftest_requests")
-      .update({
-        status: e.status,
-        tracking_number: e.tracking_number || null,
-        updated_at: new Date().toISOString(),
-      })
+      .update(patch as any)
       .eq("id", r.id);
     setSavingId(null);
     if (error) {
@@ -233,10 +249,23 @@ export default function AdminSelftestResultsContent() {
       toast.error(t("บันทึกไม่สำเร็จ", "Save failed"));
       return;
     }
-    toast.success(t("บันทึกสำเร็จ", "Saved"));
+    toast.success(
+      resultChanged
+        ? t("บันทึกสำเร็จ (แก้ไขผลตรวจแล้ว)", "Saved (result updated)")
+        : t("บันทึกสำเร็จ", "Saved")
+    );
     setRows((prev) =>
       prev.map((x) =>
-        x.id === r.id ? { ...x, status: e.status, tracking_number: e.tracking_number || null } : x
+        x.id === r.id
+          ? {
+              ...x,
+              status: e.status,
+              tracking_number: e.tracking_number || null,
+              ...(resultChanged
+                ? { self_reported_result: e.result || null, test_result: e.result || null }
+                : {}),
+            }
+          : x
       )
     );
   };
@@ -481,7 +510,7 @@ export default function AdminSelftestResultsContent() {
                     const name = r.pii?.full_name || r.full_name || "—";
                     const phone = r.pii?.phone || r.phone || "";
                     const date = r.result_submitted_at || r.created_at;
-                    const e = edits[r.id] || { status: r.status, tracking_number: r.tracking_number || "" };
+                    const e = edits[r.id] || { status: r.status, tracking_number: r.tracking_number || "", result: r.self_reported_result || r.test_result || "" };
                     const dirty = isDirty(r);
                     return (
                       <TableRow key={r.id}>
@@ -496,7 +525,29 @@ export default function AdminSelftestResultsContent() {
                         </TableCell>
                         <TableCell className="text-xs">{r.province || <span className="text-muted-foreground">—</span>}</TableCell>
                         <TableCell>
-                          <Badge variant="outline" className={RESULT_COLOR[result] || ""}>{result}</Badge>
+                          <Select
+                            value={e.result || "unset"}
+                            onValueChange={(v) =>
+                              setEdits((prev) => ({ ...prev, [r.id]: { ...e, result: v === "unset" ? "" : v } }))
+                            }
+                          >
+                            <SelectTrigger className={cn("h-8 w-36", RESULT_COLOR[e.result] || "")}>
+                              <SelectValue placeholder={t("ยังไม่ระบุ","Not set")} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="unset">{t("ยังไม่ระบุ","Not set")}</SelectItem>
+                              {RESULT_OPTIONS.map((o) => (
+                                <SelectItem key={o.value} value={o.value}>
+                                  {language === "th" ? o.labelTh : o.labelEn}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {(r.self_reported_result || r.test_result || "") !== e.result && (
+                            <div className="text-[10px] text-amber-600 mt-1">
+                              {t(`เดิม: ${result}`, `Was: ${result}`)}
+                            </div>
+                          )}
                         </TableCell>
                         <TableCell>
                           <Select

@@ -45,6 +45,12 @@ const STATUS_TABS = [
 
 const CARE_ACTIONS = STATUS_TABS.map((s) => ({ value: s.value, labelTh: s.labelTh, labelEn: s.labelEn }));
 
+const RESULT_OPTIONS = [
+  { value: "negative", labelTh: "ผลลบ (Negative)", labelEn: "Negative" },
+  { value: "reactive", labelTh: "ผลบวก/Reactive", labelEn: "Reactive" },
+  { value: "invalid", labelTh: "อ่านผลไม่ได้ (Invalid)", labelEn: "Invalid" },
+];
+
 // 3-7-7 schedule: attempt 1 at day 0, attempt 2 +3 days, attempt 3 +7 days, then auto-close +7 days
 const ATTEMPT_OFFSETS_DAYS = [0, 3, 10, 17];
 
@@ -327,7 +333,27 @@ export default function AdminSelftestFollowupContent() {
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-semibold text-lg">{name}</span>
-                          <Badge variant={isReactive ? "destructive" : "outline"}>{result}</Badge>
+                          <Select
+                            value={result === "—" ? "unset" : result}
+                            onValueChange={(v) => {
+                              if (v === "unset" || v === result) return;
+                              updateRow(r.id, { self_reported_result: v, test_result: v } as any);
+                            }}
+                            disabled={savingId === r.id}
+                          >
+                            <SelectTrigger
+                              className={`h-7 w-36 text-xs ${isReactive ? "border-destructive/50 text-destructive" : ""}`}
+                              aria-label={t("แก้ไขผลตรวจ", "Edit test result")}
+                            >
+                              <SelectValue placeholder={t("ยังไม่ระบุ", "Not set")} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {result === "—" && <SelectItem value="unset">{t("ยังไม่ระบุ","Not set")}</SelectItem>}
+                              {RESULT_OPTIONS.map((o) => (
+                                <SelectItem key={o.value} value={o.value}>{language === "th" ? o.labelTh : o.labelEn}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           {r.assigned_branch && <Badge variant="outline" className="text-xs">{r.assigned_branch}</Badge>}
                         </div>
                         <div className="text-xs text-muted-foreground mt-1">
