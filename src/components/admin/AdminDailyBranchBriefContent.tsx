@@ -313,8 +313,17 @@ export default function AdminDailyBranchBriefContent() {
                       {c.visit_type === "repeat" ? tx("เคยรับบริการ", "Repeat") : tx("ครั้งแรก", "First visit")}
                     </Badge>
                     {c.is_anonymous && <Badge variant="secondary">{tx("ไม่ระบุตัวตน", "Anonymous")}</Badge>}
+                    {(c.appointment_date || c.appointment_time) && (
+                      <Badge variant="outline" className="gap-1 font-normal">
+                        <Clock className="h-3 w-3" />
+                        {tx("จองเวลา", "Booked")} {c.appointment_time || "—"}
+                        {c.appointment_date && c.appointment_date !== day
+                          ? ` · ${format(new Date(c.appointment_date + "T00:00:00"), "dd/MM")}`
+                          : ""}
+                      </Badge>
+                    )}
                     <span className="text-muted-foreground">
-                      {format(new Date(c.submitted_at), "HH:mm")} · {c.hours_open} {tx("ชม.", "h")}
+                      {tx("ส่งแบบสอบถาม", "Submitted")} {format(new Date(c.submitted_at), "HH:mm")} · {c.hours_open} {tx("ชม.", "h")}
                     </span>
                     {c.sla_breached && (
                       <Badge variant="destructive" className="gap-1">
