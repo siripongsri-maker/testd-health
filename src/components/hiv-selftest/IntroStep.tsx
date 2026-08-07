@@ -77,7 +77,7 @@ export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onS
             <h3 className="font-bold text-foreground mb-2">
               {activeRequest.status === 'pending' && (language === 'th' ? 'รอเจ้าหน้าที่ตรวจสอบ' : 'Awaiting Staff Review')}
               {activeRequest.status === 'approved' && (language === 'th' ? 'อนุมัติแล้ว กำลังเตรียมจัดส่ง' : 'Approved - Preparing Shipment')}
-              {activeRequest.status === 'shipped' && (language === 'th' ? 'จัดส่งแล้ว รอรับพัสดุ' : 'Shipped - Awaiting Delivery')}
+              {activeRequest.status === 'shipped' && (language === 'th' ? 'กำลังจัดส่ง รอรับพัสดุ' : 'In Transit - Awaiting Delivery')}
               {activeRequest.status === 'delivered' && (language === 'th' ? 'พัสดุถึงแล้ว กรุณายืนยันการรับ' : 'Delivered - Please Confirm Receipt')}
               {activeRequest.status === 'received' && (language === 'th' ? 'ยืนยันว่าได้รับแล้ว' : 'Confirmed Received')}
             </h3>
@@ -85,7 +85,7 @@ export function IntroStep({ activeRequest, onStartRequest, onConfirmReceipt, onS
             <Badge variant={activeRequest.status === 'shipped' || activeRequest.status === 'delivered' || activeRequest.status === 'received' ? 'default' : 'secondary'}>
               {activeRequest.status === 'pending' && (language === 'th' ? '⏳ รอตรวจสอบ' : '⏳ Pending Review')}
               {activeRequest.status === 'approved' && (language === 'th' ? '✓ อนุมัติแล้ว' : '✓ Approved')}
-              {activeRequest.status === 'shipped' && (language === 'th' ? '📦 จัดส่งแล้ว' : '📦 Shipped')}
+              {activeRequest.status === 'shipped' && (language === 'th' ? '🚚 กำลังจัดส่ง' : '🚚 In Transit')}
               {activeRequest.status === 'delivered' && (language === 'th' ? '🏠 ถึงปลายทาง' : '🏠 Delivered')}
               {activeRequest.status === 'received' && (language === 'th' ? '✅ ยืนยันว่าได้รับแล้ว' : '✅ Confirmed Received')}
             </Badge>
