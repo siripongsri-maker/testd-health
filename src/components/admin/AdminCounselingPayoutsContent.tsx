@@ -394,10 +394,16 @@ export default function AdminCounselingPayoutsContent() {
       ) : (
         <div className="space-y-2">
           {filtered.map((c) => (
-            <Card key={c.id} className="p-3 space-y-2">
+            <Card key={c.id} className={`p-3 space-y-2 ${isUrgentClaim(c) ? "border-rose-400 ring-1 ring-rose-300/60" : ""}`}>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-semibold text-sm">{c.account_holder_name}</span>
                 <Badge className={`text-[10px] ${STATUS_CLASS[c.status]}`}>{STATUS_LABEL[c.status]}</Badge>
+                {isUrgentClaim(c) && (
+                  <Badge className="text-[10px] bg-rose-600 text-white hover:bg-rose-600 flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" />เคสเร่งด่วน
+                  </Badge>
+                )}
+
                 {c.duplicate_flag && (
                   <Badge variant="outline" className="text-[10px] border-rose-300 text-rose-600 flex items-center gap-1">
                     <AlertTriangle className="h-3 w-3" />
