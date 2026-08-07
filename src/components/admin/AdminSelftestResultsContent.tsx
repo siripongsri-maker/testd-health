@@ -490,9 +490,12 @@ export default function AdminSelftestResultsContent() {
         <CardContent>
           {loading ? (
             <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary"/></div>
+          ) : view === "stats" ? (
+            <SelftestResultsStatsPanel rows={filtered} />
           ) : filtered.length === 0 ? (
             <div className="text-center py-12 text-sm text-muted-foreground">{t("ไม่มีข้อมูล","No data")}</div>
           ) : (
+
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
