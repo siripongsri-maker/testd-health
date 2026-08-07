@@ -4,7 +4,19 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Download, FlaskConical, ShieldAlert, CheckCircle2, AlertTriangle } from "lucide-react";
+import { Download, FlaskConical, ShieldAlert, CheckCircle2, AlertTriangle, LineChart as LineChartIcon, BarChart3 } from "lucide-react";
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from "recharts";
 import { useLanguage } from "@/lib/i18n";
 import { bkkDay, formatBkkDayLabel } from "./FollowupStatsPanel";
 
@@ -45,6 +57,8 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
   const t = (th: string, en: string) => (language === "th" ? th : en);
   const [rangeDays, setRangeDays] = useState("30");
   const [drill, setDrill] = useState<{ type: "day" | "province"; key: string } | null>(null);
+  const [chartType, setChartType] = useState<"line" | "bar">("line");
+  const [hiddenSeries, setHiddenSeries] = useState<string[]>([]);
 
   const rangeBounds = useMemo(() => {
     const todayDay = bkkDay(new Date().toISOString());
@@ -126,6 +140,35 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
     if (res === "reactive") return { text: "Reactive", cls: "text-rose-600" };
     if (res === "invalid") return { text: t("อ่านไม่ได้", "Invalid"), cls: "text-amber-600" };
     return { text: t("ไม่ระบุ", "Unknown"), cls: "text-muted-foreground" };
+  };
+
+  const seriesDefs = useMemo(
+    () => [
+      { key: "negative", label: t("ผลลบ", "Negative"), color: "hsl(152 60% 40%)" },
+      { key: "reactive", label: "Reactive", color: "hsl(348 75% 50%)" },
+      { key: "invalid", label: t("อ่านไม่ได้", "Invalid"), color: "hsl(38 92% 50%)" },
+      { key: "withPhoto", label: t("มีรูป", "Photo"), color: "hsl(217 80% 55%)" },
+      { key: "followedUp", label: t("ติดตามแล้ว", "Followed up"), color: "hsl(268 60% 58%)" },
+    ],
+    [language],
+  );
+
+  const chartData = useMemo(
+    () =>
+      daily
+        .slice()
+        .sort((a, b) => (a.day < b.day ? -1 : 1))
+        .map((d) => ({ ...d, label: formatBkkDayLabel(d.day, language) })),
+    [daily, language],
+  );
+
+  const toggleSeries = (key: string) =>
+    setHiddenSeries((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
+
+  const onPointClick = (payload: unknown) => {
+    const p = payload as { activePayload?: Array<{ payload?: { day?: string } }> } | undefined;
+    const day = p?.activePayload?.[0]?.payload?.day;
+    if (day) setDrill({ type: "day", key: day });
   };
 
 
@@ -243,6 +286,115 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
           {t("ติดตามแล้ว", "Followed up")}: {followRate}%
         </Badge>
       </div>
+
+      <Card>
+        <CardHeader className="pb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <CardTitle className="text-base">{t("แนวโน้มตามเวลา", "Trend over time")}</CardTitle>
+            <div className="text-xs text-muted-foreground mt-0.5">
+              {t("คลิกที่จุด/แท่งเพื่อดูรายชื่อเคสของวันนั้น", "Click a point or bar to see that day's cases")}
+            </div>
+          </div>
+          <div className="flex gap-1">
+            <Button
+              variant={chartType === "line" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setChartType("line")}
+              className="gap-1.5"
+            >
+              <LineChartIcon className="h-4 w-4" />
+              {t("เส้น", "Line")}
+            </Button>
+            <Button
+              variant={chartType === "bar" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setChartType("bar")}
+              className="gap-1.5"
+            >
+              <BarChart3 className="h-4 w-4" />
+              {t("แท่ง", "Bar")}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {seriesDefs.map((s) => {
+              const off = hiddenSeries.includes(s.key);
+              return (
+                <button
+                  key={s.key}
+                  type="button"
+                  onClick={() => toggleSeries(s.key)}
+                  className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs transition-opacity ${off ? "opacity-40" : ""}`}
+                >
+                  <span className="h-2 w-2 rounded-full" style={{ background: s.color }} />
+                  {s.label}
+                </button>
+              );
+            })}
+          </div>
+          {chartData.length === 0 ? (
+            <div className="py-10 text-center text-sm text-muted-foreground">{t("ไม่มีข้อมูล", "No data")}</div>
+          ) : (
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                {chartType === "line" ? (
+                  <LineChart data={chartData} onClick={onPointClick} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="label" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
+                    <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                    <Tooltip
+                      contentStyle={{
+                        background: "hsl(var(--popover))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: 8,
+                        fontSize: 12,
+                      }}
+                    />
+                    <Legend wrapperStyle={{ fontSize: 11 }} />
+                    {seriesDefs
+                      .filter((s) => !hiddenSeries.includes(s.key))
+                      .map((s) => (
+                        <Line
+                          key={s.key}
+                          type="monotone"
+                          dataKey={s.key}
+                          name={s.label}
+                          stroke={s.color}
+                          strokeWidth={2}
+                          dot={{ r: 2 }}
+                          activeDot={{ r: 5 }}
+                        />
+                      ))}
+                  </LineChart>
+                ) : (
+                  <BarChart data={chartData} onClick={onPointClick} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="label" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
+                    <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                    <Tooltip
+                      cursor={{ fill: "hsl(var(--muted))", opacity: 0.4 }}
+                      contentStyle={{
+                        background: "hsl(var(--popover))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: 8,
+                        fontSize: 12,
+                      }}
+                    />
+                    <Legend wrapperStyle={{ fontSize: 11 }} />
+                    {seriesDefs
+                      .filter((s) => !hiddenSeries.includes(s.key))
+                      .map((s) => (
+                        <Bar key={s.key} dataKey={s.key} name={s.label} fill={s.color} radius={[3, 3, 0, 0]} />
+                      ))}
+                  </BarChart>
+                )}
+              </ResponsiveContainer>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
 
       <Card>
         <CardHeader className="pb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
