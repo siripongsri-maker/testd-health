@@ -125,14 +125,16 @@ export default function AdminDailyBranchBriefContent() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Match urgent cases flagged on the appointments page (shared source: hr_referrals)
+  // Match urgent cases flagged on the appointments page (shared source: hr_referrals).
+  // The urgent COUNT comes from the appointments of the day so it matches the
+  // appointments page and the counseling queue — not only cases that have a survey row.
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      if (rows.length === 0) { setUrgentSurveyIds(new Set()); return; }
-      const [urgentMap, surveyMap] = await Promise.all([
+      const [urgentMap, surveyMap, apptUrgent] = await Promise.all([
         fetchUrgentCaseMap(),
         fetchSurveyAppointmentMap(rows.map((r) => r.survey_id)),
+        fetchUrgentAppointmentsForDay(day, branchFilter === "all" ? null : branchFilter),
       ]);
       if (cancelled) return;
       const flagged = new Set<string>();
@@ -141,9 +143,11 @@ export default function AdminDailyBranchBriefContent() {
         if (apptId && urgentMap.has(apptId)) flagged.add(r.survey_id);
       });
       setUrgentSurveyIds(flagged);
+      setUrgentAppointments(apptUrgent);
     })();
     return () => { cancelled = true; };
-  }, [rows]);
+  }, [rows, day, branchFilter]);
+
 
 
   // Realtime: reflect status changes made in Counselor Support and vice versa
