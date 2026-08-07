@@ -235,6 +235,19 @@ export default function AdminSelftestFollowupContent() {
         </p>
       </div>
 
+      <div className="flex gap-1 p-1 bg-muted/50 rounded-lg w-fit">
+        <Button size="sm" variant={view === "list" ? "default" : "ghost"} className="h-8 text-xs" onClick={() => setView("list")}>
+          {t("รายการเคส", "Cases")}
+        </Button>
+        <Button size="sm" variant={view === "stats" ? "default" : "ghost"} className="h-8 text-xs" onClick={() => setView("stats")}>
+          {t("สรุปสถิติ (โทร/ติดต่อ/ส่งต่อ)", "Stats (calls/contact/referral)")}
+        </Button>
+      </div>
+
+      {view === "stats" ? (
+        <FollowupStatsPanel rows={rows as any} />
+      ) : (
+      <>
       <Tabs value={statusFilter} onValueChange={setStatusFilter}>
         <TabsList className="flex flex-wrap h-auto gap-1 bg-muted/50 p-1">
           {STATUS_TABS.map((s) => (
