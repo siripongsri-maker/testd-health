@@ -222,6 +222,9 @@ export default function HrReferralQueue({ tx, readOnly = false }: Props) {
                           {tx("เคสเร่งด่วนจากนัดหมาย", "Urgent from appointment")}
                         </Badge>
                       )}
+                      <Badge variant="secondary" className="text-[10px]">
+                        {branchLabel(r.branch_id)}
+                      </Badge>
 
                       {!r.user_id && (
                         <Badge variant="outline" className="text-[10px] text-muted-foreground">
