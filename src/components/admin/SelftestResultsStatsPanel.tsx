@@ -142,6 +142,35 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
     return { text: t("ไม่ระบุ", "Unknown"), cls: "text-muted-foreground" };
   };
 
+  const seriesDefs = useMemo(
+    () => [
+      { key: "negative", label: t("ผลลบ", "Negative"), color: "hsl(152 60% 40%)" },
+      { key: "reactive", label: "Reactive", color: "hsl(348 75% 50%)" },
+      { key: "invalid", label: t("อ่านไม่ได้", "Invalid"), color: "hsl(38 92% 50%)" },
+      { key: "withPhoto", label: t("มีรูป", "Photo"), color: "hsl(217 80% 55%)" },
+      { key: "followedUp", label: t("ติดตามแล้ว", "Followed up"), color: "hsl(268 60% 58%)" },
+    ],
+    [language],
+  );
+
+  const chartData = useMemo(
+    () =>
+      daily
+        .slice()
+        .sort((a, b) => (a.day < b.day ? -1 : 1))
+        .map((d) => ({ ...d, label: formatBkkDayLabel(d.day, language) })),
+    [daily, language],
+  );
+
+  const toggleSeries = (key: string) =>
+    setHiddenSeries((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
+
+  const onPointClick = (payload: unknown) => {
+    const p = payload as { activePayload?: Array<{ payload?: { day?: string } }> } | undefined;
+    const day = p?.activePayload?.[0]?.payload?.day;
+    if (day) setDrill({ type: "day", key: day });
+  };
+
 
   const reactiveRate = totals.total > 0 ? Math.round((totals.reactive / totals.total) * 100) : 0;
   const photoRate = totals.total > 0 ? Math.round((totals.withPhoto / totals.total) * 100) : 0;
