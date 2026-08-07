@@ -157,9 +157,11 @@ export function LiteRequestStep({
     ? !!(nhsoData.passportNo && nhsoData.passportNo.trim().length >= 5 && nhsoData.dateOfBirth && nhsoData.gender)
     : (nhsoData.thaiId.length === 13 && !thaiIdError && nhsoData.dateOfBirth && nhsoData.gender);
   const isPickupLocationValid = true; // location is optional, never blocks submission
+  const needsManualAddress = !idCardAddress || useDifferentAddress;
+  const isHouseNoValid = deliveryMode === 'pickup' || !needsManualAddress || validateHouseNo(shippingData.houseNo);
   const isShippingValid = deliveryMode === 'pickup'
     ? !!(shippingData.fullName && shippingData.province)
-    : !!(shippingData.fullName && shippingData.phone && shippingData.province && assignedBranch);
+    : !!(shippingData.fullName && shippingData.phone && shippingData.province && assignedBranch && isHouseNoValid);
   const isFormValid = isNhsoValid && isShippingValid && isPickupLocationValid;
 
   const handleSubmit = async (e: React.FormEvent) => {
