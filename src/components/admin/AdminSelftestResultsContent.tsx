@@ -115,7 +115,7 @@ export default function AdminSelftestResultsContent() {
     setRows(merged);
     setEdits(
       Object.fromEntries(
-        merged.map((r) => [r.id, { status: r.status, tracking_number: r.tracking_number || "" }])
+        merged.map((r) => [r.id, { status: r.status, tracking_number: r.tracking_number || "", result: r.self_reported_result || r.test_result || "" }])
       )
     );
     setLoading(false);
