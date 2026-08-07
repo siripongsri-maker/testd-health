@@ -73,7 +73,7 @@ export default function AdminSelftestResultsContent() {
   const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const [photo, setPhoto] = useState<string | null>(null);
-  const [edits, setEdits] = useState<Record<string, { status: string; tracking_number: string }>>({});
+  const [edits, setEdits] = useState<Record<string, { status: string; tracking_number: string; result: string }>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<Row | null>(null);
