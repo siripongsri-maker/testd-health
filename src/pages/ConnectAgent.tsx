@@ -1,7 +1,18 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { Copy, Check, ExternalLink, RefreshCw, ShieldCheck } from "lucide-react";
+import { Copy, Check, ExternalLink, RefreshCw, ShieldCheck, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -242,9 +253,36 @@ export default function ConnectAgent() {
                 {syncState === "saved" && " · บันทึกแล้ว"}
                 {syncState === "error" && " · บันทึกบนเซิร์ฟเวอร์ไม่สำเร็จ (เก็บไว้ในเครื่องแล้ว)"}
               </p>
-              <Button variant="outline" size="sm" onClick={reset}>
-                ล้างความคืบหน้า
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm" className="gap-2">
+                    <Trash2 className="h-4 w-4" /> ลบข้อมูลการเชื่อมต่อทั้งหมด
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>ลบข้อมูลการเชื่อมต่อทั้งหมด?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      ระบบจะล้างแท็บผู้ช่วย AI ที่เลือกไว้ ขั้นตอนที่ติ๊กแล้ว และประวัติผลตรวจสถานะล่าสุด
+                      ทั้งในเครื่องนี้และสำเนาแบบไม่ระบุตัวตนบนเซิร์ฟเวอร์ การเชื่อมต่อในแอป AI ของคุณจะไม่ถูกลบ
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>ยกเลิก</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => {
+                        reset();
+                        toast.success("ลบข้อมูลการเชื่อมต่อแล้ว", {
+                          description: "แท็บที่เลือก ขั้นตอนที่ติ๊ก และประวัติผลตรวจถูกล้างเรียบร้อย",
+                        });
+                      }}
+                    >
+                      ลบข้อมูล
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+
             </div>
           </CardContent>
         </Card>
