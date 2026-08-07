@@ -218,20 +218,30 @@ export default function AdminSelftestResultsContent() {
   const isDirty = (r: Row) => {
     const e = edits[r.id];
     if (!e) return false;
-    return e.status !== r.status || (e.tracking_number || "") !== (r.tracking_number || "");
+    const currentResult = r.self_reported_result || r.test_result || "";
+    return e.status !== r.status
+      || (e.tracking_number || "") !== (r.tracking_number || "")
+      || (e.result || "") !== currentResult;
   };
 
   const save = async (r: Row) => {
     const e = edits[r.id];
     if (!e) return;
+    const currentResult = r.self_reported_result || r.test_result || "";
+    const resultChanged = (e.result || "") !== currentResult;
     setSavingId(r.id);
+    const patch: Record<string, unknown> = {
+      status: e.status,
+      tracking_number: e.tracking_number || null,
+      updated_at: new Date().toISOString(),
+    };
+    if (resultChanged) {
+      patch.self_reported_result = e.result || null;
+      patch.test_result = e.result || null;
+    }
     const { error } = await supabase
       .from("hiv_selftest_requests")
-      .update({
-        status: e.status,
-        tracking_number: e.tracking_number || null,
-        updated_at: new Date().toISOString(),
-      })
+      .update(patch as any)
       .eq("id", r.id);
     setSavingId(null);
     if (error) {
@@ -239,10 +249,23 @@ export default function AdminSelftestResultsContent() {
       toast.error(t("บันทึกไม่สำเร็จ", "Save failed"));
       return;
     }
-    toast.success(t("บันทึกสำเร็จ", "Saved"));
+    toast.success(
+      resultChanged
+        ? t("บันทึกสำเร็จ (แก้ไขผลตรวจแล้ว)", "Saved (result updated)")
+        : t("บันทึกสำเร็จ", "Saved")
+    );
     setRows((prev) =>
       prev.map((x) =>
-        x.id === r.id ? { ...x, status: e.status, tracking_number: e.tracking_number || null } : x
+        x.id === r.id
+          ? {
+              ...x,
+              status: e.status,
+              tracking_number: e.tracking_number || null,
+              ...(resultChanged
+                ? { self_reported_result: e.result || null, test_result: e.result || null }
+                : {}),
+            }
+          : x
       )
     );
   };
