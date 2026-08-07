@@ -37,6 +37,16 @@ const TEMPLATE_CATEGORIES = [
 
 const TEMPLATES = [
   {
+    key: "kit_in_transit",
+    category: "shipping",
+    labelTh: "กำลังจัดส่ง",
+    labelEn: "In transit",
+    icon: Truck,
+    bodyTh: "SWING: คุณ {{name}} ชุดตรวจของคุณกำลังถูกจัดส่งจาก SWING คุณสามารถเช็คสถานะพัสดุ ได้ที่ https://testd.website/ หรือโทร 02-632-9502",
+    bodyEn: "SWING: Hi {{name}}, your test kit is on its way from SWING. Track your parcel at https://testd.website/ or call 02-632-9502",
+  },
+  {
+
     key: "kit_shipped_check_arrival",
     category: "shipping",
     labelTh: "จัดส่งแล้ว: เช็คพัสดุ",
