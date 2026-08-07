@@ -48,6 +48,12 @@ const RESULT_COLOR: Record<string, string> = {
   invalid: "bg-amber-500/15 text-amber-700 border-amber-500/30",
 };
 
+const RESULT_OPTIONS = [
+  { value: "negative", labelTh: "ผลลบ (Negative)", labelEn: "Negative" },
+  { value: "reactive", labelTh: "ผลบวก/Reactive", labelEn: "Reactive" },
+  { value: "invalid", labelTh: "อ่านผลไม่ได้ (Invalid)", labelEn: "Invalid" },
+];
+
 const STATUS_OPTIONS = [
   { value: "pending", labelTh: "รอตรวจสอบ", labelEn: "Pending" },
   { value: "approved", labelTh: "อนุมัติแล้ว", labelEn: "Approved" },
