@@ -7,7 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { getDisplayServices, updateAppointmentStatusRPC, addStaffNoteRPC } from '@/lib/appointments';
 import { toast } from 'sonner';
-import { AlertTriangle, Clock, MapPin, Hash, User, MessageSquarePlus, Loader2, Calendar } from 'lucide-react';
+import { AlertTriangle, Clock, MapPin, Hash, User, MessageSquarePlus, Loader2, Calendar, UserPlus } from 'lucide-react';
+import { referAppointmentToCounselor } from '@/lib/urgentReferral';
 import { cn } from '@/lib/utils';
 import type { EnrichedAppointment } from './types';
 import { STATUS_OPTIONS, getStatusInfo, getUrgentSupportSignals } from './types';
@@ -23,12 +24,28 @@ export function AppointmentDetailDrawer({ appointment: apt, onClose, onRefresh }
   const [updating, setUpdating] = useState(false);
   const [noteInput, setNoteInput] = useState('');
   const [addingNote, setAddingNote] = useState(false);
+  const [referring, setReferring] = useState(false);
 
   if (!apt) return null;
 
   const services = getDisplayServices(apt);
   const statusInfo = getStatusInfo(apt.status);
   const urgentSignals = getUrgentSupportSignals(apt);
+
+  const handleRefer = async () => {
+    setReferring(true);
+    try {
+      const res = await referAppointmentToCounselor(apt, urgentSignals);
+      toast.success(
+        res.status === 'exists'
+          ? (language === 'th' ? 'เคสนี้ถูกส่งต่อไปแล้ว' : 'Already referred')
+          : (language === 'th' ? 'ส่งต่อให้ผู้ให้คำปรึกษาแล้ว' : 'Referred to counselor'),
+      );
+    } catch {
+      toast.error(language === 'th' ? 'ส่งต่อไม่สำเร็จ' : 'Referral failed');
+    }
+    setReferring(false);
+  };
 
   const handleStatusChange = async (newStatus: string) => {
     setUpdating(true);
@@ -82,6 +99,20 @@ export function AppointmentDetailDrawer({ appointment: apt, onClose, onRefresh }
                   </Badge>
                 ))}
               </div>
+              <Button
+                size="sm"
+                variant="destructive"
+                className="mt-2 w-full h-8 text-xs"
+                disabled={referring}
+                onClick={handleRefer}
+              >
+                {referring ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : (
+                  <>
+                    <UserPlus className="h-3.5 w-3.5 mr-1" />
+                    {language === 'th' ? 'ส่งต่อผู้ให้คำปรึกษา' : 'Refer to counselor'}
+                  </>
+                )}
+              </Button>
             </div>
           )}
 

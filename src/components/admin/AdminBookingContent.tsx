@@ -23,6 +23,7 @@ import { CalendarView } from './booking/CalendarView';
 import { BookingAnalyticsPanel } from './booking/BookingAnalyticsPanel';
 import { ForecastPanel } from './booking/ForecastPanel';
 import { AppointmentDetailDrawer } from './booking/AppointmentDetailDrawer';
+import { UrgentCasesPanel } from './booking/UrgentCasesPanel';
 import type { EnrichedAppointment, DensityDay, BranchOption, ViewMode } from './booking/types';
 import { STATUS_OPTIONS } from './booking/types';
 
@@ -324,6 +325,11 @@ export default function AdminBookingContent({ userBranch }: Props) {
             </div>
           )}
         </>
+      )}
+
+      {/* Urgent cases banner */}
+      {!loading && !inDrillDown && (
+        <UrgentCasesPanel appointments={appointments} onClickAppointment={setDrawerApt} />
       )}
 
       {/* Main content */}
