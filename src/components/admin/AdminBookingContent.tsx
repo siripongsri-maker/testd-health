@@ -24,6 +24,8 @@ import { BookingAnalyticsPanel } from './booking/BookingAnalyticsPanel';
 import { ForecastPanel } from './booking/ForecastPanel';
 import { AppointmentDetailDrawer } from './booking/AppointmentDetailDrawer';
 import { UrgentCasesPanel } from './booking/UrgentCasesPanel';
+import PrintButton from './PrintButton';
+
 import type { EnrichedAppointment, DensityDay, BranchOption, ViewMode } from './booking/types';
 import { STATUS_OPTIONS } from './booking/types';
 
