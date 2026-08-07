@@ -157,14 +157,18 @@ export function UrgentCasesPanel({ appointments, onClickAppointment }: Props) {
               >
                 {busyId === apt.id ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : isReferred ? (
+                  <>
+                    <CheckCircle2 className="h-3.5 w-3.5 mr-1" />
+                    {th ? 'อยู่ในคิวให้คำปรึกษาแล้ว' : 'In counseling queue'}
+                  </>
                 ) : (
                   <>
                     <UserPlus className="h-3.5 w-3.5 mr-1" />
-                    {isReferred
-                      ? (th ? 'ส่งต่อแล้ว' : 'Referred')
-                      : (th ? 'ส่งต่อผู้ให้คำปรึกษา' : 'Refer to counselor')}
+                    {th ? 'ส่งต่อผู้ให้คำปรึกษา' : 'Refer to counselor'}
                   </>
                 )}
+
               </Button>
             </div>
           );
