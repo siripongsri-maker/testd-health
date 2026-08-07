@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Download, FlaskConical, ShieldAlert, CheckCircle2, AlertTriangle, LineChart as LineChartIcon, BarChart3 } from "lucide-react";
+import { Download, FlaskConical, ShieldAlert, CheckCircle2, AlertTriangle, LineChart as LineChartIcon, BarChart3, GitCompare } from "lucide-react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -62,6 +62,8 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
   const [drill, setDrill] = useState<{ type: "day" | "province"; key: string } | null>(null);
   const [chartType, setChartType] = useState<"line" | "bar">("line");
   const [hiddenSeries, setHiddenSeries] = useState<string[]>([]);
+  const [compare, setCompare] = useState(false);
+
   const chartRef = useRef<HTMLDivElement>(null);
 
   const rangeBounds = useMemo(() => {
@@ -157,14 +159,82 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
     [language],
   );
 
-  const chartData = useMemo(
-    () =>
-      daily
-        .slice()
-        .sort((a, b) => (a.day < b.day ? -1 : 1))
-        .map((d) => ({ ...d, label: formatBkkDayLabel(d.day, language) })),
-    [daily, language],
+  const prevBounds = useMemo(() => {
+    const n = Number(rangeDays);
+    const start = new Date(`${rangeBounds.from}T00:00:00+07:00`);
+    const prevTo = new Date(start.getTime() - 24 * 60 * 60 * 1000);
+    const prevFrom = new Date(prevTo.getTime() - (n - 1) * 24 * 60 * 60 * 1000);
+    return { from: bkkDay(prevFrom.toISOString()), to: bkkDay(prevTo.toISOString()) };
+  }, [rangeBounds, rangeDays]);
+
+  const emptyStat = (day: string): DailyStat => ({
+    day, total: 0, negative: 0, reactive: 0, invalid: 0, withPhoto: 0, followedUp: 0,
+  });
+
+  const aggregateByDay = (list: ResultStatRow[]) => {
+    const map = new Map<string, DailyStat>();
+    for (const r of list) {
+      const day = bkkDay(r.result_submitted_at || r.created_at);
+      let s = map.get(day);
+      if (!s) { s = emptyStat(day); map.set(day, s); }
+      s.total++;
+      const res = resultOf(r);
+      if (res === "negative") s.negative++;
+      else if (res === "reactive") s.reactive++;
+      else if (res === "invalid") s.invalid++;
+      if (r.result_photo_url) s.withPhoto++;
+      if (r.care_action && r.care_action !== "pending") s.followedUp++;
+    }
+    return map;
+  };
+
+  const prevRows = useMemo(
+    () => rows.filter((r) => {
+      const day = bkkDay(r.result_submitted_at || r.created_at);
+      return day >= prevBounds.from && day <= prevBounds.to;
+    }),
+    [rows, prevBounds],
   );
+
+  const prevTotals = useMemo(() => {
+    const stats = Array.from(aggregateByDay(prevRows).values());
+    return stats.reduce(
+      (acc, d) => ({
+        total: acc.total + d.total,
+        negative: acc.negative + d.negative,
+        reactive: acc.reactive + d.reactive,
+        invalid: acc.invalid + d.invalid,
+        withPhoto: acc.withPhoto + d.withPhoto,
+        followedUp: acc.followedUp + d.followedUp,
+      }),
+      { total: 0, negative: 0, reactive: 0, invalid: 0, withPhoto: 0, followedUp: 0 },
+    );
+  }, [prevRows]);
+
+  const chartData = useMemo(() => {
+    const n = Number(rangeDays);
+    const curMap = aggregateByDay(rangeRows);
+    const prevMap = aggregateByDay(prevRows);
+    const start = new Date(`${rangeBounds.from}T00:00:00+07:00`).getTime();
+    const prevStart = new Date(`${prevBounds.from}T00:00:00+07:00`).getTime();
+    const dayMs = 24 * 60 * 60 * 1000;
+    return Array.from({ length: n }, (_, i) => {
+      const day = bkkDay(new Date(start + i * dayMs).toISOString());
+      const prevDay = bkkDay(new Date(prevStart + i * dayMs).toISOString());
+      const cur = curMap.get(day) || emptyStat(day);
+      const prev = prevMap.get(prevDay) || emptyStat(prevDay);
+      return {
+        ...cur,
+        label: formatBkkDayLabel(day, language),
+        prevDay,
+        prev_negative: prev.negative,
+        prev_reactive: prev.reactive,
+        prev_invalid: prev.invalid,
+        prev_withPhoto: prev.withPhoto,
+        prev_followedUp: prev.followedUp,
+      };
+    });
+  }, [rangeRows, prevRows, rangeBounds, prevBounds, rangeDays, language]);
 
   const toggleSeries = (key: string) =>
     setHiddenSeries((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
@@ -178,6 +248,14 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
   const reactiveRate = totals.total > 0 ? Math.round((totals.reactive / totals.total) * 100) : 0;
   const photoRate = totals.total > 0 ? Math.round((totals.withPhoto / totals.total) * 100) : 0;
   const followRate = totals.total > 0 ? Math.round((totals.followedUp / totals.total) * 100) : 0;
+
+  const deltaText = (cur: number, prev: number) => {
+    const diff = cur - prev;
+    const pct = prev > 0 ? Math.round((diff / prev) * 100) : null;
+    const sign = diff > 0 ? "+" : "";
+    return `${sign}${diff}${pct !== null ? ` (${sign}${pct}%)` : ""}`;
+  };
+
 
   const downloadBlob = (body: BlobPart, name: string, type: string) => {
     const url = URL.createObjectURL(new Blob([body], { type }));
@@ -340,7 +418,24 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
         <Badge variant="outline" className="text-xs">
           {t("ติดตามแล้ว", "Followed up")}: {followRate}%
         </Badge>
+        {compare && (
+          <>
+            <Badge variant="secondary" className="text-xs">
+              {t("เทียบช่วงก่อนหน้า", "vs previous")}: {prevBounds.from} – {prevBounds.to}
+            </Badge>
+            <Badge variant="outline" className="text-xs">
+              {t("ผลรวม", "Total")}: {deltaText(totals.total, prevTotals.total)}
+            </Badge>
+            <Badge variant="outline" className="text-xs">
+              Reactive: {deltaText(totals.reactive, prevTotals.reactive)}
+            </Badge>
+            <Badge variant="outline" className="text-xs">
+              {t("ติดตามแล้ว", "Followed up")}: {deltaText(totals.followedUp, prevTotals.followedUp)}
+            </Badge>
+          </>
+        )}
       </div>
+
 
       <Card>
         <CardHeader className="pb-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -351,6 +446,18 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
             </div>
           </div>
           <div className="flex flex-wrap gap-1">
+            <Button
+              variant={compare ? "default" : "outline"}
+              size="sm"
+              onClick={() => setCompare((v) => !v)}
+              className="gap-1.5"
+              aria-pressed={compare}
+              aria-label={t("เปรียบเทียบกับช่วงก่อนหน้า", "Compare with previous period")}
+            >
+              <GitCompare className="h-4 w-4" />
+              {t(`เทียบ ${rangeDays} วันก่อนหน้า`, `Compare prev ${rangeDays}d`)}
+            </Button>
+
             <Button
               variant={chartType === "line" ? "default" : "outline"}
               size="sm"
@@ -422,8 +529,11 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
                     <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
                     <Tooltip
                       labelFormatter={(label, payload) => {
-                        const day = payload?.[0]?.payload?.day;
-                        return `${t("วันที่", "Date")}: ${day ? formatBkkDayLabel(day, language) : label}`;
+                        const p = payload?.[0]?.payload as { day?: string; prevDay?: string } | undefined;
+                        const main = `${t("วันที่", "Date")}: ${p?.day ? formatBkkDayLabel(p.day, language) : label}`;
+                        return compare && p?.prevDay
+                          ? `${main} · ${t("ก่อนหน้า", "Prev")}: ${formatBkkDayLabel(p.prevDay, language)}`
+                          : main;
                       }}
                       formatter={(value, name) => [value, name]}
                       contentStyle={{
@@ -448,6 +558,22 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
                           activeDot={{ r: 5 }}
                         />
                       ))}
+                    {compare &&
+                      seriesDefs
+                        .filter((s) => !hiddenSeries.includes(s.key))
+                        .map((s) => (
+                          <Line
+                            key={`prev_${s.key}`}
+                            type="monotone"
+                            dataKey={`prev_${s.key}`}
+                            name={`${s.label} (${t("ก่อนหน้า", "prev")})`}
+                            stroke={s.color}
+                            strokeWidth={1.5}
+                            strokeDasharray="4 3"
+                            strokeOpacity={0.6}
+                            dot={false}
+                          />
+                        ))}
                   </LineChart>
                 ) : (
                   <BarChart data={chartData} onClick={onPointClick} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
@@ -457,8 +583,11 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
                     <Tooltip
                       cursor={{ fill: "hsl(var(--muted))", opacity: 0.4 }}
                       labelFormatter={(label, payload) => {
-                        const day = payload?.[0]?.payload?.day;
-                        return `${t("วันที่", "Date")}: ${day ? formatBkkDayLabel(day, language) : label}`;
+                        const p = payload?.[0]?.payload as { day?: string; prevDay?: string } | undefined;
+                        const main = `${t("วันที่", "Date")}: ${p?.day ? formatBkkDayLabel(p.day, language) : label}`;
+                        return compare && p?.prevDay
+                          ? `${main} · ${t("ก่อนหน้า", "Prev")}: ${formatBkkDayLabel(p.prevDay, language)}`
+                          : main;
                       }}
                       formatter={(value, name) => [value, name]}
                       contentStyle={{
@@ -474,7 +603,21 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
                       .map((s) => (
                         <Bar key={s.key} dataKey={s.key} name={s.label} fill={s.color} radius={[3, 3, 0, 0]} />
                       ))}
+                    {compare &&
+                      seriesDefs
+                        .filter((s) => !hiddenSeries.includes(s.key))
+                        .map((s) => (
+                          <Bar
+                            key={`prev_${s.key}`}
+                            dataKey={`prev_${s.key}`}
+                            name={`${s.label} (${t("ก่อนหน้า", "prev")})`}
+                            fill={s.color}
+                            fillOpacity={0.35}
+                            radius={[3, 3, 0, 0]}
+                          />
+                        ))}
                   </BarChart>
+
                 )}
               </ResponsiveContainer>
             </div>
