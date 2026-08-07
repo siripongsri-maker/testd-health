@@ -205,12 +205,18 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
     }
 
     const clone = svg.cloneNode(true) as SVGSVGElement;
+    const { width, height } = svg.getBoundingClientRect();
+    const exportWidth = Math.ceil(width || 800);
+    const exportHeight = Math.ceil(height || 256);
     clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-    if (!clone.getAttribute("width") || !clone.getAttribute("height")) {
-      const { width, height } = svg.getBoundingClientRect();
-      clone.setAttribute("width", `${Math.ceil(width)}`);
-      clone.setAttribute("height", `${Math.ceil(height)}`);
-    }
+    clone.setAttribute("width", `${exportWidth}`);
+    clone.setAttribute("height", `${exportHeight}`);
+    clone.setAttribute("viewBox", `0 0 ${exportWidth} ${exportHeight}`);
+    const background = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    background.setAttribute("width", "100%");
+    background.setAttribute("height", "100%");
+    background.setAttribute("fill", "white");
+    clone.insertBefore(background, clone.firstChild);
     const source = new XMLSerializer().serializeToString(clone);
     downloadBlob(source, `${chartFileStem}.svg`, "image/svg+xml;charset=utf-8");
     toast({ title: t("ดาวน์โหลดกราฟแล้ว", "Chart downloaded"), description: "SVG" });
