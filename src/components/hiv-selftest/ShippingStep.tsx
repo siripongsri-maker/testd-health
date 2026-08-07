@@ -85,7 +85,7 @@ export function ShippingStep({ formData, onFormChange, onNext, onBack }: Shippin
   };
 
   const daysSinceRisk = calculateDaysSinceRisk(formData.lastRiskDate);
-  const isFormValid = formData.fullName && formData.phone && formData.address && formData.province && formData.district && formData.subdistrict;
+  const isFormValid = formData.fullName && formData.phone && validateHouseNo(formData.houseNo) && formData.province && formData.district && formData.subdistrict;
 
   return (
     <div className="space-y-4 animate-fade-in">
