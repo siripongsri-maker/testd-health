@@ -92,12 +92,12 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
 
   const byProvince = useMemo(() => {
     const map = new Map<string, number>();
-    rows.forEach((r) => {
+    rangeRows.forEach((r) => {
       const p = r.province || t("ไม่ระบุ", "Unknown");
       map.set(p, (map.get(p) || 0) + 1);
     });
     return Array.from(map.entries()).sort((a, b) => b[1] - a[1]).slice(0, 8);
-  }, [rows, language]);
+  }, [rangeRows, language]);
 
   const reactiveRate = totals.total > 0 ? Math.round((totals.reactive / totals.total) * 100) : 0;
   const photoRate = totals.total > 0 ? Math.round((totals.withPhoto / totals.total) * 100) : 0;
@@ -112,7 +112,7 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
     const a = document.createElement("a");
     a.href = url;
-    a.download = `selftest-results-daily-stats-${bkkDay(new Date().toISOString())}.csv`;
+    a.download = `selftest-results-daily-stats-${rangeStartDay}-to-${bkkDay(new Date().toISOString())}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -126,6 +126,25 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
 
   return (
     <div className="space-y-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <div className="text-sm font-medium">{t("ช่วงวันที่", "Date range")}</div>
+          <div className="text-xs text-muted-foreground">
+            {t(`แสดงผลย้อนหลัง ${rangeDays} วัน รวมวันนี้`, `Showing the last ${rangeDays} days including today`)}
+          </div>
+        </div>
+        <Select value={rangeDays} onValueChange={setRangeDays}>
+          <SelectTrigger className="w-full sm:w-44" aria-label={t("เลือกช่วงวันที่", "Select date range")}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="7">{t("ย้อนหลัง 7 วัน", "Last 7 days")}</SelectItem>
+            <SelectItem value="30">{t("ย้อนหลัง 30 วัน", "Last 30 days")}</SelectItem>
+            <SelectItem value="90">{t("ย้อนหลัง 90 วัน", "Last 90 days")}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {kpis.map((k) => (
           <Card key={k.label}>
