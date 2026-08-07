@@ -447,6 +447,18 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
           </div>
           <div className="flex flex-wrap gap-1">
             <Button
+              variant={compare ? "default" : "outline"}
+              size="sm"
+              onClick={() => setCompare((v) => !v)}
+              className="gap-1.5"
+              aria-pressed={compare}
+              aria-label={t("เปรียบเทียบกับช่วงก่อนหน้า", "Compare with previous period")}
+            >
+              <GitCompare className="h-4 w-4" />
+              {t(`เทียบ ${rangeDays} วันก่อนหน้า`, `Compare prev ${rangeDays}d`)}
+            </Button>
+
+            <Button
               variant={chartType === "line" ? "default" : "outline"}
               size="sm"
               onClick={() => setChartType("line")}
