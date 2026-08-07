@@ -170,6 +170,21 @@ const CARRIERS = [
   { value: 'other', label: 'Other' },
 ];
 
+const CARRIER_TRACKING_URLS: Record<string, string> = {
+  thailand_post: 'https://track.thailandpost.co.th/?trackNumber=',
+  flash: 'https://www.flashexpress.co.th/tracking/?se=',
+  kerry: 'https://th.kerryexpress.com/th/track/?track=',
+  'j&t': 'https://www.jtexpress.co.th/index/query/gzquery.html?bills=',
+  scg: 'https://www.scgexpress.co.th/tracking?tracking_no=',
+};
+
+function getTrackingUrl(carrier: string | null, trackingNumber: string | null, customUrl?: string | null) {
+  if (!trackingNumber) return null;
+  if (customUrl) return customUrl;
+  const baseUrl = carrier ? CARRIER_TRACKING_URLS[carrier.toLowerCase()] : CARRIER_TRACKING_URLS.thailand_post;
+  return baseUrl ? `${baseUrl}${encodeURIComponent(trackingNumber)}` : null;
+}
+
 export default function AdminKitOrdersContent({ userBranch, isModerator = false }: AdminKitOrdersContentProps) {
   const { language } = useLanguage();
   const { user } = useAuth();
@@ -1528,7 +1543,17 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                               {request.tracking_number && (
                                 <span className="flex items-center gap-1">
                                   <Truck className="h-3 w-3" />
-                                  {request.tracking_number}
+                                  {getTrackingUrl('thailand_post', request.tracking_number) ? (
+                                    <a
+                                      href={getTrackingUrl('thailand_post', request.tracking_number) || undefined}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="text-primary hover:underline"
+                                      aria-label={language === 'th' ? 'เปิดหน้าเช็คพัสดุ' : 'Open parcel tracking'}
+                                    >
+                                      {request.tracking_number}
+                                    </a>
+                                  ) : request.tracking_number}
                                 </span>
                               )}
                               {request.abuse_flag && (
@@ -1960,11 +1985,21 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                       ))}
                     </SelectContent>
                   </Select>
-                  <Input
-                    placeholder={language === 'th' ? 'หมายเลขพัสดุ' : 'Tracking number'}
-                    value={updateForm.tracking_number}
-                    onChange={(e) => setUpdateForm({ ...updateForm, tracking_number: e.target.value })}
-                  />
+                   <Input
+                     placeholder={language === 'th' ? 'หมายเลขพัสดุ' : 'Tracking number'}
+                     value={updateForm.tracking_number}
+                     onChange={(e) => setUpdateForm({ ...updateForm, tracking_number: e.target.value })}
+                   />
+                   {getTrackingUrl(updateForm.shipping_carrier || 'thailand_post', updateForm.tracking_number, updateForm.tracking_url) && (
+                     <a
+                       href={getTrackingUrl(updateForm.shipping_carrier || 'thailand_post', updateForm.tracking_number, updateForm.tracking_url) || undefined}
+                       target="_blank"
+                       rel="noreferrer"
+                       className="inline-flex text-xs text-primary hover:underline"
+                     >
+                       {language === 'th' ? 'เปิดหน้าเช็คพัสดุจากเลขนี้' : 'Open tracking for this number'}
+                     </a>
+                   )}
                   <Input
                     placeholder={language === 'th' ? 'ลิงก์ติดตาม (ไม่บังคับ)' : 'Tracking URL (optional)'}
                     value={updateForm.tracking_url}

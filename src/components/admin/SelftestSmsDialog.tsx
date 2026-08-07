@@ -42,8 +42,8 @@ const TEMPLATES = [
     labelTh: "กำลังจัดส่ง",
     labelEn: "In transit",
     icon: Truck,
-    bodyTh: "SWING: คุณ {{name}} ชุดตรวจของคุณกำลังถูกจัดส่งจาก SWING คุณสามารถเช็คสถานะพัสดุ ได้ที่ https://testd.website/ หรือโทร 02-632-9502",
-    bodyEn: "SWING: Hi {{name}}, your test kit is on its way from SWING. Track your parcel at https://testd.website/ or call 02-632-9502",
+    bodyTh: "SWING: คุณ {{name}} ชุดตรวจของคุณกำลังถูกจัดส่งจาก SWING คุณสามารถเช็คสถานะพัสดุ ได้ที่ https://track.thailandpost.co.th/ หรือโทร 02-632-9502",
+    bodyEn: "SWING: Hi {{name}}, your test kit is on its way from SWING. Track your parcel at https://track.thailandpost.co.th/ or call 02-632-9502",
   },
   {
 
