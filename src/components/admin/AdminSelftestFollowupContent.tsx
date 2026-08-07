@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SelftestSmsDialog, { type SmsRecipient } from "./SelftestSmsDialog";
 import SmsHistoryDialog from "./SmsHistoryDialog";
+import FollowupStatsPanel, { bkkDay, formatBkkDayLabel } from "./FollowupStatsPanel";
 
 interface Row {
   id: string;
@@ -74,6 +75,8 @@ export default function AdminSelftestFollowupContent() {
   const [rows, setRows] = useState<Row[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("pending");
+  const [dayFilter, setDayFilter] = useState<string>("all");
+  const [view, setView] = useState<"list" | "stats">("list");
   const [savingId, setSavingId] = useState<string | null>(null);
   const [openHistory, setOpenHistory] = useState<Record<string, boolean>>({});
   const [historyMap, setHistoryMap] = useState<Record<string, HistoryRow[]>>({});
@@ -167,16 +170,26 @@ export default function AdminSelftestFollowupContent() {
     return () => { clearTimeout(tm); clearTimeout(clr); };
   }, [targetRequestId, loading, rows]);
 
+  const dayOptions = useMemo(() => {
+    const m = new Map<string, number>();
+    rows.forEach((r) => {
+      const d = bkkDay(r.result_submitted_at || r.created_at);
+      m.set(d, (m.get(d) || 0) + 1);
+    });
+    return Array.from(m.entries()).sort((a, b) => (a[0] < b[0] ? 1 : -1));
+  }, [rows]);
+
   const filtered = useMemo(() => {
     return rows.filter((r) => {
       const action = r.care_action || "pending";
       if (statusFilter !== "all" && action !== statusFilter) return false;
+      if (dayFilter !== "all" && bkkDay(r.result_submitted_at || r.created_at) !== dayFilter) return false;
       if (!search.trim()) return true;
       const q = search.toLowerCase();
       return (r.pii?.full_name || r.full_name || "").toLowerCase().includes(q)
         || (r.pii?.phone || r.phone || "").includes(q);
     });
-  }, [rows, search, statusFilter]);
+  }, [rows, search, statusFilter, dayFilter]);
 
   const updateRow = async (id: string, patch: Partial<Row>) => {
     setSavingId(id);
@@ -222,6 +235,19 @@ export default function AdminSelftestFollowupContent() {
         </p>
       </div>
 
+      <div className="flex gap-1 p-1 bg-muted/50 rounded-lg w-fit">
+        <Button size="sm" variant={view === "list" ? "default" : "ghost"} className="h-8 text-xs" onClick={() => setView("list")}>
+          {t("รายการเคส", "Cases")}
+        </Button>
+        <Button size="sm" variant={view === "stats" ? "default" : "ghost"} className="h-8 text-xs" onClick={() => setView("stats")}>
+          {t("สรุปสถิติ (โทร/ติดต่อ/ส่งต่อ)", "Stats (calls/contact/referral)")}
+        </Button>
+      </div>
+
+      {view === "stats" ? (
+        <FollowupStatsPanel rows={rows as any} />
+      ) : (
+      <>
       <Tabs value={statusFilter} onValueChange={setStatusFilter}>
         <TabsList className="flex flex-wrap h-auto gap-1 bg-muted/50 p-1">
           {STATUS_TABS.map((s) => (
@@ -246,6 +272,17 @@ export default function AdminSelftestFollowupContent() {
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input className="pl-8 w-64" placeholder={t("ค้นหา ชื่อ/เบอร์","Search name/phone")} value={search} onChange={(e)=>setSearch(e.target.value)} />
               </div>
+              <Select value={dayFilter} onValueChange={setDayFilter}>
+                <SelectTrigger className="w-56 h-10 text-xs">
+                  <SelectValue placeholder={t("ทุกวัน", "All days")} />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  <SelectItem value="all">{t(`ทุกวัน (${rows.length})`, `All days (${rows.length})`)}</SelectItem>
+                  {dayOptions.map(([d, c]) => (
+                    <SelectItem key={d} value={d}>{formatBkkDayLabel(d, language)} ({c})</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Button variant="outline" size="sm" onClick={() => setSmsHistoryOpen(true)} className="gap-1.5">
                 <History className="h-4 w-4" />
                 {t("ประวัติ SMS / CSV", "SMS history / CSV")}
@@ -585,6 +622,9 @@ export default function AdminSelftestFollowupContent() {
           })}
         </CardContent>
       </Card>
+      </>
+      )}
+
 
       <SelftestSmsDialog
         open={smsOpen}
