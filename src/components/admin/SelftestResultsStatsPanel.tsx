@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { toPng } from "html-to-image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ import {
   Legend,
 } from "recharts";
 import { useLanguage } from "@/lib/i18n";
+import { useToast } from "@/hooks/use-toast";
 import { bkkDay, formatBkkDayLabel } from "./FollowupStatsPanel";
 
 export interface ResultStatRow {
@@ -54,11 +56,13 @@ function resultOf(r: ResultStatRow): "negative" | "reactive" | "invalid" | "othe
 
 export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRow[] }) {
   const { language } = useLanguage();
+  const { toast } = useToast();
   const t = (th: string, en: string) => (language === "th" ? th : en);
   const [rangeDays, setRangeDays] = useState("30");
   const [drill, setDrill] = useState<{ type: "day" | "province"; key: string } | null>(null);
   const [chartType, setChartType] = useState<"line" | "bar">("line");
   const [hiddenSeries, setHiddenSeries] = useState<string[]>([]);
+  const chartRef = useRef<HTMLDivElement>(null);
 
   const rangeBounds = useMemo(() => {
     const todayDay = bkkDay(new Date().toISOString());
@@ -171,19 +175,77 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
     if (day) setDrill({ type: "day", key: day });
   };
 
-
   const reactiveRate = totals.total > 0 ? Math.round((totals.reactive / totals.total) * 100) : 0;
   const photoRate = totals.total > 0 ? Math.round((totals.withPhoto / totals.total) * 100) : 0;
   const followRate = totals.total > 0 ? Math.round((totals.followedUp / totals.total) * 100) : 0;
 
-  const downloadCsv = (csvBody: string, name: string) => {
-    const csv = "\uFEFF" + csvBody;
-    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
+  const downloadBlob = (body: BlobPart, name: string, type: string) => {
+    const url = URL.createObjectURL(new Blob([body], { type }));
     const a = document.createElement("a");
     a.href = url;
     a.download = name;
     a.click();
-    URL.revokeObjectURL(url);
+    window.setTimeout(() => URL.revokeObjectURL(url), 100);
+  };
+
+  const downloadDataUrl = (dataUrl: string, name: string) => {
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = name;
+    a.click();
+  };
+
+  const chartFileStem = `selftest-results-trend-${chartType}-${rangeBounds.from}-to-${rangeBounds.to}`;
+
+  const exportChartSvg = () => {
+    const svg = chartRef.current?.querySelector("svg");
+    if (!svg) {
+      toast({ variant: "destructive", title: t("ยังไม่มีกราฟให้ดาวน์โหลด", "There is no chart to download") });
+      return;
+    }
+
+    const clone = svg.cloneNode(true) as SVGSVGElement;
+    clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    if (!clone.getAttribute("width") || !clone.getAttribute("height")) {
+      const { width, height } = svg.getBoundingClientRect();
+      clone.setAttribute("width", `${Math.ceil(width)}`);
+      clone.setAttribute("height", `${Math.ceil(height)}`);
+    }
+    const source = new XMLSerializer().serializeToString(clone);
+    downloadBlob(source, `${chartFileStem}.svg`, "image/svg+xml;charset=utf-8");
+    toast({ title: t("ดาวน์โหลดกราฟแล้ว", "Chart downloaded"), description: "SVG" });
+  };
+
+  const exportChartPng = async () => {
+    if (!chartRef.current) {
+      toast({ variant: "destructive", title: t("ยังไม่มีกราฟให้ดาวน์โหลด", "There is no chart to download") });
+      return;
+    }
+
+    try {
+      const dataUrl = await toPng(chartRef.current, { pixelRatio: 2, cacheBust: true });
+      downloadDataUrl(dataUrl, `${chartFileStem}.png`);
+      toast({ title: t("ดาวน์โหลดกราฟแล้ว", "Chart downloaded"), description: "PNG" });
+    } catch (error) {
+      console.error("Trend chart PNG export failed", error);
+      toast({
+        variant: "destructive",
+        title: t("ดาวน์โหลดกราฟไม่สำเร็จ", "Could not download the chart"),
+        description: t("กรุณาลองใหม่อีกครั้ง", "Please try again"),
+      });
+    }
+  };
+
+  const exportCsv = () => {
+    const header = ["date", "total", "negative", "reactive", "invalid", "with_photo", "followed_up"];
+    const lines = daily.map((d) =>
+      [d.day, d.total, d.negative, d.reactive, d.invalid, d.withPhoto, d.followedUp].join(",")
+    );
+    downloadBlob(
+      "\uFEFF" + [header.join(","), ...lines].join("\n"),
+      `selftest-results-daily-stats-${rangeBounds.from}-to-${rangeBounds.to}.csv`,
+      "text/csv;charset=utf-8;",
+    );
   };
 
   const esc = (v: unknown) => {
@@ -191,19 +253,6 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
 
-  // Daily summary CSV — scoped to the selected date range and the active list filters
-  const exportCsv = () => {
-    const header = ["date", "total", "negative", "reactive", "invalid", "with_photo", "followed_up"];
-    const lines = daily.map((d) =>
-      [d.day, d.total, d.negative, d.reactive, d.invalid, d.withPhoto, d.followedUp].join(",")
-    );
-    downloadCsv(
-      [header.join(","), ...lines].join("\n"),
-      `selftest-results-daily-stats-${rangeBounds.from}-to-${rangeBounds.to}.csv`,
-    );
-  };
-
-  // Case-level CSV — same scope: date range + active filters
   const exportCasesCsv = () => {
     const header = ["id", "date", "result", "province", "name", "phone", "tracking", "has_photo", "followed_up"];
     const lines = rangeRows
@@ -226,12 +275,12 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
           .map(esc)
           .join(","),
       );
-    downloadCsv(
-      [header.join(","), ...lines].join("\n"),
+    downloadBlob(
+      "\uFEFF" + [header.join(","), ...lines].join("\n"),
       `selftest-results-cases-${rangeBounds.from}-to-${rangeBounds.to}.csv`,
+      "text/csv;charset=utf-8;",
     );
   };
-
 
   const kpis = [
     { icon: FlaskConical, label: t("ผลที่ส่งทั้งหมด", "Total results"), value: totals.total, tone: "text-primary" },
@@ -295,12 +344,13 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
               {t("คลิกที่จุด/แท่งเพื่อดูรายชื่อเคสของวันนั้น", "Click a point or bar to see that day's cases")}
             </div>
           </div>
-          <div className="flex gap-1">
+          <div className="flex flex-wrap gap-1">
             <Button
               variant={chartType === "line" ? "default" : "outline"}
               size="sm"
               onClick={() => setChartType("line")}
               className="gap-1.5"
+              aria-label={t("แสดงกราฟเส้น", "Show line chart")}
             >
               <LineChartIcon className="h-4 w-4" />
               {t("เส้น", "Line")}
@@ -310,9 +360,30 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
               size="sm"
               onClick={() => setChartType("bar")}
               className="gap-1.5"
+              aria-label={t("แสดงกราฟแท่ง", "Show bar chart")}
             >
               <BarChart3 className="h-4 w-4" />
               {t("แท่ง", "Bar")}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={exportChartPng}
+              className="gap-1.5"
+              aria-label={t("ดาวน์โหลดกราฟเป็น PNG", "Download chart as PNG")}
+            >
+              <Download className="h-4 w-4" />
+              PNG
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={exportChartSvg}
+              className="gap-1.5"
+              aria-label={t("ดาวน์โหลดกราฟเป็น SVG", "Download chart as SVG")}
+            >
+              <Download className="h-4 w-4" />
+              SVG
             </Button>
           </div>
         </CardHeader>
@@ -336,7 +407,7 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
           {chartData.length === 0 ? (
             <div className="py-10 text-center text-sm text-muted-foreground">{t("ไม่มีข้อมูล", "No data")}</div>
           ) : (
-            <div className="h-64 w-full">
+            <div ref={chartRef} className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
                 {chartType === "line" ? (
                   <LineChart data={chartData} onClick={onPointClick} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
@@ -404,7 +475,6 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
           )}
         </CardContent>
       </Card>
-
 
       <Card>
         <CardHeader className="pb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
