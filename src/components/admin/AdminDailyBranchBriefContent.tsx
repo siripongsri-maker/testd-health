@@ -17,6 +17,8 @@ import { useAdminRole } from "@/hooks/useAdminRole";
 import { toast } from "@/hooks/use-toast";
 import { exportToCsv, type CsvColumn } from "@/lib/adminCsvExport";
 import { format } from "date-fns";
+import { fetchUrgentCaseMap, fetchSurveyAppointmentMap } from "@/lib/urgentCases";
+
 
 interface BriefCase {
   case_id: string | null;
@@ -78,6 +80,8 @@ export default function AdminDailyBranchBriefContent() {
   const [loading, setLoading] = useState(true);
   const [live, setLive] = useState<"connecting" | "live" | "offline">("connecting");
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [urgentSurveyIds, setUrgentSurveyIds] = useState<Set<string>>(new Set());
+
 
   const branchName = useCallback(
     (id: string | null) => {
@@ -116,6 +120,27 @@ export default function AdminDailyBranchBriefContent() {
   }, []);
 
   useEffect(() => { load(); }, [load]);
+
+  // Match urgent cases flagged on the appointments page (shared source: hr_referrals)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (rows.length === 0) { setUrgentSurveyIds(new Set()); return; }
+      const [urgentMap, surveyMap] = await Promise.all([
+        fetchUrgentCaseMap(),
+        fetchSurveyAppointmentMap(rows.map((r) => r.survey_id)),
+      ]);
+      if (cancelled) return;
+      const flagged = new Set<string>();
+      rows.forEach((r) => {
+        const apptId = surveyMap.get(r.survey_id);
+        if (apptId && urgentMap.has(apptId)) flagged.add(r.survey_id);
+      });
+      setUrgentSurveyIds(flagged);
+    })();
+    return () => { cancelled = true; };
+  }, [rows]);
+
 
   // Realtime: reflect status changes made in Counselor Support and vice versa
   useEffect(() => {
@@ -183,10 +208,12 @@ export default function AdminDailyBranchBriefContent() {
       high: rows.filter((r) => r.risk_level === "high").length,
       medium: rows.filter((r) => r.risk_level === "medium").length,
       breached,
+      urgent: rows.filter((r) => urgentSurveyIds.has(r.survey_id)).length,
       topBranch: top ? `${branchName(top[0] === "unknown" ? null : top[0])} (${top[1].length})` : "—",
       topics: Array.from(byTopic.entries()).sort((a, b) => b[1] - a[1]),
     };
-  }, [rows, grouped, branchName]);
+  }, [rows, grouped, branchName, urgentSurveyIds]);
+
 
   const exportCsv = () => {
     const cols: CsvColumn<BriefCase>[] = [
@@ -205,6 +232,8 @@ export default function AdminDailyBranchBriefContent() {
       { key: "prep_note", header: "สิ่งที่ควรเตรียม" },
       { key: "status", header: "สถานะ", format: (r) => STATUS_OPTIONS.find((s) => s.value === r.status)?.th || r.status },
       { key: "sla", header: "เกิน SLA", format: (r) => (r.sla_breached ? `เกิน (${r.hours_open} ชม. / ${r.sla_hours} ชม.)` : "ปกติ") },
+      { key: "urgent", header: "เคสเร่งด่วน", format: (r) => (urgentSurveyIds.has(r.survey_id) ? "เร่งด่วน" : "—") },
+
     ];
     exportToCsv(
       rows, cols, "daily_branch_brief", { from: day, to: day },
@@ -252,13 +281,15 @@ export default function AdminDailyBranchBriefContent() {
       </Card>
 
       {/* Summary header */}
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-5 print-block">
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-6 print-block">
         {[
           { label: tx("เคสที่ต้องช่วยวันนี้", "Cases needing support"), value: summary.total, icon: AlertTriangle },
+          { label: tx("เคสเร่งด่วน (จากนัดหมาย)", "Urgent (from appointments)"), value: summary.urgent, icon: AlertTriangle },
           { label: tx("ความเสี่ยงวิกฤต", "Critical"), value: summary.critical, icon: AlertTriangle },
           { label: tx("ความเสี่ยงสูง", "High"), value: summary.high, icon: AlertTriangle },
           { label: tx("เกิน SLA", "SLA breached"), value: summary.breached, icon: Clock },
         ].map((k) => (
+
           <Card key={k.label} className="p-4">
             <p className="text-xs text-muted-foreground">{k.label}</p>
             <p className="text-2xl font-bold">{k.value}</p>
@@ -301,13 +332,30 @@ export default function AdminDailyBranchBriefContent() {
                 const n = cases.filter((c) => c.risk_level === r).length;
                 return n ? <Badge key={r} className={RISK_STYLE[r]}>{r} {n}</Badge> : null;
               })}
+              {cases.filter((c) => urgentSurveyIds.has(c.survey_id)).length > 0 && (
+                <Badge className="bg-rose-600 text-white">
+                  {tx("เร่งด่วน", "Urgent")} {cases.filter((c) => urgentSurveyIds.has(c.survey_id)).length}
+                </Badge>
+              )}
             </div>
 
             <div className="space-y-3">
-              {cases.map((c) => (
-                <div key={c.survey_id} className="rounded-lg border p-3 space-y-2">
+              {[...cases]
+                .sort((a, b) => Number(urgentSurveyIds.has(b.survey_id)) - Number(urgentSurveyIds.has(a.survey_id)))
+                .map((c) => (
+
+                <div
+                  key={c.survey_id}
+                  className={`rounded-lg border p-3 space-y-2 ${urgentSurveyIds.has(c.survey_id) ? "border-rose-400 bg-rose-50/40 dark:bg-rose-950/20" : ""}`}
+                >
                   <div className="flex flex-wrap items-center gap-2 text-xs">
                     <span className="font-mono font-medium">{c.case_code}</span>
+                    {urgentSurveyIds.has(c.survey_id) && (
+                      <Badge className="bg-rose-600 text-white gap-1">
+                        <AlertTriangle className="h-3 w-3" />{tx("เคสเร่งด่วน", "Urgent case")}
+                      </Badge>
+                    )}
+
                     <Badge className={RISK_STYLE[c.risk_level]}>{c.risk_level}</Badge>
                     <Badge variant="outline">
                       {c.visit_type === "repeat" ? tx("เคยรับบริการ", "Repeat") : tx("ครั้งแรก", "First visit")}

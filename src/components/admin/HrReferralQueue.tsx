@@ -52,6 +52,9 @@ export default function HrReferralQueue({ tx, readOnly = false }: Props) {
   const [openId, setOpenId] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [branches, setBranches] = useState<Record<string, string>>({});
+  const [branchFilter, setBranchFilter] = useState<string>("all");
+
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -70,6 +73,12 @@ export default function HrReferralQueue({ tx, readOnly = false }: Props) {
   }, []);
 
   useEffect(() => {
+    supabase.from("booking_branches").select("id, name_th").then(({ data }) => {
+      setBranches(Object.fromEntries(((data as any[]) || []).map((b) => [b.id, b.name_th])));
+    });
+  }, []);
+
+  useEffect(() => {
     load();
     const channel = supabase
       .channel("hr-referral-queue")
@@ -79,6 +88,7 @@ export default function HrReferralQueue({ tx, readOnly = false }: Props) {
       supabase.removeChannel(channel);
     };
   }, [load]);
+
 
   const update = async (row: Referral, patch: Partial<Referral>) => {
     setSavingId(row.id);
@@ -104,11 +114,17 @@ export default function HrReferralQueue({ tx, readOnly = false }: Props) {
   const isNew = (r: Referral) => !r.status || r.status === "requested" || r.status === "pending";
   const pending = rows.filter(isNew).length;
   const fromAppointment = (r: Referral) => /\[APPT:[0-9a-f-]+\]/i.test(r.notes || "");
-  const sorted = [...rows].sort((a, b) => {
-    const score = (r: Referral) => (isNew(r) ? 0 : 2) + (r.priority === "urgent" ? -1 : 0);
+  const isUrgent = (r: Referral) => r.priority === "urgent" || r.risk_level === "high";
+  const branchLabel = (id: string | null) =>
+    (id && branches[id]) || tx("ไม่ระบุสาขา", "Unknown branch");
+
+  const branchKeys = Array.from(new Set(rows.map((r) => r.branch_id || "unknown")));
+  const visible = rows.filter((r) => branchFilter === "all" || (r.branch_id || "unknown") === branchFilter);
+  const sorted = [...visible].sort((a, b) => {
+    const score = (r: Referral) => (isNew(r) ? 0 : 2) + (isUrgent(r) ? -1 : 0);
     return score(a) - score(b) || (a.created_at < b.created_at ? 1 : -1);
   });
-
+  const urgentCount = visible.filter(isUrgent).length;
 
   return (
     <Card className="p-4 space-y-3 border-teal-200 bg-teal-50/20 dark:bg-teal-950/10">
@@ -120,28 +136,68 @@ export default function HrReferralQueue({ tx, readOnly = false }: Props) {
         <Badge variant="outline" className="text-[10px]">
           {tx("รอรับเรื่อง", "New")}: {pending}
         </Badge>
+        {urgentCount > 0 && (
+          <Badge className="text-[10px] bg-rose-600 text-white hover:bg-rose-600">
+            {tx("เคสเร่งด่วน", "Urgent")}: {urgentCount}
+          </Badge>
+        )}
         <Button size="sm" variant="outline" className="ml-auto h-8" onClick={load} disabled={loading}>
           <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${loading ? "animate-spin" : ""}`} />
           {tx("รีเฟรช", "Refresh")}
         </Button>
       </div>
 
+      {/* Branch split */}
+      {branchKeys.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5 border-t pt-2">
+          <Button
+            size="sm"
+            variant={branchFilter === "all" ? "default" : "outline"}
+            className="h-7 text-[11px]"
+            onClick={() => setBranchFilter("all")}
+          >
+            {tx("ทุกสาขา", "All branches")} ({rows.length})
+          </Button>
+          {branchKeys.map((key) => {
+            const inBranch = rows.filter((r) => (r.branch_id || "unknown") === key);
+            const urg = inBranch.filter(isUrgent).length;
+            return (
+              <Button
+                key={key}
+                size="sm"
+                variant={branchFilter === key ? "default" : "outline"}
+                className="h-7 text-[11px]"
+                onClick={() => setBranchFilter(key)}
+              >
+                {branchLabel(key === "unknown" ? null : key)} ({inBranch.length})
+                {urg > 0 && <span className="ml-1 text-rose-500 font-bold">•{urg}</span>}
+              </Button>
+            );
+          })}
+        </div>
+      )}
+
       {loading && rows.length === 0 ? (
         <div className="text-xs text-muted-foreground flex items-center gap-2 py-4">
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
           {tx("กำลังโหลด…", "Loading…")}
         </div>
-      ) : rows.length === 0 ? (
+      ) : sorted.length === 0 ? (
         <div className="text-xs text-muted-foreground flex items-center gap-2 py-4">
           <Inbox className="h-3.5 w-3.5" />
-          {tx("ยังไม่มีคำขอปรึกษาจากโซน Harm Reduction", "No harm reduction support requests yet")}
+          {tx("ยังไม่มีคำขอปรึกษาในสาขานี้", "No support requests for this branch yet")}
         </div>
       ) : (
         <div className="space-y-2">
           {sorted.map((r) => {
             const open = openId === r.id;
             return (
-              <div key={r.id} className="rounded-md border bg-background">
+
+              <div
+                key={r.id}
+                className={`rounded-md border bg-background ${isUrgent(r) ? "border-rose-400 ring-1 ring-rose-300/60" : ""}`}
+              >
+
                 <button
                   type="button"
                   className="w-full text-left p-3 flex items-center gap-3 hover:bg-muted/40 transition-colors"
@@ -166,6 +222,9 @@ export default function HrReferralQueue({ tx, readOnly = false }: Props) {
                           {tx("เคสเร่งด่วนจากนัดหมาย", "Urgent from appointment")}
                         </Badge>
                       )}
+                      <Badge variant="secondary" className="text-[10px]">
+                        {branchLabel(r.branch_id)}
+                      </Badge>
 
                       {!r.user_id && (
                         <Badge variant="outline" className="text-[10px] text-muted-foreground">

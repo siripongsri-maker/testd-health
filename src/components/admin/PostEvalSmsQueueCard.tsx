@@ -83,8 +83,10 @@ export default function PostEvalSmsQueueCard() {
         </div>
       </div>
       <p className="text-[11px] text-muted-foreground">
-        ระบบจะเข้าคิวส่งลิงก์ประเมินอัตโนมัติ 30 นาทีหลังผู้รับบริการเช็คเอาต์ (เก็บเฉพาะเลขท้าย 4 ตัว)
+        ระบบจะ<strong>เตรียมคิว</strong>ลิงก์ประเมินไว้หลังผู้รับบริการเช็คเอาต์ แต่<strong>จะไม่ส่ง SMS อัตโนมัติ</strong> —
+        เจ้าหน้าที่ต้องกด “ส่งคิวตอนนี้” เอง (เก็บเฉพาะเลขท้าย 4 ตัว)
       </p>
+
       {loading ? (
         <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
       ) : rows.length === 0 ? (

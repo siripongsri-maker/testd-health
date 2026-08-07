@@ -8,6 +8,8 @@ import { Loader2, Download, Banknote, Check, X, Eye, RefreshCw, AlertTriangle, L
 import { toast } from "@/hooks/use-toast";
 import PostEvalSmsQueueCard from "./PostEvalSmsQueueCard";
 import ClientNotificationsCard from "./ClientNotificationsCard";
+import { fetchUrgentCaseMap, type UrgentCaseRef } from "@/lib/urgentCases";
+
 
 type ClaimStatus = "pending" | "approved" | "paid" | "rejected";
 
@@ -79,6 +81,9 @@ export default function AdminCounselingPayoutsContent() {
   const [to, setTo] = useState("");
   const [verifiedOnly, setVerifiedOnly] = useState(true);
   const [attended, setAttended] = useState<Record<string, boolean>>({});
+  const [urgentMap, setUrgentMap] = useState<Map<string, UrgentCaseRef>>(new Map());
+  const [urgentOnly, setUrgentOnly] = useState(false);
+
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -115,12 +120,20 @@ export default function AdminCounselingPayoutsContent() {
     } else {
       setAttended({});
     }
+
+    // Match urgent cases flagged on the appointments page (shared source: hr_referrals)
+    setUrgentMap(await fetchUrgentCaseMap());
     setLoading(false);
   }, []);
 
   const isRealClient = useCallback(
     (c: Claim) => !!c.appointment_id && attended[c.appointment_id] === true,
     [attended],
+  );
+
+  const isUrgentClaim = useCallback(
+    (c: Claim) => !!c.appointment_id && urgentMap.has(c.appointment_id),
+    [urgentMap],
   );
 
   useEffect(() => { load(); }, [load]);
@@ -136,12 +149,14 @@ export default function AdminCounselingPayoutsContent() {
 
   const filtered = useMemo(() => claims.filter((c) => {
     if (verifiedOnly && !isRealClient(c)) return false;
+    if (urgentOnly && !isUrgentClaim(c)) return false;
     if (filter !== "all" && c.status !== filter) return false;
     const d = c.created_at.slice(0, 10);
     if (from && d < from) return false;
     if (to && d > to) return false;
     return true;
-  }), [claims, filter, from, to, verifiedOnly, isRealClient]);
+  }), [claims, filter, from, to, verifiedOnly, urgentOnly, isRealClient, isUrgentClaim]);
+
 
   const hiddenCount = useMemo(
     () => (verifiedOnly ? claims.filter((c) => !isRealClient(c)).length : 0),
@@ -184,7 +199,7 @@ export default function AdminCounselingPayoutsContent() {
   };
 
   const exportCsv = () => {
-    const header = ["วันที่ขอ", "สาขา", "ชื่อบัญชี", "ธนาคาร", "เลขบัญชี", "จำนวนเงิน", "สถานะ", "อ้างอิงการจ่าย", "เบอร์ (4 ตัวท้าย)", "ยืนยันผู้รับบริการ"];
+    const header = ["วันที่ขอ", "สาขา", "ชื่อบัญชี", "ธนาคาร", "เลขบัญชี", "จำนวนเงิน", "สถานะ", "อ้างอิงการจ่าย", "เบอร์ (4 ตัวท้าย)", "ยืนยันผู้รับบริการ", "เคสเร่งด่วน"];
     const lines = filtered.map((c) => [
       new Date(c.created_at).toLocaleDateString("th-TH"),
       branches[c.branch_id ?? ""] ?? "-",
@@ -196,7 +211,9 @@ export default function AdminCounselingPayoutsContent() {
       c.payment_ref ?? "",
       c.phone_last4 ?? "",
       isRealClient(c) ? "ยืนยันแล้ว" : "ยังไม่ยืนยัน",
+      isUrgentClaim(c) ? "เร่งด่วน" : "—",
     ]);
+
 
     const csv = "\uFEFF" + [header, ...lines].map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
     const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
@@ -355,6 +372,13 @@ export default function AdminCounselingPayoutsContent() {
             onClick={() => setVerifiedOnly((v) => !v)}>
             {verifiedOnly ? "แสดงเฉพาะผู้รับบริการจริง" : "แสดงทุกรายการ (รวมที่ยังไม่ยืนยัน)"}
           </Button>
+          <Button size="sm" variant={urgentOnly ? "default" : "outline"}
+            className={`h-7 text-xs ${urgentOnly ? "bg-rose-600 hover:bg-rose-700" : "border-rose-300 text-rose-600"}`}
+            onClick={() => setUrgentOnly((v) => !v)}>
+            <AlertTriangle className="h-3 w-3 mr-1" />
+            เฉพาะเคสเร่งด่วน ({claims.filter(isUrgentClaim).length})
+          </Button>
+
           <span className="text-[11px] text-muted-foreground">
             ยืนยันจากการจองที่เช็คอิน/เช็คเอาท์จริงเท่านั้น
             {verifiedOnly && hiddenCount > 0 && ` • ซ่อนอยู่ ${hiddenCount} รายการที่ยังไม่ยืนยัน`}
@@ -370,10 +394,16 @@ export default function AdminCounselingPayoutsContent() {
       ) : (
         <div className="space-y-2">
           {filtered.map((c) => (
-            <Card key={c.id} className="p-3 space-y-2">
+            <Card key={c.id} className={`p-3 space-y-2 ${isUrgentClaim(c) ? "border-rose-400 ring-1 ring-rose-300/60" : ""}`}>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-semibold text-sm">{c.account_holder_name}</span>
                 <Badge className={`text-[10px] ${STATUS_CLASS[c.status]}`}>{STATUS_LABEL[c.status]}</Badge>
+                {isUrgentClaim(c) && (
+                  <Badge className="text-[10px] bg-rose-600 text-white hover:bg-rose-600 flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" />เคสเร่งด่วน
+                  </Badge>
+                )}
+
                 {c.duplicate_flag && (
                   <Badge variant="outline" className="text-[10px] border-rose-300 text-rose-600 flex items-center gap-1">
                     <AlertTriangle className="h-3 w-3" />
