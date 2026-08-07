@@ -155,20 +155,8 @@ export function ShippingStep({ formData, onFormChange, onNext, onBack }: Shippin
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="address" className="whitespace-pre-line">
-            <MapPin className="h-4 w-4 inline mr-1" />
-            {language === 'th' ? 'ที่อยู่จัดส่ง *\n(โครงการขอสงวนสิทธิ์ในการไม่จัดส่งหากที่อยู่ไม่ครบ)' : 'Shipping Address *'}
-          </Label>
-          <Textarea
-            id="address"
-            value={formData.address}
-            onChange={(e) => onFormChange({ ...formData, address: e.target.value })}
-            placeholder={language === 'th' ? 'บ้านเลขที่ ซอย ถนน หมู่บ้าน' : 'House number, street, village'}
-            className="min-h-[60px]"
-            required
-          />
-        </div>
+        <AddressDetailFields data={formData} onChange={onFormChange} />
+
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
