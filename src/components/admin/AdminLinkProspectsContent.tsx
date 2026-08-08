@@ -31,6 +31,7 @@ import {
   Mail,
 } from "lucide-react";
 import OutreachEmailDialog from "./OutreachEmailDialog";
+import ProspectEmailDraft from "./ProspectEmailDraft";
 import OutreachFollowupPanel from "./OutreachFollowupPanel";
 
 interface ProspectRow {
@@ -311,6 +312,7 @@ export default function AdminLinkProspectsContent() {
                     {row.rationale}
                   </p>
                 )}
+                <ProspectEmailDraft prospectId={row.id} domain={row.domain} />
                 <div>
                   <label
                     htmlFor={`notes-${row.id}`}
