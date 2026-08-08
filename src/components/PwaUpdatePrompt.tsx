@@ -39,9 +39,7 @@ export function PwaUpdatePrompt() {
 
   const refresh = () => {
     dismiss();
-    const url = new URL(window.location.href);
-    url.searchParams.set("_icons", PWA_ICON_VERSION);
-    window.location.replace(url.toString());
+    window.location.reload();
   };
 
   if (!visible) return null;

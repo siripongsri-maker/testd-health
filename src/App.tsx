@@ -133,6 +133,7 @@ function AppShell() {
   return (
     <>
       <VersionAnnouncementBanner />
+      <PwaUpdatePrompt />
       <AnalyticsProvider>
         <Suspense fallback={<PageLoader />}>
           <AppLayout>
