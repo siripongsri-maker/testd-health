@@ -33,6 +33,7 @@ import {
 import OutreachEmailDialog from "./OutreachEmailDialog";
 import ProspectEmailDraft from "./ProspectEmailDraft";
 import ProspectFollowupScheduler from "./ProspectFollowupScheduler";
+import ProspectMessageLog from "./ProspectMessageLog";
 import OutreachFollowupPanel from "./OutreachFollowupPanel";
 
 interface ProspectRow {
@@ -315,6 +316,7 @@ export default function AdminLinkProspectsContent() {
                 )}
                 <ProspectEmailDraft prospectId={row.id} domain={row.domain} />
                 <ProspectFollowupScheduler domain={row.domain} status={row.status} />
+                <ProspectMessageLog domain={row.domain} />
                 <div>
                   <label
                     htmlFor={`notes-${row.id}`}
