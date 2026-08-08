@@ -11,6 +11,7 @@ import { Loader2, Save, Building2, Phone, Clock, MapPin, Link2, AlertTriangle, L
 import { toast } from "sonner";
 import { format } from "date-fns";
 import AdvanceBookingWindowCard from "./clinic/AdvanceBookingWindowCard";
+import FaviconSettingCard from "./clinic/FaviconSettingCard";
 
 interface ClinicSettings {
   id: string;
