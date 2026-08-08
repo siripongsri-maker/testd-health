@@ -28,7 +28,9 @@ import {
   Plus,
   Trash2,
   Download,
+  Mail,
 } from "lucide-react";
+import OutreachEmailDialog from "./OutreachEmailDialog";
 
 interface ProspectRow {
   id: string;
@@ -67,6 +69,7 @@ export default function AdminLinkProspectsContent() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [addOpen, setAddOpen] = useState(false);
+  const [emailOpen, setEmailOpen] = useState(false);
   const [newDomain, setNewDomain] = useState("");
   const [newAuthority, setNewAuthority] = useState("");
   const [newRationale, setNewRationale] = useState("");
@@ -194,6 +197,15 @@ export default function AdminLinkProspectsContent() {
           <Button variant="outline" size="sm" onClick={exportCsv} disabled={!filtered.length}>
             <Download className="h-4 w-4 mr-1.5" />
             CSV
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setEmailOpen(true)}
+            disabled={!rows.length}
+          >
+            <Mail className="h-4 w-4 mr-1.5" />
+            ร่างอีเมล 5 อันดับแรก
           </Button>
           <Button size="sm" onClick={() => setAddOpen(true)}>
             <Plus className="h-4 w-4 mr-1.5" />
@@ -351,6 +363,17 @@ export default function AdminLinkProspectsContent() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <OutreachEmailDialog
+        open={emailOpen}
+        onOpenChange={setEmailOpen}
+        prospects={rows.map((r) => ({
+          id: r.id,
+          domain: r.domain,
+          authority_score: r.authority_score,
+          contact_url: r.contact_url,
+        }))}
+      />
     </div>
   );
 }
