@@ -9120,6 +9120,51 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_backlink_snapshots: {
+        Row: {
+          authority_score: number | null
+          captured_on: string
+          created_at: string
+          follow_links: number
+          id: string
+          lost_domains: number
+          new_domains: number
+          nofollow_links: number
+          notes: string | null
+          referring_domains: number
+          source: string
+          total_backlinks: number
+        }
+        Insert: {
+          authority_score?: number | null
+          captured_on: string
+          created_at?: string
+          follow_links?: number
+          id?: string
+          lost_domains?: number
+          new_domains?: number
+          nofollow_links?: number
+          notes?: string | null
+          referring_domains?: number
+          source?: string
+          total_backlinks?: number
+        }
+        Update: {
+          authority_score?: number | null
+          captured_on?: string
+          created_at?: string
+          follow_links?: number
+          id?: string
+          lost_domains?: number
+          new_domains?: number
+          nofollow_links?: number
+          notes?: string | null
+          referring_domains?: number
+          source?: string
+          total_backlinks?: number
+        }
+        Relationships: []
+      }
       seo_disavow_candidates: {
         Row: {
           anchor_sample: string | null
@@ -9260,6 +9305,57 @@ export type Database = {
           status?: string
           updated_at?: string
           updated_by?: string | null
+        }
+        Relationships: []
+      }
+      seo_referring_domains: {
+        Row: {
+          authority_score: number | null
+          backlinks: number
+          created_at: string
+          domain: string
+          first_seen: string
+          id: string
+          is_follow: boolean
+          last_seen: string
+          lost_on: string | null
+          status: string
+          target_url: string | null
+          top_anchor: string | null
+          topic: string
+          updated_at: string
+        }
+        Insert: {
+          authority_score?: number | null
+          backlinks?: number
+          created_at?: string
+          domain: string
+          first_seen?: string
+          id?: string
+          is_follow?: boolean
+          last_seen?: string
+          lost_on?: string | null
+          status?: string
+          target_url?: string | null
+          top_anchor?: string | null
+          topic?: string
+          updated_at?: string
+        }
+        Update: {
+          authority_score?: number | null
+          backlinks?: number
+          created_at?: string
+          domain?: string
+          first_seen?: string
+          id?: string
+          is_follow?: boolean
+          last_seen?: string
+          lost_on?: string | null
+          status?: string
+          target_url?: string | null
+          top_anchor?: string | null
+          topic?: string
+          updated_at?: string
         }
         Relationships: []
       }

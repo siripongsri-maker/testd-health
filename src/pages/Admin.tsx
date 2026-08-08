@@ -16,6 +16,7 @@ const AdminSeoArticlesContent = lazy(() => import("@/components/admin/AdminSeoAr
 import { AdminSeoHealthContent } from "@/components/admin/AdminSeoHealthContent";
 import { AdminJsonLdCheckContent } from "@/components/admin/AdminJsonLdCheckContent";
 const AdminLinkProspectsContent = lazy(() => import("@/components/admin/AdminLinkProspectsContent"));
+const AdminBacklinkMonitorContent = lazy(() => import("@/components/admin/AdminBacklinkMonitorContent"));
 const AdminDisavowWorkflowContent = lazy(() => import("@/components/admin/AdminDisavowWorkflowContent"));
 const AdminNotificationsContent = lazy(() => import("@/components/admin/AdminNotificationsContent"));
 const AdminUsersContent = lazy(() => import("@/components/admin/AdminUsersContent").then(m => ({ default: m.AdminUsersContent })));
@@ -235,6 +236,7 @@ export default function Admin() {
           {renderTab("seo-health", <AdminSeoHealthContent />)}
           {renderTab("jsonld-check", <AdminJsonLdCheckContent />)}
           {renderTab("link-prospects", <AdminLinkProspectsContent />)}
+          {renderTab("backlinks", <AdminBacklinkMonitorContent />)}
           {renderTab("disavow", <AdminDisavowWorkflowContent />)}
           {renderTab("surveys", <AdminSurveysContent />)}
           {renderTab("rewards", <AdminRewardsContent />)}
