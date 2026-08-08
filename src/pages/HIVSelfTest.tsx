@@ -1641,6 +1641,7 @@ export default function HIVSelfTest() {
               <Button
                 variant="destructive"
                 size="sm"
+                aria-label={language === 'th' ? 'ลบรูปภาพ' : 'Remove photo'}
                 className="absolute top-2 right-2"
                 onClick={() => {
                   setResultPhoto(null);
