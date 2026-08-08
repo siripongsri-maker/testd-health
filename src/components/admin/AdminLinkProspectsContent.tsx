@@ -198,6 +198,15 @@ export default function AdminLinkProspectsContent() {
             <Download className="h-4 w-4 mr-1.5" />
             CSV
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setEmailOpen(true)}
+            disabled={!rows.length}
+          >
+            <Mail className="h-4 w-4 mr-1.5" />
+            ร่างอีเมล 5 อันดับแรก
+          </Button>
           <Button size="sm" onClick={() => setAddOpen(true)}>
             <Plus className="h-4 w-4 mr-1.5" />
             เพิ่มโดเมน
