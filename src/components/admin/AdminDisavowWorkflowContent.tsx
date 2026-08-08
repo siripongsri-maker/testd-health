@@ -233,6 +233,10 @@ export default function AdminDisavowWorkflowContent() {
             <RefreshCw className={`h-4 w-4 mr-1.5 ${loading ? "animate-spin" : ""}`} />
             รีเฟรช
           </Button>
+          <Button variant="outline" size="sm" onClick={() => setStep(5)}>
+            <History className="h-4 w-4 mr-1.5" />
+            ประวัติ
+          </Button>
           <Button size="sm" onClick={() => setAddOpen(true)}>
             <Plus className="h-4 w-4 mr-1.5" />
             เพิ่มโดเมน
