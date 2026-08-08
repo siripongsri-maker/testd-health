@@ -9213,6 +9213,54 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_disavow_runs: {
+        Row: {
+          created_at: string
+          domain_count: number
+          entries: Json
+          file_content: string
+          file_name: string
+          generated_at: string
+          generated_by: string | null
+          id: string
+          note: string | null
+          submitted_at: string | null
+          submitted_to_google: boolean
+          updated_at: string
+          url_count: number
+        }
+        Insert: {
+          created_at?: string
+          domain_count?: number
+          entries?: Json
+          file_content: string
+          file_name: string
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          note?: string | null
+          submitted_at?: string | null
+          submitted_to_google?: boolean
+          updated_at?: string
+          url_count?: number
+        }
+        Update: {
+          created_at?: string
+          domain_count?: number
+          entries?: Json
+          file_content?: string
+          file_name?: string
+          generated_at?: string
+          generated_by?: string | null
+          id?: string
+          note?: string | null
+          submitted_at?: string | null
+          submitted_to_google?: boolean
+          updated_at?: string
+          url_count?: number
+        }
+        Relationships: []
+      }
       seo_jsonld_reviews: {
         Row: {
           article_id: string
