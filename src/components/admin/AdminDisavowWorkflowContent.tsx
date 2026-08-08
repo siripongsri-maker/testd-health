@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -87,6 +88,8 @@ export default function AdminDisavowWorkflowContent() {
   const [newUrl, setNewUrl] = useState("");
   const [newAnchor, setNewAnchor] = useState("");
   const [historyKey, setHistoryKey] = useState(0);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkSaving, setBulkSaving] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -154,6 +157,70 @@ export default function AdminDisavowWorkflowContent() {
     }
     setRows((prev) => prev.filter((r) => r.id !== id));
     toast.success(`ลบ ${domain} แล้ว`);
+  };
+
+  const visibleRows = useMemo(
+    () => (step === 1 ? rows : rows.filter((r) => r.decision === "pending")),
+    [rows, step],
+  );
+
+  const selectedRows = useMemo(
+    () => visibleRows.filter((r) => selected.has(r.id)),
+    [visibleRows, selected],
+  );
+
+  const toggleSelect = (id: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  const toggleSelectAll = () =>
+    setSelected((prev) =>
+      selectedRows.length === visibleRows.length && visibleRows.length > 0
+        ? new Set<string>()
+        : new Set(visibleRows.map((r) => r.id)),
+    );
+
+  const bulkApply = async (decision: Decision) => {
+    let targets = selectedRows;
+    if (decision === "disavow_url") targets = targets.filter((r) => r.example_url);
+    if (!targets.length) {
+      toast.error(
+        decision === "disavow_url"
+          ? "โดเมนที่เลือกไม่มี URL ตัวอย่าง"
+          : "ยังไม่ได้เลือกโดเมน",
+      );
+      return;
+    }
+    const skipped = selectedRows.length - targets.length;
+    const ids = targets.map((r) => r.id);
+    setBulkSaving(true);
+    const uid = (await supabase.auth.getUser()).data.user?.id ?? null;
+    const { error } = await supabase
+      .from("seo_disavow_candidates")
+      .update({ decision, reviewed_by: uid, reviewed_at: new Date().toISOString() })
+      .in("id", ids);
+    setBulkSaving(false);
+    if (error) {
+      toast.error("บันทึกไม่สำเร็จ: " + error.message);
+      load();
+      return;
+    }
+    setRows((prev) =>
+      prev.map((r) =>
+        ids.includes(r.id)
+          ? { ...r, decision, reviewed_at: new Date().toISOString() }
+          : r,
+      ),
+    );
+    setSelected(new Set());
+    toast.success(
+      `อัปเดต ${targets.length} โดเมนแล้ว` +
+        (skipped > 0 ? ` (ข้าม ${skipped} รายการที่ไม่มี URL)` : ""),
+    );
   };
 
   const counts = useMemo(() => {
@@ -315,18 +382,84 @@ export default function AdminDisavowWorkflowContent() {
               </CardContent>
             </Card>
           )}
-          {(step === 1 ? rows : rows.filter((r) => r.decision === "pending")).length === 0 ? (
+          {visibleRows.length > 0 && (
+            <Card className="sticky top-2 z-10 backdrop-blur-xl bg-card/85">
+              <CardContent className="py-2.5 flex flex-wrap items-center gap-2">
+                <label className="flex items-center gap-2 text-[13px] font-medium cursor-pointer">
+                  <Checkbox
+                    checked={
+                      selectedRows.length === visibleRows.length && visibleRows.length > 0
+                    }
+                    onCheckedChange={toggleSelectAll}
+                    aria-label="เลือกทั้งหมด"
+                  />
+                  เลือกทั้งหมด
+                </label>
+                <Badge variant="outline" className="text-[11px]">
+                  เลือกแล้ว {selectedRows.length}
+                </Badge>
+                <div className="flex-1" />
+                {bulkSaving && (
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={!selectedRows.length || bulkSaving}
+                  onClick={() => bulkApply("keep")}
+                >
+                  <Check className="h-3.5 w-3.5 mr-1" />
+                  เก็บไว้
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  disabled={!selectedRows.length || bulkSaving}
+                  onClick={() => bulkApply("disavow_domain")}
+                >
+                  <X className="h-3.5 w-3.5 mr-1" />
+                  ปฏิเสธทั้งโดเมน
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={!selectedRows.length || bulkSaving}
+                  onClick={() => bulkApply("disavow_url")}
+                >
+                  ปฏิเสธเฉพาะ URL
+                </Button>
+                {selectedRows.length > 0 && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setSelected(new Set())}
+                    disabled={bulkSaving}
+                  >
+                    ล้างการเลือก
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          )}
+          {visibleRows.length === 0 ? (
             <Card>
               <CardContent className="py-10 text-center text-sm text-muted-foreground">
                 {step === 2 ? "ตรวจครบทุกโดเมนแล้ว 🎉" : "ยังไม่มีโดเมนในรายการ"}
               </CardContent>
             </Card>
           ) : (
-            (step === 1 ? rows : rows.filter((r) => r.decision === "pending")).map((row) => (
-              <Card key={row.id}>
+            visibleRows.map((row) => (
+              <Card key={row.id} className={selected.has(row.id) ? "ring-2 ring-primary/50" : ""}>
                 <CardHeader className="pb-2">
                   <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex gap-2.5">
+                      <Checkbox
+                        className="mt-1"
+                        checked={selected.has(row.id)}
+                        onCheckedChange={() => toggleSelect(row.id)}
+                        aria-label={`เลือก ${row.source_domain}`}
+                      />
+                      <div className="min-w-0">
                       <CardTitle className="text-[15px] flex items-center gap-2">
                         {row.source_domain}
                         <a
@@ -354,6 +487,7 @@ export default function AdminDisavowWorkflowContent() {
                         {savingId === row.id && (
                           <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
                         )}
+                      </div>
                       </div>
                     </div>
                     <Button
