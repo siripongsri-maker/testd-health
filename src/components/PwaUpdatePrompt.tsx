@@ -5,6 +5,7 @@ import { useLanguage } from "@/lib/i18n";
 import { APP_VERSION } from "@/config/appVersion";
 
 const PWA_UPDATE_KEY = "testd-pwa-icon-update-seen-v1";
+const PWA_ICON_SET_NAME = "Square Icons · 2026-08-08";
 const PWA_ICON_VERSION = `${APP_VERSION}:square-icons-2026-08-08`;
 
 function isStandaloneDisplayMode() {
