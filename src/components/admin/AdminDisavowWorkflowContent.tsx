@@ -156,6 +156,70 @@ export default function AdminDisavowWorkflowContent() {
     toast.success(`ลบ ${domain} แล้ว`);
   };
 
+  const visibleRows = useMemo(
+    () => (step === 1 ? rows : rows.filter((r) => r.decision === "pending")),
+    [rows, step],
+  );
+
+  const selectedRows = useMemo(
+    () => visibleRows.filter((r) => selected.has(r.id)),
+    [visibleRows, selected],
+  );
+
+  const toggleSelect = (id: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  const toggleSelectAll = () =>
+    setSelected((prev) =>
+      selectedRows.length === visibleRows.length && visibleRows.length > 0
+        ? new Set<string>()
+        : new Set(visibleRows.map((r) => r.id)),
+    );
+
+  const bulkApply = async (decision: Decision) => {
+    let targets = selectedRows;
+    if (decision === "disavow_url") targets = targets.filter((r) => r.example_url);
+    if (!targets.length) {
+      toast.error(
+        decision === "disavow_url"
+          ? "โดเมนที่เลือกไม่มี URL ตัวอย่าง"
+          : "ยังไม่ได้เลือกโดเมน",
+      );
+      return;
+    }
+    const skipped = selectedRows.length - targets.length;
+    const ids = targets.map((r) => r.id);
+    setBulkSaving(true);
+    const uid = (await supabase.auth.getUser()).data.user?.id ?? null;
+    const { error } = await supabase
+      .from("seo_disavow_candidates")
+      .update({ decision, reviewed_by: uid, reviewed_at: new Date().toISOString() })
+      .in("id", ids);
+    setBulkSaving(false);
+    if (error) {
+      toast.error("บันทึกไม่สำเร็จ: " + error.message);
+      load();
+      return;
+    }
+    setRows((prev) =>
+      prev.map((r) =>
+        ids.includes(r.id)
+          ? { ...r, decision, reviewed_at: new Date().toISOString() }
+          : r,
+      ),
+    );
+    setSelected(new Set());
+    toast.success(
+      `อัปเดต ${targets.length} โดเมนแล้ว` +
+        (skipped > 0 ? ` (ข้าม ${skipped} รายการที่ไม่มี URL)` : ""),
+    );
+  };
+
   const counts = useMemo(() => {
     const c = { pending: 0, keep: 0, disavow_domain: 0, disavow_url: 0 };
     for (const r of rows) c[r.decision] = (c[r.decision] ?? 0) + 1;
