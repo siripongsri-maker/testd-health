@@ -322,8 +322,8 @@ export const SEO_MAP: Record<string, RouteSEO> = {
     ogImage: OG_IMAGES.prevention,
   },
   "/harm-reduction": {
-    titleTh: "Harm Reduction — คู่มือลดอันตรายและความปลอดภัย Chemsex | testD",
-    titleEn: "Harm Reduction — Chemsex Safety & Drug Interaction Guide | testD",
+    titleTh: "Harm Reduction — ความปลอดภัย Chemsex และวิธีลดอันตราย | testD",
+    titleEn: "Harm Reduction — Chemsex Safety & Drug Interaction | testD",
     descTh: "ตรวจสอบความเสี่ยงจากการผสมสาร คลังความรู้ลดอันตราย และเครื่องมือดูแลสุขภาพ",
     descEn: "Check drug combination risks, substance knowledge library, and health tools.",
     routeClass: "public_indexable",
