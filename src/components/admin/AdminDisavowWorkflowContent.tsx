@@ -25,7 +25,9 @@ import {
   Trash2,
   FileWarning,
   ArrowRight,
+  History,
 } from "lucide-react";
+import DisavowRunHistory, { recordDisavowRun, type DisavowRunEntry } from "./DisavowRunHistory";
 
 type Decision = "pending" | "keep" | "disavow_domain" | "disavow_url";
 
