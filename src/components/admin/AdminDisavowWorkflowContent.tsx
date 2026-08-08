@@ -240,6 +240,10 @@ export default function AdminDisavowWorkflowContent() {
             <History className="h-4 w-4 mr-1.5" />
             ประวัติ
           </Button>
+          <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+            <Upload className="h-4 w-4 mr-1.5" />
+            นำเข้า CSV
+          </Button>
           <Button size="sm" onClick={() => setAddOpen(true)}>
             <Plus className="h-4 w-4 mr-1.5" />
             เพิ่มโดเมน
