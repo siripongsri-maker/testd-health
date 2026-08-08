@@ -5,6 +5,7 @@ import { useLanguage } from "@/lib/i18n";
 import { APP_VERSION } from "@/config/appVersion";
 
 const PWA_UPDATE_KEY = "testd-pwa-icon-update-seen-v1";
+const PWA_ICON_SET_NAME = "Square Icons · 2026-08-08";
 const PWA_ICON_VERSION = `${APP_VERSION}:square-icons-2026-08-08`;
 
 function isStandaloneDisplayMode() {
@@ -58,6 +59,11 @@ export function PwaUpdatePrompt() {
           <p className="text-sm font-semibold">
             {language === "th" ? "อัปเดตไอคอน testD แล้ว" : "testD icons have been updated"}
           </p>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] font-medium text-primary">
+            <span>{language === "th" ? `Build ${APP_VERSION}` : `Build ${APP_VERSION}`}</span>
+            <span aria-hidden="true" className="text-muted-foreground">•</span>
+            <span>{language === "th" ? `ชุดไอคอน ${PWA_ICON_SET_NAME}` : `Icon set: ${PWA_ICON_SET_NAME}`}</span>
+          </div>
           <p className="text-xs leading-relaxed text-muted-foreground">
             {language === "th"
               ? standalone
