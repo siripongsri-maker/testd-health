@@ -69,6 +69,7 @@ export default function AdminLinkProspectsContent() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [addOpen, setAddOpen] = useState(false);
+  const [emailOpen, setEmailOpen] = useState(false);
   const [newDomain, setNewDomain] = useState("");
   const [newAuthority, setNewAuthority] = useState("");
   const [newRationale, setNewRationale] = useState("");
