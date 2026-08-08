@@ -21,6 +21,7 @@ import { APP_VERSION } from "@/config/appVersion";
 // Log whether the previous forced reload landed on the expected version.
 consumePendingReload();
 import { VersionAnnouncementBanner } from "@/components/VersionAnnouncementBanner";
+import { PwaUpdatePrompt } from "@/components/PwaUpdatePrompt";
 import { useMedicationReminder } from "@/hooks/useMedicationReminder";
 
 // Lazy load all pages for code-splitting
