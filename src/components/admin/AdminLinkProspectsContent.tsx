@@ -380,6 +380,13 @@ export default function AdminLinkProspectsContent() {
         </DialogContent>
       </Dialog>
 
+      <ProspectCsvImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        existingDomains={rows.map((r) => r.domain)}
+        onImported={load}
+      />
+
       <OutreachEmailDialog
         open={emailOpen}
         onOpenChange={setEmailOpen}
