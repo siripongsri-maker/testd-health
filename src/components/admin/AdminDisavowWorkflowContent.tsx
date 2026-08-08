@@ -25,7 +25,9 @@ import {
   Trash2,
   FileWarning,
   ArrowRight,
+  History,
 } from "lucide-react";
+import DisavowRunHistory, { recordDisavowRun, type DisavowRunEntry } from "./DisavowRunHistory";
 
 type Decision = "pending" | "keep" | "disavow_domain" | "disavow_url";
 
@@ -62,7 +64,9 @@ const STEPS = [
   { n: 2, title: "ตัดสินทีละโดเมน", desc: "เลือก เก็บไว้ / ปฏิเสธทั้งโดเมน / ปฏิเสธเฉพาะ URL" },
   { n: 3, title: "ตรวจไฟล์ก่อนส่ง", desc: "ดูตัวอย่างไฟล์ disavow ที่จะได้" },
   { n: 4, title: "ส่งเข้า Google", desc: "อัปโหลดไฟล์ที่ Google Disavow Tool" },
+  { n: 5, title: "ประวัติการสร้างไฟล์", desc: "ย้อนดูไฟล์เก่า โดเมนที่เลือก และเวลาที่สร้าง" },
 ];
+
 
 function signalTone(signal: string) {
   if (signal === "partner_organization" || signal === "platform_link")
@@ -79,6 +83,7 @@ export default function AdminDisavowWorkflowContent() {
   const [newDomain, setNewDomain] = useState("");
   const [newUrl, setNewUrl] = useState("");
   const [newAnchor, setNewAnchor] = useState("");
+  const [historyKey, setHistoryKey] = useState(0);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -178,16 +183,38 @@ export default function AdminDisavowWorkflowContent() {
 
   const disavowCount = counts.disavow_domain + counts.disavow_url;
 
-  const downloadFile = () => {
+  const runEntries: DisavowRunEntry[] = useMemo(
+    () => [
+      ...rows
+        .filter((r) => r.decision === "disavow_domain")
+        .map((r) => ({ type: "domain" as const, value: r.source_domain, signals: r.spam_signals })),
+      ...rows
+        .filter((r) => r.decision === "disavow_url" && r.example_url)
+        .map((r) => ({ type: "url" as const, value: r.example_url! })),
+    ],
+    [rows],
+  );
+
+  const downloadFile = async () => {
+    const fileName = `disavow-testd-website-${new Date().toISOString().slice(0, 10)}.txt`;
     const blob = new Blob([disavowFile], { type: "text/plain;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `disavow-testd-website-${new Date().toISOString().slice(0, 10)}.txt`;
+    a.download = fileName;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     toast.success("ดาวน์โหลดไฟล์ disavow แล้ว");
+    const ok = await recordDisavowRun({
+      fileContent: disavowFile,
+      fileName,
+      entries: runEntries,
+      domainCount: counts.disavow_domain,
+      urlCount: counts.disavow_url,
+    });
+    if (ok) setHistoryKey((k) => k + 1);
   };
+
 
   return (
     <div className="space-y-4">
@@ -206,6 +233,10 @@ export default function AdminDisavowWorkflowContent() {
             <RefreshCw className={`h-4 w-4 mr-1.5 ${loading ? "animate-spin" : ""}`} />
             รีเฟรช
           </Button>
+          <Button variant="outline" size="sm" onClick={() => setStep(5)}>
+            <History className="h-4 w-4 mr-1.5" />
+            ประวัติ
+          </Button>
           <Button size="sm" onClick={() => setAddOpen(true)}>
             <Plus className="h-4 w-4 mr-1.5" />
             เพิ่มโดเมน
@@ -214,7 +245,7 @@ export default function AdminDisavowWorkflowContent() {
       </div>
 
       {/* Step rail */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-2">
         {STEPS.map((s) => (
           <button
             key={s.n}
@@ -431,6 +462,8 @@ export default function AdminDisavowWorkflowContent() {
             </div>
           </CardContent>
         </Card>
+      ) : step === 5 ? (
+        <DisavowRunHistory refreshKey={historyKey} />
       ) : (
         <Card>
           <CardHeader className="pb-2">
