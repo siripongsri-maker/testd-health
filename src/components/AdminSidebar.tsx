@@ -129,6 +129,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "seo-articles", icon: Sparkles, labelKey: "admin.seoArticles", adminOnly: true },
       { tab: "seo-health", icon: Activity, labelKey: "admin.seoHealth", adminOnly: true },
       { tab: "jsonld-check", icon: Code2, labelKey: "admin.jsonLdCheck", adminOnly: true },
+      { tab: "link-prospects", icon: Link2, labelKey: "admin.linkProspects", adminOnly: true },
       { tab: "surveys", icon: ClipboardList, labelKey: "admin.surveys", adminOnly: true },
       { tab: "youth-survey", icon: ClipboardList, labelKey: "admin.youthSurvey", adminOnly: true, meAnalyst: true },
       { tab: "virtual-stories", icon: Play, labelKey: "admin.virtualStories", adminOnly: true, meAnalyst: true },
