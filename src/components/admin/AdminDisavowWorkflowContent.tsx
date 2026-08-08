@@ -381,18 +381,84 @@ export default function AdminDisavowWorkflowContent() {
               </CardContent>
             </Card>
           )}
-          {(step === 1 ? rows : rows.filter((r) => r.decision === "pending")).length === 0 ? (
+          {visibleRows.length > 0 && (
+            <Card className="sticky top-2 z-10 backdrop-blur-xl bg-card/85">
+              <CardContent className="py-2.5 flex flex-wrap items-center gap-2">
+                <label className="flex items-center gap-2 text-[13px] font-medium cursor-pointer">
+                  <Checkbox
+                    checked={
+                      selectedRows.length === visibleRows.length && visibleRows.length > 0
+                    }
+                    onCheckedChange={toggleSelectAll}
+                    aria-label="เลือกทั้งหมด"
+                  />
+                  เลือกทั้งหมด
+                </label>
+                <Badge variant="outline" className="text-[11px]">
+                  เลือกแล้ว {selectedRows.length}
+                </Badge>
+                <div className="flex-1" />
+                {bulkSaving && (
+                  <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={!selectedRows.length || bulkSaving}
+                  onClick={() => bulkApply("keep")}
+                >
+                  <Check className="h-3.5 w-3.5 mr-1" />
+                  เก็บไว้
+                </Button>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  disabled={!selectedRows.length || bulkSaving}
+                  onClick={() => bulkApply("disavow_domain")}
+                >
+                  <X className="h-3.5 w-3.5 mr-1" />
+                  ปฏิเสธทั้งโดเมน
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={!selectedRows.length || bulkSaving}
+                  onClick={() => bulkApply("disavow_url")}
+                >
+                  ปฏิเสธเฉพาะ URL
+                </Button>
+                {selectedRows.length > 0 && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => setSelected(new Set())}
+                    disabled={bulkSaving}
+                  >
+                    ล้างการเลือก
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          )}
+          {visibleRows.length === 0 ? (
             <Card>
               <CardContent className="py-10 text-center text-sm text-muted-foreground">
                 {step === 2 ? "ตรวจครบทุกโดเมนแล้ว 🎉" : "ยังไม่มีโดเมนในรายการ"}
               </CardContent>
             </Card>
           ) : (
-            (step === 1 ? rows : rows.filter((r) => r.decision === "pending")).map((row) => (
-              <Card key={row.id}>
+            visibleRows.map((row) => (
+              <Card key={row.id} className={selected.has(row.id) ? "ring-2 ring-primary/50" : ""}>
                 <CardHeader className="pb-2">
                   <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex gap-2.5">
+                      <Checkbox
+                        className="mt-1"
+                        checked={selected.has(row.id)}
+                        onCheckedChange={() => toggleSelect(row.id)}
+                        aria-label={`เลือก ${row.source_domain}`}
+                      />
+                      <div className="min-w-0">
                       <CardTitle className="text-[15px] flex items-center gap-2">
                         {row.source_domain}
                         <a
