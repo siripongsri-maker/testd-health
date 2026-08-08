@@ -59,6 +59,10 @@ export async function runRuntimeVersionSelfCheck(): Promise<void> {
 
   if (stored === APP_VERSION) return;
 
+  // Never destroy a usable offline app while the device is disconnected.
+  // The next online boot will perform the version transition safely.
+  if (!navigator.onLine) return;
+
   const previewMode = isPreviewOrDev();
 
   // Unregister every service worker registration for this origin.

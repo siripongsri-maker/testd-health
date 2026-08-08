@@ -19,7 +19,7 @@ export function OfflineBanner() {
       >
         <WifiOff className="h-4 w-4" />
         <AlertDescription className="ml-2 font-medium">
-          You're offline. Some features may be unavailable.
+          ออฟไลน์ชั่วคราว — หน้าที่เปิดอยู่ยังใช้งานได้บางส่วน เมื่อกลับมาออนไลน์จึงจะส่งข้อมูลใหม่ได้
         </AlertDescription>
       </Alert>
     </div>

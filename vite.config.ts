@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { mcpPlugin } from "@lovable.dev/mcp-js/stacks/supabase/vite";
+import { VitePWA } from "vite-plugin-pwa";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -14,6 +15,32 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === "development" && componentTagger(),
     mcpPlugin(),
+    VitePWA({
+      registerType: "autoUpdate",
+      injectRegister: false,
+      devOptions: { enabled: false },
+      workbox: {
+        navigateFallback: "/offline.html",
+        navigateFallbackDenylist: [/^\/~oauth(?:\/|$)/],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        runtimeCaching: [
+          {
+            urlPattern: ({ request, url }) =>
+              request.mode === "navigate" && !url.pathname.startsWith("/~oauth"),
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "testd-pages",
+              networkTimeoutSeconds: 3,
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 24 * 60 * 60,
+              },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
+      },
+    }),
   ].filter(Boolean),
   resolve: {
     alias: {

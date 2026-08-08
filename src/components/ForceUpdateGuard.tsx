@@ -247,6 +247,9 @@ export function ForceUpdateGuard({ children }: { children: React.ReactNode }) {
       void disablePreviewServiceWorkersAndCaches();
       return;
     }
+    // Preserve the current offline cache; retry this one-time reset on a later
+    // online boot instead of wiping the only available app shell.
+    if (!navigator.onLine) return;
     if (localStorage.getItem(RESET_KEY) === CACHE_RESET_VERSION) return;
 
     // Mark so we don't loop, then nuke caches/SWs and hard-reload to pick up
