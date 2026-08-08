@@ -29,12 +29,14 @@ import {
   Trash2,
   Download,
   Mail,
+  Upload,
 } from "lucide-react";
 import OutreachEmailDialog from "./OutreachEmailDialog";
 import ProspectEmailDraft from "./ProspectEmailDraft";
 import ProspectFollowupScheduler from "./ProspectFollowupScheduler";
 import ProspectMessageLog from "./ProspectMessageLog";
 import OutreachFollowupPanel from "./OutreachFollowupPanel";
+import ProspectCsvImportDialog from "./ProspectCsvImportDialog";
 
 interface ProspectRow {
   id: string;
