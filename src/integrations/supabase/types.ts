@@ -9308,6 +9308,51 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_outreach_messages: {
+        Row: {
+          channel: string
+          created_at: string
+          created_by: string | null
+          direction: string
+          domain: string
+          id: string
+          key_notes: string | null
+          replied_on: string | null
+          sent_on: string
+          subject: string | null
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          channel?: string
+          created_at?: string
+          created_by?: string | null
+          direction?: string
+          domain: string
+          id?: string
+          key_notes?: string | null
+          replied_on?: string | null
+          sent_on?: string
+          subject?: string | null
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          created_by?: string | null
+          direction?: string
+          domain?: string
+          id?: string
+          key_notes?: string | null
+          replied_on?: string | null
+          sent_on?: string
+          subject?: string | null
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       seo_outreach_tasks: {
         Row: {
           created_at: string
