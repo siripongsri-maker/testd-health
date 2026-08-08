@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import DisavowRunHistory, { recordDisavowRun, type DisavowRunEntry } from "./DisavowRunHistory";
 import DisavowCsvImportDialog from "./DisavowCsvImportDialog";
+import DisavowSubmissionChecklist from "./DisavowSubmissionChecklist";
 
 type Decision = "pending" | "keep" | "disavow_domain" | "disavow_url";
 
