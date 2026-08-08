@@ -69,6 +69,14 @@ export default function FaviconSettingCard({ isEn = false }: Props) {
             );
           })}
         </RadioGroup>
+        <div className="flex items-start gap-2 rounded-md border border-dashed p-3 text-xs text-muted-foreground" role="note">
+          <RefreshCw className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          <p>
+            {isEn
+              ? "If the old icon still appears, hard refresh this page: Ctrl + Shift + R (Windows/Linux) or Cmd + Shift + R (Mac)."
+              : "หากยังเห็นไอคอนเดิม ให้รีเฟรชแบบล้างแคช: กด Ctrl + Shift + R (Windows/Linux) หรือ Cmd + Shift + R (Mac)"}
+          </p>
+        </div>
       </CardContent>
     </Card>
   );
