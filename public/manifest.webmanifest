@@ -1,8 +1,10 @@
 {
+  "id": "/",
   "name": "testD — ตรวจ HIV ฟรี จองคลินิก ดูแลสุขภาพ",
   "short_name": "testD",
   "description": "ตรวจ HIV ฟรีถึงบ้าน จองนัดคลินิก ปรึกษาผู้เชี่ยวชาญ ดูแลสุขภาพอย่างเป็นส่วนตัว",
   "lang": "th",
+  "dir": "ltr",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -12,7 +14,8 @@
     {
       "src": "/favicon.png",
       "sizes": "64x64",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/pwa-192x192.png",
