@@ -28,7 +28,9 @@ import {
   Plus,
   Trash2,
   Download,
+  Mail,
 } from "lucide-react";
+import OutreachEmailDialog from "./OutreachEmailDialog";
 
 interface ProspectRow {
   id: string;
