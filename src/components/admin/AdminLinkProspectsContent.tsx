@@ -29,12 +29,14 @@ import {
   Trash2,
   Download,
   Mail,
+  Upload,
 } from "lucide-react";
 import OutreachEmailDialog from "./OutreachEmailDialog";
 import ProspectEmailDraft from "./ProspectEmailDraft";
 import ProspectFollowupScheduler from "./ProspectFollowupScheduler";
 import ProspectMessageLog from "./ProspectMessageLog";
 import OutreachFollowupPanel from "./OutreachFollowupPanel";
+import ProspectCsvImportDialog from "./ProspectCsvImportDialog";
 
 interface ProspectRow {
   id: string;
@@ -73,6 +75,7 @@ export default function AdminLinkProspectsContent() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [addOpen, setAddOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [emailOpen, setEmailOpen] = useState(false);
   const [newDomain, setNewDomain] = useState("");
   const [newAuthority, setNewAuthority] = useState("");
@@ -201,6 +204,10 @@ export default function AdminLinkProspectsContent() {
           <Button variant="outline" size="sm" onClick={exportCsv} disabled={!filtered.length}>
             <Download className="h-4 w-4 mr-1.5" />
             CSV
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+            <Upload className="h-4 w-4 mr-1.5" />
+            นำเข้า CSV
           </Button>
           <Button
             variant="outline"
@@ -372,6 +379,13 @@ export default function AdminLinkProspectsContent() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ProspectCsvImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        existingDomains={rows.map((r) => r.domain)}
+        onImported={load}
+      />
 
       <OutreachEmailDialog
         open={emailOpen}
