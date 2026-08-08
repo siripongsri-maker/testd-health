@@ -538,6 +538,13 @@ export default function AdminDisavowWorkflowContent() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <DisavowCsvImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        existingDomains={rows.map((r) => r.source_domain)}
+        onImported={load}
+      />
     </div>
   );
 }
