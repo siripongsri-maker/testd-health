@@ -363,6 +363,17 @@ export default function AdminLinkProspectsContent() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <OutreachEmailDialog
+        open={emailOpen}
+        onOpenChange={setEmailOpen}
+        prospects={rows.map((r) => ({
+          id: r.id,
+          domain: r.domain,
+          authority_score: r.authority_score,
+          contact_url: r.contact_url,
+        }))}
+      />
     </div>
   );
 }
