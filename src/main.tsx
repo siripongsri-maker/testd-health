@@ -2,10 +2,14 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { runRuntimeVersionSelfCheck } from "@/lib/runtimeVersionSelfCheck";
+import { initFavicon } from "@/lib/faviconSetting";
 
 // Fire-and-forget: on version mismatch, unregister all SWs and purge all
 // Cache Storage entries before the app mounts. Idempotent when version matches.
 void runRuntimeVersionSelfCheck();
+
+// Restore the admin-selected brand favicon (defaults to testD).
+initFavicon();
 
 const MODULE_RECOVERY_KEY = "testd-module-recovery-attempted";
 
