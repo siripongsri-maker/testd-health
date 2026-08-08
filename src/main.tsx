@@ -5,12 +5,13 @@ import { runRuntimeVersionSelfCheck } from "@/lib/runtimeVersionSelfCheck";
 import { initFavicon } from "@/lib/faviconSetting";
 import { registerAppServiceWorker } from "@/lib/pwaRegistration";
 
-// Fire-and-forget: on version mismatch, unregister all SWs and purge all
-// Cache Storage entries before the app mounts. Idempotent when version matches.
-void runRuntimeVersionSelfCheck();
-
-// Register the generated offline-capable worker in production only.
-void registerAppServiceWorker();
+// Clear stale workers/cache first, then register the generated offline worker.
+// Keeping these steps sequential prevents the first production boot from
+// unregistering the worker while it is installing.
+void (async () => {
+  await runRuntimeVersionSelfCheck();
+  await registerAppServiceWorker();
+})();
 
 // Restore the admin-selected brand favicon (defaults to testD).
 initFavicon();

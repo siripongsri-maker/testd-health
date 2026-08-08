@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => ({
     mcpPlugin(),
     VitePWA({
       registerType: "autoUpdate",
-      injectRegister: null,
+      injectRegister: false,
       devOptions: { enabled: false },
       workbox: {
         navigateFallback: "/offline.html",
