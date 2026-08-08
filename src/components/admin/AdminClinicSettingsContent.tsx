@@ -216,6 +216,11 @@ export default function AdminClinicSettingsContent() {
       {/* Advance Booking Window (per-branch & per-service) */}
       <AdvanceBookingWindowCard />
 
+      {/* Site favicon */}
+      <FaviconSettingCard isEn={isEn} />
+
+
+
       {/* Link Audit Log */}
       <Card>
         <CardHeader>
