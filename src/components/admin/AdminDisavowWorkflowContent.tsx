@@ -487,6 +487,7 @@ export default function AdminDisavowWorkflowContent() {
                           <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
                         )}
                       </div>
+                      </div>
                     </div>
                     <Button
                       variant="ghost"
