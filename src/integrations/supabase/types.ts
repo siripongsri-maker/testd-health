@@ -9120,6 +9120,54 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_disavow_candidates: {
+        Row: {
+          anchor_sample: string | null
+          authority_score: number | null
+          backlinks_count: number | null
+          created_at: string
+          decision: string
+          example_url: string | null
+          id: string
+          notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          source_domain: string
+          spam_signals: string[]
+          updated_at: string
+        }
+        Insert: {
+          anchor_sample?: string | null
+          authority_score?: number | null
+          backlinks_count?: number | null
+          created_at?: string
+          decision?: string
+          example_url?: string | null
+          id?: string
+          notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_domain: string
+          spam_signals?: string[]
+          updated_at?: string
+        }
+        Update: {
+          anchor_sample?: string | null
+          authority_score?: number | null
+          backlinks_count?: number | null
+          created_at?: string
+          decision?: string
+          example_url?: string | null
+          id?: string
+          notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_domain?: string
+          spam_signals?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       seo_jsonld_reviews: {
         Row: {
           article_id: string
