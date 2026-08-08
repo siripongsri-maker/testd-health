@@ -458,6 +458,8 @@ export default function AdminDisavowWorkflowContent() {
             </div>
           </CardContent>
         </Card>
+      ) : step === 5 ? (
+        <DisavowRunHistory refreshKey={historyKey} />
       ) : (
         <Card>
           <CardHeader className="pb-2">
