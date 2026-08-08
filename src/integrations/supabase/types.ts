@@ -9308,6 +9308,51 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_outreach_tasks: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          domain: string
+          due_on: string
+          id: string
+          notes: string | null
+          responded_on: string | null
+          response_outcome: string | null
+          status: string
+          task_type: string
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          domain: string
+          due_on?: string
+          id?: string
+          notes?: string | null
+          responded_on?: string | null
+          response_outcome?: string | null
+          status?: string
+          task_type?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          domain?: string
+          due_on?: string
+          id?: string
+          notes?: string | null
+          responded_on?: string | null
+          response_outcome?: string | null
+          status?: string
+          task_type?: string
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       seo_referring_domains: {
         Row: {
           authority_score: number | null
