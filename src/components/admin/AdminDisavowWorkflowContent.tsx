@@ -241,7 +241,7 @@ export default function AdminDisavowWorkflowContent() {
       </div>
 
       {/* Step rail */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-2">
         {STEPS.map((s) => (
           <button
             key={s.n}
