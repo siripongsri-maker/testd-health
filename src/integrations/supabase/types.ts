@@ -9173,6 +9173,48 @@ export type Database = {
           },
         ]
       }
+      seo_link_prospects: {
+        Row: {
+          authority_score: number | null
+          contact_url: string | null
+          created_at: string
+          domain: string
+          id: string
+          links_to: string | null
+          notes: string | null
+          rationale: string | null
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          authority_score?: number | null
+          contact_url?: string | null
+          created_at?: string
+          domain: string
+          id?: string
+          links_to?: string | null
+          notes?: string | null
+          rationale?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          authority_score?: number | null
+          contact_url?: string | null
+          created_at?: string
+          domain?: string
+          id?: string
+          links_to?: string | null
+          notes?: string | null
+          rationale?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       service_events: {
         Row: {
           anonymous_token: string | null
