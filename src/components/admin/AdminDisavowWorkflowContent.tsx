@@ -64,7 +64,9 @@ const STEPS = [
   { n: 2, title: "ตัดสินทีละโดเมน", desc: "เลือก เก็บไว้ / ปฏิเสธทั้งโดเมน / ปฏิเสธเฉพาะ URL" },
   { n: 3, title: "ตรวจไฟล์ก่อนส่ง", desc: "ดูตัวอย่างไฟล์ disavow ที่จะได้" },
   { n: 4, title: "ส่งเข้า Google", desc: "อัปโหลดไฟล์ที่ Google Disavow Tool" },
+  { n: 5, title: "ประวัติการสร้างไฟล์", desc: "ย้อนดูไฟล์เก่า โดเมนที่เลือก และเวลาที่สร้าง" },
 ];
+
 
 function signalTone(signal: string) {
   if (signal === "partner_organization" || signal === "platform_link")
