@@ -1243,9 +1243,9 @@ export default function HIVSelfTest() {
     <div className="space-y-4 animate-fade-in">
       <Card className="p-6 text-center">
         <CheckCircle2 className="h-16 w-16 text-success mx-auto mb-4" />
-        <h3 className="text-xl font-bold text-foreground mb-2">
+        <h2 className="text-xl font-bold text-foreground mb-2">
           {language === 'th' ? 'ได้รับชุดตรวจแล้ว?' : 'Received the Kit?'}
-        </h3>
+        </h2>
         <p className="text-muted-foreground mb-4">
           {language === 'th' 
             ? 'กรุณายืนยันว่าคุณได้รับชุดตรวจเรียบร้อยแล้ว'
@@ -1280,10 +1280,10 @@ export default function HIVSelfTest() {
   const renderExistingKitUploadStep = () => (
     <div className="space-y-4 animate-fade-in">
       <Card className="p-4">
-        <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
+        <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
           <Upload className="h-5 w-5 text-primary" />
           {language === 'th' ? 'ส่งผลตรวจจากชุดที่มีอยู่' : 'Submit Result from Existing Kit'}
-        </h3>
+        </h2>
 
         <div className="p-3 bg-primary/5 rounded-lg mb-4">
           <p className="text-sm text-muted-foreground">
@@ -1364,10 +1364,10 @@ export default function HIVSelfTest() {
   const renderVideoStep = () => (
     <div className="space-y-4 animate-fade-in">
       <Card className="p-4">
-        <h3 className="font-bold text-foreground mb-3 flex items-center gap-2">
+        <h2 className="font-bold text-foreground mb-3 flex items-center gap-2">
           <Play className="h-5 w-5 text-primary" />
           {language === 'th' ? 'วิดีโอสาธิตการใช้งาน' : 'Video Tutorial'}
-        </h3>
+        </h2>
         <div className="aspect-video rounded-lg overflow-hidden bg-muted mb-4">
           <iframe
             className="w-full h-full"
@@ -1418,10 +1418,10 @@ export default function HIVSelfTest() {
   const renderTestingStep = () => (
     <div className="space-y-4 animate-fade-in">
       <Card className="p-4">
-        <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
+        <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
           <TestTube className="h-5 w-5 text-primary" />
           {language === 'th' ? 'ขั้นตอนการตรวจ' : 'Testing Steps'}
-        </h3>
+        </h2>
         
         <div className="space-y-3">
           {TESTING_STEPS.map((step, index) => (
@@ -1493,12 +1493,12 @@ export default function HIVSelfTest() {
       
       <Card className="p-6 text-center">
         <Timer className="h-12 w-12 text-primary mx-auto mb-4" />
-        <h3 className="text-lg font-bold text-foreground mb-2">
+        <h2 className="text-lg font-bold text-foreground mb-2">
           {timerFinished 
             ? (language === 'th' ? 'ถึงเวลาอ่านผล' : 'Time to Read Result')
             : (language === 'th' ? 'รอผลการตรวจ' : 'Waiting for Result')
           }
-        </h3>
+        </h2>
         <p className="text-muted-foreground mb-4">
           {timerFinished
             ? (language === 'th' ? 'สามารถอ่านผลได้แล้ว กดปุ่มด้านล่างเพื่อถ่ายรูป' : 'You can now read the result. Press button below to take photo')
@@ -1579,10 +1579,10 @@ export default function HIVSelfTest() {
   const renderPhotoResultStep = () => (
     <div className="space-y-4 animate-fade-in">
       <Card className="p-4">
-        <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
+        <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
           <Camera className="h-5 w-5 text-primary" />
           {language === 'th' ? 'ถ่ายรูปผลการตรวจ' : 'Capture Test Result'}
-        </h3>
+        </h2>
 
         {!photoPreview ? (
           <div className="space-y-4">
@@ -1641,6 +1641,7 @@ export default function HIVSelfTest() {
               <Button
                 variant="destructive"
                 size="sm"
+                aria-label={language === 'th' ? 'ลบรูปภาพ' : 'Remove photo'}
                 className="absolute top-2 right-2"
                 onClick={() => {
                   setResultPhoto(null);
