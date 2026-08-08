@@ -182,16 +182,38 @@ export default function AdminDisavowWorkflowContent() {
 
   const disavowCount = counts.disavow_domain + counts.disavow_url;
 
-  const downloadFile = () => {
+  const runEntries: DisavowRunEntry[] = useMemo(
+    () => [
+      ...rows
+        .filter((r) => r.decision === "disavow_domain")
+        .map((r) => ({ type: "domain" as const, value: r.source_domain, signals: r.spam_signals })),
+      ...rows
+        .filter((r) => r.decision === "disavow_url" && r.example_url)
+        .map((r) => ({ type: "url" as const, value: r.example_url! })),
+    ],
+    [rows],
+  );
+
+  const downloadFile = async () => {
+    const fileName = `disavow-testd-website-${new Date().toISOString().slice(0, 10)}.txt`;
     const blob = new Blob([disavowFile], { type: "text/plain;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `disavow-testd-website-${new Date().toISOString().slice(0, 10)}.txt`;
+    a.download = fileName;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     toast.success("ดาวน์โหลดไฟล์ disavow แล้ว");
+    const ok = await recordDisavowRun({
+      fileContent: disavowFile,
+      fileName,
+      entries: runEntries,
+      domainCount: counts.disavow_domain,
+      urlCount: counts.disavow_url,
+    });
+    if (ok) setHistoryKey((k) => k + 1);
   };
+
 
   return (
     <div className="space-y-4">
