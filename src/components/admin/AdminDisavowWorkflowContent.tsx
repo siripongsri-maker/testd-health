@@ -606,40 +606,18 @@ export default function AdminDisavowWorkflowContent() {
       ) : step === 5 ? (
         <DisavowRunHistory refreshKey={historyKey} />
       ) : (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-[15px]">ส่งไฟล์เข้า Google</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-[13px] text-muted-foreground">
-            <ol className="list-decimal ms-5 space-y-1.5">
-              <li>ดาวน์โหลดไฟล์ .txt จากขั้นตอนที่ 3</li>
-              <li>
-                เปิด{" "}
-                <a
-                  href="https://search.google.com/search-console/disavow-links"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-primary underline"
-                >
-                  Google Disavow Links Tool
-                </a>{" "}
-                แล้วเลือก property <span className="font-medium text-foreground">testd.website</span>
-              </li>
-              <li>อัปโหลดไฟล์ (ไฟล์ใหม่จะแทนที่ไฟล์เดิมทั้งหมด จึงต้องรวมทุกโดเมนไว้ในไฟล์เดียว)</li>
-              <li>รอ Google ประมวลผลราว 2–6 สัปดาห์ แล้วกลับมาตรวจโปรไฟล์ลิงก์อีกครั้ง</li>
-              <li>บันทึกวันที่ส่งไว้ในช่อง “เหตุผล / บันทึก” ของแต่ละโดเมน</li>
-            </ol>
-            <div className="flex flex-wrap justify-end gap-2">
-              <Button variant="outline" size="sm" onClick={() => setStep(3)}>
-                กลับ
-              </Button>
-              <Button size="sm" onClick={downloadFile} disabled={disavowCount === 0}>
-                <Download className="h-4 w-4 mr-1.5" />
-                ดาวน์โหลดอีกครั้ง
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="space-y-3">
+          <DisavowSubmissionChecklist
+            disavowCount={disavowCount}
+            onDownload={downloadFile}
+            onOpenHistory={() => setStep(5)}
+          />
+          <div className="flex justify-end">
+            <Button variant="outline" size="sm" onClick={() => setStep(3)}>
+              กลับ
+            </Button>
+          </div>
+        </div>
       )}
 
       <Dialog open={addOpen} onOpenChange={setAddOpen}>
