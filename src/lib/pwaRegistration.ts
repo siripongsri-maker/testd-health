@@ -67,7 +67,7 @@ export async function registerAppServiceWorker(): Promise<void> {
   registerSW({
     immediate: true,
     onRegistered(registration) {
-      registration?.update().catch(() => undefined);
+      if (registration) void registration.update().catch(() => undefined);
     },
   });
 }
