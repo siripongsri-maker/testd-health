@@ -26,8 +26,10 @@ import {
   FileWarning,
   ArrowRight,
   History,
+  Upload,
 } from "lucide-react";
 import DisavowRunHistory, { recordDisavowRun, type DisavowRunEntry } from "./DisavowRunHistory";
+import DisavowCsvImportDialog from "./DisavowCsvImportDialog";
 
 type Decision = "pending" | "keep" | "disavow_domain" | "disavow_url";
 
@@ -80,6 +82,7 @@ export default function AdminDisavowWorkflowContent() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [step, setStep] = useState(1);
   const [addOpen, setAddOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [newDomain, setNewDomain] = useState("");
   const [newUrl, setNewUrl] = useState("");
   const [newAnchor, setNewAnchor] = useState("");
@@ -236,6 +239,10 @@ export default function AdminDisavowWorkflowContent() {
           <Button variant="outline" size="sm" onClick={() => setStep(5)}>
             <History className="h-4 w-4 mr-1.5" />
             ประวัติ
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
+            <Upload className="h-4 w-4 mr-1.5" />
+            นำเข้า CSV
           </Button>
           <Button size="sm" onClick={() => setAddOpen(true)}>
             <Plus className="h-4 w-4 mr-1.5" />
@@ -531,6 +538,13 @@ export default function AdminDisavowWorkflowContent() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <DisavowCsvImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        existingDomains={rows.map((r) => r.source_domain)}
+        onImported={load}
+      />
     </div>
   );
 }
