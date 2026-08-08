@@ -82,6 +82,7 @@ export default function AdminDisavowWorkflowContent() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [step, setStep] = useState(1);
   const [addOpen, setAddOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [newDomain, setNewDomain] = useState("");
   const [newUrl, setNewUrl] = useState("");
   const [newAnchor, setNewAnchor] = useState("");
