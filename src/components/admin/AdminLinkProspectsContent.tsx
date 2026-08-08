@@ -31,6 +31,7 @@ import {
   Mail,
 } from "lucide-react";
 import OutreachEmailDialog from "./OutreachEmailDialog";
+import OutreachFollowupPanel from "./OutreachFollowupPanel";
 
 interface ProspectRow {
   id: string;
@@ -229,6 +230,8 @@ export default function AdminLinkProspectsContent() {
           </button>
         ))}
       </div>
+
+      <OutreachFollowupPanel domains={rows.map((r) => r.domain)} />
 
       {loading ? (
         <div className="flex justify-center py-16">
