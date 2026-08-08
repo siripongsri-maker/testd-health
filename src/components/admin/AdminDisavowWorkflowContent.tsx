@@ -83,6 +83,7 @@ export default function AdminDisavowWorkflowContent() {
   const [newDomain, setNewDomain] = useState("");
   const [newUrl, setNewUrl] = useState("");
   const [newAnchor, setNewAnchor] = useState("");
+  const [historyKey, setHistoryKey] = useState(0);
 
   const load = useCallback(async () => {
     setLoading(true);
