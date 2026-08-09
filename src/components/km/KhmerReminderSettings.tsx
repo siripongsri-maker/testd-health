@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Bell, BellOff, Check } from "lucide-react";
+import { Bell, BellOff, BellRing, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -43,6 +43,7 @@ function loadSettings(): Settings {
 export function KhmerReminderSettings() {
   const [settings, setSettings] = useState<Settings>(loadSettings);
   const [saved, setSaved] = useState(false);
+  const [testMsg, setTestMsg] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // persist
@@ -102,6 +103,32 @@ export function KhmerReminderSettings() {
       }
     }
     setSettings((s) => ({ ...s, browserNotify: on }));
+  };
+
+  const testNotify = async () => {
+    void trackEvent("km_reminder_test", { language: "km", plan: settings.plan });
+    const body =
+      settings.plan === "pep"
+        ? "PEP៖ សូមលេបឱ្យទៀងទាត់ កុំភ្លេច — testD"
+        : "PrEP៖ សូមលេបថ្នាំតាមកាលវិភាគ — testD";
+
+    if (!("Notification" in window)) {
+      setTestMsg("ឧបករណ៍នេះមិនគាំទ្រការជូនដំណឹង — សូមបើកកម្មវិធីនេះពេលដល់ម៉ោង");
+      return;
+    }
+    let perm = Notification.permission;
+    if (perm === "default") perm = await Notification.requestPermission();
+    if (perm !== "granted") {
+      setTestMsg("មិនទាន់អនុញ្ញាតការជូនដំណឹង — សូមបើកក្នុងការកំណត់កម្មវិធីរុករក");
+      return;
+    }
+    try {
+      new Notification("🔔 សាកល្បងការរំលឹក", { body, icon: "/pwa-192x192.png", tag: "km-med-reminder-test" });
+      setTestMsg("បានផ្ញើការជូនដំណឹងសាកល្បង ✓");
+    } catch {
+      setTestMsg("មិនអាចផ្ញើបានទេ — សូមព្យាយាមម្តងទៀត");
+    }
+    setTimeout(() => setTestMsg(null), 4000);
   };
 
   const save = () => {
@@ -171,6 +198,13 @@ export function KhmerReminderSettings() {
                 "រក្សាទុកការកំណត់"
               )}
             </Button>
+
+            <Button variant="outline" className="w-full" onClick={testNotify}>
+              <BellRing className="mr-2 h-4 w-4" /> សាកល្បងការជូនដំណឹង (ทดสอบการแจ้งเตือน)
+            </Button>
+            {testMsg && (
+              <p className="text-xs text-center text-muted-foreground" role="status">{testMsg}</p>
+            )}
           </div>
         )}
       </CardContent>
