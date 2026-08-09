@@ -4,6 +4,7 @@ import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { trackEvent } from "@/hooks/useAnalytics";
+import { KhmerPrepPepQuiz } from "@/components/km/KhmerPrepPepQuiz";
 import {
   ShieldCheck, Pill, Syringe, MapPin, Phone, MessageCircle, ArrowRight, Languages,
   HeartPulse, BookOpen, AlertTriangle,
@@ -137,10 +138,16 @@ export default function KhmerLanding() {
           </Button>
         </header>
 
+        <section aria-label="សំណួរណែនាំ PrEP/PEP" className="space-y-3">
+          <h2 className="text-base font-semibold">ស្វែងរកផ្លូវដែលសមនឹងអ្នក</h2>
+          <KhmerPrepPepQuiz />
+        </section>
+
         <section aria-label="សេវាកម្ម" className="space-y-3">
           <h2 className="text-base font-semibold">ជ្រើសរើសអ្វីដែលអ្នកត្រូវការ</h2>
           {SERVICES.map((s) => <ItemCard key={s.key} item={s} />)}
         </section>
+
 
         <section aria-label="Harm Reduction" className="space-y-3">
           <h2 className="text-base font-semibold">អាន៖ កាត់បន្ថយគ្រោះថ្នាក់</h2>
