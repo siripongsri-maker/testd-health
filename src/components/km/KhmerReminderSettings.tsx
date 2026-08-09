@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Bell, BellOff, Check } from "lucide-react";
+import { Bell, BellOff, BellRing, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -198,6 +198,13 @@ export function KhmerReminderSettings() {
                 "រក្សាទុកការកំណត់"
               )}
             </Button>
+
+            <Button variant="outline" className="w-full" onClick={testNotify}>
+              <BellRing className="mr-2 h-4 w-4" /> សាកល្បងការជូនដំណឹង (ทดสอบการแจ้งเตือน)
+            </Button>
+            {testMsg && (
+              <p className="text-xs text-center text-muted-foreground" role="status">{testMsg}</p>
+            )}
           </div>
         )}
       </CardContent>
