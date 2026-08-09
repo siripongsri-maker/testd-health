@@ -429,6 +429,7 @@ export type Database = {
           language: string | null
           linked_previous_count: number
           mental_health_interest: string | null
+          nationality: string | null
           recommend: string | null
           safety: number | null
           suggestions: string | null
@@ -449,6 +450,7 @@ export type Database = {
           language?: string | null
           linked_previous_count?: number
           mental_health_interest?: string | null
+          nationality?: string | null
           recommend?: string | null
           safety?: number | null
           suggestions?: string | null
@@ -469,6 +471,7 @@ export type Database = {
           language?: string | null
           linked_previous_count?: number
           mental_health_interest?: string | null
+          nationality?: string | null
           recommend?: string | null
           safety?: number | null
           suggestions?: string | null
@@ -3808,6 +3811,7 @@ export type Database = {
           name_address_fp: string | null
           name_fp: string | null
           national_id_hash: string | null
+          nationality: string | null
           notes: string | null
           phone: string | null
           photo_provided: boolean
@@ -3879,6 +3883,7 @@ export type Database = {
           name_address_fp?: string | null
           name_fp?: string | null
           national_id_hash?: string | null
+          nationality?: string | null
           notes?: string | null
           phone?: string | null
           photo_provided?: boolean
@@ -3950,6 +3955,7 @@ export type Database = {
           name_address_fp?: string | null
           name_fp?: string | null
           national_id_hash?: string | null
+          nationality?: string | null
           notes?: string | null
           phone?: string | null
           photo_provided?: boolean
@@ -12039,6 +12045,15 @@ export type Database = {
       get_my_partner_invite_response: {
         Args: { p_invite_id: string; p_visitor_session_id: string }
         Returns: string
+      }
+      get_nationality_analytics: {
+        Args: { p_end?: string; p_start?: string }
+        Returns: {
+          nationality: string
+          pre_service_surveys: number
+          selftest_requests: number
+          total: number
+        }[]
       }
       get_or_create_chat_thread: {
         Args: { p_subject?: string; p_user_id: string }
