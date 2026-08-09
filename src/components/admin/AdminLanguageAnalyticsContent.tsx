@@ -339,6 +339,15 @@ export default function AdminLanguageAnalyticsContent() {
         </CardContent>
       </Card>
 
+      <LanguageFunnelCard start={start} end={end} language="km" />
+
+      <LanguageFunnelCard
+        start={start}
+        end={end}
+        language="lo"
+        title="Funnel ภาษาลาว (เข้าถึง → อ่าน HR → ขอชุดตรวจ → PrEP/PEP)"
+      />
+
       <NationalityBreakdownCard start={start} end={end} />
     </div>
   );
