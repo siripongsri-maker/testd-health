@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { NationalityBreakdownCard } from "@/components/admin/NationalityBreakdownCard";
+import { LanguageFunnelCard } from "@/components/admin/LanguageFunnelCard";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
