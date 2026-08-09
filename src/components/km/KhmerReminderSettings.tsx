@@ -208,6 +208,21 @@ export function KhmerReminderSettings() {
     setTimeout(() => setTestMsg(null), 4000);
   };
 
+  const resetSettings = () => {
+    if (!window.confirm("តើអ្នកចង់កំណត់ការរំលឹកត្រឡប់ទៅតម្លៃដើមឬទេ?")) return;
+
+    setSettings({
+      enabled: false,
+      plan: "prep_daily",
+      times: [...DEFAULTS.prep_daily],
+      browserNotify: false,
+      useDeviceTimeZone: true,
+    });
+    setSaved(false);
+    setTestMsg(null);
+    void trackEvent("km_reminder_reset", { language: "km" });
+  };
+
   const save = () => {
     setSaved(true);
     void trackEvent("km_reminder_save", { language: "km", plan: settings.plan, times: settings.times.join(",") });
@@ -220,14 +235,20 @@ export function KhmerReminderSettings() {
     <Card className="border-border/60">
       <CardContent className="p-4 space-y-4">
         <div className="flex items-start justify-between gap-3">
-          <div className="space-y-1">
+          <div className="space-y-1 min-w-0">
             <h3 className="font-semibold flex items-center gap-2">
               {settings.enabled ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
               ការរំលឹក PrEP / PEP
             </h3>
             <p className="text-sm text-muted-foreground">ជ្រើសរើសរូបភាព និងម៉ោងរំលឹក។ ទិន្នន័យរក្សាទុកតែក្នុងទូរស័ព្ទរបស់អ្នក។</p>
           </div>
-          <Switch checked={settings.enabled} onCheckedChange={toggleEnabled} aria-label="បើក/បិទ ការរំលឹក" />
+          <div className="flex shrink-0 items-center gap-1">
+            <Button type="button" variant="ghost" size="sm" onClick={resetSettings} aria-label="รีเซ็ตการตั้งค่าการเตือน">
+              <RotateCcw className="mr-1.5 h-4 w-4" />
+              รีเซ็ต
+            </Button>
+            <Switch checked={settings.enabled} onCheckedChange={toggleEnabled} aria-label="បើក/បិទ ការរំលឹក" />
+          </div>
         </div>
 
         {settings.enabled && (
