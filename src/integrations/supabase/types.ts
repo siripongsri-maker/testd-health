@@ -12566,23 +12566,42 @@ export type Database = {
         Args: { _payload: Json; _token: string }
         Returns: string
       }
-      submit_pre_service_survey: {
-        Args: {
-          p_behavior: Json
-          p_booking_id: string
-          p_channel: string
-          p_confidence: number
-          p_knowledge: Json
-          p_language: string
-          p_mental_health_interest: string
-          p_recommend: string
-          p_safety: number
-          p_suggestions: string
-          p_uic_code: string
-          p_uic_hash: string
-        }
-        Returns: Json
-      }
+      submit_pre_service_survey:
+        | {
+            Args: {
+              p_behavior: Json
+              p_booking_id: string
+              p_channel: string
+              p_confidence: number
+              p_knowledge: Json
+              p_language: string
+              p_mental_health_interest: string
+              p_recommend: string
+              p_safety: number
+              p_suggestions: string
+              p_uic_code: string
+              p_uic_hash: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_behavior: Json
+              p_booking_id: string
+              p_channel: string
+              p_confidence: number
+              p_knowledge: Json
+              p_language: string
+              p_mental_health_interest: string
+              p_nationality?: string
+              p_recommend: string
+              p_safety: number
+              p_suggestions: string
+              p_uic_code: string
+              p_uic_hash: string
+            }
+            Returns: Json
+          }
       suggest_reschedule_slots: {
         Args: { _branch_id: string; _from_date?: string; _limit?: number }
         Returns: {
