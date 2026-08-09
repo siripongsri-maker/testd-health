@@ -403,96 +403,14 @@ export default function InfoArticle() {
 
         {/* Content */}
         <div className="rounded-2xl bg-card border border-border p-6 shadow-card">
-          <div className="prose prose-sm max-w-none dark:prose-invert">
-            {content ? (
-              content.split("\n\n").map((paragraph, index) => {
-                // Handle bullet points
-                if (paragraph.includes("\n•") || paragraph.startsWith("•")) {
-                  const lines = paragraph.split("\n");
-                  return (
-                    <div key={index} className="my-4">
-                      {lines.map((line, i) => {
-                        if (line.startsWith("•")) {
-                          return (
-                            <div key={i} className="flex items-start gap-2 text-foreground my-1">
-                              <span className="text-primary mt-0.5">•</span>
-                              <span>{line.replace("• ", "")}</span>
-                            </div>
-                          );
-                        }
-                        return <p key={i} className="font-semibold text-foreground mb-2">{line}</p>;
-                      })}
-                    </div>
-                  );
-                }
-                
-                // Handle headings (lines ending with :)
-                if (paragraph.endsWith(":") || paragraph.match(/^[A-Z].*:$/m)) {
-                  return (
-                    <h3 key={index} className="text-lg font-bold text-foreground mt-6 mb-3">
-                      {paragraph}
-                    </h3>
-                  );
-                }
+          {content ? (
+            <ArticleMarkdown content={content} />
+          ) : (
+            <p className="text-muted-foreground italic">
+              {language === 'th' ? 'ไม่มีเนื้อหา' : 'No content available'}
+            </p>
+          )}
 
-                // Handle markdown images ![alt](url)
-                const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
-                if (imageRegex.test(paragraph)) {
-                  const parts: React.ReactNode[] = [];
-                  let lastIndex = 0;
-                  let match;
-                  const regex = /!\[([^\]]*)\]\(([^)]+)\)/g;
-                  
-                  while ((match = regex.exec(paragraph)) !== null) {
-                    // Add text before image
-                    if (match.index > lastIndex) {
-                      parts.push(
-                        <span key={`text-${lastIndex}`}>
-                          {paragraph.substring(lastIndex, match.index)}
-                        </span>
-                      );
-                    }
-                    // Add image only if URL is safe
-                    const imageUrl = match[2];
-                    if (isSafeImageUrl(imageUrl)) {
-                      parts.push(
-                        <img 
-                          key={`img-${match.index}`}
-                          src={imageUrl} 
-                          alt={match[1]} 
-                          className="rounded-lg max-w-full my-4"
-                        />
-                      );
-                    } else {
-                      // Block unsafe URLs silently (don't render anything)
-                      console.warn('Blocked unsafe image URL in article content');
-                    }
-                    lastIndex = match.index + match[0].length;
-                  }
-                  
-                  // Add remaining text
-                  if (lastIndex < paragraph.length) {
-                    parts.push(
-                      <span key={`text-${lastIndex}`}>
-                        {paragraph.substring(lastIndex)}
-                      </span>
-                    );
-                  }
-                  
-                  return <div key={index} className="my-2">{parts}</div>;
-                }
-
-                return (
-                  <p key={index} className="text-foreground leading-relaxed mb-4">
-                    {paragraph}
-                  </p>
-                );
-              })
-            ) : (
-              <p className="text-muted-foreground italic">
-                {language === 'th' ? 'ไม่มีเนื้อหา' : 'No content available'}
-              </p>
-            )}
           </div>
         </div>
 
