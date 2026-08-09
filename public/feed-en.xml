@@ -5,8 +5,50 @@
   <link>https://testd.website/en/info</link>
   <description>New articles from testD on HIV, PrEP, PEP, STIs and harm reduction.</description>
   <language>en</language>
-  <lastBuildDate>Fri, 07 Aug 2026 03:46:29 GMT</lastBuildDate>
+  <lastBuildDate>Sun, 09 Aug 2026 08:58:43 GMT</lastBuildDate>
   <atom:link href="https://testd.website/feed-en.xml" rel="self" type="application/rss+xml" />
+  <item>
+    <title>71.7% at High Risk: What PHQ-4, ASSIST and C-SSRS Screening Tells Us About Chemsex</title>
+    <link>https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data</link>
+    <guid isPermaLink="true">https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data</guid>
+    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
+    <description>53 completed screenings between Mar 12 and Aug 8, 2026: monthly trends and what they mean for mental health care.</description>
+  </item>
+  <item>
+    <title>From 222 to 2,819 Kits a Month: The HIV Self-Test Pathway for People Who Use Drugs</title>
+    <link>https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</link>
+    <guid isPermaLink="true">https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</guid>
+    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
+    <description>Analysis of 15,077 HIV self-test kit requests from Oct 2025 to Aug 2026 and what they reveal about testing behaviour.</description>
+  </item>
+  <item>
+    <title>Methamphetamine Harm Reduction: Thai Service Behaviour Data 2025–2026</title>
+    <link>https://testd.website/en/info/article/meth-harm-reduction-thailand-behaviour-2026</link>
+    <guid isPermaLink="true">https://testd.website/en/info/article/meth-harm-reduction-thailand-behaviour-2026</guid>
+    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
+    <description>Meth use patterns, slamming and polydrug mixing in Thai service data, with population-specific harm reduction guidance.</description>
+  </item>
+  <item>
+    <title>Chemsex Safety Playbook: Thailand 2026 Data Edition</title>
+    <link>https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026</link>
+    <guid isPermaLink="true">https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026</guid>
+    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
+    <description>A full chemsex harm reduction playbook grounded in real service data: 15,077 self-test kit requests, 25,133 clinic appointments and 53 completed risk screenings.</description>
+  </item>
+  <item>
+    <title>42 Substance Interaction Pairs: Which Combinations Can Kill</title>
+    <link>https://testd.website/en/info/article/42-critical-substance-interactions-chemsex</link>
+    <guid isPermaLink="true">https://testd.website/en/info/article/42-critical-substance-interactions-chemsex</guid>
+    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
+    <description>A breakdown of 42 documented substance interaction pairs — 11 critical, 19 high, 12 moderate — across 18 substances.</description>
+  </item>
+  <item>
+    <title>GHB/GBL: Dosing, Spacing and What To Do When Someone Goes Under</title>
+    <link>https://testd.website/en/info/article/ghb-overdose-prevention-timeline</link>
+    <guid isPermaLink="true">https://testd.website/en/info/article/ghb-overdose-prevention-timeline</guid>
+    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
+    <description>GHB forms critical interactions with alcohol and benzodiazepines. Spacing tables, danger signs and step-by-step response.</description>
+  </item>
   <item>
     <title>Long-Acting Injectable PrEP: Lenacapavir and CAB-LA</title>
     <link>https://testd.website/en/info/article/long-acting-injectable-prep</link>
@@ -358,54 +400,6 @@
     <pubDate>Thu, 06 Aug 2026 18:23:49 GMT</pubDate>
     <description>PrEP care includes regular HIV, kidney and STI screening. Follow-up every three months helps keep prevention safe and suited to your needs.</description>
     <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-quarterly-followup-1786040629401.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>Free PrEP in Thailand: Where to Get It and NHSO Coverage</title>
-    <link>https://testd.website/en/info/article/prep-free-where-thailand</link>
-    <guid isPermaLink="true">https://testd.website/en/info/article/prep-free-where-thailand</guid>
-    <pubDate>Thu, 06 Aug 2026 18:20:15 GMT</pubDate>
-    <description>Learn how to access free PrEP through Thailand’s NHSO scheme, what screening involves, and how to book with SWING Clinic.</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-free-where-thailand-1786040415750.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>On-Demand PrEP (2-1-1): How to Use It Safely</title>
-    <link>https://testd.website/en/info/article/prep-on-demand-211</link>
-    <guid isPermaLink="true">https://testd.website/en/info/article/prep-on-demand-211</guid>
-    <pubDate>Thu, 06 Aug 2026 18:20:03 GMT</pubDate>
-    <description>Learn who on-demand 2-1-1 PrEP may suit, what checks are needed, and what to do if plans change or a dose is missed.</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-on-demand-211-1786040402592.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>PrEP Side Effects: What to Expect and How to Cope</title>
-    <link>https://testd.website/en/info/article/prep-side-effects</link>
-    <guid isPermaLink="true">https://testd.website/en/info/article/prep-side-effects</guid>
-    <pubDate>Thu, 06 Aug 2026 18:19:57 GMT</pubDate>
-    <description>Learn about common oral and injectable PrEP side effects, practical self-care, warning signs, and when to contact a clinic.</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-side-effects-1786040397576.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>PrEP vs PEP: What’s the Difference and Which Is Right for You?</title>
-    <link>https://testd.website/en/info/article/prep-vs-pep</link>
-    <guid isPermaLink="true">https://testd.website/en/info/article/prep-vs-pep</guid>
-    <pubDate>Thu, 06 Aug 2026 18:19:52 GMT</pubDate>
-    <description>PrEP prevents HIV before potential exposure, while PEP is an emergency option started within 72 hours after exposure. Learn which fits your situation.</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-vs-pep-1786040392279.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>Missed PrEP Dose: Are You Still Protected?</title>
-    <link>https://testd.website/en/info/article/prep-missed-dose</link>
-    <guid isPermaLink="true">https://testd.website/en/info/article/prep-missed-dose</guid>
-    <pubDate>Thu, 06 Aug 2026 18:19:49 GMT</pubDate>
-    <description>A missed PrEP dose does not always erase protection. Learn what affects risk, when to seek PEP, and how to restart safely.</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-missed-dose-1786040388835.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>What Is PrEP? How to Start and Which Tests You Need</title>
-    <link>https://testd.website/en/info/article/prep-what-is-how-to-start</link>
-    <guid isPermaLink="true">https://testd.website/en/info/article/prep-what-is-how-to-start</guid>
-    <pubDate>Thu, 06 Aug 2026 18:18:10 GMT</pubDate>
-    <description>Learn how PrEP prevents HIV, who it may suit, the tests needed before starting, follow-up care, and how to access services in Thailand.</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-what-is-how-to-start-1786040290603.png" type="image/jpeg" length="0" />
   </item>
 </channel>
 </rss>
