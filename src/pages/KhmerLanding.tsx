@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { trackEvent } from "@/hooks/useAnalytics";
 import { KhmerPrepPepQuiz } from "@/components/km/KhmerPrepPepQuiz";
+import { KhmerReminderSettings } from "@/components/km/KhmerReminderSettings";
 import {
   ShieldCheck, Pill, Syringe, MapPin, Phone, MessageCircle, ArrowRight, Languages,
   HeartPulse, BookOpen, AlertTriangle,
