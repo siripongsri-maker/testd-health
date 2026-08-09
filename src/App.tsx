@@ -145,6 +145,7 @@ function AppShell() {
               <Route path="/lo" element={<LaoLanding />} />
               <Route path="/lao" element={<Navigate to="/lo" replace />} />
               <Route path="/km" element={<KhmerLanding />} />
+              <Route path="/km/harm-reduction" element={<KhmerHarmReduction />} />
               <Route path="/khmer" element={<Navigate to="/km" replace />} />
               <Route path="/r/:token" element={<SmsRedirect />} />
               <Route path="/track-kit" element={<KitTrackPublic />} />
