@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Bell, BellOff, BellRing, Check } from "lucide-react";
+import { Bell, BellOff, BellRing, CalendarClock, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -10,6 +10,7 @@ import { trackEvent } from "@/hooks/useAnalytics";
 type Plan = "prep_daily" | "prep_ondemand" | "pep";
 
 const STORAGE_KEY = "km_reminder_settings_v1";
+const REMINDER_TIME_ZONE = "Asia/Bangkok";
 
 type Settings = {
   enabled: boolean;
@@ -40,11 +41,66 @@ function loadSettings(): Settings {
   return { enabled: false, plan: "prep_daily", times: DEFAULTS.prep_daily, browserNotify: false };
 }
 
+function getBangkokClock(date: Date) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: REMINDER_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+
+  return Object.fromEntries(parts.filter(({ type }) => type !== "literal").map(({ type, value }) => [type, Number(value)])) as Record<string, number>;
+}
+
+function getNextReminder(times: string[], now: Date) {
+  const clock = getBangkokClock(now);
+  const currentMinutes = clock.hour * 60 + clock.minute;
+  const upcoming = times
+    .map((time) => {
+      const [hour, minute] = time.split(":").map(Number);
+      return { time, minutes: hour * 60 + minute };
+    })
+    .filter(({ minutes }) => Number.isFinite(minutes))
+    .sort((a, b) => a.minutes - b.minutes)
+    .find(({ minutes }) => minutes > currentMinutes);
+
+  if (upcoming) return { ...upcoming, dayOffset: 0 };
+  const first = times
+    .map((time) => {
+      const [hour, minute] = time.split(":").map(Number);
+      return { time, minutes: hour * 60 + minute };
+    })
+    .filter(({ minutes }) => Number.isFinite(minutes))
+    .sort((a, b) => a.minutes - b.minutes)[0];
+
+  return first ? { ...first, dayOffset: 1 } : null;
+}
+
+function formatReminderDate(now: Date, dayOffset: number) {
+  const date = new Date(now.getTime() + dayOffset * 24 * 60 * 60 * 1000);
+  return new Intl.DateTimeFormat("km-KH", {
+    timeZone: REMINDER_TIME_ZONE,
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  }).format(date);
+}
+
 export function KhmerReminderSettings() {
   const [settings, setSettings] = useState<Settings>(loadSettings);
   const [saved, setSaved] = useState(false);
   const [testMsg, setTestMsg] = useState<string | null>(null);
+  const [now, setNow] = useState(() => new Date());
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Keep the next reminder current while the settings card is open.
+  useEffect(() => {
+    const clockRef = setInterval(() => setNow(new Date()), 30_000);
+    return () => clearInterval(clockRef);
+  }, []);
 
   // persist
   useEffect(() => {
@@ -57,11 +113,12 @@ export function KhmerReminderSettings() {
     if (!settings.enabled) return;
 
     const check = () => {
-      const now = new Date();
-      const hhmm = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+      const current = new Date();
+      const clock = getBangkokClock(current);
+      const hhmm = `${String(clock.hour).padStart(2, "0")}:${String(clock.minute).padStart(2, "0")}`;
       settings.times.forEach((t, i) => {
         if (t !== hhmm) return;
-        const key = `km_reminded_${now.toISOString().slice(0, 10)}_${i}_${t}`;
+        const key = `km_reminded_${new Intl.DateTimeFormat("en-CA", { timeZone: REMINDER_TIME_ZONE }).format(current)}_${i}_${t}`;
         if (localStorage.getItem(key)) return;
         localStorage.setItem(key, "1");
         if (settings.browserNotify && "Notification" in window && Notification.permission === "granted") {
@@ -77,7 +134,10 @@ export function KhmerReminderSettings() {
     check();
     timerRef.current = setInterval(check, 30_000);
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     };
   }, [settings]);
 
@@ -137,6 +197,8 @@ export function KhmerReminderSettings() {
     setTimeout(() => setSaved(false), 2000);
   };
 
+  const nextReminder = settings.enabled ? getNextReminder(settings.times, now) : null;
+
   return (
     <Card className="border-border/60">
       <CardContent className="p-4 space-y-4">
@@ -178,6 +240,21 @@ export function KhmerReminderSettings() {
                 {settings.times.map((t, i) => (
                   <Input key={i} type="time" value={t} onChange={(e) => setTime(i, e.target.value)} aria-label={`ម៉ោងទី ${i + 1}`} />
                 ))}
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 rounded-lg border border-primary/30 bg-primary/5 p-3" role="status" aria-live="polite">
+              <CalendarClock className="mt-0.5 h-5 w-5 shrink-0 text-primary" aria-hidden="true" />
+              <div className="min-w-0">
+                <div className="text-sm font-medium">ការរំលឹកครั้งถัดไป</div>
+                {nextReminder ? (
+                  <p className="text-sm text-muted-foreground">
+                    {formatReminderDate(now, nextReminder.dayOffset)} · <span className="font-semibold text-foreground">{nextReminder.time}</span>
+                  </p>
+                ) : (
+                  <p className="text-sm text-muted-foreground">សូមជ្រើសរើសម៉ោងរំលឹក</p>
+                )}
+                <p className="mt-1 text-xs text-muted-foreground">ម៉ោងប្រទេសកម្ពុជា/ថៃ (UTC+7)</p>
               </div>
             </div>
 
