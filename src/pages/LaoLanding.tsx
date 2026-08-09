@@ -133,7 +133,7 @@ export default function LaoLanding() {
                   <Link to="/clinic/book">ນັດໝາຍຄລີນິກ</Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" onClick={() => track("support")}>
-                  <Link to="/support">
+                  <Link to="/support-chat">
                     <MessageCircle className="mr-1 h-4 w-4" /> ສອບຖາມ
                   </Link>
                 </Button>
