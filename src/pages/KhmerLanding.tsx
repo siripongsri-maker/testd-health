@@ -4,6 +4,7 @@ import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { trackEvent } from "@/hooks/useAnalytics";
+import { KhmerPrepPepQuiz } from "@/components/km/KhmerPrepPepQuiz";
 import {
   ShieldCheck, Pill, Syringe, MapPin, Phone, MessageCircle, ArrowRight, Languages,
   HeartPulse, BookOpen, AlertTriangle,
