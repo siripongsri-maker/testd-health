@@ -104,6 +104,7 @@ const MyRewards = lazy(() => import("./pages/MyRewards"));
 const ConnectAgent = lazy(() => import("./pages/ConnectAgent"));
 const ConnectTroubleshooting = lazy(() => import("./pages/ConnectTroubleshooting"));
 const LaoLanding = lazy(() => import("./pages/LaoLanding"));
+const KhmerLanding = lazy(() => import("./pages/KhmerLanding"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -142,6 +143,8 @@ function AppShell() {
               <Route path="/" element={<Home />} />
               <Route path="/lo" element={<LaoLanding />} />
               <Route path="/lao" element={<Navigate to="/lo" replace />} />
+              <Route path="/km" element={<KhmerLanding />} />
+              <Route path="/khmer" element={<Navigate to="/km" replace />} />
               <Route path="/r/:token" element={<SmsRedirect />} />
               <Route path="/track-kit" element={<KitTrackPublic />} />
               <Route path="/track-kit/:code" element={<KitTrackPublic />} />
