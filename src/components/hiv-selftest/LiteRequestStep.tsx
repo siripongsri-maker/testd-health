@@ -15,6 +15,7 @@ import { ThaiIdScanner, ScannedData } from './ThaiIdScanner';
 import { getProvinces, getDistricts, getSubdistricts, getPostalCode, Subdistrict } from '@/lib/thailand-address';
 import { AddressDetailFields, validateHouseNo } from './AddressDetailFields';
 import { LocationCapture, LocationData } from './LocationCapture';
+import { NationalitySelect } from '@/components/common/NationalitySelect';
 
 interface LiteRequestStepProps {
   shippingData: ShippingFormData;
@@ -282,6 +283,12 @@ export function LiteRequestStep({
             </Select>
           </div>
         </div>
+
+        <NationalitySelect
+          value={nhsoData.nationality || ''}
+          onChange={(v) => onNhsoChange({ ...nhsoData, nationality: v })}
+          language={language}
+        />
       </Card>
 
       {/* Shipping info — only for delivery mode */}
