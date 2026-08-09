@@ -12020,6 +12020,10 @@ export type Database = {
           total_selftest_requests: number
         }[]
       }
+      get_language_analytics: {
+        Args: { p_end?: string; p_start?: string }
+        Returns: Json
+      }
       get_milestone_completed_count: {
         Args: { p_month: string }
         Returns: number

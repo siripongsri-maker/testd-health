@@ -117,6 +117,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "branch-staff", icon: Building2, labelKey: "admin.branchStaff", adminOnly: true },
       { tab: "quick-register", icon: UserPlus, labelKey: "admin.quickRegister" },
       { tab: "demographics", icon: Fingerprint, labelKey: "admin.demographics", adminOnly: true, meAnalyst: true },
+      { tab: "language-analytics", icon: Languages, labelKey: "admin.languageAnalytics", adminOnly: true, meAnalyst: true },
       { tab: "abuse-logs", icon: ShieldAlert, labelKey: "admin.abuseLogs", adminOnly: true },
     ],
   },
