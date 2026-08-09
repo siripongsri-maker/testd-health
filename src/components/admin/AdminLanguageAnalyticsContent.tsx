@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { NationalityBreakdownCard } from "@/components/admin/NationalityBreakdownCard";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -337,6 +338,8 @@ export default function AdminLanguageAnalyticsContent() {
           </table>
         </CardContent>
       </Card>
+
+      <NationalityBreakdownCard start={start} end={end} />
     </div>
   );
 }
