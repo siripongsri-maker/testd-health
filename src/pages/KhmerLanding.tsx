@@ -148,6 +148,13 @@ export default function KhmerLanding() {
           {SERVICES.map((s) => <ItemCard key={s.key} item={s} />)}
         </section>
 
+        <section aria-label="ការរំលឹក PrEP/PEP" className="space-y-3">
+          <h2 className="text-base font-semibold">កំណត់ការរំលឹកថ្នាំ</h2>
+          <KhmerReminderSettings />
+        </section>
+
+
+
 
         <section aria-label="Harm Reduction" className="space-y-3">
           <h2 className="text-base font-semibold">អាន៖ កាត់បន្ថយគ្រោះថ្នាក់</h2>
