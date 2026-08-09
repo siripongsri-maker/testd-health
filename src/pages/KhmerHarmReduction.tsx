@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -153,7 +153,8 @@ const QUICK: { label: string; term: string }[] = [
 ];
 
 export default function KhmerHarmReduction() {
-  const [query, setQuery] = useState("");
+  const [params] = useSearchParams();
+  const [query, setQuery] = useState(params.get("q") ?? "");
 
   useEffect(() => {
     void trackEvent("lite_hr_view", { language: "km" });
