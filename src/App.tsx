@@ -105,6 +105,7 @@ const ConnectAgent = lazy(() => import("./pages/ConnectAgent"));
 const ConnectTroubleshooting = lazy(() => import("./pages/ConnectTroubleshooting"));
 const LaoLanding = lazy(() => import("./pages/LaoLanding"));
 const KhmerLanding = lazy(() => import("./pages/KhmerLanding"));
+const KhmerHarmReduction = lazy(() => import("./pages/KhmerHarmReduction"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
