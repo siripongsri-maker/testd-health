@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { ArticleLikeButton } from "@/components/ArticleLikeButton";
 import { ArticleComments } from "@/components/ArticleComments";
+import { ArticleMarkdown } from "@/components/article/ArticleMarkdown";
+
 import { useQuestProgress } from "@/hooks/useQuestProgress";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { usePageLocale } from "@/components/seo/LocaleRouter";
