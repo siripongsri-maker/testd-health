@@ -410,9 +410,8 @@ export default function InfoArticle() {
               {language === 'th' ? 'ไม่มีเนื้อหา' : 'No content available'}
             </p>
           )}
-
-          </div>
         </div>
+
 
         {/* YouTube Video */}
         {article.video_url && extractYouTubeVideoId(article.video_url) && (
