@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Bell, BellOff, BellRing, CalendarClock, Check } from "lucide-react";
+import { Bell, BellOff, BellRing, CalendarClock, Check, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -17,7 +17,16 @@ type Settings = {
   plan: Plan;
   times: string[];
   browserNotify: boolean;
+  useDeviceTimeZone: boolean;
 };
+
+function getDeviceTimeZone() {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || REMINDER_TIME_ZONE;
+  } catch {
+    return REMINDER_TIME_ZONE;
+  }
+}
 
 const DEFAULTS: Record<Plan, string[]> = {
   prep_daily: ["20:00"],
@@ -34,16 +43,19 @@ const PLAN_LABELS: { key: Plan; title: string; desc: string }[] = [
 function loadSettings(): Settings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return { ...JSON.parse(raw) } as Settings;
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return { useDeviceTimeZone: true, ...parsed } as Settings;
+    }
   } catch {
     /* ignore */
   }
-  return { enabled: false, plan: "prep_daily", times: DEFAULTS.prep_daily, browserNotify: false };
+  return { enabled: false, plan: "prep_daily", times: DEFAULTS.prep_daily, browserNotify: false, useDeviceTimeZone: true };
 }
 
-function getBangkokClock(date: Date) {
+function getZonedClock(date: Date, timeZone: string) {
   const parts = new Intl.DateTimeFormat("en-GB", {
-    timeZone: REMINDER_TIME_ZONE,
+    timeZone,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -55,8 +67,8 @@ function getBangkokClock(date: Date) {
   return Object.fromEntries(parts.filter(({ type }) => type !== "literal").map(({ type, value }) => [type, Number(value)])) as Record<string, number>;
 }
 
-function getNextReminder(times: string[], now: Date) {
-  const clock = getBangkokClock(now);
+function getNextReminder(times: string[], now: Date, timeZone: string) {
+  const clock = getZonedClock(now, timeZone);
   const currentMinutes = clock.hour * 60 + clock.minute;
   const upcoming = times
     .map((time) => {
@@ -79,10 +91,10 @@ function getNextReminder(times: string[], now: Date) {
   return first ? { ...first, dayOffset: 1 } : null;
 }
 
-function formatReminderDate(now: Date, dayOffset: number) {
+function formatReminderDate(now: Date, dayOffset: number, timeZone: string) {
   const date = new Date(now.getTime() + dayOffset * 24 * 60 * 60 * 1000);
   return new Intl.DateTimeFormat("km-KH", {
-    timeZone: REMINDER_TIME_ZONE,
+    timeZone,
     weekday: "long",
     day: "numeric",
     month: "long",
@@ -95,6 +107,11 @@ export function KhmerReminderSettings() {
   const [testMsg, setTestMsg] = useState<string | null>(null);
   const [now, setNow] = useState(() => new Date());
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const deviceTimeZone = getDeviceTimeZone();
+  const activeTimeZone = settings.useDeviceTimeZone ? deviceTimeZone : REMINDER_TIME_ZONE;
+  const zoneOffsetLabel = new Intl.DateTimeFormat("en-GB", { timeZone: activeTimeZone, timeZoneName: "shortOffset" })
+    .formatToParts(now)
+    .find((p) => p.type === "timeZoneName")?.value ?? "UTC+7";
 
   // Keep the next reminder current while the settings card is open.
   useEffect(() => {
@@ -114,11 +131,11 @@ export function KhmerReminderSettings() {
 
     const check = () => {
       const current = new Date();
-      const clock = getBangkokClock(current);
+      const clock = getZonedClock(current, activeTimeZone);
       const hhmm = `${String(clock.hour).padStart(2, "0")}:${String(clock.minute).padStart(2, "0")}`;
       settings.times.forEach((t, i) => {
         if (t !== hhmm) return;
-        const key = `km_reminded_${new Intl.DateTimeFormat("en-CA", { timeZone: REMINDER_TIME_ZONE }).format(current)}_${i}_${t}`;
+        const key = `km_reminded_${new Intl.DateTimeFormat("en-CA", { timeZone: activeTimeZone }).format(current)}_${i}_${t}`;
         if (localStorage.getItem(key)) return;
         localStorage.setItem(key, "1");
         if (settings.browserNotify && "Notification" in window && Notification.permission === "granted") {
@@ -139,7 +156,7 @@ export function KhmerReminderSettings() {
         timerRef.current = null;
       }
     };
-  }, [settings]);
+  }, [settings, activeTimeZone]);
 
   const setPlan = (plan: Plan) => {
     setSettings((s) => ({ ...s, plan, times: DEFAULTS[plan] }));
@@ -197,7 +214,7 @@ export function KhmerReminderSettings() {
     setTimeout(() => setSaved(false), 2000);
   };
 
-  const nextReminder = settings.enabled ? getNextReminder(settings.times, now) : null;
+  const nextReminder = settings.enabled ? getNextReminder(settings.times, now, activeTimeZone) : null;
 
   return (
     <Card className="border-border/60">
@@ -249,13 +266,33 @@ export function KhmerReminderSettings() {
                 <div className="text-sm font-medium">ការរំលឹកครั้งถัดไป</div>
                 {nextReminder ? (
                   <p className="text-sm text-muted-foreground">
-                    {formatReminderDate(now, nextReminder.dayOffset)} · <span className="font-semibold text-foreground">{nextReminder.time}</span>
+                    {formatReminderDate(now, nextReminder.dayOffset, activeTimeZone)} · <span className="font-semibold text-foreground">{nextReminder.time}</span>
                   </p>
                 ) : (
                   <p className="text-sm text-muted-foreground">សូមជ្រើសរើសម៉ោងរំលឹក</p>
                 )}
-                <p className="mt-1 text-xs text-muted-foreground">ម៉ោងប្រទេសកម្ពុជា/ថៃ (UTC+7)</p>
+                <p className="mt-1 text-xs text-muted-foreground">{activeTimeZone} ({zoneOffsetLabel})</p>
               </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-border/60 p-3">
+              <div className="text-sm min-w-0">
+                <div className="font-medium flex items-center gap-2">
+                  <Globe className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  ប្រើតំបន់ម៉ោងឧបករណ៍
+                </div>
+                <div className="text-xs text-muted-foreground truncate">
+                  {settings.useDeviceTimeZone ? `កំពុងប្រើ ${deviceTimeZone}` : "កំពុងប្រើ Asia/Bangkok (UTC+7)"}
+                </div>
+              </div>
+              <Switch
+                checked={settings.useDeviceTimeZone}
+                onCheckedChange={(on) => {
+                  setSettings((s) => ({ ...s, useDeviceTimeZone: on }));
+                  void trackEvent("km_reminder_timezone", { language: "km", use_device: on, timezone: on ? deviceTimeZone : REMINDER_TIME_ZONE });
+                }}
+                aria-label="ប្រើតំបន់ម៉ោងឧបករណ៍"
+              />
             </div>
 
             <div className="flex items-center justify-between gap-3 rounded-lg border border-border/60 p-3">
