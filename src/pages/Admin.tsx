@@ -54,6 +54,7 @@ const AdminKnowledgeGraphContent = lazy(() => import("@/components/admin/AdminKn
 const AdminContentGeneratorContent = lazy(() => import("@/components/admin/AdminContentGeneratorContent"));
 const AdminReferencesContent = lazy(() => import("@/components/admin/AdminReferencesContent"));
 const AdminDemographicsContent = lazy(() => import("@/components/admin/AdminDemographicsContent"));
+const AdminLanguageAnalyticsContent = lazy(() => import("@/components/admin/AdminLanguageAnalyticsContent"));
 const AdminOutreachContent = lazy(() => import("@/components/admin/AdminOutreachContent"));
 const AdminLanguageDictionaryContent = lazy(() => import("@/components/admin/AdminLanguageDictionaryContent"));
 const AdminClinicSettingsContent = lazy(() => import("@/components/admin/AdminClinicSettingsContent"));
@@ -273,6 +274,7 @@ export default function Admin() {
           {renderTab("references", <AdminReferencesContent />)}
           {renderTab("outreach", <AdminOutreachContent />)}
           {renderTab("demographics", <AdminDemographicsContent />)}
+          {renderTab("language-analytics", <AdminLanguageAnalyticsContent />)}
           {renderTab("language-dictionary", <AdminLanguageDictionaryContent />)}
           {renderTab("clinic-settings", <AdminClinicSettingsContent />)}
           {renderTab("service-pathways", <AdminServicePathwaysContent />)}
