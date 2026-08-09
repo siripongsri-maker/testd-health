@@ -57,7 +57,7 @@ const HARM_REDUCTION: Item[] = [
     title: "កាត់បន្ថយគ្រោះថ្នាក់ (Harm Reduction)",
     desc: "ចំណេះដឹងអំពីការប្រើសារធាតុឱ្យមានសុវត្ថិភាពជាងមុន ដោយគ្មានការវិនិច្ឆ័យ។",
     cta: "អានមគ្គុទ្ទេសក៍",
-    to: "/th/harm-reduction",
+    to: "/km/harm-reduction",
   },
   {
     key: "chemsex",
@@ -65,7 +65,7 @@ const HARM_REDUCTION: Item[] = [
     title: "Chemsex ឱ្យមានសុវត្ថិភាពជាងមុន",
     desc: "គន្លឹះមុន កំឡុងពេល និងក្រោយពេល រួមទាំងការរៀបចំផែនការសុវត្ថិភាព។",
     cta: "អានបន្ថែម",
-    to: "/th/chemsex-safety",
+    to: "/km/harm-reduction?q=ice",
   },
   {
     key: "ghb",
@@ -73,7 +73,7 @@ const HARM_REDUCTION: Item[] = [
     title: "សញ្ញាគ្រោះថ្នាក់ GHB និងការលើសកម្រិត",
     desc: "របៀបសង្កេតសញ្ញាបន្ទាន់ និងជំហានជួយសង្គ្រោះជាបន្ទាន់។",
     cta: "មើលសញ្ញាបន្ទាន់",
-    to: "/th/ghb-overdose",
+    to: "/km/harm-reduction?q=ghb",
   },
 ];
 
