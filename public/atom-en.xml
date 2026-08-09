@@ -3,10 +3,58 @@
   <title>testD — Sexual health &amp; harm reduction articles</title>
   <subtitle>New articles from testD on HIV, PrEP, PEP, STIs and harm reduction.</subtitle>
   <id>https://testd.website/atom-en.xml</id>
-  <updated>2026-08-07T03:46:29.014Z</updated>
+  <updated>2026-08-09T08:58:43.832Z</updated>
   <link rel="self" type="application/atom+xml" href="https://testd.website/atom-en.xml" />
   <link rel="alternate" type="text/html" href="https://testd.website/en/info" />
   <author><name>testD</name></author>
+  <entry>
+    <title>71.7% at High Risk: What PHQ-4, ASSIST and C-SSRS Screening Tells Us About Chemsex</title>
+    <id>https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-09T08:58:43.832Z</updated>
+    <summary type="text">53 completed screenings between Mar 12 and Aug 8, 2026: monthly trends and what they mean for mental health care.</summary>
+  </entry>
+  <entry>
+    <title>From 222 to 2,819 Kits a Month: The HIV Self-Test Pathway for People Who Use Drugs</title>
+    <id>https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-09T08:58:43.832Z</updated>
+    <summary type="text">Analysis of 15,077 HIV self-test kit requests from Oct 2025 to Aug 2026 and what they reveal about testing behaviour.</summary>
+  </entry>
+  <entry>
+    <title>Methamphetamine Harm Reduction: Thai Service Behaviour Data 2025–2026</title>
+    <id>https://testd.website/en/info/article/meth-harm-reduction-thailand-behaviour-2026</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/meth-harm-reduction-thailand-behaviour-2026" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-09T08:58:43.832Z</updated>
+    <summary type="text">Meth use patterns, slamming and polydrug mixing in Thai service data, with population-specific harm reduction guidance.</summary>
+  </entry>
+  <entry>
+    <title>Chemsex Safety Playbook: Thailand 2026 Data Edition</title>
+    <id>https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-09T08:58:55.000Z</updated>
+    <summary type="text">A full chemsex harm reduction playbook grounded in real service data: 15,077 self-test kit requests, 25,133 clinic appointments and 53 completed risk screenings.</summary>
+  </entry>
+  <entry>
+    <title>42 Substance Interaction Pairs: Which Combinations Can Kill</title>
+    <id>https://testd.website/en/info/article/42-critical-substance-interactions-chemsex</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/42-critical-substance-interactions-chemsex" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-09T08:58:43.832Z</updated>
+    <summary type="text">A breakdown of 42 documented substance interaction pairs — 11 critical, 19 high, 12 moderate — across 18 substances.</summary>
+  </entry>
+  <entry>
+    <title>GHB/GBL: Dosing, Spacing and What To Do When Someone Goes Under</title>
+    <id>https://testd.website/en/info/article/ghb-overdose-prevention-timeline</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/ghb-overdose-prevention-timeline" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-09T08:58:43.832Z</updated>
+    <summary type="text">GHB forms critical interactions with alcohol and benzodiazepines. Spacing tables, danger signs and step-by-step response.</summary>
+  </entry>
   <entry>
     <title>Long-Acting Injectable PrEP: Lenacapavir and CAB-LA</title>
     <id>https://testd.website/en/info/article/long-acting-injectable-prep</id>
@@ -273,7 +321,7 @@
     <id>https://testd.website/en/info/article/gonorrhea-vs-chlamydia</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/gonorrhea-vs-chlamydia" />
     <published>2026-08-06T18:29:01.755Z</published>
-    <updated>2026-08-08T14:42:30.545Z</updated>
+    <updated>2026-08-09T05:16:07.521Z</updated>
     <summary type="text">Gonorrhea and chlamydia can look similar but are different infections. Learn about symptoms, testing, treatment, and partner care.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/gonorrhea-vs-chlamydia-1786040941502.png" />
   </entry>
@@ -282,7 +330,7 @@
     <id>https://testd.website/en/info/article/hpv-vaccine-for-men</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hpv-vaccine-for-men" />
     <published>2026-08-06T18:28:56.107Z</published>
-    <updated>2026-08-06T18:28:56.107Z</updated>
+    <updated>2026-08-09T08:44:53.038Z</updated>
     <summary type="text">HPV vaccination can protect men and LGBTQ+ people from genital warts and certain cancers. Learn who may benefit and when to discuss vaccination.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/hpv-vaccine-for-men-1786040935913.png" />
   </entry>
@@ -345,7 +393,7 @@
     <id>https://testd.website/en/info/article/pep-cost-and-coverage</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/pep-cost-and-coverage" />
     <published>2026-08-06T18:25:43.903Z</published>
-    <updated>2026-08-07T01:34:04.402Z</updated>
+    <updated>2026-08-08T19:26:15.750Z</updated>
     <summary type="text">PEP costs in Thailand vary by coverage, clinic, tests, and medication. Learn how NHSO coverage may apply and why care is urgent within 72 hours.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-cost-and-coverage-1786040743654.png" />
   </entry>
@@ -354,7 +402,7 @@
     <id>https://testd.website/en/info/article/pep-28-day-course</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/pep-28-day-course" />
     <published>2026-08-06T18:25:38.778Z</published>
-    <updated>2026-08-06T18:25:38.778Z</updated>
+    <updated>2026-08-08T19:20:51.249Z</updated>
     <summary type="text">PEP should be completed for 28 days as prescribed, with follow-up HIV testing because a negative baseline result is not conclusive.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-28-day-course-1786040738534.png" />
   </entry>
@@ -372,7 +420,7 @@
     <id>https://testd.website/en/info/article/pep-where-bangkok-pattaya</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/pep-where-bangkok-pattaya" />
     <published>2026-08-06T18:25:28.454Z</published>
-    <updated>2026-08-07T03:39:44.695Z</updated>
+    <updated>2026-08-08T19:10:41.668Z</updated>
     <summary type="text">Potential HIV exposure within 72 hours? Learn where to seek PEP in Bangkok and Pattaya, what to prepare, and how SWING can help.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-where-bangkok-pattaya-1786040728178.png" />
   </entry>
@@ -402,59 +450,5 @@
     <updated>2026-08-06T18:43:16.404Z</updated>
     <summary type="text">PrEP care includes regular HIV, kidney and STI screening. Follow-up every three months helps keep prevention safe and suited to your needs.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-quarterly-followup-1786040629401.png" />
-  </entry>
-  <entry>
-    <title>Free PrEP in Thailand: Where to Get It and NHSO Coverage</title>
-    <id>https://testd.website/en/info/article/prep-free-where-thailand</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/prep-free-where-thailand" />
-    <published>2026-08-06T18:20:15.991Z</published>
-    <updated>2026-08-06T18:20:15.991Z</updated>
-    <summary type="text">Learn how to access free PrEP through Thailand’s NHSO scheme, what screening involves, and how to book with SWING Clinic.</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-free-where-thailand-1786040415750.png" />
-  </entry>
-  <entry>
-    <title>On-Demand PrEP (2-1-1): How to Use It Safely</title>
-    <id>https://testd.website/en/info/article/prep-on-demand-211</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/prep-on-demand-211" />
-    <published>2026-08-06T18:20:03.355Z</published>
-    <updated>2026-08-06T18:20:03.355Z</updated>
-    <summary type="text">Learn who on-demand 2-1-1 PrEP may suit, what checks are needed, and what to do if plans change or a dose is missed.</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-on-demand-211-1786040402592.png" />
-  </entry>
-  <entry>
-    <title>PrEP Side Effects: What to Expect and How to Cope</title>
-    <id>https://testd.website/en/info/article/prep-side-effects</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/prep-side-effects" />
-    <published>2026-08-06T18:19:57.838Z</published>
-    <updated>2026-08-06T18:19:57.838Z</updated>
-    <summary type="text">Learn about common oral and injectable PrEP side effects, practical self-care, warning signs, and when to contact a clinic.</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-side-effects-1786040397576.png" />
-  </entry>
-  <entry>
-    <title>PrEP vs PEP: What’s the Difference and Which Is Right for You?</title>
-    <id>https://testd.website/en/info/article/prep-vs-pep</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/prep-vs-pep" />
-    <published>2026-08-06T18:19:52.588Z</published>
-    <updated>2026-08-06T18:19:52.588Z</updated>
-    <summary type="text">PrEP prevents HIV before potential exposure, while PEP is an emergency option started within 72 hours after exposure. Learn which fits your situation.</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-vs-pep-1786040392279.png" />
-  </entry>
-  <entry>
-    <title>Missed PrEP Dose: Are You Still Protected?</title>
-    <id>https://testd.website/en/info/article/prep-missed-dose</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/prep-missed-dose" />
-    <published>2026-08-06T18:19:49.113Z</published>
-    <updated>2026-08-06T18:19:49.114Z</updated>
-    <summary type="text">A missed PrEP dose does not always erase protection. Learn what affects risk, when to seek PEP, and how to restart safely.</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-missed-dose-1786040388835.png" />
-  </entry>
-  <entry>
-    <title>What Is PrEP? How to Start and Which Tests You Need</title>
-    <id>https://testd.website/en/info/article/prep-what-is-how-to-start</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/prep-what-is-how-to-start" />
-    <published>2026-08-06T18:18:10.920Z</published>
-    <updated>2026-08-06T18:18:10.920Z</updated>
-    <summary type="text">Learn how PrEP prevents HIV, who it may suit, the tests needed before starting, follow-up care, and how to access services in Thailand.</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-what-is-how-to-start-1786040290603.png" />
   </entry>
 </feed>

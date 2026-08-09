@@ -3,10 +3,58 @@
   <title>testD — บทความสุขภาพทางเพศและลดอันตราย</title>
   <subtitle>อัปเดตบทความใหม่จาก testD เรื่อง HIV, PrEP, PEP, โรคติดต่อทางเพศสัมพันธ์ และการลดอันตรายจากการใช้สาร</subtitle>
   <id>https://testd.website/atom.xml</id>
-  <updated>2026-08-07T03:46:29.014Z</updated>
+  <updated>2026-08-09T08:58:43.832Z</updated>
   <link rel="self" type="application/atom+xml" href="https://testd.website/atom.xml" />
   <link rel="alternate" type="text/html" href="https://testd.website/th/info" />
   <author><name>testD</name></author>
+  <entry>
+    <title>71.7% อยู่ในกลุ่มเสี่ยงสูง: สิ่งที่แบบประเมิน PHQ-4 / ASSIST / C-SSRS บอกเราเรื่องเชมเซ็กซ์</title>
+    <id>https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-09T08:58:43.832Z</updated>
+    <summary type="text">ผลแบบประเมินความเสี่ยง 53 ชุด ระหว่าง 12 มี.ค. – 8 ส.ค. 2569 พร้อมแนวโน้มรายเดือนและความหมายต่อการดูแลสุขภาพจิตของผู้ใช้สาร</summary>
+  </entry>
+  <entry>
+    <title>จาก 222 เป็น 2,819 ชุดต่อเดือน: เส้นทางชุดตรวจ HIV ด้วยตนเองกับกลุ่มใช้สาร</title>
+    <id>https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-09T08:58:43.832Z</updated>
+    <summary type="text">วิเคราะห์คำขอชุดตรวจ 15,077 รายการ ตั้งแต่ ต.ค. 2568 ถึง ส.ค. 2569 เห็นพฤติกรรมการตรวจของกลุ่มใช้สารและช่วงเวลาที่ควรสื่อสาร</summary>
+  </entry>
+  <entry>
+    <title>ไอซ์กับการลดอันตราย: ข้อมูลพฤติกรรมผู้ใช้บริการไทย ปี 2568–2569</title>
+    <id>https://testd.website/th/info/article/meth-harm-reduction-thailand-behaviour-2026</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/meth-harm-reduction-thailand-behaviour-2026" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-09T08:58:43.832Z</updated>
+    <summary type="text">เจาะข้อมูลรูปแบบการใช้เมทแอมเฟตามีน การฉีด (slam) และการผสมสาร พร้อมแนวทางลดอันตรายรายกลุ่ม อ้างอิงข้อมูลบริการ 11 เดือน</summary>
+  </entry>
+  <entry>
+    <title>คู่มือความปลอดภัยเรื่องเชมเซ็กซ์ (Chemsex Safety Playbook) ฉบับข้อมูลจริงปี 2569</title>
+    <id>https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-09T08:58:55.000Z</updated>
+    <summary type="text">คู่มือลดอันตรายจากเชมเซ็กซ์แบบครบวงจร อ้างอิงข้อมูลบริการจริง 15,077 คำขอชุดตรวจ, 25,133 นัดหมาย และแบบประเมินความเสี่ยง 53 ชุด พร้อมไทม์ไลน์ความปลอดภัยก่อน–ระหว่าง–หลังปาร์ตี้</summary>
+  </entry>
+  <entry>
+    <title>42 คู่ปฏิกิริยาระหว่างสาร: คู่ไหนเสี่ยงตาย คู่ไหนพอจัดการได้</title>
+    <id>https://testd.website/th/info/article/42-critical-substance-interactions-chemsex</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/42-critical-substance-interactions-chemsex" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-09T08:58:43.832Z</updated>
+    <summary type="text">ฐานข้อมูลคู่ปฏิกิริยาระหว่างสาร 42 คู่ (วิกฤต 11 / สูง 19 / ปานกลาง 12) จากสาร 18 ชนิด พร้อมวิธีอ่านผลและใช้จริงในคืนที่มีการใช้สาร</summary>
+  </entry>
+  <entry>
+    <title>GHB/GBL: การตวง การเว้นช่วง และการช่วยชีวิตเมื่อเพื่อนหมดสติ</title>
+    <id>https://testd.website/th/info/article/ghb-overdose-prevention-timeline</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-09T08:58:43.832Z</updated>
+    <summary type="text">GHB เป็นคู่ปฏิกิริยาระดับวิกฤตกับแอลกอฮอล์และยานอนหลับ บทความนี้ให้ตารางเวลาเว้นช่วง สัญญาณอันตราย และขั้นตอนช่วยชีวิตทีละขั้น</summary>
+  </entry>
   <entry>
     <title>PrEP ฉีดออกฤทธิ์ยาว: รู้จัก Lenacapavir และ CAB-LA</title>
     <id>https://testd.website/th/info/article/long-acting-injectable-prep</id>
@@ -273,7 +321,7 @@
     <id>https://testd.website/th/info/article/gonorrhea-vs-chlamydia</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/gonorrhea-vs-chlamydia" />
     <published>2026-08-06T18:29:01.755Z</published>
-    <updated>2026-08-08T14:42:30.545Z</updated>
+    <updated>2026-08-09T05:16:07.521Z</updated>
     <summary type="text">หนองในและหนองในเทียมมีอาการคล้ายกัน แต่เกิดจากเชื้อต่างชนิด รู้จักอาการ วิธีตรวจ รักษา และดูแลคู่นอนอย่างปลอดภัย</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/gonorrhea-vs-chlamydia-1786040941502.png" />
   </entry>
@@ -282,7 +330,7 @@
     <id>https://testd.website/th/info/article/hpv-vaccine-for-men</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hpv-vaccine-for-men" />
     <published>2026-08-06T18:28:56.107Z</published>
-    <updated>2026-08-06T18:28:56.107Z</updated>
+    <updated>2026-08-09T08:44:53.038Z</updated>
     <summary type="text">วัคซีน HPV ผู้ชายและ LGBTQ+ ช่วยป้องกันหูดและมะเร็งบางชนิด อ่านว่าใครควรฉีด ฉีดหลังเคยมีเพศสัมพันธ์ได้ไหม และเข้าถึงบริการอย่างไร</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/hpv-vaccine-for-men-1786040935913.png" />
   </entry>
@@ -345,7 +393,7 @@
     <id>https://testd.website/th/info/article/pep-cost-and-coverage</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/pep-cost-and-coverage" />
     <published>2026-08-06T18:25:43.903Z</published>
-    <updated>2026-08-07T01:34:04.402Z</updated>
+    <updated>2026-08-08T19:26:15.750Z</updated>
     <summary type="text">PEP ราคาไม่เท่ากันตามสิทธิ สถานพยาบาล ค่าตรวจ และค่ายา รู้วิธีเช็กบัตรทองและขอรับบริการให้ทันภายใน 72 ชั่วโมง</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-cost-and-coverage-1786040743654.png" />
   </entry>
@@ -354,7 +402,7 @@
     <id>https://testd.website/th/info/article/pep-28-day-course</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/pep-28-day-course" />
     <published>2026-08-06T18:25:38.778Z</published>
-    <updated>2026-08-06T18:25:38.778Z</updated>
+    <updated>2026-08-08T19:20:51.249Z</updated>
     <summary type="text">PEP ต้องกินต่อเนื่องครบ 28 วันตามแพทย์สั่ง พร้อมตรวจ HIV ซ้ำตามนัด เพราะผลลบวันเริ่มยาเพียงอย่างเดียวยังสรุปไม่ได้</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-28-day-course-1786040738534.png" />
   </entry>
@@ -372,7 +420,7 @@
     <id>https://testd.website/th/info/article/pep-where-bangkok-pattaya</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/pep-where-bangkok-pattaya" />
     <published>2026-08-06T18:25:28.454Z</published>
-    <updated>2026-08-07T03:39:44.695Z</updated>
+    <updated>2026-08-08T19:10:41.668Z</updated>
     <summary type="text">สัมผัสเชื้อเอชไอวีมาไม่เกิน 72 ชั่วโมง? ดูช่องทางขอ PEP ในกรุงเทพและพัทยา พร้อมขั้นตอนเตรียมตัวและบริการจาก SWING</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-where-bangkok-pattaya-1786040728178.png" />
   </entry>
@@ -402,59 +450,5 @@
     <updated>2026-08-06T18:43:16.404Z</updated>
     <summary type="text">การใช้ PrEP ไม่ได้จบแค่รับยา การตรวจ HIV ไต โรคติดต่อทางเพศสัมพันธ์ และทบทวนการใช้ทุก 3 เดือน ช่วยให้ดูแลสุขภาพได้อย่างปลอดภัย</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-quarterly-followup-1786040629401.png" />
-  </entry>
-  <entry>
-    <title>PrEP ฟรีในไทย: รับที่ไหน ใช้สิทธิบัตรทองอย่างไร</title>
-    <id>https://testd.website/th/info/article/prep-free-where-thailand</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/prep-free-where-thailand" />
-    <published>2026-08-06T18:20:15.991Z</published>
-    <updated>2026-08-06T18:20:15.991Z</updated>
-    <summary type="text">รู้จักช่องทางรับ PrEP ฟรีผ่านสิทธิบัตรทอง ขั้นตอนตรวจประเมิน เอกสารที่ควรเตรียม และการจองบริการกับ SWING Clinic</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-free-where-thailand-1786040415750.png" />
-  </entry>
-  <entry>
-    <title>PrEP on demand แบบ 2-1-1: ใช้อย่างไรให้ปลอดภัย</title>
-    <id>https://testd.website/th/info/article/prep-on-demand-211</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/prep-on-demand-211" />
-    <published>2026-08-06T18:20:03.355Z</published>
-    <updated>2026-08-06T18:20:03.355Z</updated>
-    <summary type="text">เข้าใจ PrEP เฉพาะกิจแบบ 2-1-1 เหมาะกับใคร ต้องตรวจอะไร และควรทำอย่างไรเมื่อแผนเปลี่ยนหรือลืมกินยา</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-on-demand-211-1786040402592.png" />
-  </entry>
-  <entry>
-    <title>PrEP ผลข้างเคียงมีอะไรบ้าง และรับมืออย่างไร</title>
-    <id>https://testd.website/th/info/article/prep-side-effects</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/prep-side-effects" />
-    <published>2026-08-06T18:19:57.838Z</published>
-    <updated>2026-08-06T18:19:57.838Z</updated>
-    <summary type="text">สรุป PrEP ผลข้างเคียงที่พบบ่อย ทั้งชนิดรับประทานและชนิดฉีด วิธีดูแลตัวเอง สัญญาณอันตราย และเวลาที่ควรปรึกษาคลินิก</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-side-effects-1786040397576.png" />
-  </entry>
-  <entry>
-    <title>PrEP กับ PEP ต่างกันยังไง เลือกแบบไหนดี</title>
-    <id>https://testd.website/th/info/article/prep-vs-pep</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/prep-vs-pep" />
-    <published>2026-08-06T18:19:52.588Z</published>
-    <updated>2026-08-06T18:19:52.588Z</updated>
-    <summary type="text">PrEP ใช้ป้องกันเอชไอวีก่อนมีความเสี่ยง ส่วน PEP ใช้หลังเหตุเสี่ยงและควรเริ่มภายใน 72 ชั่วโมง มาดูว่าแบบไหนเหมาะกับสถานการณ์ของคุณ</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-vs-pep-1786040392279.png" />
-  </entry>
-  <entry>
-    <title>ลืมกิน PrEP ทำยังไงต่อ ยังป้องกันได้อยู่ไหม</title>
-    <id>https://testd.website/th/info/article/prep-missed-dose</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/prep-missed-dose" />
-    <published>2026-08-06T18:19:49.113Z</published>
-    <updated>2026-08-06T18:19:49.114Z</updated>
-    <summary type="text">ลืมกิน PrEP หนึ่งครั้งไม่ได้แปลว่าการป้องกันหายทันที มาดูปัจจัยที่มีผล วิธีดูแลตัวเอง และเมื่อไรควรรีบประเมิน PEP</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-missed-dose-1786040388835.png" />
-  </entry>
-  <entry>
-    <title>PrEP คืออะไร เริ่ม PrEP อย่างไร ต้องตรวจอะไรบ้าง</title>
-    <id>https://testd.website/th/info/article/prep-what-is-how-to-start</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/prep-what-is-how-to-start" />
-    <published>2026-08-06T18:18:10.920Z</published>
-    <updated>2026-08-06T18:18:10.920Z</updated>
-    <summary type="text">รู้จัก PrEP ยาป้องกันเอชไอวีสำหรับผู้ที่ยังไม่มีเชื้อ ขั้นตอนเริ่มยา การตรวจก่อนใช้ การติดตามผล และช่องทางรับบริการในไทย</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-what-is-how-to-start-1786040290603.png" />
   </entry>
 </feed>
