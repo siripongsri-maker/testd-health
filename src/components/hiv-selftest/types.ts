@@ -36,6 +36,8 @@ export interface NHSOFormData {
   idType?: IdType;
   dateOfBirth: string;
   gender: 'male' | 'female' | 'transgender_male' | 'transgender_female' | 'non_binary' | 'prefer_not_to_say' | '';
+  /** Voluntary, consent-free. Empty means not answered. */
+  nationality?: string;
 }
 
 export interface SavedUserData {

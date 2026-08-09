@@ -113,6 +113,7 @@ export default function HIVSelfTest() {
     idType: "thai_id",
     dateOfBirth: "",
     gender: "",
+    nationality: "",
   });
   
   // Pickup location state
@@ -722,6 +723,7 @@ export default function HIVSelfTest() {
         status: initialStatus,
         assigned_branch: assignedBranch,
         delivery_mode: deliveryMode,
+        nationality: nhsoData.nationality || null,
       };
 
       if (isPickup && pickupLocation) {

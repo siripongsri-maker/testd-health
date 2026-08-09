@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Check, ShieldCheck, Sparkles, Fingerprint } from "lucide-react";
 import { useLanguage } from "@/lib/i18n";
+import { NationalitySelect } from "@/components/common/NationalitySelect";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -57,6 +58,7 @@ export function PreServiceSurveyModal({ bookingId, channel }: Props) {
 
   // UIC fields
   const [nationality, setNationality] = useState<UicNationality>("thai");
+  const [selfNationality, setSelfNationality] = useState("");
   const [firstInitial, setFirstInitial] = useState("");
   const [lastInitial, setLastInitial] = useState("");
   const [day, setDay] = useState("");
@@ -143,6 +145,7 @@ export function PreServiceSurveyModal({ bookingId, channel }: Props) {
         p_recommend: recommend,
         p_mental_health_interest: mhInterest,
         p_suggestions: suggestions.trim() || null,
+        p_nationality: selfNationality || null,
       };
       console.log("SURVEY_PAYLOAD", payload);
       console.log("BOOKING_ID", bookingId);
@@ -304,6 +307,13 @@ export function PreServiceSurveyModal({ bookingId, channel }: Props) {
                     </button>
                   ))}
                 </div>
+
+                <NationalitySelect
+                  value={selfNationality}
+                  onChange={setSelfNationality}
+                  language={language}
+                  id="survey-nationality"
+                />
 
                 <div className="grid grid-cols-2 gap-2">
                   <LabeledInput
