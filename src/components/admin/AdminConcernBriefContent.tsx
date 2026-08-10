@@ -157,12 +157,12 @@ export default function AdminConcernBriefContent() {
       {
         key: "concerns",
         header: tx("เรื่องที่กังวล", "Concerns"),
-        value: (p) => p.concernIds
+        format: (p) => p.concernIds
           .map((id) => CONCERNS.find((c) => c.id === id))
           .map((c) => (c ? (language === "th" ? c.th : c.en) : ""))
           .join(" | "),
       },
-      { key: "phq4", header: "PHQ-4", value: (p) => (p.phq4 === null ? "" : `${p.phq4}/12`) },
+      { key: "phq4", header: "PHQ-4", format: (p) => (p.phq4 === null ? "" : `${p.phq4}/12`) },
       { key: "mental", header: tx("สนใจสุขภาพจิต", "Mental health interest"), value: (p) => (p.mentalInterest ? "Y" : "") },
       { key: "hr", header: tx("สนใจลดอันตราย", "Harm reduction interest"), value: (p) => (p.hrInterest ? "Y" : "") },
     ];
