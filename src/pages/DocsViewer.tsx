@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 const AVAILABLE_DOCS = [
   { name: "BOOKING_STAFF_GUIDE.html", label: "Staff Booking Guide (English)" },
   { name: "BOOKING_STAFF_GUIDE_TH.html", label: "คู่มือการจองสำหรับเจ้าหน้าที่ (ภาษาไทย)" },
+  { name: "COUNSELOR_LOGIN_GUIDE_TH.html", label: "คู่มือเข้าสู่ระบบหลังบ้านสำหรับเจ้าหน้าที่ให้คำปรึกษา (รายสาขา)" },
 ];
 
 const DocsIndex = () => (

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>คู่มือเข้าสู่ระบบหลังบ้านสำหรับเจ้าหน้าที่ให้คำปรึกษา (รายสาขา) | testD</title>
+<style>
+  :root { --rose:#c0275e; --ink:#1c1b1f; --muted:#6b6875; --line:#e9e3e8; --bg:#fff8fb; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:"Noto Sans Thai","Sarabun","IBM Plex Sans Thai",system-ui,-apple-system,"Segoe UI",sans-serif;
+         color:var(--ink); background:var(--bg); line-height:1.75; }
+  .wrap { max-width:900px; margin:0 auto; padding:32px 20px 64px; }
+  header { background:linear-gradient(135deg,#c0275e,#f0698a); color:#fff; border-radius:20px; padding:28px 24px; }
+  header h1 { margin:0 0 6px; font-size:26px; }
+  header p { margin:0; opacity:.92; font-size:15px; }
+  h2 { font-size:20px; margin:34px 0 10px; padding-bottom:8px; border-bottom:2px solid var(--line); }
+  h3 { font-size:16px; margin:20px 0 6px; color:var(--rose); }
+  ol, ul { padding-inline-start:22px; margin:8px 0; }
+  li { margin:5px 0; }
+  code, .kbd { background:#fff; border:1px solid var(--line); border-radius:6px; padding:1px 6px; font-size:14px; }
+  table { width:100%; border-collapse:collapse; margin:12px 0; background:#fff; border-radius:12px; overflow:hidden; }
+  th, td { border:1px solid var(--line); padding:9px 11px; text-align:start; font-size:14.5px; vertical-align:top; }
+  th { background:#fdeef4; color:var(--rose); font-weight:700; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:16px; padding:16px 18px; margin:12px 0; }
+  .note { border-inline-start:5px solid var(--rose); background:#fff; padding:12px 16px; border-radius:12px; margin:12px 0; }
+  .warn { border-inline-start:5px solid #d97706; background:#fffaf0; padding:12px 16px; border-radius:12px; margin:12px 0; }
+  .muted { color:var(--muted); font-size:13.5px; }
+  .steps { counter-reset:s; list-style:none; padding:0; }
+  .steps > li { counter-increment:s; background:#fff; border:1px solid var(--line); border-radius:14px;
+                padding:12px 16px 12px 52px; position:relative; margin:10px 0; }
+  .steps > li::before { content:counter(s); position:absolute; inset-inline-start:14px; top:12px; width:26px; height:26px;
+        background:var(--rose); color:#fff; border-radius:50%; display:grid; place-items:center; font-size:14px; font-weight:700; }
+  .btn { display:inline-block; background:var(--rose); color:#fff; text-decoration:none; padding:10px 18px; border-radius:999px; font-size:14px; }
+  footer { margin-top:40px; color:var(--muted); font-size:13px; text-align:center; }
+  @media print { body{background:#fff;} .noprint{display:none;} header{background:#c0275e !important; -webkit-print-color-adjust:exact; print-color-adjust:exact;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>คู่มือเข้าสู่ระบบหลังบ้าน (Admin Console)</h1>
+  <p>สำหรับเจ้าหน้าที่ให้คำปรึกษา (Counselor) แยกตามสาขา — testD x SWING</p>
+</header>
+
+<p class="noprint" style="margin-top:16px"><a class="btn" href="javascript:window.print()">🖨️ พิมพ์ / บันทึกเป็น PDF</a></p>
+
+<h2>1. สิ่งที่ต้องมีก่อนเริ่มใช้งาน</h2>
+<div class="card">
+  <ul>
+    <li><b>บัญชีเจ้าหน้าที่</b> ที่ผู้ดูแลระบบ (Admin) สร้างให้ พร้อม <b>ระบุสาขา</b> ของคุณแล้ว</li>
+    <li><b>ชื่อผู้ใช้ (Username)</b> และ <b>รหัสผ่าน</b> ที่ได้รับ (รหัสผ่านอย่างน้อย 8 ตัวอักษร)</li>
+    <li>อินเทอร์เน็ต + เบราว์เซอร์ Chrome / Safari (ใช้บนมือถือได้)</li>
+  </ul>
+  <p class="muted">บัญชีเจ้าหน้าที่ภายในไม่ต้องใช้อีเมลจริง ระบบจะเติม <code>@swingth.local</code> ให้อัตโนมัติ</p>
+</div>
+
+<h2>2. ขั้นตอนการเข้าสู่ระบบ</h2>
+<ol class="steps">
+  <li>เปิดเว็บไซต์ <code>https://testd.website/auth</code></li>
+  <li>กรอก <b>ชื่อผู้ใช้</b> ในช่องแรก (พิมพ์เฉพาะชื่อผู้ใช้ เช่น <code>silom.counselor1</code> — ไม่ต้องพิมพ์ <code>@swingth.local</code>)</li>
+  <li>กรอก <b>รหัสผ่าน</b> แล้วกดปุ่มเข้าสู่ระบบ</li>
+  <li>เมื่อเข้าสำเร็จ ให้เปิดเมนูหลังบ้านที่ <code>https://testd.website/admin</code></li>
+  <li>ระบบจะแสดงเฉพาะเมนูและ<b>ข้อมูลของสาขาที่คุณสังกัด</b>เท่านั้น</li>
+</ol>
+<div class="warn">
+  <b>เข้าไม่ได้?</b> ตรวจสอบตามลำดับ: พิมพ์ชื่อผู้ใช้/รหัสผ่านถูกต้องหรือไม่ → บัญชีถูกตั้งเป็น “ปิดใช้งาน” หรือไม่ (ระบบจะบังคับออกจากระบบทันที) →
+  แจ้งผู้ดูแลระบบเพื่อรีเซ็ตรหัสผ่าน หรือเปิดใช้งานบัญชีใหม่
+</div>
+
+<h2>3. เมนูที่เจ้าหน้าที่ให้คำปรึกษาเข้าถึงได้</h2>
+<table>
+  <tr><th>เมนู</th><th>ใช้ทำอะไร</th></tr>
+  <tr><td>ศูนย์ให้คำปรึกษา (Counselor Support)</td><td>ดูรายการเคสที่ต้องติดตาม บันทึกการให้คำปรึกษา และดูข้อมูล Harm Reduction ที่ผู้รับบริการยินยอมให้เห็น</td></tr>
+  <tr><td>สรุปรายวันของสาขา (Daily Branch Brief)</td><td>ภาพรวมนัดหมายวันนี้ เวลาที่จองเข้ามา สถานะคิว และเคสเร่งด่วนที่ถูกไฮไลท์</td></tr>
+  <tr><td>สรุปเรื่องที่กังวลรายวัน (Concern Brief)</td><td>ดูหัวข้อที่ผู้รับบริการเลือกไว้ก่อนเข้าคิว และคะแนนคัดกรอง PHQ-4 เพื่อเตรียมตัวก่อนคุย</td></tr>
+  <tr><td>กระดานคิว (Queue Board)</td><td>ติดตามคิวแบบเรียลไทม์ เรียกคิว และอัปเดตสถานะการรับบริการ</td></tr>
+</table>
+<p class="muted">หากต้องการเมนูเพิ่ม (เช่น รายงานผลชุดตรวจ หรือการเงิน) ต้องให้ผู้ดูแลระบบกำหนดสิทธิ์เพิ่มเติม</p>
+
+<h2>4. การแยกข้อมูลตามสาขา</h2>
+<div class="card">
+  <ul>
+    <li>บัญชีของคุณผูกกับสาขาเดียว (เช่น สีลม, พัทยา, สะพานควาย, เพชรเกษม, อุดมสุข)</li>
+    <li>รายการนัดหมาย คิว และเคส จะกรองให้อัตโนมัติเฉพาะสาขาของคุณ</li>
+    <li>ต้องการดูข้ามสาขา ให้ประสานผู้ดูแลระบบ — ห้ามใช้บัญชีของเพื่อนร่วมงาน</li>
+  </ul>
+</div>
+
+<h2>5. ขั้นตอนการทำงานประจำวัน (แนะนำ)</h2>
+<ol class="steps">
+  <li><b>ก่อนเปิดบริการ</b> — เปิด “สรุปรายวันของสาขา” ดูจำนวนนัดหมายและเวลาที่จองเข้ามา</li>
+  <li><b>ก่อนเรียกคิว</b> — เปิด “สรุปเรื่องที่กังวลรายวัน” ดูหัวข้อที่ผู้รับบริการกังวล และเคสที่มีคะแนน PHQ-4 ≥ 3</li>
+  <li><b>ระหว่างให้บริการ</b> — อัปเดตสถานะคิวทุกครั้ง (เรียกคิว / กำลังให้บริการ / เสร็จสิ้น)</li>
+  <li><b>หลังให้คำปรึกษา</b> — บันทึกโน้ตเคสและการส่งต่อใน “ศูนย์ให้คำปรึกษา” ภายในวันเดียวกัน</li>
+  <li><b>ก่อนปิดบริการ</b> — ตรวจว่าไม่มีเคสค้างสถานะ และออกจากระบบทุกครั้ง</li>
+</ol>
+
+<h2>6. ความปลอดภัยและ PDPA</h2>
+<div class="note">
+  <ul>
+    <li>ข้อมูลส่วนบุคคลถูก <b>ปิดบัง (masked)</b> ไว้ตั้งแต่ต้น ต้องกด “เปิดเผยข้อมูล” เฉพาะเมื่อจำเป็น — ทุกครั้งจะถูกบันทึกลง audit log</li>
+    <li>ระบบจะ <b>ออกจากระบบอัตโนมัติ</b> เมื่อไม่มีการใช้งานต่อเนื่อง</li>
+    <li>ห้ามแชร์บัญชี ห้ามถ่ายภาพหน้าจอที่มีข้อมูลผู้รับบริการ และห้ามส่งข้อมูลผ่านแชตส่วนตัว</li>
+    <li>การส่งออกไฟล์ CSV จะมีลายน้ำระบุตัวผู้ส่งออกฝังอยู่ในไฟล์</li>
+    <li>ใช้อุปกรณ์ของหน่วยงาน หรือหากใช้เครื่องส่วนตัวให้ล็อกหน้าจอและออกจากระบบทุกครั้ง</li>
+  </ul>
+</div>
+
+<h2>7. ปัญหาที่พบบ่อย</h2>
+<table>
+  <tr><th>อาการ</th><th>วิธีแก้</th></tr>
+  <tr><td>เข้าสู่ระบบแล้วแต่ไม่เห็นเมนู /admin</td><td>บัญชียังไม่ได้รับสิทธิ์ counselor — แจ้งผู้ดูแลระบบ</td></tr>
+  <tr><td>ถูกเด้งออกทันทีหลังล็อกอิน</td><td>บัญชีถูกตั้งเป็น “ไม่ใช้งาน” ในระบบ ให้แจ้งผู้ดูแลเปิดใช้งาน</td></tr>
+  <tr><td>ไม่เห็นเคสของสาขาตัวเอง</td><td>บัญชียังไม่ได้ผูกสาขา หรือผูกผิดสาขา — แจ้งผู้ดูแลระบบตรวจสอบ</td></tr>
+  <tr><td>ลืมรหัสผ่าน</td><td>บัญชีภายในรีเซ็ตเองไม่ได้ ต้องให้ผู้ดูแลระบบตั้งรหัสผ่านใหม่ให้</td></tr>
+  <tr><td>หน้าจอค้าง/ข้อมูลไม่อัปเดต</td><td>รีเฟรชหน้าเว็บ (ดึงหน้าจอลงบนมือถือ) หรือปิดแล้วเปิดเบราว์เซอร์ใหม่</td></tr>
+</table>
+
+<h2>8. สำหรับผู้ดูแลระบบ: การสร้างบัญชีให้เจ้าหน้าที่รายสาขา</h2>
+<ol class="steps">
+  <li>เข้า <code>/admin</code> → กลุ่มเมนู “จัดการระบบ” → <b>บัญชีเจ้าหน้าที่ให้คำปรึกษา</b></li>
+  <li>กด “เพิ่มบัญชี” แล้วกรอกชื่อผู้ใช้ ชื่อที่แสดง รหัสผ่านเริ่มต้น และ<b>เลือกสาขา</b></li>
+  <li>บันทึก แล้วส่งชื่อผู้ใช้/รหัสผ่านให้เจ้าหน้าที่ผ่านช่องทางที่ปลอดภัย และแจ้งให้เปลี่ยนรหัสผ่านทันที</li>
+  <li>เมื่อเจ้าหน้าที่ลาออกหรือย้ายสาขา ให้ปิดใช้งานบัญชี หรือแก้สาขาในหน้าเดียวกัน</li>
+</ol>
+
+<h2>9. ติดต่อขอความช่วยเหลือ</h2>
+<div class="card">
+  <p>คลินิก SWING: <b>+66 2 632 9501</b><br/>
+  หรือแจ้งผู้ดูแลระบบ testD ผ่านช่องแชตสนับสนุนภายในระบบ (เมนูช่วยเหลือ)</p>
+</div>
+
+<footer>เอกสารภายในสำหรับเจ้าหน้าที่ testD x SWING — ห้ามเผยแพร่ภายนอก</footer>
+</div>
+</body>
+</html>
