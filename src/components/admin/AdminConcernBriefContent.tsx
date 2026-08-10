@@ -150,10 +150,10 @@ export default function AdminConcernBriefContent() {
 
   const handleExport = () => {
     const columns: CsvColumn<Parsed>[] = [
-      { key: "time", header: tx("เวลา", "Time"), value: (p) => p.row.start_time?.slice(0, 5) || "" },
-      { key: "branch", header: tx("สาขา", "Branch"), value: (p) => branchName(p.row.branch_id) },
-      { key: "code", header: tx("รหัส", "Code"), value: (p) => p.row.referral_code || "" },
-      { key: "status", header: tx("สถานะ", "Status"), value: (p) => p.row.status },
+      { key: "time", header: tx("เวลา", "Time"), format: (p) => p.row.start_time?.slice(0, 5) || "" },
+      { key: "branch", header: tx("สาขา", "Branch"), format: (p) => branchName(p.row.branch_id) },
+      { key: "code", header: tx("รหัส", "Code"), format: (p) => p.row.referral_code || "" },
+      { key: "status", header: tx("สถานะ", "Status"), format: (p) => p.row.status },
       {
         key: "concerns",
         header: tx("เรื่องที่กังวล", "Concerns"),
@@ -163,8 +163,8 @@ export default function AdminConcernBriefContent() {
           .join(" | "),
       },
       { key: "phq4", header: "PHQ-4", format: (p) => (p.phq4 === null ? "" : `${p.phq4}/12`) },
-      { key: "mental", header: tx("สนใจสุขภาพจิต", "Mental health interest"), value: (p) => (p.mentalInterest ? "Y" : "") },
-      { key: "hr", header: tx("สนใจลดอันตราย", "Harm reduction interest"), value: (p) => (p.hrInterest ? "Y" : "") },
+      { key: "mental", header: tx("สนใจสุขภาพจิต", "Mental health interest"), format: (p) => (p.mentalInterest ? "Y" : "") },
+      { key: "hr", header: tx("สนใจลดอันตราย", "Harm reduction interest"), format: (p) => (p.hrInterest ? "Y" : "") },
     ];
     exportToCsv(parsed, columns, `concern-brief-${day}`);
   };
