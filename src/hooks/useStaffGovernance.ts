@@ -34,7 +34,7 @@ export function useStaffGovernance() {
   const heartbeatRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const sessionIdRef = useRef<string | null>(null);
 
-  const isStaff = role === 'admin' || role === 'moderator' || role === 'me_analyst';
+  const isStaff = role === 'admin' || role === 'moderator' || role === 'me_analyst' || role === 'counselor';
 
   // Reset inactivity timer
   const resetActivity = useCallback(() => {

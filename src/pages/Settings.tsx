@@ -49,6 +49,7 @@ export default function Settings() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isModerator, setIsModerator] = useState(false);
   const [isMeAnalyst, setIsMeAnalyst] = useState(false);
+  const [isCounselor, setIsCounselor] = useState(false);
   const [userBranch, setUserBranch] = useState<string | null>(null);
   const [adminRequest, setAdminRequest] = useState<{ status: string } | null>(null);
   const [showAdminRequest, setShowAdminRequest] = useState(false);
@@ -65,6 +66,7 @@ export default function Settings() {
       checkAdminStatus();
       checkModeratorStatus();
       checkMeAnalystStatus();
+      checkCounselorStatus();
       checkAdminRequest();
     }
   }, [user]);
@@ -104,6 +106,15 @@ export default function Settings() {
       _role: 'me_analyst',
     });
     setIsMeAnalyst(!!data);
+  };
+
+  const checkCounselorStatus = async () => {
+    if (!user) return;
+    const { data } = await supabase.rpc('has_role', {
+      _user_id: user.id,
+      _role: 'counselor' as any,
+    });
+    setIsCounselor(!!data);
   };
 
   const checkAdminRequest = async () => {
@@ -247,10 +258,16 @@ export default function Settings() {
                   {userBranch === 'silom' ? 'Silom Staff' : userBranch === 'pattaya' ? 'Pattaya Staff' : 'Staff'}
                 </Badge>
               )}
+              {isCounselor && !isAdmin && (
+                <Badge className="gap-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-0">
+                  <ShieldCheck className="h-3 w-3" />
+                  Counselor
+                </Badge>
+              )}
               </div>
               
               {/* Admin Section */}
-              {(isAdmin || isModerator || isMeAnalyst) ? (
+              {(isAdmin || isModerator || isMeAnalyst || isCounselor) ? (
                 <Button 
                   variant="outline" 
                   className="w-full justify-start gap-3 rounded-xl h-12"
@@ -265,6 +282,8 @@ export default function Settings() {
                     ? (language === 'th' ? 'แดชบอร์ดผู้ดูแล' : 'Admin Dashboard')
                     : isMeAnalyst
                     ? (language === 'th' ? 'M&E Analytics' : 'M&E Analytics')
+                    : isCounselor
+                    ? (language === 'th' ? 'เข้าสู่ระบบงานผู้ให้คำปรึกษา' : 'Counselor Console')
                     : (language === 'th' ? 'จัดการสาขา' : 'Branch Management')
                   }
                 </Button>
