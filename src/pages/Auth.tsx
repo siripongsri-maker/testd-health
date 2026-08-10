@@ -55,8 +55,8 @@ export default function Auth() {
         newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร' : 'Username must be at least 3 characters';
       } else if (trimmed.length > 30) {
         newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ต้องไม่เกิน 30 ตัวอักษร' : 'Username must be less than 30 characters';
-      } else if (!/^[a-zA-Z0-9_]+$/.test(trimmed) && !trimmed.includes('@')) {
-        newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ใช้ได้เฉพาะตัวอักษร ตัวเลข และ _' : 'Username can only contain letters, numbers, and _';
+      } else if (!/^[a-zA-Z0-9_.]+$/.test(trimmed) && !trimmed.includes('@')) {
+        newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ใช้ได้เฉพาะตัวอักษร ตัวเลข จุด (.) และ _' : 'Username can only contain letters, numbers, dots (.), and _';
       }
     }
 
