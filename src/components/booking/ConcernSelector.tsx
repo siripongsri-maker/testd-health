@@ -236,7 +236,7 @@ export function ConcernSelector({ language, onChange }: Props) {
                       {loc("อยากคุย", "Yes please")}
                     </Button>
                     <Button size="sm" variant={wantsMh === false ? "default" : "outline"} className="rounded-full text-xs" onClick={() => setWantsMh(false)}>
-                      {loc("ยังไม่ต้อนนี้", "Not right now")}
+                      {loc("ยังไม่ใช่ตอนนี้", "Not right now")}
                     </Button>
                   </div>
                 </div>
