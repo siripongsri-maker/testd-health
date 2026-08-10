@@ -13,7 +13,8 @@ import { supabase } from '@/integrations/supabase/client';
 
 // Helper to convert username to internal email format
 const usernameToEmail = (value: string) => {
-  const v = value.toLowerCase().trim();
+  // Strip spaces/zero-width chars that mobile keyboards & copy-paste often add
+  const v = value.toLowerCase().replace(/[\s\u200B-\u200D\uFEFF]/g, '');
   if (!v) return v;
   return v.includes('@') ? v : `${v}@swingth.local`;
 };
