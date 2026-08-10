@@ -6,6 +6,7 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import { Suspense, lazy } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const AdminDashboardContent = lazy(() => import("@/components/admin/AdminDashboardContent"));
 const BranchDashboardContent = lazy(() => import("@/components/admin/BranchDashboardContent"));
@@ -125,6 +126,28 @@ const ME_ANALYST_TABS = new Set([
 
 const COUNSELOR_TABS = ["counselor-support", "daily-branch-brief", "concern-brief", "queue-board"];
 
+function BranchLabel({ branchId }: { branchId: string }) {
+  const { language } = useLanguage();
+  const [name, setName] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    supabase
+      .from('booking_branches')
+      .select('name_th, name_en')
+      .eq('id', branchId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!active || !data) return;
+        setName(language === 'th' ? (data as any).name_th : ((data as any).name_en || (data as any).name_th));
+      });
+    return () => { active = false; };
+  }, [branchId, language]);
+
+  const label = name ?? (language === 'th' ? 'กำลังโหลด…' : 'Loading…');
+  return <>{language === 'th' ? `สาขา: ${label}` : `Branch: ${label}`}</>;
+}
+
 export default function Admin() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -187,7 +210,7 @@ export default function Admin() {
         {(isModerator || isCounselor) && !isAdmin && userBranch && (
           <div className="mb-4 p-3 bg-primary/10 rounded-lg border border-primary/20">
             <p className="text-sm font-medium text-primary">
-              {language === 'th' ? `สาขา: ${userBranch}` : `Branch: ${userBranch}`}
+              <BranchLabel branchId={userBranch} />
             </p>
           </div>
         )}
