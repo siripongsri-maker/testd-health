@@ -52,12 +52,13 @@ export default function Auth() {
       }
     } else {
       // Login mode supports username shorthand which maps to internal email.
-      if (trimmed.length < 3) {
+      const normalized = trimmed.replace(/[\s\u200B-\u200D\uFEFF]/g, '');
+      if (normalized.length < 3) {
         newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร' : 'Username must be at least 3 characters';
-      } else if (trimmed.length > 30) {
-        newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ต้องไม่เกิน 30 ตัวอักษร' : 'Username must be less than 30 characters';
-      } else if (!/^[a-zA-Z0-9_.]+$/.test(trimmed) && !trimmed.includes('@')) {
-        newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ใช้ได้เฉพาะตัวอักษร ตัวเลข จุด (.) และ _' : 'Username can only contain letters, numbers, dots (.), and _';
+      } else if (normalized.length > 60) {
+        newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ยาวเกินไป' : 'Username is too long';
+      } else if (!/^[a-zA-Z0-9_.@+-]+$/.test(normalized)) {
+        newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ใช้ได้เฉพาะตัวอักษร ตัวเลข จุด (.) ขีด (-) และ _' : 'Username can only contain letters, numbers, dots (.), hyphens (-), and _';
       }
     }
 
