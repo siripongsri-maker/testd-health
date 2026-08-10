@@ -135,13 +135,19 @@ export default function Auth() {
           localStorage.setItem('currentUser', displayName);
           toast.success(language === 'th' ? 'เข้าสู่ระบบสำเร็จ' : 'Login successful');
           
-          // Check if user is outreach_staff → redirect to form directly
+          // Route staff accounts to their workspace
           const { data: isOutreach } = await supabase.rpc('has_role', {
             _user_id: data.user.id,
             _role: 'outreach_staff' as any,
           });
+          const { data: isCounselor } = await supabase.rpc('has_role', {
+            _user_id: data.user.id,
+            _role: 'counselor' as any,
+          });
           if (isOutreach) {
             navigate('/outreach-form', { replace: true });
+          } else if (isCounselor) {
+            navigate('/admin', { replace: true });
           } else {
             navigate('/', { replace: true });
           }
