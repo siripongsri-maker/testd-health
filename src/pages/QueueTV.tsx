@@ -101,11 +101,11 @@ export default function QueueTV() {
     if (branchId) fetchQueue(branchId);
   }, [branchId, fetchQueue]);
 
-  // Realtime subscription — properly managed
+  // Live updates — realtime for signed-in staff screens, polling fallback for public TVs
+  // (anonymous viewers no longer have direct row access to queue tables)
   useEffect(() => {
     if (!branchId) return;
 
-    // Clean up any previous channel
     if (channelRef.current) {
       supabase.removeChannel(channelRef.current);
     }
@@ -128,7 +128,10 @@ export default function QueueTV() {
 
     channelRef.current = channel;
 
+    const poll = setInterval(() => fetchQueue(branchId), 10000);
+
     return () => {
+      clearInterval(poll);
       supabase.removeChannel(channel);
       channelRef.current = null;
     };
