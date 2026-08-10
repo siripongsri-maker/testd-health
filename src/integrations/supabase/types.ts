@@ -2019,6 +2019,13 @@ export type Database = {
             referencedRelation: "client_visit_flows"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "client_visit_flow_steps_visit_id_fkey"
+            columns: ["visit_id"]
+            isOneToOne: false
+            referencedRelation: "public_queue_visits"
+            referencedColumns: ["id"]
+          },
         ]
       }
       client_visit_flows: {
@@ -11564,6 +11571,77 @@ export type Database = {
           },
         ]
       }
+      public_queue_steps: {
+        Row: {
+          branch_id: string | null
+          called_at: string | null
+          entered_at: string | null
+          id: string | null
+          queue_code: string | null
+          room_number: number | null
+          step_code: string | null
+          step_status: string | null
+          visit_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_visit_flow_steps_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_visit_flow_steps_visit_id_fkey"
+            columns: ["visit_id"]
+            isOneToOne: false
+            referencedRelation: "client_visit_flows"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_visit_flow_steps_visit_id_fkey"
+            columns: ["visit_id"]
+            isOneToOne: false
+            referencedRelation: "public_queue_visits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      public_queue_visits: {
+        Row: {
+          branch_id: string | null
+          id: string | null
+          is_cancelled: boolean | null
+          is_completed: boolean | null
+          visit_code: string | null
+          visit_date: string | null
+        }
+        Insert: {
+          branch_id?: string | null
+          id?: string | null
+          is_cancelled?: boolean | null
+          is_completed?: boolean | null
+          visit_code?: string | null
+          visit_date?: string | null
+        }
+        Update: {
+          branch_id?: string | null
+          id?: string | null
+          is_cancelled?: boolean | null
+          is_completed?: boolean | null
+          visit_code?: string | null
+          visit_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_visit_flows_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "booking_branches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       public_site_stats: {
         Row: {
           registered_user_pageviews: number | null
@@ -11599,6 +11677,13 @@ export type Database = {
             columns: ["visit_id"]
             isOneToOne: false
             referencedRelation: "client_visit_flows"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_visit_flow_steps_visit_id_fkey"
+            columns: ["visit_id"]
+            isOneToOne: false
+            referencedRelation: "public_queue_visits"
             referencedColumns: ["id"]
           },
         ]
