@@ -13,7 +13,8 @@ import { supabase } from '@/integrations/supabase/client';
 
 // Helper to convert username to internal email format
 const usernameToEmail = (value: string) => {
-  const v = value.toLowerCase().trim();
+  // Strip spaces/zero-width chars that mobile keyboards & copy-paste often add
+  const v = value.toLowerCase().replace(/[\s\u200B-\u200D\uFEFF]/g, '');
   if (!v) return v;
   return v.includes('@') ? v : `${v}@swingth.local`;
 };
@@ -51,12 +52,13 @@ export default function Auth() {
       }
     } else {
       // Login mode supports username shorthand which maps to internal email.
-      if (trimmed.length < 3) {
+      const normalized = trimmed.replace(/[\s\u200B-\u200D\uFEFF]/g, '');
+      if (normalized.length < 3) {
         newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร' : 'Username must be at least 3 characters';
-      } else if (trimmed.length > 30) {
-        newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ต้องไม่เกิน 30 ตัวอักษร' : 'Username must be less than 30 characters';
-      } else if (!/^[a-zA-Z0-9_.]+$/.test(trimmed) && !trimmed.includes('@')) {
-        newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ใช้ได้เฉพาะตัวอักษร ตัวเลข จุด (.) และ _' : 'Username can only contain letters, numbers, dots (.), and _';
+      } else if (normalized.length > 60) {
+        newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ยาวเกินไป' : 'Username is too long';
+      } else if (!/^[a-zA-Z0-9_.@+-]+$/.test(normalized)) {
+        newErrors.username = language === 'th' ? 'ชื่อผู้ใช้ใช้ได้เฉพาะตัวอักษร ตัวเลข จุด (.) ขีด (-) และ _' : 'Username can only contain letters, numbers, dots (.), hyphens (-), and _';
       }
     }
 
@@ -133,13 +135,19 @@ export default function Auth() {
           localStorage.setItem('currentUser', displayName);
           toast.success(language === 'th' ? 'เข้าสู่ระบบสำเร็จ' : 'Login successful');
           
-          // Check if user is outreach_staff → redirect to form directly
+          // Route staff accounts to their workspace
           const { data: isOutreach } = await supabase.rpc('has_role', {
             _user_id: data.user.id,
             _role: 'outreach_staff' as any,
           });
+          const { data: isCounselor } = await supabase.rpc('has_role', {
+            _user_id: data.user.id,
+            _role: 'counselor' as any,
+          });
           if (isOutreach) {
             navigate('/outreach-form', { replace: true });
+          } else if (isCounselor) {
+            navigate('/admin', { replace: true });
           } else {
             navigate('/', { replace: true });
           }
