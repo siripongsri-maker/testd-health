@@ -76,6 +76,7 @@ const AdminSelftestMissingIdContent = lazy(() => import("@/components/admin/Admi
 const AdminPreServiceSurveysContent = lazy(() => import("@/components/admin/AdminPreServiceHubContent"));
 const AdminCounselorSupportContent = lazy(() => import("@/components/admin/AdminCounselorSupportContent"));
 const AdminDailyBranchBriefContent = lazy(() => import("@/components/admin/AdminDailyBranchBriefContent"));
+const AdminConcernBriefContent = lazy(() => import("@/components/admin/AdminConcernBriefContent"));
 const AdminCounselingPayoutsContent = lazy(() => import("@/components/admin/AdminCounselingPayoutsContent"));
 
 // MEL modules
@@ -97,7 +98,7 @@ const TabLoader = () => (
 );
 
 // Tabs accessible by moderators (branch staff)
-const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "selftest-results", "selftest-followup", "selftest-map", "selftest-missing-id", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk", "counselor-support", "daily-branch-brief"]);
+const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "selftest-results", "selftest-followup", "selftest-map", "selftest-missing-id", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk", "counselor-support", "daily-branch-brief", "concern-brief"]);
 
 // Tabs accessible by M&E Analyst (read-only analytics/reporting)
 const ME_ANALYST_TABS = new Set([
@@ -109,7 +110,7 @@ const ME_ANALYST_TABS = new Set([
   // SMS & Credits (read-only)
   "sms-relay", "credit-balances", "credit-purchases",
   // Reports
-  "analytics", "analytics-overview", "export-center", "attribution", "feedback-outcomes", "pre-service-surveys", "counselor-support", "daily-branch-brief",
+  "analytics", "analytics-overview", "export-center", "attribution", "feedback-outcomes", "pre-service-surveys", "counselor-support", "daily-branch-brief", "concern-brief",
   // MEL
   "mel-services", "mel-indicators", "mel-outreach", "mel-training",
   "mel-safe-spaces", "mel-partners", "mel-policy", "mel-evaluation", "mel-reporting",
@@ -122,7 +123,7 @@ const ME_ANALYST_TABS = new Set([
   "system-health",
 ]);
 
-const COUNSELOR_TABS = ["counselor-support", "daily-branch-brief", "queue-board"];
+const COUNSELOR_TABS = ["counselor-support", "daily-branch-brief", "concern-brief", "queue-board"];
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -255,6 +256,7 @@ export default function Admin() {
           {renderTab("pre-service-surveys", <AdminPreServiceSurveysContent />)}
           {renderTab("counselor-support", <AdminCounselorSupportContent />)}
           {renderTab("daily-branch-brief", <AdminDailyBranchBriefContent />)}
+          {renderTab("concern-brief", <AdminConcernBriefContent />)}
           {renderTab("counseling-payouts", <AdminCounselingPayoutsContent />)}
           {renderTab("export-center", <AdminExportCenterContent />)}
           {renderTab("activity-logs", <AdminActivityLogsContent />)}
