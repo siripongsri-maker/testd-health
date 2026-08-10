@@ -22,6 +22,7 @@ import { DensityTimeSelector } from '@/components/booking/DensityTimeSelector';
 import { NotifyMeDialog } from '@/components/booking/NotifyMeDialog';
 import { DemandSuggestionBanner } from '@/components/booking/DemandSuggestionBanner';
 import { PreServiceSurveyModal } from '@/components/booking/PreServiceSurveyModal';
+import { ConcernSelector, type ConcernScreeningResult } from '@/components/booking/ConcernSelector';
 import { Badge } from '@/components/ui/badge';
 import { QRCodeSVG } from 'qrcode.react';
 import { Bell, Sparkles } from 'lucide-react';
@@ -111,6 +112,7 @@ export default function Booking() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [notes, setNotes] = useState('');
+  const [screening, setScreening] = useState<ConcernScreeningResult | null>(null);
   const [contactEmail, setContactEmail] = useState('');
   const [contactLine, setContactLine] = useState('');
   const [contactPhone, setContactPhone] = useState('');
@@ -390,6 +392,12 @@ export default function Booking() {
 
   const extendedAdvanceDays = effectiveAdvanceDays > DEFAULT_ADVANCE_DAYS;
 
+  // Staff-facing note = free text + the plain-language concern / PHQ-4 screening summary
+  const composedNotes = useMemo(() => {
+    const parts = [notes.trim(), screening?.summary?.trim()].filter(Boolean);
+    return parts.length ? parts.join('\n') : null;
+  }, [notes, screening]);
+
   const availableDates = useMemo(() => {
     if (!selectedBranch) return [];
     const dates: Date[] = [];
@@ -522,7 +530,7 @@ export default function Booking() {
           p_contact_email: (user?.email || contactEmail.trim()) || null,
           p_contact_phone: contactPhone.replace(/[-\s]/g, '').trim(),
           p_contact_line: contactLine.trim() || null,
-          p_notes: notes || null,
+          p_notes: composedNotes,
           p_user_id: user?.id || null,
         });
 
@@ -553,7 +561,7 @@ export default function Booking() {
           p_appointment_date: dateStr,
           p_start_time: selectedTime + ':00',
           p_contact_email: contactEmail.trim() || null,
-          p_notes: notes || null,
+          p_notes: composedNotes,
           p_contact_phone: contactPhone.replace(/[-\s]/g, '').trim(),
           p_contact_line: contactLine.trim() || null,
         });
@@ -627,7 +635,7 @@ export default function Booking() {
           p_services: selectedServices.map(s => s.id),
           p_contact_email: user.email || null,
           p_user_id: user.id,
-          p_notes: notes || null,
+          p_notes: composedNotes,
           p_contact_phone: contactPhone.replace(/[-\s]/g, '').trim(),
           p_contact_line: contactLine.trim() || null,
         });
@@ -987,6 +995,28 @@ export default function Booking() {
           {/* STEP: Service (Multi-select) */}
           {step === 'service' && !showRiskAssessment && (
             <div className="space-y-3">
+              <ConcernSelector
+                language={language}
+                onChange={(res) => {
+                  setScreening(res);
+                  if (res.suggestedSlugs.length) {
+                    setSelectedServices(prev => {
+                      const merged = [...prev];
+                      services.forEach(svc => {
+                        if (res.suggestedSlugs.includes(svc.slug) && !merged.some(s => s.id === svc.id)) {
+                          merged.push(svc);
+                        }
+                      });
+                      return merged.length === prev.length ? prev : merged;
+                    });
+                  }
+                }}
+              />
+
+              <p className="text-xs font-semibold text-muted-foreground pt-1">
+                {language === 'th' ? 'บริการที่ต้องการ (เลือกได้หลายรายการ)' : 'Services you want (multi-select)'}
+              </p>
+
               <Button
                 variant="outline"
                 size="sm"
@@ -996,6 +1026,8 @@ export default function Booking() {
                 <HelpCircle className="h-4 w-4" />
                 {t('booking.notSure')}
               </Button>
+
+
 
               {services.map(svc => {
                 const isSelected = selectedServices.some(s => s.id === svc.id);
