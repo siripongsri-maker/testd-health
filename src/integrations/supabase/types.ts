@@ -12268,6 +12268,22 @@ export type Database = {
         Args: { p_branch_id: string; p_horizon_days?: number }
         Returns: Json
       }
+      get_public_queue_board: {
+        Args: { p_branch_id: string }
+        Returns: {
+          called_at: string
+          entered_at: string
+          is_cancelled: boolean
+          is_completed: boolean
+          queue_code: string
+          room_number: number
+          step_code: string
+          step_id: string
+          step_status: string
+          visit_code: string
+          visit_id: string
+        }[]
+      }
       get_public_site_stats: {
         Args: never
         Returns: {

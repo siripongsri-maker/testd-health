@@ -48,44 +48,18 @@ export default function QueueTV() {
       });
   }, [branchSlug]);
 
-  // Fetch queue data
+  // Fetch queue data (public, minimal-field RPC — no staff assignments exposed)
   const fetchQueue = useCallback(async (bid: string) => {
-    // Use Bangkok timezone to match server-side RLS policy
-    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Bangkok' });
+    const { data: rows } = await (supabase as any).rpc('get_public_queue_board', { p_branch_id: bid });
 
-    // Get today's active visits (not completed/cancelled)
-    const { data: todayVisits } = await supabase
-      .from('client_visit_flows')
-      .select('id, visit_code, is_completed, is_cancelled')
-      .eq('branch_id', bid)
-      .eq('visit_date', today);
-
-    if (!todayVisits?.length) {
-      setItems([]);
-      return;
-    }
-
-    const visitMap = Object.fromEntries(
-      (todayVisits as any[]).map(v => [v.id, { code: v.visit_code, done: v.is_completed || v.is_cancelled }])
-    );
-    const visitIds = Object.keys(visitMap);
-
-    // Get ALL steps for today's visits (including completed for finished display)
-    const { data: stepData } = await supabase
-      .from('client_visit_flow_steps')
-      .select('id, visit_id, step_code, step_status, queue_code, room_number, called_at')
-      .eq('branch_id', bid)
-      .in('visit_id', visitIds)
-      .order('entered_at', { ascending: false });
-
-    if (!stepData?.length) {
+    if (!rows?.length) {
       setItems([]);
       return;
     }
 
     // For each visit, pick the most recent (latest) step as the representative
     const latestStepByVisit = new Map<string, any>();
-    for (const s of stepData as any[]) {
+    for (const s of rows as any[]) {
       if (!latestStepByVisit.has(s.visit_id)) {
         latestStepByVisit.set(s.visit_id, s);
       }
@@ -93,14 +67,12 @@ export default function QueueTV() {
 
     const mapped: TVItem[] = [];
     for (const [visitId, step] of latestStepByVisit) {
-      const visitInfo = visitMap[visitId];
-      if (!visitInfo) continue;
+      const done = step.is_completed || step.is_cancelled;
 
-      // For completed/cancelled visits, override
-      const effectiveStepCode = visitInfo.done
+      const effectiveStepCode = done
         ? (step.step_status === 'cancelled' ? 'cancelled' : 'completed')
         : step.step_code;
-      const effectiveStatus = visitInfo.done
+      const effectiveStatus = done
         ? (step.step_status === 'cancelled' ? 'cancelled' : 'completed')
         : step.step_status;
 
@@ -108,14 +80,14 @@ export default function QueueTV() {
       const instruction = getTVInstruction(step.step_code, step.step_status, step.room_number);
 
       mapped.push({
-        step_id: step.id,
+        step_id: step.step_id,
         visit_id: visitId,
         step_code: step.step_code,
         step_status: step.step_status,
         queue_code: step.queue_code,
         room_number: step.room_number,
         called_at: step.called_at,
-        visit_code: visitInfo.code || step.queue_code || '—',
+        visit_code: step.visit_code || step.queue_code || '—',
         public_status: ps,
         instruction,
       });
@@ -129,11 +101,11 @@ export default function QueueTV() {
     if (branchId) fetchQueue(branchId);
   }, [branchId, fetchQueue]);
 
-  // Realtime subscription — properly managed
+  // Live updates — realtime for signed-in staff screens, polling fallback for public TVs
+  // (anonymous viewers no longer have direct row access to queue tables)
   useEffect(() => {
     if (!branchId) return;
 
-    // Clean up any previous channel
     if (channelRef.current) {
       supabase.removeChannel(channelRef.current);
     }
@@ -156,7 +128,10 @@ export default function QueueTV() {
 
     channelRef.current = channel;
 
+    const poll = setInterval(() => fetchQueue(branchId), 10000);
+
     return () => {
+      clearInterval(poll);
       supabase.removeChannel(channel);
       channelRef.current = null;
     };
