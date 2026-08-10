@@ -995,6 +995,28 @@ export default function Booking() {
           {/* STEP: Service (Multi-select) */}
           {step === 'service' && !showRiskAssessment && (
             <div className="space-y-3">
+              <ConcernSelector
+                language={language}
+                onChange={(res) => {
+                  setScreening(res);
+                  if (res.suggestedSlugs.length) {
+                    setSelectedServices(prev => {
+                      const merged = [...prev];
+                      services.forEach(svc => {
+                        if (res.suggestedSlugs.includes(svc.slug) && !merged.some(s => s.id === svc.id)) {
+                          merged.push(svc);
+                        }
+                      });
+                      return merged.length === prev.length ? prev : merged;
+                    });
+                  }
+                }}
+              />
+
+              <p className="text-xs font-semibold text-muted-foreground pt-1">
+                {language === 'th' ? 'บริการที่ต้องการ (เลือกได้หลายรายการ)' : 'Services you want (multi-select)'}
+              </p>
+
               <Button
                 variant="outline"
                 size="sm"
@@ -1004,6 +1026,8 @@ export default function Booking() {
                 <HelpCircle className="h-4 w-4" />
                 {t('booking.notSure')}
               </Button>
+
+
 
               {services.map(svc => {
                 const isSelected = selectedServices.some(s => s.id === svc.id);
