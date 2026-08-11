@@ -338,6 +338,15 @@ export default function AdminDailyBranchBriefContent() {
       { key: "status", header: "สถานะ", format: (r) => STATUS_OPTIONS.find((s) => s.value === r.status)?.th || r.status },
       { key: "sla", header: "เกิน SLA", format: (r) => (r.sla_breached ? `เกิน (${r.hours_open} ชม. / ${r.sla_hours} ชม.)` : "ปกติ") },
       { key: "urgent", header: "เคสเร่งด่วน", format: (r) => (urgentSurveyIds.has(r.survey_id) ? "เร่งด่วน" : "—") },
+      {
+        key: "allowance", header: "สถานะค่าเดินทาง",
+        format: (r) => payoutStage(payouts.get(r.survey_id), r.status === "case_closed" || r.status === "counseling_completed")?.th || "—",
+      },
+      {
+        key: "allowance_amount", header: "จำนวนเงินค่าเดินทาง (บาท)",
+        format: (r) => (payouts.get(r.survey_id)?.claim_amount != null ? String(payouts.get(r.survey_id)!.claim_amount) : "—"),
+      },
+
 
     ];
     exportToCsv(
