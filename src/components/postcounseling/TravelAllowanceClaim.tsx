@@ -132,10 +132,12 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
     }
   };
 
+  const ppDigits = promptpay.replace(/\D/g, "");
   const canSubmit =
     holder.trim().length > 1 &&
-    bank !== "" &&
-    account.replace(/\D/g, "").length >= 8 &&
+    (method === "promptpay"
+      ? ppDigits.length === 10 || ppDigits.length === 13
+      : bank !== "" && account.replace(/\D/g, "").length >= 8) &&
     !!imageData &&
     consent;
 
@@ -152,11 +154,15 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
         _token: token,
         _payload: {
           account_holder_name: holder.trim(),
-          bank_name: bank,
-          bank_account_no: account,
+          payout_method: method,
+          promptpay_no: method === "promptpay" ? ppDigits : null,
+          bank_name: method === "promptpay" ? "พร้อมเพย์" : bank,
+          bank_account_no: method === "promptpay" ? ppDigits : account,
           id_card_path: up.path,
         },
       } as any);
+      if (error) throw error;
+
       if (error) throw error;
 
       setClaimed(true);
