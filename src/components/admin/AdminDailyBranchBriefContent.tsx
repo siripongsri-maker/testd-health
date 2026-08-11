@@ -545,6 +545,44 @@ export default function AdminDailyBranchBriefContent() {
                     </p>
                   )}
 
+                  {/* ค่าเดินทางผู้รับบริการ (travel allowance handoff) */}
+                  {(() => {
+                    const p = payouts.get(c.survey_id);
+                    const closed = c.status === "case_closed" || c.status === "counseling_completed";
+                    const stage = payoutStage(p, closed);
+                    if (!stage) return null;
+                    return (
+                      <div className="flex flex-wrap items-center gap-2 rounded-md border border-dashed bg-muted/30 px-2 py-1.5 text-[11px]">
+                        <span className="text-muted-foreground">{tx("ค่าเดินทางผู้รับบริการ:", "Travel allowance:")}</span>
+                        <Badge className={stage.cls}>{language === "th" ? stage.th : stage.en}</Badge>
+                        {p?.claim_amount != null && (
+                          <span className="font-medium">฿{Number(p.claim_amount).toLocaleString()}</span>
+                        )}
+                        {p?.sms_sent_at && (
+                          <span className="text-muted-foreground">
+                            {tx("ส่ง", "sent")} {format(new Date(p.sms_sent_at), "dd/MM HH:mm")}
+                          </span>
+                        )}
+                        {p?.claim_paid_at && (
+                          <span className="text-muted-foreground">
+                            {tx("จ่าย", "paid")} {format(new Date(p.claim_paid_at), "dd/MM HH:mm")}
+                          </span>
+                        )}
+                        {closed && p?.has_phone && !p?.sms_status && (
+                          <Button
+                            size="sm" variant="outline" className="h-6 px-2 text-[11px] no-print"
+                            disabled={queuingId === c.survey_id}
+                            onClick={() => queueAllowance(c)}
+                          >
+                            {queuingId === c.survey_id && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
+                            {tx("ส่งต่อค่าเดินทาง", "Hand off allowance")}
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })()}
+
+
                   <div className="flex flex-wrap items-center gap-2 no-print">
                     <Select
                       value={c.status}
