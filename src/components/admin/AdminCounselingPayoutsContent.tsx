@@ -32,6 +32,14 @@ interface Claim {
   batch_id: string | null;
   appointment_id: string | null;
   phone_last4: string | null;
+  payout_method: string | null;
+  promptpay_no: string | null;
+  note_id: string | null;
+  evaluation_id: string | null;
+  claim_seq: number | null;
+  approved_at: string | null;
+  rejection_reason: string | null;
+  id_card_delete_after: string | null;
 }
 
 
@@ -79,6 +87,7 @@ export default function AdminCounselingPayoutsContent() {
   const [filter, setFilter] = useState<ClaimStatus | "all">("pending");
   const [busy, setBusy] = useState<string | null>(null);
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [verifiedOnly, setVerifiedOnly] = useState(true);
@@ -92,7 +101,7 @@ export default function AdminCounselingPayoutsContent() {
     const [{ data: rows }, { data: brs }, { data: bts }] = await Promise.all([
       supabase
         .from("counseling_payout_claims")
-        .select("id, branch_id, amount, account_holder_name, bank_name, bank_account_no, id_card_path, status, payment_ref, created_at, paid_at, duplicate_flag, duplicate_count, batch_id, appointment_id, phone_last4")
+        .select("id, branch_id, amount, account_holder_name, bank_name, bank_account_no, id_card_path, status, payment_ref, created_at, paid_at, duplicate_flag, duplicate_count, batch_id, appointment_id, phone_last4, payout_method, promptpay_no, note_id, evaluation_id, claim_seq, approved_at, rejection_reason, id_card_delete_after")
         .order("created_at", { ascending: false })
         .limit(1000),
       supabase.from("booking_branches").select("id, name_th"),
@@ -201,13 +210,15 @@ export default function AdminCounselingPayoutsContent() {
   };
 
   const exportCsv = () => {
-    const header = ["วันที่ขอ", "สาขา", "ชื่อบัญชี", "ธนาคาร", "เลขบัญชี", "จำนวนเงิน", "สถานะ", "อ้างอิงการจ่าย", "เบอร์ (4 ตัวท้าย)", "ยืนยันผู้รับบริการ", "เคสเร่งด่วน"];
+    const header = ["วันที่ขอ", "สาขา", "ชื่อบัญชี", "ช่องทาง", "ธนาคาร", "เลขบัญชี", "เลขพร้อมเพย์", "จำนวนเงิน", "สถานะ", "อ้างอิงการจ่าย", "เบอร์ (4 ตัวท้าย)", "ยืนยันผู้รับบริการ", "เคสเร่งด่วน"];
     const lines = filtered.map((c) => [
       new Date(c.created_at).toLocaleDateString("th-TH"),
       branches[c.branch_id ?? ""] ?? "-",
       c.account_holder_name,
+      c.payout_method === "promptpay" ? "พร้อมเพย์" : "โอนบัญชีธนาคาร",
       c.bank_name,
       `="${c.bank_account_no}"`,
+      c.promptpay_no ? `="${c.promptpay_no}"` : "",
       String(c.amount),
       STATUS_LABEL[c.status],
       c.payment_ref ?? "",
