@@ -46,6 +46,48 @@ interface BriefCase {
 
 interface BranchInfo { id: string; name_th: string; name_en: string }
 
+/** Travel-allowance (ค่าเดินทาง 200 บาท) handoff status per closed case. */
+interface PayoutStatus {
+  survey_id: string;
+  note_id: string | null;
+  appointment_id: string | null;
+  has_phone: boolean;
+  sms_status: string | null;
+  sms_sent_at: string | null;
+  sms_scheduled_for: string | null;
+  has_evaluation: boolean;
+  claim_status: string | null;
+  claim_amount: number | null;
+  claim_submitted_at: string | null;
+  claim_paid_at: string | null;
+}
+
+const CLAIM_LABEL: Record<string, [string, string]> = {
+  pending: ["รออนุมัติ", "Pending"],
+  approved: ["อนุมัติแล้ว", "Approved"],
+  paid: ["จ่ายแล้ว", "Paid"],
+  rejected: ["ปฏิเสธ", "Rejected"],
+};
+
+const CLAIM_CLASS: Record<string, string> = {
+  pending: "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-200",
+  approved: "bg-sky-100 text-sky-800 dark:bg-sky-950/40 dark:text-sky-200",
+  paid: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200",
+  rejected: "bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200",
+};
+
+/** Short summary of where a case sits in the travel-allowance pipeline. */
+function payoutStage(p: PayoutStatus | undefined, closed: boolean) {
+  if (p?.claim_status) return { key: "claim", th: `ค่าเดินทาง: ${CLAIM_LABEL[p.claim_status]?.[0] ?? p.claim_status}`, en: `Allowance: ${CLAIM_LABEL[p.claim_status]?.[1] ?? p.claim_status}`, cls: CLAIM_CLASS[p.claim_status] ?? "" };
+  if (p?.has_evaluation) return { key: "eval", th: "ประเมินแล้ว · รอกรอกบัญชีรับค่าเดินทาง", en: "Evaluated · awaiting bank details", cls: "bg-sky-100 text-sky-800 dark:bg-sky-950/40 dark:text-sky-200" };
+  if (p?.sms_status === "sent") return { key: "sent", th: "ส่งลิงก์ค่าเดินทางแล้ว", en: "Allowance link sent", cls: "bg-indigo-100 text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-200" };
+  if (p?.sms_status === "failed") return { key: "failed", th: "ส่งลิงก์ไม่สำเร็จ", en: "Link send failed", cls: "bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200" };
+  if (p?.sms_status === "queued") return { key: "queued", th: "เข้าคิวส่งลิงก์ค่าเดินทาง", en: "Allowance link queued", cls: "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-200" };
+  if (closed && p && !p.has_phone) return { key: "nophone", th: "ปิดเคสแล้ว · ไม่มีเบอร์ติดต่อ ส่งลิงก์ไม่ได้", en: "Closed · no phone on file", cls: "bg-muted text-muted-foreground" };
+  if (closed) return { key: "none", th: "ปิดเคสแล้ว · ยังไม่ได้ส่งต่อค่าเดินทาง", en: "Closed · allowance not handed off", cls: "bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200" };
+  return null;
+}
+
 const RISK_STYLE: Record<string, string> = {
   critical: "bg-rose-600 text-white",
   high: "bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300",
@@ -85,6 +127,8 @@ export default function AdminDailyBranchBriefContent() {
   const [urgentSurveyIds, setUrgentSurveyIds] = useState<Set<string>>(new Set());
   const [urgentAppointments, setUrgentAppointments] = useState<UrgentAppointmentRef[]>([]);
   const [linkedUrgentApptIds, setLinkedUrgentApptIds] = useState<Set<string>>(new Set());
+  const [payouts, setPayouts] = useState<Map<string, PayoutStatus>>(new Map());
+  const [queuingId, setQueuingId] = useState<string | null>(null);
 
 
 
@@ -153,7 +197,16 @@ export default function AdminDailyBranchBriefContent() {
     return () => { cancelled = true; };
   }, [rows, day, branchFilter]);
 
+  // Travel-allowance pipeline status for the cases on screen
+  const loadPayouts = useCallback(async () => {
+    const ids = rows.map((r) => r.survey_id);
+    if (!ids.length) { setPayouts(new Map()); return; }
+    const { data, error } = await supabase.rpc("get_case_payout_status", { _survey_ids: ids } as any);
+    if (error) { console.error("PAYOUT_STATUS_ERROR", error); return; }
+    setPayouts(new Map(((data || []) as unknown as PayoutStatus[]).map((p) => [p.survey_id, p])));
+  }, [rows]);
 
+  useEffect(() => { loadPayouts(); }, [loadPayouts]);
 
   // Realtime: reflect status changes made in Counselor Support and vice versa
   useEffect(() => {
@@ -162,11 +215,13 @@ export default function AdminDailyBranchBriefContent() {
       .on("postgres_changes", { event: "*", schema: "public", table: "pre_service_counseling_notes" }, () => load())
       .on("postgres_changes", { event: "*", schema: "public", table: "appointment_pre_service_surveys" }, () => load())
       .on("postgres_changes", { event: "*", schema: "public", table: "hr_referrals" }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "post_eval_sms_dispatches" }, () => loadPayouts())
+      .on("postgres_changes", { event: "*", schema: "public", table: "counseling_payout_claims" }, () => loadPayouts())
       .subscribe((status) => {
         setLive(status === "SUBSCRIBED" ? "live" : status === "CHANNEL_ERROR" ? "offline" : "connecting");
       });
     return () => { supabase.removeChannel(channel); };
-  }, [load]);
+  }, [load, loadPayouts]);
 
   const updateStatus = async (row: BriefCase, status: string) => {
     setSavingId(row.survey_id);
@@ -183,8 +238,16 @@ export default function AdminDailyBranchBriefContent() {
           .insert({ survey_id: row.survey_id, status, updated_by: user?.id ?? null });
         if (error) throw error;
       }
-      toast({ title: tx("อัปเดตสถานะแล้ว", "Status updated") });
+      const closing = status === "case_closed" || status === "counseling_completed";
+      toast({
+        title: tx("อัปเดตสถานะแล้ว", "Status updated"),
+        description: closing
+          ? tx("ระบบเตรียมลิงก์แบบประเมิน + ค่าเดินทาง 200 บาท ให้ผู้รับบริการแล้ว (ถ้ามีเบอร์ติดต่อ) — กด “ส่งคิวตอนนี้” ในหน้าค่าเดินทางเพื่อส่ง SMS",
+              "Evaluation + ฿200 travel allowance link queued for this client (if a phone is on file). Flush the queue on the payouts page to send the SMS.")
+          : undefined,
+      });
       load();
+      setTimeout(loadPayouts, 600);
     } catch (err: any) {
       toast({
         title: tx("อัปเดตไม่สำเร็จ", "Update failed"),
@@ -195,6 +258,32 @@ export default function AdminDailyBranchBriefContent() {
       setSavingId(null);
     }
   };
+
+  /** Manually queue the allowance link for a closed case that was missed. */
+  const queueAllowance = async (row: BriefCase) => {
+    const p = payouts.get(row.survey_id);
+    if (!p?.note_id) {
+      toast({ title: tx("ยังไม่มีบันทึกเคส", "No case record yet"), variant: "destructive" });
+      return;
+    }
+    setQueuingId(row.survey_id);
+    const { error } = await supabase.from("post_eval_sms_dispatches").insert({
+      note_id: p.note_id,
+      branch_id: row.branch_id,
+      appointment_id: p.appointment_id,
+      status: "queued",
+      auto_queued: false,
+      scheduled_for: new Date().toISOString(),
+    } as any);
+    setQueuingId(null);
+    if (error) {
+      toast({ title: tx("เตรียมคิวไม่สำเร็จ", "Failed to queue"), description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: tx("เตรียมลิงก์ค่าเดินทางแล้ว", "Allowance link queued") });
+    loadPayouts();
+  };
+
 
   /* -------- grouped + summary -------- */
   const grouped = useMemo(() => {
@@ -249,6 +338,15 @@ export default function AdminDailyBranchBriefContent() {
       { key: "status", header: "สถานะ", format: (r) => STATUS_OPTIONS.find((s) => s.value === r.status)?.th || r.status },
       { key: "sla", header: "เกิน SLA", format: (r) => (r.sla_breached ? `เกิน (${r.hours_open} ชม. / ${r.sla_hours} ชม.)` : "ปกติ") },
       { key: "urgent", header: "เคสเร่งด่วน", format: (r) => (urgentSurveyIds.has(r.survey_id) ? "เร่งด่วน" : "—") },
+      {
+        key: "allowance", header: "สถานะค่าเดินทาง",
+        format: (r) => payoutStage(payouts.get(r.survey_id), r.status === "case_closed" || r.status === "counseling_completed")?.th || "—",
+      },
+      {
+        key: "allowance_amount", header: "จำนวนเงินค่าเดินทาง (บาท)",
+        format: (r) => (payouts.get(r.survey_id)?.claim_amount != null ? String(payouts.get(r.survey_id)!.claim_amount) : "—"),
+      },
+
 
     ];
     exportToCsv(
@@ -446,6 +544,44 @@ export default function AdminDailyBranchBriefContent() {
                       {c.prep_note}
                     </p>
                   )}
+
+                  {/* ค่าเดินทางผู้รับบริการ (travel allowance handoff) */}
+                  {(() => {
+                    const p = payouts.get(c.survey_id);
+                    const closed = c.status === "case_closed" || c.status === "counseling_completed";
+                    const stage = payoutStage(p, closed);
+                    if (!stage) return null;
+                    return (
+                      <div className="flex flex-wrap items-center gap-2 rounded-md border border-dashed bg-muted/30 px-2 py-1.5 text-[11px]">
+                        <span className="text-muted-foreground">{tx("ค่าเดินทางผู้รับบริการ:", "Travel allowance:")}</span>
+                        <Badge className={stage.cls}>{language === "th" ? stage.th : stage.en}</Badge>
+                        {p?.claim_amount != null && (
+                          <span className="font-medium">฿{Number(p.claim_amount).toLocaleString()}</span>
+                        )}
+                        {p?.sms_sent_at && (
+                          <span className="text-muted-foreground">
+                            {tx("ส่ง", "sent")} {format(new Date(p.sms_sent_at), "dd/MM HH:mm")}
+                          </span>
+                        )}
+                        {p?.claim_paid_at && (
+                          <span className="text-muted-foreground">
+                            {tx("จ่าย", "paid")} {format(new Date(p.claim_paid_at), "dd/MM HH:mm")}
+                          </span>
+                        )}
+                        {closed && p?.has_phone && !p?.sms_status && (
+                          <Button
+                            size="sm" variant="outline" className="h-6 px-2 text-[11px] no-print"
+                            disabled={queuingId === c.survey_id}
+                            onClick={() => queueAllowance(c)}
+                          >
+                            {queuingId === c.survey_id && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
+                            {tx("ส่งต่อค่าเดินทาง", "Hand off allowance")}
+                          </Button>
+                        )}
+                      </div>
+                    );
+                  })()}
+
 
                   <div className="flex flex-wrap items-center gap-2 no-print">
                     <Select
