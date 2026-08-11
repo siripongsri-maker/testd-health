@@ -197,7 +197,16 @@ export default function AdminDailyBranchBriefContent() {
     return () => { cancelled = true; };
   }, [rows, day, branchFilter]);
 
+  // Travel-allowance pipeline status for the cases on screen
+  const loadPayouts = useCallback(async () => {
+    const ids = rows.map((r) => r.survey_id);
+    if (!ids.length) { setPayouts(new Map()); return; }
+    const { data, error } = await supabase.rpc("get_case_payout_status", { _survey_ids: ids } as any);
+    if (error) { console.error("PAYOUT_STATUS_ERROR", error); return; }
+    setPayouts(new Map(((data || []) as unknown as PayoutStatus[]).map((p) => [p.survey_id, p])));
+  }, [rows]);
 
+  useEffect(() => { loadPayouts(); }, [loadPayouts]);
 
   // Realtime: reflect status changes made in Counselor Support and vice versa
   useEffect(() => {
@@ -206,11 +215,13 @@ export default function AdminDailyBranchBriefContent() {
       .on("postgres_changes", { event: "*", schema: "public", table: "pre_service_counseling_notes" }, () => load())
       .on("postgres_changes", { event: "*", schema: "public", table: "appointment_pre_service_surveys" }, () => load())
       .on("postgres_changes", { event: "*", schema: "public", table: "hr_referrals" }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "post_eval_sms_dispatches" }, () => loadPayouts())
+      .on("postgres_changes", { event: "*", schema: "public", table: "counseling_payout_claims" }, () => loadPayouts())
       .subscribe((status) => {
         setLive(status === "SUBSCRIBED" ? "live" : status === "CHANNEL_ERROR" ? "offline" : "connecting");
       });
     return () => { supabase.removeChannel(channel); };
-  }, [load]);
+  }, [load, loadPayouts]);
 
   const updateStatus = async (row: BriefCase, status: string) => {
     setSavingId(row.survey_id);
@@ -227,8 +238,16 @@ export default function AdminDailyBranchBriefContent() {
           .insert({ survey_id: row.survey_id, status, updated_by: user?.id ?? null });
         if (error) throw error;
       }
-      toast({ title: tx("อัปเดตสถานะแล้ว", "Status updated") });
+      const closing = status === "case_closed" || status === "counseling_completed";
+      toast({
+        title: tx("อัปเดตสถานะแล้ว", "Status updated"),
+        description: closing
+          ? tx("ระบบเตรียมลิงก์แบบประเมิน + ค่าเดินทาง 200 บาท ให้ผู้รับบริการแล้ว (ถ้ามีเบอร์ติดต่อ) — กด “ส่งคิวตอนนี้” ในหน้าค่าเดินทางเพื่อส่ง SMS",
+              "Evaluation + ฿200 travel allowance link queued for this client (if a phone is on file). Flush the queue on the payouts page to send the SMS.")
+          : undefined,
+      });
       load();
+      setTimeout(loadPayouts, 600);
     } catch (err: any) {
       toast({
         title: tx("อัปเดตไม่สำเร็จ", "Update failed"),
@@ -239,6 +258,32 @@ export default function AdminDailyBranchBriefContent() {
       setSavingId(null);
     }
   };
+
+  /** Manually queue the allowance link for a closed case that was missed. */
+  const queueAllowance = async (row: BriefCase) => {
+    const p = payouts.get(row.survey_id);
+    if (!p?.note_id) {
+      toast({ title: tx("ยังไม่มีบันทึกเคส", "No case record yet"), variant: "destructive" });
+      return;
+    }
+    setQueuingId(row.survey_id);
+    const { error } = await supabase.from("post_eval_sms_dispatches").insert({
+      note_id: p.note_id,
+      branch_id: row.branch_id,
+      appointment_id: p.appointment_id,
+      status: "queued",
+      auto_queued: false,
+      scheduled_for: new Date().toISOString(),
+    } as any);
+    setQueuingId(null);
+    if (error) {
+      toast({ title: tx("เตรียมคิวไม่สำเร็จ", "Failed to queue"), description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: tx("เตรียมลิงก์ค่าเดินทางแล้ว", "Allowance link queued") });
+    loadPayouts();
+  };
+
 
   /* -------- grouped + summary -------- */
   const grouped = useMemo(() => {
