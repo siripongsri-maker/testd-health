@@ -2594,8 +2594,10 @@ export type Database = {
           paid_at: string | null
           paid_by: string | null
           payment_ref: string | null
+          payout_method: string
           phone_hash: string | null
           phone_last4: string | null
+          promptpay_no: string | null
           rejection_reason: string | null
           status: string
           updated_at: string
@@ -2625,8 +2627,10 @@ export type Database = {
           paid_at?: string | null
           paid_by?: string | null
           payment_ref?: string | null
+          payout_method?: string
           phone_hash?: string | null
           phone_last4?: string | null
+          promptpay_no?: string | null
           rejection_reason?: string | null
           status?: string
           updated_at?: string
@@ -2656,8 +2660,10 @@ export type Database = {
           paid_at?: string | null
           paid_by?: string | null
           payment_ref?: string | null
+          payout_method?: string
           phone_hash?: string | null
           phone_last4?: string | null
+          promptpay_no?: string | null
           rejection_reason?: string | null
           status?: string
           updated_at?: string

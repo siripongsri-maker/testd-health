@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Loader2, Download, Banknote, Check, X, Eye, RefreshCw, AlertTriangle, Layers } from "lucide-react";
+import { Loader2, Download, Banknote, Check, X, Eye, RefreshCw, AlertTriangle, Layers, Copy, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import PostEvalSmsQueueCard from "./PostEvalSmsQueueCard";
 import ClientNotificationsCard from "./ClientNotificationsCard";
@@ -32,6 +32,14 @@ interface Claim {
   batch_id: string | null;
   appointment_id: string | null;
   phone_last4: string | null;
+  payout_method: string | null;
+  promptpay_no: string | null;
+  note_id: string | null;
+  evaluation_id: string | null;
+  claim_seq: number | null;
+  approved_at: string | null;
+  rejection_reason: string | null;
+  id_card_delete_after: string | null;
 }
 
 
@@ -79,6 +87,7 @@ export default function AdminCounselingPayoutsContent() {
   const [filter, setFilter] = useState<ClaimStatus | "all">("pending");
   const [busy, setBusy] = useState<string | null>(null);
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [verifiedOnly, setVerifiedOnly] = useState(true);
@@ -92,7 +101,7 @@ export default function AdminCounselingPayoutsContent() {
     const [{ data: rows }, { data: brs }, { data: bts }] = await Promise.all([
       supabase
         .from("counseling_payout_claims")
-        .select("id, branch_id, amount, account_holder_name, bank_name, bank_account_no, id_card_path, status, payment_ref, created_at, paid_at, duplicate_flag, duplicate_count, batch_id, appointment_id, phone_last4")
+        .select("id, branch_id, amount, account_holder_name, bank_name, bank_account_no, id_card_path, status, payment_ref, created_at, paid_at, duplicate_flag, duplicate_count, batch_id, appointment_id, phone_last4, payout_method, promptpay_no, note_id, evaluation_id, claim_seq, approved_at, rejection_reason, id_card_delete_after")
         .order("created_at", { ascending: false })
         .limit(1000),
       supabase.from("booking_branches").select("id, name_th"),
@@ -201,13 +210,15 @@ export default function AdminCounselingPayoutsContent() {
   };
 
   const exportCsv = () => {
-    const header = ["วันที่ขอ", "สาขา", "ชื่อบัญชี", "ธนาคาร", "เลขบัญชี", "จำนวนเงิน", "สถานะ", "อ้างอิงการจ่าย", "เบอร์ (4 ตัวท้าย)", "ยืนยันผู้รับบริการ", "เคสเร่งด่วน"];
+    const header = ["วันที่ขอ", "สาขา", "ชื่อบัญชี", "ช่องทาง", "ธนาคาร", "เลขบัญชี", "เลขพร้อมเพย์", "จำนวนเงิน", "สถานะ", "อ้างอิงการจ่าย", "เบอร์ (4 ตัวท้าย)", "ยืนยันผู้รับบริการ", "เคสเร่งด่วน"];
     const lines = filtered.map((c) => [
       new Date(c.created_at).toLocaleDateString("th-TH"),
       branches[c.branch_id ?? ""] ?? "-",
       c.account_holder_name,
+      c.payout_method === "promptpay" ? "พร้อมเพย์" : "โอนบัญชีธนาคาร",
       c.bank_name,
       `="${c.bank_account_no}"`,
+      c.promptpay_no ? `="${c.promptpay_no}"` : "",
       String(c.amount),
       STATUS_LABEL[c.status],
       c.payment_ref ?? "",
@@ -430,26 +441,66 @@ export default function AdminCounselingPayoutsContent() {
 
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                <Field label="ธนาคาร" value={c.bank_name} />
                 <Field
-                  label="เลขที่บัญชี"
+                  label="ช่องทางรับเงิน"
+                  value={c.payout_method === "promptpay" ? "พร้อมเพย์" : "โอนเข้าบัญชีธนาคาร"}
+                />
+                <Field label={c.payout_method === "promptpay" ? "ชื่อพร้อมเพย์" : "ธนาคาร"} value={c.bank_name} />
+                <Field
+                  label={c.payout_method === "promptpay" ? "เลขพร้อมเพย์" : "เลขที่บัญชี"}
                   value={
                     <span className="inline-flex items-center gap-1">
                       <span className="tabular-nums">
-                        {revealed[c.id] ? c.bank_account_no : maskAccount(c.bank_account_no)}
+                        {revealed[c.id]
+                          ? (c.promptpay_no || c.bank_account_no)
+                          : maskAccount(c.promptpay_no || c.bank_account_no)}
                       </span>
                       <button className="text-muted-foreground hover:text-foreground"
                         onClick={() => setRevealed((r) => ({ ...r, [c.id]: !r[c.id] }))}
                         aria-label="แสดง/ซ่อนเลขบัญชี">
                         <Eye className="h-3 w-3" />
                       </button>
+                      <button className="text-muted-foreground hover:text-foreground"
+                        onClick={() => {
+                          navigator.clipboard?.writeText(c.promptpay_no || c.bank_account_no);
+                          toast({ title: "คัดลอกเลขบัญชีแล้ว" });
+                        }}
+                        aria-label="คัดลอกเลขบัญชี">
+                        <Copy className="h-3 w-3" />
+                      </button>
                     </span>
                   }
                 />
                 <Field label="วันที่ขอ" value={new Date(c.created_at).toLocaleString("th-TH")} />
-                <Field label="วันที่จ่าย" value={c.paid_at ? new Date(c.paid_at).toLocaleDateString("th-TH") : "—"} />
               </div>
+
+              {expanded[c.id] && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs border-t pt-2">
+                  <Field label="ชื่อเจ้าของบัญชี (เต็ม)" value={c.account_holder_name} />
+                  <Field label="สาขา" value={branches[c.branch_id ?? ""] ?? "ไม่ระบุ"} />
+                  <Field label="ลำดับสิทธิ์" value={c.claim_seq ? `#${c.claim_seq}` : "—"} />
+                  <Field label="จำนวนเงิน" value={baht(c.amount)} />
+                  <Field label="เบอร์จอง (4 ตัวท้าย)" value={c.phone_last4 ? `xxx-xxx-${c.phone_last4}` : "—"} />
+                  <Field label="ยืนยันการเข้ารับบริการ" value={isRealClient(c) ? "ยืนยันแล้ว (เช็คอิน/เช็คเอาท์)" : "ยังไม่ยืนยัน"} />
+                  <Field label="วันที่อนุมัติ" value={c.approved_at ? new Date(c.approved_at).toLocaleString("th-TH") : "—"} />
+                  <Field label="วันที่จ่าย" value={c.paid_at ? new Date(c.paid_at).toLocaleString("th-TH") : "—"} />
+                  <Field label="อ้างอิงการจ่าย" value={c.payment_ref || "—"} />
+                  <Field label="บัญชีซ้ำใน 90 วัน" value={c.duplicate_flag ? `ซ้ำ ${c.duplicate_count ?? 1} ครั้ง` : "ไม่ซ้ำ"} />
+                  <Field label="รูปบัตรประชาชน" value={c.id_card_path ? `มี · ลบอัตโนมัติ ${c.id_card_delete_after ? new Date(c.id_card_delete_after).toLocaleDateString("th-TH") : "ภายใน 180 วัน"}` : "ไม่มี"} />
+                  <Field label="เหตุผลที่ปฏิเสธ" value={c.rejection_reason || "—"} />
+                  <Field label="Claim ID" value={<span className="font-mono text-[10px] break-all">{c.id}</span>} />
+                  <Field label="Note ID" value={<span className="font-mono text-[10px] break-all">{c.note_id || "—"}</span>} />
+                  <Field label="Evaluation ID" value={<span className="font-mono text-[10px] break-all">{c.evaluation_id || "—"}</span>} />
+                  <Field label="Appointment ID" value={<span className="font-mono text-[10px] break-all">{c.appointment_id || "—"}</span>} />
+                </div>
+              )}
+
               <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="ghost" className="h-7 text-xs"
+                  onClick={() => setExpanded((e) => ({ ...e, [c.id]: !e[c.id] }))}>
+                  {expanded[c.id] ? <ChevronUp className="h-3 w-3 mr-1" /> : <ChevronDown className="h-3 w-3 mr-1" />}
+                  {expanded[c.id] ? "ซ่อนรายละเอียด" : "ดูรายละเอียดทั้งหมด"}
+                </Button>
                 {c.id_card_path && (
                   <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => viewIdCard(c.id_card_path!)}>
                     <Eye className="h-3 w-3 mr-1" />ดูบัตรประชาชน

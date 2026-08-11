@@ -71,6 +71,8 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
   const [phoneClaimed, setPhoneClaimed] = useState(false);
   const [open, setOpen] = useState(false);
 
+  const [method, setMethod] = useState<"bank" | "promptpay">("bank");
+  const [promptpay, setPromptpay] = useState("");
   const [holder, setHolder] = useState("");
   const [bank, setBank] = useState("");
   const [account, setAccount] = useState("");
@@ -130,10 +132,12 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
     }
   };
 
+  const ppDigits = promptpay.replace(/\D/g, "");
   const canSubmit =
     holder.trim().length > 1 &&
-    bank !== "" &&
-    account.replace(/\D/g, "").length >= 8 &&
+    (method === "promptpay"
+      ? ppDigits.length === 10 || ppDigits.length === 13
+      : bank !== "" && account.replace(/\D/g, "").length >= 8) &&
     !!imageData &&
     consent;
 
@@ -150,11 +154,15 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
         _token: token,
         _payload: {
           account_holder_name: holder.trim(),
-          bank_name: bank,
-          bank_account_no: account,
+          payout_method: method,
+          promptpay_no: method === "promptpay" ? ppDigits : null,
+          bank_name: method === "promptpay" ? "พร้อมเพย์" : bank,
+          bank_account_no: method === "promptpay" ? ppDigits : account,
           id_card_path: up.path,
         },
       } as any);
+      if (error) throw error;
+
       if (error) throw error;
 
       setClaimed(true);
@@ -324,32 +332,62 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
         </p>
         {quotaLine}
       </div>
-
+      <div className="space-y-1">
+        <Label className="text-xs">{tx("ช่องทางรับเงิน", "Payout method")}</Label>
+        <div className="grid grid-cols-2 gap-2">
+          {([
+            { k: "promptpay" as const, th: "พร้อมเพย์", en: "PromptPay" },
+            { k: "bank" as const, th: "โอนเข้าบัญชีธนาคาร", en: "Bank transfer" },
+          ]).map((o) => (
+            <button key={o.k} type="button" onClick={() => setMethod(o.k)}
+              className={`h-11 rounded-xl border-2 text-xs font-medium transition ${
+                method === o.k ? "border-amber-500 bg-amber-50 dark:bg-amber-950/30" : "border-input"
+              }`}>
+              {tx(o.th, o.en)}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="space-y-1">
         <Label className="text-xs">{tx("ชื่อ–นามสกุล เจ้าของบัญชี", "Account holder name")}</Label>
         <Input value={holder} onChange={(e) => setHolder(e.target.value)} maxLength={120}
-          placeholder={tx("ตรงกับชื่อในบัญชีธนาคาร", "Must match your bank account")} />
+          placeholder={tx("ตรงกับชื่อในบัญชี/พร้อมเพย์", "Must match your account")} />
       </div>
 
-      <div className="space-y-1">
-        <Label className="text-xs">{tx("ธนาคาร", "Bank")}</Label>
-        <select
-          value={bank}
-          onChange={(e) => setBank(e.target.value)}
-          className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-        >
-          <option value="">{tx("เลือกธนาคาร", "Select a bank")}</option>
-          {BANKS.map((b) => <option key={b} value={b}>{b}</option>)}
-        </select>
-      </div>
+      {method === "promptpay" ? (
+        <div className="space-y-1">
+          <Label className="text-xs">{tx("เลขพร้อมเพย์", "PromptPay number")}</Label>
+          <Input value={promptpay} inputMode="numeric" maxLength={17}
+            onChange={(e) => setPromptpay(e.target.value.replace(/[^0-9-]/g, ""))}
+            placeholder={tx("เบอร์โทร 10 หลัก หรือเลขบัตรประชาชน 13 หลัก", "10-digit phone or 13-digit ID")} />
+          <p className="text-[11px] text-muted-foreground">
+            {tx("ต้องเป็นพร้อมเพย์ที่ผูกกับชื่อเจ้าของบัญชีข้างต้น", "Must be registered to the account holder above")}
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="space-y-1">
+            <Label className="text-xs">{tx("ธนาคาร", "Bank")}</Label>
+            <select
+              value={bank}
+              onChange={(e) => setBank(e.target.value)}
+              className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+            >
+              <option value="">{tx("เลือกธนาคาร", "Select a bank")}</option>
+              {BANKS.map((b) => <option key={b} value={b}>{b}</option>)}
+            </select>
+          </div>
 
-      <div className="space-y-1">
-        <Label className="text-xs">{tx("เลขที่บัญชี", "Bank account number")}</Label>
-        <Input value={account} inputMode="numeric" maxLength={20}
-          onChange={(e) => setAccount(e.target.value.replace(/[^0-9-]/g, ""))}
-          placeholder="xxx-x-xxxxx-x" />
-      </div>
+          <div className="space-y-1">
+            <Label className="text-xs">{tx("เลขที่บัญชี", "Bank account number")}</Label>
+            <Input value={account} inputMode="numeric" maxLength={20}
+              onChange={(e) => setAccount(e.target.value.replace(/[^0-9-]/g, ""))}
+              placeholder="xxx-x-xxxxx-x" />
+          </div>
+        </>
+      )}
+
 
       <div className="space-y-1">
         <Label className="text-xs">{tx("รูปบัตรประชาชน (เพื่อยืนยันตัวตนกับฝ่ายบัญชี)", "ID card photo (required by finance)")}</Label>
