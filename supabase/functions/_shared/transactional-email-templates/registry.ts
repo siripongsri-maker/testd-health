@@ -13,10 +13,12 @@ import { template as appointmentAction } from './appointment-action.tsx'
 import { template as postServiceReview } from './post-service-review.tsx'
 import { template as chatNewMessage } from './chat-new-message.tsx'
 import { template as selftestReactiveAlert } from './selftest-reactive-alert.tsx'
+import { template as appointmentClosureNotice } from './appointment-closure-notice.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'appointment-action': appointmentAction,
   'post-service-review': postServiceReview,
   'chat-new-message': chatNewMessage,
   'selftest-reactive-alert': selftestReactiveAlert,
+  'appointment-closure-notice': appointmentClosureNotice,
 }
