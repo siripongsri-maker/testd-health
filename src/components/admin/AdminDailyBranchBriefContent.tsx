@@ -127,6 +127,8 @@ export default function AdminDailyBranchBriefContent() {
   const [urgentSurveyIds, setUrgentSurveyIds] = useState<Set<string>>(new Set());
   const [urgentAppointments, setUrgentAppointments] = useState<UrgentAppointmentRef[]>([]);
   const [linkedUrgentApptIds, setLinkedUrgentApptIds] = useState<Set<string>>(new Set());
+  const [payouts, setPayouts] = useState<Map<string, PayoutStatus>>(new Map());
+  const [queuingId, setQueuingId] = useState<string | null>(null);
 
 
 
