@@ -11935,6 +11935,24 @@ export type Database = {
         Args: { p_branch_id: string; p_date: string }
         Returns: Json
       }
+      get_case_payout_status: {
+        Args: { _survey_ids: string[] }
+        Returns: {
+          appointment_id: string
+          branch_id: string
+          claim_amount: number
+          claim_paid_at: string
+          claim_status: string
+          claim_submitted_at: string
+          has_evaluation: boolean
+          has_phone: boolean
+          note_id: string
+          sms_scheduled_for: string
+          sms_sent_at: string
+          sms_status: string
+          survey_id: string
+        }[]
+      }
       get_client_hr_context: {
         Args: { _client_id: string; _reason?: string }
         Returns: Json
