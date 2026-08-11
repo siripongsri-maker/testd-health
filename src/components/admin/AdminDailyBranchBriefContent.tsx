@@ -46,6 +46,48 @@ interface BriefCase {
 
 interface BranchInfo { id: string; name_th: string; name_en: string }
 
+/** Travel-allowance (ค่าเดินทาง 200 บาท) handoff status per closed case. */
+interface PayoutStatus {
+  survey_id: string;
+  note_id: string | null;
+  appointment_id: string | null;
+  has_phone: boolean;
+  sms_status: string | null;
+  sms_sent_at: string | null;
+  sms_scheduled_for: string | null;
+  has_evaluation: boolean;
+  claim_status: string | null;
+  claim_amount: number | null;
+  claim_submitted_at: string | null;
+  claim_paid_at: string | null;
+}
+
+const CLAIM_LABEL: Record<string, [string, string]> = {
+  pending: ["รออนุมัติ", "Pending"],
+  approved: ["อนุมัติแล้ว", "Approved"],
+  paid: ["จ่ายแล้ว", "Paid"],
+  rejected: ["ปฏิเสธ", "Rejected"],
+};
+
+const CLAIM_CLASS: Record<string, string> = {
+  pending: "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-200",
+  approved: "bg-sky-100 text-sky-800 dark:bg-sky-950/40 dark:text-sky-200",
+  paid: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200",
+  rejected: "bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200",
+};
+
+/** Short summary of where a case sits in the travel-allowance pipeline. */
+function payoutStage(p: PayoutStatus | undefined, closed: boolean) {
+  if (p?.claim_status) return { key: "claim", th: `ค่าเดินทาง: ${CLAIM_LABEL[p.claim_status]?.[0] ?? p.claim_status}`, en: `Allowance: ${CLAIM_LABEL[p.claim_status]?.[1] ?? p.claim_status}`, cls: CLAIM_CLASS[p.claim_status] ?? "" };
+  if (p?.has_evaluation) return { key: "eval", th: "ประเมินแล้ว · รอกรอกบัญชีรับค่าเดินทาง", en: "Evaluated · awaiting bank details", cls: "bg-sky-100 text-sky-800 dark:bg-sky-950/40 dark:text-sky-200" };
+  if (p?.sms_status === "sent") return { key: "sent", th: "ส่งลิงก์ค่าเดินทางแล้ว", en: "Allowance link sent", cls: "bg-indigo-100 text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-200" };
+  if (p?.sms_status === "failed") return { key: "failed", th: "ส่งลิงก์ไม่สำเร็จ", en: "Link send failed", cls: "bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200" };
+  if (p?.sms_status === "queued") return { key: "queued", th: "เข้าคิวส่งลิงก์ค่าเดินทาง", en: "Allowance link queued", cls: "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-200" };
+  if (closed && p && !p.has_phone) return { key: "nophone", th: "ปิดเคสแล้ว · ไม่มีเบอร์ติดต่อ ส่งลิงก์ไม่ได้", en: "Closed · no phone on file", cls: "bg-muted text-muted-foreground" };
+  if (closed) return { key: "none", th: "ปิดเคสแล้ว · ยังไม่ได้ส่งต่อค่าเดินทาง", en: "Closed · allowance not handed off", cls: "bg-rose-100 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200" };
+  return null;
+}
+
 const RISK_STYLE: Record<string, string> = {
   critical: "bg-rose-600 text-white",
   high: "bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300",
