@@ -1178,14 +1178,15 @@ export default function Booking() {
                     return (
                       <button
                         key={date.toISOString()}
+                        disabled={isBlackedOut}
+                        aria-disabled={isBlackedOut}
+                        aria-label={
+                          isBlackedOut
+                            ? `${format(date, 'd MMM')} — ${blackoutInfo.title}${blackoutInfo.reason ? `: ${blackoutInfo.reason}` : ''}`
+                            : undefined
+                        }
                         onClick={() => {
-                          if (isBlackedOut && blackoutInfo) {
-                            setSelectedDate(date);
-                            setSelectedTime(null);
-                            setDayClosureInfo(blackoutInfo);
-                            toast.error(blackoutInfo.reason ? `${blackoutInfo.title}: ${blackoutInfo.reason}` : blackoutInfo.title);
-                            return;
-                          }
+                          if (isBlackedOut) return;
                           setSelectedDate(date);
                           setSelectedTime(null);
                           setDayClosureInfo(null);
@@ -1193,14 +1194,16 @@ export default function Booking() {
                         className={cn(
                           "flex-shrink-0 px-4 py-3 rounded-2xl text-center transition-all border-2 min-w-[72px] relative",
                           isBlackedOut
-                            ? 'bg-muted/60 border-destructive/30 cursor-not-allowed opacity-60'
+                            ? 'bg-muted/60 border-destructive/30 cursor-not-allowed opacity-60 pointer-events-none'
                             : isSelected
                             ? 'bg-primary text-primary-foreground border-primary shadow-md'
                             : 'bg-card border-border hover:border-primary/50'
                         )}
                         title={
                           isBlackedOut
-                            ? blackoutInfo.title
+                            ? blackoutInfo.reason
+                              ? `${blackoutInfo.title}: ${blackoutInfo.reason}`
+                              : blackoutInfo.title
                             : hint
                             ? language === 'th'
                               ? hint.label_th
@@ -1208,6 +1211,7 @@ export default function Booking() {
                             : undefined
                         }
                       >
+
                         {isBlackedOut && (
                           <div className="absolute inset-0 flex items-center justify-center">
                             <div className="w-[85%] h-0.5 bg-destructive/50 rotate-[-20deg] rounded-full" />
@@ -1236,7 +1240,33 @@ export default function Booking() {
                     );
                   })}
                 </div>
+
+                {/* Closed-day explanations (dates are disabled above) */}
+                {Object.keys(blackedOutDates).length > 0 && (
+                  <div className="mt-2 space-y-1.5 rounded-xl border border-destructive/25 bg-destructive/5 p-3">
+                    <p className="text-[11px] font-semibold text-destructive">
+                      {language === 'en' ? 'Closed days (cannot be booked)' : 'วันที่ปิดทำการ (จองไม่ได้)'}
+                    </p>
+                    {availableDates
+                      .map(d => format(d, 'yyyy-MM-dd'))
+                      .filter(ds => blackedOutDates[ds])
+                      .map(ds => {
+                        const info = blackedOutDates[ds];
+                        return (
+                          <p key={ds} className="text-[11px] text-muted-foreground">
+                            <span className="font-medium text-foreground">
+                              {format(new Date(`${ds}T00:00:00`), 'd MMM')}
+                            </span>
+                            {' — '}
+                            {info.title}
+                            {info.reason ? `: ${info.reason}` : ''}
+                          </p>
+                        );
+                      })}
+                  </div>
+                )}
               </div>
+
 
               {/* Daily cap status banner (limited-capacity / dry-run days) */}
               {selectedDate && dailyCap && !dayClosureInfo && (
