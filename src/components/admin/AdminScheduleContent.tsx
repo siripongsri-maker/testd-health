@@ -15,6 +15,7 @@ import {
   Clock, CalendarOff, Plus, Trash2, Edit2, Loader2, Copy, Globe, Building2, Save,
 } from 'lucide-react';
 import { format } from 'date-fns';
+import BlackoutNotifyDialog from './BlackoutNotifyDialog';
 
 interface Branch {
   id: string;
