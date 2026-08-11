@@ -67,6 +67,7 @@ Deno.serve(async (req) => {
     const branchIds: string[] | null = Array.isArray(body?.branch_ids) && body.branch_ids.length
       ? body.branch_ids.map(String) : null;
     const dryRun = body?.dry_run === true;
+    const cancelAppointments = body?.cancel_appointments === true;
     const closureTitle = String(body?.title || "ปิดทำการ").slice(0, 160);
     const closureReason = String(body?.reason || "").slice(0, 500);
     const channels = {
@@ -110,7 +111,7 @@ Deno.serve(async (req) => {
     const smsReady = Boolean(API_KEY && SECRET_KEY && SENDER);
 
     const dateTh = thaiDate(date);
-    const results = { email: 0, sms: 0, inapp: 0, failed: [] as any[] };
+    const results = { email: 0, sms: 0, inapp: 0, cancelled: 0, failed: [] as any[] };
 
     for (const a of targets as any[]) {
       const bName = branchName(a.branch_id);
@@ -210,12 +211,27 @@ Deno.serve(async (req) => {
         else results.inapp++;
       }
 
+      // Cancel the appointment after the client has been notified
+      if (cancelAppointments) {
+        const { error: cancelErr } = await admin
+          .from("appointments")
+          .update({
+            status: "cancelled",
+            cancelled_at: new Date().toISOString(),
+            cancellation_reason: `ปิดทำการ ${dateTh} — ${closureTitle}${closureReason ? `: ${closureReason}` : ""}`,
+          })
+          .eq("id", a.id)
+          .in("status", ACTIVE_STATUSES);
+        if (cancelErr) results.failed.push({ id: a.id, channel: "cancel", error: cancelErr.message });
+        else results.cancelled++;
+      }
+
       // Audit trail
       await admin.from("appointment_logs").insert({
         appointment_id: a.id,
-        action: "closure_notified",
+        action: cancelAppointments ? "closure_cancelled" : "closure_notified",
         performed_by: user.id,
-        details: JSON.stringify({ date, closureTitle, channels }),
+        details: JSON.stringify({ date, closureTitle, channels, cancelled: cancelAppointments }),
       }).then(() => {}, () => {});
     }
 
