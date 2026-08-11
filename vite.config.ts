@@ -20,8 +20,14 @@ export default defineConfig(({ mode }) => ({
       injectRegister: false,
       devOptions: { enabled: false },
       workbox: {
-        navigateFallback: "/offline.html",
-        navigateFallbackDenylist: [/^\/~oauth(?:\/|$)/],
+        // SPA shell — never fall back to offline.html for normal navigations,
+        // otherwise slow networks/deep links render the "offline" screen.
+        navigateFallback: "/index.html",
+        navigateFallbackDenylist: [
+          /^\/~oauth(?:\/|$)/,
+          /^\/api(?:\/|$)/,
+          /\.[^/?]+$/,
+        ],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         runtimeCaching: [
           {
@@ -30,9 +36,9 @@ export default defineConfig(({ mode }) => ({
             handler: "NetworkFirst",
             options: {
               cacheName: "testd-pages",
-              networkTimeoutSeconds: 3,
+              networkTimeoutSeconds: 10,
               expiration: {
-                maxEntries: 20,
+                maxEntries: 40,
                 maxAgeSeconds: 24 * 60 * 60,
               },
               cacheableResponse: { statuses: [0, 200] },
