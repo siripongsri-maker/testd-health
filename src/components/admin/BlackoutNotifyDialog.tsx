@@ -37,6 +37,7 @@ export default function BlackoutNotifyDialog({ blackout }: Props) {
   const [sending, setSending] = useState(false);
   const [preview, setPreview] = useState<Preview | null>(null);
   const [channels, setChannels] = useState({ email: true, sms: true, inapp: true });
+  const [cancelAppointments, setCancelAppointments] = useState(true);
 
   const date = bkkDate(blackout.start_at);
   const branchIds = blackout.scope === 'branch' ? blackout.applies_to_branch_ids : null;
@@ -47,6 +48,7 @@ export default function BlackoutNotifyDialog({ blackout }: Props) {
     title: blackout.title,
     reason: blackout.reason || '',
     channels,
+    cancel_appointments: !dryRun && cancelAppointments,
     dry_run: dryRun,
   });
 
@@ -65,7 +67,10 @@ export default function BlackoutNotifyDialog({ blackout }: Props) {
 
   const send = async () => {
     if (!preview?.total) return;
-    if (!confirm(`ยืนยันส่งแจ้งเตือนถึงผู้จอง ${preview.total} รายในวันที่ ${date}?`)) return;
+    const msg = cancelAppointments
+      ? `ยืนยันแจ้งเตือนและยกเลิกนัดหมาย ${preview.total} รายในวันที่ ${date}?`
+      : `ยืนยันส่งแจ้งเตือนถึงผู้จอง ${preview.total} รายในวันที่ ${date}?`;
+    if (!confirm(msg)) return;
     setSending(true);
     const { data, error } = await supabase.functions.invoke('notify-blackout-closure', { body: payload(false) });
     setSending(false);
@@ -73,8 +78,12 @@ export default function BlackoutNotifyDialog({ blackout }: Props) {
       toast.error('ส่งแจ้งเตือนไม่สำเร็จ');
       return;
     }
-    const r = data as { email: number; sms: number; inapp: number; failed: unknown[] };
-    toast.success(`ส่งแล้ว — อีเมล ${r.email} • SMS ${r.sms} • แจ้งเตือนในระบบ ${r.inapp}${r.failed?.length ? ` (ล้มเหลว ${r.failed.length})` : ''}`);
+    const r = data as { email: number; sms: number; inapp: number; cancelled: number; failed: unknown[] };
+    toast.success(
+      `ส่งแล้ว — อีเมล ${r.email} • SMS ${r.sms} • แจ้งเตือนในระบบ ${r.inapp}` +
+        (r.cancelled ? ` • ยกเลิกนัด ${r.cancelled} ราย` : '') +
+        (r.failed?.length ? ` (ล้มเหลว ${r.failed.length})` : '')
+    );
     setOpen(false);
   };
 
@@ -147,6 +156,13 @@ export default function BlackoutNotifyDialog({ blackout }: Props) {
                     </div>
                   ))}
                 </div>
+                <div className="flex items-center justify-between rounded-lg border border-destructive/30 bg-destructive/5 p-2">
+                  <Label className="text-sm font-normal">
+                    ยกเลิกนัดหมายทั้งหมดในวันนี้หลังแจ้งเตือน
+                  </Label>
+                  <Switch checked={cancelAppointments} onCheckedChange={setCancelAppointments} />
+                </div>
+
                 <p className="text-xs text-muted-foreground">
                   ทุกข้อความจะแนบลิงก์ให้ย้ายวันนัดหมายอัตโนมัติ (ผู้จองแบบไม่ล็อกอินจะได้ลิงก์เฉพาะบุคคล)
                 </p>

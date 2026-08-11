@@ -231,12 +231,25 @@ export default function AdminScheduleContent() {
     }
     setSaving(true);
     try {
+      // All-day blackouts must cover Bangkok (UTC+7) midnight → midnight,
+      // otherwise the window drifts 7 hours and slots stay bookable.
+      const toBkkStart = (v: string) => new Date(`${v.slice(0, 10)}T00:00:00+07:00`).toISOString();
+      const toBkkEnd = (v: string) => {
+        const d = new Date(`${v.slice(0, 10)}T00:00:00+07:00`);
+        d.setUTCDate(d.getUTCDate() + 1);
+        return d.toISOString();
+      };
+
       const row = {
         scope: blackoutForm.scope,
         title: blackoutForm.title,
         reason: blackoutForm.reason || null,
-        start_at: new Date(blackoutForm.start_at).toISOString(),
-        end_at: new Date(blackoutForm.end_at).toISOString(),
+        start_at: blackoutForm.is_all_day
+          ? toBkkStart(blackoutForm.start_at)
+          : new Date(blackoutForm.start_at).toISOString(),
+        end_at: blackoutForm.is_all_day
+          ? toBkkEnd(blackoutForm.end_at)
+          : new Date(blackoutForm.end_at).toISOString(),
         is_all_day: blackoutForm.is_all_day,
         applies_to_branch_ids: blackoutForm.scope === 'branch' ? blackoutForm.branch_ids : null,
       };
