@@ -15,6 +15,7 @@ import {
   Clock, CalendarOff, Plus, Trash2, Edit2, Loader2, Copy, Globe, Building2, Save,
 } from 'lucide-react';
 import { format } from 'date-fns';
+import BlackoutNotifyDialog from './BlackoutNotifyDialog';
 
 interface Branch {
   id: string;
@@ -444,6 +445,7 @@ export default function AdminScheduleContent() {
                       )}
                     </div>
                     <div className="flex gap-1 shrink-0">
+                      <BlackoutNotifyDialog blackout={b} />
                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openBlackoutDialog(b)}>
                         <Edit2 className="h-3.5 w-3.5" />
                       </Button>
