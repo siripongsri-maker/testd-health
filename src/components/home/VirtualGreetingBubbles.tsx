@@ -32,7 +32,7 @@ export function VirtualGreetingBubbles() {
 
   return (
     <div
-      className="fixed bottom-20 right-3 z-40 cursor-pointer"
+      className="fixed bottom-[calc(9rem+env(safe-area-inset-bottom))] right-3 z-30 cursor-pointer"
       onClick={() => navigate("/virtual")}
       style={{ maxWidth: 220 }}
     >

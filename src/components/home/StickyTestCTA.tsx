@@ -7,7 +7,7 @@ export function StickyTestCTA() {
   const navigate = useNavigate();
 
   return (
-    <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 animate-fade-in">
+    <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-1/2 -translate-x-1/2 z-40 animate-fade-in">
       <Button
         variant="default"
         size="lg"
