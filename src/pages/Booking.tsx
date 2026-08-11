@@ -1240,7 +1240,33 @@ export default function Booking() {
                     );
                   })}
                 </div>
+
+                {/* Closed-day explanations (dates are disabled above) */}
+                {Object.keys(blackedOutDates).length > 0 && (
+                  <div className="mt-2 space-y-1.5 rounded-xl border border-destructive/25 bg-destructive/5 p-3">
+                    <p className="text-[11px] font-semibold text-destructive">
+                      {language === 'en' ? 'Closed days (cannot be booked)' : 'วันที่ปิดทำการ (จองไม่ได้)'}
+                    </p>
+                    {availableDates
+                      .map(d => format(d, 'yyyy-MM-dd'))
+                      .filter(ds => blackedOutDates[ds])
+                      .map(ds => {
+                        const info = blackedOutDates[ds];
+                        return (
+                          <p key={ds} className="text-[11px] text-muted-foreground">
+                            <span className="font-medium text-foreground">
+                              {format(new Date(`${ds}T00:00:00`), 'd MMM')}
+                            </span>
+                            {' — '}
+                            {info.title}
+                            {info.reason ? `: ${info.reason}` : ''}
+                          </p>
+                        );
+                      })}
+                  </div>
+                )}
               </div>
+
 
               {/* Daily cap status banner (limited-capacity / dry-run days) */}
               {selectedDate && dailyCap && !dayClosureInfo && (
