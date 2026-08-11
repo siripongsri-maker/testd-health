@@ -136,13 +136,10 @@ export default function Home() {
     <div className="relative">
       <div className="fixed inset-0 gradient-hero" style={{ zIndex: -1 }} />
 
-      <div
-        className="fixed left-3 bottom-20 z-[60] rounded-full border border-border bg-card/90 px-2.5 py-1 text-[10px] font-mono text-muted-foreground shadow-sm backdrop-blur-xl"
-        data-ui-version={HOME_UI_VERSION}
-        aria-label={`UI_VERSION: ${HOME_UI_VERSION}`}
-      >
+      <span className="sr-only" data-ui-version={HOME_UI_VERSION}>
         UI_VERSION: {HOME_UI_VERSION}
-      </div>
+      </span>
+
 
       <main className="px-5 sm:px-6 py-4 max-w-lg sm:max-w-5xl mx-auto relative">
         {/* Logo */}
