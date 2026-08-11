@@ -215,7 +215,7 @@ Deno.serve(async (req) => {
         appointment_id: a.id,
         action: "closure_notified",
         performed_by: user.id,
-        details: { date, closureTitle, channels },
+        details: JSON.stringify({ date, closureTitle, channels }),
       }).then(() => {}, () => {});
     }
 
