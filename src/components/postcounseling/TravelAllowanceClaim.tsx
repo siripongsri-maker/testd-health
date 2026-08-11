@@ -71,6 +71,8 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
   const [phoneClaimed, setPhoneClaimed] = useState(false);
   const [open, setOpen] = useState(false);
 
+  const [method, setMethod] = useState<"bank" | "promptpay">("bank");
+  const [promptpay, setPromptpay] = useState("");
   const [holder, setHolder] = useState("");
   const [bank, setBank] = useState("");
   const [account, setAccount] = useState("");
