@@ -444,6 +444,7 @@ export default function AdminScheduleContent() {
                       )}
                     </div>
                     <div className="flex gap-1 shrink-0">
+                      <BlackoutNotifyDialog blackout={b} />
                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openBlackoutDialog(b)}>
                         <Edit2 className="h-3.5 w-3.5" />
                       </Button>
