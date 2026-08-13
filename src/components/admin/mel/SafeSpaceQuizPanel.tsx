@@ -152,6 +152,27 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
     );
   }
 
+  function handleExportSessions() {
+    exportToCsv(
+      perSession,
+      [
+        { key: "label", header: "เซสชัน" },
+        { key: "key", header: "Session ID", format: (s) => (s.key === "unassigned" ? "" : s.key) },
+        { key: "count", header: "ตอบกลับ (คน)" },
+        { key: "avg", header: "คะแนนเฉลี่ย", format: (s) => s.avg.toFixed(1) },
+        { key: "knowledgeRate", header: "อัตราตอบถูก (%)", format: (s) => s.knowledgeRate.toFixed(0) },
+        { key: "passed", header: "ผ่าน 70% ขึ้นไป (คน)" },
+        { key: "kit", header: "ขอชุดตรวจ (คน)" },
+        { key: "kitRate", header: "อัตราขอชุดตรวจ (%)", format: (s) => s.kitRate.toFixed(0) },
+        { key: "first", header: "ตอบครั้งแรก", format: (s) => formatCsvDate(s.first) },
+        { key: "last", header: "ตอบล่าสุด", format: (s) => formatCsvDate(s.last) },
+      ],
+      "safe_space_quiz_by_session",
+      { from: from || undefined, to: to || undefined },
+    );
+    toast({ title: "ดาวน์โหลดรายงานรายเซสชันแล้ว" });
+  }
+
   if (isLoading) {
     return (
       <div className="flex h-40 items-center justify-center">
@@ -258,8 +279,11 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
 
       {/* รายเซสชัน */}
       <Card>
-        <CardHeader className="pb-2">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-base">ผลรายเซสชัน (จาก QR ที่ผูกไว้)</CardTitle>
+          <Button size="sm" variant="outline" onClick={handleExportSessions} disabled={perSession.length === 0}>
+            <Download className="mr-2 h-4 w-4" /> Export รายเซสชัน
+          </Button>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           {perSession.length === 0 ? (
