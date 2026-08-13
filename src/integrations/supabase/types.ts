@@ -8612,6 +8612,36 @@ export type Database = {
         }
         Relationships: []
       }
+      safe_space_qr_scans: {
+        Row: {
+          created_at: string
+          event_code: string | null
+          id: string
+          path: string | null
+          session_id: string | null
+          source: string | null
+          visitor_key: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_code?: string | null
+          id?: string
+          path?: string | null
+          session_id?: string | null
+          source?: string | null
+          visitor_key?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_code?: string | null
+          id?: string
+          path?: string | null
+          session_id?: string | null
+          source?: string | null
+          visitor_key?: string | null
+        }
+        Relationships: []
+      }
       safe_space_quiz_responses: {
         Row: {
           age: number
