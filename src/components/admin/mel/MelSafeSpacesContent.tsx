@@ -101,7 +101,7 @@ export default function MelSafeSpacesContent() {
           <SafeSpaceQuizPanel
             sessions={(sessions || []).map((s: any) => ({
               id: s.id,
-              label: `${format(new Date(s.session_date), "dd MMM yyyy")} · ${s.session_title_th || s.support_groups?.group_name_th || "ไม่มีชื่อ"}`,
+              label: `${format(new Date(s.session_date), "dd MMM yyyy")} · ${s.session_title_th || s.support_groups?.group_name_th || "ไม่มีชื่อ"}${s.location ? ` · ${s.location}` : ""} · ${s.total_participants || 0} คน`,
             }))}
           />
         </TabsContent>
