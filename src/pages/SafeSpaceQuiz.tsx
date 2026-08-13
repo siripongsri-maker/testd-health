@@ -40,6 +40,33 @@ export default function SafeSpaceQuiz() {
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
 
+  // นับจำนวนครั้งที่สแกน QR (เข้าหน้านี้) แยกตามเซสชัน — นับครั้งเดียวต่อ 1 แท็บ/ลิงก์
+  const scanLogged = useRef(false);
+  useEffect(() => {
+    if (scanLogged.current) return;
+    scanLogged.current = true;
+    const key = `ss_qr_scan:${sessionId || "none"}:${eventCode}`;
+    try {
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, "1");
+    } catch {
+      /* ignore storage errors */
+    }
+    let visitorKey: string | null = null;
+    try {
+      visitorKey = localStorage.getItem("anonymous_id");
+    } catch {
+      visitorKey = null;
+    }
+    void supabase.from("safe_space_qr_scans").insert({
+      session_id: sessionId,
+      event_code: eventCode,
+      source,
+      path: window.location.pathname,
+      visitor_key: visitorKey,
+    });
+  }, [sessionId, eventCode, source]);
+
   const score = answers.filter((a) => a.is_correct).length;
   const progress = step === 1 ? 8 : step === 2 ? 8 + (answers.length / SAFE_SPACE_QUIZ_TOTAL) * 84 : 100;
 
