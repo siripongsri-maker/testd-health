@@ -93,22 +93,31 @@ export default function CareCardPrint() {
     document.body.appendChild(host);
     const root = createRoot(host);
     try {
-      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
-        import("html2canvas"),
+      const [{ toPng }, { jsPDF }] = await Promise.all([
+        import("html-to-image"),
         import("jspdf"),
       ]);
       root.render(<div className="cc-pdf-export">{sheetsFor(l)}</div>);
-      await new Promise((r) => setTimeout(r, 600));
+      await new Promise((r) => setTimeout(r, 800));
       await (document as Document & { fonts?: FontFaceSet }).fonts?.ready;
 
       const nodes = Array.from(host.querySelectorAll<HTMLElement>(".cc-sheet"));
       if (!nodes.length) throw new Error("no sheet");
       const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
       for (let i = 0; i < nodes.length; i++) {
-        const canvas = await html2canvas(nodes[i], { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false });
+        const w = nodes[i].offsetWidth;
+        const h = nodes[i].offsetHeight;
+        const dataUrl = await toPng(nodes[i], {
+          pixelRatio: 2,
+          backgroundColor: "#ffffff",
+          width: w,
+          height: h,
+          style: { margin: "0" },
+        });
         if (i > 0) pdf.addPage("a4", "portrait");
-        pdf.addImage(canvas.toDataURL("image/jpeg", 0.94), "JPEG", 0, 0, 210, 296.5, undefined, "FAST");
+        pdf.addImage(dataUrl, "PNG", 0, 0, 210, 296.5, undefined, "FAST");
       }
+
       pdf.save(`care-card-a4-${l}up${duplex ? "-duplex" : ""}.pdf`);
       toast.success(`ดาวน์โหลดไฟล์ PDF ${l} ใบ/แผ่น แล้ว`);
     } catch (e) {
