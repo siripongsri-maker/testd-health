@@ -14,6 +14,7 @@ import { SAFE_SPACE_QUIZ } from "@/data/safeSpaceQuiz";
 import { Copy, Download, Loader2, QrCode } from "lucide-react";
 import { format } from "date-fns";
 import SafeSpaceRespondentDialog from "./SafeSpaceRespondentDialog";
+import SafeSpaceTrendChart from "./SafeSpaceTrendChart";
 
 interface QuizRow {
   id: string;
