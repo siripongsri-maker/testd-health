@@ -121,7 +121,7 @@ export default function SafeSpaceQuiz() {
   return (
     <div
       className="min-h-screen bg-background px-4 pt-6"
-      style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 6rem)" }}
+      style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 9rem)" }}
     >
       <SEOHead
         title="ควิซพื้นที่ปลอดภัย"
