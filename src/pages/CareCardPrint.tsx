@@ -66,7 +66,9 @@ function Sheet({
 
 export default function CareCardPrint() {
   const origin = typeof window !== "undefined" ? window.location.origin : "https://testd.website";
-  const [qrUrl, setQrUrl] = useState(`${origin}/hiv-selftest?utm_source=care_card`);
+  const [baseUrl, setBaseUrl] = useState(`${origin}/safe-space/quiz`);
+  const [sessionId, setSessionId] = useState("none");
+  const [eventCode, setEventCode] = useState("safespace");
   const [layout, setLayout] = useState<Layout>(6);
   const [duplex, setDuplex] = useState(true);
   const [cutMarks, setCutMarks] = useState(true);
