@@ -76,6 +76,41 @@ export default function CareCardPrint() {
 
   const [exporting, setExporting] = useState<Layout | null>(null);
 
+  const { data: sessions } = useQuery({
+    queryKey: ["care-card-support-sessions"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("support_sessions")
+        .select("id, session_date, session_title_th, location")
+        .order("session_date", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  // ผูก QR กับเซสชัน เพื่อวัดผลว่าคนจากเซสชันไหนสแกนและตอบกลับ
+  const qrUrl = useMemo(() => {
+    try {
+      const u = new URL(baseUrl, origin);
+      u.searchParams.set("utm_source", "care_card");
+      if (eventCode.trim()) u.searchParams.set("event", eventCode.trim());
+      if (sessionId !== "none") u.searchParams.set("session", sessionId);
+      return u.toString();
+    } catch {
+      return baseUrl;
+    }
+  }, [baseUrl, origin, eventCode, sessionId]);
+
+  useEffect(() => {
+    if (sessionId === "none") return;
+    const s = (sessions || []).find((x: { id: string }) => x.id === sessionId);
+    if (s) {
+      const auto = `ss-${formatDate(new Date((s as { session_date: string }).session_date), "yyyyMMdd")}`;
+      setEventCode((prev) => (prev === "safespace" || prev.startsWith("ss-") ? auto : prev));
+    }
+  }, [sessionId, sessions]);
+
   const perSheet = useMemo(() => LAYOUTS[layout].cols * LAYOUTS[layout].rows, [layout]);
 
   const sheetsFor = (l: Layout) => (
