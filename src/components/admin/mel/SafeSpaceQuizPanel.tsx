@@ -13,6 +13,7 @@ import { exportToCsv, formatCsvDate } from "@/lib/adminCsvExport";
 import { SAFE_SPACE_QUIZ } from "@/data/safeSpaceQuiz";
 import { Copy, Download, Loader2, QrCode } from "lucide-react";
 import { format } from "date-fns";
+import SafeSpaceRespondentDialog from "./SafeSpaceRespondentDialog";
 
 interface QuizRow {
   id: string;
@@ -43,6 +44,7 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
   const [linkEvent, setLinkEvent] = useState("safespace");
   const [linkSession, setLinkSession] = useState("none");
   const [showQr, setShowQr] = useState(false);
+  const [detailRow, setDetailRow] = useState<QuizRow | null>(null);
 
   const { data: rows, isLoading } = useQuery({
     queryKey: ["safe-space-quiz-responses"],
@@ -409,7 +411,14 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
       {/* รายคน */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-base">รายคน ({total})</CardTitle>
+          <CardTitle className="text-base">
+            รายคน ({total})
+            {sessionFilter !== "all" && (
+              <span className="ml-2 text-xs font-normal text-muted-foreground">
+                เฉพาะเซสชัน {sessions.find((s) => s.id === sessionFilter)?.label || sessionFilter.slice(0, 8)}
+              </span>
+            )}
+          </CardTitle>
           <Button size="sm" variant="outline" onClick={handleExport} disabled={!total}>
             <Download className="mr-2 h-4 w-4" /> Export CSV
           </Button>
@@ -426,31 +435,52 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
                   <th className="py-2 pr-3">อายุ</th>
                   <th className="py-2 pr-3">เบอร์โทร</th>
                   <th className="py-2 pr-3">คะแนน</th>
+                  <th className="py-2 pr-3">ได้ความรู้</th>
                   <th className="py-2 pr-3">ผลลัพธ์</th>
                   <th className="py-2 pr-3">Event</th>
+                  <th className="py-2 pr-3"></th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((r) => (
-                  <tr key={r.id} className="border-b last:border-0">
+                  <tr
+                    key={r.id}
+                    className="cursor-pointer border-b last:border-0 hover:bg-muted/30"
+                    onClick={() => setDetailRow(r)}
+                  >
                     <td className="py-2 pr-3 whitespace-nowrap">{format(new Date(r.created_at), "dd MMM yyyy HH:mm")}</td>
                     <td className="py-2 pr-3">{r.nickname}</td>
                     <td className="py-2 pr-3">{r.age}</td>
                     <td className="py-2 pr-3 whitespace-nowrap">{r.phone}</td>
                     <td className="py-2 pr-3">{r.score}/{r.total}</td>
+                    <td className="py-2 pr-3 text-xs text-muted-foreground">
+                      {(r.answers || []).filter((a) => a.is_correct).length} ข้อ
+                    </td>
                     <td className="py-2 pr-3">
                       <Badge variant={r.outcome === "to_test_kit" ? "default" : "secondary"}>
                         {r.outcome === "to_test_kit" ? "ขอชุดตรวจ" : "จบกิจกรรม"}
                       </Badge>
                     </td>
                     <td className="py-2 pr-3 text-xs text-muted-foreground">{r.event_code}</td>
+                    <td className="py-2 pr-3 text-xs text-primary whitespace-nowrap">ดูรายละเอียด</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           )}
         </CardContent>
+
       </Card>
+
+      <SafeSpaceRespondentDialog
+        row={detailRow}
+        sessionLabel={
+          detailRow?.session_id
+            ? sessions.find((s) => s.id === detailRow.session_id)?.label || detailRow.session_id.slice(0, 8)
+            : undefined
+        }
+        onOpenChange={(open) => !open && setDetailRow(null)}
+      />
     </div>
   );
 }
