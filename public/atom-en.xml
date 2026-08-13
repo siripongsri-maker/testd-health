@@ -3,7 +3,7 @@
   <title>testD — Sexual health &amp; harm reduction articles</title>
   <subtitle>New articles from testD on HIV, PrEP, PEP, STIs and harm reduction.</subtitle>
   <id>https://testd.website/atom-en.xml</id>
-  <updated>2026-08-09T08:58:43.832Z</updated>
+  <updated>2026-08-11T15:48:31.219Z</updated>
   <link rel="self" type="application/atom+xml" href="https://testd.website/atom-en.xml" />
   <link rel="alternate" type="text/html" href="https://testd.website/en/info" />
   <author><name>testD</name></author>
@@ -12,8 +12,24 @@
     <id>https://testd.website/en/info/article/42-critical-substance-interactions-chemsex</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/42-critical-substance-interactions-chemsex" />
     <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-09T08:58:43.832Z</updated>
+    <updated>2026-08-11T15:48:31.219Z</updated>
     <summary type="text">A breakdown of 42 documented substance interaction pairs — 11 critical, 19 high, 12 moderate — across 18 substances.</summary>
+  </entry>
+  <entry>
+    <title>GHB/GBL: Dosing, Spacing and What To Do When Someone Goes Under</title>
+    <id>https://testd.website/en/info/article/ghb-overdose-prevention-timeline</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/ghb-overdose-prevention-timeline" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-09T08:58:43.832Z</updated>
+    <summary type="text">GHB forms critical interactions with alcohol and benzodiazepines. Spacing tables, danger signs and step-by-step response.</summary>
+  </entry>
+  <entry>
+    <title>Methamphetamine Harm Reduction: Thai Service Behaviour Data 2025–2026</title>
+    <id>https://testd.website/en/info/article/meth-harm-reduction-thailand-behaviour-2026</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/meth-harm-reduction-thailand-behaviour-2026" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-09T08:58:43.832Z</updated>
+    <summary type="text">Meth use patterns, slamming and polydrug mixing in Thai service data, with population-specific harm reduction guidance.</summary>
   </entry>
   <entry>
     <title>Chemsex Safety Playbook: Thailand 2026 Data Edition</title>
@@ -40,27 +56,11 @@
     <summary type="text">Analysis of 15,077 HIV self-test kit requests from Oct 2025 to Aug 2026 and what they reveal about testing behaviour.</summary>
   </entry>
   <entry>
-    <title>GHB/GBL: Dosing, Spacing and What To Do When Someone Goes Under</title>
-    <id>https://testd.website/en/info/article/ghb-overdose-prevention-timeline</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/ghb-overdose-prevention-timeline" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-09T08:58:43.832Z</updated>
-    <summary type="text">GHB forms critical interactions with alcohol and benzodiazepines. Spacing tables, danger signs and step-by-step response.</summary>
-  </entry>
-  <entry>
-    <title>Methamphetamine Harm Reduction: Thai Service Behaviour Data 2025–2026</title>
-    <id>https://testd.website/en/info/article/meth-harm-reduction-thailand-behaviour-2026</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/meth-harm-reduction-thailand-behaviour-2026" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-09T08:58:43.832Z</updated>
-    <summary type="text">Meth use patterns, slamming and polydrug mixing in Thai service data, with population-specific harm reduction guidance.</summary>
-  </entry>
-  <entry>
     <title>Long-Acting Injectable PrEP: Lenacapavir and CAB-LA</title>
     <id>https://testd.website/en/info/article/long-acting-injectable-prep</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/long-acting-injectable-prep" />
     <published>2026-08-06T18:39:55.954Z</published>
-    <updated>2026-08-10T09:56:31.248Z</updated>
+    <updated>2026-08-12T02:10:54.358Z</updated>
     <summary type="text">Learn how long-acting injectable PrEP options Lenacapavir and CAB-LA differ, including HIV testing, side effects, and access to care.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/long-acting-injectable-prep-1786041595768.png" />
   </entry>
@@ -78,7 +78,7 @@
     <id>https://testd.website/en/info/article/prep-myths</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/prep-myths" />
     <published>2026-08-06T18:39:28.749Z</published>
-    <updated>2026-08-11T03:23:11.234Z</updated>
+    <updated>2026-08-12T10:02:12.130Z</updated>
     <summary type="text">We unpack 10 common PrEP myths about effectiveness, side effects, eligibility, and access so you can make an informed sexual-health choice.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-myths-1786043500001.png" />
   </entry>
@@ -87,7 +87,7 @@
     <id>https://testd.website/en/info/article/pep-72-hours</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/pep-72-hours" />
     <published>2026-08-06T18:39:25.252Z</published>
-    <updated>2026-08-10T17:40:25.165Z</updated>
+    <updated>2026-08-12T02:09:02.689Z</updated>
     <summary type="text">PEP should start as soon as possible and within 72 hours of possible HIV exposure. Here is what to do if time is running out—or has passed.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-72-hours-1786043500000.png" />
   </entry>
@@ -213,7 +213,7 @@
     <id>https://testd.website/en/info/article/hiv-anxiety-while-waiting</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hiv-anxiety-while-waiting" />
     <published>2026-08-06T18:33:33.979Z</published>
-    <updated>2026-08-06T18:33:33.979Z</updated>
+    <updated>2026-08-12T04:30:35.605Z</updated>
     <summary type="text">Anxiety after a possible HIV exposure is common. Learn how to plan testing, manage difficult thoughts, and care for yourself while waiting.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/hiv-anxiety-while-waiting-1786041213714.png" />
   </entry>
@@ -276,7 +276,7 @@
     <id>https://testd.website/en/info/article/how-often-sti-testing</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/how-often-sti-testing" />
     <published>2026-08-06T18:30:39.611Z</published>
-    <updated>2026-08-10T09:16:09.627Z</updated>
+    <updated>2026-08-12T10:46:45.500Z</updated>
     <summary type="text">How often you need STI testing depends on partners, exposure sites, and symptoms. Use this checklist to plan annual, 3–6 monthly, or prompt testing.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/how-often-sti-testing-1786041039409.png" />
   </entry>
@@ -348,7 +348,7 @@
     <id>https://testd.website/en/info/article/reactive-hiv-self-test-next-steps</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/reactive-hiv-self-test-next-steps" />
     <published>2026-08-06T18:27:32.717Z</published>
-    <updated>2026-08-08T14:11:43.497Z</updated>
+    <updated>2026-08-11T23:08:48.866Z</updated>
     <summary type="text">Two lines mean a reactive preliminary HIV result, not a final diagnosis. Arrange confirmatory testing with a healthcare professional promptly.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/reactive-hiv-self-test-next-steps-1786040852460.png" />
   </entry>
@@ -357,7 +357,7 @@
     <id>https://testd.website/en/info/article/hiv-self-test-how-to-use</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hiv-self-test-how-to-use" />
     <published>2026-08-06T18:27:11.458Z</published>
-    <updated>2026-08-06T18:27:11.458Z</updated>
+    <updated>2026-08-12T17:20:18.295Z</updated>
     <summary type="text">Learn how to prepare, time, and read an HIV self-test correctly—and what to do after a negative, reactive, or invalid result.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/hiv-self-test-how-to-use-1786040831150.png" />
   </entry>
@@ -366,7 +366,7 @@
     <id>https://testd.website/en/info/article/hiv-window-period</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hiv-window-period" />
     <published>2026-08-06T18:27:11.315Z</published>
-    <updated>2026-08-10T04:30:20.142Z</updated>
+    <updated>2026-08-12T17:27:48.930Z</updated>
     <summary type="text">Learn what the HIV window period means, when different tests can detect HIV, and when to test after a recent exposure.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/hiv-window-period-1786040831127.png" />
   </entry>
@@ -393,7 +393,7 @@
     <id>https://testd.website/en/info/article/pep-cost-and-coverage</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/pep-cost-and-coverage" />
     <published>2026-08-06T18:25:43.903Z</published>
-    <updated>2026-08-11T00:38:13.785Z</updated>
+    <updated>2026-08-11T15:42:19.001Z</updated>
     <summary type="text">PEP costs in Thailand vary by coverage, clinic, tests, and medication. Learn how NHSO coverage may apply and why care is urgent within 72 hours.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-cost-and-coverage-1786040743654.png" />
   </entry>
@@ -420,7 +420,7 @@
     <id>https://testd.website/en/info/article/pep-where-bangkok-pattaya</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/pep-where-bangkok-pattaya" />
     <published>2026-08-06T18:25:28.454Z</published>
-    <updated>2026-08-08T19:10:41.668Z</updated>
+    <updated>2026-08-11T15:44:07.337Z</updated>
     <summary type="text">Potential HIV exposure within 72 hours? Learn where to seek PEP in Bangkok and Pattaya, what to prepare, and how SWING can help.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-where-bangkok-pattaya-1786040728178.png" />
   </entry>

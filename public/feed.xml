@@ -5,7 +5,7 @@
   <link>https://testd.website/th/info</link>
   <description>อัปเดตบทความใหม่จาก testD เรื่อง HIV, PrEP, PEP, โรคติดต่อทางเพศสัมพันธ์ และการลดอันตรายจากการใช้สาร</description>
   <language>th-TH</language>
-  <lastBuildDate>Sun, 09 Aug 2026 08:58:43 GMT</lastBuildDate>
+  <lastBuildDate>Tue, 11 Aug 2026 15:48:31 GMT</lastBuildDate>
   <atom:link href="https://testd.website/feed.xml" rel="self" type="application/rss+xml" />
   <item>
     <title>42 คู่ปฏิกิริยาระหว่างสาร: คู่ไหนเสี่ยงตาย คู่ไหนพอจัดการได้</title>
@@ -13,6 +13,20 @@
     <guid isPermaLink="true">https://testd.website/th/info/article/42-critical-substance-interactions-chemsex</guid>
     <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
     <description>ฐานข้อมูลคู่ปฏิกิริยาระหว่างสาร 42 คู่ (วิกฤต 11 / สูง 19 / ปานกลาง 12) จากสาร 18 ชนิด พร้อมวิธีอ่านผลและใช้จริงในคืนที่มีการใช้สาร</description>
+  </item>
+  <item>
+    <title>GHB/GBL: การตวง การเว้นช่วง และการช่วยชีวิตเมื่อเพื่อนหมดสติ</title>
+    <link>https://testd.website/th/info/article/ghb-overdose-prevention-timeline</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/ghb-overdose-prevention-timeline</guid>
+    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
+    <description>GHB เป็นคู่ปฏิกิริยาระดับวิกฤตกับแอลกอฮอล์และยานอนหลับ บทความนี้ให้ตารางเวลาเว้นช่วง สัญญาณอันตราย และขั้นตอนช่วยชีวิตทีละขั้น</description>
+  </item>
+  <item>
+    <title>ไอซ์กับการลดอันตราย: ข้อมูลพฤติกรรมผู้ใช้บริการไทย ปี 2568–2569</title>
+    <link>https://testd.website/th/info/article/meth-harm-reduction-thailand-behaviour-2026</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/meth-harm-reduction-thailand-behaviour-2026</guid>
+    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
+    <description>เจาะข้อมูลรูปแบบการใช้เมทแอมเฟตามีน การฉีด (slam) และการผสมสาร พร้อมแนวทางลดอันตรายรายกลุ่ม อ้างอิงข้อมูลบริการ 11 เดือน</description>
   </item>
   <item>
     <title>คู่มือความปลอดภัยเรื่องเชมเซ็กซ์ (Chemsex Safety Playbook) ฉบับข้อมูลจริงปี 2569</title>
@@ -34,20 +48,6 @@
     <guid isPermaLink="true">https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</guid>
     <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
     <description>วิเคราะห์คำขอชุดตรวจ 15,077 รายการ ตั้งแต่ ต.ค. 2568 ถึง ส.ค. 2569 เห็นพฤติกรรมการตรวจของกลุ่มใช้สารและช่วงเวลาที่ควรสื่อสาร</description>
-  </item>
-  <item>
-    <title>GHB/GBL: การตวง การเว้นช่วง และการช่วยชีวิตเมื่อเพื่อนหมดสติ</title>
-    <link>https://testd.website/th/info/article/ghb-overdose-prevention-timeline</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/ghb-overdose-prevention-timeline</guid>
-    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
-    <description>GHB เป็นคู่ปฏิกิริยาระดับวิกฤตกับแอลกอฮอล์และยานอนหลับ บทความนี้ให้ตารางเวลาเว้นช่วง สัญญาณอันตราย และขั้นตอนช่วยชีวิตทีละขั้น</description>
-  </item>
-  <item>
-    <title>ไอซ์กับการลดอันตราย: ข้อมูลพฤติกรรมผู้ใช้บริการไทย ปี 2568–2569</title>
-    <link>https://testd.website/th/info/article/meth-harm-reduction-thailand-behaviour-2026</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/meth-harm-reduction-thailand-behaviour-2026</guid>
-    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
-    <description>เจาะข้อมูลรูปแบบการใช้เมทแอมเฟตามีน การฉีด (slam) และการผสมสาร พร้อมแนวทางลดอันตรายรายกลุ่ม อ้างอิงข้อมูลบริการ 11 เดือน</description>
   </item>
   <item>
     <title>PrEP ฉีดออกฤทธิ์ยาว: รู้จัก Lenacapavir และ CAB-LA</title>

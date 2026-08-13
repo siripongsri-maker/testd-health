@@ -3,7 +3,7 @@
   <title>testD — บทความสุขภาพทางเพศและลดอันตราย</title>
   <subtitle>อัปเดตบทความใหม่จาก testD เรื่อง HIV, PrEP, PEP, โรคติดต่อทางเพศสัมพันธ์ และการลดอันตรายจากการใช้สาร</subtitle>
   <id>https://testd.website/atom.xml</id>
-  <updated>2026-08-09T08:58:43.832Z</updated>
+  <updated>2026-08-11T15:48:31.219Z</updated>
   <link rel="self" type="application/atom+xml" href="https://testd.website/atom.xml" />
   <link rel="alternate" type="text/html" href="https://testd.website/th/info" />
   <author><name>testD</name></author>
@@ -12,8 +12,24 @@
     <id>https://testd.website/th/info/article/42-critical-substance-interactions-chemsex</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/42-critical-substance-interactions-chemsex" />
     <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-09T08:58:43.832Z</updated>
+    <updated>2026-08-11T15:48:31.219Z</updated>
     <summary type="text">ฐานข้อมูลคู่ปฏิกิริยาระหว่างสาร 42 คู่ (วิกฤต 11 / สูง 19 / ปานกลาง 12) จากสาร 18 ชนิด พร้อมวิธีอ่านผลและใช้จริงในคืนที่มีการใช้สาร</summary>
+  </entry>
+  <entry>
+    <title>GHB/GBL: การตวง การเว้นช่วง และการช่วยชีวิตเมื่อเพื่อนหมดสติ</title>
+    <id>https://testd.website/th/info/article/ghb-overdose-prevention-timeline</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-09T08:58:43.832Z</updated>
+    <summary type="text">GHB เป็นคู่ปฏิกิริยาระดับวิกฤตกับแอลกอฮอล์และยานอนหลับ บทความนี้ให้ตารางเวลาเว้นช่วง สัญญาณอันตราย และขั้นตอนช่วยชีวิตทีละขั้น</summary>
+  </entry>
+  <entry>
+    <title>ไอซ์กับการลดอันตราย: ข้อมูลพฤติกรรมผู้ใช้บริการไทย ปี 2568–2569</title>
+    <id>https://testd.website/th/info/article/meth-harm-reduction-thailand-behaviour-2026</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/meth-harm-reduction-thailand-behaviour-2026" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-09T08:58:43.832Z</updated>
+    <summary type="text">เจาะข้อมูลรูปแบบการใช้เมทแอมเฟตามีน การฉีด (slam) และการผสมสาร พร้อมแนวทางลดอันตรายรายกลุ่ม อ้างอิงข้อมูลบริการ 11 เดือน</summary>
   </entry>
   <entry>
     <title>คู่มือความปลอดภัยเรื่องเชมเซ็กซ์ (Chemsex Safety Playbook) ฉบับข้อมูลจริงปี 2569</title>
@@ -40,27 +56,11 @@
     <summary type="text">วิเคราะห์คำขอชุดตรวจ 15,077 รายการ ตั้งแต่ ต.ค. 2568 ถึง ส.ค. 2569 เห็นพฤติกรรมการตรวจของกลุ่มใช้สารและช่วงเวลาที่ควรสื่อสาร</summary>
   </entry>
   <entry>
-    <title>GHB/GBL: การตวง การเว้นช่วง และการช่วยชีวิตเมื่อเพื่อนหมดสติ</title>
-    <id>https://testd.website/th/info/article/ghb-overdose-prevention-timeline</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-09T08:58:43.832Z</updated>
-    <summary type="text">GHB เป็นคู่ปฏิกิริยาระดับวิกฤตกับแอลกอฮอล์และยานอนหลับ บทความนี้ให้ตารางเวลาเว้นช่วง สัญญาณอันตราย และขั้นตอนช่วยชีวิตทีละขั้น</summary>
-  </entry>
-  <entry>
-    <title>ไอซ์กับการลดอันตราย: ข้อมูลพฤติกรรมผู้ใช้บริการไทย ปี 2568–2569</title>
-    <id>https://testd.website/th/info/article/meth-harm-reduction-thailand-behaviour-2026</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/meth-harm-reduction-thailand-behaviour-2026" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-09T08:58:43.832Z</updated>
-    <summary type="text">เจาะข้อมูลรูปแบบการใช้เมทแอมเฟตามีน การฉีด (slam) และการผสมสาร พร้อมแนวทางลดอันตรายรายกลุ่ม อ้างอิงข้อมูลบริการ 11 เดือน</summary>
-  </entry>
-  <entry>
     <title>PrEP ฉีดออกฤทธิ์ยาว: รู้จัก Lenacapavir และ CAB-LA</title>
     <id>https://testd.website/th/info/article/long-acting-injectable-prep</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/long-acting-injectable-prep" />
     <published>2026-08-06T18:39:55.954Z</published>
-    <updated>2026-08-10T09:56:31.248Z</updated>
+    <updated>2026-08-12T02:10:54.358Z</updated>
     <summary type="text">ทำความรู้จัก PrEP ฉีดชนิดออกฤทธิ์ยาว เปรียบเทียบ Lenacapavir กับ CAB-LA พร้อมข้อควรรู้เรื่องการตรวจ HIV ผลข้างเคียง และการเข้าถึงบริการ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/long-acting-injectable-prep-1786041595768.png" />
   </entry>
@@ -78,7 +78,7 @@
     <id>https://testd.website/th/info/article/prep-myths</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/prep-myths" />
     <published>2026-08-06T18:39:28.749Z</published>
-    <updated>2026-08-11T03:23:11.234Z</updated>
+    <updated>2026-08-12T10:02:12.130Z</updated>
     <summary type="text">ชวนแกะ 10 ความเข้าใจผิดเรื่อง PrEP ตั้งแต่ประสิทธิภาพ ผลข้างเคียง ไปจนถึงสิทธิรับบริการ เพื่อเลือกดูแลสุขภาพทางเพศอย่างมั่นใจ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-myths-1786043500001.png" />
   </entry>
@@ -87,7 +87,7 @@
     <id>https://testd.website/th/info/article/pep-72-hours</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/pep-72-hours" />
     <published>2026-08-06T18:39:25.252Z</published>
-    <updated>2026-08-10T17:40:25.165Z</updated>
+    <updated>2026-08-12T02:09:02.689Z</updated>
     <summary type="text">PEP ควรเริ่มเร็วที่สุดและไม่เกิน 72 ชั่วโมงหลังเสี่ยง HIV หากใกล้ครบเวลาหรือเลยแล้ว ควรทำอะไรต่อ อ่านขั้นตอนที่ปลอดภัยได้ที่นี่</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-72-hours-1786043500000.png" />
   </entry>
@@ -213,7 +213,7 @@
     <id>https://testd.website/th/info/article/hiv-anxiety-while-waiting</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hiv-anxiety-while-waiting" />
     <published>2026-08-06T18:33:33.979Z</published>
-    <updated>2026-08-06T18:33:33.979Z</updated>
+    <updated>2026-08-12T04:30:35.605Z</updated>
     <summary type="text">ความกังวลหลังมีความเสี่ยงเกิดขึ้นได้ มาวางแผนตรวจ จัดการความคิด และดูแลใจอย่างปลอดภัยระหว่างรอผล HIV</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/hiv-anxiety-while-waiting-1786041213714.png" />
   </entry>
@@ -276,7 +276,7 @@
     <id>https://testd.website/th/info/article/how-often-sti-testing</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/how-often-sti-testing" />
     <published>2026-08-06T18:30:39.611Z</published>
-    <updated>2026-08-10T09:16:09.627Z</updated>
+    <updated>2026-08-12T10:46:45.500Z</updated>
     <summary type="text">ตรวจ STI บ่อยแค่ไหนขึ้นอยู่กับพฤติกรรม จุดสัมผัส และคู่นอน เช็กแนวทางตรวจทุก 3–6 เดือน รายปี หรือทันทีเมื่อมีอาการ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/how-often-sti-testing-1786041039409.png" />
   </entry>
@@ -348,7 +348,7 @@
     <id>https://testd.website/th/info/article/reactive-hiv-self-test-next-steps</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/reactive-hiv-self-test-next-steps" />
     <published>2026-08-06T18:27:32.717Z</published>
-    <updated>2026-08-08T14:11:43.497Z</updated>
+    <updated>2026-08-11T23:08:48.866Z</updated>
     <summary type="text">ผลตรวจ HIV 2 ขีดหมายถึงผลเบื้องต้นเป็น reactive ยังไม่ใช่คำวินิจฉัย ควรตรวจยืนยันกับบุคลากรทางการแพทย์โดยเร็ว</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/reactive-hiv-self-test-next-steps-1786040852460.png" />
   </entry>
@@ -357,7 +357,7 @@
     <id>https://testd.website/th/info/article/hiv-self-test-how-to-use</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hiv-self-test-how-to-use" />
     <published>2026-08-06T18:27:11.458Z</published>
-    <updated>2026-08-06T18:27:11.458Z</updated>
+    <updated>2026-08-12T17:20:18.295Z</updated>
     <summary type="text">วิธีใช้ชุดตรวจ HIV ด้วยตัวเอง ตั้งแต่เช็กชุดตรวจ จับเวลา อ่านผล ไปจนถึงสิ่งที่ควรทำเมื่อผลลบ ผลบวกเบื้องต้น หรือผลใช้ไม่ได้</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/hiv-self-test-how-to-use-1786040831150.png" />
   </entry>
@@ -366,7 +366,7 @@
     <id>https://testd.website/th/info/article/hiv-window-period</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hiv-window-period" />
     <published>2026-08-06T18:27:11.315Z</published>
-    <updated>2026-08-10T04:30:20.142Z</updated>
+    <updated>2026-08-12T17:27:48.930Z</updated>
     <summary type="text">เข้าใจ window period HIV ระยะเวลาของชุดตรวจแต่ละแบบ และควรตรวจ HIV เมื่อไหร่ พร้อมแนวทางหลังเหตุการณ์ล่าสุด</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/hiv-window-period-1786040831127.png" />
   </entry>
@@ -393,7 +393,7 @@
     <id>https://testd.website/th/info/article/pep-cost-and-coverage</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/pep-cost-and-coverage" />
     <published>2026-08-06T18:25:43.903Z</published>
-    <updated>2026-08-11T00:38:13.785Z</updated>
+    <updated>2026-08-11T15:42:19.001Z</updated>
     <summary type="text">PEP ราคาไม่เท่ากันตามสิทธิ สถานพยาบาล ค่าตรวจ และค่ายา รู้วิธีเช็กบัตรทองและขอรับบริการให้ทันภายใน 72 ชั่วโมง</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-cost-and-coverage-1786040743654.png" />
   </entry>
@@ -420,7 +420,7 @@
     <id>https://testd.website/th/info/article/pep-where-bangkok-pattaya</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/pep-where-bangkok-pattaya" />
     <published>2026-08-06T18:25:28.454Z</published>
-    <updated>2026-08-08T19:10:41.668Z</updated>
+    <updated>2026-08-11T15:44:07.337Z</updated>
     <summary type="text">สัมผัสเชื้อเอชไอวีมาไม่เกิน 72 ชั่วโมง? ดูช่องทางขอ PEP ในกรุงเทพและพัทยา พร้อมขั้นตอนเตรียมตัวและบริการจาก SWING</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-where-bangkok-pattaya-1786040728178.png" />
   </entry>
