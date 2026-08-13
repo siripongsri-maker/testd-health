@@ -142,6 +142,23 @@ export default function CareCardPrint() {
             </Button>
           </div>
 
+          <div className="rounded-lg border bg-muted/40 p-3 space-y-2">
+            <Label className="text-xs">ดาวน์โหลดไฟล์ PDF (แยกไฟล์ตามจำนวนใบต่อแผ่น)</Label>
+            <div className="flex flex-wrap gap-2">
+              {(Object.keys(LAYOUTS) as unknown as Layout[]).map((k) => {
+                const key = Number(k) as Layout;
+                return (
+                  <Button key={key} variant="outline" size="sm" className="gap-1.5" disabled={exporting !== null} onClick={() => exportPdf(key)}>
+                    {exporting === key ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                    PDF {key} ใบ/แผ่น
+                  </Button>
+                );
+              })}
+            </div>
+            <p className="text-[11px] text-muted-foreground">ไฟล์จะใช้ลิงก์ QR และการตั้งค่าเส้นตัด/พิมพ์สองหน้าปัจจุบัน</p>
+          </div>
+
+
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-1.5">
               <Label className="text-xs">ลิงก์สำหรับ QR code</Label>
