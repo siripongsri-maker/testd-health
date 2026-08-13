@@ -5,21 +5,21 @@
   <link>https://testd.website/en/info</link>
   <description>New articles from testD on HIV, PrEP, PEP, STIs and harm reduction.</description>
   <language>en</language>
-  <lastBuildDate>Tue, 11 Aug 2026 15:48:31 GMT</lastBuildDate>
+  <lastBuildDate>Sun, 09 Aug 2026 08:58:43 GMT</lastBuildDate>
   <atom:link href="https://testd.website/feed-en.xml" rel="self" type="application/rss+xml" />
-  <item>
-    <title>42 Substance Interaction Pairs: Which Combinations Can Kill</title>
-    <link>https://testd.website/en/info/article/42-critical-substance-interactions-chemsex</link>
-    <guid isPermaLink="true">https://testd.website/en/info/article/42-critical-substance-interactions-chemsex</guid>
-    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
-    <description>A breakdown of 42 documented substance interaction pairs — 11 critical, 19 high, 12 moderate — across 18 substances.</description>
-  </item>
   <item>
     <title>GHB/GBL: Dosing, Spacing and What To Do When Someone Goes Under</title>
     <link>https://testd.website/en/info/article/ghb-overdose-prevention-timeline</link>
     <guid isPermaLink="true">https://testd.website/en/info/article/ghb-overdose-prevention-timeline</guid>
     <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
     <description>GHB forms critical interactions with alcohol and benzodiazepines. Spacing tables, danger signs and step-by-step response.</description>
+  </item>
+  <item>
+    <title>42 Substance Interaction Pairs: Which Combinations Can Kill</title>
+    <link>https://testd.website/en/info/article/42-critical-substance-interactions-chemsex</link>
+    <guid isPermaLink="true">https://testd.website/en/info/article/42-critical-substance-interactions-chemsex</guid>
+    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
+    <description>A breakdown of 42 documented substance interaction pairs — 11 critical, 19 high, 12 moderate — across 18 substances.</description>
   </item>
   <item>
     <title>Methamphetamine Harm Reduction: Thai Service Behaviour Data 2025–2026</title>
@@ -29,11 +29,11 @@
     <description>Meth use patterns, slamming and polydrug mixing in Thai service data, with population-specific harm reduction guidance.</description>
   </item>
   <item>
-    <title>Chemsex Safety Playbook: Thailand 2026 Data Edition</title>
-    <link>https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026</link>
-    <guid isPermaLink="true">https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026</guid>
+    <title>From 222 to 2,819 Kits a Month: The HIV Self-Test Pathway for People Who Use Drugs</title>
+    <link>https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</link>
+    <guid isPermaLink="true">https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</guid>
     <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
-    <description>A full chemsex harm reduction playbook grounded in real service data: 15,077 self-test kit requests, 25,133 clinic appointments and 53 completed risk screenings.</description>
+    <description>Analysis of 15,077 HIV self-test kit requests from Oct 2025 to Aug 2026 and what they reveal about testing behaviour.</description>
   </item>
   <item>
     <title>71.7% at High Risk: What PHQ-4, ASSIST and C-SSRS Screening Tells Us About Chemsex</title>
@@ -43,11 +43,11 @@
     <description>53 completed screenings between Mar 12 and Aug 8, 2026: monthly trends and what they mean for mental health care.</description>
   </item>
   <item>
-    <title>From 222 to 2,819 Kits a Month: The HIV Self-Test Pathway for People Who Use Drugs</title>
-    <link>https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</link>
-    <guid isPermaLink="true">https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</guid>
+    <title>Chemsex Safety Playbook: Thailand 2026 Data Edition</title>
+    <link>https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026</link>
+    <guid isPermaLink="true">https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026</guid>
     <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
-    <description>Analysis of 15,077 HIV self-test kit requests from Oct 2025 to Aug 2026 and what they reveal about testing behaviour.</description>
+    <description>A full chemsex harm reduction playbook grounded in real service data: 15,077 self-test kit requests, 25,133 clinic appointments and 53 completed risk screenings.</description>
   </item>
   <item>
     <title>Long-Acting Injectable PrEP: Lenacapavir and CAB-LA</title>

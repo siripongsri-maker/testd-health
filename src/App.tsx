@@ -107,6 +107,7 @@ const LaoLanding = lazy(() => import("./pages/LaoLanding"));
 const KhmerLanding = lazy(() => import("./pages/KhmerLanding"));
 const KhmerHarmReduction = lazy(() => import("./pages/KhmerHarmReduction"));
 const SafeSpaceQuiz = lazy(() => import("./pages/SafeSpaceQuiz"));
+const CareCardPrint = lazy(() => import("./pages/CareCardPrint"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -259,6 +260,7 @@ function AppShell() {
               <Route path="/unsubscribe" element={<Unsubscribe />} />
               {/* ลิงก์เฉพาะกิจกรรมพื้นที่ปลอดภัย ไม่แสดงในเมนูและไม่อยู่ใน sitemap */}
               <Route path="/safe-space/quiz" element={<SafeSpaceQuiz />} />
+              <Route path="/safe-space/care-card-print" element={<CareCardPrint />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AppLayout>
