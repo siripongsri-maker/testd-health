@@ -333,6 +333,11 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">อัตราขอชุดตรวจ</p><p className="text-2xl font-bold text-foreground">{kitRate}%</p></CardContent></Card>
       </div>
 
+      {/* กราฟแนวโน้ม */}
+      <SafeSpaceTrendChart rows={filtered} />
+
+
+
 
       {/* รายเซสชัน */}
       <Card>
