@@ -28,6 +28,13 @@ interface QuizRow {
   answers: { q: number; category: string; answer: boolean; is_correct: boolean }[] | null;
 }
 
+interface ScanRow {
+  id: string;
+  created_at: string;
+  session_id: string | null;
+  event_code: string | null;
+}
+
 export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: string; label: string }[] }) {
   const [sessionFilter, setSessionFilter] = useState("all");
   const [eventFilter, setEventFilter] = useState("all");
@@ -49,6 +56,39 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
       return (data || []) as unknown as QuizRow[];
     },
   });
+
+  const { data: scans } = useQuery({
+    queryKey: ["safe-space-qr-scans"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("safe_space_qr_scans")
+        .select("id, created_at, session_id, event_code")
+        .order("created_at", { ascending: false })
+        .limit(5000);
+      if (error) throw error;
+      return (data || []) as ScanRow[];
+    },
+  });
+
+  const filteredScans = useMemo(() => {
+    return (scans || []).filter((s) => {
+      if (eventFilter !== "all" && s.event_code !== eventFilter) return false;
+      const day = s.created_at.slice(0, 10);
+      if (from && day < from) return false;
+      if (to && day > to) return false;
+      return true;
+    });
+  }, [scans, eventFilter, from, to]);
+
+  const scanBySession = useMemo(() => {
+    const m = new Map<string, number>();
+    filteredScans.forEach((s) => {
+      const key = s.session_id || "unassigned";
+      m.set(key, (m.get(key) || 0) + 1);
+    });
+    return m;
+  }, [filteredScans]);
+
 
   const eventCodes = useMemo(
     () => Array.from(new Set((rows || []).map((r) => r.event_code))).sort(),
@@ -77,6 +117,9 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
       const key = r.session_id || "unassigned";
       map.set(key, [...(map.get(key) || []), r]);
     });
+    scanBySession.forEach((_v, key) => {
+      if (!map.has(key)) map.set(key, []);
+    });
     return Array.from(map.entries())
       .map(([key, list]) => {
         const count = list.length;
@@ -85,10 +128,13 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
         const correct = list.reduce((s, r) => s + r.score, 0);
         const passed = list.filter((r) => r.total > 0 && r.score / r.total >= 0.7).length;
         const times = list.map((r) => r.created_at).sort();
+        const scanCount = scanBySession.get(key) || 0;
         return {
           key,
           label: key === "unassigned" ? "ไม่ได้ผูกเซสชัน" : sessions.find((s) => s.id === key)?.label || key.slice(0, 8),
           count,
+          scanCount,
+          responseRate: scanCount ? (count / scanCount) * 100 : 0,
           kit,
           kitRate: count ? (kit / count) * 100 : 0,
           avg: count ? correct / count : 0,
@@ -98,13 +144,18 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
           last: times[times.length - 1],
         };
       })
-      .sort((a, b) => b.count - a.count);
-  }, [baseFiltered, sessions]);
+      .sort((a, b) => b.scanCount - a.scanCount || b.count - a.count);
+  }, [baseFiltered, sessions, scanBySession]);
 
   const total = filtered.length;
   const avg = total ? (filtered.reduce((s, r) => s + r.score, 0) / total).toFixed(1) : "0.0";
   const kitCount = filtered.filter((r) => r.outcome === "to_test_kit").length;
   const kitRate = total ? ((kitCount / total) * 100).toFixed(0) : "0";
+  const scanTotal = useMemo(
+    () => filteredScans.filter((s) => sessionFilter === "all" || s.session_id === sessionFilter).length,
+    [filteredScans, sessionFilter],
+  );
+  const scanToQuizRate = scanTotal ? ((total / scanTotal) * 100).toFixed(0) : "0";
 
   const perQuestion = useMemo(() => {
     return SAFE_SPACE_QUIZ.map((item) => {
@@ -158,7 +209,9 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
       [
         { key: "label", header: "เซสชัน" },
         { key: "key", header: "Session ID", format: (s) => (s.key === "unassigned" ? "" : s.key) },
+        { key: "scanCount", header: "สแกน QR (ครั้ง)" },
         { key: "count", header: "ตอบกลับ (คน)" },
+        { key: "responseRate", header: "อัตราตอบกลับต่อการสแกน (%)", format: (s) => s.responseRate.toFixed(0) },
         { key: "avg", header: "คะแนนเฉลี่ย", format: (s) => s.avg.toFixed(1) },
         { key: "knowledgeRate", header: "อัตราตอบถูก (%)", format: (s) => s.knowledgeRate.toFixed(0) },
         { key: "passed", header: "ผ่าน 70% ขึ้นไป (คน)" },
@@ -270,12 +323,14 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
       </Card>
 
       {/* สรุป */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">ผู้ตอบ</p><p className="text-2xl font-bold text-foreground">{total}</p></CardContent></Card>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">สแกน QR</p><p className="text-2xl font-bold text-foreground">{scanTotal}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">ผู้ตอบ</p><p className="text-2xl font-bold text-foreground">{total}</p><p className="text-[11px] text-muted-foreground">ตอบจริง {scanToQuizRate}% ของการสแกน</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">คะแนนเฉลี่ย</p><p className="text-2xl font-bold text-foreground">{avg}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">กดขอชุดตรวจ</p><p className="text-2xl font-bold text-foreground">{kitCount}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">อัตราขอชุดตรวจ</p><p className="text-2xl font-bold text-foreground">{kitRate}%</p></CardContent></Card>
       </div>
+
 
       {/* รายเซสชัน */}
       <Card>
@@ -293,7 +348,9 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
               <thead>
                 <tr className="border-b text-left text-xs text-muted-foreground">
                   <th className="py-2 pr-3">เซสชัน</th>
+                  <th className="py-2 pr-3">สแกน QR</th>
                   <th className="py-2 pr-3">ตอบกลับ</th>
+                  <th className="py-2 pr-3">ตอบ/สแกน</th>
                   <th className="py-2 pr-3">คะแนนเฉลี่ย</th>
                   <th className="py-2 pr-3">ได้ความรู้ (ตอบถูก)</th>
                   <th className="py-2 pr-3">ผ่าน ≥70%</th>
@@ -309,7 +366,13 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
                     onClick={() => setSessionFilter(s.key === "unassigned" ? "all" : s.key)}
                   >
                     <td className="py-2 pr-3">{s.label}</td>
+                    <td className="py-2 pr-3">{s.scanCount}</td>
                     <td className="py-2 pr-3 font-semibold">{s.count}</td>
+                    <td className="py-2 pr-3">
+                      <Badge variant={s.scanCount && s.responseRate < 30 ? "destructive" : "secondary"}>
+                        {s.scanCount ? `${s.responseRate.toFixed(0)}%` : "-"}
+                      </Badge>
+                    </td>
                     <td className="py-2 pr-3">{s.avg.toFixed(1)}</td>
                     <td className="py-2 pr-3">
                       <Badge variant={s.knowledgeRate < 50 ? "destructive" : "secondary"}>{s.knowledgeRate.toFixed(0)}%</Badge>
