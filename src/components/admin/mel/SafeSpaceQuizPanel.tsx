@@ -117,6 +117,9 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
       const key = r.session_id || "unassigned";
       map.set(key, [...(map.get(key) || []), r]);
     });
+    scanBySession.forEach((_v, key) => {
+      if (!map.has(key)) map.set(key, []);
+    });
     return Array.from(map.entries())
       .map(([key, list]) => {
         const count = list.length;
@@ -125,10 +128,13 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
         const correct = list.reduce((s, r) => s + r.score, 0);
         const passed = list.filter((r) => r.total > 0 && r.score / r.total >= 0.7).length;
         const times = list.map((r) => r.created_at).sort();
+        const scanCount = scanBySession.get(key) || 0;
         return {
           key,
           label: key === "unassigned" ? "ไม่ได้ผูกเซสชัน" : sessions.find((s) => s.id === key)?.label || key.slice(0, 8),
           count,
+          scanCount,
+          responseRate: scanCount ? (count / scanCount) * 100 : 0,
           kit,
           kitRate: count ? (kit / count) * 100 : 0,
           avg: count ? correct / count : 0,
@@ -138,13 +144,18 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
           last: times[times.length - 1],
         };
       })
-      .sort((a, b) => b.count - a.count);
-  }, [baseFiltered, sessions]);
+      .sort((a, b) => b.scanCount - a.scanCount || b.count - a.count);
+  }, [baseFiltered, sessions, scanBySession]);
 
   const total = filtered.length;
   const avg = total ? (filtered.reduce((s, r) => s + r.score, 0) / total).toFixed(1) : "0.0";
   const kitCount = filtered.filter((r) => r.outcome === "to_test_kit").length;
   const kitRate = total ? ((kitCount / total) * 100).toFixed(0) : "0";
+  const scanTotal = useMemo(
+    () => filteredScans.filter((s) => sessionFilter === "all" || s.session_id === sessionFilter).length,
+    [filteredScans, sessionFilter],
+  );
+  const scanToQuizRate = scanTotal ? ((total / scanTotal) * 100).toFixed(0) : "0";
 
   const perQuestion = useMemo(() => {
     return SAFE_SPACE_QUIZ.map((item) => {
