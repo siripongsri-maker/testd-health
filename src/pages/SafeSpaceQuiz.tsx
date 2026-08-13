@@ -102,11 +102,6 @@ export default function SafeSpaceQuiz() {
       console.error("[safe-space-quiz] save failed", err);
       toast({ title: "บันทึกไม่สำเร็จ ลองอีกครั้งนะ", variant: "destructive" });
       return undefined;
-
-    } catch (err) {
-      console.error("[safe-space-quiz] save failed", err);
-      toast({ title: "บันทึกไม่สำเร็จ ลองอีกครั้งนะ", variant: "destructive" });
-      return undefined;
     } finally {
       setSaving(false);
     }
