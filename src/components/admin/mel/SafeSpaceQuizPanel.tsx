@@ -279,8 +279,11 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
 
       {/* รายเซสชัน */}
       <Card>
-        <CardHeader className="pb-2">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-base">ผลรายเซสชัน (จาก QR ที่ผูกไว้)</CardTitle>
+          <Button size="sm" variant="outline" onClick={handleExportSessions} disabled={perSession.length === 0}>
+            <Download className="mr-2 h-4 w-4" /> Export รายเซสชัน
+          </Button>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           {perSession.length === 0 ? (
