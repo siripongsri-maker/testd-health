@@ -348,7 +348,9 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
               <thead>
                 <tr className="border-b text-left text-xs text-muted-foreground">
                   <th className="py-2 pr-3">เซสชัน</th>
+                  <th className="py-2 pr-3">สแกน QR</th>
                   <th className="py-2 pr-3">ตอบกลับ</th>
+                  <th className="py-2 pr-3">ตอบ/สแกน</th>
                   <th className="py-2 pr-3">คะแนนเฉลี่ย</th>
                   <th className="py-2 pr-3">ได้ความรู้ (ตอบถูก)</th>
                   <th className="py-2 pr-3">ผ่าน ≥70%</th>
