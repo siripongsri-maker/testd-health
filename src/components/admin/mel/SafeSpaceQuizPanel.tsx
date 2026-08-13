@@ -50,6 +50,39 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
     },
   });
 
+  const { data: scans } = useQuery({
+    queryKey: ["safe-space-qr-scans"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("safe_space_qr_scans")
+        .select("id, created_at, session_id, event_code")
+        .order("created_at", { ascending: false })
+        .limit(5000);
+      if (error) throw error;
+      return (data || []) as ScanRow[];
+    },
+  });
+
+  const filteredScans = useMemo(() => {
+    return (scans || []).filter((s) => {
+      if (eventFilter !== "all" && s.event_code !== eventFilter) return false;
+      const day = s.created_at.slice(0, 10);
+      if (from && day < from) return false;
+      if (to && day > to) return false;
+      return true;
+    });
+  }, [scans, eventFilter, from, to]);
+
+  const scanBySession = useMemo(() => {
+    const m = new Map<string, number>();
+    filteredScans.forEach((s) => {
+      const key = s.session_id || "unassigned";
+      m.set(key, (m.get(key) || 0) + 1);
+    });
+    return m;
+  }, [filteredScans]);
+
+
   const eventCodes = useMemo(
     () => Array.from(new Set((rows || []).map((r) => r.event_code))).sort(),
     [rows],
