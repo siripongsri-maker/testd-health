@@ -209,7 +209,9 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
       [
         { key: "label", header: "เซสชัน" },
         { key: "key", header: "Session ID", format: (s) => (s.key === "unassigned" ? "" : s.key) },
+        { key: "scanCount", header: "สแกน QR (ครั้ง)" },
         { key: "count", header: "ตอบกลับ (คน)" },
+        { key: "responseRate", header: "อัตราตอบกลับต่อการสแกน (%)", format: (s) => s.responseRate.toFixed(0) },
         { key: "avg", header: "คะแนนเฉลี่ย", format: (s) => s.avg.toFixed(1) },
         { key: "knowledgeRate", header: "อัตราตอบถูก (%)", format: (s) => s.knowledgeRate.toFixed(0) },
         { key: "passed", header: "ผ่าน 70% ขึ้นไป (คน)" },
