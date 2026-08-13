@@ -14,6 +14,7 @@ import { SAFE_SPACE_QUIZ } from "@/data/safeSpaceQuiz";
 import { Copy, Download, Loader2, QrCode } from "lucide-react";
 import { format } from "date-fns";
 import SafeSpaceRespondentDialog from "./SafeSpaceRespondentDialog";
+import SafeSpaceTrendChart from "./SafeSpaceTrendChart";
 
 interface QuizRow {
   id: string;
@@ -332,6 +333,11 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">กดขอชุดตรวจ</p><p className="text-2xl font-bold text-foreground">{kitCount}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">อัตราขอชุดตรวจ</p><p className="text-2xl font-bold text-foreground">{kitRate}%</p></CardContent></Card>
       </div>
+
+      {/* กราฟแนวโน้ม */}
+      <SafeSpaceTrendChart rows={filtered} />
+
+
 
 
       {/* รายเซสชัน */}
