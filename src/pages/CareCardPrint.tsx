@@ -101,6 +101,7 @@ export default function CareCardPrint() {
       await new Promise((r) => setTimeout(r, 800));
       await (document as Document & { fonts?: FontFaceSet }).fonts?.ready;
 
+      console.log("[cc-export] renderer=html-to-image");
       const nodes = Array.from(host.querySelectorAll<HTMLElement>(".cc-sheet"));
       if (!nodes.length) throw new Error("no sheet");
       const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
