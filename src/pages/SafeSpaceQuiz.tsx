@@ -76,9 +76,15 @@ export default function SafeSpaceQuiz() {
   async function save(outcome: "finished" | "to_test_kit") {
     setSaving(true);
     try {
-      const { data, error } = await supabase
+      // สร้าง id ฝั่ง client เพราะผู้ร่วมกิจกรรมไม่ได้ล็อกอิน จึงอ่านข้อมูลกลับไม่ได้ตามนโยบายความปลอดภัย
+      const newId =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : undefined;
+      const { error } = await supabase
         .from("safe_space_quiz_responses")
         .insert({
+          ...(newId ? { id: newId } : {}),
           event_code: eventCode,
           session_id: sessionId,
           nickname: nickname.trim(),
@@ -89,11 +95,14 @@ export default function SafeSpaceQuiz() {
           total: SAFE_SPACE_QUIZ_TOTAL,
           outcome,
           source,
-        })
-        .select("id")
-        .single();
+        });
       if (error) throw error;
-      return data?.id as string | undefined;
+      return newId;
+    } catch (err) {
+      console.error("[safe-space-quiz] save failed", err);
+      toast({ title: "บันทึกไม่สำเร็จ ลองอีกครั้งนะ", variant: "destructive" });
+      return undefined;
+
     } catch (err) {
       console.error("[safe-space-quiz] save failed", err);
       toast({ title: "บันทึกไม่สำเร็จ ลองอีกครั้งนะ", variant: "destructive" });
