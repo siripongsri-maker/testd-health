@@ -1,15 +1,19 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { createRoot } from "react-dom/client";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { Switch } from "@/components/ui/switch";
 import { Printer, LayoutGrid, ArrowLeft, Download, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { format as formatDate } from "date-fns";
 import { CareCardFront, CareCardBack } from "@/components/care-card/CareCardFaces";
 
 type Layout = 4 | 6 | 8 | 9;
@@ -62,13 +66,50 @@ function Sheet({
 
 export default function CareCardPrint() {
   const origin = typeof window !== "undefined" ? window.location.origin : "https://testd.website";
-  const [qrUrl, setQrUrl] = useState(`${origin}/hiv-selftest?utm_source=care_card`);
+  const [baseUrl, setBaseUrl] = useState(`${origin}/safe-space/quiz`);
+  const [sessionId, setSessionId] = useState("none");
+  const [eventCode, setEventCode] = useState("safespace");
   const [layout, setLayout] = useState<Layout>(6);
   const [duplex, setDuplex] = useState(true);
   const [cutMarks, setCutMarks] = useState(true);
   const [zoom, setZoom] = useState(0.42);
 
   const [exporting, setExporting] = useState<Layout | null>(null);
+
+  const { data: sessions } = useQuery({
+    queryKey: ["care-card-support-sessions"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("support_sessions")
+        .select("id, session_date, session_title_th, location")
+        .order("session_date", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  // ผูก QR กับเซสชัน เพื่อวัดผลว่าคนจากเซสชันไหนสแกนและตอบกลับ
+  const qrUrl = useMemo(() => {
+    try {
+      const u = new URL(baseUrl, origin);
+      u.searchParams.set("utm_source", "care_card");
+      if (eventCode.trim()) u.searchParams.set("event", eventCode.trim());
+      if (sessionId !== "none") u.searchParams.set("session", sessionId);
+      return u.toString();
+    } catch {
+      return baseUrl;
+    }
+  }, [baseUrl, origin, eventCode, sessionId]);
+
+  useEffect(() => {
+    if (sessionId === "none") return;
+    const s = (sessions || []).find((x: { id: string }) => x.id === sessionId);
+    if (s) {
+      const auto = `ss-${formatDate(new Date((s as { session_date: string }).session_date), "yyyyMMdd")}`;
+      setEventCode((prev) => (prev === "safespace" || prev.startsWith("ss-") ? auto : prev));
+    }
+  }, [sessionId, sessions]);
 
   const perSheet = useMemo(() => LAYOUTS[layout].cols * LAYOUTS[layout].rows, [layout]);
 
@@ -170,17 +211,40 @@ export default function CareCardPrint() {
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-1.5">
-              <Label className="text-xs">ลิงก์สำหรับ QR code</Label>
-              <Input value={qrUrl} onChange={(e) => setQrUrl(e.target.value)} placeholder="https://…" />
+              <Label className="text-xs">ปลายทางของ QR code</Label>
+              <Input value={baseUrl} onChange={(e) => setBaseUrl(e.target.value)} placeholder="https://…" />
               <div className="flex flex-wrap gap-1.5 pt-1">
                 {[
-                  { l: "ขอชุดตรวจ", u: `${origin}/hiv-selftest?utm_source=care_card` },
-                  { l: "ควิซพื้นที่ปลอดภัย", u: `${origin}/safe-space/quiz?event=safespace` },
-                  { l: "จองคลินิก", u: `${origin}/clinic/book?utm_source=care_card` },
+                  { l: "ควิซพื้นที่ปลอดภัย", u: `${origin}/safe-space/quiz` },
+                  { l: "ขอชุดตรวจ", u: `${origin}/hiv-selftest` },
+                  { l: "จองคลินิก", u: `${origin}/clinic/book` },
                 ].map((p) => (
-                  <button key={p.l} onClick={() => setQrUrl(p.u)} className="text-[11px] px-2 py-1 rounded-full bg-muted hover:bg-muted/70">{p.l}</button>
+                  <button key={p.l} onClick={() => setBaseUrl(p.u)} className="text-[11px] px-2 py-1 rounded-full bg-muted hover:bg-muted/70">{p.l}</button>
                 ))}
               </div>
+
+              <div className="grid gap-2 pt-2 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">ผูกกับเซสชัน</Label>
+                  <Select value={sessionId} onValueChange={setSessionId}>
+                    <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">ไม่ผูกเซสชัน</SelectItem>
+                      {(sessions || []).map((s: { id: string; session_date: string; session_title_th: string | null; location: string | null }) => (
+                        <SelectItem key={s.id} value={s.id}>
+                          {formatDate(new Date(s.session_date), "dd MMM yyyy")} · {s.session_title_th || "ไม่มีชื่อ"}{s.location ? ` · ${s.location}` : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Event code</Label>
+                  <Input className="h-9 text-xs" value={eventCode} onChange={(e) => setEventCode(e.target.value)} placeholder="safespace" />
+                </div>
+              </div>
+
+              <p className="break-all rounded-md bg-muted/40 p-2 text-[11px] text-muted-foreground">{qrUrl}</p>
             </div>
 
             <div className="space-y-3">
