@@ -28,6 +28,13 @@ interface QuizRow {
   answers: { q: number; category: string; answer: boolean; is_correct: boolean }[] | null;
 }
 
+interface ScanRow {
+  id: string;
+  created_at: string;
+  session_id: string | null;
+  event_code: string | null;
+}
+
 export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: string; label: string }[] }) {
   const [sessionFilter, setSessionFilter] = useState("all");
   const [eventFilter, setEventFilter] = useState("all");
