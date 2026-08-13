@@ -323,12 +323,14 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
       </Card>
 
       {/* สรุป */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">ผู้ตอบ</p><p className="text-2xl font-bold text-foreground">{total}</p></CardContent></Card>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">สแกน QR</p><p className="text-2xl font-bold text-foreground">{scanTotal}</p></CardContent></Card>
+        <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">ผู้ตอบ</p><p className="text-2xl font-bold text-foreground">{total}</p><p className="text-[11px] text-muted-foreground">ตอบจริง {scanToQuizRate}% ของการสแกน</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">คะแนนเฉลี่ย</p><p className="text-2xl font-bold text-foreground">{avg}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">กดขอชุดตรวจ</p><p className="text-2xl font-bold text-foreground">{kitCount}</p></CardContent></Card>
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">อัตราขอชุดตรวจ</p><p className="text-2xl font-bold text-foreground">{kitRate}%</p></CardContent></Card>
       </div>
+
 
       {/* รายเซสชัน */}
       <Card>
