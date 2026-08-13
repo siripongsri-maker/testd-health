@@ -1,23 +1,28 @@
 import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { createRoot } from "react-dom/client";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { Switch } from "@/components/ui/switch";
-import { Printer, LayoutGrid, ArrowLeft } from "lucide-react";
+import { Printer, LayoutGrid, ArrowLeft, Download, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import { CareCardFront, CareCardBack } from "@/components/care-card/CareCardFaces";
 
-type Layout = 4 | 6;
+type Layout = 4 | 6 | 8 | 9;
 
 const LAYOUTS: Record<Layout, { cols: number; rows: number; label: string }> = {
   4: { cols: 2, rows: 2, label: "4 ใบ / แผ่น (A6 เต็มขนาด)" },
   6: { cols: 2, rows: 3, label: "6 ใบ / แผ่น (ย่อ ~67%)" },
+  8: { cols: 2, rows: 4, label: "8 ใบ / แผ่น (ย่อ ~50%)" },
+  9: { cols: 3, rows: 3, label: "9 ใบ / แผ่น (ย่อ ~65%)" },
 };
 
 const CARD_W = 105;
+
 const CARD_H = 148;
 
 function Sheet({
