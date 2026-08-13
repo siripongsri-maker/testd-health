@@ -469,6 +469,16 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
         </CardContent>
 
       </Card>
+
+      <SafeSpaceRespondentDialog
+        row={detailRow}
+        sessionLabel={
+          detailRow?.session_id
+            ? sessions.find((s) => s.id === detailRow.session_id)?.label || detailRow.session_id.slice(0, 8)
+            : undefined
+        }
+        onOpenChange={(open) => !open && setDetailRow(null)}
+      />
     </div>
   );
 }
