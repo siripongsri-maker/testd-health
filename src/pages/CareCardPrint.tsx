@@ -160,14 +160,14 @@ export default function CareCardPrint() {
             <div className="space-y-3">
               <div className="space-y-1.5">
                 <Label className="text-xs">จำนวนต่อแผ่น</Label>
-                <div className="flex gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   {(Object.keys(LAYOUTS) as unknown as Layout[]).map((k) => {
                     const key = Number(k) as Layout;
                     return (
                       <button
                         key={key}
                         onClick={() => setLayout(key)}
-                        className={`flex-1 text-xs px-3 py-2 rounded-lg border transition-colors ${layout === key ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
+                        className={`text-xs px-3 py-2 rounded-lg border transition-colors text-left ${layout === key ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
                       >
                         <LayoutGrid className="h-3.5 w-3.5 inline mr-1" />{LAYOUTS[key].label}
                       </button>
@@ -175,6 +175,7 @@ export default function CareCardPrint() {
                   })}
                 </div>
               </div>
+
               <div className="flex items-center gap-6 flex-wrap">
                 <label className="flex items-center gap-2 text-xs"><Switch checked={duplex} onCheckedChange={setDuplex} />พิมพ์สองหน้า (พลิกด้านยาว)</label>
                 <label className="flex items-center gap-2 text-xs"><Switch checked={cutMarks} onCheckedChange={setCutMarks} />เส้นตัด</label>
