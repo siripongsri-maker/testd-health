@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/lib/i18n";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Users, Plus, Pencil, Trash2 } from "lucide-react";
+import { Loader2, Users, Plus, Pencil, Trash2, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
@@ -50,7 +50,13 @@ export default function MelSafeSpacesContent() {
           <h2 className="text-2xl font-bold text-foreground">{isTh ? "พื้นที่ปลอดภัย" : "Safe Spaces"}</h2>
           <p className="text-muted-foreground text-sm">{isTh ? "กลุ่มสนับสนุนและกิจกรรมชุมชน" : "Support groups & community activities"}</p>
         </div>
-        <Button size="sm" className="gap-2" onClick={() => { setEditSession(null); setDrawerOpen(true); }}><Plus className="h-4 w-4" />{isTh ? "เพิ่มเซสชัน" : "Add Session"}</Button>
+        <div className="flex items-center gap-2">
+          <Button asChild size="sm" variant="outline" className="gap-2">
+            <a href="/safe-space/care-card-print" target="_blank" rel="noreferrer"><Printer className="h-4 w-4" />{isTh ? "พิมพ์การ์ดดูแลกัน" : "Print Care Cards"}</a>
+          </Button>
+          <Button size="sm" className="gap-2" onClick={() => { setEditSession(null); setDrawerOpen(true); }}><Plus className="h-4 w-4" />{isTh ? "เพิ่มเซสชัน" : "Add Session"}</Button>
+        </div>
+
       </div>
 
       <MelSOPCard {...MEL_SOPS.safeSpaces} />

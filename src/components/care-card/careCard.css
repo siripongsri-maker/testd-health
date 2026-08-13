@@ -1,0 +1,128 @@
+/* Print-only design tokens for the SWING "การ์ดดูแลกัน" card.
+   Scoped under .cc-card so it never leaks into the app design system. */
+
+.cc-card {
+  --cc-teal-100: #dceae0;
+  --cc-teal-200: #bfe0da;
+  --cc-teal-600: #289c90;
+  --cc-teal-700: #1f7d74;
+  --cc-teal-800: #175d57;
+  --cc-pink-100: #fde7f1;
+  --cc-pink-500: #ec5094;
+  --cc-pink-600: #d82474;
+  --cc-pink-700: #b0175a;
+  --cc-yellow-100: #fdf3d6;
+  --cc-yellow-600: #d1961a;
+  --cc-ink-500: #5c6370;
+  --cc-ink-400: #8a8f99;
+  --cc-ink-700: #3c4149;
+  --cc-ink-900: #191d24;
+  --cc-sand-50: #fdfdfa;
+  --cc-hairline: #e8ebdf;
+  --cc-font: "IBM Plex Sans Thai", "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --cc-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  width: 105mm;
+  height: 148mm;
+  background: #fff;
+  color: var(--cc-ink-900);
+  font-family: var(--cc-font);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.cc-card * { box-sizing: border-box; }
+.cc-card h1, .cc-card h2, .cc-card p, .cc-card figure { margin: 0; }
+.cc-card ul { list-style: none; margin: 0; padding: 0; }
+.cc-card strong { font-weight: 700; }
+
+.cc-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 4mm; padding: 6mm 8.5mm 7.5mm; }
+.cc-logos { flex: none; display: flex; align-items: center; justify-content: center; gap: 5mm; padding: 7mm 8.5mm 0; }
+.cc-logos img { display: block; object-fit: contain; }
+.cc-logos .cc-l-elton { height: 8mm; }
+.cc-logos .cc-l-swing { height: 6mm; }
+.cc-logos .cc-l-testd { height: 11mm; }
+.cc-logos .cc-sep { width: 1px; height: 8mm; background: var(--cc-hairline); }
+
+.cc-ph { display: flex; align-items: center; gap: 2.5mm; padding-bottom: 2.5mm; border-bottom: 1px solid var(--cc-hairline); }
+.cc-ph h1 { font-size: 12.5pt; font-weight: 700; letter-spacing: -0.01em; color: var(--cc-teal-800); line-height: 1.2; }
+.cc-ph svg { width: 5.4mm; height: 5.4mm; color: var(--cc-teal-600); stroke-width: 2.2; flex: none; }
+.cc-ph .cc-pnum { margin-left: auto; font-family: var(--cc-mono); font-size: 7.5pt; color: var(--cc-ink-400); }
+
+.cc-callout { border-radius: 24px; padding: 4mm 4.6mm; display: flex; gap: 3.5mm; align-items: flex-start; }
+.cc-callout > svg { flex: none; width: 6.4mm; height: 6.4mm; margin-top: 0.4mm; stroke-width: 2; }
+.cc-callout h2 { font-size: 12pt; line-height: 1.28; letter-spacing: -0.01em; font-weight: 700; }
+.cc-callout p { font-size: 10.5pt; line-height: 1.5; margin-top: 1.4mm; }
+
+.cc-pair { display: flex; align-items: center; gap: 2.6mm; margin-bottom: 2.6mm; }
+.cc-pair figure { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1.2mm; }
+.cc-pair img { width: 100%; height: 12mm; object-fit: cover; border-radius: 12px; background: #fff; display: block; }
+.cc-pair figcaption { font-size: 8.5pt; font-weight: 600; letter-spacing: -0.01em; text-align: center; color: var(--cc-pink-700); }
+.cc-pair .cc-plus { flex: none; width: 6mm; height: 6mm; border-radius: 50%; background: var(--cc-pink-500); color: #fff; font-size: 11pt; font-weight: 700; line-height: 1; display: flex; align-items: center; justify-content: center; margin-bottom: 4mm; }
+
+.cc-alert { background: var(--cc-pink-100); }
+.cc-alert h2 { color: var(--cc-pink-700); }
+.cc-alert p { color: var(--cc-pink-600); }
+.cc-alert > svg { color: var(--cc-pink-500); }
+.cc-warn { background: var(--cc-yellow-100); }
+.cc-warn h2 { color: #8a6410; font-size: 11.5pt; }
+.cc-warn p { color: var(--cc-yellow-600); }
+.cc-warn > svg { color: var(--cc-yellow-600); }
+.cc-ok { background: var(--cc-teal-100); }
+.cc-ok h2 { color: var(--cc-teal-800); font-size: 11.5pt; }
+.cc-ok p { color: var(--cc-teal-700); }
+.cc-ok > svg { color: var(--cc-teal-600); }
+.cc-ok .cc-tel { font-family: var(--cc-mono); font-size: 10pt; letter-spacing: 0.03em; color: var(--cc-teal-800); margin-top: 1mm; display: block; }
+
+.cc-list { display: flex; flex-direction: column; gap: 2.4mm; }
+.cc-list li { display: flex; gap: 3.4mm; align-items: center; font-size: 10.5pt; line-height: 1.4; color: var(--cc-ink-700); }
+.cc-chip { flex: none; width: 8.2mm; height: 8.2mm; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.cc-chip svg { width: 4.6mm; height: 4.6mm; stroke-width: 2; fill: none; }
+.cc-i-purple { background: #f4e6fb; } .cc-i-purple svg { color: #9a2fd0; }
+.cc-i-blue { background: #e0f2fc; } .cc-i-blue svg { color: #1a86bd; }
+.cc-i-teal { background: var(--cc-teal-100); } .cc-i-teal svg { color: var(--cc-teal-700); }
+.cc-i-yellow { background: var(--cc-yellow-100); } .cc-i-yellow svg { color: #b1830f; }
+.cc-i-pink { background: var(--cc-pink-100); } .cc-i-pink svg { color: var(--cc-pink-600); }
+
+.cc-foot { margin-top: auto; display: flex; gap: 4mm; align-items: center; padding-top: 4mm; border-top: 1px solid var(--cc-hairline); }
+.cc-qr { flex: none; width: 24mm; height: 24mm; border-radius: 12px; overflow: hidden; background: var(--cc-sand-50); border: 1px solid var(--cc-hairline); display: flex; align-items: center; justify-content: center; padding: 1mm; }
+.cc-qr svg { width: 100%; height: 100%; }
+.cc-foot p { font-size: 9pt; line-height: 1.55; color: var(--cc-ink-500); }
+.cc-foot .cc-site { color: var(--cc-teal-700); font-weight: 600; }
+
+.cc-back .cc-callout { padding: 4mm 5mm; }
+.cc-back .cc-callout p { font-size: 10pt; margin-top: 1mm; }
+.cc-back .cc-list li { font-size: 11pt; }
+.cc-back .cc-list { gap: 3.6mm; }
+.cc-back .cc-body { gap: 4.5mm; }
+
+/* ---------- A4 sheet layout ---------- */
+.cc-sheet {
+  width: 210mm;
+  height: 296.5mm;
+  background: #fff;
+  display: grid;
+  padding: 0;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+.cc-slot { display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+.cc-slot.cc-cut { outline: 1px dashed #c9cec4; outline-offset: -0.5px; }
+.cc-scale { line-height: 0; }
+
+.cc-gap { margin-top: 8mm; }
+
+@media print {
+  @page { size: A4 portrait; margin: 0; }
+  html, body { background: #fff !important; }
+  body > *:not(.cc-print-portal) { display: none !important; }
+  .cc-print-portal { display: block !important; }
+  .cc-sheet { break-after: page; page-break-after: always; margin: 0 !important; box-shadow: none !important; }
+  .cc-sheet:last-child { break-after: auto; page-break-after: auto; }
+  .cc-gap { margin-top: 0 !important; }
+}
+
+.cc-print-portal { display: none; }

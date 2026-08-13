@@ -3,18 +3,10 @@
   <title>testD — บทความสุขภาพทางเพศและลดอันตราย</title>
   <subtitle>อัปเดตบทความใหม่จาก testD เรื่อง HIV, PrEP, PEP, โรคติดต่อทางเพศสัมพันธ์ และการลดอันตรายจากการใช้สาร</subtitle>
   <id>https://testd.website/atom.xml</id>
-  <updated>2026-08-11T15:48:31.219Z</updated>
+  <updated>2026-08-09T08:58:43.832Z</updated>
   <link rel="self" type="application/atom+xml" href="https://testd.website/atom.xml" />
   <link rel="alternate" type="text/html" href="https://testd.website/th/info" />
   <author><name>testD</name></author>
-  <entry>
-    <title>42 คู่ปฏิกิริยาระหว่างสาร: คู่ไหนเสี่ยงตาย คู่ไหนพอจัดการได้</title>
-    <id>https://testd.website/th/info/article/42-critical-substance-interactions-chemsex</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/42-critical-substance-interactions-chemsex" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-11T15:48:31.219Z</updated>
-    <summary type="text">ฐานข้อมูลคู่ปฏิกิริยาระหว่างสาร 42 คู่ (วิกฤต 11 / สูง 19 / ปานกลาง 12) จากสาร 18 ชนิด พร้อมวิธีอ่านผลและใช้จริงในคืนที่มีการใช้สาร</summary>
-  </entry>
   <entry>
     <title>GHB/GBL: การตวง การเว้นช่วง และการช่วยชีวิตเมื่อเพื่อนหมดสติ</title>
     <id>https://testd.website/th/info/article/ghb-overdose-prevention-timeline</id>
@@ -22,6 +14,14 @@
     <published>2026-08-09T08:58:43.832Z</published>
     <updated>2026-08-09T08:58:43.832Z</updated>
     <summary type="text">GHB เป็นคู่ปฏิกิริยาระดับวิกฤตกับแอลกอฮอล์และยานอนหลับ บทความนี้ให้ตารางเวลาเว้นช่วง สัญญาณอันตราย และขั้นตอนช่วยชีวิตทีละขั้น</summary>
+  </entry>
+  <entry>
+    <title>42 คู่ปฏิกิริยาระหว่างสาร: คู่ไหนเสี่ยงตาย คู่ไหนพอจัดการได้</title>
+    <id>https://testd.website/th/info/article/42-critical-substance-interactions-chemsex</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/42-critical-substance-interactions-chemsex" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-11T15:48:31.219Z</updated>
+    <summary type="text">ฐานข้อมูลคู่ปฏิกิริยาระหว่างสาร 42 คู่ (วิกฤต 11 / สูง 19 / ปานกลาง 12) จากสาร 18 ชนิด พร้อมวิธีอ่านผลและใช้จริงในคืนที่มีการใช้สาร</summary>
   </entry>
   <entry>
     <title>ไอซ์กับการลดอันตราย: ข้อมูลพฤติกรรมผู้ใช้บริการไทย ปี 2568–2569</title>
@@ -32,12 +32,12 @@
     <summary type="text">เจาะข้อมูลรูปแบบการใช้เมทแอมเฟตามีน การฉีด (slam) และการผสมสาร พร้อมแนวทางลดอันตรายรายกลุ่ม อ้างอิงข้อมูลบริการ 11 เดือน</summary>
   </entry>
   <entry>
-    <title>คู่มือความปลอดภัยเรื่องเชมเซ็กซ์ (Chemsex Safety Playbook) ฉบับข้อมูลจริงปี 2569</title>
-    <id>https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
+    <title>จาก 222 เป็น 2,819 ชุดต่อเดือน: เส้นทางชุดตรวจ HIV ด้วยตนเองกับกลุ่มใช้สาร</title>
+    <id>https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
     <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-09T09:00:22.860Z</updated>
-    <summary type="text">คู่มือลดอันตรายจากเชมเซ็กซ์แบบครบวงจร อ้างอิงข้อมูลบริการจริง 15,077 คำขอชุดตรวจ, 25,133 นัดหมาย และแบบประเมินความเสี่ยง 53 ชุด พร้อมไทม์ไลน์ความปลอดภัยก่อน–ระหว่าง–หลังปาร์ตี้</summary>
+    <updated>2026-08-09T08:58:43.832Z</updated>
+    <summary type="text">วิเคราะห์คำขอชุดตรวจ 15,077 รายการ ตั้งแต่ ต.ค. 2568 ถึง ส.ค. 2569 เห็นพฤติกรรมการตรวจของกลุ่มใช้สารและช่วงเวลาที่ควรสื่อสาร</summary>
   </entry>
   <entry>
     <title>71.7% อยู่ในกลุ่มเสี่ยงสูง: สิ่งที่แบบประเมิน PHQ-4 / ASSIST / C-SSRS บอกเราเรื่องเชมเซ็กซ์</title>
@@ -48,19 +48,19 @@
     <summary type="text">ผลแบบประเมินความเสี่ยง 53 ชุด ระหว่าง 12 มี.ค. – 8 ส.ค. 2569 พร้อมแนวโน้มรายเดือนและความหมายต่อการดูแลสุขภาพจิตของผู้ใช้สาร</summary>
   </entry>
   <entry>
-    <title>จาก 222 เป็น 2,819 ชุดต่อเดือน: เส้นทางชุดตรวจ HIV ด้วยตนเองกับกลุ่มใช้สาร</title>
-    <id>https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
+    <title>คู่มือความปลอดภัยเรื่องเชมเซ็กซ์ (Chemsex Safety Playbook) ฉบับข้อมูลจริงปี 2569</title>
+    <id>https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
     <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-09T08:58:43.832Z</updated>
-    <summary type="text">วิเคราะห์คำขอชุดตรวจ 15,077 รายการ ตั้งแต่ ต.ค. 2568 ถึง ส.ค. 2569 เห็นพฤติกรรมการตรวจของกลุ่มใช้สารและช่วงเวลาที่ควรสื่อสาร</summary>
+    <updated>2026-08-09T09:00:22.860Z</updated>
+    <summary type="text">คู่มือลดอันตรายจากเชมเซ็กซ์แบบครบวงจร อ้างอิงข้อมูลบริการจริง 15,077 คำขอชุดตรวจ, 25,133 นัดหมาย และแบบประเมินความเสี่ยง 53 ชุด พร้อมไทม์ไลน์ความปลอดภัยก่อน–ระหว่าง–หลังปาร์ตี้</summary>
   </entry>
   <entry>
     <title>PrEP ฉีดออกฤทธิ์ยาว: รู้จัก Lenacapavir และ CAB-LA</title>
     <id>https://testd.website/th/info/article/long-acting-injectable-prep</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/long-acting-injectable-prep" />
     <published>2026-08-06T18:39:55.954Z</published>
-    <updated>2026-08-12T02:10:54.358Z</updated>
+    <updated>2026-08-13T10:41:12.425Z</updated>
     <summary type="text">ทำความรู้จัก PrEP ฉีดชนิดออกฤทธิ์ยาว เปรียบเทียบ Lenacapavir กับ CAB-LA พร้อมข้อควรรู้เรื่องการตรวจ HIV ผลข้างเคียง และการเข้าถึงบริการ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/long-acting-injectable-prep-1786041595768.png" />
   </entry>
@@ -339,7 +339,7 @@
     <id>https://testd.website/th/info/article/syphilis-symptoms-treatment</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/syphilis-symptoms-treatment" />
     <published>2026-08-06T18:28:52.265Z</published>
-    <updated>2026-08-11T02:34:22.384Z</updated>
+    <updated>2026-08-13T07:40:08.977Z</updated>
     <summary type="text">ซิฟิลิสอาจไม่มีอาการหรือมีแผลไม่เจ็บ รู้จักสัญญาณสำคัญ วิธีตรวจ การรักษา และช่องทางตรวจที่เป็นมิตรและเป็นส่วนตัว</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/syphilis-symptoms-treatment-1786040932075.png" />
   </entry>
