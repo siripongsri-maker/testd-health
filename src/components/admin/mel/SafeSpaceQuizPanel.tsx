@@ -13,6 +13,7 @@ import { exportToCsv, formatCsvDate } from "@/lib/adminCsvExport";
 import { SAFE_SPACE_QUIZ } from "@/data/safeSpaceQuiz";
 import { Copy, Download, Loader2, QrCode } from "lucide-react";
 import { format } from "date-fns";
+import SafeSpaceRespondentDialog from "./SafeSpaceRespondentDialog";
 
 interface QuizRow {
   id: string;
