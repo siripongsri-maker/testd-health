@@ -366,7 +366,13 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
                     onClick={() => setSessionFilter(s.key === "unassigned" ? "all" : s.key)}
                   >
                     <td className="py-2 pr-3">{s.label}</td>
+                    <td className="py-2 pr-3">{s.scanCount}</td>
                     <td className="py-2 pr-3 font-semibold">{s.count}</td>
+                    <td className="py-2 pr-3">
+                      <Badge variant={s.scanCount && s.responseRate < 30 ? "destructive" : "secondary"}>
+                        {s.scanCount ? `${s.responseRate.toFixed(0)}%` : "-"}
+                      </Badge>
+                    </td>
                     <td className="py-2 pr-3">{s.avg.toFixed(1)}</td>
                     <td className="py-2 pr-3">
                       <Badge variant={s.knowledgeRate < 50 ? "destructive" : "secondary"}>{s.knowledgeRate.toFixed(0)}%</Badge>
