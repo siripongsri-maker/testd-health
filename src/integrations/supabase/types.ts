@@ -8612,6 +8612,65 @@ export type Database = {
         }
         Relationships: []
       }
+      safe_space_quiz_responses: {
+        Row: {
+          age: number
+          answers: Json
+          created_at: string
+          event_code: string
+          id: string
+          nickname: string
+          outcome: string
+          phone: string
+          score: number
+          session_id: string | null
+          source: string | null
+          test_kit_request_id: string | null
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          age: number
+          answers?: Json
+          created_at?: string
+          event_code?: string
+          id?: string
+          nickname: string
+          outcome?: string
+          phone: string
+          score?: number
+          session_id?: string | null
+          source?: string | null
+          test_kit_request_id?: string | null
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          age?: number
+          answers?: Json
+          created_at?: string
+          event_code?: string
+          id?: string
+          nickname?: string
+          outcome?: string
+          phone?: string
+          score?: number
+          session_id?: string | null
+          source?: string | null
+          test_kit_request_id?: string | null
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "safe_space_quiz_responses_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "support_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       security_alerts: {
         Row: {
           actor_id: string | null
