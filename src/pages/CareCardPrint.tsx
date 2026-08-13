@@ -68,18 +68,59 @@ export default function CareCardPrint() {
   const [cutMarks, setCutMarks] = useState(true);
   const [zoom, setZoom] = useState(0.42);
 
+  const [exporting, setExporting] = useState<Layout | null>(null);
+
   const perSheet = useMemo(() => LAYOUTS[layout].cols * LAYOUTS[layout].rows, [layout]);
 
-  const sheets = (
+  const sheetsFor = (l: Layout) => (
     <>
-      <Sheet layout={layout} mirror={false} cutMarks={cutMarks}>{() => <CareCardFront />}</Sheet>
+      <Sheet layout={l} mirror={false} cutMarks={cutMarks}>{() => <CareCardFront />}</Sheet>
       {duplex && (
         <div className="cc-gap">
-          <Sheet layout={layout} mirror cutMarks={cutMarks}>{() => <CareCardBack qrUrl={qrUrl} />}</Sheet>
+          <Sheet layout={l} mirror cutMarks={cutMarks}>{() => <CareCardBack qrUrl={qrUrl} />}</Sheet>
         </div>
       )}
     </>
   );
+
+  const sheets = sheetsFor(layout);
+
+  const exportPdf = async (l: Layout) => {
+    if (exporting) return;
+    setExporting(l);
+    const host = document.createElement("div");
+    host.style.cssText = "position:fixed;left:-10000px;top:0;background:#fff;z-index:-1;";
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    try {
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ]);
+      root.render(<div className="cc-pdf-export">{sheetsFor(l)}</div>);
+      await new Promise((r) => setTimeout(r, 600));
+      await (document as Document & { fonts?: FontFaceSet }).fonts?.ready;
+
+      const nodes = Array.from(host.querySelectorAll<HTMLElement>(".cc-sheet"));
+      if (!nodes.length) throw new Error("no sheet");
+      const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+      for (let i = 0; i < nodes.length; i++) {
+        const canvas = await html2canvas(nodes[i], { scale: 2, backgroundColor: "#ffffff", useCORS: true, logging: false });
+        if (i > 0) pdf.addPage("a4", "portrait");
+        pdf.addImage(canvas.toDataURL("image/jpeg", 0.94), "JPEG", 0, 0, 210, 296.5, undefined, "FAST");
+      }
+      pdf.save(`care-card-a4-${l}up${duplex ? "-duplex" : ""}.pdf`);
+      toast.success(`ดาวน์โหลดไฟล์ PDF ${l} ใบ/แผ่น แล้ว`);
+    } catch (e) {
+      console.error(e);
+      toast.error("สร้างไฟล์ PDF ไม่สำเร็จ ลองใช้ปุ่มสั่งพิมพ์แทน");
+    } finally {
+      root.unmount();
+      host.remove();
+      setExporting(null);
+    }
+  };
+
 
   return (
     <div className="min-h-screen bg-muted/30">
