@@ -3,18 +3,10 @@
   <title>testD — Sexual health &amp; harm reduction articles</title>
   <subtitle>New articles from testD on HIV, PrEP, PEP, STIs and harm reduction.</subtitle>
   <id>https://testd.website/atom-en.xml</id>
-  <updated>2026-08-09T08:58:43.832Z</updated>
+  <updated>2026-08-11T15:48:31.219Z</updated>
   <link rel="self" type="application/atom+xml" href="https://testd.website/atom-en.xml" />
   <link rel="alternate" type="text/html" href="https://testd.website/en/info" />
   <author><name>testD</name></author>
-  <entry>
-    <title>GHB/GBL: Dosing, Spacing and What To Do When Someone Goes Under</title>
-    <id>https://testd.website/en/info/article/ghb-overdose-prevention-timeline</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/ghb-overdose-prevention-timeline" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-09T08:58:43.832Z</updated>
-    <summary type="text">GHB forms critical interactions with alcohol and benzodiazepines. Spacing tables, danger signs and step-by-step response.</summary>
-  </entry>
   <entry>
     <title>42 Substance Interaction Pairs: Which Combinations Can Kill</title>
     <id>https://testd.website/en/info/article/42-critical-substance-interactions-chemsex</id>
@@ -32,6 +24,14 @@
     <summary type="text">Meth use patterns, slamming and polydrug mixing in Thai service data, with population-specific harm reduction guidance.</summary>
   </entry>
   <entry>
+    <title>71.7% at High Risk: What PHQ-4, ASSIST and C-SSRS Screening Tells Us About Chemsex</title>
+    <id>https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-10T12:46:25.060Z</updated>
+    <summary type="text">53 completed screenings between Mar 12 and Aug 8, 2026: monthly trends and what they mean for mental health care.</summary>
+  </entry>
+  <entry>
     <title>From 222 to 2,819 Kits a Month: The HIV Self-Test Pathway for People Who Use Drugs</title>
     <id>https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits" />
@@ -40,12 +40,12 @@
     <summary type="text">Analysis of 15,077 HIV self-test kit requests from Oct 2025 to Aug 2026 and what they reveal about testing behaviour.</summary>
   </entry>
   <entry>
-    <title>71.7% at High Risk: What PHQ-4, ASSIST and C-SSRS Screening Tells Us About Chemsex</title>
-    <id>https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data" />
+    <title>GHB/GBL: Dosing, Spacing and What To Do When Someone Goes Under</title>
+    <id>https://testd.website/en/info/article/ghb-overdose-prevention-timeline</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/ghb-overdose-prevention-timeline" />
     <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-10T12:46:25.060Z</updated>
-    <summary type="text">53 completed screenings between Mar 12 and Aug 8, 2026: monthly trends and what they mean for mental health care.</summary>
+    <updated>2026-08-09T08:58:43.832Z</updated>
+    <summary type="text">GHB forms critical interactions with alcohol and benzodiazepines. Spacing tables, danger signs and step-by-step response.</summary>
   </entry>
   <entry>
     <title>Chemsex Safety Playbook: Thailand 2026 Data Edition</title>
@@ -258,7 +258,7 @@
     <id>https://testd.website/en/info/article/doxypep-explained</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/doxypep-explained" />
     <published>2026-08-06T18:30:40.120Z</published>
-    <updated>2026-08-11T13:01:35.427Z</updated>
+    <updated>2026-08-13T13:20:14.688Z</updated>
     <summary type="text">Learn how DoxyPEP may prevent syphilis and other bacterial STIs, who may benefit, its limitations, safety concerns, and follow-up testing.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/doxypep-explained-1786041039870.png" />
   </entry>
@@ -321,7 +321,7 @@
     <id>https://testd.website/en/info/article/gonorrhea-vs-chlamydia</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/gonorrhea-vs-chlamydia" />
     <published>2026-08-06T18:29:01.755Z</published>
-    <updated>2026-08-11T04:39:21.067Z</updated>
+    <updated>2026-08-13T16:24:43.369Z</updated>
     <summary type="text">Gonorrhea and chlamydia can look similar but are different infections. Learn about symptoms, testing, treatment, and partner care.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/gonorrhea-vs-chlamydia-1786040941502.png" />
   </entry>
