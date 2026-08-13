@@ -106,6 +106,7 @@ const ConnectTroubleshooting = lazy(() => import("./pages/ConnectTroubleshooting
 const LaoLanding = lazy(() => import("./pages/LaoLanding"));
 const KhmerLanding = lazy(() => import("./pages/KhmerLanding"));
 const KhmerHarmReduction = lazy(() => import("./pages/KhmerHarmReduction"));
+const SafeSpaceQuiz = lazy(() => import("./pages/SafeSpaceQuiz"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -256,6 +257,8 @@ function AppShell() {
               <Route path="/virtual/clinic" element={<VirtualMode forceClinic />} />
               <Route path="/virtual/:slug" element={<VirtualMode />} />
               <Route path="/unsubscribe" element={<Unsubscribe />} />
+              {/* ลิงก์เฉพาะกิจกรรมพื้นที่ปลอดภัย ไม่แสดงในเมนูและไม่อยู่ใน sitemap */}
+              <Route path="/safe-space/quiz" element={<SafeSpaceQuiz />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AppLayout>
