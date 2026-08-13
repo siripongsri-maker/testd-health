@@ -44,6 +44,7 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
   const [linkEvent, setLinkEvent] = useState("safespace");
   const [linkSession, setLinkSession] = useState("none");
   const [showQr, setShowQr] = useState(false);
+  const [detailRow, setDetailRow] = useState<QuizRow | null>(null);
 
   const { data: rows, isLoading } = useQuery({
     queryKey: ["safe-space-quiz-responses"],
