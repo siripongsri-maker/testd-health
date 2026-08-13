@@ -1,23 +1,28 @@
 import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { createRoot } from "react-dom/client";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import { Switch } from "@/components/ui/switch";
-import { Printer, LayoutGrid, ArrowLeft } from "lucide-react";
+import { Printer, LayoutGrid, ArrowLeft, Download, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import { CareCardFront, CareCardBack } from "@/components/care-card/CareCardFaces";
 
-type Layout = 4 | 6;
+type Layout = 4 | 6 | 8 | 9;
 
 const LAYOUTS: Record<Layout, { cols: number; rows: number; label: string }> = {
   4: { cols: 2, rows: 2, label: "4 ใบ / แผ่น (A6 เต็มขนาด)" },
   6: { cols: 2, rows: 3, label: "6 ใบ / แผ่น (ย่อ ~67%)" },
+  8: { cols: 2, rows: 4, label: "8 ใบ / แผ่น (ย่อ ~50%)" },
+  9: { cols: 3, rows: 3, label: "9 ใบ / แผ่น (ย่อ ~65%)" },
 };
 
 const CARD_W = 105;
+
 const CARD_H = 148;
 
 function Sheet({
@@ -63,18 +68,68 @@ export default function CareCardPrint() {
   const [cutMarks, setCutMarks] = useState(true);
   const [zoom, setZoom] = useState(0.42);
 
+  const [exporting, setExporting] = useState<Layout | null>(null);
+
   const perSheet = useMemo(() => LAYOUTS[layout].cols * LAYOUTS[layout].rows, [layout]);
 
-  const sheets = (
+  const sheetsFor = (l: Layout) => (
     <>
-      <Sheet layout={layout} mirror={false} cutMarks={cutMarks}>{() => <CareCardFront />}</Sheet>
+      <Sheet layout={l} mirror={false} cutMarks={cutMarks}>{() => <CareCardFront />}</Sheet>
       {duplex && (
         <div className="cc-gap">
-          <Sheet layout={layout} mirror cutMarks={cutMarks}>{() => <CareCardBack qrUrl={qrUrl} />}</Sheet>
+          <Sheet layout={l} mirror cutMarks={cutMarks}>{() => <CareCardBack qrUrl={qrUrl} />}</Sheet>
         </div>
       )}
     </>
   );
+
+  const sheets = sheetsFor(layout);
+
+  const exportPdf = async (l: Layout) => {
+    if (exporting) return;
+    setExporting(l);
+    const host = document.createElement("div");
+    host.style.cssText = "position:fixed;left:-10000px;top:0;background:#fff;z-index:-1;";
+    document.body.appendChild(host);
+    const root = createRoot(host);
+    try {
+      const [{ toPng }, { jsPDF }] = await Promise.all([
+        import("html-to-image"),
+        import("jspdf"),
+      ]);
+      root.render(<div className="cc-pdf-export">{sheetsFor(l)}</div>);
+      await new Promise((r) => setTimeout(r, 800));
+      await (document as Document & { fonts?: FontFaceSet }).fonts?.ready;
+
+      const nodes = Array.from(host.querySelectorAll<HTMLElement>(".cc-sheet"));
+      if (!nodes.length) throw new Error("no sheet");
+      const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+      for (let i = 0; i < nodes.length; i++) {
+        const w = nodes[i].offsetWidth;
+        const h = nodes[i].offsetHeight;
+        const dataUrl = await toPng(nodes[i], {
+          pixelRatio: 2,
+          backgroundColor: "#ffffff",
+          width: w,
+          height: h,
+          style: { margin: "0" },
+        });
+        if (i > 0) pdf.addPage("a4", "portrait");
+        pdf.addImage(dataUrl, "PNG", 0, 0, 210, 296.5, undefined, "FAST");
+      }
+
+      pdf.save(`care-card-a4-${l}up${duplex ? "-duplex" : ""}.pdf`);
+      toast.success(`ดาวน์โหลดไฟล์ PDF ${l} ใบ/แผ่น แล้ว`);
+    } catch (e) {
+      console.error(e);
+      toast.error("สร้างไฟล์ PDF ไม่สำเร็จ ลองใช้ปุ่มสั่งพิมพ์แทน");
+    } finally {
+      root.unmount();
+      host.remove();
+      setExporting(null);
+    }
+  };
+
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -96,6 +151,23 @@ export default function CareCardPrint() {
             </Button>
           </div>
 
+          <div className="rounded-lg border bg-muted/40 p-3 space-y-2">
+            <Label className="text-xs">ดาวน์โหลดไฟล์ PDF (แยกไฟล์ตามจำนวนใบต่อแผ่น)</Label>
+            <div className="flex flex-wrap gap-2">
+              {(Object.keys(LAYOUTS) as unknown as Layout[]).map((k) => {
+                const key = Number(k) as Layout;
+                return (
+                  <Button key={key} variant="outline" size="sm" className="gap-1.5" disabled={exporting !== null} onClick={() => exportPdf(key)}>
+                    {exporting === key ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                    PDF {key} ใบ/แผ่น
+                  </Button>
+                );
+              })}
+            </div>
+            <p className="text-[11px] text-muted-foreground">ไฟล์จะใช้ลิงก์ QR และการตั้งค่าเส้นตัด/พิมพ์สองหน้าปัจจุบัน</p>
+          </div>
+
+
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-1.5">
               <Label className="text-xs">ลิงก์สำหรับ QR code</Label>
@@ -114,14 +186,14 @@ export default function CareCardPrint() {
             <div className="space-y-3">
               <div className="space-y-1.5">
                 <Label className="text-xs">จำนวนต่อแผ่น</Label>
-                <div className="flex gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   {(Object.keys(LAYOUTS) as unknown as Layout[]).map((k) => {
                     const key = Number(k) as Layout;
                     return (
                       <button
                         key={key}
                         onClick={() => setLayout(key)}
-                        className={`flex-1 text-xs px-3 py-2 rounded-lg border transition-colors ${layout === key ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
+                        className={`text-xs px-3 py-2 rounded-lg border transition-colors text-left ${layout === key ? "bg-primary text-primary-foreground border-primary" : "bg-background hover:bg-muted"}`}
                       >
                         <LayoutGrid className="h-3.5 w-3.5 inline mr-1" />{LAYOUTS[key].label}
                       </button>
@@ -129,6 +201,7 @@ export default function CareCardPrint() {
                   })}
                 </div>
               </div>
+
               <div className="flex items-center gap-6 flex-wrap">
                 <label className="flex items-center gap-2 text-xs"><Switch checked={duplex} onCheckedChange={setDuplex} />พิมพ์สองหน้า (พลิกด้านยาว)</label>
                 <label className="flex items-center gap-2 text-xs"><Switch checked={cutMarks} onCheckedChange={setCutMarks} />เส้นตัด</label>
