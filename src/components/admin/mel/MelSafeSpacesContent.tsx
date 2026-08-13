@@ -10,6 +10,8 @@ import { toast } from "@/hooks/use-toast";
 import SafeSpaceSessionDrawer from "./SafeSpaceSessionDrawer";
 import MelDeleteDialog from "./MelDeleteDialog";
 import MelSOPCard, { MEL_SOPS } from "./MelSOPCard";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import SafeSpaceQuizPanel from "./SafeSpaceQuizPanel";
 
 export default function MelSafeSpacesContent() {
   const { language } = useLanguage();
