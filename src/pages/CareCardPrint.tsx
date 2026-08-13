@@ -48,9 +48,7 @@ function Sheet({
     <div className="cc-sheet" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)`, gridTemplateRows: `repeat(${rows}, 1fr)` }}>
       {slots.map((srcIndex, i) => (
         <div key={i} className={`cc-slot${cutMarks ? " cc-cut" : ""}`}>
-          <div className="cc-scale" style={{ width: `${CARD_W * scale}mm`, height: `${CARD_H * scale}mm` }}>
-            <div className="cc-scale-inner" style={{ transform: `scale(${scale})` }}>{children(srcIndex)}</div>
-          </div>
+          <div className="cc-scale" style={{ zoom: scale }}>{children(srcIndex)}</div>
         </div>
       ))}
     </div>

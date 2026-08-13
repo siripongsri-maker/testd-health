@@ -111,8 +111,7 @@
 }
 .cc-slot { display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
 .cc-slot.cc-cut { outline: 1px dashed #c9cec4; outline-offset: -0.5px; }
-.cc-scale { position: relative; overflow: hidden; }
-.cc-scale-inner { position: absolute; top: 0; left: 0; transform-origin: top left; }
+.cc-scale { line-height: 0; }
 
 .cc-gap { margin-top: 8mm; }
 
