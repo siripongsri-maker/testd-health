@@ -256,6 +256,53 @@ export default function SafeSpaceQuizPanel({ sessions }: { sessions: { id: strin
         <Card><CardContent className="p-4"><p className="text-xs text-muted-foreground">อัตราขอชุดตรวจ</p><p className="text-2xl font-bold text-foreground">{kitRate}%</p></CardContent></Card>
       </div>
 
+      {/* รายเซสชัน */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">ผลรายเซสชัน (จาก QR ที่ผูกไว้)</CardTitle>
+        </CardHeader>
+        <CardContent className="overflow-x-auto">
+          {perSession.length === 0 ? (
+            <p className="py-6 text-center text-sm text-muted-foreground">ยังไม่มีข้อมูล</p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b text-left text-xs text-muted-foreground">
+                  <th className="py-2 pr-3">เซสชัน</th>
+                  <th className="py-2 pr-3">ตอบกลับ</th>
+                  <th className="py-2 pr-3">คะแนนเฉลี่ย</th>
+                  <th className="py-2 pr-3">ได้ความรู้ (ตอบถูก)</th>
+                  <th className="py-2 pr-3">ผ่าน ≥70%</th>
+                  <th className="py-2 pr-3">ขอชุดตรวจ</th>
+                  <th className="py-2 pr-3">ตอบครั้งแรก–ล่าสุด</th>
+                </tr>
+              </thead>
+              <tbody>
+                {perSession.map((s) => (
+                  <tr
+                    key={s.key}
+                    className="cursor-pointer border-b last:border-0 hover:bg-muted/30"
+                    onClick={() => setSessionFilter(s.key === "unassigned" ? "all" : s.key)}
+                  >
+                    <td className="py-2 pr-3">{s.label}</td>
+                    <td className="py-2 pr-3 font-semibold">{s.count}</td>
+                    <td className="py-2 pr-3">{s.avg.toFixed(1)}</td>
+                    <td className="py-2 pr-3">
+                      <Badge variant={s.knowledgeRate < 50 ? "destructive" : "secondary"}>{s.knowledgeRate.toFixed(0)}%</Badge>
+                    </td>
+                    <td className="py-2 pr-3">{s.passed}</td>
+                    <td className="py-2 pr-3">{s.kit} ({s.kitRate.toFixed(0)}%)</td>
+                    <td className="py-2 pr-3 whitespace-nowrap text-xs text-muted-foreground">
+                      {s.first ? format(new Date(s.first), "dd MMM HH:mm") : "-"} – {s.last ? format(new Date(s.last), "dd MMM HH:mm") : "-"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </CardContent>
+      </Card>
+
       {/* รายข้อ */}
       <Card>
         <CardHeader className="pb-2"><CardTitle className="text-base">อัตราตอบถูกรายข้อ</CardTitle></CardHeader>
