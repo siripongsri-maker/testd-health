@@ -5,15 +5,8 @@
   <link>https://testd.website/th/info</link>
   <description>อัปเดตบทความใหม่จาก testD เรื่อง HIV, PrEP, PEP, โรคติดต่อทางเพศสัมพันธ์ และการลดอันตรายจากการใช้สาร</description>
   <language>th-TH</language>
-  <lastBuildDate>Sun, 09 Aug 2026 08:58:43 GMT</lastBuildDate>
+  <lastBuildDate>Tue, 11 Aug 2026 15:48:31 GMT</lastBuildDate>
   <atom:link href="https://testd.website/feed.xml" rel="self" type="application/rss+xml" />
-  <item>
-    <title>GHB/GBL: การตวง การเว้นช่วง และการช่วยชีวิตเมื่อเพื่อนหมดสติ</title>
-    <link>https://testd.website/th/info/article/ghb-overdose-prevention-timeline</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/ghb-overdose-prevention-timeline</guid>
-    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
-    <description>GHB เป็นคู่ปฏิกิริยาระดับวิกฤตกับแอลกอฮอล์และยานอนหลับ บทความนี้ให้ตารางเวลาเว้นช่วง สัญญาณอันตราย และขั้นตอนช่วยชีวิตทีละขั้น</description>
-  </item>
   <item>
     <title>42 คู่ปฏิกิริยาระหว่างสาร: คู่ไหนเสี่ยงตาย คู่ไหนพอจัดการได้</title>
     <link>https://testd.website/th/info/article/42-critical-substance-interactions-chemsex</link>
@@ -29,6 +22,13 @@
     <description>เจาะข้อมูลรูปแบบการใช้เมทแอมเฟตามีน การฉีด (slam) และการผสมสาร พร้อมแนวทางลดอันตรายรายกลุ่ม อ้างอิงข้อมูลบริการ 11 เดือน</description>
   </item>
   <item>
+    <title>71.7% อยู่ในกลุ่มเสี่ยงสูง: สิ่งที่แบบประเมิน PHQ-4 / ASSIST / C-SSRS บอกเราเรื่องเชมเซ็กซ์</title>
+    <link>https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data</guid>
+    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
+    <description>ผลแบบประเมินความเสี่ยง 53 ชุด ระหว่าง 12 มี.ค. – 8 ส.ค. 2569 พร้อมแนวโน้มรายเดือนและความหมายต่อการดูแลสุขภาพจิตของผู้ใช้สาร</description>
+  </item>
+  <item>
     <title>จาก 222 เป็น 2,819 ชุดต่อเดือน: เส้นทางชุดตรวจ HIV ด้วยตนเองกับกลุ่มใช้สาร</title>
     <link>https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</link>
     <guid isPermaLink="true">https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</guid>
@@ -36,11 +36,11 @@
     <description>วิเคราะห์คำขอชุดตรวจ 15,077 รายการ ตั้งแต่ ต.ค. 2568 ถึง ส.ค. 2569 เห็นพฤติกรรมการตรวจของกลุ่มใช้สารและช่วงเวลาที่ควรสื่อสาร</description>
   </item>
   <item>
-    <title>71.7% อยู่ในกลุ่มเสี่ยงสูง: สิ่งที่แบบประเมิน PHQ-4 / ASSIST / C-SSRS บอกเราเรื่องเชมเซ็กซ์</title>
-    <link>https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data</guid>
+    <title>GHB/GBL: การตวง การเว้นช่วง และการช่วยชีวิตเมื่อเพื่อนหมดสติ</title>
+    <link>https://testd.website/th/info/article/ghb-overdose-prevention-timeline</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/ghb-overdose-prevention-timeline</guid>
     <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
-    <description>ผลแบบประเมินความเสี่ยง 53 ชุด ระหว่าง 12 มี.ค. – 8 ส.ค. 2569 พร้อมแนวโน้มรายเดือนและความหมายต่อการดูแลสุขภาพจิตของผู้ใช้สาร</description>
+    <description>GHB เป็นคู่ปฏิกิริยาระดับวิกฤตกับแอลกอฮอล์และยานอนหลับ บทความนี้ให้ตารางเวลาเว้นช่วง สัญญาณอันตราย และขั้นตอนช่วยชีวิตทีละขั้น</description>
   </item>
   <item>
     <title>คู่มือความปลอดภัยเรื่องเชมเซ็กซ์ (Chemsex Safety Playbook) ฉบับข้อมูลจริงปี 2569</title>
