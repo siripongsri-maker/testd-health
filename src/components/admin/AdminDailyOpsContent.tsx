@@ -50,6 +50,8 @@ export default function AdminDailyOpsContent() {
   const [branchFilter, setBranchFilter] = useState(() => searchParams.get("branch") || "all");
   const [branches, setBranches] = useState<BranchInfo[]>([]);
   const [sub, setSub] = useState<SubTab>(() => (searchParams.get("sub") as SubTab) || "queue");
+  // Case handed over from the queue overview to the work page (branch brief)
+  const [focusSurveyId, setFocusSurveyId] = useState<string | null>(null);
 
   useEffect(() => {
     supabase
@@ -79,8 +81,8 @@ export default function AdminDailyOpsContent() {
   }, [branchFilter, branches, language]);
 
   const tabs: { key: SubTab; icon: typeof HeartHandshake; th: string; en: string; adminOnly?: boolean }[] = [
-    { key: "queue", icon: HeartHandshake, th: "คิวให้คำปรึกษา", en: "Counseling queue" },
-    { key: "branch", icon: ClipboardList, th: "สรุปรายสาขา", en: "Branch brief" },
+    { key: "queue", icon: HeartHandshake, th: "คิวรวม (ดูอย่างเดียว)", en: "Queue overview" },
+    { key: "branch", icon: ClipboardList, th: "สรุปรายสาขา (บันทึกผล)", en: "Branch brief (work page)" },
     { key: "concern", icon: Brain, th: "เรื่องที่กังวล", en: "Concerns" },
     { key: "payouts", icon: Banknote, th: "ค่าเดินทาง", en: "Travel allowance", adminOnly: true },
     { key: "audit", icon: History, th: "บันทึกกิจกรรม", en: "Audit log", adminOnly: true },
@@ -147,12 +149,18 @@ export default function AdminDailyOpsContent() {
         </TabsList>
 
         <TabsContent value="queue" className="mt-4">
-          <AdminCounselorSupportContent branchFilter={branchFilter} onBranchChange={setBranchFilter} />
+          <AdminCounselorSupportContent
+            branchFilter={branchFilter}
+            onBranchChange={setBranchFilter}
+            viewOnly
+            onOpenWorkbench={(surveyId) => { setFocusSurveyId(surveyId); setSub("branch"); }}
+          />
         </TabsContent>
         <TabsContent value="branch" className="mt-4">
           <AdminDailyBranchBriefContent
             day={day} onDayChange={setDay}
             branchFilter={branchFilter} onBranchChange={setBranchFilter}
+            focusSurveyId={focusSurveyId}
             hideToolbar
           />
         </TabsContent>

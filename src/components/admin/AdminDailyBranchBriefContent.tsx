@@ -4,6 +4,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -120,10 +122,21 @@ export interface DailyOpsPanelProps {
   onBranchChange?: (b: string) => void;
   /** Hide the panel's own date/branch toolbar when the workspace provides one. */
   hideToolbar?: boolean;
+  /** Scroll to + highlight one case (handed over from the queue overview). */
+  focusSurveyId?: string | null;
+}
+
+/** Editable counselor record for one case — this page is the work surface. */
+interface NoteDetail {
+  id: string;
+  survey_id: string;
+  notes: string | null;
+  next_step: string | null;
+  follow_up_required: boolean | null;
 }
 
 export default function AdminDailyBranchBriefContent({
-  day: dayProp, onDayChange, branchFilter: branchProp, onBranchChange, hideToolbar,
+  day: dayProp, onDayChange, branchFilter: branchProp, onBranchChange, hideToolbar, focusSurveyId,
 }: DailyOpsPanelProps = {}) {
   const { language } = useLanguage();
   const tx = (th: string, en: string) => (language === "th" ? th : en);
@@ -146,6 +159,7 @@ export default function AdminDailyBranchBriefContent({
   const [linkedUrgentApptIds, setLinkedUrgentApptIds] = useState<Set<string>>(new Set());
   const [payouts, setPayouts] = useState<Map<string, PayoutStatus>>(new Map());
   const [queuingId, setQueuingId] = useState<string | null>(null);
+  const [noteDetails, setNoteDetails] = useState<Map<string, NoteDetail>>(new Map());
 
 
 
@@ -225,6 +239,27 @@ export default function AdminDailyBranchBriefContent({
 
   useEffect(() => { loadPayouts(); }, [loadPayouts]);
 
+  // Counselor records (note / next step / follow-up) — edited here, read-only in the queue
+  const loadNotes = useCallback(async () => {
+    const ids = rows.map((r) => r.survey_id);
+    if (!ids.length) { setNoteDetails(new Map()); return; }
+    const { data, error } = await supabase
+      .from("pre_service_counseling_notes")
+      .select("id, survey_id, notes, next_step, follow_up_required")
+      .in("survey_id", ids);
+    if (error) { console.error("CASE_NOTES_ERROR", error); return; }
+    setNoteDetails(new Map(((data || []) as unknown as NoteDetail[]).map((n) => [n.survey_id, n])));
+  }, [rows]);
+
+  useEffect(() => { loadNotes(); }, [loadNotes]);
+
+  // Bring the case handed over from the queue overview into view
+  useEffect(() => {
+    if (!focusSurveyId || loading) return;
+    const el = document.getElementById(`case-${focusSurveyId}`);
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [focusSurveyId, loading, rows.length]);
+
   // Realtime: reflect status changes made in Counselor Support and vice versa
   useEffect(() => {
     const channel = supabase
@@ -271,6 +306,37 @@ export default function AdminDailyBranchBriefContent({
         description: err?.message,
         variant: "destructive",
       });
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  /** Save the counselor record (note / next step / follow-up) for a case. */
+  const saveCaseRecord = async (
+    row: BriefCase,
+    patch: { notes?: string | null; next_step?: string | null; follow_up_required?: boolean },
+  ) => {
+    setSavingId(row.survey_id);
+    try {
+      const existing = noteDetails.get(row.survey_id);
+      const payload = {
+        survey_id: row.survey_id,
+        branch_id: row.branch_id,
+        status: row.status || "not_reviewed",
+        notes: patch.notes !== undefined ? patch.notes : existing?.notes ?? null,
+        next_step: patch.next_step !== undefined ? patch.next_step : existing?.next_step ?? null,
+        follow_up_required:
+          patch.follow_up_required !== undefined ? patch.follow_up_required : !!existing?.follow_up_required,
+        updated_by: user?.id ?? null,
+      };
+      const { error } = await supabase
+        .from("pre_service_counseling_notes")
+        .upsert(payload as any, { onConflict: "survey_id" });
+      if (error) throw error;
+      toast({ title: tx("บันทึกแล้ว", "Saved") });
+      loadNotes();
+    } catch (err: any) {
+      toast({ title: tx("บันทึกไม่สำเร็จ", "Save failed"), description: err?.message, variant: "destructive" });
     } finally {
       setSavingId(null);
     }
@@ -511,7 +577,8 @@ export default function AdminDailyBranchBriefContent({
 
                 <div
                   key={c.survey_id}
-                  className={`rounded-lg border p-3 space-y-2 ${urgentSurveyIds.has(c.survey_id) ? "border-rose-400 bg-rose-50/40 dark:bg-rose-950/20" : ""}`}
+                  id={`case-${c.survey_id}`}
+                  className={`rounded-lg border p-3 space-y-2 ${urgentSurveyIds.has(c.survey_id) ? "border-rose-400 bg-rose-50/40 dark:bg-rose-950/20" : ""} ${focusSurveyId === c.survey_id ? "ring-2 ring-teal-500" : ""}`}
                 >
                   <div className="flex flex-wrap items-center gap-2 text-xs">
                     <span className="font-mono font-medium">{c.case_code}</span>
@@ -624,11 +691,105 @@ export default function AdminDailyBranchBriefContent({
                         : tx("ยังไม่มีผู้รับผิดชอบ", "Unassigned")}
                     </span>
                   </div>
+
+                  {/* บันทึกผล / ส่งต่อ — the work page owns these commands */}
+                  <CaseRecordEditor
+                    detail={noteDetails.get(c.survey_id)}
+                    tx={tx}
+                    onSave={(patch) => saveCaseRecord(c, patch)}
+                  />
+
                 </div>
               ))}
             </div>
           </Card>
         ))
+      )}
+    </div>
+  );
+}
+
+/**
+ * Counselor record editor — lives only on the branch brief (the work page),
+ * so the queue overview stays read-only and commands aren't duplicated.
+ */
+function CaseRecordEditor({
+  detail, tx, onSave,
+}: {
+  detail?: NoteDetail;
+  tx: (th: string, en: string) => string;
+  onSave: (patch: { notes?: string | null; next_step?: string | null; follow_up_required?: boolean }) => Promise<void> | void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [notes, setNotes] = useState(detail?.notes || "");
+  const [nextStep, setNextStep] = useState(detail?.next_step || "");
+  const [followUp, setFollowUp] = useState(!!detail?.follow_up_required);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (open) return;
+    setNotes(detail?.notes || "");
+    setNextStep(detail?.next_step || "");
+    setFollowUp(!!detail?.follow_up_required);
+  }, [detail?.id, detail?.notes, detail?.next_step, detail?.follow_up_required, open]);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await onSave({ notes: notes || null, next_step: nextStep || null, follow_up_required: followUp });
+      setOpen(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="rounded-md border bg-muted/20 p-2 space-y-2">
+      <div className="flex items-start gap-2 text-xs">
+        <div className="flex-1 min-w-0 space-y-0.5">
+          <div>
+            <span className="text-muted-foreground">{tx("บันทึก: ", "Note: ")}</span>
+            {detail?.notes
+              ? <span className="whitespace-pre-wrap">{detail.notes}</span>
+              : <span className="text-muted-foreground">{tx("ยังไม่มีบันทึก", "No note yet")}</span>}
+          </div>
+          {detail?.next_step && (
+            <div><span className="text-muted-foreground">{tx("ขั้นตอนถัดไป: ", "Next step: ")}</span>{detail.next_step}</div>
+          )}
+          {detail?.follow_up_required && (
+            <Badge variant="outline" className="text-[10px]">{tx("ต้องติดตาม", "Follow-up")}</Badge>
+          )}
+        </div>
+        <Button size="sm" variant="outline" className="h-7 text-[11px] no-print" onClick={() => setOpen((v) => !v)}>
+          {open ? tx("ปิด", "Close") : tx("บันทึกผล / ส่งต่อ", "Record / refer")}
+        </Button>
+      </div>
+
+      {open && (
+        <div className="space-y-2 no-print">
+          <Textarea
+            rows={3}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder={tx("บันทึกอย่างสุภาพและไม่ตัดสิน…", "Write a supportive, non-judgmental note…")}
+          />
+          <Input
+            value={nextStep}
+            onChange={(e) => setNextStep(e.target.value)}
+            placeholder={tx("ขั้นตอนถัดไป เช่น ส่งต่อคลินิก / นัดติดตาม", "Next step, e.g. refer to clinic / follow-up")}
+            className="h-8 text-xs"
+          />
+          <div className="flex items-center justify-between gap-2">
+            <label className="flex items-center gap-2 text-xs">
+              <Switch checked={followUp} onCheckedChange={setFollowUp} />
+              {tx("ต้องติดตามภายหลัง", "Requires follow-up")}
+            </label>
+            <Button size="sm" className="h-8" onClick={save} disabled={saving}>
+              {saving && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
+              {tx("บันทึก", "Save")}
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   );
