@@ -323,6 +323,7 @@ export default function AdminCounselorSupportContent({
   const [notes, setNotes] = useState<Record<string, CaseNote>>({});
   const [postEvals, setPostEvals] = useState<Record<string, PostEval>>({}); // keyed by note_id
   const [loading, setLoading] = useState(true);
+  const { begin: beginLoad } = useStableRefresh(setLoading);
   const [realtimeStatus, setRealtimeStatus] = useState<"connecting" | "live" | "offline">("connecting");
   const [branchLocal, setBranchLocal] = useState<string>("all"); // admin only
   const branchFilter = branchProp ?? branchLocal;

@@ -191,6 +191,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const { language } = useLanguage();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  const { begin: beginLoad } = useStableRefresh(setLoading);
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [realtimeStatus, setRealtimeStatus] = useState<'connecting' | 'live' | 'off'>('connecting');

@@ -87,6 +87,7 @@ export default function AdminCounselingPayoutsContent({
   const [batches, setBatches] = useState<Batch[]>([]);
   const [branches, setBranches] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+  const { begin: beginLoad } = useStableRefresh(setLoading);
   const [filter, setFilter] = useState<ClaimStatus | "all">("pending");
   const [busy, setBusy] = useState<string | null>(null);
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});

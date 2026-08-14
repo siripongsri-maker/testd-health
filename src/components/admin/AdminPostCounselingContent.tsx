@@ -102,6 +102,7 @@ export function PostCounselingCasesTab({ variant }: { variant: "cases" | "compar
   const readOnly = !!isMeAnalyst;
 
   const [loading, setLoading] = useState(true);
+  const { begin: beginLoad } = useStableRefresh(setLoading);
   const [notes, setNotes] = useState<NoteRow[]>([]);
   const [surveys, setSurveys] = useState<Record<string, SurveyRow>>({});
   const [evals, setEvals] = useState<Record<string, PostEval>>({});
