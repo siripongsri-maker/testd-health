@@ -573,10 +573,23 @@ export function PostCounselingCasesTab({ variant }: { variant: "cases" | "compar
               value={smsPhone}
               inputMode="numeric"
               maxLength={15}
-              placeholder="08xxxxxxxx"
-              onChange={(e) => setSmsPhone(e.target.value.replace(/[^0-9+\- ]/g, ""))}
+              placeholder={smsPhoneLoading ? tx("กำลังดึงเบอร์จากการจอง...", "Loading number from booking...") : "08xxxxxxxx"}
+              disabled={smsPhoneLoading}
+              onChange={(e) => { setSmsPhone(e.target.value.replace(/[^0-9+\- ]/g, "")); setSmsPhoneSource("manual"); }}
             />
+            <p className="text-[11px] text-muted-foreground">
+              {smsPhoneLoading
+                ? tx("กำลังเชื่อมกับข้อมูลการจอง...", "Linking with the booking record...")
+                : smsPhoneSource === "booking"
+                  ? tx("✅ ดึงเบอร์จากการจองของผู้รับบริการอัตโนมัติ (แก้ไขได้)", "✅ Auto-filled from the client's booking (editable)")
+                  : tx("⚠️ ไม่พบเบอร์ในการจอง กรุณากรอกเอง", "⚠️ No phone on the booking — enter it manually")}
+            </p>
+            <p className="text-[11px] text-amber-700 dark:text-amber-300">
+              {tx("เมื่อผู้รับบริการทำแบบประเมินเสร็จ ระบบจะเปิดให้เบิกค่าเดินทางในแท็บ “ระบบจ่ายเงิน” โดยอัตโนมัติ",
+                  "Once the evaluation is submitted, the travel claim opens automatically in the Payouts tab.")}
+            </p>
           </div>
+
           <Button
             className="w-full bg-sky-600 hover:bg-sky-700"
             disabled={smsSending || smsPhone.replace(/\D/g, "").length < 9}
