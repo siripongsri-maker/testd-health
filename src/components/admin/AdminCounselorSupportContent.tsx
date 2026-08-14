@@ -339,6 +339,15 @@ export default function AdminCounselorSupportContent({
   const [sortOrder, setSortOrder] = useState<SortOrder>(
     () => (searchParams.get("order") as SortOrder) || "asc");
 
+  // View density + overview visibility — keeps the long queue readable.
+  const [showOverview, setShowOverview] = useState<boolean>(
+    () => localStorage.getItem("counselor_queue_overview") === "1");
+  const [compact, setCompact] = useState<boolean>(
+    () => localStorage.getItem("counselor_queue_density") !== "full");
+  useEffect(() => { localStorage.setItem("counselor_queue_overview", showOverview ? "1" : "0"); }, [showOverview]);
+  useEffect(() => { localStorage.setItem("counselor_queue_density", compact ? "compact" : "full"); }, [compact]);
+
+
   // Keep the queue filters + sort in the URL so a counselor can share the exact view.
   useEffect(() => {
     const next = new URLSearchParams(window.location.search);
@@ -736,42 +745,60 @@ export default function AdminCounselorSupportContent({
         </div>
       </div>
 
-      {/* Branch summary */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        <KpiCard icon={<ClipboardList className="h-4 w-4" />} label={tx("นัดวันนี้", "Booked today")} value={summary.todayCount} />
-        <KpiCard icon={<AlertTriangle className="h-4 w-4" />} label={tx("เร่งด่วน", "Urgent")} value={summary.urgent} tone="urgent" />
-        <KpiCard icon={<CheckCircle2 className="h-4 w-4" />} label={tx("ให้คำปรึกษาแล้ว", "Completed")} value={summary.completed} tone="ok" />
-        <KpiCard icon={<Clock3 className="h-4 w-4" />} label={tx("ต้องติดตาม", "Follow-up")} value={summary.followUp} tone="warn" />
-        <KpiCard icon={<ArrowRightCircle className="h-4 w-4" />} label={tx("ส่งต่อคลินิก", "Referred")} value={summary.referred} />
-        <KpiCard icon={<Users className="h-4 w-4" />} label={tx("เวลาตอบเฉลี่ย (นาที)", "Avg response (min)")} value={summary.avgMinutes ? summary.avgMinutes.toFixed(1) : "—"} />
-      </div>
+      {/* Overview — collapsed by default so the queue itself is the hero */}
+      <Collapsible open={showOverview} onOpenChange={setShowOverview}>
+        <Card className="p-2.5">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <StatChip label={tx("นัดวันนี้", "Today")} value={summary.todayCount} />
+            <StatChip label={tx("เร่งด่วน", "Urgent")} value={summary.urgent} tone="urgent" />
+            <StatChip label={tx("เสร็จ", "Done")} value={summary.completed} tone="ok" />
+            <StatChip label={tx("ติดตาม", "Follow")} value={summary.followUp} tone="warn" />
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-7 ml-auto text-xs">
+                <ChevronDown className={`h-3.5 w-3.5 mr-1 transition-transform ${showOverview ? "rotate-180" : ""}`} />
+                {showOverview ? tx("ซ่อนภาพรวม", "Hide overview") : tx("ดูภาพรวม / สถิติ", "Show overview")}
+              </Button>
+            </CollapsibleTrigger>
+          </div>
 
-      {/* Post-counseling analytics */}
-      <Card className="p-4 border-teal-200 bg-teal-50/30 dark:bg-teal-950/10">
-        <div className="flex items-center gap-2 mb-3">
-          <Star className="h-4 w-4 text-teal-600" />
-          <h2 className="text-sm font-bold">{tx("ผลประเมินหลังรับคำปรึกษา", "Post-counseling evaluations")}</h2>
-          <Badge variant="outline" className="text-[10px] ml-auto">
-            {summary.evalCount} / {summary.completed} · {summary.evalRate.toFixed(0)}%
-          </Badge>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 text-xs">
-          <MiniStat label={tx("ประเมินแล้ว", "Evaluated")} value={summary.evalCount} />
-          <MiniStat label={tx("อัตราตอบ", "Response rate")} value={`${summary.evalRate.toFixed(0)}%`} />
-          <MiniStat label={tx("พึงพอใจเฉลี่ย", "Avg satisfaction")} value={summary.avgSatisfaction?.toFixed(1) ?? "—"} />
-          <MiniStat label={tx("เข้าใจเฉลี่ย", "Avg understanding")} value={summary.avgUnderstanding?.toFixed(1) ?? "—"} />
-          <MiniStat label={tx("ปลอดภัย/เชื่อใจ", "Avg safety")} value={summary.avgSafety?.toFixed(1) ?? "—"} />
-          <MiniStat label={tx("เคารพ", "Avg respect")} value={summary.avgRespect?.toFixed(1) ?? "—"} />
-          <MiniStat label={tx("อยากติดตามต่อ", "Wants follow-up")} value={summary.postFollowUpInterest} />
-        </div>
-      </Card>
+          <CollapsibleContent className="pt-3 space-y-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+              <KpiCard icon={<ClipboardList className="h-4 w-4" />} label={tx("นัดวันนี้", "Booked today")} value={summary.todayCount} />
+              <KpiCard icon={<AlertTriangle className="h-4 w-4" />} label={tx("เร่งด่วน", "Urgent")} value={summary.urgent} tone="urgent" />
+              <KpiCard icon={<CheckCircle2 className="h-4 w-4" />} label={tx("ให้คำปรึกษาแล้ว", "Completed")} value={summary.completed} tone="ok" />
+              <KpiCard icon={<Clock3 className="h-4 w-4" />} label={tx("ต้องติดตาม", "Follow-up")} value={summary.followUp} tone="warn" />
+              <KpiCard icon={<ArrowRightCircle className="h-4 w-4" />} label={tx("ส่งต่อคลินิก", "Referred")} value={summary.referred} />
+              <KpiCard icon={<Users className="h-4 w-4" />} label={tx("เวลาตอบเฉลี่ย (นาที)", "Avg response (min)")} value={summary.avgMinutes ? summary.avgMinutes.toFixed(1) : "—"} />
+            </div>
 
+            {/* Post-counseling analytics */}
+            <Card className="p-4 border-teal-200 bg-teal-50/30 dark:bg-teal-950/10">
+              <div className="flex items-center gap-2 mb-3">
+                <Star className="h-4 w-4 text-teal-600" />
+                <h2 className="text-sm font-bold">{tx("ผลประเมินหลังรับคำปรึกษา", "Post-counseling evaluations")}</h2>
+                <Badge variant="outline" className="text-[10px] ml-auto">
+                  {summary.evalCount} / {summary.completed} · {summary.evalRate.toFixed(0)}%
+                </Badge>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 text-xs">
+                <MiniStat label={tx("ประเมินแล้ว", "Evaluated")} value={summary.evalCount} />
+                <MiniStat label={tx("อัตราตอบ", "Response rate")} value={`${summary.evalRate.toFixed(0)}%`} />
+                <MiniStat label={tx("พึงพอใจเฉลี่ย", "Avg satisfaction")} value={summary.avgSatisfaction?.toFixed(1) ?? "—"} />
+                <MiniStat label={tx("เข้าใจเฉลี่ย", "Avg understanding")} value={summary.avgUnderstanding?.toFixed(1) ?? "—"} />
+                <MiniStat label={tx("ปลอดภัย/เชื่อใจ", "Avg safety")} value={summary.avgSafety?.toFixed(1) ?? "—"} />
+                <MiniStat label={tx("เคารพ", "Avg respect")} value={summary.avgRespect?.toFixed(1) ?? "—"} />
+                <MiniStat label={tx("อยากติดตามต่อ", "Wants follow-up")} value={summary.postFollowUpInterest} />
+              </div>
+            </Card>
 
-      {/* Harm reduction referral queue (bridged from the HR zone) */}
-      <HrReferralQueue tx={tx} readOnly={isMeAnalyst} />
+            {/* Harm reduction referral queue (bridged from the HR zone) */}
+            <HrReferralQueue tx={tx} readOnly={isMeAnalyst} />
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
-      {/* Filters bar */}
-      <Card className="p-3 space-y-3">
+      {/* Filters bar — sticky so it stays reachable in a long queue */}
+      <Card className="p-3 space-y-3 sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <div className="flex flex-wrap items-center gap-2">
           <Filter className="h-4 w-4 text-muted-foreground" />
           <select
@@ -869,6 +896,12 @@ export default function AdminCounselorSupportContent({
               {tx("ล้างตัวกรอง", "Clear filters")}
             </Button>
           )}
+          <Button
+            variant="outline" size="sm" className="h-8 ml-auto"
+            onClick={() => setCompact((v) => !v)}
+          >
+            {compact ? tx("มุมมองเต็ม", "Full view") : tx("มุมมองกระชับ", "Compact view")}
+          </Button>
         </div>
         <div className="text-xs text-muted-foreground">
           {tx(`พบ ${filtered.length} เคส`, `${filtered.length} case(s) found`)}
@@ -887,7 +920,7 @@ export default function AdminCounselorSupportContent({
           <div className="text-xs mt-1">{tx("ลองเปลี่ยนตัวกรอง หรือรอเคสใหม่", "Try changing filters or wait for new cases")}</div>
         </Card>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-4">
           {grouped.map((day, idx) => (
             <DaySection
               key={`${day.key}-${day.date ?? "walkin"}-${idx}`}
@@ -900,6 +933,8 @@ export default function AdminCounselorSupportContent({
               serviceName={serviceName}
               readOnly={readOnly}
               onSave={saveNote}
+              compact={compact}
+              defaultOpen={idx === 0}
             />
           ))}
         </div>
@@ -912,7 +947,7 @@ export default function AdminCounselorSupportContent({
 // DaySection
 // ────────────────────────────────────────────────────────────────
 function DaySection({
-  day, notes, postEvals, language, tx, branchName, serviceName, readOnly, onSave,
+  day, notes, postEvals, language, tx, branchName, serviceName, readOnly, onSave, compact, defaultOpen,
 }: {
   day: { key: DayBucket; date: string | null; times: { key: TimeBucket; rows: SurveyRow[] }[]; totalRows: number };
   notes: Record<string, CaseNote>;
@@ -923,57 +958,72 @@ function DaySection({
   serviceName: (id: string | null | undefined) => string;
   readOnly: boolean;
   onSave: (surveyId: string, patch: Partial<CaseNote>) => void | Promise<void>;
+  compact: boolean;
+  defaultOpen: boolean;
 }) {
   const meta = DAY_META[day.key];
   const Icon = meta.icon;
+  const [open, setOpen] = useState(defaultOpen);
+
+  const urgentDay = day.times.reduce(
+    (s, t) => s + t.rows.filter((r) => computePriority(r, notes[r.id]) === "urgent").length, 0);
 
   return (
-    <section className="space-y-4">
-      <div className="flex items-center gap-3 border-b pb-2">
-        <Icon className={`h-5 w-5 ${meta.accent}`} />
-        <div className="flex-1">
-          <div className={`text-lg font-bold ${meta.accent}`}>
-            {language === "th" ? meta.label_th : meta.label_en}
-            {day.date && day.key !== "today" && day.key !== "tomorrow" && (
-              <span className="text-sm font-normal text-muted-foreground ml-2">
-                {formatDayLabel(day.date, language)}
-              </span>
-            )}
-            {day.date && (day.key === "today" || day.key === "tomorrow") && (
-              <span className="text-sm font-normal text-muted-foreground ml-2">
-                · {formatDayLabel(day.date, language)}
-              </span>
-            )}
-          </div>
-        </div>
-        <Badge variant="secondary" className="text-xs">
-          {day.totalRows} {tx("เคส", "cases")}
-        </Badge>
-      </div>
+    <Collapsible open={open} onOpenChange={setOpen} asChild>
+      <section className="space-y-3">
+        <CollapsibleTrigger asChild>
+          <button
+            type="button"
+            className="w-full flex items-center gap-3 border-b pb-2 text-left hover:bg-muted/30 rounded-sm px-1"
+          >
+            <Icon className={`h-5 w-5 ${meta.accent}`} />
+            <div className="flex-1">
+              <div className={`text-base font-bold ${meta.accent}`}>
+                {language === "th" ? meta.label_th : meta.label_en}
+                {day.date && (
+                  <span className="text-sm font-normal text-muted-foreground ml-2">
+                    · {formatDayLabel(day.date, language)}
+                  </span>
+                )}
+              </div>
+            </div>
+            {urgentDay > 0 && <StatChip label={tx("เร่งด่วน", "Urgent")} value={urgentDay} tone="urgent" />}
+            <Badge variant="secondary" className="text-xs">
+              {day.totalRows} {tx("เคส", "cases")}
+            </Badge>
+            <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
+          </button>
+        </CollapsibleTrigger>
 
-      <div className="space-y-5">
-        {day.times.map((slot) => (
-          <TimeSlot
-            key={`${day.key}-${slot.key}`}
-            dayKey={day.key}
-            slot={slot}
-            notes={notes}
-            postEvals={postEvals}
-            language={language}
-            tx={tx}
-            branchName={branchName}
-            serviceName={serviceName}
-            readOnly={readOnly}
-            onSave={onSave}
-          />
-        ))}
-      </div>
-    </section>
+        <CollapsibleContent>
+          <div className={compact ? "space-y-3" : "space-y-5"}>
+            {day.times.map((slot) => (
+              <TimeSlot
+                key={`${day.key}-${slot.key}`}
+                dayKey={day.key}
+                slot={slot}
+                notes={notes}
+                postEvals={postEvals}
+                language={language}
+                tx={tx}
+                branchName={branchName}
+                serviceName={serviceName}
+                readOnly={readOnly}
+                onSave={onSave}
+                compact={compact}
+              />
+            ))}
+          </div>
+        </CollapsibleContent>
+      </section>
+    </Collapsible>
   );
 }
 
+const PAGE_SIZE = 10;
+
 function TimeSlot({
-  dayKey, slot, notes, postEvals, language, tx, branchName, serviceName, readOnly, onSave,
+  dayKey, slot, notes, postEvals, language, tx, branchName, serviceName, readOnly, onSave, compact,
 }: {
   dayKey: DayBucket;
   slot: { key: TimeBucket; rows: SurveyRow[] };
@@ -985,9 +1035,11 @@ function TimeSlot({
   serviceName: (id: string | null | undefined) => string;
   readOnly: boolean;
   onSave: (surveyId: string, patch: Partial<CaseNote>) => void | Promise<void>;
+  compact: boolean;
 }) {
   const meta = TIME_META[slot.key];
   const Icon = meta.icon;
+  const [limit, setLimit] = useState(PAGE_SIZE);
 
   const urgent = slot.rows.filter((r) => computePriority(r, notes[r.id]) === "urgent").length;
   const completed = slot.rows.filter((r) => {
@@ -998,6 +1050,9 @@ function TimeSlot({
     const n = notes[r.id];
     return n?.follow_up_required || n?.status === "follow_up_needed";
   }).length;
+
+  const visible = slot.rows.slice(0, limit);
+  const remaining = slot.rows.length - visible.length;
 
   return (
     <div className="space-y-2">
@@ -1014,8 +1069,8 @@ function TimeSlot({
           {followUp > 0 && <StatChip label={tx("ติดตาม", "Follow")} value={followUp} tone="warn" />}
         </div>
       </div>
-      <div className="space-y-2">
-        {slot.rows.map((r) => {
+      <div className={compact ? "space-y-1.5" : "space-y-2"}>
+        {visible.map((r) => {
           const n = notes[r.id];
           const pe = n ? postEvals[n.id] : undefined;
           return (
@@ -1030,13 +1085,26 @@ function TimeSlot({
               tx={tx}
               readOnly={readOnly}
               onSave={(patch) => onSave(r.id, patch)}
+              compact={compact}
             />
           );
         })}
       </div>
+      {remaining > 0 && (
+        <div className="flex justify-center gap-2 pt-1">
+          <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setLimit((l) => l + PAGE_SIZE)}>
+            {tx(`แสดงเพิ่ม ${Math.min(PAGE_SIZE, remaining)} เคส (เหลือ ${remaining})`,
+                `Show ${Math.min(PAGE_SIZE, remaining)} more (${remaining} left)`)}
+          </Button>
+          <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => setLimit(slot.rows.length)}>
+            {tx("แสดงทั้งหมด", "Show all")}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
+
 
 // ────────────────────────────────────────────────────────────────
 // Small components
@@ -1078,7 +1146,7 @@ function StatChip({ label, value, tone }: {
 // CasePanel — collapsible row
 // ────────────────────────────────────────────────────────────────
 function CasePanel({
-  row, note, postEval, dayKey, branchName, serviceName, tx, readOnly, onSave,
+  row, note, postEval, dayKey, branchName, serviceName, tx, readOnly, onSave, compact = false,
 }: {
   row: SurveyRow;
   note?: CaseNote;
@@ -1089,6 +1157,7 @@ function CasePanel({
   tx: (th: string, en: string) => string;
   readOnly: boolean;
   onSave: (patch: Partial<CaseNote>) => void | Promise<void>;
+  compact?: boolean;
 }) {
   const priority = computePriority(row, note);
   const meta = PRIORITY_META[priority];
@@ -1104,7 +1173,7 @@ function CasePanel({
     tx("ยังไม่มีข้อกังวลระบุ", "No specific concern")
   );
 
-  const [open, setOpen] = useState(priority === "urgent" && dayKey === "today");
+  const [open, setOpen] = useState(!compact && priority === "urgent" && dayKey === "today");
   const [notesDraft, setNotesDraft] = useState(note?.notes || "");
   const [nextStepDraft, setNextStepDraft] = useState(note?.next_step || "");
   const [followUp, setFollowUp] = useState<boolean>(!!note?.follow_up_required);
@@ -1177,56 +1246,76 @@ function CasePanel({
 
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
-      <Card className="overflow-hidden">
+      <Card className={`overflow-hidden border-l-[3px] ${
+        priority === "urgent" ? "border-l-rose-400"
+        : priority === "follow_up" ? "border-l-amber-400"
+        : "border-l-transparent"
+      }`}>
         <CollapsibleTrigger asChild>
           <button
             type="button"
             className="w-full text-left hover:bg-muted/40 transition-colors"
           >
-            <div className="p-3 md:p-4 flex items-center gap-3 md:gap-4">
+            <div className={`flex items-center gap-3 md:gap-4 ${compact ? "px-3 py-2" : "p-3 md:p-4"}`}>
               {/* Priority stripe + time */}
-              <div className="flex flex-col items-center min-w-[64px] md:min-w-[80px]">
-                <div className={`w-2 h-2 rounded-full ${meta.dot} mb-1`} />
-                <div className="text-lg md:text-xl font-bold tabular-nums leading-tight">
+              <div className={`flex ${compact ? "items-center gap-2 min-w-[76px]" : "flex-col items-center min-w-[64px] md:min-w-[80px]"}`}>
+                <div className={`w-2 h-2 rounded-full ${meta.dot} ${compact ? "" : "mb-1"}`} />
+                <div className={`font-bold tabular-nums leading-tight ${compact ? "text-sm" : "text-lg md:text-xl"}`}>
                   {timeLabel}
                 </div>
-                <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                  {row.appointments?.appointment_date
-                    ? tx("นัด", "Booked")
-                    : tx("ไม่ระบุ", "Walk-in")}
-                </div>
+                {!compact && (
+                  <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                    {row.appointments?.appointment_date
+                      ? tx("นัด", "Booked")
+                      : tx("ไม่ระบุ", "Walk-in")}
+                  </div>
+                )}
               </div>
 
               {/* Main info */}
-              <div className="flex-1 min-w-0 space-y-1.5">
+              <div className={`flex-1 min-w-0 ${compact ? "" : "space-y-1.5"}`}>
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-mono font-semibold text-sm">{identifier}</span>
-                  <Badge variant="outline" className={`text-[10px] ${meta.pill}`}>
-                    {tx(meta.label_th, meta.label_en)}
-                  </Badge>
-                  <Badge variant="outline" className="text-[10px]">
-                    {isFirst ? tx("ครั้งแรก", "First visit") : `#${row.visit_sequence} ${tx("กลับซ้ำ", "Repeat")}`}
-                  </Badge>
-                  {isAnon && (
+                  {/* In compact mode only exceptions get a colored pill, so the list isn't a wall of red. */}
+                  {(!compact || priority !== "standard") && (
+                    <Badge variant="outline" className={`text-[10px] ${meta.pill}`}>
+                      {tx(meta.label_th, meta.label_en)}
+                    </Badge>
+                  )}
+                  {!compact && (
+                    <Badge variant="outline" className="text-[10px]">
+                      {isFirst ? tx("ครั้งแรก", "First visit") : `#${row.visit_sequence} ${tx("กลับซ้ำ", "Repeat")}`}
+                    </Badge>
+                  )}
+                  {!compact && isAnon && (
                     <Badge variant="outline" className="text-[10px] text-muted-foreground">
                       {tx("ไม่ระบุตัวตน", "Anonymous")}
                     </Badge>
                   )}
+                  {compact && (
+                    <span className="text-xs text-muted-foreground truncate">
+                      {branchName(row.appointments?.branch_id)} · {concern}
+                    </span>
+                  )}
                 </div>
-                <div className="text-xs text-muted-foreground flex items-center gap-1.5 flex-wrap">
-                  <Building2 className="h-3 w-3" />
-                  <span>{branchName(row.appointments?.branch_id)}</span>
-                  <span>•</span>
-                  <span>{serviceName(row.appointments?.service_id)}</span>
-                </div>
-                <div className="text-xs text-foreground/80 line-clamp-1">
-                  <span className="text-muted-foreground">{tx("ประเด็นสำคัญ", "Key concern")}: </span>
-                  {concern}
-                </div>
+                {!compact && (
+                  <>
+                    <div className="text-xs text-muted-foreground flex items-center gap-1.5 flex-wrap">
+                      <Building2 className="h-3 w-3" />
+                      <span>{branchName(row.appointments?.branch_id)}</span>
+                      <span>•</span>
+                      <span>{serviceName(row.appointments?.service_id)}</span>
+                    </div>
+                    <div className="text-xs text-foreground/80 line-clamp-1">
+                      <span className="text-muted-foreground">{tx("ประเด็นสำคัญ", "Key concern")}: </span>
+                      {concern}
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Status + expand */}
-              <div className="flex flex-col items-end gap-1.5 shrink-0">
+              <div className={`flex items-center gap-1.5 shrink-0 ${compact ? "" : "flex-col items-end"}`}>
                 <Badge variant="outline" className="text-[10px]">
                   {tx(STATUS_LABELS[status].th, STATUS_LABELS[status].en)}
                 </Badge>
@@ -1235,6 +1324,7 @@ function CasePanel({
             </div>
           </button>
         </CollapsibleTrigger>
+
 
         <CollapsibleContent>
           <div className="px-3 md:px-4 pb-4 pt-1 border-t space-y-4">
