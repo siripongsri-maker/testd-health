@@ -10105,6 +10105,45 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_is_staff: boolean
+          branch_id: string | null
+          changed_fields: Json
+          created_at: string
+          id: string
+          record_date: string | null
+          record_id: string | null
+          table_name: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          actor_is_staff?: boolean
+          branch_id?: string | null
+          changed_fields?: Json
+          created_at?: string
+          id?: string
+          record_date?: string | null
+          record_id?: string | null
+          table_name: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          actor_is_staff?: boolean
+          branch_id?: string | null
+          changed_fields?: Json
+          created_at?: string
+          id?: string
+          record_date?: string | null
+          record_id?: string | null
+          table_name?: string
+        }
+        Relationships: []
+      }
       staff_branch_assignments: {
         Row: {
           branch: string
