@@ -400,23 +400,8 @@ export function LiteRequestStep({
             </Card>
           )}
 
-          {/* Toggle: use different delivery address */}
-          {idCardAddress && (
-            <div className="flex items-center justify-between py-2">
-              <Label htmlFor="diff-addr" className="text-sm cursor-pointer">
-                {language === 'th' ? 'ที่อยู่จัดส่งต่างจากบัตร' : 'Different delivery address'}
-              </Label>
-              <Switch
-                id="diff-addr"
-                checked={useDifferentAddress}
-                onCheckedChange={handleToggleDifferentAddress}
-              />
-            </div>
-          )}
-
-          {/* Address fields — show always if no scanned address, or when user toggles different address */}
-          {(!idCardAddress || useDifferentAddress) && (
-            <>
+          {/* Delivery address — always required, OCR only pre-fills it */}
+          <>
               <AddressDetailFields data={shippingData} onChange={onShippingChange} />
 
 
@@ -429,7 +414,7 @@ export function LiteRequestStep({
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>{language === 'th' ? 'อำเภอ' : 'District'}</Label>
+                  <Label>{language === 'th' ? 'อำเภอ' : 'District'} *</Label>
                   <Select value={shippingData.district} onValueChange={(v) => onShippingChange({ ...shippingData, district: v, subdistrict: '', postalCode: '' })} disabled={!shippingData.province}>
                     <SelectTrigger><SelectValue placeholder={language === 'th' ? 'เลือก' : 'Select'} /></SelectTrigger>
                     <SelectContent className="max-h-60">{districts.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
@@ -439,7 +424,7 @@ export function LiteRequestStep({
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label>{language === 'th' ? 'ตำบล' : 'Subdistrict'}</Label>
+                  <Label>{language === 'th' ? 'ตำบล' : 'Subdistrict'} *</Label>
                   <Select value={shippingData.subdistrict} onValueChange={(v) => onShippingChange({ ...shippingData, subdistrict: v })} disabled={!shippingData.district}>
                     <SelectTrigger><SelectValue placeholder={language === 'th' ? 'เลือก' : 'Select'} /></SelectTrigger>
                     <SelectContent className="max-h-60">{subdistricts.map(s => <SelectItem key={s.name} value={s.name}>{s.name}</SelectItem>)}</SelectContent>
@@ -455,10 +440,10 @@ export function LiteRequestStep({
                   />
                 </div>
               </div>
-            </>
-          )}
+          </>
         </Card>
       </>)}
+
 
       {/* Pickup mode — location + minimal info */}
       {deliveryMode === 'pickup' && (
