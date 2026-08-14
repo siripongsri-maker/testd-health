@@ -12,7 +12,7 @@ import {
   Users, Clock3, CheckCircle2, ArrowRightCircle, Building2, Filter,
   ChevronDown, Sunrise, Sun, Sunset, Calendar, CalendarDays, Footprints,
   QrCode, Copy, Star,
-  Send,
+  Send, ArrowUpDown,
 } from "lucide-react";
 
 import { useSearchParams } from "react-router-dom";
@@ -111,6 +111,8 @@ type QuickFilter =
   | "completed";
 
 type SearchField = "all" | "uic" | "booking" | "place";
+type SortField = "appointment_time" | "created_at" | "updated_at" | "priority";
+type SortOrder = "asc" | "desc";
 
 const CASE_STATUS_OPTIONS: { key: CaseStatus; th: string; en: string }[] = [
   { key: "not_reviewed", th: "ยังไม่ตรวจสอบ", en: "Not yet reviewed" },
@@ -270,6 +272,38 @@ const TIME_META: Record<TimeBucket, { icon: React.ComponentType<{ className?: st
   unspecified: { icon: Clock3,  label_th: "ไม่ระบุเวลา", label_en: "No time", range: "—" },
 };
 
+// Sort helper used by day/time buckets.
+function sortRows(
+  rows: SurveyRow[],
+  by: SortField,
+  order: SortOrder,
+  notes: Record<string, CaseNote>,
+) {
+  const priorityRank = { urgent: 0, follow_up: 1, standard: 2 } as const;
+  const signed = order === "asc" ? 1 : -1;
+  return [...rows].sort((a, b) => {
+    let cmp = 0;
+    switch (by) {
+      case "appointment_time":
+        cmp = (a.appointments?.start_time || "99:99:99").localeCompare(b.appointments?.start_time || "99:99:99");
+        if (cmp === 0) {
+          cmp = priorityRank[computePriority(a, notes[a.id])] - priorityRank[computePriority(b, notes[b.id])];
+        }
+        break;
+      case "created_at":
+        cmp = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        break;
+      case "updated_at":
+        cmp = new Date(notes[a.id]?.updated_at || a.created_at).getTime() - new Date(notes[b.id]?.updated_at || b.created_at).getTime();
+        break;
+      case "priority":
+        cmp = priorityRank[computePriority(a, notes[a.id])] - priorityRank[computePriority(b, notes[b.id])];
+        break;
+    }
+    return cmp * signed;
+  });
+}
+
 // ────────────────────────────────────────────────────────────────
 // Component
 // ────────────────────────────────────────────────────────────────
@@ -300,8 +334,12 @@ export default function AdminCounselorSupportContent({
     () => (searchParams.get("qin") as SearchField) || "all");
   const [statusFilter, setStatusFilter] = useState<CaseStatus | "all">(
     () => (searchParams.get("cs") as CaseStatus | "all") || "all");
+  const [sortBy, setSortBy] = useState<SortField>(
+    () => (searchParams.get("sort") as SortField) || "appointment_time");
+  const [sortOrder, setSortOrder] = useState<SortOrder>(
+    () => (searchParams.get("order") as SortOrder) || "asc");
 
-  // Keep the queue filters in the URL so a counselor can share the exact view.
+  // Keep the queue filters + sort in the URL so a counselor can share the exact view.
   useEffect(() => {
     const next = new URLSearchParams(window.location.search);
     const put = (k: string, v: string, empty: string) => {
@@ -311,9 +349,11 @@ export default function AdminCounselorSupportContent({
     put("q", search.trim(), "");
     put("qin", searchField, "all");
     put("cs", statusFilter, "all");
+    put("sort", sortBy, "appointment_time");
+    put("order", sortOrder, "asc");
     setSearchParams(next, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quickFilter, search, searchField, statusFilter]);
+  }, [quickFilter, search, searchField, statusFilter, sortBy, sortOrder]);
 
   const todayISO = useMemo(() => bangkokTodayISO(), []);
 
@@ -501,30 +541,27 @@ export default function AdminCounselorSupportContent({
       const byTime: Record<TimeBucket, SurveyRow[]> = { morning: [], afternoon: [], evening: [], unspecified: [] };
       rows.forEach((r) => byTime[timeBucket(r.appointments?.start_time || null)].push(r));
       (Object.keys(byTime) as TimeBucket[]).forEach((k) => {
-        byTime[k].sort((a, b) => {
-          const at = a.appointments?.start_time || "99:99:99";
-          const bt = b.appointments?.start_time || "99:99:99";
-          if (at !== bt) return at.localeCompare(bt);
-          // tie-break: urgent first
-          const pa = computePriority(a, notes[a.id]);
-          const pb = computePriority(b, notes[b.id]);
-          const order = { urgent: 0, follow_up: 1, standard: 2 } as const;
-          return order[pa] - order[pb];
-        });
+        byTime[k] = sortRows(byTime[k], sortBy, sortOrder, notes);
       });
       return (["morning", "afternoon", "evening", "unspecified"] as const)
         .map((k) => ({ key: k, rows: byTime[k] }))
         .filter((g) => g.rows.length > 0);
     };
 
-    // Descending time-order for "earlier today" so the most recently passed slot is on top.
+    // Descending order for "earlier today" so the most recently passed slot / last update is on top.
     const buildTimesDesc = (rows: SurveyRow[]): GroupedTime[] => {
-      const groups = buildTimes(rows);
-      groups.forEach((g) => g.rows.reverse());
-      // Reverse group order: evening → afternoon → morning → unspecified
-      const orderKey: Record<TimeBucket, number> = { evening: 0, afternoon: 1, morning: 2, unspecified: 3 };
-      groups.sort((a, b) => orderKey[a.key] - orderKey[b.key]);
-      return groups;
+      const byTime: Record<TimeBucket, SurveyRow[]> = { morning: [], afternoon: [], evening: [], unspecified: [] };
+      rows.forEach((r) => byTime[timeBucket(r.appointments?.start_time || null)].push(r));
+      (Object.keys(byTime) as TimeBucket[]).forEach((k) => {
+        byTime[k] = sortRows(byTime[k], sortBy, "desc", notes);
+      });
+      return (["morning", "afternoon", "evening", "unspecified"] as const)
+        .map((k) => ({ key: k, rows: byTime[k] }))
+        .filter((g) => g.rows.length > 0)
+        .sort((a, b) => {
+          const orderKey: Record<TimeBucket, number> = { evening: 0, afternoon: 1, morning: 2, unspecified: 3 };
+          return orderKey[a.key] - orderKey[b.key];
+        });
     };
 
     const days: GroupedDay[] = [];
@@ -563,7 +600,7 @@ export default function AdminCounselorSupportContent({
     }
 
     return days;
-  }, [filtered, todayISO, notes, nowHHMMSS]);
+  }, [filtered, todayISO, notes, nowHHMMSS, sortBy, sortOrder]);
 
 
   // Branch summary KPIs (all visible surveys, RLS-scoped)
@@ -770,6 +807,30 @@ export default function AdminCounselorSupportContent({
               <option key={o.key} value={o.key}>{tx(o.th, o.en)}</option>
             ))}
           </select>
+          <span className="text-xs text-muted-foreground self-center flex items-center gap-1">
+            <ArrowUpDown className="h-3 w-3" />
+            {tx("เรียงตาม", "Sort")}
+          </span>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortField)}
+            className="h-9 px-3 rounded-md border bg-background text-sm"
+            aria-label={tx("เรียงตาม", "Sort by")}
+          >
+            <option value="appointment_time">{tx("เวลานัด", "Appt time")}</option>
+            <option value="created_at">{tx("เวลาส่ง", "Submitted")}</option>
+            <option value="updated_at">{tx("อัปเดตล่าสุด", "Last updated")}</option>
+            <option value="priority">{tx("ความเร่งด่วน", "Urgency")}</option>
+          </select>
+          <select
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value as SortOrder)}
+            className="h-9 px-3 rounded-md border bg-background text-sm"
+            aria-label={tx("ทิศทาง", "Order")}
+          >
+            <option value="asc">{tx("น้อย → มาก", "Asc")}</option>
+            <option value="desc">{tx("มาก → น้อย", "Desc")}</option>
+          </select>
           {(isAdmin || isMeAnalyst) && (
             <select
               value={branchFilter}
@@ -800,10 +861,10 @@ export default function AdminCounselorSupportContent({
               {tx(f.th, f.en)}
             </Button>
           ))}
-          {(quickFilter !== "all" || statusFilter !== "all" || search.trim() || searchField !== "all") && (
+          {(quickFilter !== "all" || statusFilter !== "all" || search.trim() || searchField !== "all" || sortBy !== "appointment_time" || sortOrder !== "asc") && (
             <Button
               variant="ghost" size="sm" className="h-8 text-muted-foreground"
-              onClick={() => { setQuickFilter("all"); setStatusFilter("all"); setSearch(""); setSearchField("all"); }}
+              onClick={() => { setQuickFilter("all"); setStatusFilter("all"); setSearch(""); setSearchField("all"); setSortBy("appointment_time"); setSortOrder("asc"); }}
             >
               {tx("ล้างตัวกรอง", "Clear filters")}
             </Button>
