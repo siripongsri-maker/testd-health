@@ -12556,6 +12556,7 @@ export type Database = {
         Args: { _screening_id: string }
         Returns: boolean
       }
+      is_privileged_staff: { Args: { _user_id: string }; Returns: boolean }
       is_valid_selftest_guest_upload_token: {
         Args: { p_token: string }
         Returns: boolean
