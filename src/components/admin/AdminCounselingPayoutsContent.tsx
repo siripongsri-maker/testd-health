@@ -206,10 +206,10 @@ export default function AdminCounselingPayoutsContent({
     }
     notifySaved({
       title: "อัปเดตสถานะการจ่ายแล้ว",
-      changes: [
-        { label: "สถานะ", from: before ? STATUS_LABEL[before.status] : null, to: STATUS_LABEL[status] },
-        { label: "ยอด", from: null, to: before ? `${Number(before.amount).toLocaleString()} บาท` : null },
-      ].filter((c) => c.to),
+      changes: before
+        ? [{ label: "สถานะ", from: STATUS_LABEL[before.status], to: STATUS_LABEL[status] }]
+        : [],
+      description: before ? `${before.account_holder_name} · ${Number(before.amount).toLocaleString()} บาท` : undefined,
       onUndo: before
         ? async () => {
             const { error: undoErr } = await supabase
