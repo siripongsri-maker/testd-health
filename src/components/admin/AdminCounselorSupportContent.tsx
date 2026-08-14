@@ -15,6 +15,7 @@ import {
   Send,
 } from "lucide-react";
 
+import { useSearchParams } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminRole } from "@/hooks/useAdminRole";
@@ -108,6 +109,18 @@ type QuickFilter =
   | "not_reviewed"
   | "follow_up"
   | "completed";
+
+type SearchField = "all" | "uic" | "booking" | "place";
+
+const CASE_STATUS_OPTIONS: { key: CaseStatus; th: string; en: string }[] = [
+  { key: "not_reviewed", th: "ยังไม่ตรวจสอบ", en: "Not yet reviewed" },
+  { key: "counseling_completed", th: "ให้คำปรึกษาแล้ว", en: "Counseling completed" },
+  { key: "prep_pep_discussed", th: "คุยเรื่อง PrEP/PEP", en: "PrEP/PEP discussed" },
+  { key: "hiv_test_recommended", th: "แนะนำให้ตรวจ HIV", en: "HIV test recommended" },
+  { key: "referred_to_clinic", th: "ส่งต่อคลินิก", en: "Referred to clinic" },
+  { key: "follow_up_needed", th: "ต้องติดตาม", en: "Follow-up needed" },
+  { key: "case_closed", th: "ปิดเคส", en: "Case closed" },
+];
 
 // ────────────────────────────────────────────────────────────────
 // Completed-like statuses (any of these should surface the post-eval QR).
@@ -279,8 +292,28 @@ export default function AdminCounselorSupportContent({
   const [branchLocal, setBranchLocal] = useState<string>("all"); // admin only
   const branchFilter = branchProp ?? branchLocal;
   const setBranchFilter = onBranchChange ?? setBranchLocal;
-  const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
-  const [search, setSearch] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>(
+    () => (searchParams.get("qf") as QuickFilter) || "all");
+  const [search, setSearch] = useState(() => searchParams.get("q") || "");
+  const [searchField, setSearchField] = useState<SearchField>(
+    () => (searchParams.get("qin") as SearchField) || "all");
+  const [statusFilter, setStatusFilter] = useState<CaseStatus | "all">(
+    () => (searchParams.get("cs") as CaseStatus | "all") || "all");
+
+  // Keep the queue filters in the URL so a counselor can share the exact view.
+  useEffect(() => {
+    const next = new URLSearchParams(window.location.search);
+    const put = (k: string, v: string, empty: string) => {
+      if (v && v !== empty) next.set(k, v); else next.delete(k);
+    };
+    put("qf", quickFilter, "all");
+    put("q", search.trim(), "");
+    put("qin", searchField, "all");
+    put("cs", statusFilter, "all");
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quickFilter, search, searchField, statusFilter]);
 
   const todayISO = useMemo(() => bangkokTodayISO(), []);
 
@@ -426,13 +459,23 @@ export default function AdminCounselorSupportContent({
         case "all": default: break;
       }
 
+      if (statusFilter !== "all" && status !== statusFilter) return false;
+
       if (q) {
-        const hay = `${r.uic_display || r.uic_code || ""} ${r.booking_id} ${branchName(r.appointments?.branch_id)} ${serviceName(r.appointments?.service_id)}`.toLowerCase();
+        const uicHay = `${r.uic_display || r.uic_code || ""}`;
+        const bookingHay = `${r.booking_id}`;
+        const placeHay = `${branchName(r.appointments?.branch_id)} ${serviceName(r.appointments?.service_id)}`;
+        const hay = (
+          searchField === "uic" ? uicHay
+          : searchField === "booking" ? bookingHay
+          : searchField === "place" ? placeHay
+          : `${uicHay} ${bookingHay} ${placeHay}`
+        ).toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
     });
-  }, [surveys, notes, isAdmin, isMeAnalyst, staffBranchId, branchFilter, quickFilter, search, language, todayISO]);
+  }, [surveys, notes, isAdmin, isMeAnalyst, staffBranchId, branchFilter, quickFilter, search, searchField, statusFilter, language, todayISO]);
 
   // Group: DayBucket → TimeBucket → sorted list
   type GroupedTime = { key: TimeBucket; rows: SurveyRow[] };
@@ -694,12 +737,39 @@ export default function AdminCounselorSupportContent({
       <Card className="p-3 space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <Filter className="h-4 w-4 text-muted-foreground" />
+          <select
+            value={searchField}
+            onChange={(e) => setSearchField(e.target.value as SearchField)}
+            className="h-9 px-3 rounded-md border bg-background text-sm"
+            aria-label={tx("ค้นหาจาก", "Search in")}
+          >
+            <option value="all">{tx("ค้นหาทุกช่อง", "All fields")}</option>
+            <option value="uic">{tx("ชื่อ / UIC", "Name / UIC")}</option>
+            <option value="booking">{tx("รหัสคำขอ", "Request code")}</option>
+            <option value="place">{tx("สาขา / บริการ", "Branch / service")}</option>
+          </select>
           <Input
-            placeholder={tx("ค้นหา UIC / บริการ / สาขา", "Search UIC / service / branch")}
+            placeholder={
+              searchField === "uic" ? tx("ค้นหาชื่อ / UIC", "Search name / UIC")
+              : searchField === "booking" ? tx("ค้นหารหัสคำขอ", "Search request code")
+              : searchField === "place" ? tx("ค้นหาสาขา / บริการ", "Search branch / service")
+              : tx("ค้นหา ชื่อ / รหัสคำขอ / สาขา", "Search name / request code / branch")
+            }
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="max-w-xs h-9"
           />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value as CaseStatus | "all")}
+            className="h-9 px-3 rounded-md border bg-background text-sm"
+            aria-label={tx("สถานะเคส", "Case status")}
+          >
+            <option value="all">{tx("ทุกสถานะ", "All statuses")}</option>
+            {CASE_STATUS_OPTIONS.map((o) => (
+              <option key={o.key} value={o.key}>{tx(o.th, o.en)}</option>
+            ))}
+          </select>
           {(isAdmin || isMeAnalyst) && (
             <select
               value={branchFilter}
@@ -730,6 +800,17 @@ export default function AdminCounselorSupportContent({
               {tx(f.th, f.en)}
             </Button>
           ))}
+          {(quickFilter !== "all" || statusFilter !== "all" || search.trim() || searchField !== "all") && (
+            <Button
+              variant="ghost" size="sm" className="h-8 text-muted-foreground"
+              onClick={() => { setQuickFilter("all"); setStatusFilter("all"); setSearch(""); setSearchField("all"); }}
+            >
+              {tx("ล้างตัวกรอง", "Clear filters")}
+            </Button>
+          )}
+        </div>
+        <div className="text-xs text-muted-foreground">
+          {tx(`พบ ${filtered.length} เคส`, `${filtered.length} case(s) found`)}
         </div>
       </Card>
 
