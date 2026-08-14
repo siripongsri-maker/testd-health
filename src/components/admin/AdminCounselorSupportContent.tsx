@@ -1173,7 +1173,7 @@ function CasePanel({
     tx("ยังไม่มีข้อกังวลระบุ", "No specific concern")
   );
 
-  const [open, setOpen] = useState(priority === "urgent" && dayKey === "today");
+  const [open, setOpen] = useState(!compact && priority === "urgent" && dayKey === "today");
   const [notesDraft, setNotesDraft] = useState(note?.notes || "");
   const [nextStepDraft, setNextStepDraft] = useState(note?.next_step || "");
   const [followUp, setFollowUp] = useState<boolean>(!!note?.follow_up_required);
