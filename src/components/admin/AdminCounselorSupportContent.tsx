@@ -339,6 +339,15 @@ export default function AdminCounselorSupportContent({
   const [sortOrder, setSortOrder] = useState<SortOrder>(
     () => (searchParams.get("order") as SortOrder) || "asc");
 
+  // View density + overview visibility — keeps the long queue readable.
+  const [showOverview, setShowOverview] = useState<boolean>(
+    () => localStorage.getItem("counselor_queue_overview") === "1");
+  const [compact, setCompact] = useState<boolean>(
+    () => localStorage.getItem("counselor_queue_density") !== "full");
+  useEffect(() => { localStorage.setItem("counselor_queue_overview", showOverview ? "1" : "0"); }, [showOverview]);
+  useEffect(() => { localStorage.setItem("counselor_queue_density", compact ? "compact" : "full"); }, [compact]);
+
+
   // Keep the queue filters + sort in the URL so a counselor can share the exact view.
   useEffect(() => {
     const next = new URLSearchParams(window.location.search);
