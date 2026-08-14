@@ -196,3 +196,16 @@ export function getStatusInfo(status: string) {
   return STATUS_OPTIONS.find(s => s.value === v) || STATUS_OPTIONS[0];
 }
 
+
+/**
+ * PHQ-4 score captured voluntarily during booking. Stored in the appointment
+ * notes as `PHQ-4 (สมัครใจ): X/12 — ...`. Returns null when the client did not
+ * complete the screening.
+ */
+export function getPhq4Score(apt: EnrichedAppointment): number | null {
+  const text = [apt.notes, apt.staff_notes].filter(Boolean).join('\n');
+  const match = text.match(/PHQ[\s-]?4[^0-9]{0,30}(\d{1,2})\s*\/\s*12/i);
+  if (!match) return null;
+  const score = Number(match[1]);
+  return Number.isFinite(score) && score >= 0 && score <= 12 ? score : null;
+}
