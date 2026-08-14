@@ -861,10 +861,10 @@ export default function AdminCounselorSupportContent({
               {tx(f.th, f.en)}
             </Button>
           ))}
-          {(quickFilter !== "all" || statusFilter !== "all" || search.trim() || searchField !== "all") && (
+          {(quickFilter !== "all" || statusFilter !== "all" || search.trim() || searchField !== "all" || sortBy !== "appointment_time" || sortOrder !== "asc") && (
             <Button
               variant="ghost" size="sm" className="h-8 text-muted-foreground"
-              onClick={() => { setQuickFilter("all"); setStatusFilter("all"); setSearch(""); setSearchField("all"); }}
+              onClick={() => { setQuickFilter("all"); setStatusFilter("all"); setSearch(""); setSearchField("all"); setSortBy("appointment_time"); setSortOrder("asc"); }}
             >
               {tx("ล้างตัวกรอง", "Clear filters")}
             </Button>
