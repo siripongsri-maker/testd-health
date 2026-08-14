@@ -142,6 +142,13 @@ export default function CareCardPrint() {
     if (next.toString() !== searchParams.toString()) setSearchParams(next, { replace: true });
   }, [eventCode, searchParams, sessionId, setSearchParams]);
 
+  const perSheet = useMemo(() => LAYOUTS[layout].cols * LAYOUTS[layout].rows, [layout]);
+  const sessionOptions = useMemo(() => {
+    const list = [...(sessions || [])];
+    if (publicSession && !list.some((s: { id: string }) => s.id === publicSession.id)) list.unshift(publicSession);
+    return list;
+  }, [sessions, publicSession]);
+
   useEffect(() => {
     if (sessionId === "none") return;
     const s = sessionOptions.find((x: { id: string }) => x.id === sessionId);
@@ -151,12 +158,6 @@ export default function CareCardPrint() {
     }
   }, [sessionId, sessionOptions]);
 
-  const perSheet = useMemo(() => LAYOUTS[layout].cols * LAYOUTS[layout].rows, [layout]);
-  const sessionOptions = useMemo(() => {
-    const list = [...(sessions || [])];
-    if (publicSession && !list.some((s: { id: string }) => s.id === publicSession.id)) list.unshift(publicSession);
-    return list;
-  }, [sessions, publicSession]);
   const selectedSession = useMemo(
     () => sessionOptions.find((s: { id: string }) => s.id === sessionId),
     [sessionId, sessionOptions],
