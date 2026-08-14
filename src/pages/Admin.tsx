@@ -100,7 +100,7 @@ const TabLoader = () => (
 );
 
 // Tabs accessible by moderators (branch staff)
-const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "selftest-results", "selftest-followup", "selftest-map", "selftest-missing-id", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk", "counselor-support", "daily-branch-brief", "concern-brief", "daily-ops", "daily-ops"]);
+const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "selftest-results", "selftest-followup", "selftest-map", "selftest-missing-id", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk", "counselor-support", "daily-branch-brief", "concern-brief", "daily-ops"]);
 
 // Tabs accessible by M&E Analyst (read-only analytics/reporting)
 const ME_ANALYST_TABS = new Set([
@@ -125,7 +125,7 @@ const ME_ANALYST_TABS = new Set([
   "system-health",
 ]);
 
-const COUNSELOR_TABS = ["daily-ops", "counselor-support", "daily-branch-brief", "concern-brief", "daily-ops", "queue-board"];
+const COUNSELOR_TABS = ["daily-ops", "counselor-support", "daily-branch-brief", "concern-brief", "queue-board"];
 
 function BranchLabel({ branchId }: { branchId: string }) {
   const { language } = useLanguage();
