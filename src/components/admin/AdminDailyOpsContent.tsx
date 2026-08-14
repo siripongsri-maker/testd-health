@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight, CalendarDays, HeartHandshake, ClipboardList, Banknote, Brain } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays, HeartHandshake, ClipboardList, Banknote, Brain, History } from "lucide-react";
 import { format } from "date-fns";
 import { useLanguage } from "@/lib/i18n";
 import { useAdminRole } from "@/hooks/useAdminRole";
@@ -18,6 +18,7 @@ import AdminCounselorSupportContent from "./AdminCounselorSupportContent";
 import AdminDailyBranchBriefContent from "./AdminDailyBranchBriefContent";
 import AdminConcernBriefContent from "./AdminConcernBriefContent";
 import AdminCounselingPayoutsContent from "./AdminCounselingPayoutsContent";
+import AdminAuditLogContent from "./AdminAuditLogContent";
 
 /**
  * Daily Ops workspace — merges the four overlapping counseling menus
@@ -37,7 +38,7 @@ const shiftDay = (day: string, delta: number) => {
   return format(d, "yyyy-MM-dd");
 };
 
-type SubTab = "queue" | "branch" | "concern" | "payouts";
+type SubTab = "queue" | "branch" | "concern" | "payouts" | "audit";
 
 export default function AdminDailyOpsContent() {
   const { language } = useLanguage();
@@ -82,6 +83,7 @@ export default function AdminDailyOpsContent() {
     { key: "branch", icon: ClipboardList, th: "สรุปรายสาขา", en: "Branch brief" },
     { key: "concern", icon: Brain, th: "เรื่องที่กังวล", en: "Concerns" },
     { key: "payouts", icon: Banknote, th: "ค่าเดินทาง", en: "Travel allowance", adminOnly: true },
+    { key: "audit", icon: History, th: "บันทึกกิจกรรม", en: "Audit log", adminOnly: true },
   ];
   const visibleTabs = tabs.filter((t) => !t.adminOnly || isAdmin);
 
@@ -164,6 +166,11 @@ export default function AdminDailyOpsContent() {
         {isAdmin && (
           <TabsContent value="payouts" className="mt-4">
             <AdminCounselingPayoutsContent dateFrom={day} dateTo={day} />
+          </TabsContent>
+        )}
+        {isAdmin && (
+          <TabsContent value="audit" className="mt-4">
+            <AdminAuditLogContent day={day} hideToolbar />
           </TabsContent>
         )}
       </Tabs>
