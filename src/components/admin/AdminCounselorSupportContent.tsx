@@ -1146,7 +1146,7 @@ function StatChip({ label, value, tone }: {
 // CasePanel — collapsible row
 // ────────────────────────────────────────────────────────────────
 function CasePanel({
-  row, note, postEval, dayKey, branchName, serviceName, tx, readOnly, onSave,
+  row, note, postEval, dayKey, branchName, serviceName, tx, readOnly, onSave, compact = false,
 }: {
   row: SurveyRow;
   note?: CaseNote;
@@ -1157,6 +1157,7 @@ function CasePanel({
   tx: (th: string, en: string) => string;
   readOnly: boolean;
   onSave: (patch: Partial<CaseNote>) => void | Promise<void>;
+  compact?: boolean;
 }) {
   const priority = computePriority(row, note);
   const meta = PRIORITY_META[priority];
