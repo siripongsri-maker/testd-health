@@ -160,11 +160,20 @@ export function LiteRequestStep({
     ? !!(nhsoData.passportNo && nhsoData.passportNo.trim().length >= 5 && nhsoData.dateOfBirth && nhsoData.gender)
     : (nhsoData.thaiId.length === 13 && !thaiIdError && nhsoData.dateOfBirth && nhsoData.gender);
   const isPickupLocationValid = true; // location is optional, never blocks submission
-  const needsManualAddress = !idCardAddress || useDifferentAddress;
-  const isHouseNoValid = deliveryMode === 'pickup' || !needsManualAddress || validateHouseNo(shippingData.houseNo);
+  // Delivery always requires a full, manually-confirmed address.
+  // (ID card OCR only pre-fills the fields — it can never substitute for them.)
+  const isHouseNoValid = deliveryMode === 'pickup' || validateHouseNo(shippingData.houseNo);
   const isShippingValid = deliveryMode === 'pickup'
     ? !!(shippingData.fullName && shippingData.province)
-    : !!(shippingData.fullName && shippingData.phone && shippingData.province && assignedBranch && isHouseNoValid);
+    : !!(
+        shippingData.fullName &&
+        shippingData.phone &&
+        shippingData.province &&
+        shippingData.district &&
+        shippingData.subdistrict &&
+        assignedBranch &&
+        isHouseNoValid
+      );
   const isFormValid = isNhsoValid && isShippingValid && isPickupLocationValid;
 
   const handleSubmit = async (e: React.FormEvent) => {
