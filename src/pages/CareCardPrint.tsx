@@ -80,8 +80,11 @@ export default function CareCardPrint() {
 
   const [exporting, setExporting] = useState<Layout | null>(null);
 
+  const { user, loading: authLoading } = useAuth();
+
   const { data: sessions } = useQuery({
-    queryKey: ["care-card-support-sessions"],
+    queryKey: ["care-card-support-sessions", user?.id || "anon"],
+    enabled: !authLoading,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("support_sessions")
@@ -90,6 +93,28 @@ export default function CareCardPrint() {
         .limit(100);
       if (error) throw error;
       return data || [];
+    },
+  });
+
+  // เผื่อกรณีอ่านรายการทั้งหมดไม่ได้ (สิทธิ์/ยังไม่ล็อกอิน) ให้ยืนยันเซสชันจาก URL ผ่านฟังก์ชันสาธารณะ
+  const urlSessionId = searchParams.get("session");
+  const { data: publicSession } = useQuery({
+    queryKey: ["care-card-public-session", urlSessionId],
+    enabled: !!urlSessionId && !(sessions || []).some((s: { id: string }) => s.id === urlSessionId),
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("get_safe_space_session_public", {
+        p_session_id: urlSessionId,
+      });
+      if (error) throw error;
+      const row = Array.isArray(data) ? data[0] : null;
+      return row
+        ? {
+            id: urlSessionId as string,
+            session_date: (row as { session_date: string }).session_date,
+            session_title_th: (row as { session_title_th: string | null }).session_title_th,
+            location: (row as { location: string | null }).location,
+          }
+        : null;
     },
   });
 
