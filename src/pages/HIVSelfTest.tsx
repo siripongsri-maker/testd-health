@@ -323,7 +323,7 @@ export default function HIVSelfTest() {
     // First try to get from the most recent selftest_pii entry
     const { data: piiData } = await supabase
       .from('selftest_pii')
-      .select('thai_id, date_of_birth, gender, full_name, phone, address, province')
+      .select('thai_id, date_of_birth, gender, full_name, phone, address, province, district, subdistrict, postal_code')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -356,8 +356,10 @@ export default function HIVSelfTest() {
           ...prev,
           fullName: piiData.full_name || prev.fullName,
           phone: piiData.phone || prev.phone,
-          address: piiData.address || prev.address,
           province: piiData.province || prev.province,
+          district: (piiData as any).district || prev.district,
+          subdistrict: (piiData as any).subdistrict || prev.subdistrict,
+          postalCode: (piiData as any).postal_code || prev.postalCode,
         }));
       }
     } else {
