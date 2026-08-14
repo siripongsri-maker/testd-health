@@ -272,6 +272,38 @@ const TIME_META: Record<TimeBucket, { icon: React.ComponentType<{ className?: st
   unspecified: { icon: Clock3,  label_th: "ไม่ระบุเวลา", label_en: "No time", range: "—" },
 };
 
+// Sort helper used by day/time buckets.
+function sortRows(
+  rows: SurveyRow[],
+  by: SortField,
+  order: SortOrder,
+  notes: Record<string, CaseNote>,
+) {
+  const priorityRank = { urgent: 0, follow_up: 1, standard: 2 } as const;
+  const signed = order === "asc" ? 1 : -1;
+  return [...rows].sort((a, b) => {
+    let cmp = 0;
+    switch (by) {
+      case "appointment_time":
+        cmp = (a.appointments?.start_time || "99:99:99").localeCompare(b.appointments?.start_time || "99:99:99");
+        if (cmp === 0) {
+          cmp = priorityRank[computePriority(a, notes[a.id])] - priorityRank[computePriority(b, notes[b.id])];
+        }
+        break;
+      case "created_at":
+        cmp = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        break;
+      case "updated_at":
+        cmp = new Date(notes[a.id]?.updated_at || a.created_at).getTime() - new Date(notes[b.id]?.updated_at || b.created_at).getTime();
+        break;
+      case "priority":
+        cmp = priorityRank[computePriority(a, notes[a.id])] - priorityRank[computePriority(b, notes[b.id])];
+        break;
+    }
+    return cmp * signed;
+  });
+}
+
 // ────────────────────────────────────────────────────────────────
 // Component
 // ────────────────────────────────────────────────────────────────
