@@ -11,6 +11,7 @@ import SafeSpaceSessionDrawer from "./SafeSpaceSessionDrawer";
 import MelDeleteDialog from "./MelDeleteDialog";
 import MelSOPCard, { MEL_SOPS } from "./MelSOPCard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import SafeSpaceQuizPanel from "./SafeSpaceQuizPanel";
 
 export default function MelSafeSpacesContent() {
@@ -20,6 +21,7 @@ export default function MelSafeSpacesContent() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editSession, setEditSession] = useState<any>(null);
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
+  const [printSessionId, setPrintSessionId] = useState("");
 
   const { data: sessions, isLoading } = useQuery({
     queryKey: ["mel-support-sessions"],
@@ -42,6 +44,7 @@ export default function MelSafeSpacesContent() {
 
   const totalParticipants = sessions?.reduce((sum: number, s: any) => sum + (s.total_participants || 0), 0) || 0;
   const completedCount = sessions?.filter((s: any) => s.status === "completed").length || 0;
+  const activePrintSessionId = printSessionId || sessions?.[0]?.id || "";
 
   return (
     <div className="space-y-6">
@@ -51,8 +54,20 @@ export default function MelSafeSpacesContent() {
           <p className="text-muted-foreground text-sm">{isTh ? "กลุ่มสนับสนุนและกิจกรรมชุมชน" : "Support groups & community activities"}</p>
         </div>
         <div className="flex items-center gap-2">
+          <Select value={activePrintSessionId} onValueChange={setPrintSessionId}>
+            <SelectTrigger className="h-9 w-[250px] text-xs">
+              <SelectValue placeholder={isTh ? "เลือกเซสชันที่จะพิมพ์" : "Select print session"} />
+            </SelectTrigger>
+            <SelectContent>
+              {(sessions || []).map((s: any) => (
+                <SelectItem key={s.id} value={s.id}>
+                  {format(new Date(s.session_date), "dd MMM yyyy")} · {s.session_title_th || s.support_groups?.group_name_th || "ไม่มีชื่อ"}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button asChild size="sm" variant="outline" className="gap-2">
-            <a href="/safe-space/care-card-print" target="_blank" rel="noreferrer"><Printer className="h-4 w-4" />{isTh ? "พิมพ์การ์ดดูแลกัน" : "Print Care Cards"}</a>
+            <a href={activePrintSessionId ? `/safe-space/care-card-print?session=${encodeURIComponent(activePrintSessionId)}` : "#"} target="_blank" rel="noreferrer"><Printer className="h-4 w-4" />{isTh ? "พิมพ์การ์ดดูแลกัน" : "Print Care Cards"}</a>
           </Button>
           <Button size="sm" className="gap-2" onClick={() => { setEditSession(null); setDrawerOpen(true); }}><Plus className="h-4 w-4" />{isTh ? "เพิ่มเซสชัน" : "Add Session"}</Button>
         </div>
@@ -87,8 +102,8 @@ export default function MelSafeSpacesContent() {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={`text-xs px-2 py-1 rounded-full ${s.status === "completed" ? "bg-green-500/10 text-green-600" : s.status === "in_progress" ? "bg-blue-500/10 text-blue-600" : "bg-muted text-muted-foreground"}`}>{s.status}</span>
-                      <Button asChild size="icon" variant="ghost" className="h-7 w-7" title={isTh ? "พิมพ์การ์ดของเซสชันนี้" : "Print cards for this session"}>
-                        <a href={`/safe-space/care-card-print?session=${s.id}`} target="_blank" rel="noreferrer"><Printer className="h-3.5 w-3.5" /></a>
+                      <Button asChild size="sm" variant="outline" className="h-8 gap-1.5 text-xs" title={isTh ? "พิมพ์การ์ดของเซสชันนี้" : "Print cards for this session"}>
+                        <a href={`/safe-space/care-card-print?session=${encodeURIComponent(s.id)}`} target="_blank" rel="noreferrer"><Printer className="h-3.5 w-3.5" />{isTh ? "พิมพ์เซสชันนี้" : "Print"}</a>
                       </Button>
                       <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setEditSession(s); setDrawerOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
                       <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => setDeleteTarget(s)}><Trash2 className="h-3.5 w-3.5" /></Button>
