@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import { Switch } from "@/components/ui/switch";
 import { Printer, LayoutGrid, ArrowLeft, Download, Loader2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { format as formatDate } from "date-fns";
 import { CareCardFront, CareCardBack } from "@/components/care-card/CareCardFaces";
@@ -65,13 +65,11 @@ function Sheet({
 }
 
 export default function CareCardPrint() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const origin = typeof window !== "undefined" ? window.location.origin : "https://testd.website";
   const [baseUrl, setBaseUrl] = useState(`${origin}/safe-space/quiz`);
-  const [sessionId, setSessionId] = useState(() => {
-    if (typeof window === "undefined") return "none";
-    return new URLSearchParams(window.location.search).get("session") || "none";
-  });
-  const [eventCode, setEventCode] = useState("safespace");
+  const [sessionId, setSessionId] = useState(() => searchParams.get("session") || "none");
+  const [eventCode, setEventCode] = useState(() => searchParams.get("event") || "safespace");
   const [layout, setLayout] = useState<Layout>(6);
   const [duplex, setDuplex] = useState(true);
   const [cutMarks, setCutMarks] = useState(true);
@@ -107,12 +105,13 @@ export default function CareCardPrint() {
 
   // เก็บเซสชันที่เลือกไว้ใน URL เพื่อให้ลิงก์จากหน้าแอดมินและหน้าพิมพ์ตรงกัน
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const u = new URL(window.location.href);
-    if (sessionId === "none") u.searchParams.delete("session");
-    else u.searchParams.set("session", sessionId);
-    window.history.replaceState({}, "", u.toString());
-  }, [sessionId]);
+    const next = new URLSearchParams(searchParams);
+    if (sessionId === "none") next.delete("session");
+    else next.set("session", sessionId);
+    if (eventCode.trim()) next.set("event", eventCode.trim());
+    else next.delete("event");
+    if (next.toString() !== searchParams.toString()) setSearchParams(next, { replace: true });
+  }, [eventCode, searchParams, sessionId, setSearchParams]);
 
   useEffect(() => {
     if (sessionId === "none") return;
@@ -124,6 +123,10 @@ export default function CareCardPrint() {
   }, [sessionId, sessions]);
 
   const perSheet = useMemo(() => LAYOUTS[layout].cols * LAYOUTS[layout].rows, [layout]);
+  const selectedSession = useMemo(
+    () => (sessions || []).find((s: { id: string }) => s.id === sessionId),
+    [sessionId, sessions],
+  );
 
   const sheetsFor = (l: Layout) => (
     <>
@@ -197,9 +200,14 @@ export default function CareCardPrint() {
               <div>
                 <h1 className="text-lg font-bold">พิมพ์การ์ดดูแลกัน</h1>
                 <p className="text-xs text-muted-foreground">A4 · {perSheet} ใบต่อแผ่น {duplex ? "· พิมพ์หน้า-หลัง" : "· เฉพาะด้านหน้า"}</p>
+                <p className={`mt-1 text-xs font-medium ${selectedSession ? "text-primary" : "text-destructive"}`}>
+                  {selectedSession
+                    ? `ผูกเซสชัน: ${selectedSession.session_title_th || "ไม่มีชื่อ"} · ${formatDate(new Date(selectedSession.session_date), "dd MMM yyyy")}`
+                    : "ยังไม่ได้ผูกเซสชัน — กรุณาเลือกเซสชันก่อนพิมพ์"}
+                </p>
               </div>
             </div>
-            <Button onClick={() => window.print()} className="gap-2">
+            <Button onClick={() => window.print()} className="gap-2" disabled={!selectedSession}>
               <Printer className="h-4 w-4" /> สั่งพิมพ์ / บันทึก PDF
             </Button>
           </div>
@@ -239,7 +247,7 @@ export default function CareCardPrint() {
                 <div className="space-y-1.5">
                   <Label className="text-xs">ผูกกับเซสชัน</Label>
                   <Select value={sessionId} onValueChange={setSessionId}>
-                    <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className={`h-9 text-xs ${!selectedSession ? "border-destructive" : ""}`}><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">ไม่ผูกเซสชัน</SelectItem>
                       {(sessions || []).map((s: { id: string; session_date: string; session_title_th: string | null; location: string | null }) => (
