@@ -87,6 +87,9 @@ export default function MelSafeSpacesContent() {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={`text-xs px-2 py-1 rounded-full ${s.status === "completed" ? "bg-green-500/10 text-green-600" : s.status === "in_progress" ? "bg-blue-500/10 text-blue-600" : "bg-muted text-muted-foreground"}`}>{s.status}</span>
+                      <Button asChild size="icon" variant="ghost" className="h-7 w-7" title={isTh ? "พิมพ์การ์ดของเซสชันนี้" : "Print cards for this session"}>
+                        <a href={`/safe-space/care-card-print?session=${s.id}`} target="_blank" rel="noreferrer"><Printer className="h-3.5 w-3.5" /></a>
+                      </Button>
                       <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setEditSession(s); setDrawerOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
                       <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => setDeleteTarget(s)}><Trash2 className="h-3.5 w-3.5" /></Button>
                     </div>
