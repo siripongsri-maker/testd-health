@@ -26,6 +26,43 @@ export default function SafeSpaceQuiz() {
     return s && UUID_RE.test(s) ? s : null;
   }, [params]);
   const source = params.get("utm_source") || params.get("source") || null;
+  const rawSession = params.get("session");
+
+  // ตรวจสอบว่า QR ผูกกับกิจกรรมที่มีอยู่จริงหรือไม่ (QR เก่า/กิจกรรมถูกลบ = ไม่พบ)
+  const [sessionCheck, setSessionCheck] = useState<"checking" | "valid" | "missing" | "invalid">(
+    rawSession ? "checking" : "missing",
+  );
+  const [sessionLabel, setSessionLabel] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!rawSession) {
+      setSessionCheck("missing");
+      return;
+    }
+    if (!sessionId) {
+      setSessionCheck("invalid");
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      const { data, error } = await supabase.rpc("get_safe_space_session_public", {
+        p_session_id: sessionId,
+      });
+      if (cancelled) return;
+      const row = Array.isArray(data) ? data[0] : null;
+      if (error || !row) {
+        setSessionCheck("invalid");
+        return;
+      }
+      setSessionCheck("valid");
+      setSessionLabel(
+        `${row.session_title_th || "กิจกรรมพื้นที่ปลอดภัย"}${row.location ? ` · ${row.location}` : ""}`,
+      );
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [rawSession, sessionId]);
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [nickname, setNickname] = useState("");
@@ -43,9 +80,11 @@ export default function SafeSpaceQuiz() {
   // นับจำนวนครั้งที่สแกน QR (เข้าหน้านี้) แยกตามเซสชัน — นับครั้งเดียวต่อ 1 แท็บ/ลิงก์
   const scanLogged = useRef(false);
   useEffect(() => {
+    if (sessionCheck === "checking") return;
     if (scanLogged.current) return;
     scanLogged.current = true;
-    const key = `ss_qr_scan:${sessionId || "none"}:${eventCode}`;
+    const validSession = sessionCheck === "valid" ? sessionId : null;
+    const key = `ss_qr_scan:${validSession || "none"}:${eventCode}`;
     try {
       if (sessionStorage.getItem(key)) return;
       sessionStorage.setItem(key, "1");
@@ -59,13 +98,13 @@ export default function SafeSpaceQuiz() {
       visitorKey = null;
     }
     void supabase.from("safe_space_qr_scans").insert({
-      session_id: sessionId,
+      session_id: validSession,
       event_code: eventCode,
       source,
       path: window.location.pathname,
       visitor_key: visitorKey,
     });
-  }, [sessionId, eventCode, source]);
+  }, [sessionCheck, sessionId, eventCode, source]);
 
   const score = answers.filter((a) => a.is_correct).length;
   const progress = step === 1 ? 8 : step === 2 ? 8 + (answers.length / SAFE_SPACE_QUIZ_TOTAL) * 84 : 100;
@@ -113,7 +152,7 @@ export default function SafeSpaceQuiz() {
         .insert({
           ...(newId ? { id: newId } : {}),
           event_code: eventCode,
-          session_id: sessionId,
+          session_id: sessionCheck === "valid" ? sessionId : null,
           nickname: nickname.trim(),
           age: Number(age),
           phone: phone.replace(/\D/g, ""),
@@ -137,7 +176,7 @@ export default function SafeSpaceQuiz() {
   async function goTestKit() {
     const id = await save("to_test_kit");
     const qs = new URLSearchParams({ ref: "safespace-quiz", event: eventCode });
-    if (sessionId) qs.set("session", sessionId);
+    if (sessionCheck === "valid" && sessionId) qs.set("session", sessionId);
     if (id) qs.set("rid", id);
     navigate(`/hiv-selftest?${qs.toString()}`);
   }
@@ -174,6 +213,30 @@ export default function SafeSpaceQuiz() {
             {step === 3 && "ขั้นที่ 3 จาก 3 : สรุปผล"}
           </p>
         </div>
+
+        {sessionCheck === "valid" && sessionLabel && (
+          <p className="rounded-lg bg-primary/5 px-3 py-2 text-xs text-primary">
+            เชื่อมกับกิจกรรม: {sessionLabel}
+          </p>
+        )}
+        {sessionCheck === "missing" && (
+          <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3">
+            <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">QR นี้ยังไม่ได้ผูกกับกิจกรรม</p>
+            <p className="text-xs text-muted-foreground">
+              คุณยังทำควิซต่อได้ตามปกติ แต่คำตอบจะไม่ถูกนับรวมเข้ากิจกรรมใด ๆ — แจ้งเจ้าหน้าที่ให้พิมพ์การ์ดชุดใหม่ที่ผูกกิจกรรมแล้ว
+            </p>
+          </div>
+        )}
+        {sessionCheck === "invalid" && (
+          <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-3">
+            <p className="text-sm font-semibold text-destructive">ไม่พบกิจกรรมของ QR นี้ (อาจเป็นการ์ดเก่าหรือกิจกรรมถูกปิดแล้ว)</p>
+            <p className="text-xs text-muted-foreground">
+              ทำควิซต่อได้เลย ข้อมูลจะถูกบันทึกแบบไม่ผูกกิจกรรม หากต้องการนับเข้ากิจกรรมวันนี้ กรุณาสแกน QR จากการ์ดชุดล่าสุด
+            </p>
+          </div>
+        )}
+
+
 
         {step === 1 && (
           <Card>
