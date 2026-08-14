@@ -321,8 +321,40 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     fetchHIVRequests();
   }, []);
 
-  const fetchOrders = async () => {
-    setLoading(true);
+  // Realtime: auto-refresh when kit orders / HIV self-test requests change
+  useEffect(() => {
+    const channel = supabase
+      .channel('admin-kit-orders-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'kit_orders' }, () => {
+        fetchOrders(true);
+        setLastUpdated(new Date());
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'hiv_selftest_requests' }, () => {
+        fetchHIVRequests();
+        setLastUpdated(new Date());
+      })
+      .subscribe((status) => {
+        setRealtimeStatus(status === 'SUBSCRIBED' ? 'live' : status === 'CLOSED' ? 'off' : 'connecting');
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const handleManualRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([fetchOrders(true), fetchHIVRequests()]);
+      setLastUpdated(new Date());
+      toast.success(language === 'th' ? 'อัปเดตข้อมูลล่าสุดแล้ว' : 'Data refreshed');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const fetchOrders = async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const { data, error } = await supabase
         .from('kit_orders')
