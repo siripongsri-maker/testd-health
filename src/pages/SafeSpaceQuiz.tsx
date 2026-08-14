@@ -212,6 +212,30 @@ export default function SafeSpaceQuiz() {
           </p>
         </div>
 
+        {sessionCheck === "valid" && sessionLabel && (
+          <p className="rounded-lg bg-primary/5 px-3 py-2 text-xs text-primary">
+            เชื่อมกับกิจกรรม: {sessionLabel}
+          </p>
+        )}
+        {sessionCheck === "missing" && (
+          <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3">
+            <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">QR นี้ยังไม่ได้ผูกกับกิจกรรม</p>
+            <p className="text-xs text-muted-foreground">
+              คุณยังทำควิซต่อได้ตามปกติ แต่คำตอบจะไม่ถูกนับรวมเข้ากิจกรรมใด ๆ — แจ้งเจ้าหน้าที่ให้พิมพ์การ์ดชุดใหม่ที่ผูกกิจกรรมแล้ว
+            </p>
+          </div>
+        )}
+        {sessionCheck === "invalid" && (
+          <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-3">
+            <p className="text-sm font-semibold text-destructive">ไม่พบกิจกรรมของ QR นี้ (อาจเป็นการ์ดเก่าหรือกิจกรรมถูกปิดแล้ว)</p>
+            <p className="text-xs text-muted-foreground">
+              ทำควิซต่อได้เลย ข้อมูลจะถูกบันทึกแบบไม่ผูกกิจกรรม หากต้องการนับเข้ากิจกรรมวันนี้ กรุณาสแกน QR จากการ์ดชุดล่าสุด
+            </p>
+          </div>
+        )}
+
+
+
         {step === 1 && (
           <Card>
             <CardContent className="space-y-5 p-5">
