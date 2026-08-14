@@ -152,7 +152,7 @@ export default function SafeSpaceQuiz() {
         .insert({
           ...(newId ? { id: newId } : {}),
           event_code: eventCode,
-          session_id: sessionId,
+          session_id: sessionCheck === "valid" ? sessionId : null,
           nickname: nickname.trim(),
           age: Number(age),
           phone: phone.replace(/\D/g, ""),
@@ -176,7 +176,7 @@ export default function SafeSpaceQuiz() {
   async function goTestKit() {
     const id = await save("to_test_kit");
     const qs = new URLSearchParams({ ref: "safespace-quiz", event: eventCode });
-    if (sessionId) qs.set("session", sessionId);
+    if (sessionCheck === "valid" && sessionId) qs.set("session", sessionId);
     if (id) qs.set("rid", id);
     navigate(`/hiv-selftest?${qs.toString()}`);
   }
