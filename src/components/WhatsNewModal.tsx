@@ -73,7 +73,7 @@ export function WhatsNewModal({ open, onOpenChange }: Props) {
             </div>
             <DialogTitle className="text-xl font-bold flex items-center gap-2">
               <Rocket className="h-5 w-5 text-primary" />
-              {t("มีอะไรใหม่ใน Version 3", "What's New in Version 3")}
+              {t("มีอะไรใหม่ใน Version 6", "What's New in Version 6")}
             </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground mt-1">
