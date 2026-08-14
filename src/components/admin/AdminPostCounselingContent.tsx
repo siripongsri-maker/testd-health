@@ -453,6 +453,7 @@ export function PostCounselingCasesTab({ variant }: { variant: "cases" | "compar
               ) : filtered.map(({ note, postEval }) => {
                 const token = note.post_eval_token;
                 const submitted = !!postEval;
+                const pay = payouts[note.id];
                 return (
                   <tr key={note.id} className="border-t hover:bg-muted/30">
                     <td className="px-3 py-2 font-mono text-xs">{caseIdLabel(note)}</td>
@@ -469,10 +470,21 @@ export function PostCounselingCasesTab({ variant }: { variant: "cases" | "compar
                         : <Badge variant="outline" className="text-[10px]">{tx("ยังไม่มี", "None")}</Badge>}
                     </td>
                     <td className="px-3 py-2 text-center">
+                      <SmsStatusBadge status={pay?.sms_status} hasPhone={!!pay?.has_phone} sentAt={pay?.sms_sent_at} tx={tx} />
+                    </td>
+                    <td className="px-3 py-2 text-center">
                       {submitted
                         ? <Badge className="bg-emerald-600 text-white text-[10px]">{tx("ส่งแล้ว", "Done")}</Badge>
                         : <Badge variant="outline" className="text-[10px]">—</Badge>}
                     </td>
+                    <td className="px-3 py-2 text-center">
+                      <ClaimStatusCell
+                        status={pay?.claim_status}
+                        amount={pay?.claim_amount}
+                        tx={tx}
+                      />
+                    </td>
+
                     <td className="px-3 py-2 text-xs whitespace-nowrap">
                       {postEval?.evaluation_submitted_at
                         ? new Date(postEval.evaluation_submitted_at).toLocaleString(language === "th" ? "th-TH" : "en-GB")
