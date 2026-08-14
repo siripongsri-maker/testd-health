@@ -311,8 +311,15 @@ export default function CareCardPrint() {
             <div className="flex flex-wrap gap-2">
               {(Object.keys(LAYOUTS) as unknown as Layout[]).map((k) => {
                 const key = Number(k) as Layout;
+                if (!selectedSession) {
+                  return (
+                    <Button key={key} variant="outline" size="sm" className="gap-1.5 text-muted-foreground" onClick={openSessionPicker}>
+                      <Repeat className="h-3.5 w-3.5" /> รอผูกเซสชัน · {key} ใบ/แผ่น
+                    </Button>
+                  );
+                }
                 return (
-                  <Button key={key} variant="outline" size="sm" className="gap-1.5" disabled={exporting !== null || !selectedSession} onClick={() => exportPdf(key)}>
+                  <Button key={key} variant="outline" size="sm" className="gap-1.5" disabled={exporting !== null} onClick={() => exportPdf(key)}>
                     {exporting === key ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
                     PDF {key} ใบ/แผ่น
                   </Button>
