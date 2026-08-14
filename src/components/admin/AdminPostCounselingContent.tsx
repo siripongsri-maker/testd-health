@@ -71,6 +71,22 @@ interface PostEval {
 interface BranchInfo { id: string; name_th: string; name_en: string }
 interface CounselorInfo { id: string; display_name: string | null }
 
+interface PayoutStatusRow {
+  survey_id: string | null;
+  note_id: string | null;
+  branch_id: string | null;
+  appointment_id: string | null;
+  has_phone: boolean | null;
+  sms_status: string | null;
+  sms_sent_at: string | null;
+  sms_scheduled_for: string | null;
+  has_evaluation: boolean | null;
+  claim_status: string | null;
+  claim_amount: number | null;
+  claim_submitted_at: string | null;
+  claim_paid_at: string | null;
+}
+
 interface CombinedCase {
   note: NoteRow;
   survey?: SurveyRow;
