@@ -302,8 +302,12 @@ export default function AdminCounselorSupportContent({
     () => (searchParams.get("qin") as SearchField) || "all");
   const [statusFilter, setStatusFilter] = useState<CaseStatus | "all">(
     () => (searchParams.get("cs") as CaseStatus | "all") || "all");
+  const [sortBy, setSortBy] = useState<SortField>(
+    () => (searchParams.get("sort") as SortField) || "appointment_time");
+  const [sortOrder, setSortOrder] = useState<SortOrder>(
+    () => (searchParams.get("order") as SortOrder) || "asc");
 
-  // Keep the queue filters in the URL so a counselor can share the exact view.
+  // Keep the queue filters + sort in the URL so a counselor can share the exact view.
   useEffect(() => {
     const next = new URLSearchParams(window.location.search);
     const put = (k: string, v: string, empty: string) => {
@@ -313,9 +317,11 @@ export default function AdminCounselorSupportContent({
     put("q", search.trim(), "");
     put("qin", searchField, "all");
     put("cs", statusFilter, "all");
+    put("sort", sortBy, "appointment_time");
+    put("order", sortOrder, "asc");
     setSearchParams(next, { replace: true });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [quickFilter, search, searchField, statusFilter]);
+  }, [quickFilter, search, searchField, statusFilter, sortBy, sortOrder]);
 
   const todayISO = useMemo(() => bangkokTodayISO(), []);
 
