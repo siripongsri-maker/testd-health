@@ -71,6 +71,8 @@ export default function CareCardPrint() {
   const [baseUrl, setBaseUrl] = useState(`${origin}/safe-space/quiz`);
   const [sessionId, setSessionId] = useState(() => searchParams.get("session") || "none");
   const [eventCode, setEventCode] = useState(() => searchParams.get("event") || "safespace");
+  const [switcherOpen, setSwitcherOpen] = useState(false);
+  const [sessionQuery, setSessionQuery] = useState("");
   const [layout, setLayout] = useState<Layout>(6);
   const [duplex, setDuplex] = useState(true);
   const [cutMarks, setCutMarks] = useState(true);
