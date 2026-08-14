@@ -194,6 +194,7 @@ export default function AdminCounselingPayoutsContent({
 
 
   const setStatus = async (id: string, status: ClaimStatus) => {
+    const before = claims.find((c) => c.id === id);
     setBusy(id);
     const patch: Record<string, unknown> = { status };
     if (status === "paid") patch.paid_at = new Date().toISOString();
@@ -203,7 +204,23 @@ export default function AdminCounselingPayoutsContent({
       toast({ title: "อัปเดตไม่สำเร็จ", description: error.message, variant: "destructive" });
       return;
     }
-    toast({ title: `อัปเดตเป็น "${STATUS_LABEL[status]}" แล้ว` });
+    notifySaved({
+      title: "อัปเดตสถานะการจ่ายแล้ว",
+      changes: [
+        { label: "สถานะ", from: before ? STATUS_LABEL[before.status] : null, to: STATUS_LABEL[status] },
+        { label: "ยอด", from: null, to: before ? `${Number(before.amount).toLocaleString()} บาท` : null },
+      ].filter((c) => c.to),
+      onUndo: before
+        ? async () => {
+            const { error: undoErr } = await supabase
+              .from("counseling_payout_claims")
+              .update({ status: before.status, paid_at: before.paid_at })
+              .eq("id", id);
+            if (undoErr) throw undoErr;
+            load();
+          }
+        : undefined,
+    });
     load();
   };
 
