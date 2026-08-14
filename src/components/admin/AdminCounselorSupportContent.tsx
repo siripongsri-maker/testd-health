@@ -23,6 +23,7 @@ import { toast } from "@/hooks/use-toast";
 import ClientHrContextPanel from "./ClientHrContextPanel";
 import HrReferralQueue from "./HrReferralQueue";
 import { useStableRefresh, lockScroll } from "@/hooks/useStableRefresh";
+import { notifySaved, type FieldChange } from "@/lib/adminSaveToast";
 
 // ────────────────────────────────────────────────────────────────
 // Types
