@@ -89,7 +89,7 @@ export function AddressDetailFields({ data, onChange }: Props) {
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="moo" className="text-xs text-muted-foreground">
-            {isTh ? 'หมู่' : 'Moo'}
+            {isTh ? 'หมู่ (ไม่บังคับ)' : 'Moo (optional)'}
           </Label>
           <Input
             id="moo"
