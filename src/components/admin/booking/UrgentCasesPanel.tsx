@@ -5,7 +5,7 @@ import { useLanguage } from '@/lib/i18n';
 import { getDisplayServices } from '@/lib/appointments';
 import { referAppointmentToCounselor, fetchReferredAppointmentIds } from '@/lib/urgentReferral';
 import type { EnrichedAppointment } from './types';
-import { getUrgentSupportSignals } from './types';
+import { getUrgentSupportSignals, getPhq4Score } from './types';
 
 interface Props {
   appointments: EnrichedAppointment[];
@@ -18,10 +18,17 @@ export function UrgentCasesPanel({ appointments, onClickAppointment }: Props) {
   const [, setSyncedCount] = useState(0);
   const autoSynced = useRef<Set<string>>(new Set());
 
+  // Only clients who voluntarily completed the PHQ-4 during booking can be
+  // flagged as urgent. No PHQ-4 answers => never urgent, regardless of other
+  // keyword signals.
   const urgent = useMemo(
     () => appointments
-      .map(apt => ({ apt, signals: getUrgentSupportSignals(apt) }))
-      .filter(x => x.signals.length > 0 && !['cancelled', 'no_show'].includes(x.apt.status)),
+      .map(apt => ({ apt, phq: getPhq4Score(apt), signals: getUrgentSupportSignals(apt) }))
+      .filter(x =>
+        x.phq !== null &&
+        x.phq >= 3 &&
+        !['cancelled', 'no_show'].includes(x.apt.status))
+      .sort((a, b) => (b.phq ?? 0) - (a.phq ?? 0)),
     [appointments],
   );
 
@@ -40,11 +47,17 @@ export function UrgentCasesPanel({ appointments, onClickAppointment }: Props) {
         setSyncedCount(existing.size);
       }
 
-      for (const { apt, signals } of urgent) {
+      for (const { apt, signals, phq } of urgent) {
         if (existing.has(apt.id) || autoSynced.current.has(apt.id)) continue;
         autoSynced.current.add(apt.id);
         try {
-          await referAppointmentToCounselor(apt, signals);
+          await referAppointmentToCounselor(apt, signals.length > 0 ? signals : [{
+            kind: 'mental_health' as const,
+            labelTh: 'สุขภาพจิต',
+            labelEn: 'Mental health',
+            sourceTh: `PHQ-4 = ${phq}/12 (แบบคัดกรองตอนจอง)`,
+            sourceEn: `PHQ-4 = ${phq}/12 (booking screening)`,
+          }]);
           if (!cancelled) setSyncedCount(count => count + 1);
         } catch (err) {
           console.error('URGENT_AUTO_REFERRAL_FAILED', apt.id, err);
@@ -70,13 +83,13 @@ export function UrgentCasesPanel({ appointments, onClickAppointment }: Props) {
         </span>
         <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
         <h3 className="text-xs font-bold text-destructive">
-          {th ? 'เคสเร่งด่วนวันนี้' : 'Urgent cases'}
+          {th ? 'เคสเร่งด่วนวันนี้ (PHQ-4 ≥ 3)' : 'Urgent cases (PHQ-4 ≥ 3)'}
         </h3>
         <Badge variant="destructive" className="h-4 px-1.5 text-[9px]">{urgent.length}</Badge>
       </header>
 
       <div className="grid gap-1.5 sm:grid-cols-2 xl:grid-cols-3">
-        {urgent.map(({ apt, signals }) => {
+        {urgent.map(({ apt, signals, phq }) => {
           const services = getDisplayServices(apt);
           return (
             <button
@@ -97,6 +110,13 @@ export function UrgentCasesPanel({ appointments, onClickAppointment }: Props) {
 
               <div className="mt-1 flex min-w-0 items-center gap-1 text-[10px] text-muted-foreground">
                 <div className="flex min-w-0 flex-1 flex-wrap gap-1">
+                  <Badge
+                    variant="destructive"
+                    className="h-4 px-1 text-[9px] leading-none"
+                    title={th ? 'คะแนน PHQ-4 จากแบบคัดกรองตอนจอง' : 'PHQ-4 score from booking screening'}
+                  >
+                    PHQ-4 {phq}/12
+                  </Badge>
                   {signals.map(s => (
                     <Badge
                       key={s.kind}
