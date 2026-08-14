@@ -807,6 +807,30 @@ export default function AdminCounselorSupportContent({
               <option key={o.key} value={o.key}>{tx(o.th, o.en)}</option>
             ))}
           </select>
+          <span className="text-xs text-muted-foreground self-center flex items-center gap-1">
+            <ArrowUpDown className="h-3 w-3" />
+            {tx("เรียงตาม", "Sort")}
+          </span>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as SortField)}
+            className="h-9 px-3 rounded-md border bg-background text-sm"
+            aria-label={tx("เรียงตาม", "Sort by")}
+          >
+            <option value="appointment_time">{tx("เวลานัด", "Appt time")}</option>
+            <option value="created_at">{tx("เวลาส่ง", "Submitted")}</option>
+            <option value="updated_at">{tx("อัปเดตล่าสุด", "Last updated")}</option>
+            <option value="priority">{tx("ความเร่งด่วน", "Urgency")}</option>
+          </select>
+          <select
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value as SortOrder)}
+            className="h-9 px-3 rounded-md border bg-background text-sm"
+            aria-label={tx("ทิศทาง", "Order")}
+          >
+            <option value="asc">{tx("น้อย → มาก", "Asc")}</option>
+            <option value="desc">{tx("มาก → น้อย", "Desc")}</option>
+          </select>
           {(isAdmin || isMeAnalyst) && (
             <select
               value={branchFilter}
