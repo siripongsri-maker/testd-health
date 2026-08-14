@@ -105,6 +105,15 @@ export default function CareCardPrint() {
     }
   }, [baseUrl, origin, eventCode, sessionId]);
 
+  // เก็บเซสชันที่เลือกไว้ใน URL เพื่อให้ลิงก์จากหน้าแอดมินและหน้าพิมพ์ตรงกัน
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const u = new URL(window.location.href);
+    if (sessionId === "none") u.searchParams.delete("session");
+    else u.searchParams.set("session", sessionId);
+    window.history.replaceState({}, "", u.toString());
+  }, [sessionId]);
+
   useEffect(() => {
     if (sessionId === "none") return;
     const s = (sessions || []).find((x: { id: string }) => x.id === sessionId);
