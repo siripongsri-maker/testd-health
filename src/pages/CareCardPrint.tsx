@@ -187,9 +187,61 @@ export default function CareCardPrint() {
   };
 
 
+  const filteredSessions = (sessions || []).filter((s: { session_title_th: string | null; location: string | null; session_date: string }) => {
+    const q = sessionQuery.trim().toLowerCase();
+    if (!q) return true;
+    return `${s.session_title_th || ""} ${s.location || ""} ${formatDate(new Date(s.session_date), "dd MMM yyyy")}`.toLowerCase().includes(q);
+  });
+
+  const pickSession = (id: string) => {
+    setSessionId(id);
+    setSwitcherOpen(false);
+    toast.success("เปลี่ยนเซสชันแล้ว — QR จะผูกกับเซสชันนี้");
+  };
+
   return (
     <div className="min-h-screen bg-muted/30">
       <SEOHead title="พิมพ์การ์ดดูแลกัน · SWING" description="เทมเพลตพิมพ์การ์ดความรู้ A4" robots="noindex, nofollow" />
+
+      <Dialog open={switcherOpen} onOpenChange={setSwitcherOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>เลือก / สลับเซสชัน</DialogTitle>
+            <DialogDescription>เลือกกิจกรรมที่จะผูกกับ QR บนการ์ด เปลี่ยนได้ทันทีโดยไม่ต้องกลับหน้ารายการ</DialogDescription>
+          </DialogHeader>
+          <Input
+            value={sessionQuery}
+            onChange={(e) => setSessionQuery(e.target.value)}
+            placeholder="ค้นหาชื่อกิจกรรม สถานที่ หรือวันที่"
+            className="h-9"
+          />
+          <div className="max-h-[45vh] overflow-y-auto space-y-1.5 pr-1">
+            {filteredSessions.length === 0 && (
+              <p className="text-sm text-muted-foreground py-6 text-center">ไม่พบเซสชันที่ค้นหา</p>
+            )}
+            {filteredSessions.map((s: { id: string; session_date: string; session_title_th: string | null; location: string | null }) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => pickSession(s.id)}
+                className={`w-full text-left rounded-lg border p-3 transition hover:bg-accent ${s.id === sessionId ? "border-primary bg-primary/5" : ""}`}
+              >
+                <p className="text-sm font-medium">{s.session_title_th || "ไม่มีชื่อ"}</p>
+                <p className="text-xs text-muted-foreground">
+                  {formatDate(new Date(s.session_date), "dd MMM yyyy")}{s.location ? ` · ${s.location}` : ""}
+                  {s.id === sessionId ? " · กำลังใช้อยู่" : ""}
+                </p>
+              </button>
+            ))}
+          </div>
+          <div className="flex justify-between pt-1">
+            <Link to="/admin?tab=mel-safe-spaces">
+              <Button variant="ghost" size="sm" className="gap-1.5"><ArrowLeft className="h-3.5 w-3.5" /> หน้ารายการ</Button>
+            </Link>
+            <Button variant="secondary" size="sm" onClick={() => setSwitcherOpen(false)}>ปิด</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* แถบควบคุม (ไม่ถูกพิมพ์) */}
       <div className="border-b bg-background sticky top-0 z-10">
@@ -207,31 +259,36 @@ export default function CareCardPrint() {
                 </p>
               </div>
             </div>
-            <Button onClick={() => window.print()} className="gap-2" disabled={!selectedSession}>
-              <Printer className="h-4 w-4" /> สั่งพิมพ์ / บันทึก PDF
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="outline" className="gap-2" onClick={() => setSwitcherOpen(true)}>
+                <Repeat className="h-4 w-4" /> {selectedSession ? "สลับเซสชัน" : "เลือกเซสชัน"}
+              </Button>
+              <Button onClick={() => window.print()} className="gap-2" disabled={!selectedSession}>
+                <Printer className="h-4 w-4" /> สั่งพิมพ์ / บันทึก PDF
+              </Button>
+            </div>
           </div>
 
           {!selectedSession && (
             <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 space-y-2">
               <p className="text-sm font-semibold text-destructive">ยังไม่ได้ผูกเซสชัน</p>
               <p className="text-xs text-muted-foreground">
-                QR บนการ์ดจะไม่ถูกนับเข้ากิจกรรมใด กรุณาเลือกเซสชันด้านล่าง หรือกลับไปหน้ารายการกิจกรรมเพื่อเลือกเซสชันแล้วกดปุ่มพิมพ์การ์ด
+                QR บนการ์ดจะไม่ถูกนับเข้ากิจกรรมใด กรุณาเลือกเซสชันด้านล่าง หรือกดปุ่ม "เลือกเซสชัน" เพื่อเลือกจากรายการทั้งหมด
               </p>
               <div className="flex flex-wrap gap-2 pt-1">
                 {(sessions || []).slice(0, 3).map((s: { id: string; session_date: string; session_title_th: string | null }) => (
-                  <Button key={s.id} size="sm" variant="outline" className="text-xs" onClick={() => setSessionId(s.id)}>
+                  <Button key={s.id} size="sm" variant="outline" className="text-xs" onClick={() => pickSession(s.id)}>
                     {formatDate(new Date(s.session_date), "dd MMM yyyy")} · {s.session_title_th || "ไม่มีชื่อ"}
                   </Button>
                 ))}
-                <Link to="/admin?tab=mel-safe-spaces">
-                  <Button size="sm" variant="secondary" className="text-xs gap-1.5">
-                    <ArrowLeft className="h-3.5 w-3.5" /> กลับไปเลือกเซสชัน
-                  </Button>
-                </Link>
+                <Button size="sm" variant="secondary" className="text-xs gap-1.5" onClick={() => setSwitcherOpen(true)}>
+                  <Repeat className="h-3.5 w-3.5" /> เลือกจากทั้งหมด
+                </Button>
               </div>
             </div>
           )}
+
+
 
           <div className="rounded-lg border bg-muted/40 p-3 space-y-2">
             <Label className="text-xs">ดาวน์โหลดไฟล์ PDF (แยกไฟล์ตามจำนวนใบต่อแผ่น)</Label>
