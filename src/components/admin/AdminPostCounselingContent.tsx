@@ -189,6 +189,8 @@ export function PostCounselingCasesTab({ variant }: { variant: "cases" | "compar
       .channel("admin-post-counseling-realtime")
       .on("postgres_changes", { event: "*", schema: "public", table: "pre_service_counseling_notes" }, bump)
       .on("postgres_changes", { event: "*", schema: "public", table: "post_counseling_evaluations" }, bump)
+      .on("postgres_changes", { event: "*", schema: "public", table: "post_eval_sms_dispatches" }, bump)
+      .on("postgres_changes", { event: "*", schema: "public", table: "counseling_payout_claims" }, bump)
       .subscribe();
     return () => { if (t) clearTimeout(t); supabase.removeChannel(ch); };
   }, []);
