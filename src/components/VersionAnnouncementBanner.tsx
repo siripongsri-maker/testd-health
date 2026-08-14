@@ -3,7 +3,7 @@ import { useLanguage } from "@/lib/i18n";
 import { useNavigate } from "react-router-dom";
 import { X, Sparkles, MapPin } from "lucide-react";
 
-const DISMISS_KEY = "testd-v5-banner-dismissed";
+const DISMISS_KEY = "testd-v6-banner-dismissed";
 
 export function VersionAnnouncementBanner() {
   const { language } = useLanguage();
@@ -25,8 +25,8 @@ export function VersionAnnouncementBanner() {
         <Sparkles className="h-3 w-3 shrink-0" />
         <span>
           {language === "th"
-            ? "testD v5 — หน้าใหม่ล่าสุดพร้อมใช้งาน"
-            : "testD v5 — Latest home experience is live"}
+            ? "testD v6 — อัปเดตใหม่พร้อมใช้งาน (ล้างแคชอัตโนมัติแล้ว)"
+            : "testD v6 — New update is live (cache refreshed automatically)"}
         </span>
         <button
           onClick={() => navigate("/virtual")}
