@@ -106,6 +106,7 @@ export function PostCounselingCasesTab({ variant }: { variant: "cases" | "compar
   const [evals, setEvals] = useState<Record<string, PostEval>>({});
   const [branches, setBranches] = useState<Record<string, BranchInfo>>({});
   const [counselors, setCounselors] = useState<Record<string, CounselorInfo>>({});
+  const [payouts, setPayouts] = useState<Record<string, PayoutStatusRow>>({});
   const [search, setSearch] = useState("");
   const [generatingFor, setGeneratingFor] = useState<string | null>(null);
 
