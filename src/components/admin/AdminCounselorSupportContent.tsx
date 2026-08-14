@@ -541,30 +541,27 @@ export default function AdminCounselorSupportContent({
       const byTime: Record<TimeBucket, SurveyRow[]> = { morning: [], afternoon: [], evening: [], unspecified: [] };
       rows.forEach((r) => byTime[timeBucket(r.appointments?.start_time || null)].push(r));
       (Object.keys(byTime) as TimeBucket[]).forEach((k) => {
-        byTime[k].sort((a, b) => {
-          const at = a.appointments?.start_time || "99:99:99";
-          const bt = b.appointments?.start_time || "99:99:99";
-          if (at !== bt) return at.localeCompare(bt);
-          // tie-break: urgent first
-          const pa = computePriority(a, notes[a.id]);
-          const pb = computePriority(b, notes[b.id]);
-          const order = { urgent: 0, follow_up: 1, standard: 2 } as const;
-          return order[pa] - order[pb];
-        });
+        byTime[k] = sortRows(byTime[k], sortBy, sortOrder, notes);
       });
       return (["morning", "afternoon", "evening", "unspecified"] as const)
         .map((k) => ({ key: k, rows: byTime[k] }))
         .filter((g) => g.rows.length > 0);
     };
 
-    // Descending time-order for "earlier today" so the most recently passed slot is on top.
+    // Descending order for "earlier today" so the most recently passed slot / last update is on top.
     const buildTimesDesc = (rows: SurveyRow[]): GroupedTime[] => {
-      const groups = buildTimes(rows);
-      groups.forEach((g) => g.rows.reverse());
-      // Reverse group order: evening → afternoon → morning → unspecified
-      const orderKey: Record<TimeBucket, number> = { evening: 0, afternoon: 1, morning: 2, unspecified: 3 };
-      groups.sort((a, b) => orderKey[a.key] - orderKey[b.key]);
-      return groups;
+      const byTime: Record<TimeBucket, SurveyRow[]> = { morning: [], afternoon: [], evening: [], unspecified: [] };
+      rows.forEach((r) => byTime[timeBucket(r.appointments?.start_time || null)].push(r));
+      (Object.keys(byTime) as TimeBucket[]).forEach((k) => {
+        byTime[k] = sortRows(byTime[k], sortBy, "desc", notes);
+      });
+      return (["morning", "afternoon", "evening", "unspecified"] as const)
+        .map((k) => ({ key: k, rows: byTime[k] }))
+        .filter((g) => g.rows.length > 0)
+        .sort((a, b) => {
+          const orderKey: Record<TimeBucket, number> = { evening: 0, afternoon: 1, morning: 2, unspecified: 3 };
+          return orderKey[a.key] - orderKey[b.key];
+        });
     };
 
     const days: GroupedDay[] = [];
@@ -603,7 +600,7 @@ export default function AdminCounselorSupportContent({
     }
 
     return days;
-  }, [filtered, todayISO, notes, nowHHMMSS]);
+  }, [filtered, todayISO, notes, nowHHMMSS, sortBy, sortOrder]);
 
 
   // Branch summary KPIs (all visible surveys, RLS-scoped)
