@@ -130,6 +130,8 @@ export default function CareCardPrint() {
     () => (sessions || []).find((s: { id: string }) => s.id === sessionId),
     [sessionId, sessions],
   );
+  // มีรหัสเซสชันใน URL แต่หาไม่เจอในระบบ = การ์ด/ลิงก์เก่า
+  const staleSession = !!sessions && sessionId !== "none" && !selectedSession;
 
   const sheetsFor = (l: Layout) => (
     <>
