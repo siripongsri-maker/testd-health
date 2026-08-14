@@ -204,6 +204,12 @@ export default function CareCardPrint() {
     toast.success("เปลี่ยนเซสชันแล้ว — QR จะผูกกับเซสชันนี้");
   };
 
+  const openSessionPicker = () => {
+    setSessionQuery("");
+    setSwitcherOpen(true);
+    if (!selectedSession) toast.info("รอผูกเซสชัน — เลือกกิจกรรมก่อนพิมพ์การ์ด");
+  };
+
   return (
     <div className="min-h-screen bg-muted/30">
       <SEOHead title="พิมพ์การ์ดดูแลกัน · SWING" description="เทมเพลตพิมพ์การ์ดความรู้ A4" robots="noindex, nofollow" />
@@ -220,6 +226,19 @@ export default function CareCardPrint() {
             placeholder="ค้นหาชื่อกิจกรรม สถานที่ หรือวันที่"
             className="h-9"
           />
+          {!sessionQuery.trim() && (sessions || []).length > 0 && (
+            <div className="space-y-1.5">
+              <p className="text-[11px] text-muted-foreground">ตัวเลือกล่าสุด</p>
+              <div className="flex flex-wrap gap-1.5">
+                {(sessions || []).slice(0, 3).map((s: { id: string; session_date: string; session_title_th: string | null }) => (
+                  <Button key={`recent-${s.id}`} size="sm" variant={s.id === sessionId ? "default" : "outline"} className="text-xs" onClick={() => pickSession(s.id)}>
+                    {formatDate(new Date(s.session_date), "dd MMM")} · {s.session_title_th || "ไม่มีชื่อ"}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="max-h-[45vh] overflow-y-auto space-y-1.5 pr-1">
             {filteredSessions.length === 0 && (
               <p className="text-sm text-muted-foreground py-6 text-center">ไม่พบเซสชันที่ค้นหา</p>
@@ -268,9 +287,15 @@ export default function CareCardPrint() {
               <Button variant="outline" className="gap-2" onClick={() => setSwitcherOpen(true)}>
                 <Repeat className="h-4 w-4" /> {selectedSession ? "สลับเซสชัน" : "เลือกเซสชัน"}
               </Button>
-              <Button onClick={() => window.print()} className="gap-2" disabled={!selectedSession}>
-                <Printer className="h-4 w-4" /> สั่งพิมพ์ / บันทึก PDF
-              </Button>
+              {selectedSession ? (
+                <Button onClick={() => window.print()} className="gap-2">
+                  <Printer className="h-4 w-4" /> สั่งพิมพ์ / บันทึก PDF
+                </Button>
+              ) : (
+                <Button variant="secondary" className="gap-2" onClick={openSessionPicker}>
+                  <Repeat className="h-4 w-4" /> รอผูกเซสชัน — เลือกเซสชันก่อนพิมพ์
+                </Button>
+              )}
             </div>
           </div>
 
@@ -305,8 +330,15 @@ export default function CareCardPrint() {
             <div className="flex flex-wrap gap-2">
               {(Object.keys(LAYOUTS) as unknown as Layout[]).map((k) => {
                 const key = Number(k) as Layout;
+                if (!selectedSession) {
+                  return (
+                    <Button key={key} variant="outline" size="sm" className="gap-1.5 text-muted-foreground" onClick={openSessionPicker}>
+                      <Repeat className="h-3.5 w-3.5" /> รอผูกเซสชัน · {key} ใบ/แผ่น
+                    </Button>
+                  );
+                }
                 return (
-                  <Button key={key} variant="outline" size="sm" className="gap-1.5" disabled={exporting !== null || !selectedSession} onClick={() => exportPdf(key)}>
+                  <Button key={key} variant="outline" size="sm" className="gap-1.5" disabled={exporting !== null} onClick={() => exportPdf(key)}>
                     {exporting === key ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
                     PDF {key} ใบ/แผ่น
                   </Button>
