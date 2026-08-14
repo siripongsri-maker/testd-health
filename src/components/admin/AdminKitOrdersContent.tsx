@@ -1060,10 +1060,59 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={handleManualRefresh}
+            disabled={refreshing}
+            aria-label={language === 'th' ? 'รีเฟรชข้อมูล' : 'Refresh data'}
+          >
+            <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+            {language === 'th' ? 'รีเฟรช' : 'Refresh'}
+          </Button>
           <Button onClick={() => setShowCreateDialog(true)} size="sm" className="gap-2">
             <Plus className="h-4 w-4" />
             {language === 'th' ? 'สร้าง' : 'New'}
           </Button>
+        </div>
+
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-1 ${
+              realtimeStatus === 'live'
+                ? 'border-emerald-500/40 text-emerald-600 dark:text-emerald-400'
+                : realtimeStatus === 'connecting'
+                  ? 'border-amber-500/40 text-amber-600 dark:text-amber-400'
+                  : 'border-destructive/40 text-destructive'
+            }`}
+          >
+            <span
+              className={`h-2 w-2 rounded-full ${
+                realtimeStatus === 'live'
+                  ? 'bg-emerald-500 animate-pulse'
+                  : realtimeStatus === 'connecting'
+                    ? 'bg-amber-500 animate-pulse'
+                    : 'bg-destructive'
+              }`}
+            />
+            {realtimeStatus === 'live'
+              ? (language === 'th' ? 'อัปเดตอัตโนมัติ' : 'Live')
+              : realtimeStatus === 'connecting'
+                ? (language === 'th' ? 'กำลังเชื่อมต่อ...' : 'Connecting...')
+                : (language === 'th' ? 'ออฟไลน์' : 'Offline')}
+          </span>
+          {lastUpdated && (
+            <span className="hidden sm:inline">
+              {language === 'th' ? 'ล่าสุด' : 'Updated'}{' '}
+              {lastUpdated.toLocaleTimeString(language === 'th' ? 'th-TH' : 'en-GB', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZone: 'Asia/Bangkok',
+              })}
+            </span>
+          )}
         </div>
       </div>
 
