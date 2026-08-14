@@ -22,6 +22,7 @@ import { useAdminRole } from "@/hooks/useAdminRole";
 import { toast } from "@/hooks/use-toast";
 import ClientHrContextPanel from "./ClientHrContextPanel";
 import HrReferralQueue from "./HrReferralQueue";
+import { useStableRefresh, lockScroll } from "@/hooks/useStableRefresh";
 
 // ────────────────────────────────────────────────────────────────
 // Types
@@ -402,7 +403,7 @@ export default function AdminCounselorSupportContent({
 
   // Load everything (surveys + notes + branches + services). RLS enforces scope.
   const load = useCallback(async () => {
-    setLoading(true);
+    beginLoad();
     try {
       let all: any[] = [];
       let from = 0;

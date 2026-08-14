@@ -49,6 +49,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
+import { useStableRefresh, lockScroll } from "@/hooks/useStableRefresh";
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -358,7 +359,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   };
 
   const fetchOrders = async (silent = false) => {
-    if (!silent) setLoading(true);
+    if (!silent) beginLoad(); else lockScroll();
     try {
       const { data, error } = await supabase
         .from('kit_orders')

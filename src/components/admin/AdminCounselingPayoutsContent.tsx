@@ -10,6 +10,7 @@ import PostEvalSmsQueueCard from "./PostEvalSmsQueueCard";
 import ClientNotificationsCard from "./ClientNotificationsCard";
 import { fetchUrgentCaseMap, type UrgentCaseRef } from "@/lib/urgentCases";
 import PrintButton from "./PrintButton";
+import { useStableRefresh, lockScroll } from "@/hooks/useStableRefresh";
 
 
 
@@ -102,7 +103,7 @@ export default function AdminCounselingPayoutsContent({
 
 
   const load = useCallback(async () => {
-    setLoading(true);
+    beginLoad();
     const [{ data: rows }, { data: brs }, { data: bts }] = await Promise.all([
       supabase
         .from("counseling_payout_claims")
