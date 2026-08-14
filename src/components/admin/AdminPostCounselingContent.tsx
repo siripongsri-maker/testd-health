@@ -434,7 +434,9 @@ export function PostCounselingCasesTab({ variant }: { variant: "cases" | "compar
                 <th className="px-3 py-2 text-left">{tx("ผู้ให้คำปรึกษา", "Counselor")}</th>
                 <th className="px-3 py-2 text-left">{tx("เสร็จเมื่อ", "Completed at")}</th>
                 <th className="px-3 py-2 text-center">{tx("QR", "QR")}</th>
+                <th className="px-3 py-2 text-center">{tx("SMS", "SMS")}</th>
                 <th className="px-3 py-2 text-center">{tx("ประเมิน", "Eval")}</th>
+                <th className="px-3 py-2 text-center">{tx("ค่าเดินทาง", "Travel payout")}</th>
                 <th className="px-3 py-2 text-left">{tx("ส่งเมื่อ", "Submitted")}</th>
                 <th className="px-3 py-2 text-right">{tx("การทำงาน", "Actions")}</th>
               </tr>
@@ -442,7 +444,8 @@ export function PostCounselingCasesTab({ variant }: { variant: "cases" | "compar
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-16 text-muted-foreground">
+                  <td colSpan={10} className="text-center py-16 text-muted-foreground">
+
                     <Inbox className="h-10 w-10 mx-auto mb-2 opacity-40" />
                     <div>{tx("ยังไม่มีเคสที่ปิดแล้ว", "No completed cases yet")}</div>
                   </td>
