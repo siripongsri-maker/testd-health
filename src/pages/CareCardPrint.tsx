@@ -212,21 +212,45 @@ export default function CareCardPrint() {
             </Button>
           </div>
 
+          {!selectedSession && (
+            <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 space-y-2">
+              <p className="text-sm font-semibold text-destructive">ยังไม่ได้ผูกเซสชัน</p>
+              <p className="text-xs text-muted-foreground">
+                QR บนการ์ดจะไม่ถูกนับเข้ากิจกรรมใด กรุณาเลือกเซสชันด้านล่าง หรือกลับไปหน้ารายการกิจกรรมเพื่อเลือกเซสชันแล้วกดปุ่มพิมพ์การ์ด
+              </p>
+              <div className="flex flex-wrap gap-2 pt-1">
+                {(sessions || []).slice(0, 3).map((s: { id: string; session_date: string; session_title_th: string | null }) => (
+                  <Button key={s.id} size="sm" variant="outline" className="text-xs" onClick={() => setSessionId(s.id)}>
+                    {formatDate(new Date(s.session_date), "dd MMM yyyy")} · {s.session_title_th || "ไม่มีชื่อ"}
+                  </Button>
+                ))}
+                <Link to="/admin?tab=mel-safe-spaces">
+                  <Button size="sm" variant="secondary" className="text-xs gap-1.5">
+                    <ArrowLeft className="h-3.5 w-3.5" /> กลับไปเลือกเซสชัน
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          )}
+
           <div className="rounded-lg border bg-muted/40 p-3 space-y-2">
             <Label className="text-xs">ดาวน์โหลดไฟล์ PDF (แยกไฟล์ตามจำนวนใบต่อแผ่น)</Label>
             <div className="flex flex-wrap gap-2">
               {(Object.keys(LAYOUTS) as unknown as Layout[]).map((k) => {
                 const key = Number(k) as Layout;
                 return (
-                  <Button key={key} variant="outline" size="sm" className="gap-1.5" disabled={exporting !== null} onClick={() => exportPdf(key)}>
+                  <Button key={key} variant="outline" size="sm" className="gap-1.5" disabled={exporting !== null || !selectedSession} onClick={() => exportPdf(key)}>
                     {exporting === key ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
                     PDF {key} ใบ/แผ่น
                   </Button>
                 );
               })}
             </div>
-            <p className="text-[11px] text-muted-foreground">ไฟล์จะใช้ลิงก์ QR และการตั้งค่าเส้นตัด/พิมพ์สองหน้าปัจจุบัน</p>
+            <p className="text-[11px] text-muted-foreground">
+              {selectedSession ? "ไฟล์จะใช้ลิงก์ QR และการตั้งค่าเส้นตัด/พิมพ์สองหน้าปัจจุบัน" : "เลือกเซสชันก่อนจึงจะดาวน์โหลด PDF ได้"}
+            </p>
           </div>
+
 
 
           <div className="grid gap-4 md:grid-cols-2">
