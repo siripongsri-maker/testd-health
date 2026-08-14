@@ -55,6 +55,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useStableRefresh, lockScroll } from "@/hooks/useStableRefresh";
+import { notifySaved, type FieldChange } from "@/lib/adminSaveToast";
 
 interface AdminKitOrdersContentProps {
   userBranch?: string | null;
