@@ -274,10 +274,15 @@ export default function CareCardPrint() {
 
           {!selectedSession && (
             <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 space-y-2">
-              <p className="text-sm font-semibold text-destructive">ยังไม่ได้ผูกเซสชัน</p>
-              <p className="text-xs text-muted-foreground">
-                QR บนการ์ดจะไม่ถูกนับเข้ากิจกรรมใด กรุณาเลือกเซสชันด้านล่าง หรือกดปุ่ม "เลือกเซสชัน" เพื่อเลือกจากรายการทั้งหมด
+              <p className="text-sm font-semibold text-destructive">
+                {staleSession ? "ไม่พบเซสชันนี้ (อาจถูกลบหรือหมดอายุ)" : "ยังไม่ได้ผูกเซสชัน"}
               </p>
+              <p className="text-xs text-muted-foreground">
+                {staleSession
+                  ? "ลิงก์ที่เปิดมามีรหัสเซสชันที่ไม่มีอยู่ในระบบแล้ว การ์ดที่พิมพ์จะสแกนแล้วไม่ถูกนับเข้ากิจกรรม กรุณาเลือกเซสชันใหม่ก่อนพิมพ์"
+                  : "QR บนการ์ดจะไม่ถูกนับเข้ากิจกรรมใด กรุณาเลือกเซสชันด้านล่าง หรือกดปุ่ม \"เลือกเซสชัน\" เพื่อเลือกจากรายการทั้งหมด"}
+              </p>
+
               <div className="flex flex-wrap gap-2 pt-1">
                 {(sessions || []).slice(0, 3).map((s: { id: string; session_date: string; session_title_th: string | null }) => (
                   <Button key={s.id} size="sm" variant="outline" className="text-xs" onClick={() => pickSession(s.id)}>
