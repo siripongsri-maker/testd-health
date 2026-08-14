@@ -1246,56 +1246,76 @@ function CasePanel({
 
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
-      <Card className="overflow-hidden">
+      <Card className={`overflow-hidden border-l-[3px] ${
+        priority === "urgent" ? "border-l-rose-400"
+        : priority === "follow_up" ? "border-l-amber-400"
+        : "border-l-transparent"
+      }`}>
         <CollapsibleTrigger asChild>
           <button
             type="button"
             className="w-full text-left hover:bg-muted/40 transition-colors"
           >
-            <div className="p-3 md:p-4 flex items-center gap-3 md:gap-4">
+            <div className={`flex items-center gap-3 md:gap-4 ${compact ? "px-3 py-2" : "p-3 md:p-4"}`}>
               {/* Priority stripe + time */}
-              <div className="flex flex-col items-center min-w-[64px] md:min-w-[80px]">
-                <div className={`w-2 h-2 rounded-full ${meta.dot} mb-1`} />
-                <div className="text-lg md:text-xl font-bold tabular-nums leading-tight">
+              <div className={`flex ${compact ? "items-center gap-2 min-w-[76px]" : "flex-col items-center min-w-[64px] md:min-w-[80px]"}`}>
+                <div className={`w-2 h-2 rounded-full ${meta.dot} ${compact ? "" : "mb-1"}`} />
+                <div className={`font-bold tabular-nums leading-tight ${compact ? "text-sm" : "text-lg md:text-xl"}`}>
                   {timeLabel}
                 </div>
-                <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                  {row.appointments?.appointment_date
-                    ? tx("นัด", "Booked")
-                    : tx("ไม่ระบุ", "Walk-in")}
-                </div>
+                {!compact && (
+                  <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                    {row.appointments?.appointment_date
+                      ? tx("นัด", "Booked")
+                      : tx("ไม่ระบุ", "Walk-in")}
+                  </div>
+                )}
               </div>
 
               {/* Main info */}
-              <div className="flex-1 min-w-0 space-y-1.5">
+              <div className={`flex-1 min-w-0 ${compact ? "" : "space-y-1.5"}`}>
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-mono font-semibold text-sm">{identifier}</span>
-                  <Badge variant="outline" className={`text-[10px] ${meta.pill}`}>
-                    {tx(meta.label_th, meta.label_en)}
-                  </Badge>
-                  <Badge variant="outline" className="text-[10px]">
-                    {isFirst ? tx("ครั้งแรก", "First visit") : `#${row.visit_sequence} ${tx("กลับซ้ำ", "Repeat")}`}
-                  </Badge>
-                  {isAnon && (
+                  {/* In compact mode only exceptions get a colored pill, so the list isn't a wall of red. */}
+                  {(!compact || priority !== "standard") && (
+                    <Badge variant="outline" className={`text-[10px] ${meta.pill}`}>
+                      {tx(meta.label_th, meta.label_en)}
+                    </Badge>
+                  )}
+                  {!compact && (
+                    <Badge variant="outline" className="text-[10px]">
+                      {isFirst ? tx("ครั้งแรก", "First visit") : `#${row.visit_sequence} ${tx("กลับซ้ำ", "Repeat")}`}
+                    </Badge>
+                  )}
+                  {!compact && isAnon && (
                     <Badge variant="outline" className="text-[10px] text-muted-foreground">
                       {tx("ไม่ระบุตัวตน", "Anonymous")}
                     </Badge>
                   )}
+                  {compact && (
+                    <span className="text-xs text-muted-foreground truncate">
+                      {branchName(row.appointments?.branch_id)} · {concern}
+                    </span>
+                  )}
                 </div>
-                <div className="text-xs text-muted-foreground flex items-center gap-1.5 flex-wrap">
-                  <Building2 className="h-3 w-3" />
-                  <span>{branchName(row.appointments?.branch_id)}</span>
-                  <span>•</span>
-                  <span>{serviceName(row.appointments?.service_id)}</span>
-                </div>
-                <div className="text-xs text-foreground/80 line-clamp-1">
-                  <span className="text-muted-foreground">{tx("ประเด็นสำคัญ", "Key concern")}: </span>
-                  {concern}
-                </div>
+                {!compact && (
+                  <>
+                    <div className="text-xs text-muted-foreground flex items-center gap-1.5 flex-wrap">
+                      <Building2 className="h-3 w-3" />
+                      <span>{branchName(row.appointments?.branch_id)}</span>
+                      <span>•</span>
+                      <span>{serviceName(row.appointments?.service_id)}</span>
+                    </div>
+                    <div className="text-xs text-foreground/80 line-clamp-1">
+                      <span className="text-muted-foreground">{tx("ประเด็นสำคัญ", "Key concern")}: </span>
+                      {concern}
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Status + expand */}
-              <div className="flex flex-col items-end gap-1.5 shrink-0">
+              <div className={`flex items-center gap-1.5 shrink-0 ${compact ? "" : "flex-col items-end"}`}>
                 <Badge variant="outline" className="text-[10px]">
                   {tx(STATUS_LABELS[status].th, STATUS_LABELS[status].en)}
                 </Badge>
@@ -1304,6 +1324,7 @@ function CasePanel({
             </div>
           </button>
         </CollapsibleTrigger>
+
 
         <CollapsibleContent>
           <div className="px-3 md:px-4 pb-4 pt-1 border-t space-y-4">
