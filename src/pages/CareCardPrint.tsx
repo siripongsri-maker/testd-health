@@ -67,7 +67,10 @@ function Sheet({
 export default function CareCardPrint() {
   const origin = typeof window !== "undefined" ? window.location.origin : "https://testd.website";
   const [baseUrl, setBaseUrl] = useState(`${origin}/safe-space/quiz`);
-  const [sessionId, setSessionId] = useState("none");
+  const [sessionId, setSessionId] = useState(() => {
+    if (typeof window === "undefined") return "none";
+    return new URLSearchParams(window.location.search).get("session") || "none";
+  });
   const [eventCode, setEventCode] = useState("safespace");
   const [layout, setLayout] = useState<Layout>(6);
   const [duplex, setDuplex] = useState(true);
@@ -101,6 +104,15 @@ export default function CareCardPrint() {
       return baseUrl;
     }
   }, [baseUrl, origin, eventCode, sessionId]);
+
+  // เก็บเซสชันที่เลือกไว้ใน URL เพื่อให้ลิงก์จากหน้าแอดมินและหน้าพิมพ์ตรงกัน
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const u = new URL(window.location.href);
+    if (sessionId === "none") u.searchParams.delete("session");
+    else u.searchParams.set("session", sessionId);
+    window.history.replaceState({}, "", u.toString());
+  }, [sessionId]);
 
   useEffect(() => {
     if (sessionId === "none") return;
