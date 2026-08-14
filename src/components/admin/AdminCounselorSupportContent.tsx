@@ -111,6 +111,8 @@ type QuickFilter =
   | "completed";
 
 type SearchField = "all" | "uic" | "booking" | "place";
+type SortField = "appointment_time" | "created_at" | "updated_at" | "priority";
+type SortOrder = "asc" | "desc";
 
 const CASE_STATUS_OPTIONS: { key: CaseStatus; th: string; en: string }[] = [
   { key: "not_reviewed", th: "ยังไม่ตรวจสอบ", en: "Not yet reviewed" },
