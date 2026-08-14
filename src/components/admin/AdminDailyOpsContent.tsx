@@ -81,8 +81,8 @@ export default function AdminDailyOpsContent() {
   }, [branchFilter, branches, language]);
 
   const tabs: { key: SubTab; icon: typeof HeartHandshake; th: string; en: string; adminOnly?: boolean }[] = [
-    { key: "queue", icon: HeartHandshake, th: "คิวให้คำปรึกษา", en: "Counseling queue" },
-    { key: "branch", icon: ClipboardList, th: "สรุปรายสาขา", en: "Branch brief" },
+    { key: "queue", icon: HeartHandshake, th: "คิวรวม (ดูอย่างเดียว)", en: "Queue overview" },
+    { key: "branch", icon: ClipboardList, th: "สรุปรายสาขา (บันทึกผล)", en: "Branch brief (work page)" },
     { key: "concern", icon: Brain, th: "เรื่องที่กังวล", en: "Concerns" },
     { key: "payouts", icon: Banknote, th: "ค่าเดินทาง", en: "Travel allowance", adminOnly: true },
     { key: "audit", icon: History, th: "บันทึกกิจกรรม", en: "Audit log", adminOnly: true },
