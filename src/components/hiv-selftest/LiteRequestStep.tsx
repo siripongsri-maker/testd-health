@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
@@ -51,8 +50,6 @@ export function LiteRequestStep({
     district?: string;
     province?: string;
   } | null>(null);
-  // Toggle: use different address for delivery
-  const [useDifferentAddress, setUseDifferentAddress] = useState(false);
 
   // Address cascading for ship mode
   useEffect(() => {
@@ -117,54 +114,34 @@ export function LiteRequestStep({
       };
       setIdCardAddress(scannedAddr);
 
-      // Auto-fill shipping address from ID card (if not using different address)
-      if (!useDifferentAddress) {
-        if (data.address) newShipping.address = data.address;
-        if (data.province) newShipping.province = data.province;
-        if (data.district) newShipping.district = data.district;
-        if (data.subdistrict) newShipping.subdistrict = data.subdistrict;
-      }
+      // Pre-fill (never replace) the delivery address fields from the ID card
+      if (data.province) newShipping.province = data.province;
+      if (data.district) newShipping.district = data.district;
+      if (data.subdistrict) newShipping.subdistrict = data.subdistrict;
     }
 
     onShippingChange(newShipping);
-  }, [nhsoData, shippingData, onNhsoChange, onShippingChange, useDifferentAddress, language]);
-
-  // When toggling back to ID card address, re-apply it
-  const handleToggleDifferentAddress = (checked: boolean) => {
-    setUseDifferentAddress(checked);
-    if (!checked && idCardAddress) {
-      // Revert to ID card address
-      onShippingChange({
-        ...shippingData,
-        address: idCardAddress.address || shippingData.address,
-        province: idCardAddress.province || shippingData.province,
-        district: idCardAddress.district || shippingData.district,
-        subdistrict: idCardAddress.subdistrict || shippingData.subdistrict,
-        postalCode: '',
-      });
-    } else if (checked) {
-      // Clear address fields for manual entry
-      onShippingChange({
-        ...shippingData,
-        address: '',
-        province: '',
-        district: '',
-        subdistrict: '',
-        postalCode: '',
-      });
-    }
-  };
+  }, [nhsoData, shippingData, onNhsoChange, onShippingChange, language]);
 
   const isPassport = deliveryMode === 'pickup' && nhsoData.idType === 'passport';
   const isNhsoValid = isPassport
     ? !!(nhsoData.passportNo && nhsoData.passportNo.trim().length >= 5 && nhsoData.dateOfBirth && nhsoData.gender)
     : (nhsoData.thaiId.length === 13 && !thaiIdError && nhsoData.dateOfBirth && nhsoData.gender);
   const isPickupLocationValid = true; // location is optional, never blocks submission
-  const needsManualAddress = !idCardAddress || useDifferentAddress;
-  const isHouseNoValid = deliveryMode === 'pickup' || !needsManualAddress || validateHouseNo(shippingData.houseNo);
+  // Delivery always requires a full, manually-confirmed address.
+  // (ID card OCR only pre-fills the fields — it can never substitute for them.)
+  const isHouseNoValid = deliveryMode === 'pickup' || validateHouseNo(shippingData.houseNo);
   const isShippingValid = deliveryMode === 'pickup'
     ? !!(shippingData.fullName && shippingData.province)
-    : !!(shippingData.fullName && shippingData.phone && shippingData.province && assignedBranch && isHouseNoValid);
+    : !!(
+        shippingData.fullName &&
+        shippingData.phone &&
+        shippingData.province &&
+        shippingData.district &&
+        shippingData.subdistrict &&
+        assignedBranch &&
+        isHouseNoValid
+      );
   const isFormValid = isNhsoValid && isShippingValid && isPickupLocationValid;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -391,23 +368,8 @@ export function LiteRequestStep({
             </Card>
           )}
 
-          {/* Toggle: use different delivery address */}
-          {idCardAddress && (
-            <div className="flex items-center justify-between py-2">
-              <Label htmlFor="diff-addr" className="text-sm cursor-pointer">
-                {language === 'th' ? 'ที่อยู่จัดส่งต่างจากบัตร' : 'Different delivery address'}
-              </Label>
-              <Switch
-                id="diff-addr"
-                checked={useDifferentAddress}
-                onCheckedChange={handleToggleDifferentAddress}
-              />
-            </div>
-          )}
-
-          {/* Address fields — show always if no scanned address, or when user toggles different address */}
-          {(!idCardAddress || useDifferentAddress) && (
-            <>
+          {/* Delivery address — always required, OCR only pre-fills it */}
+          <>
               <AddressDetailFields data={shippingData} onChange={onShippingChange} />
 
 
@@ -420,7 +382,7 @@ export function LiteRequestStep({
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>{language === 'th' ? 'อำเภอ' : 'District'}</Label>
+                  <Label>{language === 'th' ? 'อำเภอ' : 'District'} *</Label>
                   <Select value={shippingData.district} onValueChange={(v) => onShippingChange({ ...shippingData, district: v, subdistrict: '', postalCode: '' })} disabled={!shippingData.province}>
                     <SelectTrigger><SelectValue placeholder={language === 'th' ? 'เลือก' : 'Select'} /></SelectTrigger>
                     <SelectContent className="max-h-60">{districts.map(d => <SelectItem key={d} value={d}>{d}</SelectItem>)}</SelectContent>
@@ -430,7 +392,7 @@ export function LiteRequestStep({
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label>{language === 'th' ? 'ตำบล' : 'Subdistrict'}</Label>
+                  <Label>{language === 'th' ? 'ตำบล' : 'Subdistrict'} *</Label>
                   <Select value={shippingData.subdistrict} onValueChange={(v) => onShippingChange({ ...shippingData, subdistrict: v })} disabled={!shippingData.district}>
                     <SelectTrigger><SelectValue placeholder={language === 'th' ? 'เลือก' : 'Select'} /></SelectTrigger>
                     <SelectContent className="max-h-60">{subdistricts.map(s => <SelectItem key={s.name} value={s.name}>{s.name}</SelectItem>)}</SelectContent>
@@ -446,10 +408,10 @@ export function LiteRequestStep({
                   />
                 </div>
               </div>
-            </>
-          )}
+          </>
         </Card>
       </>)}
+
 
       {/* Pickup mode — location + minimal info */}
       {deliveryMode === 'pickup' && (

@@ -168,6 +168,20 @@ Deno.serve(async (req) => {
         );
       }
 
+      // Delivery requests must carry a complete address — incomplete rows
+      // cannot be shipped and pollute the fulfillment queue.
+      if (deliveryMode !== 'pickup') {
+        const addr = String((pii as any).address ?? '').trim();
+        const district = String((pii as any).district ?? '').trim();
+        const subdistrict = String((pii as any).subdistrict ?? '').trim();
+        if (!addr || !district || !subdistrict) {
+          return json(
+            { error: "address_required", message: "กรุณากรอกที่อยู่จัดส่งให้ครบ (เลขที่บ้าน/อำเภอ/ตำบล)" },
+            400,
+          );
+        }
+      }
+
       const safePii: Record<string, unknown> = {
         user_id: resolvedUserId,
         full_name: (pii as any).full_name ?? null,
