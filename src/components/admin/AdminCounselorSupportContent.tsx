@@ -947,7 +947,7 @@ export default function AdminCounselorSupportContent({
 // DaySection
 // ────────────────────────────────────────────────────────────────
 function DaySection({
-  day, notes, postEvals, language, tx, branchName, serviceName, readOnly, onSave,
+  day, notes, postEvals, language, tx, branchName, serviceName, readOnly, onSave, compact, defaultOpen,
 }: {
   day: { key: DayBucket; date: string | null; times: { key: TimeBucket; rows: SurveyRow[] }[]; totalRows: number };
   notes: Record<string, CaseNote>;
@@ -958,57 +958,72 @@ function DaySection({
   serviceName: (id: string | null | undefined) => string;
   readOnly: boolean;
   onSave: (surveyId: string, patch: Partial<CaseNote>) => void | Promise<void>;
+  compact: boolean;
+  defaultOpen: boolean;
 }) {
   const meta = DAY_META[day.key];
   const Icon = meta.icon;
+  const [open, setOpen] = useState(defaultOpen);
+
+  const urgentDay = day.times.reduce(
+    (s, t) => s + t.rows.filter((r) => computePriority(r, notes[r.id]) === "urgent").length, 0);
 
   return (
-    <section className="space-y-4">
-      <div className="flex items-center gap-3 border-b pb-2">
-        <Icon className={`h-5 w-5 ${meta.accent}`} />
-        <div className="flex-1">
-          <div className={`text-lg font-bold ${meta.accent}`}>
-            {language === "th" ? meta.label_th : meta.label_en}
-            {day.date && day.key !== "today" && day.key !== "tomorrow" && (
-              <span className="text-sm font-normal text-muted-foreground ml-2">
-                {formatDayLabel(day.date, language)}
-              </span>
-            )}
-            {day.date && (day.key === "today" || day.key === "tomorrow") && (
-              <span className="text-sm font-normal text-muted-foreground ml-2">
-                · {formatDayLabel(day.date, language)}
-              </span>
-            )}
-          </div>
-        </div>
-        <Badge variant="secondary" className="text-xs">
-          {day.totalRows} {tx("เคส", "cases")}
-        </Badge>
-      </div>
+    <Collapsible open={open} onOpenChange={setOpen} asChild>
+      <section className="space-y-3">
+        <CollapsibleTrigger asChild>
+          <button
+            type="button"
+            className="w-full flex items-center gap-3 border-b pb-2 text-left hover:bg-muted/30 rounded-sm px-1"
+          >
+            <Icon className={`h-5 w-5 ${meta.accent}`} />
+            <div className="flex-1">
+              <div className={`text-base font-bold ${meta.accent}`}>
+                {language === "th" ? meta.label_th : meta.label_en}
+                {day.date && (
+                  <span className="text-sm font-normal text-muted-foreground ml-2">
+                    · {formatDayLabel(day.date, language)}
+                  </span>
+                )}
+              </div>
+            </div>
+            {urgentDay > 0 && <StatChip label={tx("เร่งด่วน", "Urgent")} value={urgentDay} tone="urgent" />}
+            <Badge variant="secondary" className="text-xs">
+              {day.totalRows} {tx("เคส", "cases")}
+            </Badge>
+            <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
+          </button>
+        </CollapsibleTrigger>
 
-      <div className="space-y-5">
-        {day.times.map((slot) => (
-          <TimeSlot
-            key={`${day.key}-${slot.key}`}
-            dayKey={day.key}
-            slot={slot}
-            notes={notes}
-            postEvals={postEvals}
-            language={language}
-            tx={tx}
-            branchName={branchName}
-            serviceName={serviceName}
-            readOnly={readOnly}
-            onSave={onSave}
-          />
-        ))}
-      </div>
-    </section>
+        <CollapsibleContent>
+          <div className={compact ? "space-y-3" : "space-y-5"}>
+            {day.times.map((slot) => (
+              <TimeSlot
+                key={`${day.key}-${slot.key}`}
+                dayKey={day.key}
+                slot={slot}
+                notes={notes}
+                postEvals={postEvals}
+                language={language}
+                tx={tx}
+                branchName={branchName}
+                serviceName={serviceName}
+                readOnly={readOnly}
+                onSave={onSave}
+                compact={compact}
+              />
+            ))}
+          </div>
+        </CollapsibleContent>
+      </section>
+    </Collapsible>
   );
 }
 
+const PAGE_SIZE = 10;
+
 function TimeSlot({
-  dayKey, slot, notes, postEvals, language, tx, branchName, serviceName, readOnly, onSave,
+  dayKey, slot, notes, postEvals, language, tx, branchName, serviceName, readOnly, onSave, compact,
 }: {
   dayKey: DayBucket;
   slot: { key: TimeBucket; rows: SurveyRow[] };
@@ -1020,9 +1035,11 @@ function TimeSlot({
   serviceName: (id: string | null | undefined) => string;
   readOnly: boolean;
   onSave: (surveyId: string, patch: Partial<CaseNote>) => void | Promise<void>;
+  compact: boolean;
 }) {
   const meta = TIME_META[slot.key];
   const Icon = meta.icon;
+  const [limit, setLimit] = useState(PAGE_SIZE);
 
   const urgent = slot.rows.filter((r) => computePriority(r, notes[r.id]) === "urgent").length;
   const completed = slot.rows.filter((r) => {
@@ -1033,6 +1050,9 @@ function TimeSlot({
     const n = notes[r.id];
     return n?.follow_up_required || n?.status === "follow_up_needed";
   }).length;
+
+  const visible = slot.rows.slice(0, limit);
+  const remaining = slot.rows.length - visible.length;
 
   return (
     <div className="space-y-2">
@@ -1049,8 +1069,8 @@ function TimeSlot({
           {followUp > 0 && <StatChip label={tx("ติดตาม", "Follow")} value={followUp} tone="warn" />}
         </div>
       </div>
-      <div className="space-y-2">
-        {slot.rows.map((r) => {
+      <div className={compact ? "space-y-1.5" : "space-y-2"}>
+        {visible.map((r) => {
           const n = notes[r.id];
           const pe = n ? postEvals[n.id] : undefined;
           return (
@@ -1065,13 +1085,26 @@ function TimeSlot({
               tx={tx}
               readOnly={readOnly}
               onSave={(patch) => onSave(r.id, patch)}
+              compact={compact}
             />
           );
         })}
       </div>
+      {remaining > 0 && (
+        <div className="flex justify-center gap-2 pt-1">
+          <Button variant="outline" size="sm" className="h-8 text-xs" onClick={() => setLimit((l) => l + PAGE_SIZE)}>
+            {tx(`แสดงเพิ่ม ${Math.min(PAGE_SIZE, remaining)} เคส (เหลือ ${remaining})`,
+                `Show ${Math.min(PAGE_SIZE, remaining)} more (${remaining} left)`)}
+          </Button>
+          <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => setLimit(slot.rows.length)}>
+            {tx("แสดงทั้งหมด", "Show all")}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
+
 
 // ────────────────────────────────────────────────────────────────
 // Small components
