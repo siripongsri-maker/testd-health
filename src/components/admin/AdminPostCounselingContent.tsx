@@ -141,6 +141,19 @@ export function PostCounselingCasesTab({ variant }: { variant: "cases" | "compar
       const cMap: Record<string, CounselorInfo> = {};
       (cRes.data as CounselorInfo[] | null)?.forEach((c) => { cMap[c.id] = c; });
       setCounselors(cMap);
+
+      // Unified SMS + travel-payout status (same source as the payouts tab)
+      if (surveyIds.length) {
+        const { data: payRows } = await supabase.rpc("get_case_payout_status", {
+          _survey_ids: surveyIds as string[],
+        });
+        const pMap: Record<string, PayoutStatusRow> = {};
+        (payRows as PayoutStatusRow[] | null)?.forEach((r) => { if (r.note_id) pMap[r.note_id] = r; });
+        setPayouts(pMap);
+      } else {
+        setPayouts({});
+      }
+
     } catch (e: any) {
       console.error("POST_COUNSELING_LOAD_ERR", e);
       toast({ title: tx("โหลดข้อมูลไม่สำเร็จ", "Load failed"), description: e?.message, variant: "destructive" });
