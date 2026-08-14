@@ -26,6 +26,43 @@ export default function SafeSpaceQuiz() {
     return s && UUID_RE.test(s) ? s : null;
   }, [params]);
   const source = params.get("utm_source") || params.get("source") || null;
+  const rawSession = params.get("session");
+
+  // ตรวจสอบว่า QR ผูกกับกิจกรรมที่มีอยู่จริงหรือไม่ (QR เก่า/กิจกรรมถูกลบ = ไม่พบ)
+  const [sessionCheck, setSessionCheck] = useState<"checking" | "valid" | "missing" | "invalid">(
+    rawSession ? "checking" : "missing",
+  );
+  const [sessionLabel, setSessionLabel] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!rawSession) {
+      setSessionCheck("missing");
+      return;
+    }
+    if (!sessionId) {
+      setSessionCheck("invalid");
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      const { data, error } = await supabase.rpc("get_safe_space_session_public", {
+        p_session_id: sessionId,
+      });
+      if (cancelled) return;
+      const row = Array.isArray(data) ? data[0] : null;
+      if (error || !row) {
+        setSessionCheck("invalid");
+        return;
+      }
+      setSessionCheck("valid");
+      setSessionLabel(
+        `${row.session_title_th || "กิจกรรมพื้นที่ปลอดภัย"}${row.location ? ` · ${row.location}` : ""}`,
+      );
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [rawSession, sessionId]);
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [nickname, setNickname] = useState("");
