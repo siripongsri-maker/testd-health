@@ -529,10 +529,20 @@ export function PostCounselingCasesTab({ variant }: { variant: "cases" | "compar
                           size="sm" variant="outline"
                           className="h-7 text-xs border-sky-300 text-sky-700 hover:bg-sky-50 dark:text-sky-300"
                           disabled={readOnly || submitted}
-                          onClick={() => { setSmsNote(note); setSmsPhone(""); }}
+                          onClick={() => openSmsDialog(note)}
                         >
                           <MessageSquare className="h-3 w-3 mr-1" />{tx("ส่ง SMS", "Send SMS")}
                         </Button>
+                        {pay?.claim_status && (
+                          <Button
+                            size="sm" variant="ghost"
+                            className="h-7 text-xs text-amber-700 dark:text-amber-300"
+                            onClick={() => window.open("/admin?tab=counseling-payouts", "_blank", "noopener,noreferrer")}
+                          >
+                            <Wallet className="h-3 w-3 mr-1" />{tx("ดูการจ่ายเงิน", "View payout")}
+                          </Button>
+                        )}
+
                       </div>
 
                     </td>
