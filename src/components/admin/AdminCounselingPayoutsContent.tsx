@@ -79,7 +79,9 @@ function maskAccount(no: string) {
 
 const baht = (n: number) => `฿${Number(n || 0).toLocaleString("th-TH", { minimumFractionDigits: 0 })}`;
 
-export default function AdminCounselingPayoutsContent() {
+export default function AdminCounselingPayoutsContent({
+  dateFrom, dateTo,
+}: { dateFrom?: string; dateTo?: string } = {}) {
   const [claims, setClaims] = useState<Claim[]>([]);
   const [batches, setBatches] = useState<Batch[]>([]);
   const [branches, setBranches] = useState<Record<string, string>>({});
@@ -88,8 +90,11 @@ export default function AdminCounselingPayoutsContent() {
   const [busy, setBusy] = useState<string | null>(null);
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
+  const [from, setFrom] = useState(dateFrom ?? "");
+  const [to, setTo] = useState(dateTo ?? "");
+  // Keep the payout date window in sync with the shared Daily Ops date.
+  useEffect(() => { if (dateFrom !== undefined) setFrom(dateFrom); }, [dateFrom]);
+  useEffect(() => { if (dateTo !== undefined) setTo(dateTo); }, [dateTo]);
   const [verifiedOnly, setVerifiedOnly] = useState(true);
   const [attended, setAttended] = useState<Record<string, boolean>>({});
   const [urgentMap, setUrgentMap] = useState<Map<string, UrgentCaseRef>>(new Map());

@@ -260,7 +260,9 @@ const TIME_META: Record<TimeBucket, { icon: React.ComponentType<{ className?: st
 // ────────────────────────────────────────────────────────────────
 // Component
 // ────────────────────────────────────────────────────────────────
-export default function AdminCounselorSupportContent() {
+export default function AdminCounselorSupportContent({
+  branchFilter: branchProp, onBranchChange,
+}: { branchFilter?: string; onBranchChange?: (b: string) => void } = {}) {
   const { language } = useLanguage();
   const tx = (th: string, en: string) => (language === "th" ? th : en);
   const { user } = useAuth();
@@ -274,7 +276,9 @@ export default function AdminCounselorSupportContent() {
   const [postEvals, setPostEvals] = useState<Record<string, PostEval>>({}); // keyed by note_id
   const [loading, setLoading] = useState(true);
   const [realtimeStatus, setRealtimeStatus] = useState<"connecting" | "live" | "offline">("connecting");
-  const [branchFilter, setBranchFilter] = useState<string>("all"); // admin only
+  const [branchLocal, setBranchLocal] = useState<string>("all"); // admin only
+  const branchFilter = branchProp ?? branchLocal;
+  const setBranchFilter = onBranchChange ?? setBranchLocal;
   const [quickFilter, setQuickFilter] = useState<QuickFilter>("all");
   const [search, setSearch] = useState("");
 

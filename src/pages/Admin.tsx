@@ -76,6 +76,7 @@ const AdminSelftestMapContent = lazy(() => import("@/components/admin/AdminSelft
 const AdminSelftestMissingIdContent = lazy(() => import("@/components/admin/AdminSelftestMissingIdContent"));
 const AdminPreServiceSurveysContent = lazy(() => import("@/components/admin/AdminPreServiceHubContent"));
 const AdminCounselorSupportContent = lazy(() => import("@/components/admin/AdminCounselorSupportContent"));
+const AdminDailyOpsContent = lazy(() => import("@/components/admin/AdminDailyOpsContent"));
 const AdminDailyBranchBriefContent = lazy(() => import("@/components/admin/AdminDailyBranchBriefContent"));
 const AdminConcernBriefContent = lazy(() => import("@/components/admin/AdminConcernBriefContent"));
 const AdminCounselingPayoutsContent = lazy(() => import("@/components/admin/AdminCounselingPayoutsContent"));
@@ -99,7 +100,7 @@ const TabLoader = () => (
 );
 
 // Tabs accessible by moderators (branch staff)
-const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "selftest-results", "selftest-followup", "selftest-map", "selftest-missing-id", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk", "counselor-support", "daily-branch-brief", "concern-brief"]);
+const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "selftest-results", "selftest-followup", "selftest-map", "selftest-missing-id", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk", "counselor-support", "daily-branch-brief", "concern-brief", "daily-ops"]);
 
 // Tabs accessible by M&E Analyst (read-only analytics/reporting)
 const ME_ANALYST_TABS = new Set([
@@ -111,7 +112,7 @@ const ME_ANALYST_TABS = new Set([
   // SMS & Credits (read-only)
   "sms-relay", "credit-balances", "credit-purchases",
   // Reports
-  "analytics", "analytics-overview", "export-center", "attribution", "feedback-outcomes", "pre-service-surveys", "counselor-support", "daily-branch-brief", "concern-brief",
+  "analytics", "analytics-overview", "export-center", "attribution", "feedback-outcomes", "pre-service-surveys", "counselor-support", "daily-branch-brief", "concern-brief", "daily-ops",
   // MEL
   "mel-services", "mel-indicators", "mel-outreach", "mel-training",
   "mel-safe-spaces", "mel-partners", "mel-policy", "mel-evaluation", "mel-reporting",
@@ -124,7 +125,7 @@ const ME_ANALYST_TABS = new Set([
   "system-health",
 ]);
 
-const COUNSELOR_TABS = ["counselor-support", "daily-branch-brief", "concern-brief", "queue-board"];
+const COUNSELOR_TABS = ["daily-ops", "counselor-support", "daily-branch-brief", "concern-brief", "queue-board"];
 
 function BranchLabel({ branchId }: { branchId: string }) {
   const { language } = useLanguage();
@@ -155,7 +156,7 @@ export default function Admin() {
   const { isAdmin, isModerator, isMeAnalyst, userBranch, loading, role } = useAdminRole();
   const isCounselor = role === 'counselor';
 
-  const defaultTab = isAdmin ? "dashboard" : isMeAnalyst ? "dashboard" : isCounselor ? "counselor-support" : "kit-orders";
+  const defaultTab = isAdmin ? "dashboard" : isMeAnalyst ? "dashboard" : isCounselor ? "daily-ops" : "kit-orders";
   const activeTab = searchParams.get("tab") || defaultTab;
   const handleTabChange = (value: string) => setSearchParams({ tab: value });
 
@@ -170,7 +171,7 @@ export default function Admin() {
     if (loading) return;
     // Counselors are locked to the counselor-support tab
     if (isCounselor && !COUNSELOR_TABS.includes(searchParams.get("tab") || "")) {
-      setSearchParams({ tab: "counselor-support" });
+      setSearchParams({ tab: "daily-ops" });
       return;
     }
     if (isModerator && !isAdmin && !searchParams.get("tab")) {
@@ -277,6 +278,7 @@ export default function Admin() {
           {renderTab("attribution", <AdminAttributionContent />)}
           {renderTab("feedback-outcomes", <AdminFeedbackOutcomesContent />)}
           {renderTab("pre-service-surveys", <AdminPreServiceSurveysContent />)}
+          {renderTab("daily-ops", <AdminDailyOpsContent />)}
           {renderTab("counselor-support", <AdminCounselorSupportContent />)}
           {renderTab("daily-branch-brief", <AdminDailyBranchBriefContent />)}
           {renderTab("concern-brief", <AdminConcernBriefContent />)}

@@ -64,12 +64,20 @@ function parseNotes(row: Row): Parsed {
   };
 }
 
-export default function AdminConcernBriefContent() {
+import type { DailyOpsPanelProps } from "./AdminDailyBranchBriefContent";
+
+export default function AdminConcernBriefContent({
+  day: dayProp, onDayChange, branchFilter: branchProp, onBranchChange, hideToolbar,
+}: DailyOpsPanelProps = {}) {
   const { language } = useLanguage();
   const tx = (th: string, en: string) => (language === "th" ? th : en);
 
-  const [day, setDay] = useState(format(new Date(), "yyyy-MM-dd"));
-  const [branchFilter, setBranchFilter] = useState("all");
+  const [dayLocal, setDayLocal] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [branchLocal, setBranchLocal] = useState("all");
+  const day = dayProp ?? dayLocal;
+  const setDay = onDayChange ?? setDayLocal;
+  const branchFilter = branchProp ?? branchLocal;
+  const setBranchFilter = onBranchChange ?? setBranchLocal;
   const [branches, setBranches] = useState<BranchInfo[]>([]);
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
@@ -179,11 +187,11 @@ export default function AdminConcernBriefContent() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-end gap-3">
-        <div>
+        <div className={hideToolbar ? "hidden" : ""}>
           <Label className="text-xs">{tx("วันที่", "Date")}</Label>
           <Input type="date" value={day} onChange={(e) => setDay(e.target.value)} className="w-40" />
         </div>
-        <div>
+        <div className={hideToolbar ? "hidden" : ""}>
           <Label className="text-xs">{tx("สาขา", "Branch")}</Label>
           <Select value={branchFilter} onValueChange={setBranchFilter}>
             <SelectTrigger className="w-52"><SelectValue /></SelectTrigger>
