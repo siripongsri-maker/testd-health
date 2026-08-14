@@ -700,7 +700,7 @@ export default function AdminCounselorSupportContent({
     notifySaved({
       title: tx("บันทึกแล้ว", "Saved"),
       changes,
-      description: survey.appointments?.branch_id ? undefined : undefined,
+      
       onUndo: existing
         ? async () => {
             const { data: restored, error: undoErr } = await supabase
