@@ -12451,6 +12451,15 @@ export type Database = {
           is_returning: boolean
         }[]
       }
+      get_safe_space_session_public: {
+        Args: { p_session_id: string }
+        Returns: {
+          id: string
+          location: string
+          session_date: string
+          session_title_th: string
+        }[]
+      }
       get_selftest_duplicate_counts: {
         Args: { p_request_id: string }
         Returns: Json
