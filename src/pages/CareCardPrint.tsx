@@ -204,6 +204,12 @@ export default function CareCardPrint() {
     toast.success("เปลี่ยนเซสชันแล้ว — QR จะผูกกับเซสชันนี้");
   };
 
+  const openSessionPicker = () => {
+    setSessionQuery("");
+    setSwitcherOpen(true);
+    if (!selectedSession) toast.info("รอผูกเซสชัน — เลือกกิจกรรมก่อนพิมพ์การ์ด");
+  };
+
   return (
     <div className="min-h-screen bg-muted/30">
       <SEOHead title="พิมพ์การ์ดดูแลกัน · SWING" description="เทมเพลตพิมพ์การ์ดความรู้ A4" robots="noindex, nofollow" />
