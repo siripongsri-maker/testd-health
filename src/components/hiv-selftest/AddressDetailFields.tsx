@@ -78,7 +78,7 @@ export function AddressDetailFields({ data, onChange }: Props) {
 
         <div className="space-y-1.5">
           <Label htmlFor="village" className="text-xs text-muted-foreground">
-            {isTh ? 'หมู่บ้าน' : 'Village / building'}
+            {isTh ? 'หมู่บ้าน / อาคาร (ไม่บังคับ)' : 'Village / building (optional)'}
           </Label>
           <Input
             id="village"
@@ -89,7 +89,7 @@ export function AddressDetailFields({ data, onChange }: Props) {
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="moo" className="text-xs text-muted-foreground">
-            {isTh ? 'หมู่' : 'Moo'}
+            {isTh ? 'หมู่ (ไม่บังคับ)' : 'Moo (optional)'}
           </Label>
           <Input
             id="moo"
