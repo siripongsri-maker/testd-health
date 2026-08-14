@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
@@ -51,8 +50,6 @@ export function LiteRequestStep({
     district?: string;
     province?: string;
   } | null>(null);
-  // Toggle: use different address for delivery
-  const [useDifferentAddress, setUseDifferentAddress] = useState(false);
 
   // Address cascading for ship mode
   useEffect(() => {
@@ -117,43 +114,14 @@ export function LiteRequestStep({
       };
       setIdCardAddress(scannedAddr);
 
-      // Auto-fill shipping address from ID card (if not using different address)
-      if (!useDifferentAddress) {
-        if (data.address) newShipping.address = data.address;
-        if (data.province) newShipping.province = data.province;
-        if (data.district) newShipping.district = data.district;
-        if (data.subdistrict) newShipping.subdistrict = data.subdistrict;
-      }
+      // Pre-fill (never replace) the delivery address fields from the ID card
+      if (data.province) newShipping.province = data.province;
+      if (data.district) newShipping.district = data.district;
+      if (data.subdistrict) newShipping.subdistrict = data.subdistrict;
     }
 
     onShippingChange(newShipping);
-  }, [nhsoData, shippingData, onNhsoChange, onShippingChange, useDifferentAddress, language]);
-
-  // When toggling back to ID card address, re-apply it
-  const handleToggleDifferentAddress = (checked: boolean) => {
-    setUseDifferentAddress(checked);
-    if (!checked && idCardAddress) {
-      // Revert to ID card address
-      onShippingChange({
-        ...shippingData,
-        address: idCardAddress.address || shippingData.address,
-        province: idCardAddress.province || shippingData.province,
-        district: idCardAddress.district || shippingData.district,
-        subdistrict: idCardAddress.subdistrict || shippingData.subdistrict,
-        postalCode: '',
-      });
-    } else if (checked) {
-      // Clear address fields for manual entry
-      onShippingChange({
-        ...shippingData,
-        address: '',
-        province: '',
-        district: '',
-        subdistrict: '',
-        postalCode: '',
-      });
-    }
-  };
+  }, [nhsoData, shippingData, onNhsoChange, onShippingChange, language]);
 
   const isPassport = deliveryMode === 'pickup' && nhsoData.idType === 'passport';
   const isNhsoValid = isPassport
