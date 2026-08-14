@@ -274,6 +274,33 @@ export function PostCounselingCasesTab({ variant }: { variant: "cases" | "compar
   const [smsNote, setSmsNote] = useState<NoteRow | null>(null);
   const [smsPhone, setSmsPhone] = useState("");
   const [smsSending, setSmsSending] = useState(false);
+  const [smsPhoneLoading, setSmsPhoneLoading] = useState(false);
+  const [smsPhoneSource, setSmsPhoneSource] = useState<"booking" | "manual" | "none">("none");
+
+  // Pull the phone number the client used when booking, so staff never retype it.
+  const openSmsDialog = async (note: NoteRow) => {
+    setSmsNote(note);
+    setSmsPhone("");
+    setSmsPhoneSource("none");
+    setSmsPhoneLoading(true);
+    try {
+      const { data, error } = await supabase.rpc("get_post_eval_booking", { _note_id: note.id });
+      if (error) throw error;
+      const row = (data as any[] | null)?.[0];
+      const phone = (row?.contact_phone ?? "").toString().replace(/\D/g, "");
+      if (phone.length >= 9) {
+        setSmsPhone(phone);
+        setSmsPhoneSource("booking");
+      } else {
+        setSmsPhoneSource("manual");
+      }
+    } catch {
+      setSmsPhoneSource("manual");
+    } finally {
+      setSmsPhoneLoading(false);
+    }
+  };
+
 
   const sendSms = async () => {
     if (!smsNote) return;
