@@ -745,42 +745,60 @@ export default function AdminCounselorSupportContent({
         </div>
       </div>
 
-      {/* Branch summary */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        <KpiCard icon={<ClipboardList className="h-4 w-4" />} label={tx("นัดวันนี้", "Booked today")} value={summary.todayCount} />
-        <KpiCard icon={<AlertTriangle className="h-4 w-4" />} label={tx("เร่งด่วน", "Urgent")} value={summary.urgent} tone="urgent" />
-        <KpiCard icon={<CheckCircle2 className="h-4 w-4" />} label={tx("ให้คำปรึกษาแล้ว", "Completed")} value={summary.completed} tone="ok" />
-        <KpiCard icon={<Clock3 className="h-4 w-4" />} label={tx("ต้องติดตาม", "Follow-up")} value={summary.followUp} tone="warn" />
-        <KpiCard icon={<ArrowRightCircle className="h-4 w-4" />} label={tx("ส่งต่อคลินิก", "Referred")} value={summary.referred} />
-        <KpiCard icon={<Users className="h-4 w-4" />} label={tx("เวลาตอบเฉลี่ย (นาที)", "Avg response (min)")} value={summary.avgMinutes ? summary.avgMinutes.toFixed(1) : "—"} />
-      </div>
+      {/* Overview — collapsed by default so the queue itself is the hero */}
+      <Collapsible open={showOverview} onOpenChange={setShowOverview}>
+        <Card className="p-2.5">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <StatChip label={tx("นัดวันนี้", "Today")} value={summary.todayCount} />
+            <StatChip label={tx("เร่งด่วน", "Urgent")} value={summary.urgent} tone="urgent" />
+            <StatChip label={tx("เสร็จ", "Done")} value={summary.completed} tone="ok" />
+            <StatChip label={tx("ติดตาม", "Follow")} value={summary.followUp} tone="warn" />
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-7 ml-auto text-xs">
+                <ChevronDown className={`h-3.5 w-3.5 mr-1 transition-transform ${showOverview ? "rotate-180" : ""}`} />
+                {showOverview ? tx("ซ่อนภาพรวม", "Hide overview") : tx("ดูภาพรวม / สถิติ", "Show overview")}
+              </Button>
+            </CollapsibleTrigger>
+          </div>
 
-      {/* Post-counseling analytics */}
-      <Card className="p-4 border-teal-200 bg-teal-50/30 dark:bg-teal-950/10">
-        <div className="flex items-center gap-2 mb-3">
-          <Star className="h-4 w-4 text-teal-600" />
-          <h2 className="text-sm font-bold">{tx("ผลประเมินหลังรับคำปรึกษา", "Post-counseling evaluations")}</h2>
-          <Badge variant="outline" className="text-[10px] ml-auto">
-            {summary.evalCount} / {summary.completed} · {summary.evalRate.toFixed(0)}%
-          </Badge>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 text-xs">
-          <MiniStat label={tx("ประเมินแล้ว", "Evaluated")} value={summary.evalCount} />
-          <MiniStat label={tx("อัตราตอบ", "Response rate")} value={`${summary.evalRate.toFixed(0)}%`} />
-          <MiniStat label={tx("พึงพอใจเฉลี่ย", "Avg satisfaction")} value={summary.avgSatisfaction?.toFixed(1) ?? "—"} />
-          <MiniStat label={tx("เข้าใจเฉลี่ย", "Avg understanding")} value={summary.avgUnderstanding?.toFixed(1) ?? "—"} />
-          <MiniStat label={tx("ปลอดภัย/เชื่อใจ", "Avg safety")} value={summary.avgSafety?.toFixed(1) ?? "—"} />
-          <MiniStat label={tx("เคารพ", "Avg respect")} value={summary.avgRespect?.toFixed(1) ?? "—"} />
-          <MiniStat label={tx("อยากติดตามต่อ", "Wants follow-up")} value={summary.postFollowUpInterest} />
-        </div>
-      </Card>
+          <CollapsibleContent className="pt-3 space-y-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+              <KpiCard icon={<ClipboardList className="h-4 w-4" />} label={tx("นัดวันนี้", "Booked today")} value={summary.todayCount} />
+              <KpiCard icon={<AlertTriangle className="h-4 w-4" />} label={tx("เร่งด่วน", "Urgent")} value={summary.urgent} tone="urgent" />
+              <KpiCard icon={<CheckCircle2 className="h-4 w-4" />} label={tx("ให้คำปรึกษาแล้ว", "Completed")} value={summary.completed} tone="ok" />
+              <KpiCard icon={<Clock3 className="h-4 w-4" />} label={tx("ต้องติดตาม", "Follow-up")} value={summary.followUp} tone="warn" />
+              <KpiCard icon={<ArrowRightCircle className="h-4 w-4" />} label={tx("ส่งต่อคลินิก", "Referred")} value={summary.referred} />
+              <KpiCard icon={<Users className="h-4 w-4" />} label={tx("เวลาตอบเฉลี่ย (นาที)", "Avg response (min)")} value={summary.avgMinutes ? summary.avgMinutes.toFixed(1) : "—"} />
+            </div>
 
+            {/* Post-counseling analytics */}
+            <Card className="p-4 border-teal-200 bg-teal-50/30 dark:bg-teal-950/10">
+              <div className="flex items-center gap-2 mb-3">
+                <Star className="h-4 w-4 text-teal-600" />
+                <h2 className="text-sm font-bold">{tx("ผลประเมินหลังรับคำปรึกษา", "Post-counseling evaluations")}</h2>
+                <Badge variant="outline" className="text-[10px] ml-auto">
+                  {summary.evalCount} / {summary.completed} · {summary.evalRate.toFixed(0)}%
+                </Badge>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 text-xs">
+                <MiniStat label={tx("ประเมินแล้ว", "Evaluated")} value={summary.evalCount} />
+                <MiniStat label={tx("อัตราตอบ", "Response rate")} value={`${summary.evalRate.toFixed(0)}%`} />
+                <MiniStat label={tx("พึงพอใจเฉลี่ย", "Avg satisfaction")} value={summary.avgSatisfaction?.toFixed(1) ?? "—"} />
+                <MiniStat label={tx("เข้าใจเฉลี่ย", "Avg understanding")} value={summary.avgUnderstanding?.toFixed(1) ?? "—"} />
+                <MiniStat label={tx("ปลอดภัย/เชื่อใจ", "Avg safety")} value={summary.avgSafety?.toFixed(1) ?? "—"} />
+                <MiniStat label={tx("เคารพ", "Avg respect")} value={summary.avgRespect?.toFixed(1) ?? "—"} />
+                <MiniStat label={tx("อยากติดตามต่อ", "Wants follow-up")} value={summary.postFollowUpInterest} />
+              </div>
+            </Card>
 
-      {/* Harm reduction referral queue (bridged from the HR zone) */}
-      <HrReferralQueue tx={tx} readOnly={isMeAnalyst} />
+            {/* Harm reduction referral queue (bridged from the HR zone) */}
+            <HrReferralQueue tx={tx} readOnly={isMeAnalyst} />
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
-      {/* Filters bar */}
-      <Card className="p-3 space-y-3">
+      {/* Filters bar — sticky so it stays reachable in a long queue */}
+      <Card className="p-3 space-y-3 sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         <div className="flex flex-wrap items-center gap-2">
           <Filter className="h-4 w-4 text-muted-foreground" />
           <select
