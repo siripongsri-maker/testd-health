@@ -268,9 +268,15 @@ export default function CareCardPrint() {
               <Button variant="outline" className="gap-2" onClick={() => setSwitcherOpen(true)}>
                 <Repeat className="h-4 w-4" /> {selectedSession ? "สลับเซสชัน" : "เลือกเซสชัน"}
               </Button>
-              <Button onClick={() => window.print()} className="gap-2" disabled={!selectedSession}>
-                <Printer className="h-4 w-4" /> สั่งพิมพ์ / บันทึก PDF
-              </Button>
+              {selectedSession ? (
+                <Button onClick={() => window.print()} className="gap-2">
+                  <Printer className="h-4 w-4" /> สั่งพิมพ์ / บันทึก PDF
+                </Button>
+              ) : (
+                <Button variant="secondary" className="gap-2" onClick={openSessionPicker}>
+                  <Repeat className="h-4 w-4" /> รอผูกเซสชัน — เลือกเซสชันก่อนพิมพ์
+                </Button>
+              )}
             </div>
           </div>
 
