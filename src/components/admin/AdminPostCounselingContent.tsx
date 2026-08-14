@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import {
   Loader2, RefreshCw, ClipboardCheck, QrCode, Copy, ExternalLink,
   CheckCircle2, ClipboardList, Inbox, HeartPulse, Users, TrendingUp,
-  ArrowLeftRight, ShieldCheck, MessageSquare, Send,
+  ArrowLeftRight, ShieldCheck, MessageSquare, Send, Wallet,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
