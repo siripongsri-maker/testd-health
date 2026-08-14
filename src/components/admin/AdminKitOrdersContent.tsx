@@ -559,7 +559,33 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         });
       }
 
-      toast.success(language === 'th' ? 'อัปเดตสำเร็จ' : 'Updated successfully');
+      const prev = selectedOrder;
+      const diff: FieldChange[] = [
+        { label: 'สถานะ', from: prev.status, to: updateForm.status },
+        { label: 'ขนส่ง', from: prev.shipping_carrier, to: updateForm.shipping_carrier },
+        { label: 'เลขพัสดุ', from: prev.tracking_number, to: updateForm.tracking_number },
+        { label: 'โน้ตภายใน', from: prev.internal_notes ? 'มีข้อความเดิม' : null, to: updateForm.internal_notes ? 'อัปเดตข้อความ' : null },
+      ];
+      notifySaved({
+        title: language === 'th' ? 'อัปเดตคำสั่งซื้อแล้ว' : 'Order updated',
+        changes: diff,
+        description: prev.order_code ? `#${prev.order_code}` : undefined,
+        onUndo: async () => {
+          const { error: undoErr } = await supabase
+            .from('kit_orders')
+            .update({
+              status: prev.status,
+              shipping_carrier: prev.shipping_carrier,
+              tracking_number: prev.tracking_number,
+              tracking_url: prev.tracking_url,
+              internal_notes: prev.internal_notes,
+              last_updated_by: user?.id,
+            })
+            .eq('id', prev.id);
+          if (undoErr) throw undoErr;
+          fetchOrders();
+        },
+      });
       setShowDetailDialog(false);
       fetchOrders();
     } catch (error: any) {
