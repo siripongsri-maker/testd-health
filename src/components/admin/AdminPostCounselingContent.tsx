@@ -605,6 +605,55 @@ export function PostCounselingCasesTab({ variant }: { variant: "cases" | "compar
   );
 }
 
+// ── Unified SMS / payout status cells ─────────────────────────────
+function SmsStatusBadge({ status, hasPhone, sentAt, tx }: {
+  status?: string | null; hasPhone: boolean; sentAt?: string | null;
+  tx: (th: string, en: string) => string;
+}) {
+  if (status === "sent" || status === "delivered") {
+    return (
+      <Badge className="bg-sky-600 text-white text-[10px]" title={sentAt ? new Date(sentAt).toLocaleString("th-TH") : undefined}>
+        {tx("ส่งแล้ว", "Sent")}
+      </Badge>
+    );
+  }
+  if (status === "queued" || status === "scheduled" || status === "pending") {
+    return <Badge variant="outline" className="text-[10px] border-sky-300 text-sky-700">{tx("รอส่ง", "Queued")}</Badge>;
+  }
+  if (status === "failed") {
+    return <Badge className="bg-rose-600 text-white text-[10px]">{tx("ล้มเหลว", "Failed")}</Badge>;
+  }
+  return (
+    <Badge variant="outline" className="text-[10px]">
+      {hasPhone ? tx("มีเบอร์จอง", "Phone on file") : tx("ไม่มีเบอร์", "No phone")}
+    </Badge>
+  );
+}
+
+function ClaimStatusCell({ status, amount, tx }: {
+  status?: string | null; amount?: number | null;
+  tx: (th: string, en: string) => string;
+}) {
+  if (!status) return <span className="text-xs text-muted-foreground">—</span>;
+  const map: Record<string, { cls: string; label: string }> = {
+    pending: { cls: "bg-amber-500 text-white", label: tx("รออนุมัติ", "Pending") },
+    approved: { cls: "bg-sky-600 text-white", label: tx("อนุมัติแล้ว", "Approved") },
+    paid: { cls: "bg-emerald-600 text-white", label: tx("จ่ายแล้ว", "Paid") },
+    rejected: { cls: "bg-rose-600 text-white", label: tx("ปฏิเสธ", "Rejected") },
+  };
+  const s = map[status] ?? { cls: "bg-muted text-foreground", label: status };
+  return (
+    <a
+      href="/admin?tab=counseling-payouts"
+      target="_blank" rel="noopener noreferrer"
+      className="inline-flex flex-col items-center gap-0.5 hover:opacity-80"
+    >
+      <Badge className={`${s.cls} text-[10px]`}>{s.label}</Badge>
+      {amount != null && <span className="text-[10px] text-muted-foreground tabular-nums">฿{Number(amount).toLocaleString()}</span>}
+    </a>
+  );
+}
+
 
 // ── Small helpers ─────────────────────────────────────────────────
 function Kpi({ icon, label, value, highlight }: {
