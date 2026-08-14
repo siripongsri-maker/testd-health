@@ -111,14 +111,31 @@ const STATUS_OPTIONS = [
   { value: "case_closed", th: "ปิดเคส", en: "Closed" },
 ];
 
-export default function AdminDailyBranchBriefContent() {
+export interface DailyOpsPanelProps {
+  /** Controlled day (yyyy-MM-dd) supplied by the merged Daily Ops workspace. */
+  day?: string;
+  onDayChange?: (d: string) => void;
+  /** Controlled branch filter ("all" or branch id). */
+  branchFilter?: string;
+  onBranchChange?: (b: string) => void;
+  /** Hide the panel's own date/branch toolbar when the workspace provides one. */
+  hideToolbar?: boolean;
+}
+
+export default function AdminDailyBranchBriefContent({
+  day: dayProp, onDayChange, branchFilter: branchProp, onBranchChange, hideToolbar,
+}: DailyOpsPanelProps = {}) {
   const { language } = useLanguage();
   const tx = (th: string, en: string) => (language === "th" ? th : en);
   const { user } = useAuth();
   const { role } = useAdminRole();
 
-  const [day, setDay] = useState(format(new Date(), "yyyy-MM-dd"));
-  const [branchFilter, setBranchFilter] = useState<string>("all");
+  const [dayLocal, setDayLocal] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [branchLocal, setBranchLocal] = useState<string>("all");
+  const day = dayProp ?? dayLocal;
+  const setDay = onDayChange ?? setDayLocal;
+  const branchFilter = branchProp ?? branchLocal;
+  const setBranchFilter = onBranchChange ?? setBranchLocal;
   const [rows, setRows] = useState<BriefCase[]>([]);
   const [branches, setBranches] = useState<BranchInfo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -362,22 +379,26 @@ export default function AdminDailyBranchBriefContent() {
       {/* Controls */}
       <Card className="p-4 no-print">
         <div className="flex flex-wrap items-end gap-3">
-          <div className="space-y-1">
-            <Label className="text-xs">{tx("เลือกวัน", "Date")}</Label>
-            <Input type="date" value={day} onChange={(e) => setDay(e.target.value)} className="w-44" />
-          </div>
-          <div className="space-y-1">
-            <Label className="text-xs">{tx("สาขา", "Branch")}</Label>
-            <Select value={branchFilter} onValueChange={setBranchFilter}>
-              <SelectTrigger className="w-56"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{tx("ทุกสาขา", "All branches")}</SelectItem>
-                {branches.map((b) => (
-                  <SelectItem key={b.id} value={b.id}>{language === "th" ? b.name_th : b.name_en}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {!hideToolbar && (
+            <>
+              <div className="space-y-1">
+                <Label className="text-xs">{tx("เลือกวัน", "Date")}</Label>
+                <Input type="date" value={day} onChange={(e) => setDay(e.target.value)} className="w-44" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">{tx("สาขา", "Branch")}</Label>
+                <Select value={branchFilter} onValueChange={setBranchFilter}>
+                  <SelectTrigger className="w-56"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{tx("ทุกสาขา", "All branches")}</SelectItem>
+                    {branches.map((b) => (
+                      <SelectItem key={b.id} value={b.id}>{language === "th" ? b.name_th : b.name_en}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
+          )}
           <Button variant="outline" size="sm" onClick={load} disabled={loading}>
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </Button>
