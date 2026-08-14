@@ -49,12 +49,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
-import { useStableRefresh, lockScroll } from "@/hooks/useStableRefresh";
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useStableRefresh, lockScroll } from "@/hooks/useStableRefresh";
 
 interface AdminKitOrdersContentProps {
   userBranch?: string | null;
