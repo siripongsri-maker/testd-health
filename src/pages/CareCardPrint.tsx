@@ -226,6 +226,19 @@ export default function CareCardPrint() {
             placeholder="ค้นหาชื่อกิจกรรม สถานที่ หรือวันที่"
             className="h-9"
           />
+          {!sessionQuery.trim() && (sessions || []).length > 0 && (
+            <div className="space-y-1.5">
+              <p className="text-[11px] text-muted-foreground">ตัวเลือกล่าสุด</p>
+              <div className="flex flex-wrap gap-1.5">
+                {(sessions || []).slice(0, 3).map((s: { id: string; session_date: string; session_title_th: string | null }) => (
+                  <Button key={`recent-${s.id}`} size="sm" variant={s.id === sessionId ? "default" : "outline"} className="text-xs" onClick={() => pickSession(s.id)}>
+                    {formatDate(new Date(s.session_date), "dd MMM")} · {s.session_title_th || "ไม่มีชื่อ"}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="max-h-[45vh] overflow-y-auto space-y-1.5 pr-1">
             {filteredSessions.length === 0 && (
               <p className="text-sm text-muted-foreground py-6 text-center">ไม่พบเซสชันที่ค้นหา</p>
