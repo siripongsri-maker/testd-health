@@ -11,6 +11,7 @@ import ClientNotificationsCard from "./ClientNotificationsCard";
 import { fetchUrgentCaseMap, type UrgentCaseRef } from "@/lib/urgentCases";
 import PrintButton from "./PrintButton";
 import { useStableRefresh, lockScroll } from "@/hooks/useStableRefresh";
+import { notifySaved } from "@/lib/adminSaveToast";
 
 
 
@@ -194,6 +195,7 @@ export default function AdminCounselingPayoutsContent({
 
 
   const setStatus = async (id: string, status: ClaimStatus) => {
+    const before = claims.find((c) => c.id === id);
     setBusy(id);
     const patch: Record<string, unknown> = { status };
     if (status === "paid") patch.paid_at = new Date().toISOString();
@@ -203,7 +205,23 @@ export default function AdminCounselingPayoutsContent({
       toast({ title: "อัปเดตไม่สำเร็จ", description: error.message, variant: "destructive" });
       return;
     }
-    toast({ title: `อัปเดตเป็น "${STATUS_LABEL[status]}" แล้ว` });
+    notifySaved({
+      title: "อัปเดตสถานะการจ่ายแล้ว",
+      changes: before
+        ? [{ label: "สถานะ", from: STATUS_LABEL[before.status], to: STATUS_LABEL[status] }]
+        : [],
+      description: before ? `${before.account_holder_name} · ${Number(before.amount).toLocaleString()} บาท` : undefined,
+      onUndo: before
+        ? async () => {
+            const { error: undoErr } = await supabase
+              .from("counseling_payout_claims")
+              .update({ status: before.status, paid_at: before.paid_at })
+              .eq("id", id);
+            if (undoErr) throw undoErr;
+            load();
+          }
+        : undefined,
+    });
     load();
   };
 

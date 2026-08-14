@@ -55,6 +55,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useStableRefresh, lockScroll } from "@/hooks/useStableRefresh";
+import { notifySaved, type FieldChange } from "@/lib/adminSaveToast";
 
 interface AdminKitOrdersContentProps {
   userBranch?: string | null;
@@ -558,7 +559,33 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         });
       }
 
-      toast.success(language === 'th' ? 'อัปเดตสำเร็จ' : 'Updated successfully');
+      const prev = selectedOrder;
+      const diff: FieldChange[] = [
+        { label: 'สถานะ', from: prev.status, to: updateForm.status },
+        { label: 'ขนส่ง', from: prev.shipping_carrier, to: updateForm.shipping_carrier },
+        { label: 'เลขพัสดุ', from: prev.tracking_number, to: updateForm.tracking_number },
+        { label: 'โน้ตภายใน', from: prev.internal_notes ? 'มีข้อความเดิม' : null, to: updateForm.internal_notes ? 'อัปเดตข้อความ' : null },
+      ];
+      notifySaved({
+        title: language === 'th' ? 'อัปเดตคำสั่งซื้อแล้ว' : 'Order updated',
+        changes: diff,
+        description: prev.order_code ? `#${prev.order_code}` : undefined,
+        onUndo: async () => {
+          const { error: undoErr } = await supabase
+            .from('kit_orders')
+            .update({
+              status: prev.status,
+              shipping_carrier: prev.shipping_carrier,
+              tracking_number: prev.tracking_number,
+              tracking_url: prev.tracking_url,
+              internal_notes: prev.internal_notes,
+              last_updated_by: user?.id,
+            })
+            .eq('id', prev.id);
+          if (undoErr) throw undoErr;
+          fetchOrders();
+        },
+      });
       setShowDetailDialog(false);
       fetchOrders();
     } catch (error: any) {
@@ -736,11 +763,25 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       if (error) throw error;
       successCount = ids.length;
 
-      toast.success(
-        language === 'th'
-          ? `อัปเดตสำเร็จ ${successCount} รายการ`
-          : `Updated ${successCount} records successfully`
-      );
+      const before = hivRequests.filter((r) => ids.includes(r.id));
+      const summary: FieldChange[] = [];
+      if (updateData.status) summary.push({ label: 'สถานะ', from: `${before.length} รายการเดิม`, to: String(updateData.status) });
+      if (updateData.tracking_number) summary.push({ label: 'เลขพัสดุ', from: null, to: String(updateData.tracking_number) });
+      notifySaved({
+        title: language === 'th' ? `อัปเดตสำเร็จ ${successCount} รายการ` : `Updated ${successCount} records`,
+        changes: summary,
+        onUndo: before.length
+          ? async () => {
+              for (const r of before) {
+                const revert: Record<string, any> = { updated_at: new Date().toISOString() };
+                if (updateData.status) revert.status = r.status;
+                if (updateData.tracking_number !== undefined) revert.tracking_number = (r as any).tracking_number ?? null;
+                await supabase.from('hiv_selftest_requests').update(revert).eq('id', r.id);
+              }
+              fetchHIVRequests();
+            }
+          : undefined,
+      });
       setShowBatchEditDialog(false);
       setSelectedIds(new Set());
       setBatchEditValue('');
