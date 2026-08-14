@@ -196,9 +196,9 @@ Deno.serve(async (req) => {
             });
             httpStatus = res.status;
             const payload = await res.json().catch(() => ({}));
-            if (res.ok && (payload?.code === "000000" || payload?.status === "success")) {
+            if (res.ok && (payload?.code === "000" || payload?.code === "000000" || payload?.status === "success")) {
               status = "sent";
-              providerId = payload?.detail?.[0]?.transaction_id ?? null;
+              providerId = payload?.result?.transaction_id ?? payload?.detail?.[0]?.transaction_id ?? null;
               results.sms++;
             } else {
               errMsg = JSON.stringify(payload).slice(0, 400);
