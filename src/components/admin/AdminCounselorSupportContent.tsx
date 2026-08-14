@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -307,11 +307,25 @@ function sortRows(
 }
 
 // ────────────────────────────────────────────────────────────────
+// Workbench context — in the merged Daily Ops workspace this queue is a
+// read-only overview; all recording/handoff happens on the branch brief
+// ("หน้าปฏิบัติงาน"), so we avoid duplicated commands on both screens.
+// ────────────────────────────────────────────────────────────────
+const WorkbenchCtx = createContext<{ viewOnly: boolean; open?: (surveyId: string) => void }>({ viewOnly: false });
+
+// ────────────────────────────────────────────────────────────────
 // Component
 // ────────────────────────────────────────────────────────────────
 export default function AdminCounselorSupportContent({
-  branchFilter: branchProp, onBranchChange,
-}: { branchFilter?: string; onBranchChange?: (b: string) => void } = {}) {
+  branchFilter: branchProp, onBranchChange, viewOnly = false, onOpenWorkbench,
+}: {
+  branchFilter?: string;
+  onBranchChange?: (b: string) => void;
+  /** Hide inline editing — the queue becomes a pure overview. */
+  viewOnly?: boolean;
+  /** Jump to the operational page (branch brief) focused on this case. */
+  onOpenWorkbench?: (surveyId: string) => void;
+} = {}) {
   const { language } = useLanguage();
   const tx = (th: string, en: string) => (language === "th" ? th : en);
   const { user } = useAuth();
@@ -741,7 +755,14 @@ export default function AdminCounselorSupportContent({
   ];
 
   return (
+    <WorkbenchCtx.Provider value={{ viewOnly, open: onOpenWorkbench }}>
     <div className="space-y-5">
+      {viewOnly && (
+        <Card className="p-3 text-xs text-muted-foreground border-dashed">
+          {tx("หน้านี้ใช้ “ดูคิวรวม” เท่านั้น — การบันทึกผล ส่งต่อ และค่าเดินทาง ทำที่แท็บ “สรุปรายสาขา (หน้าปฏิบัติงาน)”",
+              "This page is an overview only — recording, referral and allowance happen on the “Branch brief (work page)” tab.")}
+        </Card>
+      )}
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
@@ -979,6 +1000,7 @@ export default function AdminCounselorSupportContent({
         </div>
       )}
     </div>
+    </WorkbenchCtx.Provider>
   );
 }
 
@@ -1198,6 +1220,7 @@ function CasePanel({
   onSave: (patch: Partial<CaseNote>) => void | Promise<void>;
   compact?: boolean;
 }) {
+  const { viewOnly, open: openWorkbench } = useContext(WorkbenchCtx);
   const priority = computePriority(row, note);
   const meta = PRIORITY_META[priority];
   const status: CaseStatus = note?.status || "not_reviewed";
@@ -1407,6 +1430,40 @@ function CasePanel({
               </div>
             </div>
 
+            {viewOnly ? (
+              /* Overview mode — show what was recorded, but send the counselor to the
+                 work page (branch brief) for any change, so commands aren't duplicated. */
+              <div className="rounded-md border bg-muted/30 p-3 space-y-2">
+                <div className="text-xs">
+                  <span className="text-muted-foreground">{tx("บันทึกล่าสุด: ", "Latest note: ")}</span>
+                  {note?.notes ? <span className="whitespace-pre-wrap">{note.notes}</span>
+                    : <span className="text-muted-foreground">{tx("ยังไม่มีบันทึก", "No notes yet")}</span>}
+                </div>
+                {note?.next_step && (
+                  <div className="text-xs">
+                    <span className="text-muted-foreground">{tx("ขั้นตอนถัดไป: ", "Next step: ")}</span>{note.next_step}
+                  </div>
+                )}
+                <div className="flex items-center gap-2 flex-wrap">
+                  {note?.follow_up_required && (
+                    <Badge variant="outline" className="text-[10px]">{tx("ต้องติดตาม", "Follow-up")}</Badge>
+                  )}
+                  <span className="text-[11px] text-muted-foreground">
+                    {note?.updated_at ? `${tx("อัปเดตล่าสุด", "Last updated")}: ${new Date(note.updated_at).toLocaleString()}` : ""}
+                  </span>
+                  <Button
+                    size="sm"
+                    className="h-8 ml-auto bg-teal-600 hover:bg-teal-700"
+                    onClick={() => openWorkbench?.(row.id)}
+                    disabled={!openWorkbench}
+                  >
+                    <ArrowRightCircle className="h-3.5 w-3.5 mr-1" />
+                    {tx("บันทึกผล / ส่งต่อ ที่หน้าปฏิบัติงาน", "Record / refer on the work page")}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <>
             {/* Counselor input */}
             <div className="space-y-2">
               <label className="text-xs font-semibold block">
@@ -1483,6 +1540,8 @@ function CasePanel({
               onSave={onSave}
               tx={tx}
             />
+              </>
+            )}
           </div>
         </CollapsibleContent>
       </Card>

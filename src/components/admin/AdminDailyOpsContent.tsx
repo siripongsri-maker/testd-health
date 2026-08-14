@@ -50,6 +50,8 @@ export default function AdminDailyOpsContent() {
   const [branchFilter, setBranchFilter] = useState(() => searchParams.get("branch") || "all");
   const [branches, setBranches] = useState<BranchInfo[]>([]);
   const [sub, setSub] = useState<SubTab>(() => (searchParams.get("sub") as SubTab) || "queue");
+  // Case handed over from the queue overview to the work page (branch brief)
+  const [focusSurveyId, setFocusSurveyId] = useState<string | null>(null);
 
   useEffect(() => {
     supabase
@@ -147,12 +149,18 @@ export default function AdminDailyOpsContent() {
         </TabsList>
 
         <TabsContent value="queue" className="mt-4">
-          <AdminCounselorSupportContent branchFilter={branchFilter} onBranchChange={setBranchFilter} />
+          <AdminCounselorSupportContent
+            branchFilter={branchFilter}
+            onBranchChange={setBranchFilter}
+            viewOnly
+            onOpenWorkbench={(surveyId) => { setFocusSurveyId(surveyId); setSub("branch"); }}
+          />
         </TabsContent>
         <TabsContent value="branch" className="mt-4">
           <AdminDailyBranchBriefContent
             day={day} onDayChange={setDay}
             branchFilter={branchFilter} onBranchChange={setBranchFilter}
+            focusSurveyId={focusSurveyId}
             hideToolbar
           />
         </TabsContent>
