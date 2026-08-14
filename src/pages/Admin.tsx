@@ -76,6 +76,7 @@ const AdminSelftestMapContent = lazy(() => import("@/components/admin/AdminSelft
 const AdminSelftestMissingIdContent = lazy(() => import("@/components/admin/AdminSelftestMissingIdContent"));
 const AdminPreServiceSurveysContent = lazy(() => import("@/components/admin/AdminPreServiceHubContent"));
 const AdminCounselorSupportContent = lazy(() => import("@/components/admin/AdminCounselorSupportContent"));
+const AdminDailyOpsContent = lazy(() => import("@/components/admin/AdminDailyOpsContent"));
 const AdminDailyBranchBriefContent = lazy(() => import("@/components/admin/AdminDailyBranchBriefContent"));
 const AdminConcernBriefContent = lazy(() => import("@/components/admin/AdminConcernBriefContent"));
 const AdminCounselingPayoutsContent = lazy(() => import("@/components/admin/AdminCounselingPayoutsContent"));
