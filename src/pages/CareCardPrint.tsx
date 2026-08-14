@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { createRoot } from "react-dom/client";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { SEOHead } from "@/components/seo/SEOHead";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,8 +81,11 @@ export default function CareCardPrint() {
 
   const [exporting, setExporting] = useState<Layout | null>(null);
 
+  const { user, loading: authLoading } = useAuth();
+
   const { data: sessions } = useQuery({
-    queryKey: ["care-card-support-sessions"],
+    queryKey: ["care-card-support-sessions", user?.id || "anon"],
+    enabled: !authLoading,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("support_sessions")
@@ -90,6 +94,28 @@ export default function CareCardPrint() {
         .limit(100);
       if (error) throw error;
       return data || [];
+    },
+  });
+
+  // เผื่อกรณีอ่านรายการทั้งหมดไม่ได้ (สิทธิ์/ยังไม่ล็อกอิน) ให้ยืนยันเซสชันจาก URL ผ่านฟังก์ชันสาธารณะ
+  const urlSessionId = searchParams.get("session");
+  const { data: publicSession } = useQuery({
+    queryKey: ["care-card-public-session", urlSessionId],
+    enabled: !!urlSessionId && !(sessions || []).some((s: { id: string }) => s.id === urlSessionId),
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("get_safe_space_session_public", {
+        p_session_id: urlSessionId,
+      });
+      if (error) throw error;
+      const row = Array.isArray(data) ? data[0] : null;
+      return row
+        ? {
+            id: urlSessionId as string,
+            session_date: (row as { session_date: string }).session_date,
+            session_title_th: (row as { session_title_th: string | null }).session_title_th,
+            location: (row as { location: string | null }).location,
+          }
+        : null;
     },
   });
 
@@ -116,22 +142,28 @@ export default function CareCardPrint() {
     if (next.toString() !== searchParams.toString()) setSearchParams(next, { replace: true });
   }, [eventCode, searchParams, sessionId, setSearchParams]);
 
+  const perSheet = useMemo(() => LAYOUTS[layout].cols * LAYOUTS[layout].rows, [layout]);
+  const sessionOptions = useMemo(() => {
+    const list = [...(sessions || [])];
+    if (publicSession && !list.some((s: { id: string }) => s.id === publicSession.id)) list.unshift(publicSession);
+    return list;
+  }, [sessions, publicSession]);
+
   useEffect(() => {
     if (sessionId === "none") return;
-    const s = (sessions || []).find((x: { id: string }) => x.id === sessionId);
+    const s = sessionOptions.find((x: { id: string }) => x.id === sessionId);
     if (s) {
       const auto = `ss-${formatDate(new Date((s as { session_date: string }).session_date), "yyyyMMdd")}`;
       setEventCode((prev) => (prev === "safespace" || prev.startsWith("ss-") ? auto : prev));
     }
-  }, [sessionId, sessions]);
+  }, [sessionId, sessionOptions]);
 
-  const perSheet = useMemo(() => LAYOUTS[layout].cols * LAYOUTS[layout].rows, [layout]);
   const selectedSession = useMemo(
-    () => (sessions || []).find((s: { id: string }) => s.id === sessionId),
-    [sessionId, sessions],
+    () => sessionOptions.find((s: { id: string }) => s.id === sessionId),
+    [sessionId, sessionOptions],
   );
   // มีรหัสเซสชันใน URL แต่หาไม่เจอในระบบ = การ์ด/ลิงก์เก่า
-  const staleSession = !!sessions && sessionId !== "none" && !selectedSession;
+  const staleSession = !!sessions && sessionId !== "none" && !selectedSession && publicSession !== undefined;
 
   const sheetsFor = (l: Layout) => (
     <>
@@ -192,7 +224,7 @@ export default function CareCardPrint() {
   };
 
 
-  const filteredSessions = (sessions || []).filter((s: { session_title_th: string | null; location: string | null; session_date: string }) => {
+  const filteredSessions = sessionOptions.filter((s: { session_title_th: string | null; location: string | null; session_date: string }) => {
     const q = sessionQuery.trim().toLowerCase();
     if (!q) return true;
     return `${s.session_title_th || ""} ${s.location || ""} ${formatDate(new Date(s.session_date), "dd MMM yyyy")}`.toLowerCase().includes(q);
@@ -226,11 +258,11 @@ export default function CareCardPrint() {
             placeholder="ค้นหาชื่อกิจกรรม สถานที่ หรือวันที่"
             className="h-9"
           />
-          {!sessionQuery.trim() && (sessions || []).length > 0 && (
+          {!sessionQuery.trim() && sessionOptions.length > 0 && (
             <div className="space-y-1.5">
               <p className="text-[11px] text-muted-foreground">ตัวเลือกล่าสุด</p>
               <div className="flex flex-wrap gap-1.5">
-                {(sessions || []).slice(0, 3).map((s: { id: string; session_date: string; session_title_th: string | null }) => (
+                {sessionOptions.slice(0, 3).map((s: { id: string; session_date: string; session_title_th: string | null }) => (
                   <Button key={`recent-${s.id}`} size="sm" variant={s.id === sessionId ? "default" : "outline"} className="text-xs" onClick={() => pickSession(s.id)}>
                     {formatDate(new Date(s.session_date), "dd MMM")} · {s.session_title_th || "ไม่มีชื่อ"}
                   </Button>
@@ -311,7 +343,7 @@ export default function CareCardPrint() {
               </p>
 
               <div className="flex flex-wrap gap-2 pt-1">
-                {(sessions || []).slice(0, 3).map((s: { id: string; session_date: string; session_title_th: string | null }) => (
+                {sessionOptions.slice(0, 3).map((s: { id: string; session_date: string; session_title_th: string | null }) => (
                   <Button key={s.id} size="sm" variant="outline" className="text-xs" onClick={() => pickSession(s.id)}>
                     {formatDate(new Date(s.session_date), "dd MMM yyyy")} · {s.session_title_th || "ไม่มีชื่อ"}
                   </Button>
@@ -373,7 +405,7 @@ export default function CareCardPrint() {
                     <SelectTrigger className={`h-9 text-xs ${!selectedSession ? "border-destructive" : ""}`}><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="none">ไม่ผูกเซสชัน</SelectItem>
-                      {(sessions || []).map((s: { id: string; session_date: string; session_title_th: string | null; location: string | null }) => (
+                      {sessionOptions.map((s: { id: string; session_date: string; session_title_th: string | null; location: string | null }) => (
                         <SelectItem key={s.id} value={s.id}>
                           {formatDate(new Date(s.session_date), "dd MMM yyyy")} · {s.session_title_th || "ไม่มีชื่อ"}{s.location ? ` · ${s.location}` : ""}
                         </SelectItem>
