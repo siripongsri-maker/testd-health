@@ -50,3 +50,5 @@ project_id = "tzerhfvlrssrashrcbeg"
     verify_jwt = false
   [functions.selftest-submit-thai-id]
     verify_jwt = false
+  [functions.notify-slot-shift]
+    verify_jwt = false
