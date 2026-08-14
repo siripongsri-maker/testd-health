@@ -896,6 +896,12 @@ export default function AdminCounselorSupportContent({
               {tx("ล้างตัวกรอง", "Clear filters")}
             </Button>
           )}
+          <Button
+            variant="outline" size="sm" className="h-8 ml-auto"
+            onClick={() => setCompact((v) => !v)}
+          >
+            {compact ? tx("มุมมองเต็ม", "Full view") : tx("มุมมองกระชับ", "Compact view")}
+          </Button>
         </div>
         <div className="text-xs text-muted-foreground">
           {tx(`พบ ${filtered.length} เคส`, `${filtered.length} case(s) found`)}
@@ -914,7 +920,7 @@ export default function AdminCounselorSupportContent({
           <div className="text-xs mt-1">{tx("ลองเปลี่ยนตัวกรอง หรือรอเคสใหม่", "Try changing filters or wait for new cases")}</div>
         </Card>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-4">
           {grouped.map((day, idx) => (
             <DaySection
               key={`${day.key}-${day.date ?? "walkin"}-${idx}`}
@@ -927,6 +933,8 @@ export default function AdminCounselorSupportContent({
               serviceName={serviceName}
               readOnly={readOnly}
               onSave={saveNote}
+              compact={compact}
+              defaultOpen={idx === 0}
             />
           ))}
         </div>
