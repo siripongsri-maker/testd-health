@@ -687,7 +687,43 @@ export default function AdminCounselorSupportContent({
       return;
     }
     setNotes((prev) => ({ ...prev, [surveyId]: data as CaseNote }));
-    toast({ title: tx("บันทึกแล้ว", "Saved") });
+
+    // Summary of what actually changed + undo back to the previous note
+    const label = (s?: string | null) => (s ? STATUS_LABELS[s as CaseStatus]?.th ?? s : null);
+    const changes: FieldChange[] = [];
+    if (patch.status !== undefined) changes.push({ label: "สถานะเคส", from: label(existing?.status), to: label(payload.status) });
+    if (patch.notes !== undefined) changes.push({ label: "บันทึก", from: existing?.notes ? "มีข้อความเดิม" : null, to: payload.notes ? "อัปเดตข้อความ" : "ลบข้อความ" });
+    if (patch.next_step !== undefined) changes.push({ label: "ขั้นต่อไป", from: existing?.next_step, to: payload.next_step });
+    if (patch.follow_up_required !== undefined)
+      changes.push({ label: "ต้องติดตาม", from: existing?.follow_up_required ? "ใช่" : "ไม่", to: payload.follow_up_required ? "ใช่" : "ไม่" });
+
+    notifySaved({
+      title: tx("บันทึกแล้ว", "Saved"),
+      changes,
+      description: survey.appointments?.branch_id ? undefined : undefined,
+      onUndo: existing
+        ? async () => {
+            const { data: restored, error: undoErr } = await supabase
+              .from("pre_service_counseling_notes")
+              .upsert(
+                {
+                  survey_id: surveyId,
+                  branch_id,
+                  status: existing.status,
+                  notes: existing.notes ?? null,
+                  next_step: existing.next_step ?? null,
+                  follow_up_required: existing.follow_up_required ?? false,
+                  updated_by: user?.id ?? null,
+                },
+                { onConflict: "survey_id" },
+              )
+              .select()
+              .single();
+            if (undoErr) throw undoErr;
+            setNotes((prev) => ({ ...prev, [surveyId]: restored as CaseNote }));
+          }
+        : undefined,
+    });
   };
 
   const readOnly = isMeAnalyst;
