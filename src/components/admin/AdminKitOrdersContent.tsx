@@ -763,11 +763,25 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       if (error) throw error;
       successCount = ids.length;
 
-      toast.success(
-        language === 'th'
-          ? `อัปเดตสำเร็จ ${successCount} รายการ`
-          : `Updated ${successCount} records successfully`
-      );
+      const before = hivRequests.filter((r) => ids.includes(r.id));
+      const summary: FieldChange[] = [];
+      if (updateData.status) summary.push({ label: 'สถานะ', from: `${before.length} รายการเดิม`, to: String(updateData.status) });
+      if (updateData.tracking_number) summary.push({ label: 'เลขพัสดุ', from: null, to: String(updateData.tracking_number) });
+      notifySaved({
+        title: language === 'th' ? `อัปเดตสำเร็จ ${successCount} รายการ` : `Updated ${successCount} records`,
+        changes: summary,
+        onUndo: before.length
+          ? async () => {
+              for (const r of before) {
+                const revert: Record<string, any> = { updated_at: new Date().toISOString() };
+                if (updateData.status) revert.status = r.status;
+                if (updateData.tracking_number !== undefined) revert.tracking_number = (r as any).tracking_number ?? null;
+                await supabase.from('hiv_selftest_requests').update(revert).eq('id', r.id);
+              }
+              fetchHIVRequests();
+            }
+          : undefined,
+      });
       setShowBatchEditDialog(false);
       setSelectedIds(new Set());
       setBatchEditValue('');
