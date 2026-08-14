@@ -10,7 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { Switch } from "@/components/ui/switch";
-import { Printer, LayoutGrid, ArrowLeft, Download, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Printer, LayoutGrid, ArrowLeft, Download, Loader2, Repeat } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { format as formatDate } from "date-fns";
