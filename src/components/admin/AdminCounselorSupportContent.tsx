@@ -22,6 +22,7 @@ import { useAdminRole } from "@/hooks/useAdminRole";
 import { toast } from "@/hooks/use-toast";
 import ClientHrContextPanel from "./ClientHrContextPanel";
 import HrReferralQueue from "./HrReferralQueue";
+import { useStableRefresh, lockScroll } from "@/hooks/useStableRefresh";
 
 // ────────────────────────────────────────────────────────────────
 // Types
@@ -322,6 +323,7 @@ export default function AdminCounselorSupportContent({
   const [notes, setNotes] = useState<Record<string, CaseNote>>({});
   const [postEvals, setPostEvals] = useState<Record<string, PostEval>>({}); // keyed by note_id
   const [loading, setLoading] = useState(true);
+  const { begin: beginLoad } = useStableRefresh(setLoading);
   const [realtimeStatus, setRealtimeStatus] = useState<"connecting" | "live" | "offline">("connecting");
   const [branchLocal, setBranchLocal] = useState<string>("all"); // admin only
   const branchFilter = branchProp ?? branchLocal;
@@ -402,7 +404,7 @@ export default function AdminCounselorSupportContent({
 
   // Load everything (surveys + notes + branches + services). RLS enforces scope.
   const load = useCallback(async () => {
-    setLoading(true);
+    beginLoad();
     try {
       let all: any[] = [];
       let from = 0;

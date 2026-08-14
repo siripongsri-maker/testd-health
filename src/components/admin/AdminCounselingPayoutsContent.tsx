@@ -10,6 +10,7 @@ import PostEvalSmsQueueCard from "./PostEvalSmsQueueCard";
 import ClientNotificationsCard from "./ClientNotificationsCard";
 import { fetchUrgentCaseMap, type UrgentCaseRef } from "@/lib/urgentCases";
 import PrintButton from "./PrintButton";
+import { useStableRefresh, lockScroll } from "@/hooks/useStableRefresh";
 
 
 
@@ -86,6 +87,7 @@ export default function AdminCounselingPayoutsContent({
   const [batches, setBatches] = useState<Batch[]>([]);
   const [branches, setBranches] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+  const { begin: beginLoad } = useStableRefresh(setLoading);
   const [filter, setFilter] = useState<ClaimStatus | "all">("pending");
   const [busy, setBusy] = useState<string | null>(null);
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
@@ -102,7 +104,7 @@ export default function AdminCounselingPayoutsContent({
 
 
   const load = useCallback(async () => {
-    setLoading(true);
+    beginLoad();
     const [{ data: rows }, { data: brs }, { data: bts }] = await Promise.all([
       supabase
         .from("counseling_payout_claims")

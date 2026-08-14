@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { useLanguage } from "@/lib/i18n";
 import { useAdminRole } from "@/hooks/useAdminRole";
 import { toast } from "@/hooks/use-toast";
+import { useStableRefresh, lockScroll } from "@/hooks/useStableRefresh";
 
 
 // Statuses that mean "counseling finished" (per project-wide convention).
@@ -101,6 +102,7 @@ export function PostCounselingCasesTab({ variant }: { variant: "cases" | "compar
   const readOnly = !!isMeAnalyst;
 
   const [loading, setLoading] = useState(true);
+  const { begin: beginLoad } = useStableRefresh(setLoading);
   const [notes, setNotes] = useState<NoteRow[]>([]);
   const [surveys, setSurveys] = useState<Record<string, SurveyRow>>({});
   const [evals, setEvals] = useState<Record<string, PostEval>>({});
@@ -111,7 +113,7 @@ export function PostCounselingCasesTab({ variant }: { variant: "cases" | "compar
   const [generatingFor, setGeneratingFor] = useState<string | null>(null);
 
   const load = async () => {
-    setLoading(true);
+    beginLoad();
     try {
       const { data: noteRows, error: noteErr } = await supabase
         .from("pre_service_counseling_notes")

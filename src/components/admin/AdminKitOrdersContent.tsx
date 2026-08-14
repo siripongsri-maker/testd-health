@@ -54,6 +54,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useStableRefresh, lockScroll } from "@/hooks/useStableRefresh";
 
 interface AdminKitOrdersContentProps {
   userBranch?: string | null;
@@ -190,6 +191,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const { language } = useLanguage();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
+  const { begin: beginLoad } = useStableRefresh(setLoading);
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [realtimeStatus, setRealtimeStatus] = useState<'connecting' | 'live' | 'off'>('connecting');
@@ -358,7 +360,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   };
 
   const fetchOrders = async (silent = false) => {
-    if (!silent) setLoading(true);
+    if (!silent) beginLoad(); else lockScroll();
     try {
       const { data, error } = await supabase
         .from('kit_orders')
