@@ -68,8 +68,14 @@ function Sheet({
 
 export default function CareCardPrint() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const origin = typeof window !== "undefined" ? window.location.origin : "https://testd.website";
+  // การ์ดถูกพิมพ์ออกไปใช้จริงนอกระบบ QR จึงต้องชี้ไปโดเมนสาธารณะเสมอ
+  // (โดเมนพรีวิว/ภายในของ Lovable จะสแกนแล้วเข้าไม่ได้)
+  const PUBLIC_ORIGIN = "https://testd.website";
+  const isPublicHost =
+    typeof window !== "undefined" && !/lovable\.(app|dev)$|localhost|127\.0\.0\.1/.test(window.location.hostname);
+  const origin = isPublicHost ? window.location.origin : PUBLIC_ORIGIN;
   const [baseUrl, setBaseUrl] = useState(`${origin}/safe-space/quiz`);
+
   const [sessionId, setSessionId] = useState(() => searchParams.get("session") || "none");
   const [eventCode, setEventCode] = useState(() => searchParams.get("event") || "safespace");
   const [switcherOpen, setSwitcherOpen] = useState(false);
