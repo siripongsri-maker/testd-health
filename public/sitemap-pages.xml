@@ -466,24 +466,6 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/category/lifestyle" />
   </url>
   <url>
-    <loc>https://testd.website/th/info/article/ghb-overdose-prevention-timeline</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/ghb-overdose-prevention-timeline" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
-  </url>
-  <url>
-    <loc>https://testd.website/en/info/article/ghb-overdose-prevention-timeline</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/ghb-overdose-prevention-timeline" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
-  </url>
-  <url>
     <loc>https://testd.website/th/info/article/42-critical-substance-interactions-chemsex</loc>
     <lastmod>2026-08-11</lastmod>
     <changefreq>weekly</changefreq>
@@ -500,6 +482,24 @@
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/42-critical-substance-interactions-chemsex" />
     <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/42-critical-substance-interactions-chemsex" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/42-critical-substance-interactions-chemsex" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</loc>
+    <lastmod>2026-08-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026</loc>
+    <lastmod>2026-08-09</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
   </url>
   <url>
     <loc>https://testd.website/th/info/article/meth-harm-reduction-thailand-behaviour-2026</loc>
@@ -520,24 +520,6 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/meth-harm-reduction-thailand-behaviour-2026" />
   </url>
   <url>
-    <loc>https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
-  </url>
-  <url>
-    <loc>https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</loc>
-    <lastmod>2026-08-09</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
-  </url>
-  <url>
     <loc>https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data</loc>
     <lastmod>2026-08-10</lastmod>
     <changefreq>weekly</changefreq>
@@ -556,22 +538,40 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data" />
   </url>
   <url>
-    <loc>https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</loc>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
   </url>
   <url>
-    <loc>https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026</loc>
-    <lastmod>2026-08-09</lastmod>
+    <loc>https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</loc>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/ghb-overdose-prevention-timeline</loc>
+    <lastmod>2026-08-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/ghb-overdose-prevention-timeline" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/ghb-overdose-prevention-timeline</loc>
+    <lastmod>2026-08-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/ghb-overdose-prevention-timeline" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
   </url>
   <url>
     <loc>https://testd.website/th/info/article/long-acting-injectable-prep</loc>
@@ -611,7 +611,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/prep-myths</loc>
-    <lastmod>2026-08-12</lastmod>
+    <lastmod>2026-08-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-myths" />
@@ -620,7 +620,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/prep-myths</loc>
-    <lastmod>2026-08-12</lastmod>
+    <lastmod>2026-08-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-myths" />
@@ -629,7 +629,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/pep-72-hours</loc>
-    <lastmod>2026-08-13</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/pep-72-hours" />
@@ -638,7 +638,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/pep-72-hours</loc>
-    <lastmod>2026-08-13</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/pep-72-hours" />
@@ -665,7 +665,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/sex-worker-health-rights</loc>
-    <lastmod>2026-08-10</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/sex-worker-health-rights" />
@@ -674,7 +674,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/sex-worker-health-rights</loc>
-    <lastmod>2026-08-10</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/sex-worker-health-rights" />
@@ -719,7 +719,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/mental-health-hotlines-thailand</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/mental-health-hotlines-thailand" />
@@ -728,7 +728,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/mental-health-hotlines-thailand</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/mental-health-hotlines-thailand" />
@@ -737,7 +737,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/hiv-status-disclosure</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-status-disclosure" />
@@ -746,7 +746,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/hiv-status-disclosure</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-status-disclosure" />
@@ -755,7 +755,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/talking-about-condoms</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/talking-about-condoms" />
@@ -764,7 +764,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/talking-about-condoms</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/talking-about-condoms" />
@@ -773,7 +773,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/sleep-after-substance-use</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/sleep-after-substance-use" />
@@ -782,7 +782,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/sleep-after-substance-use</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/sleep-after-substance-use" />
@@ -827,7 +827,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/methamphetamine-body-and-mind</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/methamphetamine-body-and-mind" />
@@ -836,7 +836,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/methamphetamine-body-and-mind</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/methamphetamine-body-and-mind" />
@@ -845,7 +845,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/phq4-two-minute-check</loc>
-    <lastmod>2026-08-10</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/phq4-two-minute-check" />
@@ -854,7 +854,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/phq4-two-minute-check</loc>
-    <lastmod>2026-08-10</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/phq4-two-minute-check" />
@@ -863,7 +863,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/non-judgemental-support-thailand</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/non-judgemental-support-thailand" />
@@ -872,7 +872,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/non-judgemental-support-thailand</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/non-judgemental-support-thailand" />
@@ -881,7 +881,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/hiv-anxiety-while-waiting</loc>
-    <lastmod>2026-08-12</lastmod>
+    <lastmod>2026-08-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-anxiety-while-waiting" />
@@ -890,7 +890,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/hiv-anxiety-while-waiting</loc>
-    <lastmod>2026-08-12</lastmod>
+    <lastmod>2026-08-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-anxiety-while-waiting" />
@@ -917,7 +917,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/post-party-recovery-plan</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/post-party-recovery-plan" />
@@ -926,7 +926,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/post-party-recovery-plan</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/post-party-recovery-plan" />
@@ -935,7 +935,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/overdose-warning-signs</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/overdose-warning-signs" />
@@ -944,7 +944,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/overdose-warning-signs</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/overdose-warning-signs" />
@@ -1007,7 +1007,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/how-often-sti-testing</loc>
-    <lastmod>2026-08-12</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/how-often-sti-testing" />
@@ -1016,7 +1016,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/how-often-sti-testing</loc>
-    <lastmod>2026-08-12</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/how-often-sti-testing" />
@@ -1043,7 +1043,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/poppers-risks</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/poppers-risks" />
@@ -1052,7 +1052,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/poppers-risks</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/poppers-risks" />
@@ -1061,7 +1061,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/genital-herpes-care</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/genital-herpes-care" />
@@ -1070,7 +1070,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/genital-herpes-care</loc>
-    <lastmod>2026-08-07</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/genital-herpes-care" />
@@ -1079,7 +1079,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/hepatitis-b-and-c</loc>
-    <lastmod>2026-08-08</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hepatitis-b-and-c" />
@@ -1088,7 +1088,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/hepatitis-b-and-c</loc>
-    <lastmod>2026-08-08</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hepatitis-b-and-c" />
@@ -1097,7 +1097,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/gonorrhea-vs-chlamydia</loc>
-    <lastmod>2026-08-13</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/gonorrhea-vs-chlamydia" />
@@ -1106,7 +1106,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/gonorrhea-vs-chlamydia</loc>
-    <lastmod>2026-08-13</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/gonorrhea-vs-chlamydia" />
@@ -1115,7 +1115,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/hpv-vaccine-for-men</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hpv-vaccine-for-men" />
@@ -1124,7 +1124,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/hpv-vaccine-for-men</loc>
-    <lastmod>2026-08-09</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hpv-vaccine-for-men" />
@@ -1151,7 +1151,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/reactive-hiv-self-test-next-steps</loc>
-    <lastmod>2026-08-11</lastmod>
+    <lastmod>2026-08-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/reactive-hiv-self-test-next-steps" />
@@ -1160,7 +1160,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/reactive-hiv-self-test-next-steps</loc>
-    <lastmod>2026-08-11</lastmod>
+    <lastmod>2026-08-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/reactive-hiv-self-test-next-steps" />
@@ -1169,7 +1169,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/hiv-self-test-how-to-use</loc>
-    <lastmod>2026-08-12</lastmod>
+    <lastmod>2026-08-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-self-test-how-to-use" />
@@ -1178,7 +1178,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/hiv-self-test-how-to-use</loc>
-    <lastmod>2026-08-12</lastmod>
+    <lastmod>2026-08-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-self-test-how-to-use" />
@@ -1205,7 +1205,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/free-anonymous-hiv-testing</loc>
-    <lastmod>2026-08-10</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/free-anonymous-hiv-testing" />
@@ -1214,7 +1214,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/free-anonymous-hiv-testing</loc>
-    <lastmod>2026-08-10</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/free-anonymous-hiv-testing" />
@@ -1223,7 +1223,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/u-equals-u</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/u-equals-u" />
@@ -1232,7 +1232,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/u-equals-u</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/u-equals-u" />
@@ -1241,7 +1241,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/pep-cost-and-coverage</loc>
-    <lastmod>2026-08-11</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/pep-cost-and-coverage" />
@@ -1250,7 +1250,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/pep-cost-and-coverage</loc>
-    <lastmod>2026-08-11</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/pep-cost-and-coverage" />
@@ -1259,7 +1259,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/pep-28-day-course</loc>
-    <lastmod>2026-08-13</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/pep-28-day-course" />
@@ -1268,7 +1268,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/pep-28-day-course</loc>
-    <lastmod>2026-08-13</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/pep-28-day-course" />
@@ -1295,7 +1295,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/pep-where-bangkok-pattaya</loc>
-    <lastmod>2026-08-11</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/pep-where-bangkok-pattaya" />
@@ -1304,7 +1304,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/pep-where-bangkok-pattaya</loc>
-    <lastmod>2026-08-11</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/pep-where-bangkok-pattaya" />
@@ -1313,7 +1313,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/condom-broke-what-to-do</loc>
-    <lastmod>2026-08-10</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/condom-broke-what-to-do" />
@@ -1322,7 +1322,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/condom-broke-what-to-do</loc>
-    <lastmod>2026-08-10</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/condom-broke-what-to-do" />
@@ -1331,7 +1331,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/prep-and-gender-affirming-hormones</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-and-gender-affirming-hormones" />
@@ -1340,7 +1340,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/prep-and-gender-affirming-hormones</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-and-gender-affirming-hormones" />
@@ -1349,7 +1349,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/prep-quarterly-followup</loc>
-    <lastmod>2026-08-14</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-quarterly-followup" />
@@ -1358,7 +1358,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/prep-quarterly-followup</loc>
-    <lastmod>2026-08-14</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-quarterly-followup" />
@@ -1367,7 +1367,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/prep-free-where-thailand</loc>
-    <lastmod>2026-08-10</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-free-where-thailand" />
@@ -1376,7 +1376,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/prep-free-where-thailand</loc>
-    <lastmod>2026-08-10</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-free-where-thailand" />
@@ -1385,7 +1385,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/prep-on-demand-211</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-on-demand-211" />
@@ -1394,7 +1394,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/prep-on-demand-211</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-on-demand-211" />
@@ -1403,7 +1403,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/prep-side-effects</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-side-effects" />
@@ -1412,7 +1412,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/prep-side-effects</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-side-effects" />
@@ -1421,7 +1421,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/prep-vs-pep</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-vs-pep" />
@@ -1430,7 +1430,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/prep-vs-pep</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-vs-pep" />
@@ -1439,7 +1439,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/prep-missed-dose</loc>
-    <lastmod>2026-08-11</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-missed-dose" />
@@ -1448,7 +1448,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/prep-missed-dose</loc>
-    <lastmod>2026-08-11</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-missed-dose" />
@@ -1457,7 +1457,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/prep-what-is-how-to-start</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-what-is-how-to-start" />
@@ -1466,7 +1466,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/prep-what-is-how-to-start</loc>
-    <lastmod>2026-08-06</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-what-is-how-to-start" />
@@ -1475,7 +1475,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/get-ready-before-starting-6-month-injectable-prep--moqy0670</loc>
-    <lastmod>2026-08-13</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/get-ready-before-starting-6-month-injectable-prep--moqy0670" />
@@ -1484,7 +1484,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/get-ready-before-starting-6-month-injectable-prep--moqy0670</loc>
-    <lastmod>2026-08-13</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/get-ready-before-starting-6-month-injectable-prep--moqy0670" />
@@ -1547,7 +1547,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/prep-doxy-pep-when-prevention-goes-beyond-hiv-mkxlt81n</loc>
-    <lastmod>2026-08-14</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-doxy-pep-when-prevention-goes-beyond-hiv-mkxlt81n" />
@@ -1556,7 +1556,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/prep-doxy-pep-when-prevention-goes-beyond-hiv-mkxlt81n</loc>
-    <lastmod>2026-08-14</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-doxy-pep-when-prevention-goes-beyond-hiv-mkxlt81n" />
@@ -1583,7 +1583,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/turn-pro-on-poppers-timing-awareness-and-body-resp-mkp2dzsy</loc>
-    <lastmod>2026-08-13</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/turn-pro-on-poppers-timing-awareness-and-body-resp-mkp2dzsy" />
@@ -1592,7 +1592,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/turn-pro-on-poppers-timing-awareness-and-body-resp-mkp2dzsy</loc>
-    <lastmod>2026-08-13</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/turn-pro-on-poppers-timing-awareness-and-body-resp-mkp2dzsy" />
@@ -1619,7 +1619,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/on-demand-prep-doesn-t-work-for-every-gender-and-t-mknr3ifh</loc>
-    <lastmod>2026-08-13</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/on-demand-prep-doesn-t-work-for-every-gender-and-t-mknr3ifh" />
@@ -1628,7 +1628,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/on-demand-prep-doesn-t-work-for-every-gender-and-t-mknr3ifh</loc>
-    <lastmod>2026-08-13</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/on-demand-prep-doesn-t-work-for-every-gender-and-t-mknr3ifh" />
@@ -1637,7 +1637,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/failed-prep-or-just-mistimed-prep-mknqi7yk</loc>
-    <lastmod>2026-08-13</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/failed-prep-or-just-mistimed-prep-mknqi7yk" />
@@ -1646,7 +1646,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/failed-prep-or-just-mistimed-prep-mknqi7yk</loc>
-    <lastmod>2026-08-13</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/failed-prep-or-just-mistimed-prep-mknqi7yk" />
@@ -1673,7 +1673,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/harm-reduction-101-safer-choices-in-real-life-mknpa2dz</loc>
-    <lastmod>2026-07-29</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/harm-reduction-101-safer-choices-in-real-life-mknpa2dz" />
@@ -1682,7 +1682,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/harm-reduction-101-safer-choices-in-real-life-mknpa2dz</loc>
-    <lastmod>2026-07-29</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/harm-reduction-101-safer-choices-in-real-life-mknpa2dz" />
@@ -1691,7 +1691,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/mental-health-for-urban-life-why-it-matters-mknp85bw</loc>
-    <lastmod>2026-08-10</lastmod>
+    <lastmod>2026-08-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/mental-health-for-urban-life-why-it-matters-mknp85bw" />
@@ -1700,7 +1700,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/mental-health-for-urban-life-why-it-matters-mknp85bw</loc>
-    <lastmod>2026-08-10</lastmod>
+    <lastmod>2026-08-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/mental-health-for-urban-life-why-it-matters-mknp85bw" />
@@ -1709,7 +1709,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/stis-101-what-you-should-know-about-sexually-trans-mknp4vme</loc>
-    <lastmod>2026-08-13</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/stis-101-what-you-should-know-about-sexually-trans-mknp4vme" />
@@ -1718,7 +1718,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/stis-101-what-you-should-know-about-sexually-trans-mknp4vme</loc>
-    <lastmod>2026-08-13</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/stis-101-what-you-should-know-about-sexually-trans-mknp4vme" />
@@ -1727,7 +1727,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/what-is-pep-and-when-should-you-use-it-mknp27me</loc>
-    <lastmod>2026-08-13</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/what-is-pep-and-when-should-you-use-it-mknp27me" />
@@ -1736,7 +1736,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/what-is-pep-and-when-should-you-use-it-mknp27me</loc>
-    <lastmod>2026-08-13</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/what-is-pep-and-when-should-you-use-it-mknp27me" />
@@ -1745,7 +1745,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/prep-mknoygs9</loc>
-    <lastmod>2026-08-13</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-mknoygs9" />
@@ -1754,7 +1754,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/prep-mknoygs9</loc>
-    <lastmod>2026-08-13</lastmod>
+    <lastmod>2026-08-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-mknoygs9" />
