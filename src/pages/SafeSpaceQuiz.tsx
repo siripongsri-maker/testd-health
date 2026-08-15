@@ -214,7 +214,8 @@ export default function SafeSpaceQuiz() {
           </p>
         </div>
 
-        {sessionCheck === "valid" && sessionLabel && (
+        {/* ไม่แสดงชื่อกิจกรรม/Party บนหน้าควิซเพื่อความเป็นส่วนตัวของผู้ใช้ */}
+        {sessionCheck === "valid" && sessionLabel && false && (
           <p className="rounded-lg bg-primary/5 px-3 py-2 text-xs text-primary">
             เชื่อมกับกิจกรรม: {sessionLabel}
           </p>
