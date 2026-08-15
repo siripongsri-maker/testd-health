@@ -767,7 +767,38 @@ export default function Surveys() {
           </TabsList>
 
           <TabsContent value="all" className="space-y-3">
+            {/* Featured: Safe Space Knowledge Quiz (standalone, no session required) */}
+            <Card
+              className="p-4 cursor-pointer hover:shadow-md transition-all border-teal-400/30 bg-gradient-to-br from-teal-500/10 to-sky-500/5"
+              onClick={() => navigate('/safe-space/quiz?utm_source=surveys')}
+            >
+              <div className="flex items-start gap-3">
+                <div className="h-12 w-12 rounded-xl bg-teal-500/15 flex items-center justify-center flex-shrink-0 text-xl">
+                  🛟
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
+                    <h3 className="font-semibold text-foreground text-sm leading-tight">
+                      {language === 'th' ? 'ควิซความรู้ “พื้นที่ปลอดภัย”' : 'Safe Space Knowledge Quiz'}
+                    </h3>
+                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-teal-500/15 text-teal-600 text-[10px] font-bold rounded-full">
+                      <Sparkles className="h-2.5 w-2.5" /> QUIZ
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground line-clamp-2 mb-1">
+                    {language === 'th'
+                      ? '6 ข้อ · ไม่ระบุตัวตน · ทำได้เลยไม่ต้องมีรหัสกิจกรรม'
+                      : '6 questions · Anonymous · No event code needed'}
+                  </p>
+                  <span className="flex items-center gap-1 text-[11px] text-teal-600 font-medium">
+                    <Eye className="h-3 w-3" /> {language === 'th' ? 'เริ่มทำควิซ' : 'Start Quiz'}
+                  </span>
+                </div>
+              </div>
+            </Card>
+
             {/* Featured: Youth HIV Survey */}
+
             <Card
               className="p-4 cursor-pointer hover:shadow-md transition-all border-primary/20 bg-gradient-to-br from-primary/5 to-accent/5"
               onClick={() => navigate('/surveys/youth-hiv')}
