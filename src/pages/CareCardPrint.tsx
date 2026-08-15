@@ -68,8 +68,14 @@ function Sheet({
 
 export default function CareCardPrint() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const origin = typeof window !== "undefined" ? window.location.origin : "https://testd.website";
+  // การ์ดถูกพิมพ์ออกไปใช้จริงนอกระบบ QR จึงต้องชี้ไปโดเมนสาธารณะเสมอ
+  // (โดเมนพรีวิว/ภายในของ Lovable จะสแกนแล้วเข้าไม่ได้)
+  const PUBLIC_ORIGIN = "https://testd.website";
+  const isPublicHost =
+    typeof window !== "undefined" && !/lovable\.(app|dev)$|localhost|127\.0\.0\.1/.test(window.location.hostname);
+  const origin = isPublicHost ? window.location.origin : PUBLIC_ORIGIN;
   const [baseUrl, setBaseUrl] = useState(`${origin}/safe-space/quiz`);
+
   const [sessionId, setSessionId] = useState(() => searchParams.get("session") || "none");
   const [eventCode, setEventCode] = useState(() => searchParams.get("event") || "safespace");
   const [switcherOpen, setSwitcherOpen] = useState(false);
@@ -123,6 +129,12 @@ export default function CareCardPrint() {
   const qrUrl = useMemo(() => {
     try {
       const u = new URL(baseUrl, origin);
+      // กันพลาด: ถ้าลิงก์ยังชี้โดเมนพรีวิว/ภายใน ให้สลับเป็นโดเมนสาธารณะเสมอ
+      if (/lovable\.(app|dev)$|localhost|127\.0\.0\.1/.test(u.hostname)) {
+        const pub = new URL(PUBLIC_ORIGIN);
+        u.protocol = pub.protocol;
+        u.host = pub.host;
+      }
       u.searchParams.set("utm_source", "care_card");
       if (eventCode.trim()) u.searchParams.set("event", eventCode.trim());
       if (sessionId !== "none") u.searchParams.set("session", sessionId);
@@ -131,6 +143,7 @@ export default function CareCardPrint() {
       return baseUrl;
     }
   }, [baseUrl, origin, eventCode, sessionId]);
+
 
   // เก็บเซสชันที่เลือกไว้ใน URL เพื่อให้ลิงก์จากหน้าแอดมินและหน้าพิมพ์ตรงกัน
   useEffect(() => {

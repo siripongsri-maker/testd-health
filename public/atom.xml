@@ -3,18 +3,10 @@
   <title>testD — บทความสุขภาพทางเพศและลดอันตราย</title>
   <subtitle>อัปเดตบทความใหม่จาก testD เรื่อง HIV, PrEP, PEP, โรคติดต่อทางเพศสัมพันธ์ และการลดอันตรายจากการใช้สาร</subtitle>
   <id>https://testd.website/atom.xml</id>
-  <updated>2026-08-09T08:58:43.832Z</updated>
+  <updated>2026-08-11T15:48:31.219Z</updated>
   <link rel="self" type="application/atom+xml" href="https://testd.website/atom.xml" />
   <link rel="alternate" type="text/html" href="https://testd.website/th/info" />
   <author><name>testD</name></author>
-  <entry>
-    <title>GHB/GBL: การตวง การเว้นช่วง และการช่วยชีวิตเมื่อเพื่อนหมดสติ</title>
-    <id>https://testd.website/th/info/article/ghb-overdose-prevention-timeline</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-09T08:58:43.832Z</updated>
-    <summary type="text">GHB เป็นคู่ปฏิกิริยาระดับวิกฤตกับแอลกอฮอล์และยานอนหลับ บทความนี้ให้ตารางเวลาเว้นช่วง สัญญาณอันตราย และขั้นตอนช่วยชีวิตทีละขั้น</summary>
-  </entry>
   <entry>
     <title>42 คู่ปฏิกิริยาระหว่างสาร: คู่ไหนเสี่ยงตาย คู่ไหนพอจัดการได้</title>
     <id>https://testd.website/th/info/article/42-critical-substance-interactions-chemsex</id>
@@ -22,6 +14,14 @@
     <published>2026-08-09T08:58:43.832Z</published>
     <updated>2026-08-11T15:48:31.219Z</updated>
     <summary type="text">ฐานข้อมูลคู่ปฏิกิริยาระหว่างสาร 42 คู่ (วิกฤต 11 / สูง 19 / ปานกลาง 12) จากสาร 18 ชนิด พร้อมวิธีอ่านผลและใช้จริงในคืนที่มีการใช้สาร</summary>
+  </entry>
+  <entry>
+    <title>คู่มือความปลอดภัยเรื่องเชมเซ็กซ์ (Chemsex Safety Playbook) ฉบับข้อมูลจริงปี 2569</title>
+    <id>https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-09T09:00:22.860Z</updated>
+    <summary type="text">คู่มือลดอันตรายจากเชมเซ็กซ์แบบครบวงจร อ้างอิงข้อมูลบริการจริง 15,077 คำขอชุดตรวจ, 25,133 นัดหมาย และแบบประเมินความเสี่ยง 53 ชุด พร้อมไทม์ไลน์ความปลอดภัยก่อน–ระหว่าง–หลังปาร์ตี้</summary>
   </entry>
   <entry>
     <title>ไอซ์กับการลดอันตราย: ข้อมูลพฤติกรรมผู้ใช้บริการไทย ปี 2568–2569</title>
@@ -32,14 +32,6 @@
     <summary type="text">เจาะข้อมูลรูปแบบการใช้เมทแอมเฟตามีน การฉีด (slam) และการผสมสาร พร้อมแนวทางลดอันตรายรายกลุ่ม อ้างอิงข้อมูลบริการ 11 เดือน</summary>
   </entry>
   <entry>
-    <title>จาก 222 เป็น 2,819 ชุดต่อเดือน: เส้นทางชุดตรวจ HIV ด้วยตนเองกับกลุ่มใช้สาร</title>
-    <id>https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-09T08:58:43.832Z</updated>
-    <summary type="text">วิเคราะห์คำขอชุดตรวจ 15,077 รายการ ตั้งแต่ ต.ค. 2568 ถึง ส.ค. 2569 เห็นพฤติกรรมการตรวจของกลุ่มใช้สารและช่วงเวลาที่ควรสื่อสาร</summary>
-  </entry>
-  <entry>
     <title>71.7% อยู่ในกลุ่มเสี่ยงสูง: สิ่งที่แบบประเมิน PHQ-4 / ASSIST / C-SSRS บอกเราเรื่องเชมเซ็กซ์</title>
     <id>https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data" />
@@ -48,12 +40,20 @@
     <summary type="text">ผลแบบประเมินความเสี่ยง 53 ชุด ระหว่าง 12 มี.ค. – 8 ส.ค. 2569 พร้อมแนวโน้มรายเดือนและความหมายต่อการดูแลสุขภาพจิตของผู้ใช้สาร</summary>
   </entry>
   <entry>
-    <title>คู่มือความปลอดภัยเรื่องเชมเซ็กซ์ (Chemsex Safety Playbook) ฉบับข้อมูลจริงปี 2569</title>
-    <id>https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
+    <title>จาก 222 เป็น 2,819 ชุดต่อเดือน: เส้นทางชุดตรวจ HIV ด้วยตนเองกับกลุ่มใช้สาร</title>
+    <id>https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
     <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-09T09:00:22.860Z</updated>
-    <summary type="text">คู่มือลดอันตรายจากเชมเซ็กซ์แบบครบวงจร อ้างอิงข้อมูลบริการจริง 15,077 คำขอชุดตรวจ, 25,133 นัดหมาย และแบบประเมินความเสี่ยง 53 ชุด พร้อมไทม์ไลน์ความปลอดภัยก่อน–ระหว่าง–หลังปาร์ตี้</summary>
+    <updated>2026-08-15T04:08:19.331Z</updated>
+    <summary type="text">วิเคราะห์คำขอชุดตรวจ 15,077 รายการ ตั้งแต่ ต.ค. 2568 ถึง ส.ค. 2569 เห็นพฤติกรรมการตรวจของกลุ่มใช้สารและช่วงเวลาที่ควรสื่อสาร</summary>
+  </entry>
+  <entry>
+    <title>GHB/GBL: การตวง การเว้นช่วง และการช่วยชีวิตเมื่อเพื่อนหมดสติ</title>
+    <id>https://testd.website/th/info/article/ghb-overdose-prevention-timeline</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-15T02:22:46.792Z</updated>
+    <summary type="text">GHB เป็นคู่ปฏิกิริยาระดับวิกฤตกับแอลกอฮอล์และยานอนหลับ บทความนี้ให้ตารางเวลาเว้นช่วง สัญญาณอันตราย และขั้นตอนช่วยชีวิตทีละขั้น</summary>
   </entry>
   <entry>
     <title>PrEP ฉีดออกฤทธิ์ยาว: รู้จัก Lenacapavir และ CAB-LA</title>
@@ -78,7 +78,7 @@
     <id>https://testd.website/th/info/article/prep-myths</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/prep-myths" />
     <published>2026-08-06T18:39:28.749Z</published>
-    <updated>2026-08-12T10:02:12.130Z</updated>
+    <updated>2026-08-14T18:43:17.288Z</updated>
     <summary type="text">ชวนแกะ 10 ความเข้าใจผิดเรื่อง PrEP ตั้งแต่ประสิทธิภาพ ผลข้างเคียง ไปจนถึงสิทธิรับบริการ เพื่อเลือกดูแลสุขภาพทางเพศอย่างมั่นใจ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-myths-1786043500001.png" />
   </entry>
@@ -87,7 +87,7 @@
     <id>https://testd.website/th/info/article/pep-72-hours</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/pep-72-hours" />
     <published>2026-08-06T18:39:25.252Z</published>
-    <updated>2026-08-13T18:45:39.334Z</updated>
+    <updated>2026-08-15T08:16:05.141Z</updated>
     <summary type="text">PEP ควรเริ่มเร็วที่สุดและไม่เกิน 72 ชั่วโมงหลังเสี่ยง HIV หากใกล้ครบเวลาหรือเลยแล้ว ควรทำอะไรต่อ อ่านขั้นตอนที่ปลอดภัยได้ที่นี่</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-72-hours-1786043500000.png" />
   </entry>
@@ -105,7 +105,7 @@
     <id>https://testd.website/th/info/article/sex-worker-health-rights</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/sex-worker-health-rights" />
     <published>2026-08-06T18:37:06.409Z</published>
-    <updated>2026-08-10T15:40:49.608Z</updated>
+    <updated>2026-08-15T04:01:52.754Z</updated>
     <summary type="text">พนักงานบริการมีสิทธิรับบริการสุขภาพอย่างเคารพ เป็นส่วนตัว และไม่ตีตรา พร้อมแนวทางใช้บัตรทอง ตรวจ HIV และขอความช่วยเหลือ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/sex-worker-health-rights-1786041426147.png" />
   </entry>
@@ -132,7 +132,7 @@
     <id>https://testd.website/th/info/article/mental-health-hotlines-thailand</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/mental-health-hotlines-thailand" />
     <published>2026-08-06T18:35:37.124Z</published>
-    <updated>2026-08-06T18:35:37.124Z</updated>
+    <updated>2026-08-15T07:55:45.512Z</updated>
     <summary type="text">เมื่อความเครียด ความคิดทำร้ายตัวเอง หรืออาการฉุกเฉินเกินรับมือ ดูว่าเมื่อไรควรโทร 1323 หรือ 1669 และเตรียมข้อมูลอย่างไรให้ได้รับความช่วยเหลือเร็วขึ้น</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/mental-health-hotlines-thailand-1786041336907.png" />
   </entry>
@@ -141,7 +141,7 @@
     <id>https://testd.website/th/info/article/hiv-status-disclosure</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hiv-status-disclosure" />
     <published>2026-08-06T18:35:17.896Z</published>
-    <updated>2026-08-06T18:35:17.896Z</updated>
+    <updated>2026-08-15T09:50:48.903Z</updated>
     <summary type="text">แนวทางเตรียมตัว เปิดบทสนทนา และวางแผนความปลอดภัยเมื่อต้องการบอกคู่เรื่องสถานะ HIV โดยเคารพทั้งตัวเราและอีกฝ่าย</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/hiv-status-disclosure-1786041317661.png" />
   </entry>
@@ -150,7 +150,7 @@
     <id>https://testd.website/th/info/article/talking-about-condoms</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/talking-about-condoms" />
     <published>2026-08-06T18:35:16.567Z</published>
-    <updated>2026-08-06T18:35:16.567Z</updated>
+    <updated>2026-08-15T09:39:53.168Z</updated>
     <summary type="text">วิธีคุยเรื่องถุงยางแบบเป็นธรรมชาติ พร้อมประโยคเริ่มต้น รับมือเมื่อเห็นต่าง และวางแผนดูแลสุขภาพทางเพศร่วมกัน</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/talking-about-condoms-1786041316287.png" />
   </entry>
@@ -159,7 +159,7 @@
     <id>https://testd.website/th/info/article/sleep-after-substance-use</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/sleep-after-substance-use" />
     <published>2026-08-06T18:35:06.675Z</published>
-    <updated>2026-08-06T18:35:06.675Z</updated>
+    <updated>2026-08-14T22:36:01.165Z</updated>
     <summary type="text">แนวทางดูแลตัวเองเมื่อนอนไม่หลับหลังใช้สาร พร้อมสัญญาณอันตรายที่ควรโทร 1669 และช่องทางรับคำปรึกษาอย่างเป็นส่วนตัว</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/sleep-after-substance-use-1786041306399.png" />
   </entry>
@@ -186,7 +186,7 @@
     <id>https://testd.website/th/info/article/methamphetamine-body-and-mind</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/methamphetamine-body-and-mind" />
     <published>2026-08-06T18:33:44.697Z</published>
-    <updated>2026-08-06T18:33:44.697Z</updated>
+    <updated>2026-08-15T09:54:47.110Z</updated>
     <summary type="text">เข้าใจผลของเมทต่อสมอง หัวใจ การนอน และสุขภาพจิต พร้อมวิธีลดอันตราย สัญญาณฉุกเฉิน และช่องทางรับความช่วยเหลือโดยไม่ตัดสิน</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/methamphetamine-body-and-mind-1786041224446.png" />
   </entry>
@@ -195,7 +195,7 @@
     <id>https://testd.website/th/info/article/phq4-two-minute-check</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/phq4-two-minute-check" />
     <published>2026-08-06T18:33:41.579Z</published>
-    <updated>2026-08-10T12:47:31.937Z</updated>
+    <updated>2026-08-15T04:29:55.970Z</updated>
     <summary type="text">รู้จัก PHQ-4 แบบประเมินสุขภาพจิต 4 ข้อ วิธีคิดคะแนน อ่านผลอย่างไม่ตีตราตัวเอง และสัญญาณที่ควรขอความช่วยเหลือ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/phq4-two-minute-check-1786041221342.png" />
   </entry>
@@ -204,7 +204,7 @@
     <id>https://testd.website/th/info/article/non-judgemental-support-thailand</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/non-judgemental-support-thailand" />
     <published>2026-08-06T18:33:40.796Z</published>
-    <updated>2026-08-06T18:33:40.796Z</updated>
+    <updated>2026-08-15T02:44:32.493Z</updated>
     <summary type="text">อยากหยุด ลด หรือแค่คุยก่อนก็ได้ รู้จักทางเลือกปรึกษาการใช้สารแบบเคารพเป้าหมาย ความเป็นส่วนตัว และความปลอดภัยของคุณ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/non-judgemental-support-thailand-1786041220534.png" />
   </entry>
@@ -213,7 +213,7 @@
     <id>https://testd.website/th/info/article/hiv-anxiety-while-waiting</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hiv-anxiety-while-waiting" />
     <published>2026-08-06T18:33:33.979Z</published>
-    <updated>2026-08-12T04:30:35.605Z</updated>
+    <updated>2026-08-14T21:42:35.606Z</updated>
     <summary type="text">ความกังวลหลังมีความเสี่ยงเกิดขึ้นได้ มาวางแผนตรวจ จัดการความคิด และดูแลใจอย่างปลอดภัยระหว่างรอผล HIV</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/hiv-anxiety-while-waiting-1786041213714.png" />
   </entry>
@@ -231,7 +231,7 @@
     <id>https://testd.website/th/info/article/post-party-recovery-plan</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/post-party-recovery-plan" />
     <published>2026-08-06T18:32:13.198Z</published>
-    <updated>2026-08-06T18:32:13.198Z</updated>
+    <updated>2026-08-15T00:31:25.686Z</updated>
     <summary type="text">แนวทางดูแลตัวเองหลังปาร์ตี้อย่างปลอดภัย ตั้งแต่จิบน้ำ กินอาหาร พักผ่อน เช็กอารมณ์ ไปจนถึงสัญญาณฉุกเฉินที่ไม่ควรรอ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/post-party-recovery-plan-1786041132727.png" />
   </entry>
@@ -240,7 +240,7 @@
     <id>https://testd.website/th/info/article/overdose-warning-signs</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/overdose-warning-signs" />
     <published>2026-08-06T18:32:02.551Z</published>
-    <updated>2026-08-06T18:32:02.551Z</updated>
+    <updated>2026-08-15T01:44:28.859Z</updated>
     <summary type="text">รู้จักสัญญาณ overdose วิธีโทร 1669 เช็กการหายใจ ทำ CPR จัดท่าพักฟื้น และช่วยอย่างปลอดภัยในช่วง 5 นาทีแรก</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/overdose-warning-signs-1786041122386.png" />
   </entry>
@@ -276,7 +276,7 @@
     <id>https://testd.website/th/info/article/how-often-sti-testing</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/how-often-sti-testing" />
     <published>2026-08-06T18:30:39.611Z</published>
-    <updated>2026-08-12T10:46:45.500Z</updated>
+    <updated>2026-08-15T08:26:53.256Z</updated>
     <summary type="text">ตรวจ STI บ่อยแค่ไหนขึ้นอยู่กับพฤติกรรม จุดสัมผัส และคู่นอน เช็กแนวทางตรวจทุก 3–6 เดือน รายปี หรือทันทีเมื่อมีอาการ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/how-often-sti-testing-1786041039409.png" />
   </entry>
@@ -294,7 +294,7 @@
     <id>https://testd.website/th/info/article/poppers-risks</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/poppers-risks" />
     <published>2026-08-06T18:30:37.936Z</published>
-    <updated>2026-08-06T18:30:37.936Z</updated>
+    <updated>2026-08-15T02:37:18.144Z</updated>
     <summary type="text">รู้จัก poppers หรือ alkyl nitrite ผลต่อหลอดเลือด ความเสี่ยงต่อหัวใจ เลือด และดวงตา รวมถึงยาที่ห้ามใช้ร่วมกัน</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/poppers-risks-1786041037667.png" />
   </entry>
@@ -303,7 +303,7 @@
     <id>https://testd.website/th/info/article/genital-herpes-care</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/genital-herpes-care" />
     <published>2026-08-06T18:29:05.813Z</published>
-    <updated>2026-08-07T18:09:37.631Z</updated>
+    <updated>2026-08-15T08:57:37.389Z</updated>
     <summary type="text">เข้าใจอาการ การติดต่อ การตรวจ และวิธีดูแลเริมที่อวัยวะเพศอย่างปลอดภัย พร้อมแนวทางคุยกับคู่นอนโดยไม่ตีตราตัวเอง</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/genital-herpes-care-1786040945564.png" />
   </entry>
@@ -312,7 +312,7 @@
     <id>https://testd.website/th/info/article/hepatitis-b-and-c</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hepatitis-b-and-c" />
     <published>2026-08-06T18:29:02.207Z</published>
-    <updated>2026-08-08T08:36:35.458Z</updated>
+    <updated>2026-08-15T01:21:07.004Z</updated>
     <summary type="text">เข้าใจความเสี่ยงไวรัสตับอักเสบ บี ซี จากเพศสัมพันธ์และการใช้เข็ม พร้อมแนวทางตรวจ ป้องกัน และรับการดูแลอย่างไม่ตัดสิน</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/hepatitis-b-and-c-1786040941969.png" />
   </entry>
@@ -321,7 +321,7 @@
     <id>https://testd.website/th/info/article/gonorrhea-vs-chlamydia</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/gonorrhea-vs-chlamydia" />
     <published>2026-08-06T18:29:01.755Z</published>
-    <updated>2026-08-13T16:24:43.369Z</updated>
+    <updated>2026-08-15T09:40:01.805Z</updated>
     <summary type="text">หนองในและหนองในเทียมมีอาการคล้ายกัน แต่เกิดจากเชื้อต่างชนิด รู้จักอาการ วิธีตรวจ รักษา และดูแลคู่นอนอย่างปลอดภัย</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/gonorrhea-vs-chlamydia-1786040941502.png" />
   </entry>
@@ -330,7 +330,7 @@
     <id>https://testd.website/th/info/article/hpv-vaccine-for-men</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hpv-vaccine-for-men" />
     <published>2026-08-06T18:28:56.107Z</published>
-    <updated>2026-08-09T17:14:18.141Z</updated>
+    <updated>2026-08-15T06:29:37.029Z</updated>
     <summary type="text">วัคซีน HPV ผู้ชายและ LGBTQ+ ช่วยป้องกันหูดและมะเร็งบางชนิด อ่านว่าใครควรฉีด ฉีดหลังเคยมีเพศสัมพันธ์ได้ไหม และเข้าถึงบริการอย่างไร</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/hpv-vaccine-for-men-1786040935913.png" />
   </entry>
@@ -348,7 +348,7 @@
     <id>https://testd.website/th/info/article/reactive-hiv-self-test-next-steps</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/reactive-hiv-self-test-next-steps" />
     <published>2026-08-06T18:27:32.717Z</published>
-    <updated>2026-08-11T23:08:48.866Z</updated>
+    <updated>2026-08-14T23:17:32.198Z</updated>
     <summary type="text">ผลตรวจ HIV 2 ขีดหมายถึงผลเบื้องต้นเป็น reactive ยังไม่ใช่คำวินิจฉัย ควรตรวจยืนยันกับบุคลากรทางการแพทย์โดยเร็ว</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/reactive-hiv-self-test-next-steps-1786040852460.png" />
   </entry>
@@ -357,7 +357,7 @@
     <id>https://testd.website/th/info/article/hiv-self-test-how-to-use</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hiv-self-test-how-to-use" />
     <published>2026-08-06T18:27:11.458Z</published>
-    <updated>2026-08-12T17:20:18.295Z</updated>
+    <updated>2026-08-14T16:40:09.605Z</updated>
     <summary type="text">วิธีใช้ชุดตรวจ HIV ด้วยตัวเอง ตั้งแต่เช็กชุดตรวจ จับเวลา อ่านผล ไปจนถึงสิ่งที่ควรทำเมื่อผลลบ ผลบวกเบื้องต้น หรือผลใช้ไม่ได้</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/hiv-self-test-how-to-use-1786040831150.png" />
   </entry>
@@ -375,7 +375,7 @@
     <id>https://testd.website/th/info/article/free-anonymous-hiv-testing</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/free-anonymous-hiv-testing" />
     <published>2026-08-06T18:27:10.407Z</published>
-    <updated>2026-08-10T09:14:46.062Z</updated>
+    <updated>2026-08-15T03:44:13.090Z</updated>
     <summary type="text">ตรวจ HIV ฟรีได้จริง แต่การตรวจนิรนามกับการเก็บข้อมูลเป็นความลับไม่เหมือนกัน มาดูวิธีเลือกบริการที่เหมาะกับคุณ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/free-anonymous-hiv-testing-1786040830046.png" />
   </entry>
@@ -384,7 +384,7 @@
     <id>https://testd.website/th/info/article/u-equals-u</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/u-equals-u" />
     <published>2026-08-06T18:27:06.509Z</published>
-    <updated>2026-08-06T18:27:06.509Z</updated>
+    <updated>2026-08-15T09:54:13.804Z</updated>
     <summary type="text">เข้าใจหลัก U=U เมื่อผู้มี HIV กินยาสม่ำเสมอและรักษาไวรัสให้อยู่ในระดับตรวจไม่พบ จะไม่ส่งต่อ HIV ผ่านเพศสัมพันธ์</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/u-equals-u-1786040826265.png" />
   </entry>
@@ -393,7 +393,7 @@
     <id>https://testd.website/th/info/article/pep-cost-and-coverage</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/pep-cost-and-coverage" />
     <published>2026-08-06T18:25:43.903Z</published>
-    <updated>2026-08-11T15:42:19.001Z</updated>
+    <updated>2026-08-15T07:27:32.397Z</updated>
     <summary type="text">PEP ราคาไม่เท่ากันตามสิทธิ สถานพยาบาล ค่าตรวจ และค่ายา รู้วิธีเช็กบัตรทองและขอรับบริการให้ทันภายใน 72 ชั่วโมง</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-cost-and-coverage-1786040743654.png" />
   </entry>
@@ -402,7 +402,7 @@
     <id>https://testd.website/th/info/article/pep-28-day-course</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/pep-28-day-course" />
     <published>2026-08-06T18:25:38.778Z</published>
-    <updated>2026-08-13T18:42:29.833Z</updated>
+    <updated>2026-08-15T06:16:49.243Z</updated>
     <summary type="text">PEP ต้องกินต่อเนื่องครบ 28 วันตามแพทย์สั่ง พร้อมตรวจ HIV ซ้ำตามนัด เพราะผลลบวันเริ่มยาเพียงอย่างเดียวยังสรุปไม่ได้</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-28-day-course-1786040738534.png" />
   </entry>
@@ -420,7 +420,7 @@
     <id>https://testd.website/th/info/article/pep-where-bangkok-pattaya</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/pep-where-bangkok-pattaya" />
     <published>2026-08-06T18:25:28.454Z</published>
-    <updated>2026-08-11T15:44:07.337Z</updated>
+    <updated>2026-08-15T05:28:34.852Z</updated>
     <summary type="text">สัมผัสเชื้อเอชไอวีมาไม่เกิน 72 ชั่วโมง? ดูช่องทางขอ PEP ในกรุงเทพและพัทยา พร้อมขั้นตอนเตรียมตัวและบริการจาก SWING</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-where-bangkok-pattaya-1786040728178.png" />
   </entry>
@@ -429,7 +429,7 @@
     <id>https://testd.website/th/info/article/condom-broke-what-to-do</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/condom-broke-what-to-do" />
     <published>2026-08-06T18:25:27.353Z</published>
-    <updated>2026-08-10T06:09:32.719Z</updated>
+    <updated>2026-08-15T05:27:24.440Z</updated>
     <summary type="text">ถุงยางแตกหรือหลุด อย่าเพิ่งโทษตัวเอง เช็กขั้นตอนเร่งด่วนเรื่องยาต้านฉุกเฉิน การคุมกำเนิด และการตรวจภายใน 24 ชั่วโมงแรก</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/condom-broke-what-to-do-1786040727065.png" />
   </entry>
@@ -438,7 +438,7 @@
     <id>https://testd.website/th/info/article/prep-and-gender-affirming-hormones</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/prep-and-gender-affirming-hormones" />
     <published>2026-08-06T18:23:55.696Z</published>
-    <updated>2026-08-06T18:23:55.696Z</updated>
+    <updated>2026-08-15T02:54:28.477Z</updated>
     <summary type="text">PrEP ใช้ร่วมกับฮอร์โมนข้ามเพศได้โดยทั่วไป ไม่ควรหยุดยาเอง ควรตรวจ HIV ประเมินสุขภาพ และปรึกษาผู้ให้บริการที่เข้าใจคนข้ามเพศ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-and-gender-affirming-hormones-1786040635484.png" />
   </entry>
@@ -447,7 +447,7 @@
     <id>https://testd.website/th/info/article/prep-quarterly-followup</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/prep-quarterly-followup" />
     <published>2026-08-06T18:23:49.788Z</published>
-    <updated>2026-08-14T01:03:21.509Z</updated>
+    <updated>2026-08-15T07:14:20.057Z</updated>
     <summary type="text">การใช้ PrEP ไม่ได้จบแค่รับยา การตรวจ HIV ไต โรคติดต่อทางเพศสัมพันธ์ และทบทวนการใช้ทุก 3 เดือน ช่วยให้ดูแลสุขภาพได้อย่างปลอดภัย</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-quarterly-followup-1786040629401.png" />
   </entry>
