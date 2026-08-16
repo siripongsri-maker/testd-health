@@ -12207,6 +12207,7 @@ export type Database = {
           total: number
         }[]
       }
+      get_ops_dashboard: { Args: never; Returns: Json }
       get_or_create_chat_thread: {
         Args: { p_subject?: string; p_user_id: string }
         Returns: string
