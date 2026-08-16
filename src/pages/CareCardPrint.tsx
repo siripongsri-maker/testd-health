@@ -66,8 +66,39 @@ function Sheet({
   );
 }
 
+const CC_PRINT_STYLE_ID = "cc-print-style";
+const CC_PRINT_CSS = `
+@media print {
+  @page { size: A4 portrait; margin: 0; }
+  html, body { background: #fff !important; }
+  body > *:not(.cc-print-portal) { display: none !important; }
+  .cc-print-portal { display: block !important; }
+  .cc-sheet { break-after: page; page-break-after: always; margin: 0 !important; box-shadow: none !important; }
+  .cc-sheet:last-child { break-after: auto; page-break-after: auto; }
+  .cc-gap { margin-top: 0 !important; }
+}
+`;
+
+/** Scope the aggressive print-only rules to this page's lifetime. */
+function useCareCardPrintStyles() {
+  useEffect(() => {
+    let el = document.getElementById(CC_PRINT_STYLE_ID) as HTMLStyleElement | null;
+    if (!el) {
+      el = document.createElement("style");
+      el.id = CC_PRINT_STYLE_ID;
+      el.textContent = CC_PRINT_CSS;
+      document.head.appendChild(el);
+    }
+    return () => {
+      document.getElementById(CC_PRINT_STYLE_ID)?.remove();
+    };
+  }, []);
+}
+
 export default function CareCardPrint() {
+  useCareCardPrintStyles();
   const [searchParams, setSearchParams] = useSearchParams();
+
   // การ์ดถูกพิมพ์ออกไปใช้จริงนอกระบบ QR จึงต้องชี้ไปโดเมนสาธารณะเสมอ
   // (โดเมนพรีวิว/ภายในของ Lovable จะสแกนแล้วเข้าไม่ได้)
   const PUBLIC_ORIGIN = "https://testd.website";
