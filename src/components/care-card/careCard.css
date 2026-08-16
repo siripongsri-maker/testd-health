@@ -115,14 +115,8 @@
 
 .cc-gap { margin-top: 8mm; }
 
-@media print {
-  @page { size: A4 portrait; margin: 0; }
-  html, body { background: #fff !important; }
-  body > *:not(.cc-print-portal) { display: none !important; }
-  .cc-print-portal { display: block !important; }
-  .cc-sheet { break-after: page; page-break-after: always; margin: 0 !important; box-shadow: none !important; }
-  .cc-sheet:last-child { break-after: auto; page-break-after: auto; }
-  .cc-gap { margin-top: 0 !important; }
-}
+/* Global print rules for the care-card sheets are injected at runtime by
+   src/pages/CareCardPrint.tsx (and removed on unmount) so they never affect
+   printing on other routes after this stylesheet chunk has been loaded. */
 
 .cc-print-portal { display: none; }
