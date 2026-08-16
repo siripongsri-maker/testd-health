@@ -133,10 +133,11 @@ function BranchLabel({ branchId }: { branchId: string }) {
 
   useEffect(() => {
     let active = true;
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(branchId);
     supabase
       .from('booking_branches')
       .select('name_th, name_en')
-      .eq('id', branchId)
+      .eq(isUuid ? 'id' : 'slug', branchId)
       .maybeSingle()
       .then(({ data }) => {
         if (!active || !data) return;
@@ -145,7 +146,9 @@ function BranchLabel({ branchId }: { branchId: string }) {
     return () => { active = false; };
   }, [branchId, language]);
 
-  const label = name ?? (language === 'th' ? 'กำลังโหลด…' : 'Loading…');
+  // สำรอง: ถ้าหาชื่อสาขาไม่เจอ ให้แสดงรหัส/slug แทน เพื่อไม่ให้ค้างที่ "กำลังโหลด…"
+  const label = name ?? branchId;
+
   return <>{language === 'th' ? `สาขา: ${label}` : `Branch: ${label}`}</>;
 }
 

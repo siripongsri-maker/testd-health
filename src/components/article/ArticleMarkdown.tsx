@@ -1,8 +1,33 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
 
 const isSafeImageUrl = (url: string) =>
   /^https:\/\//i.test(url) || url.startsWith("/");
+
+/**
+ * บทความเก่าจากตัวแก้ไขในระบบใช้ "• " เป็นรายการ และบรรทัดที่ลงท้ายด้วย ":"
+ * เป็นหัวข้อย่อย — แปลงให้เป็น Markdown มาตรฐานก่อนเรนเดอร์
+ */
+function normalizeLegacyContent(raw: string): string {
+  return raw
+    .split("\n")
+    .map((line) => {
+      const trimmed = line.trim();
+      if (/^[•·]\s+/.test(trimmed)) return trimmed.replace(/^[•·]\s+/, "- ");
+      if (
+        trimmed.length > 0 &&
+        trimmed.length <= 80 &&
+        /[:：]$/.test(trimmed) &&
+        !/^#{1,6}\s/.test(trimmed) &&
+        !/^[-*>|]/.test(trimmed)
+      ) {
+        return `### ${trimmed.replace(/[:：]$/, "")}`;
+      }
+      return line;
+    })
+    .join("\n");
+}
 
 /**
  * Renders article body content written in Markdown (headings, tables,
@@ -12,7 +37,8 @@ export function ArticleMarkdown({ content }: { content: string }) {
   return (
     <div className="prose prose-sm max-w-none dark:prose-invert">
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
+        remarkPlugins={[remarkGfm, remarkBreaks]}
+
         components={{
           h1: ({ children }) => (
             <h2 className="text-xl font-bold text-foreground mt-8 mb-3">{children}</h2>
@@ -72,7 +98,7 @@ export function ArticleMarkdown({ content }: { content: string }) {
           hr: () => <hr className="my-6 border-border" />,
         }}
       >
-        {content}
+        {normalizeLegacyContent(content)}
       </ReactMarkdown>
     </div>
   );

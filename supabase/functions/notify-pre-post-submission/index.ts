@@ -15,8 +15,10 @@ const corsHeaders = {
 
 const SURVEY_ID = "6e5918db-d70a-4d7d-b978-e6711f2a4779";
 const NOTIFY_TO = "adirek.rue@swingth.org";
+// ต้องส่งจากโดเมนที่ยืนยันแล้วเท่านั้น (onboarding@resend.dev ส่งได้เฉพาะเจ้าของบัญชี)
 const FROM_EMAIL =
-  Deno.env.get("PREPOST_NOTIFY_FROM") || "testD <onboarding@resend.dev>";
+  Deno.env.get("PREPOST_NOTIFY_FROM") || "testD <noreply@notify.testd.website>";
+
 
 const BOM = "\uFEFF";
 
