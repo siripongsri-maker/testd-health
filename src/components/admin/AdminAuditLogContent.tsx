@@ -39,6 +39,7 @@ const TABLE_LABELS: Record<string, { th: string; en: string }> = {
   case_notes: { th: "บันทึกเคส", en: "Case notes" },
   counseling_payout_claims: { th: "ค่าเดินทาง", en: "Travel allowance" },
   kit_orders: { th: "การจัดส่งชุดตรวจ", en: "Kit orders" },
+  pre_service_counseling_notes: { th: "บันทึกการให้คำปรึกษา", en: "Counseling records" },
 };
 
 const ACTION_LABELS: Record<string, { th: string; en: string; className: string }> = {
