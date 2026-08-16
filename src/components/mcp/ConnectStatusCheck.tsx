@@ -83,11 +83,13 @@ export function ConnectStatusCheck({
 
     // 1. Reachability via the public OAuth protected-resource metadata document.
     let authServer: string | undefined;
+    let metaOk = false;
     try {
       const { res, ms } = await timedFetch(`${mcpUrl}/.well-known/oauth-protected-resource`);
       if (res.ok) {
         const body = (await res.json()) as { authorization_servers?: string[] };
         authServer = body.authorization_servers?.[0];
+        metaOk = true;
         push({
           id: "reach",
           label: "เซิร์ฟเวอร์ตอบสนอง",
@@ -108,46 +110,31 @@ export function ConnectStatusCheck({
       push({ id: "reach", label: "เซิร์ฟเวอร์ตอบสนอง", state: "fail", detail: describeError(err) });
     }
 
-    // 2. Auth guard: an unauthenticated MCP call must be rejected with a 401 + WWW-Authenticate.
-    try {
-      const { res, ms } = await timedFetch(mcpUrl, {
-        method: "POST",
-        headers: { "content-type": "application/json", accept: "application/json, text/event-stream" },
-        body: JSON.stringify({
-          jsonrpc: "2.0",
-          id: 1,
-          method: "initialize",
-          params: { protocolVersion: "2025-06-18", capabilities: {}, clientInfo: { name: "testd-status-check", version: "1.0.0" } },
-        }),
+    // 2. Auth guard: derived from the protected-resource metadata (no unauthenticated
+    // MCP call — that would return an expected 401 and be logged as a runtime error).
+    if (metaOk && authServer) {
+      push({
+        id: "auth",
+        label: "การยืนยันตัวตน (OAuth)",
+        state: "pass",
+        detail: "เซิร์ฟเวอร์ประกาศให้ผู้ช่วย AI ต้องล็อกอินก่อนใช้งาน",
       });
-      if (res.status === 401 && res.headers.get("www-authenticate")) {
-        push({
-          id: "auth",
-          label: "การยืนยันตัวตน (OAuth)",
-          state: "pass",
-          ms,
-          detail: "เซิร์ฟเวอร์ขอให้ผู้ช่วย AI ล็อกอินอย่างถูกต้อง",
-        });
-      } else if (res.ok) {
-        push({
-          id: "auth",
-          label: "การยืนยันตัวตน (OAuth)",
-          state: "warn",
-          ms,
-          detail: "เซิร์ฟเวอร์ตอบโดยไม่ขอล็อกอิน — เปิดให้เรียกใช้ได้แบบสาธารณะ",
-        });
-      } else {
-        push({
-          id: "auth",
-          label: "การยืนยันตัวตน (OAuth)",
-          state: "fail",
-          ms,
-          detail: `ตอบกลับสถานะ ${res.status} แทน 401 — การตั้งค่า OAuth อาจไม่ถูกต้อง`,
-        });
-      }
-    } catch (err) {
-      push({ id: "auth", label: "การยืนยันตัวตน (OAuth)", state: "fail", detail: describeError(err) });
+    } else if (metaOk) {
+      push({
+        id: "auth",
+        label: "การยืนยันตัวตน (OAuth)",
+        state: "warn",
+        detail: "ไม่พบรายชื่อระบบล็อกอินในข้อมูลเซิร์ฟเวอร์ — อาจเปิดให้เรียกใช้แบบสาธารณะ",
+      });
+    } else {
+      push({
+        id: "auth",
+        label: "การยืนยันตัวตน (OAuth)",
+        state: "fail",
+        detail: "อ่านข้อมูลการยืนยันตัวตนของเซิร์ฟเวอร์ไม่ได้",
+      });
     }
+
 
     // 3. The authorization server discovery document the AI client will follow.
     if (authServer) {
