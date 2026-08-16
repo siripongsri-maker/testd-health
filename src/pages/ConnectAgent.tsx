@@ -185,15 +185,22 @@ function McpUrlCard() {
               confirm
             />
             <ConfirmLinkDialog
-              value={MCP_URL}
-              actionLabel="เปิดลิงก์"
-              onConfirm={() => window.open(MCP_URL, "_blank", "noopener,noreferrer")}
+              value={`${MCP_URL}/.well-known/oauth-protected-resource`}
+              actionLabel="เปิดข้อมูลเซิร์ฟเวอร์"
+              onConfirm={() =>
+                window.open(
+                  `${MCP_URL}/.well-known/oauth-protected-resource`,
+                  "_blank",
+                  "noopener,noreferrer",
+                )
+              }
             >
-              <Button variant="outline" size="sm" aria-label="เปิดลิงก์เซิร์ฟเวอร์">
+              <Button variant="outline" size="sm" aria-label="เปิดข้อมูลเซิร์ฟเวอร์">
                 <ExternalLink className="h-4 w-4" />
-                <span className="ml-2">เปิดลิงก์</span>
+                <span className="ml-2">ตรวจเซิร์ฟเวอร์</span>
               </Button>
             </ConfirmLinkDialog>
+
           </div>
         </div>
         <div className="flex items-center justify-between gap-3">
