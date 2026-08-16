@@ -98,7 +98,7 @@ export function ArticleMarkdown({ content }: { content: string }) {
           hr: () => <hr className="my-6 border-border" />,
         }}
       >
-        {content}
+        {normalizeLegacyContent(content)}
       </ReactMarkdown>
     </div>
   );
