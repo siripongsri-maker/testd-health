@@ -55,8 +55,9 @@ Deno.serve(async (req) => {
       .maybeSingle();
     if (existing) return json({ error: "claim_already_submitted" }, 409);
 
+    const kind = body?.kind === "signature" ? "signature" : "id";
     const ext = match[1] === "image/png" ? "png" : match[1] === "image/webp" ? "webp" : "jpg";
-    const path = `post-counseling/${note.id}/${crypto.randomUUID()}.${ext}`;
+    const path = `post-counseling/${note.id}/${kind}-${crypto.randomUUID()}.${ext}`;
 
     const { error: upErr } = await admin.storage
       .from("identity-docs")

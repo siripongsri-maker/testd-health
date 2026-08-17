@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, BadgeCheck, Upload, ShieldCheck, Banknote } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import SignaturePad from "./SignaturePad";
+import { watermarkIdCard, ID_WATERMARK_TEXT } from "@/lib/idCardWatermark";
 
 const BANKS = [
   "ธนาคารกสิกรไทย (KBank)",
@@ -78,6 +80,7 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
   const [account, setAccount] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
   const [imageData, setImageData] = useState<string | null>(null);
+  const [signature, setSignature] = useState<string | null>(null);
   const [consent, setConsent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -125,8 +128,10 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
     }
     try {
       const compressed = await compressImage(file);
-      setImageData(compressed);
-      setPreview(compressed);
+      // Burn the "SWING travel reimbursement only" watermark before upload.
+      const stamped = await watermarkIdCard(compressed);
+      setImageData(stamped);
+      setPreview(stamped);
     } catch {
       toast({ title: tx("อ่านรูปไม่สำเร็จ", "Could not read the image"), variant: "destructive" });
     }
@@ -139,6 +144,7 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
       ? ppDigits.length === 10 || ppDigits.length === 13
       : bank !== "" && account.replace(/\D/g, "").length >= 8) &&
     !!imageData &&
+    !!signature &&
     consent;
 
   const submit = async () => {
@@ -146,9 +152,14 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
     setSubmitting(true);
     try {
       const { data: up, error: upErr } = await supabase.functions.invoke("post-eval-upload-id", {
-        body: { token, image: imageData },
+        body: { token, image: imageData, kind: "id" },
       });
       if (upErr || !up?.path) throw new Error(up?.error || upErr?.message || "upload_failed");
+
+      const { data: sig, error: sigErr } = await supabase.functions.invoke("post-eval-upload-id", {
+        body: { token, image: signature, kind: "signature" },
+      });
+      if (sigErr || !sig?.path) throw new Error(sig?.error || sigErr?.message || "signature_upload_failed");
 
       const { error } = await supabase.rpc("submit_counseling_payout_claim", {
         _token: token,
@@ -159,6 +170,8 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
           bank_name: method === "promptpay" ? "พร้อมเพย์" : bank,
           bank_account_no: method === "promptpay" ? ppDigits : account,
           id_card_path: up.path,
+          signature_path: sig.path,
+          id_card_watermarked: true,
         },
       } as any);
       if (error) throw error;
@@ -399,7 +412,20 @@ export default function TravelAllowanceClaim({ token }: { token: string }) {
           <input type="file" accept="image/*" capture="environment" className="hidden"
             onChange={(e) => pickFile(e.target.files?.[0])} />
         </label>
+        <p className="text-[11px] text-amber-700 dark:text-amber-300">
+          {tx(`ระบบจะขีดคร่อมรูปอัตโนมัติว่า “${ID_WATERMARK_TEXT}”`,
+              "The photo is automatically stamped: for SWING travel reimbursement only")}
+        </p>
         {preview && <img src={preview} alt={tx("ตัวอย่างรูปบัตรประชาชน", "ID card preview")} className="rounded-xl max-h-40 object-contain w-full border" />}
+      </div>
+
+      <div className="space-y-1">
+        <Label className="text-xs">{tx("ลงลายมือชื่อผู้รับเงิน", "Recipient signature")}</Label>
+        <SignaturePad
+          onChange={setSignature}
+          labelClear={tx("ล้างลายเซ็น", "Clear")}
+          hint={tx("เซ็นด้วยนิ้วหรือเมาส์ในกรอบด้านบน", "Sign inside the box with your finger or mouse")}
+        />
       </div>
 
       <label className="flex items-start gap-2 text-xs text-muted-foreground">

@@ -80,8 +80,12 @@ Deno.serve(async (req) => {
     }
 
     const link = `${APP_BASE_URL}/post-counseling/${token}`;
-    const message = String(body?.message || "").trim() ||
-      `testD: ขอบคุณที่มารับบริการ ช่วยประเมิน 1 นาที รับค่าเดินทาง 200 บาท ${link}`;
+    const custom = String(body?.message || "").trim().slice(0, 400);
+    let message = custom
+      ? custom.replaceAll("{link}", link)
+      : `testD: ขอบคุณที่มารับบริการ ช่วยประเมิน 1 นาที รับค่าเดินทาง 200 บาท ${link}`;
+    // Never send an evaluation SMS without its magic link.
+    if (!message.includes(link)) message = `${message} ${link}`.trim();
 
     const phoneHash = await sha256Hex(phone);
     const { data: dispatch } = await admin

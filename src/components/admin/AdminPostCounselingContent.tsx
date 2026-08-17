@@ -278,11 +278,14 @@ export function PostCounselingCasesTab({ variant }: { variant: "cases" | "compar
   const [smsSending, setSmsSending] = useState(false);
   const [smsPhoneLoading, setSmsPhoneLoading] = useState(false);
   const [smsPhoneSource, setSmsPhoneSource] = useState<"booking" | "manual" | "none">("none");
+  const DEFAULT_SMS = "testD: ขอบคุณที่มารับบริการ ช่วยประเมิน 1 นาที รับค่าเดินทาง 200 บาท {link}";
+  const [smsMessage, setSmsMessage] = useState(DEFAULT_SMS);
 
   // Pull the phone number the client used when booking, so staff never retype it.
   const openSmsDialog = async (note: NoteRow) => {
     setSmsNote(note);
     setSmsPhone("");
+    setSmsMessage(DEFAULT_SMS);
     setSmsPhoneSource("none");
     setSmsPhoneLoading(true);
     try {
@@ -314,7 +317,7 @@ export function PostCounselingCasesTab({ variant }: { variant: "cases" | "compar
     setSmsSending(true);
     try {
       const { data, error } = await supabase.functions.invoke("send-post-eval-sms", {
-        body: { note_id: smsNote.id, phone: digits },
+        body: { note_id: smsNote.id, phone: digits, message: smsMessage.trim() || undefined },
       });
       if (error || (data as any)?.error) throw new Error((data as any)?.error || error?.message);
       toast({ title: tx("ส่ง SMS แล้ว 📩", "SMS sent 📩") });
@@ -586,6 +589,27 @@ export function PostCounselingCasesTab({ variant }: { variant: "cases" | "compar
                   ? tx("✅ ดึงเบอร์จากการจองของผู้รับบริการอัตโนมัติ (แก้ไขได้)", "✅ Auto-filled from the client's booking (editable)")
                   : tx("⚠️ ไม่พบเบอร์ในการจอง กรุณากรอกเอง", "⚠️ No phone on the booking — enter it manually")}
             </p>
+            <div className="space-y-1 pt-1">
+              <Label className="text-xs">{tx("ข้อความที่จะส่ง (แก้ไขได้)", "Message to send (editable)")}</Label>
+              <textarea
+                value={smsMessage}
+                onChange={(e) => setSmsMessage(e.target.value.slice(0, 400))}
+                rows={3}
+                className="w-full rounded-md border border-input bg-background p-2 text-xs"
+              />
+              <div className="rounded-lg border bg-muted/40 p-2 space-y-1">
+                <p className="text-[11px] font-medium">{tx("ตัวอย่างข้อความ (Preview)", "Message preview")}</p>
+                <p className="text-[11px] whitespace-pre-wrap break-words">
+                  {smsMessage.includes("{link}")
+                    ? smsMessage.replace("{link}", `${window.location.origin}/post-counseling/…`)
+                    : `${smsMessage} ${window.location.origin}/post-counseling/…`}
+                </p>
+                <p className="text-[10px] text-muted-foreground">
+                  {tx(`ใช้ {link} แทนตำแหน่งลิงก์ · ${smsMessage.length}/400 ตัวอักษร`,
+                      `Use {link} for the link position · ${smsMessage.length}/400 chars`)}
+                </p>
+              </div>
+            </div>
             <p className="text-[11px] text-amber-700 dark:text-amber-300">
               {tx("เมื่อผู้รับบริการทำแบบประเมินเสร็จ ระบบจะเปิดให้เบิกค่าเดินทางในแท็บ “ระบบจ่ายเงิน” โดยอัตโนมัติ",
                   "Once the evaluation is submitted, the travel claim opens automatically in the Payouts tab.")}
@@ -594,7 +618,7 @@ export function PostCounselingCasesTab({ variant }: { variant: "cases" | "compar
 
           <Button
             className="w-full bg-sky-600 hover:bg-sky-700"
-            disabled={smsSending || smsPhone.replace(/\D/g, "").length < 9}
+            disabled={smsSending || smsPhone.replace(/\D/g, "").length < 9 || smsMessage.trim().length < 5}
             onClick={sendSms}
           >
             {smsSending

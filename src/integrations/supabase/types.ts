@@ -2590,6 +2590,7 @@ export type Database = {
           id_card_delete_after: string
           id_card_deleted_at: string | null
           id_card_path: string | null
+          id_card_watermarked: boolean
           note_id: string | null
           paid_at: string | null
           paid_by: string | null
@@ -2599,6 +2600,7 @@ export type Database = {
           phone_last4: string | null
           promptpay_no: string | null
           rejection_reason: string | null
+          signature_path: string | null
           status: string
           updated_at: string
         }
@@ -2623,6 +2625,7 @@ export type Database = {
           id_card_delete_after?: string
           id_card_deleted_at?: string | null
           id_card_path?: string | null
+          id_card_watermarked?: boolean
           note_id?: string | null
           paid_at?: string | null
           paid_by?: string | null
@@ -2632,6 +2635,7 @@ export type Database = {
           phone_last4?: string | null
           promptpay_no?: string | null
           rejection_reason?: string | null
+          signature_path?: string | null
           status?: string
           updated_at?: string
         }
@@ -2656,6 +2660,7 @@ export type Database = {
           id_card_delete_after?: string
           id_card_deleted_at?: string | null
           id_card_path?: string | null
+          id_card_watermarked?: boolean
           note_id?: string | null
           paid_at?: string | null
           paid_by?: string | null
@@ -2665,6 +2670,7 @@ export type Database = {
           phone_last4?: string | null
           promptpay_no?: string | null
           rejection_reason?: string | null
+          signature_path?: string | null
           status?: string
           updated_at?: string
         }
