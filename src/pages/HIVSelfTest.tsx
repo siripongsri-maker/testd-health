@@ -222,7 +222,11 @@ export default function HIVSelfTest() {
       if (requestId) completedRequestIdsRef.current.add(requestId);
       justSubmittedRef.current = true;
       setActiveRequest(null);
-      setCurrentStep('intro');
+      // Keep the user on the submission surface so the Lean flow can render its
+      // outcome screen (result meaning + next steps). Jumping to 'intro' here
+      // unmounted the flow right after a successful submit, which made it look
+      // like nothing happened. The flow calls onDone() when the user is finished.
+      setCurrentStep((prev) => (prev === 'photo-result' ? prev : 'intro'));
       if (user) fetchRequests();
     };
     window.addEventListener('selftest:active-request-refresh', onActiveRefresh);
