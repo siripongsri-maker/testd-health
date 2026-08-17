@@ -820,6 +820,7 @@ function ReactiveCallbackScreen({
         <p><strong>{t.reactBody1}</strong></p>
         <p>{t.reactBody2}</p>
       </div>
+      <ResultMeaningCard result="reactive" t={t} />
       <p className="text-sm font-medium">{t.reactPick}</p>
       <div className="space-y-1.5">
         <Label htmlFor="reactive-callback-phone" className="text-xs font-medium">
