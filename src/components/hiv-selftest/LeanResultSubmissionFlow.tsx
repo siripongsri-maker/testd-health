@@ -640,6 +640,38 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
   return null;
 }
 
+/**
+ * Post-submission explainer: shown on the outcome screen so the person
+ * understands what 1 line / 2 lines / no line actually mean, with their own
+ * result highlighted.
+ */
+function ResultMeaningCard({ result, t }: { result: ResultType; t: typeof T.th }) {
+  const rows: Array<{ key: ResultType; mark: string; text: string; tone: string }> = [
+    { key: "negative", mark: "1", text: t.legendOne, tone: "text-emerald-600" },
+    { key: "reactive", mark: "2", text: t.legendTwo, tone: "text-amber-600" },
+    { key: "invalid", mark: "0", text: t.legendNone, tone: "text-muted-foreground" },
+  ];
+  return (
+    <div className="rounded-xl border border-border/60 bg-background/70 p-3 space-y-2 text-left">
+      <div className="text-sm font-semibold">{t.legendTitle}</div>
+      <p className="text-[11px] text-muted-foreground leading-snug">{t.legendIntro}</p>
+      <ul className="space-y-1.5 text-xs leading-snug">
+        {rows.map((r) => (
+          <li
+            key={r.key}
+            className={`flex gap-2 rounded-lg p-2 ${
+              r.key === result ? "bg-primary/10 ring-1 ring-primary/30 font-medium" : ""
+            }`}
+          >
+            <span className={`shrink-0 font-semibold ${r.tone}`}>{r.mark}</span>
+            <span>{r.text}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 // ---------- Outcome screen ----------
 function OutcomeScreen({
   result,
