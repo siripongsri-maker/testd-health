@@ -18,6 +18,16 @@ initFavicon();
 
 const MODULE_RECOVERY_KEY = "testd-module-recovery-attempted";
 
+const STALE_MODULE_PATTERNS = [
+  "Importing a module script failed",
+  "Failed to fetch dynamically imported module",
+  "error loading dynamically imported module",
+];
+
+function isStaleModuleError(text: string) {
+  return STALE_MODULE_PATTERNS.some((pattern) => text.includes(pattern));
+}
+
 async function recoverFromStaleModules() {
   try {
     if (localStorage.getItem(MODULE_RECOVERY_KEY) === "1") return;
@@ -39,14 +49,14 @@ async function recoverFromStaleModules() {
 
 window.addEventListener("error", (event) => {
   const message = String(event?.message || "");
-  if (message.includes("Importing a module script failed")) {
+  if (isStaleModuleError(message)) {
     void recoverFromStaleModules();
   }
 });
 
 window.addEventListener("unhandledrejection", (event) => {
   const reasonText = String((event as PromiseRejectionEvent).reason || "");
-  if (reasonText.includes("Importing a module script failed")) {
+  if (isStaleModuleError(reasonText)) {
     void recoverFromStaleModules();
   }
 });
@@ -66,3 +76,12 @@ if (import.meta.env.DEV) {
 }
 
 createRoot(document.getElementById("root")!).render(<App />);
+
+// Boot succeeded — allow a future recovery reload if modules go stale again.
+window.setTimeout(() => {
+  try {
+    localStorage.removeItem(MODULE_RECOVERY_KEY);
+  } catch {
+    /* noop */
+  }
+}, 5000);
