@@ -58,6 +58,11 @@ const T = {
     optNeg: { title: "1 ขีด", sub: "น่าจะปลอดเชื้อ" },
     optReact: { title: "2 ขีด", sub: "ต้องตรวจซ้ำที่คลินิก" },
     optInvalid: { title: "ไม่มีขีด หรืออ่านไม่ออก", sub: "บางครั้งเกิดขึ้นได้" },
+    legendTitle: "แต่ละขีดหมายความว่าอะไร?",
+    legendIntro: "แถบตรวจมี 2 ตำแหน่ง: C = เส้นควบคุม (บอกว่าชุดตรวจใช้ได้) และ T = เส้นผล",
+    legendOne: "1 ขีด (ขึ้นที่ C เท่านั้น) = ไม่พบการติดเชื้อ (Non-reactive) ชุดตรวจใช้งานได้ปกติ หากเสี่ยงภายใน 1–3 เดือน ควรตรวจซ้ำอีกครั้ง",
+    legendTwo: "2 ขีด (ขึ้นทั้ง C และ T) = ผลมีปฏิกิริยา (Reactive) ยังไม่ได้แปลว่าติดเชื้อ ต้องตรวจยืนยันที่คลินิก ฟรีและเป็นความลับ",
+    legendNone: "ไม่ขึ้นสักขีด หรือขึ้นที่ T อย่างเดียว = อ่านผลไม่ได้ (Invalid) ชุดตรวจอาจเสียหรือทำผิดขั้นตอน ต้องใช้ชุดใหม่ตรวจซ้ำ — เราส่งชุดใหม่ให้ฟรี",
     photoTitle: "แนบรูปประกอบ (เลือกได้)",
     photoHint: "ช่วยให้ทีมช่วยตรวจสอบได้แม่นขึ้น",
     photoAdded: "เพิ่มแล้ว:",
@@ -112,6 +117,11 @@ const T = {
     optNeg: { title: "1 line", sub: "Likely negative" },
     optReact: { title: "2 lines", sub: "Re-test at clinic" },
     optInvalid: { title: "No line / unclear", sub: "It happens" },
+    legendTitle: "What does each line mean?",
+    legendIntro: "The strip has two spots: C = control line (the kit works) and T = test line.",
+    legendOne: "1 line (C only) = non-reactive, no HIV detected. If you had risk in the last 1–3 months, re-test later.",
+    legendTwo: "2 lines (C and T) = reactive. It does not confirm HIV — a free, confidential clinic test is needed.",
+    legendNone: "No line, or T only = invalid. The kit failed or a step went wrong — you need a new kit, we send one free.",
     photoTitle: "Attach a photo (optional)",
     photoHint: "Helps the team double-check",
     photoAdded: "Added:",
@@ -320,6 +330,27 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
         <Badge variant="secondary" className="w-fit">{t.step2Badge}</Badge>
         <h2 className="text-xl font-semibold">{t.pickTitle}</h2>
         <p className="text-sm text-muted-foreground">{t.pickSub}</p>
+
+        {/* Plain-language legend: what 1 line / 2 lines / no line actually mean */}
+        <div className="rounded-xl border border-border/60 bg-muted/40 p-3 space-y-2">
+          <div className="text-sm font-semibold">{t.legendTitle}</div>
+          <p className="text-[11px] text-muted-foreground leading-snug">{t.legendIntro}</p>
+          <ul className="space-y-1.5 text-xs leading-snug">
+            <li className="flex gap-2">
+              <span className="shrink-0 font-semibold text-emerald-600">1</span>
+              <span>{t.legendOne}</span>
+            </li>
+            <li className="flex gap-2">
+              <span className="shrink-0 font-semibold text-amber-600">2</span>
+              <span>{t.legendTwo}</span>
+            </li>
+            <li className="flex gap-2">
+              <span className="shrink-0 font-semibold text-muted-foreground">0</span>
+              <span>{t.legendNone}</span>
+            </li>
+          </ul>
+        </div>
+
 
         <div className="flex flex-col gap-3">
           {options.map((o) => (
