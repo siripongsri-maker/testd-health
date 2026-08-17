@@ -331,6 +331,27 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
         <h2 className="text-xl font-semibold">{t.pickTitle}</h2>
         <p className="text-sm text-muted-foreground">{t.pickSub}</p>
 
+        {/* Plain-language legend: what 1 line / 2 lines / no line actually mean */}
+        <div className="rounded-xl border border-border/60 bg-muted/40 p-3 space-y-2">
+          <div className="text-sm font-semibold">{t.legendTitle}</div>
+          <p className="text-[11px] text-muted-foreground leading-snug">{t.legendIntro}</p>
+          <ul className="space-y-1.5 text-xs leading-snug">
+            <li className="flex gap-2">
+              <span className="shrink-0 font-semibold text-emerald-600">1</span>
+              <span>{t.legendOne}</span>
+            </li>
+            <li className="flex gap-2">
+              <span className="shrink-0 font-semibold text-amber-600">2</span>
+              <span>{t.legendTwo}</span>
+            </li>
+            <li className="flex gap-2">
+              <span className="shrink-0 font-semibold text-muted-foreground">0</span>
+              <span>{t.legendNone}</span>
+            </li>
+          </ul>
+        </div>
+
+
         <div className="flex flex-col gap-3">
           {options.map((o) => (
             <button
