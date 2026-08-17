@@ -733,6 +733,7 @@ function OutcomeScreen({
         <div className="text-5xl text-center">🌱</div>
         <h2 className="text-xl font-semibold text-center">{t.invalidTitle}</h2>
         <p className="text-sm text-center">{t.invalidBody}</p>
+        <ResultMeaningCard result="invalid" t={t} />
         <div className="flex flex-col gap-2">
           <Button
             onClick={async () => {
