@@ -331,25 +331,6 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
         <h2 className="text-xl font-semibold">{t.pickTitle}</h2>
         <p className="text-sm text-muted-foreground">{t.pickSub}</p>
 
-        {/* Plain-language legend: what 1 line / 2 lines / no line actually mean */}
-        <div className="rounded-xl border border-border/60 bg-muted/40 p-3 space-y-2">
-          <div className="text-sm font-semibold">{t.legendTitle}</div>
-          <p className="text-[11px] text-muted-foreground leading-snug">{t.legendIntro}</p>
-          <ul className="space-y-1.5 text-xs leading-snug">
-            <li className="flex gap-2">
-              <span className="shrink-0 font-semibold text-emerald-600">1</span>
-              <span>{t.legendOne}</span>
-            </li>
-            <li className="flex gap-2">
-              <span className="shrink-0 font-semibold text-amber-600">2</span>
-              <span>{t.legendTwo}</span>
-            </li>
-            <li className="flex gap-2">
-              <span className="shrink-0 font-semibold text-muted-foreground">0</span>
-              <span>{t.legendNone}</span>
-            </li>
-          </ul>
-        </div>
 
 
         <div className="flex flex-col gap-3">
@@ -659,6 +640,38 @@ export function LeanResultSubmissionFlow({ request, cameFromMagicLink, guestMode
   return null;
 }
 
+/**
+ * Post-submission explainer: shown on the outcome screen so the person
+ * understands what 1 line / 2 lines / no line actually mean, with their own
+ * result highlighted.
+ */
+function ResultMeaningCard({ result, t }: { result: ResultType; t: typeof T.th }) {
+  const rows: Array<{ key: ResultType; mark: string; text: string; tone: string }> = [
+    { key: "negative", mark: "1", text: t.legendOne, tone: "text-emerald-600" },
+    { key: "reactive", mark: "2", text: t.legendTwo, tone: "text-amber-600" },
+    { key: "invalid", mark: "0", text: t.legendNone, tone: "text-muted-foreground" },
+  ];
+  return (
+    <div className="rounded-xl border border-border/60 bg-background/70 p-3 space-y-2 text-left">
+      <div className="text-sm font-semibold">{t.legendTitle}</div>
+      <p className="text-[11px] text-muted-foreground leading-snug">{t.legendIntro}</p>
+      <ul className="space-y-1.5 text-xs leading-snug">
+        {rows.map((r) => (
+          <li
+            key={r.key}
+            className={`flex gap-2 rounded-lg p-2 ${
+              r.key === result ? "bg-primary/10 ring-1 ring-primary/30 font-medium" : ""
+            }`}
+          >
+            <span className={`shrink-0 font-semibold ${r.tone}`}>{r.mark}</span>
+            <span>{r.text}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 // ---------- Outcome screen ----------
 function OutcomeScreen({
   result,
@@ -682,6 +695,7 @@ function OutcomeScreen({
         <div className="text-5xl text-center">🤍</div>
         <h2 className="text-xl font-semibold text-center">{t.negTitle}</h2>
         <p className="text-sm text-center">{t.negBody}</p>
+        <ResultMeaningCard result="negative" t={t} />
         <div className="bg-background/60 rounded-lg p-4 text-center">
           <div className="text-sm text-muted-foreground">{t.earned}</div>
           <div className="text-2xl font-bold text-primary">+1,000 XP</div>
@@ -719,6 +733,7 @@ function OutcomeScreen({
         <div className="text-5xl text-center">🌱</div>
         <h2 className="text-xl font-semibold text-center">{t.invalidTitle}</h2>
         <p className="text-sm text-center">{t.invalidBody}</p>
+        <ResultMeaningCard result="invalid" t={t} />
         <div className="flex flex-col gap-2">
           <Button
             onClick={async () => {
@@ -805,6 +820,7 @@ function ReactiveCallbackScreen({
         <p><strong>{t.reactBody1}</strong></p>
         <p>{t.reactBody2}</p>
       </div>
+      <ResultMeaningCard result="reactive" t={t} />
       <p className="text-sm font-medium">{t.reactPick}</p>
       <div className="space-y-1.5">
         <Label htmlFor="reactive-callback-phone" className="text-xs font-medium">
