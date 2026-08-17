@@ -695,6 +695,7 @@ function OutcomeScreen({
         <div className="text-5xl text-center">🤍</div>
         <h2 className="text-xl font-semibold text-center">{t.negTitle}</h2>
         <p className="text-sm text-center">{t.negBody}</p>
+        <ResultMeaningCard result="negative" t={t} />
         <div className="bg-background/60 rounded-lg p-4 text-center">
           <div className="text-sm text-muted-foreground">{t.earned}</div>
           <div className="text-2xl font-bold text-primary">+1,000 XP</div>
