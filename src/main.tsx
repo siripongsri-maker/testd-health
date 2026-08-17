@@ -76,3 +76,12 @@ if (import.meta.env.DEV) {
 }
 
 createRoot(document.getElementById("root")!).render(<App />);
+
+// Boot succeeded — allow a future recovery reload if modules go stale again.
+window.setTimeout(() => {
+  try {
+    localStorage.removeItem(MODULE_RECOVERY_KEY);
+  } catch {
+    /* noop */
+  }
+}, 5000);
