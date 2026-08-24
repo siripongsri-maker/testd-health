@@ -560,14 +560,16 @@ export default function HIVSelfTest() {
         // (result was just submitted, status flipped, etc.), drop it and
         // bounce the user back to intro to prevent the loop.
         if (prev && !data.some((r) => r.id === prev.id && isOpenUnsubmittedCycle(r))) {
-          setCurrentStep((step) =>
-            isDirectSubmitAction
-              ? 'photo-result'
-              : step === 'confirm-receipt' || step === 'video' || step === 'testing' ||
-                step === 'timer' || step === 'photo-result'
-                ? 'intro'
-                : step
-          );
+          if (!outcomeRequestRef.current) {
+            setCurrentStep((step) =>
+              isDirectSubmitAction
+                ? 'photo-result'
+                : step === 'confirm-receipt' || step === 'video' || step === 'testing' ||
+                  step === 'timer' || step === 'photo-result'
+                  ? 'intro'
+                  : step
+            );
+          }
           try { localStorage.removeItem('hiv-selftest-timer'); } catch { /* noop */ }
         }
         return active ?? null;
