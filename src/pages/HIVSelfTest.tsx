@@ -79,6 +79,12 @@ export default function HIVSelfTest() {
   
   const [currentStep, setCurrentStep] = useState<Step>('intro');
   const [activeRequest, setActiveRequest] = useState<SelfTestRequest | null>(null);
+  // Snapshot of the request whose result was just submitted. Keeps the Lean
+  // flow mounted (same JSX slot) so it can render its outcome screen after the
+  // active request is invalidated.
+  const [outcomeRequest, setOutcomeRequest] = useState<SelfTestRequest | null>(null);
+  const activeRequestRef = useRef<SelfTestRequest | null>(null);
+  const outcomeRequestRef = useRef<SelfTestRequest | null>(null);
   const [requests, setRequests] = useState<SelfTestRequest[]>([]);
   const [loading, setLoading] = useState(false);
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>('ship');
