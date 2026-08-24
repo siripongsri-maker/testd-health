@@ -79,6 +79,12 @@ export default function HIVSelfTest() {
   
   const [currentStep, setCurrentStep] = useState<Step>('intro');
   const [activeRequest, setActiveRequest] = useState<SelfTestRequest | null>(null);
+  // Snapshot of the request whose result was just submitted. Keeps the Lean
+  // flow mounted (same JSX slot) so it can render its outcome screen after the
+  // active request is invalidated.
+  const [outcomeRequest, setOutcomeRequest] = useState<SelfTestRequest | null>(null);
+  const activeRequestRef = useRef<SelfTestRequest | null>(null);
+  const outcomeRequestRef = useRef<SelfTestRequest | null>(null);
   const [requests, setRequests] = useState<SelfTestRequest[]>([]);
   const [loading, setLoading] = useState(false);
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>('ship');
@@ -217,15 +223,24 @@ export default function HIVSelfTest() {
   // Lean flow doesn't re-enter "submit your result" while the refetch is
   // in flight, then re-reads from the DB (which excludes result_submitted).
   useEffect(() => {
+    activeRequestRef.current = activeRequest;
+  }, [activeRequest]);
+  useEffect(() => {
+    outcomeRequestRef.current = outcomeRequest;
+  }, [outcomeRequest]);
+
+  useEffect(() => {
     const onActiveRefresh = (event: Event) => {
       const requestId = (event as CustomEvent<{ requestId?: string }>).detail?.requestId;
       if (requestId) completedRequestIdsRef.current.add(requestId);
       justSubmittedRef.current = true;
+      // Preserve the just-submitted request so the Lean flow stays mounted in
+      // the same JSX slot and can show its outcome screen (result meaning).
+      if (activeRequestRef.current) {
+        outcomeRequestRef.current = activeRequestRef.current;
+        setOutcomeRequest(activeRequestRef.current);
+      }
       setActiveRequest(null);
-      // Keep the user on the submission surface so the Lean flow can render its
-      // outcome screen (result meaning + next steps). Jumping to 'intro' here
-      // unmounted the flow right after a successful submit, which made it look
-      // like nothing happened. The flow calls onDone() when the user is finished.
       setCurrentStep((prev) => (prev === 'photo-result' ? prev : 'intro'));
       if (user) fetchRequests();
     };
@@ -234,6 +249,7 @@ export default function HIVSelfTest() {
       window.removeEventListener('selftest:active-request-refresh', onActiveRefresh);
     };
   }, [user]);
+
 
   // Magic link resolution: ?token=... lets users re-enter the result submission flow
   // bound to the original kit request (no new request will be created).
@@ -544,14 +560,16 @@ export default function HIVSelfTest() {
         // (result was just submitted, status flipped, etc.), drop it and
         // bounce the user back to intro to prevent the loop.
         if (prev && !data.some((r) => r.id === prev.id && isOpenUnsubmittedCycle(r))) {
-          setCurrentStep((step) =>
-            isDirectSubmitAction
-              ? 'photo-result'
-              : step === 'confirm-receipt' || step === 'video' || step === 'testing' ||
-                step === 'timer' || step === 'photo-result'
-                ? 'intro'
-                : step
-          );
+          if (!outcomeRequestRef.current) {
+            setCurrentStep((step) =>
+              isDirectSubmitAction
+                ? 'photo-result'
+                : step === 'confirm-receipt' || step === 'video' || step === 'testing' ||
+                  step === 'timer' || step === 'photo-result'
+                  ? 'intro'
+                  : step
+            );
+          }
           try { localStorage.removeItem('hiv-selftest-timer'); } catch { /* noop */ }
         }
         return active ?? null;
@@ -2166,20 +2184,22 @@ export default function HIVSelfTest() {
           currentStep === 'video' ||
           currentStep === 'testing' ||
           currentStep === 'timer' ||
-          currentStep === 'photo-result') && activeRequest &&
-         !hasSubmittedSelfTestResult(activeRequest) && (
+          currentStep === 'photo-result') &&
+         ((activeRequest && !hasSubmittedSelfTestResult(activeRequest)) || outcomeRequest) && (
           <LeanResultSubmissionFlow
             request={{
-              id: activeRequest.id,
+              id: (activeRequest ?? outcomeRequest)!.id,
               user_id: user?.id ?? null,
               delivery_mode: deliveryMode,
-              status: activeRequest.status,
+              status: (activeRequest ?? outcomeRequest)!.status,
             }}
             cameFromMagicLink={searchParams.has('token')}
             startAtResult={isDirectSubmitAction}
             onDone={() => {
               justSubmittedRef.current = true;
               setActiveRequest(null);
+              outcomeRequestRef.current = null;
+              setOutcomeRequest(null);
               setCurrentStep('intro');
               try {
                 localStorage.removeItem('hiv-selftest-timer');
@@ -2199,7 +2219,7 @@ export default function HIVSelfTest() {
         )}
 
         {/* Guest path — same unified Lean flow (1 ขีด / 2 ขีด), no login required. */}
-        {!activeRequest && currentStep === 'photo-result' && (isDirectSubmitAction || !user) && (
+        {!activeRequest && !outcomeRequest && currentStep === 'photo-result' && (isDirectSubmitAction || !user) && (
           <LeanResultSubmissionFlow
             request={{
               id: 'guest-pending',
