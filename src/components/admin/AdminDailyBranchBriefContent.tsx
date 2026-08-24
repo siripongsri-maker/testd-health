@@ -113,6 +113,21 @@ const STATUS_OPTIONS = [
   { value: "case_closed", th: "ปิดเคส", en: "Closed" },
 ];
 
+/** Work order for counselors: urgent → still open → risk → booked time. */
+const STATUS_RANK: Record<string, number> = {
+  not_reviewed: 0, follow_up_needed: 1, counseling_completed: 2, case_closed: 3,
+};
+const RISK_RANK: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
+
+function caseRank(c: BriefCase, urgentIds: Set<string>) {
+  const urgent = urgentIds.has(c.survey_id) ? 0 : 1;
+  const status = STATUS_RANK[c.status] ?? 0;
+  const risk = RISK_RANK[c.risk_level] ?? 3;
+  const time = Number((c.appointment_time || "99:99").replace(":", ""));
+  return status * 1e8 + urgent * 1e7 + risk * 1e6 + time;
+}
+
+
 export interface DailyOpsPanelProps {
   /** Controlled day (yyyy-MM-dd) supplied by the merged Daily Ops workspace. */
   day?: string;
@@ -159,6 +174,8 @@ export default function AdminDailyBranchBriefContent({
   const [linkedUrgentApptIds, setLinkedUrgentApptIds] = useState<Set<string>>(new Set());
   const [payouts, setPayouts] = useState<Map<string, PayoutStatus>>(new Map());
   const [queuingId, setQueuingId] = useState<string | null>(null);
+  const [openingId, setOpeningId] = useState<string | null>(null);
+
   const [noteDetails, setNoteDetails] = useState<Map<string, NoteDetail>>(new Map());
 
 
@@ -367,6 +384,28 @@ export default function AdminDailyBranchBriefContent({
     loadPayouts();
   };
 
+  /** Turn an urgent appointment (no survey yet) into a workable case record. */
+  const openUrgentCase = async (u: UrgentAppointmentRef) => {
+    setOpeningId(u.appointment_id);
+    const { data, error } = await supabase.rpc("open_urgent_appointment_case", {
+      p_appointment_id: u.appointment_id,
+    } as any);
+    setOpeningId(null);
+    if (error) {
+      toast({ title: tx("เปิดเคสไม่สำเร็จ", "Failed to open case"), description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({
+      title: tx("เปิดเคสแล้ว", "Case opened"),
+      description: tx("เคสถูกเพิ่มในรายการด้านล่าง บันทึกผลและปิดเคสได้เลย", "The case now appears in the list below — record and close it there."),
+    });
+    await load();
+    setTimeout(() => {
+      document.getElementById(`case-${data as string}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 400);
+  };
+
+
 
   /* -------- grouped + summary -------- */
   const grouped = useMemo(() => {
@@ -514,19 +553,32 @@ export default function AdminDailyBranchBriefContent({
             <Badge className="bg-rose-600 text-white">{summary.urgentUnlinked.length}</Badge>
           </div>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {summary.urgentUnlinked.map((u) => (
-              <div key={u.appointment_id} className="rounded-md border border-rose-300/60 bg-background p-2 text-xs">
+            {[...summary.urgentUnlinked]
+              .sort((a, b) => String(a.start_time || "99:99").localeCompare(String(b.start_time || "99:99")))
+              .map((u, i) => (
+              <div key={u.appointment_id} className="rounded-md border border-rose-300/60 bg-background p-2 text-xs space-y-1.5">
                 <div className="flex items-center gap-1.5 font-semibold">
+                  <Badge className="bg-rose-600 text-white h-4 px-1.5 text-[10px]">#{i + 1}</Badge>
                   <Clock className="h-3 w-3 text-rose-600" />
                   {String(u.start_time || "").slice(0, 5) || "—"}
                   <span className="font-normal text-muted-foreground">{branchName(u.branch_id)}</span>
                 </div>
-                <div className="mt-1 flex flex-wrap items-center gap-1 text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-1 text-muted-foreground">
                   <Badge variant="outline" className="text-[10px]">{u.case?.referral_type}</Badge>
                   {u.referral_code && <span className="font-mono">{u.referral_code}</span>}
                 </div>
+                <Button
+                  size="sm"
+                  className="h-7 w-full text-[11px] no-print"
+                  disabled={openingId === u.appointment_id}
+                  onClick={() => openUrgentCase(u)}
+                >
+                  {openingId === u.appointment_id && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
+                  {tx("เปิดเคสเพื่อบันทึกผล", "Open case to record")}
+                </Button>
               </div>
             ))}
+
           </div>
         </Card>
       )}
@@ -572,8 +624,9 @@ export default function AdminDailyBranchBriefContent({
 
             <div className="space-y-3">
               {[...cases]
-                .sort((a, b) => Number(urgentSurveyIds.has(b.survey_id)) - Number(urgentSurveyIds.has(a.survey_id)))
+                .sort((a, b) => caseRank(a, urgentSurveyIds) - caseRank(b, urgentSurveyIds))
                 .map((c) => (
+
 
                 <div
                   key={c.survey_id}

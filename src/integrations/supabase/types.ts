@@ -12647,6 +12647,10 @@ export type Database = {
       }
       normalize_text_for_fp: { Args: { input: string }; Returns: string }
       note_appointment_id: { Args: { _note_id: string }; Returns: string }
+      open_urgent_appointment_case: {
+        Args: { p_appointment_id: string }
+        Returns: string
+      }
       pre_service_can_analyze: { Args: never; Returns: boolean }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
