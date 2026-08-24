@@ -382,6 +382,28 @@ export default function AdminDailyBranchBriefContent({
     loadPayouts();
   };
 
+  /** Turn an urgent appointment (no survey yet) into a workable case record. */
+  const openUrgentCase = async (u: UrgentAppointmentRef) => {
+    setOpeningId(u.appointment_id);
+    const { data, error } = await supabase.rpc("open_urgent_appointment_case", {
+      p_appointment_id: u.appointment_id,
+    } as any);
+    setOpeningId(null);
+    if (error) {
+      toast({ title: tx("เปิดเคสไม่สำเร็จ", "Failed to open case"), description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({
+      title: tx("เปิดเคสแล้ว", "Case opened"),
+      description: tx("เคสถูกเพิ่มในรายการด้านล่าง บันทึกผลและปิดเคสได้เลย", "The case now appears in the list below — record and close it there."),
+    });
+    await load();
+    setTimeout(() => {
+      document.getElementById(`case-${data as string}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 400);
+  };
+
+
 
   /* -------- grouped + summary -------- */
   const grouped = useMemo(() => {
