@@ -223,15 +223,24 @@ export default function HIVSelfTest() {
   // Lean flow doesn't re-enter "submit your result" while the refetch is
   // in flight, then re-reads from the DB (which excludes result_submitted).
   useEffect(() => {
+    activeRequestRef.current = activeRequest;
+  }, [activeRequest]);
+  useEffect(() => {
+    outcomeRequestRef.current = outcomeRequest;
+  }, [outcomeRequest]);
+
+  useEffect(() => {
     const onActiveRefresh = (event: Event) => {
       const requestId = (event as CustomEvent<{ requestId?: string }>).detail?.requestId;
       if (requestId) completedRequestIdsRef.current.add(requestId);
       justSubmittedRef.current = true;
+      // Preserve the just-submitted request so the Lean flow stays mounted in
+      // the same JSX slot and can show its outcome screen (result meaning).
+      if (activeRequestRef.current) {
+        outcomeRequestRef.current = activeRequestRef.current;
+        setOutcomeRequest(activeRequestRef.current);
+      }
       setActiveRequest(null);
-      // Keep the user on the submission surface so the Lean flow can render its
-      // outcome screen (result meaning + next steps). Jumping to 'intro' here
-      // unmounted the flow right after a successful submit, which made it look
-      // like nothing happened. The flow calls onDone() when the user is finished.
       setCurrentStep((prev) => (prev === 'photo-result' ? prev : 'intro'));
       if (user) fetchRequests();
     };
@@ -240,6 +249,7 @@ export default function HIVSelfTest() {
       window.removeEventListener('selftest:active-request-refresh', onActiveRefresh);
     };
   }, [user]);
+
 
   // Magic link resolution: ?token=... lets users re-enter the result submission flow
   // bound to the original kit request (no new request will be created).
