@@ -2182,20 +2182,22 @@ export default function HIVSelfTest() {
           currentStep === 'video' ||
           currentStep === 'testing' ||
           currentStep === 'timer' ||
-          currentStep === 'photo-result') && activeRequest &&
-         !hasSubmittedSelfTestResult(activeRequest) && (
+          currentStep === 'photo-result') &&
+         ((activeRequest && !hasSubmittedSelfTestResult(activeRequest)) || outcomeRequest) && (
           <LeanResultSubmissionFlow
             request={{
-              id: activeRequest.id,
+              id: (activeRequest ?? outcomeRequest)!.id,
               user_id: user?.id ?? null,
               delivery_mode: deliveryMode,
-              status: activeRequest.status,
+              status: (activeRequest ?? outcomeRequest)!.status,
             }}
             cameFromMagicLink={searchParams.has('token')}
             startAtResult={isDirectSubmitAction}
             onDone={() => {
               justSubmittedRef.current = true;
               setActiveRequest(null);
+              outcomeRequestRef.current = null;
+              setOutcomeRequest(null);
               setCurrentStep('intro');
               try {
                 localStorage.removeItem('hiv-selftest-timer');
@@ -2215,7 +2217,7 @@ export default function HIVSelfTest() {
         )}
 
         {/* Guest path — same unified Lean flow (1 ขีด / 2 ขีด), no login required. */}
-        {!activeRequest && currentStep === 'photo-result' && (isDirectSubmitAction || !user) && (
+        {!activeRequest && !outcomeRequest && currentStep === 'photo-result' && (isDirectSubmitAction || !user) && (
           <LeanResultSubmissionFlow
             request={{
               id: 'guest-pending',
