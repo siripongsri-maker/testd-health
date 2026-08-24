@@ -572,8 +572,9 @@ export default function AdminDailyBranchBriefContent({
 
             <div className="space-y-3">
               {[...cases]
-                .sort((a, b) => Number(urgentSurveyIds.has(b.survey_id)) - Number(urgentSurveyIds.has(a.survey_id)))
+                .sort((a, b) => caseRank(a, urgentSurveyIds) - caseRank(b, urgentSurveyIds))
                 .map((c) => (
+
 
                 <div
                   key={c.survey_id}
