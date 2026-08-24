@@ -174,6 +174,8 @@ export default function AdminDailyBranchBriefContent({
   const [linkedUrgentApptIds, setLinkedUrgentApptIds] = useState<Set<string>>(new Set());
   const [payouts, setPayouts] = useState<Map<string, PayoutStatus>>(new Map());
   const [queuingId, setQueuingId] = useState<string | null>(null);
+  const [openingId, setOpeningId] = useState<string | null>(null);
+
   const [noteDetails, setNoteDetails] = useState<Map<string, NoteDetail>>(new Map());
 
 
