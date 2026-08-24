@@ -113,6 +113,21 @@ const STATUS_OPTIONS = [
   { value: "case_closed", th: "ปิดเคส", en: "Closed" },
 ];
 
+/** Work order for counselors: urgent → still open → risk → booked time. */
+const STATUS_RANK: Record<string, number> = {
+  not_reviewed: 0, follow_up_needed: 1, counseling_completed: 2, case_closed: 3,
+};
+const RISK_RANK: Record<string, number> = { critical: 0, high: 1, medium: 2, low: 3 };
+
+function caseRank(c: BriefCase, urgentIds: Set<string>) {
+  const urgent = urgentIds.has(c.survey_id) ? 0 : 1;
+  const status = STATUS_RANK[c.status] ?? 0;
+  const risk = RISK_RANK[c.risk_level] ?? 3;
+  const time = Number((c.appointment_time || "99:99").replace(":", ""));
+  return status * 1e8 + urgent * 1e7 + risk * 1e6 + time;
+}
+
+
 export interface DailyOpsPanelProps {
   /** Controlled day (yyyy-MM-dd) supplied by the merged Daily Ops workspace. */
   day?: string;
