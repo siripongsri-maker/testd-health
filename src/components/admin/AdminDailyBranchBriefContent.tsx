@@ -529,19 +529,32 @@ export default function AdminDailyBranchBriefContent({
             <Badge className="bg-rose-600 text-white">{summary.urgentUnlinked.length}</Badge>
           </div>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {summary.urgentUnlinked.map((u) => (
-              <div key={u.appointment_id} className="rounded-md border border-rose-300/60 bg-background p-2 text-xs">
+            {[...summary.urgentUnlinked]
+              .sort((a, b) => String(a.start_time || "99:99").localeCompare(String(b.start_time || "99:99")))
+              .map((u, i) => (
+              <div key={u.appointment_id} className="rounded-md border border-rose-300/60 bg-background p-2 text-xs space-y-1.5">
                 <div className="flex items-center gap-1.5 font-semibold">
+                  <Badge className="bg-rose-600 text-white h-4 px-1.5 text-[10px]">#{i + 1}</Badge>
                   <Clock className="h-3 w-3 text-rose-600" />
                   {String(u.start_time || "").slice(0, 5) || "—"}
                   <span className="font-normal text-muted-foreground">{branchName(u.branch_id)}</span>
                 </div>
-                <div className="mt-1 flex flex-wrap items-center gap-1 text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-1 text-muted-foreground">
                   <Badge variant="outline" className="text-[10px]">{u.case?.referral_type}</Badge>
                   {u.referral_code && <span className="font-mono">{u.referral_code}</span>}
                 </div>
+                <Button
+                  size="sm"
+                  className="h-7 w-full text-[11px] no-print"
+                  disabled={openingId === u.appointment_id}
+                  onClick={() => openUrgentCase(u)}
+                >
+                  {openingId === u.appointment_id && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
+                  {tx("เปิดเคสเพื่อบันทึกผล", "Open case to record")}
+                </Button>
               </div>
             ))}
+
           </div>
         </Card>
       )}
