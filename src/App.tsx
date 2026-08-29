@@ -239,6 +239,8 @@ function AppShell() {
               <Route path="/queue-tv/:branchSlug" element={<QueueTV />} />
               <Route path="/go/:slug" element={<LinkRedirect />} />
               <Route path="/harm-reduction" element={<HarmReduction />} />
+              <Route path="/chemsex-cards" element={<ChemsexCards />} />
+              <Route path="/chemsex-cards/:slug" element={<ChemsexCardDetail />} />
               <Route path="/chemsex-safety" element={<SEOLanding />} />
               <Route path="/drug-combination-risk" element={<SEOLanding />} />
               <Route path="/ghb-overdose" element={<SEOLanding />} />
