@@ -42,12 +42,26 @@ export default function ChemsexCards() {
               content: CHEMSEX_FACT_CARDS.map((c) => getFactCardKeywords(c, isEn ? "en" : "th").split(", ").slice(0, 2).join(", ")).join(", "),
             },
           ]}
-          jsonLd={buildMedicalPageJsonLd({
-            name: "Chemsex Fact Cards",
-            description: "20 harm reduction fact cards covering chemsex safety, HIV/STI prevention, mental health and rights.",
-            url: "https://testd.website/th/chemsex-cards",
-            about: "Chemsex harm reduction, HIV prevention, mental health, sex worker rights",
-          })}
+          jsonLd={[
+            buildMedicalPageJsonLd({
+              name: "Chemsex Fact Cards",
+              description: "20 harm reduction fact cards covering chemsex safety, HIV/STI prevention, mental health and rights.",
+              url: `https://testd.website/${isEn ? "en" : "th"}/chemsex-cards`,
+              about: "Chemsex harm reduction, HIV prevention, mental health, sex worker rights",
+            }),
+            {
+              "@context": "https://schema.org",
+              "@type": "ItemList",
+              name: isEn ? "Chemsex Fact Cards (20 topics)" : "การ์ดความรู้ Chemsex 20 หัวข้อ",
+              numberOfItems: CHEMSEX_FACT_CARDS.length,
+              itemListElement: CHEMSEX_FACT_CARDS.map((c) => ({
+                "@type": "ListItem",
+                position: c.number,
+                name: isEn ? c.titleEn : c.titleTh,
+                url: `https://testd.website/${isEn ? "en" : "th"}/chemsex-cards/${c.slug}`,
+              })),
+            },
+          ]}
         />
 
         <Button
