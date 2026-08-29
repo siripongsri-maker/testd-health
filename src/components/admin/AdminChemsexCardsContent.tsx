@@ -9,6 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { RefreshCw, Download, QrCode, Eye, ExternalLink, ZoomIn } from "lucide-react";
 import { toast } from "sonner";
+import ChemsexCardLinkBuilder from "@/components/admin/ChemsexCardLinkBuilder";
+
 import {
   Bar,
   BarChart,
