@@ -35,6 +35,13 @@ export default function ChemsexCards() {
             : "การ์ดความรู้ chemsex 20 หัวข้อ วางแผนก่อนใช้ รับมือ overdose PrEP/PEP ระยะตรวจ STI สุขภาพใจ สิทธิและความลับ"}
           canonicalPath="/chemsex-cards"
           lang={language}
+          extraMeta={[
+            {
+              attr: "name",
+              key: "keywords",
+              content: CHEMSEX_FACT_CARDS.map((c) => getFactCardKeywords(c, isEn ? "en" : "th").split(", ").slice(0, 2).join(", ")).join(", "),
+            },
+          ]}
           jsonLd={buildMedicalPageJsonLd({
             name: "Chemsex Fact Cards",
             description: "20 harm reduction fact cards covering chemsex safety, HIV/STI prevention, mental health and rights.",

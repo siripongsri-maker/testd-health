@@ -113,7 +113,7 @@ export default function ChemsexCardDetail() {
           >
             <img
               src={artwork.front}
-              alt={`${isEn ? "Fact card" : "การ์ดความรู้"} ${String(card.number).padStart(2, "0")} — ${title}`}
+              alt={getFactCardAlt(card, isEn ? "en" : "th", "front")}
               loading="eager"
               className="w-full"
             />
@@ -160,7 +160,7 @@ export default function ChemsexCardDetail() {
           >
             <img
               src={artwork.back}
-              alt={`${isEn ? "Fact card back" : "ด้านหลังการ์ด"} ${String(card.number).padStart(2, "0")} — ${title}`}
+              alt={getFactCardAlt(card, isEn ? "en" : "th", "back")}
               loading="lazy"
               className="w-full"
             />
@@ -186,7 +186,7 @@ export default function ChemsexCardDetail() {
                 </DialogTitle>
                 <img
                   src={zoom === "front" ? artwork.front : artwork.back}
-                  alt={`${title} — ${zoom === "front" ? "front" : "back"}`}
+                  alt={getFactCardAlt(card, isEn ? "en" : "th", zoom)}
                   className="w-full rounded-2xl border border-border/40 bg-card"
                 />
                 {zoom === "front" ? (
