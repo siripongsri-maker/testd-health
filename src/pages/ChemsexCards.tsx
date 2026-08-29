@@ -8,6 +8,7 @@ import { ArrowLeft, ChevronRight } from "lucide-react";
 import { SEOHead, buildMedicalPageJsonLd } from "@/components/seo";
 import { CHEMSEX_FACT_CARDS, FACT_CARD_GROUPS, type ChemsexFactCard } from "@/data/chemsexFactCards";
 import { CHEMSEX_CARD_IMAGES } from "@/data/chemsexFactCardImages";
+import { getFactCardAlt, getFactCardKeywords } from "@/data/chemsexFactCardSeo";
 
 const GROUP_ORDER: ChemsexFactCard["group"][] = [
   "prepare",
@@ -34,12 +35,33 @@ export default function ChemsexCards() {
             : "การ์ดความรู้ chemsex 20 หัวข้อ วางแผนก่อนใช้ รับมือ overdose PrEP/PEP ระยะตรวจ STI สุขภาพใจ สิทธิและความลับ"}
           canonicalPath="/chemsex-cards"
           lang={language}
-          jsonLd={buildMedicalPageJsonLd({
-            name: "Chemsex Fact Cards",
-            description: "20 harm reduction fact cards covering chemsex safety, HIV/STI prevention, mental health and rights.",
-            url: "https://testd.website/th/chemsex-cards",
-            about: "Chemsex harm reduction, HIV prevention, mental health, sex worker rights",
-          })}
+          extraMeta={[
+            {
+              attr: "name",
+              key: "keywords",
+              content: CHEMSEX_FACT_CARDS.map((c) => getFactCardKeywords(c, isEn ? "en" : "th").split(", ").slice(0, 2).join(", ")).join(", "),
+            },
+          ]}
+          jsonLd={[
+            buildMedicalPageJsonLd({
+              name: "Chemsex Fact Cards",
+              description: "20 harm reduction fact cards covering chemsex safety, HIV/STI prevention, mental health and rights.",
+              url: `https://testd.website/${isEn ? "en" : "th"}/chemsex-cards`,
+              about: "Chemsex harm reduction, HIV prevention, mental health, sex worker rights",
+            }),
+            {
+              "@context": "https://schema.org",
+              "@type": "ItemList",
+              name: isEn ? "Chemsex Fact Cards (20 topics)" : "การ์ดความรู้ Chemsex 20 หัวข้อ",
+              numberOfItems: CHEMSEX_FACT_CARDS.length,
+              itemListElement: CHEMSEX_FACT_CARDS.map((c) => ({
+                "@type": "ListItem",
+                position: c.number,
+                name: isEn ? c.titleEn : c.titleTh,
+                url: `https://testd.website/${isEn ? "en" : "th"}/chemsex-cards/${c.slug}`,
+              })),
+            },
+          ]}
         />
 
         <Button
@@ -78,7 +100,7 @@ export default function ChemsexCards() {
                       {CHEMSEX_CARD_IMAGES[card.number] ? (
                         <img
                           src={CHEMSEX_CARD_IMAGES[card.number].front}
-                          alt={isEn ? card.titleEn : card.titleTh}
+                          alt={getFactCardAlt(card, isEn ? "en" : "th", "thumb")}
                           loading="lazy"
                           className="w-20 h-12 rounded-lg object-cover object-left border border-border/40 flex-shrink-0 bg-card"
                         />

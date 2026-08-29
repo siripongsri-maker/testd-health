@@ -3,6 +3,7 @@ import { useLanguage } from "@/lib/i18n";
 import { ChevronRight } from "lucide-react";
 import { CHEMSEX_FACT_CARDS, FACT_CARD_GROUPS } from "@/data/chemsexFactCards";
 import { CHEMSEX_CARD_IMAGES } from "@/data/chemsexFactCardImages";
+import { getFactCardAlt } from "@/data/chemsexFactCardSeo";
 
 interface Props {
   /** Show only the first N cards with a "see all" link */
@@ -51,7 +52,7 @@ export function FactCardGrid({ limit, className }: Props) {
             {CHEMSEX_CARD_IMAGES[card.number] && (
               <img
                 src={CHEMSEX_CARD_IMAGES[card.number].front}
-                alt={isEn ? card.titleEn : card.titleTh}
+                alt={getFactCardAlt(card, isEn ? "en" : "th", "thumb")}
                 loading="lazy"
                 className="w-full aspect-[16/9] object-cover rounded-xl mb-2 border border-border/40"
               />

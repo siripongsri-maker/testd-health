@@ -4,6 +4,7 @@
 
 import { writeFileSync } from "fs";
 import { resolve } from "path";
+import { CHEMSEX_FACT_CARDS } from "../src/data/chemsexFactCards";
 
 const BASE_URL = "https://testd.website";
 const LOCALES = ["th", "en"] as const;
@@ -83,6 +84,12 @@ async function fetchRows(table: string, query: string): Promise<any[]> {
 
 async function collectEntries(): Promise<SitemapEntry[]> {
   const entries = [...staticEntries];
+
+  // Chemsex Fact Cards — index plus all 20 individual card pages
+  entries.push({ path: "/chemsex-cards", changefreq: "weekly", priority: "0.8" });
+  for (const card of CHEMSEX_FACT_CARDS) {
+    entries.push({ path: `/chemsex-cards/${card.slug}`, changefreq: "monthly", priority: "0.7" });
+  }
 
   // Blog category landing pages
   const categories = await fetchRows("blog_categories", "select=slug&order=display_order");

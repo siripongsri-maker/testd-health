@@ -10,6 +10,7 @@ import { SEOHead, buildMedicalPageJsonLd, buildBreadcrumbJsonLd } from "@/compon
 import { trackEvent } from "@/hooks/useAnalytics";
 import { CHEMSEX_FACT_CARDS, FACT_CARD_GROUPS, getFactCard } from "@/data/chemsexFactCards";
 import { CHEMSEX_CARD_IMAGES } from "@/data/chemsexFactCardImages";
+import { getFactCardAlt, getFactCardKeywords, getFactCardMetaDescription } from "@/data/chemsexFactCardSeo";
 
 export default function ChemsexCardDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -65,16 +66,25 @@ export default function ChemsexCardDetail() {
       <PageContainer className="pb-24">
         <SEOHead
           title={`${title} — ${isEn ? "Chemsex Fact Card" : "การ์ดความรู้ Chemsex"} ${String(card.number).padStart(2, "0")}`}
-          description={`${tagline} — ${points[0]}`.slice(0, 155)}
+          description={getFactCardMetaDescription(card, isEn ? "en" : "th")}
           canonicalPath={`/chemsex-cards/${card.slug}`}
           lang={language}
+          ogImageAlt={getFactCardAlt(card, isEn ? "en" : "th")}
+          extraMeta={[
+            { attr: "name", key: "keywords", content: getFactCardKeywords(card, isEn ? "en" : "th") },
+          ]}
           jsonLd={[
-            buildMedicalPageJsonLd({
-              name: title,
-              description: tagline,
-              url: `https://testd.website/th/chemsex-cards/${card.slug}`,
-              about: "Chemsex harm reduction",
-            }),
+            {
+              ...buildMedicalPageJsonLd({
+                name: title,
+                description: tagline,
+                url: `https://testd.website/${isEn ? "en" : "th"}/chemsex-cards/${card.slug}`,
+                about: "Chemsex harm reduction",
+              }),
+              alternateName: isEn ? card.titleTh : card.titleEn,
+              keywords: `${getFactCardKeywords(card, "th")}, ${getFactCardKeywords(card, "en")}`,
+              position: card.number,
+            },
             buildBreadcrumbJsonLd([
               { name: isEn ? "Harm Reduction" : "ลดอันตราย", path: "/th/harm-reduction" },
               { name: isEn ? "Chemsex Fact Cards" : "การ์ดความรู้ Chemsex", path: "/th/chemsex-cards" },
@@ -103,7 +113,7 @@ export default function ChemsexCardDetail() {
           >
             <img
               src={artwork.front}
-              alt={`${isEn ? "Fact card" : "การ์ดความรู้"} ${String(card.number).padStart(2, "0")} — ${title}`}
+              alt={getFactCardAlt(card, isEn ? "en" : "th", "front")}
               loading="eager"
               className="w-full"
             />
@@ -150,7 +160,7 @@ export default function ChemsexCardDetail() {
           >
             <img
               src={artwork.back}
-              alt={`${isEn ? "Fact card back" : "ด้านหลังการ์ด"} ${String(card.number).padStart(2, "0")} — ${title}`}
+              alt={getFactCardAlt(card, isEn ? "en" : "th", "back")}
               loading="lazy"
               className="w-full"
             />
@@ -176,7 +186,7 @@ export default function ChemsexCardDetail() {
                 </DialogTitle>
                 <img
                   src={zoom === "front" ? artwork.front : artwork.back}
-                  alt={`${title} — ${zoom === "front" ? "front" : "back"}`}
+                  alt={getFactCardAlt(card, isEn ? "en" : "th", zoom)}
                   className="w-full rounded-2xl border border-border/40 bg-card"
                 />
                 {zoom === "front" ? (
