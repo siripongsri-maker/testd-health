@@ -63,6 +63,7 @@ const AdminServicePathwaysContent = lazy(() => import("@/components/admin/AdminS
 const AdminFrontDeskContent = lazy(() => import("@/components/admin/AdminFrontDeskContent"));
 const AdminPdpaComplianceContent = lazy(() => import("@/components/admin/AdminPdpaComplianceContent"));
 const AdminAttributionContent = lazy(() => import("@/components/admin/AdminAttributionContent"));
+const AdminChemsexCardsContent = lazy(() => import("@/components/admin/AdminChemsexCardsContent"));
 const AdminFeedbackOutcomesContent = lazy(() => import("@/components/admin/AdminFeedbackOutcomesContent"));
 const AdminCRMContent = lazy(() => import("@/components/admin/crm/AdminCRMContent"));
 const AdminYouthSurveyContent = lazy(() => import("@/components/admin/AdminYouthSurveyContent"));
@@ -112,7 +113,7 @@ const ME_ANALYST_TABS = new Set([
   // SMS & Credits (read-only)
   "sms-relay", "credit-balances", "credit-purchases",
   // Reports
-  "analytics", "analytics-overview", "export-center", "attribution", "feedback-outcomes", "pre-service-surveys", "counselor-support", "daily-branch-brief", "concern-brief", "daily-ops",
+  "analytics", "analytics-overview", "export-center", "attribution", "chemsex-cards", "feedback-outcomes", "pre-service-surveys", "counselor-support", "daily-branch-brief", "concern-brief", "daily-ops",
   // MEL
   "mel-services", "mel-indicators", "mel-outreach", "mel-training",
   "mel-safe-spaces", "mel-partners", "mel-policy", "mel-evaluation", "mel-reporting",
@@ -279,6 +280,7 @@ export default function Admin() {
           {renderTab("analytics", <AdminAnalyticsContent />)}
           {renderTab("analytics-overview", <AdminAnalyticsOverview />)}
           {renderTab("attribution", <AdminAttributionContent />)}
+          {renderTab("chemsex-cards", <AdminChemsexCardsContent />)}
           {renderTab("feedback-outcomes", <AdminFeedbackOutcomesContent />)}
           {renderTab("pre-service-surveys", <AdminPreServiceSurveysContent />)}
           {renderTab("daily-ops", <AdminDailyOpsContent />)}
