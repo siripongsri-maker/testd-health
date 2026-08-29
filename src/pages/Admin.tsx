@@ -321,6 +321,8 @@ export default function Admin() {
 
           {/* Compliance */}
           {renderTab("pdpa-compliance", <AdminPdpaComplianceContent />)}
+          {renderTab("anonymous-privacy", <AdminAnonymousPrivacyContent />)}
+
 
           {/* MEL */}
           {renderTab("mel-services", <MelServiceLedgerContent />)}
