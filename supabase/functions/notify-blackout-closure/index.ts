@@ -129,22 +129,21 @@ Deno.serve(async (req) => {
       // 1) Email
       if (channels.email && a.contact_email) {
         try {
-          const { error } = await admin.functions.invoke("send-transactional-email", {
-            body: {
-              templateName: "appointment-closure-notice",
-              recipientEmail: a.contact_email,
-              idempotencyKey: `closure-${date}-${a.id}`,
-              templateData: {
-                branchName: bName,
-                appointmentDate: dateTh,
-                appointmentTime: time,
-                closureTitle,
-                closureReason,
-                rescheduleUrl,
-              },
+          const { error } = await sendManagedEmail(admin, {
+            templateName: "appointment-closure-notice",
+            recipientEmail: a.contact_email,
+            idempotencyKey: `closure-${date}-${a.id}`,
+            templateData: {
+              branchName: bName,
+              appointmentDate: dateTh,
+              appointmentTime: time,
+              closureTitle,
+              closureReason,
+              rescheduleUrl,
             },
           });
-          if (error) throw error;
+          if (error) throw new Error(error.message);
+
           results.email++;
         } catch (e) {
           results.failed.push({ id: a.id, channel: "email", error: String(e) });

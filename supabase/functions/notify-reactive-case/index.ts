@@ -94,27 +94,20 @@ Deno.serve(async (req) => {
     adminUrl: `${ADMIN_BASE_URL}?tab=selftest-results&request=${request.id}`,
   };
 
-  // Send to each recipient through send-transactional-email (uses internal queue)
+  // Send to each recipient through Lovable's managed email API
   let sent = 0;
   const errors: string[] = [];
   for (const email of NOTIFY_EMAILS) {
     try {
-      const resp = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${serviceKey}`,
-        },
-        body: JSON.stringify({
-          templateName: "selftest-reactive-alert",
-          recipientEmail: email,
-          templateData,
-        }),
+      const { error } = await sendManagedEmail(supa, {
+        templateName: "selftest-reactive-alert",
+        recipientEmail: email,
+        idempotencyKey: `reactive-${request.id}-${email}`,
+        templateData,
       });
-      if (!resp.ok) {
-        const txt = await resp.text();
-        console.error("[notify-reactive-case] send fail", email, resp.status, txt);
-        errors.push(`${email}: ${resp.status}`);
+      if (error) {
+        console.error("[notify-reactive-case] send fail", email, error.message);
+        errors.push(`${email}: ${error.message}`);
       } else {
         sent++;
       }
@@ -123,6 +116,7 @@ Deno.serve(async (req) => {
       errors.push(`${email}: ${String(e)}`);
     }
   }
+
 
   if (sent > 0) {
     await supa
