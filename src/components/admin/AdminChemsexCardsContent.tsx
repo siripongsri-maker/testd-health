@@ -264,7 +264,9 @@ export default function AdminChemsexCardsContent() {
           <TabsTrigger value="services">บริการปลายทาง</TabsTrigger>
           <TabsTrigger value="sources">ช่องทาง & แคมเปญ</TabsTrigger>
           <TabsTrigger value="trend">แนวโน้มรายวัน</TabsTrigger>
+          <TabsTrigger value="links">สร้างลิงก์ & QR</TabsTrigger>
         </TabsList>
+
 
         <TabsContent value="cards" className="space-y-4">
           <Card>
