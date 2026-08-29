@@ -1157,6 +1157,8 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.systemSettings': 'System Settings',
     'admin.complianceSecurity': 'Compliance & Security',
     'admin.pdpaCompliance': 'PDPA Compliance',
+    'admin.anonymousPrivacy': 'Anonymous Data Privacy',
+
     'admin.backToApp': 'Back to App',
     'admin.logout': 'Logout',
 
