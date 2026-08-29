@@ -185,6 +185,8 @@ const menuGroups: MenuGroup[] = [
     labelKey: "admin.complianceSecurity",
     items: [
       { tab: "pdpa-compliance", icon: Shield, labelKey: "admin.pdpaCompliance", adminOnly: true },
+      { tab: "anonymous-privacy", icon: Shield, labelKey: "admin.anonymousPrivacy", adminOnly: true },
+
     ],
   },
 
