@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useLanguage } from "@/lib/i18n";
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Phone } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Phone, ZoomIn } from "lucide-react";
 import { SEOHead, buildMedicalPageJsonLd, buildBreadcrumbJsonLd } from "@/components/seo";
 import { trackEvent } from "@/hooks/useAnalytics";
 import { CHEMSEX_FACT_CARDS, FACT_CARD_GROUPS, getFactCard } from "@/data/chemsexFactCards";
@@ -15,6 +17,7 @@ export default function ChemsexCardDetail() {
   const { language } = useLanguage();
   const isEn = language === "en";
   const prefix = isEn ? "/en" : "/th";
+  const [zoom, setZoom] = useState<"front" | "back" | null>(null);
 
   const card = getFactCard(slug);
 
@@ -92,12 +95,22 @@ export default function ChemsexCardDetail() {
 
         {/* Front of the card — printed artwork */}
         {artwork && (
-          <img
-            src={artwork.front}
-            alt={`${isEn ? "Fact card" : "การ์ดความรู้"} ${String(card.number).padStart(2, "0")} — ${title}`}
-            loading="eager"
-            className="w-full rounded-3xl border border-border/50 mb-4 bg-card"
-          />
+          <button
+            type="button"
+            onClick={() => setZoom("front")}
+            aria-label={isEn ? "View card front in full size" : "ดูภาพด้านหน้าขนาดใหญ่"}
+            className="relative w-full mb-4 rounded-3xl overflow-hidden border border-border/50 bg-card group cursor-zoom-in"
+          >
+            <img
+              src={artwork.front}
+              alt={`${isEn ? "Fact card" : "การ์ดความรู้"} ${String(card.number).padStart(2, "0")} — ${title}`}
+              loading="eager"
+              className="w-full"
+            />
+            <span className="absolute bottom-3 right-3 rounded-full bg-background/80 backdrop-blur p-2 opacity-80 group-hover:opacity-100 transition-opacity">
+              <ZoomIn className="h-4 w-4 text-foreground" />
+            </span>
+          </button>
         )}
 
         <article
@@ -129,13 +142,61 @@ export default function ChemsexCardDetail() {
 
         {/* Back of the card — printed artwork */}
         {artwork && (
-          <img
-            src={artwork.back}
-            alt={`${isEn ? "Fact card back" : "ด้านหลังการ์ด"} ${String(card.number).padStart(2, "0")} — ${title}`}
-            loading="lazy"
-            className="w-full rounded-3xl border border-border/50 mb-6 bg-card"
-          />
+          <button
+            type="button"
+            onClick={() => setZoom("back")}
+            aria-label={isEn ? "View card back in full size" : "ดูภาพด้านหลังขนาดใหญ่"}
+            className="relative w-full mb-6 rounded-3xl overflow-hidden border border-border/50 bg-card group cursor-zoom-in"
+          >
+            <img
+              src={artwork.back}
+              alt={`${isEn ? "Fact card back" : "ด้านหลังการ์ด"} ${String(card.number).padStart(2, "0")} — ${title}`}
+              loading="lazy"
+              className="w-full"
+            />
+            <span className="absolute bottom-3 right-3 rounded-full bg-background/80 backdrop-blur p-2 opacity-80 group-hover:opacity-100 transition-opacity">
+              <ZoomIn className="h-4 w-4 text-foreground" />
+            </span>
+          </button>
         )}
+
+        {/* Full-size artwork lightbox */}
+        <Dialog open={zoom !== null} onOpenChange={(open) => !open && setZoom(null)}>
+          <DialogContent className="max-w-2xl w-[95vw] p-3 sm:p-5">
+            {zoom && artwork && (
+              <>
+                <DialogTitle className="text-base font-bold flex items-center gap-2">
+                  <span>{card.emoji}</span>
+                  <span>{title}</span>
+                  <span className="text-xs font-semibold text-muted-foreground">
+                    · {zoom === "front"
+                      ? (isEn ? "Front — Knowledge" : "ด้านหน้า — ความรู้")
+                      : (isEn ? "Back — Services" : "ด้านหลัง — บริการ")}
+                  </span>
+                </DialogTitle>
+                <img
+                  src={zoom === "front" ? artwork.front : artwork.back}
+                  alt={`${title} — ${zoom === "front" ? "front" : "back"}`}
+                  className="w-full rounded-2xl border border-border/40 bg-card"
+                />
+                {zoom === "front" ? (
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {tagline} — {points[0]}
+                  </p>
+                ) : (
+                  <ul className="space-y-1">
+                    {card.ctas.map((cta) => (
+                      <li key={cta.to + cta.labelEn} className="text-sm text-muted-foreground">
+                        • <span className="font-semibold text-foreground">{isEn ? cta.labelEn : cta.labelTh}</span>
+                        {" "}({cta.service})
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </>
+            )}
+          </DialogContent>
+        </Dialog>
 
 
         {/* Back of the card — services */}
