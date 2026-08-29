@@ -108,6 +108,8 @@ const KhmerLanding = lazy(() => import("./pages/KhmerLanding"));
 const KhmerHarmReduction = lazy(() => import("./pages/KhmerHarmReduction"));
 const SafeSpaceQuiz = lazy(() => import("./pages/SafeSpaceQuiz"));
 const CareCardPrint = lazy(() => import("./pages/CareCardPrint"));
+const ChemsexCards = lazy(() => import("./pages/ChemsexCards"));
+const ChemsexCardDetail = lazy(() => import("./pages/ChemsexCardDetail"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
@@ -237,6 +239,8 @@ function AppShell() {
               <Route path="/queue-tv/:branchSlug" element={<QueueTV />} />
               <Route path="/go/:slug" element={<LinkRedirect />} />
               <Route path="/harm-reduction" element={<HarmReduction />} />
+              <Route path="/chemsex-cards" element={<ChemsexCards />} />
+              <Route path="/chemsex-cards/:slug" element={<ChemsexCardDetail />} />
               <Route path="/chemsex-safety" element={<SEOLanding />} />
               <Route path="/drug-combination-risk" element={<SEOLanding />} />
               <Route path="/ghb-overdose" element={<SEOLanding />} />

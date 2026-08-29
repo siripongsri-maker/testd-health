@@ -11,6 +11,7 @@ import { Search, BookOpen, Eye, ChevronRight, Loader2, PenSquare, Heart, User, C
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { FactCardGrid } from "@/components/factcards/FactCardGrid";
 
 interface Category {
   id: string;
@@ -180,6 +181,9 @@ export default function Info() {
             {language === 'th' ? 'ค้นหาบทความ' : 'Search articles'}
           </Button>
         </div>
+
+        {/* Chemsex Fact Cards — 20 topic pages */}
+        <FactCardGrid limit={6} className="mb-6" />
 
 
         {/* Search */}

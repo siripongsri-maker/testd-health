@@ -38,6 +38,7 @@ import ServiceTimeline from "@/components/harm-reduction/ServiceTimeline";
 import ClinicServiceDoor from "@/components/harm-reduction/ClinicServiceDoor";
 import MentalHealthCheckin from "@/components/harm-reduction/MentalHealthCheckin";
 import { SubstanceFactsheet } from "@/components/harm-reduction/SubstanceFactsheet";
+import { FactCardGrid } from "@/components/factcards/FactCardGrid";
 
 const AGE_STORAGE_KEY = "hr_age_confirmed";
 const DEMO_DISMISSED_KEY = "hr_demo_dismissed";
@@ -291,6 +292,10 @@ export default function HarmReduction() {
             <ChevronRight className="h-4 w-4 text-white/50 flex-shrink-0" />
           </div>
         </button>
+
+        {/* Chemsex Fact Cards — 20 topic pages */}
+        <FactCardGrid limit={6} />
+
         {/* Service Timeline — for logged-in users with history */}
         {user?.id && <ServiceTimeline userId={user.id} />}
 
