@@ -2,6 +2,7 @@
 // Staff/admin only. Includes a reschedule link (guest token link for anonymous bookings).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { sendManagedEmail } from '../_shared/transactional-email-templates/send-and-log.ts';
 
 const SMSMKT_URL = "https://portal-otp.smsmkt.com/api/send-message";
 const APP_BASE_URL = (Deno.env.get("APP_BASE_URL") || "https://testd.website").replace(/\/+$/, "");

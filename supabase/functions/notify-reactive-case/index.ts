@@ -3,6 +3,7 @@
 // Idempotent via reactive_notified_at column.
 // Requires REACTIVE_NOTIFY_EMAILS env var (comma-separated list).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
+import { sendManagedEmail } from '../_shared/transactional-email-templates/send-and-log.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
