@@ -24,8 +24,18 @@ export default function ChemsexCardDetail() {
   const isEn = language === "en";
   const prefix = isEn ? "/en" : "/th";
   const [zoom, setZoom] = useState<"front" | "back" | null>(null);
+  const { search } = useLocation();
 
   const card = getFactCard(slug);
+
+  useEffect(() => {
+    if (!card) return;
+    const params = new URLSearchParams(search);
+    trackCardView(card, language, search, params.get("utm_campaign") || params.get("c"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [card?.slug, language, search]);
+
+
 
   if (!card) {
     return (
