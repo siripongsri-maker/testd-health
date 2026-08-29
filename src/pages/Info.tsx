@@ -11,6 +11,7 @@ import { Search, BookOpen, Eye, ChevronRight, Loader2, PenSquare, Heart, User, C
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { FactCardGrid } from "@/components/factcards/FactCardGrid";
 
 interface Category {
   id: string;
