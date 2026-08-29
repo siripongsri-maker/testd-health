@@ -108,6 +108,8 @@ const KhmerLanding = lazy(() => import("./pages/KhmerLanding"));
 const KhmerHarmReduction = lazy(() => import("./pages/KhmerHarmReduction"));
 const SafeSpaceQuiz = lazy(() => import("./pages/SafeSpaceQuiz"));
 const CareCardPrint = lazy(() => import("./pages/CareCardPrint"));
+const ChemsexCards = lazy(() => import("./pages/ChemsexCards"));
+const ChemsexCardDetail = lazy(() => import("./pages/ChemsexCardDetail"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient({
