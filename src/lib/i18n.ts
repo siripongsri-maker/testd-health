@@ -595,6 +595,8 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.systemSettings': 'ตั้งค่าระบบ',
     'admin.complianceSecurity': 'ปฏิบัติตามกฎหมายและความปลอดภัย',
     'admin.pdpaCompliance': 'PDPA Compliance',
+    'admin.anonymousPrivacy': 'ความเป็นส่วนตัวข้อมูลไม่ระบุตัวตน',
+
     'admin.backToApp': 'กลับหน้าหลัก',
     'admin.logout': 'ออกจากระบบ',
 
