@@ -1,5 +1,5 @@
 // Notify the team when a self-test result comes back reactive (2 lines).
-// Uses the existing transactional email infrastructure (send-transactional-email).
+// App emails now send through Lovable managed delivery.
 // Idempotent via reactive_notified_at column.
 // Requires REACTIVE_NOTIFY_EMAILS env var (comma-separated list).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
