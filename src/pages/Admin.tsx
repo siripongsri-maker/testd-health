@@ -64,6 +64,8 @@ const AdminFrontDeskContent = lazy(() => import("@/components/admin/AdminFrontDe
 const AdminPdpaComplianceContent = lazy(() => import("@/components/admin/AdminPdpaComplianceContent"));
 const AdminAttributionContent = lazy(() => import("@/components/admin/AdminAttributionContent"));
 const AdminChemsexCardsContent = lazy(() => import("@/components/admin/AdminChemsexCardsContent"));
+const AdminAnonymousPrivacyContent = lazy(() => import("@/components/admin/AdminAnonymousPrivacyContent"));
+
 const AdminFeedbackOutcomesContent = lazy(() => import("@/components/admin/AdminFeedbackOutcomesContent"));
 const AdminCRMContent = lazy(() => import("@/components/admin/crm/AdminCRMContent"));
 const AdminYouthSurveyContent = lazy(() => import("@/components/admin/AdminYouthSurveyContent"));
