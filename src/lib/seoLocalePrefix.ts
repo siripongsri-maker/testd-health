@@ -20,6 +20,7 @@ export const SUPPORTED_LOCALES: Locale[] = ["th", "en"];
 const SEO_ROUTE_PREFIXES: string[] = [
   "/", // home
   "/harm-reduction",
+  "/chemsex-cards",
   "/hiv-selftest",
   "/hiv-self-test-guide",
   "/info", // /info, /info/:id, /info/article/:slug
