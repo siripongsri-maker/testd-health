@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useLanguage } from "@/lib/i18n";
-import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Phone } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Phone, ZoomIn } from "lucide-react";
 import { SEOHead, buildMedicalPageJsonLd, buildBreadcrumbJsonLd } from "@/components/seo";
 import { trackEvent } from "@/hooks/useAnalytics";
 import { CHEMSEX_FACT_CARDS, FACT_CARD_GROUPS, getFactCard } from "@/data/chemsexFactCards";
