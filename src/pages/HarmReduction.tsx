@@ -291,6 +291,10 @@ export default function HarmReduction() {
             <ChevronRight className="h-4 w-4 text-white/50 flex-shrink-0" />
           </div>
         </button>
+
+        {/* Chemsex Fact Cards — 20 topic pages */}
+        <FactCardGrid limit={6} />
+
         {/* Service Timeline — for logged-in users with history */}
         {user?.id && <ServiceTimeline userId={user.id} />}
 
