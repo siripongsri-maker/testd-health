@@ -3,17 +3,25 @@
   <title>testD — Sexual health &amp; harm reduction articles</title>
   <subtitle>New articles from testD on HIV, PrEP, PEP, STIs and harm reduction.</subtitle>
   <id>https://testd.website/atom-en.xml</id>
-  <updated>2026-08-22T15:14:04.599Z</updated>
+  <updated>2026-08-16T10:42:58.443Z</updated>
   <link rel="self" type="application/atom+xml" href="https://testd.website/atom-en.xml" />
   <link rel="alternate" type="text/html" href="https://testd.website/en/info" />
   <author><name>testD</name></author>
   <entry>
-    <title>71.7% at High Risk: What PHQ-4, ASSIST and C-SSRS Screening Tells Us About Chemsex</title>
-    <id>https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data" />
+    <title>Chemsex Safety Playbook: Thailand 2026 Data Edition</title>
+    <id>https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026" />
     <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-22T15:14:04.599Z</updated>
-    <summary type="text">53 completed screenings between Mar 12 and Aug 8, 2026: monthly trends and what they mean for mental health care.</summary>
+    <updated>2026-08-16T10:42:58.443Z</updated>
+    <summary type="text">A full chemsex harm reduction playbook grounded in real service data: 15,077 self-test kit requests, 25,133 clinic appointments and 53 completed risk screenings.</summary>
+  </entry>
+  <entry>
+    <title>From 222 to 2,819 Kits a Month: The HIV Self-Test Pathway for People Who Use Drugs</title>
+    <id>https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-28T10:47:04.347Z</updated>
+    <summary type="text">Analysis of 15,077 HIV self-test kit requests from Oct 2025 to Aug 2026 and what they reveal about testing behaviour.</summary>
   </entry>
   <entry>
     <title>Methamphetamine Harm Reduction: Thai Service Behaviour Data 2025–2026</title>
@@ -24,12 +32,12 @@
     <summary type="text">Meth use patterns, slamming and polydrug mixing in Thai service data, with population-specific harm reduction guidance.</summary>
   </entry>
   <entry>
-    <title>From 222 to 2,819 Kits a Month: The HIV Self-Test Pathway for People Who Use Drugs</title>
-    <id>https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits" />
+    <title>71.7% at High Risk: What PHQ-4, ASSIST and C-SSRS Screening Tells Us About Chemsex</title>
+    <id>https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data" />
     <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-16T06:05:18.841Z</updated>
-    <summary type="text">Analysis of 15,077 HIV self-test kit requests from Oct 2025 to Aug 2026 and what they reveal about testing behaviour.</summary>
+    <updated>2026-08-29T09:43:34.969Z</updated>
+    <summary type="text">53 completed screenings between Mar 12 and Aug 8, 2026: monthly trends and what they mean for mental health care.</summary>
   </entry>
   <entry>
     <title>42 Substance Interaction Pairs: Which Combinations Can Kill</title>
@@ -38,14 +46,6 @@
     <published>2026-08-09T08:58:43.832Z</published>
     <updated>2026-08-16T20:48:45.699Z</updated>
     <summary type="text">A breakdown of 42 documented substance interaction pairs — 11 critical, 19 high, 12 moderate — across 18 substances.</summary>
-  </entry>
-  <entry>
-    <title>Chemsex Safety Playbook: Thailand 2026 Data Edition</title>
-    <id>https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-16T10:42:58.443Z</updated>
-    <summary type="text">A full chemsex harm reduction playbook grounded in real service data: 15,077 self-test kit requests, 25,133 clinic appointments and 53 completed risk screenings.</summary>
   </entry>
   <entry>
     <title>GHB/GBL: Dosing, Spacing and What To Do When Someone Goes Under</title>
@@ -60,7 +60,7 @@
     <id>https://testd.website/en/info/article/long-acting-injectable-prep</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/long-acting-injectable-prep" />
     <published>2026-08-06T18:39:55.954Z</published>
-    <updated>2026-08-24T11:42:34.487Z</updated>
+    <updated>2026-08-28T11:03:58.595Z</updated>
     <summary type="text">Learn how long-acting injectable PrEP options Lenacapavir and CAB-LA differ, including HIV testing, side effects, and access to care.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/long-acting-injectable-prep-1786041595768.png" />
   </entry>
@@ -78,7 +78,7 @@
     <id>https://testd.website/en/info/article/prep-myths</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/prep-myths" />
     <published>2026-08-06T18:39:28.749Z</published>
-    <updated>2026-08-24T16:47:37.020Z</updated>
+    <updated>2026-08-28T07:20:38.934Z</updated>
     <summary type="text">We unpack 10 common PrEP myths about effectiveness, side effects, eligibility, and access so you can make an informed sexual-health choice.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-myths-1786043500001.png" />
   </entry>
@@ -87,7 +87,7 @@
     <id>https://testd.website/en/info/article/pep-72-hours</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/pep-72-hours" />
     <published>2026-08-06T18:39:25.252Z</published>
-    <updated>2026-08-24T11:43:21.337Z</updated>
+    <updated>2026-08-28T17:17:54.199Z</updated>
     <summary type="text">PEP should start as soon as possible and within 72 hours of possible HIV exposure. Here is what to do if time is running out—or has passed.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-72-hours-1786043500000.png" />
   </entry>
@@ -96,7 +96,7 @@
     <id>https://testd.website/en/info/article/intimate-image-leak-response</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/intimate-image-leak-response" />
     <published>2026-08-06T18:37:16.927Z</published>
-    <updated>2026-08-19T07:18:04.354Z</updated>
+    <updated>2026-08-29T03:26:30.838Z</updated>
     <summary type="text">A practical, non-judgemental guide to preserving evidence, securing accounts, requesting removal, and getting support after image-based abuse.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/intimate-image-leak-response-1786041436703.png" />
   </entry>
@@ -258,7 +258,7 @@
     <id>https://testd.website/en/info/article/doxypep-explained</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/doxypep-explained" />
     <published>2026-08-06T18:30:40.120Z</published>
-    <updated>2026-08-19T05:03:59.453Z</updated>
+    <updated>2026-08-29T10:51:15.049Z</updated>
     <summary type="text">Learn how DoxyPEP may prevent syphilis and other bacterial STIs, who may benefit, its limitations, safety concerns, and follow-up testing.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/doxypep-explained-1786041039870.png" />
   </entry>
@@ -276,7 +276,7 @@
     <id>https://testd.website/en/info/article/how-often-sti-testing</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/how-often-sti-testing" />
     <published>2026-08-06T18:30:39.611Z</published>
-    <updated>2026-08-19T14:12:42.578Z</updated>
+    <updated>2026-08-29T08:21:02.020Z</updated>
     <summary type="text">How often you need STI testing depends on partners, exposure sites, and symptoms. Use this checklist to plan annual, 3–6 monthly, or prompt testing.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/how-often-sti-testing-1786041039409.png" />
   </entry>
@@ -339,7 +339,7 @@
     <id>https://testd.website/en/info/article/syphilis-symptoms-treatment</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/syphilis-symptoms-treatment" />
     <published>2026-08-06T18:28:52.265Z</published>
-    <updated>2026-08-21T15:17:29.641Z</updated>
+    <updated>2026-08-28T22:12:45.904Z</updated>
     <summary type="text">Syphilis may cause no symptoms or a painless sore. Learn the signs, testing options, treatment, and where to access confidential care in Thailand.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/syphilis-symptoms-treatment-1786040932075.png" />
   </entry>
@@ -348,7 +348,7 @@
     <id>https://testd.website/en/info/article/reactive-hiv-self-test-next-steps</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/reactive-hiv-self-test-next-steps" />
     <published>2026-08-06T18:27:32.717Z</published>
-    <updated>2026-08-18T19:07:49.488Z</updated>
+    <updated>2026-08-27T23:31:14.356Z</updated>
     <summary type="text">Two lines mean a reactive preliminary HIV result, not a final diagnosis. Arrange confirmatory testing with a healthcare professional promptly.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/reactive-hiv-self-test-next-steps-1786040852460.png" />
   </entry>
@@ -375,7 +375,7 @@
     <id>https://testd.website/en/info/article/free-anonymous-hiv-testing</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/free-anonymous-hiv-testing" />
     <published>2026-08-06T18:27:10.407Z</published>
-    <updated>2026-08-19T09:28:05.698Z</updated>
+    <updated>2026-08-26T03:56:07.506Z</updated>
     <summary type="text">Free HIV testing is available, but anonymous and confidential testing are not the same. Learn what to ask and which option may suit you.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/free-anonymous-hiv-testing-1786040830046.png" />
   </entry>
@@ -393,7 +393,7 @@
     <id>https://testd.website/en/info/article/pep-cost-and-coverage</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/pep-cost-and-coverage" />
     <published>2026-08-06T18:25:43.903Z</published>
-    <updated>2026-08-24T11:45:42.667Z</updated>
+    <updated>2026-08-29T07:03:08.447Z</updated>
     <summary type="text">PEP costs in Thailand vary by coverage, clinic, tests, and medication. Learn how NHSO coverage may apply and why care is urgent within 72 hours.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-cost-and-coverage-1786040743654.png" />
   </entry>
@@ -447,7 +447,7 @@
     <id>https://testd.website/en/info/article/prep-quarterly-followup</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/prep-quarterly-followup" />
     <published>2026-08-06T18:23:49.788Z</published>
-    <updated>2026-08-15T07:14:20.057Z</updated>
+    <updated>2026-08-29T04:37:22.992Z</updated>
     <summary type="text">PrEP care includes regular HIV, kidney and STI screening. Follow-up every three months helps keep prevention safe and suited to your needs.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-quarterly-followup-1786040629401.png" />
   </entry>

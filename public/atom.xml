@@ -3,17 +3,25 @@
   <title>testD — บทความสุขภาพทางเพศและลดอันตราย</title>
   <subtitle>อัปเดตบทความใหม่จาก testD เรื่อง HIV, PrEP, PEP, โรคติดต่อทางเพศสัมพันธ์ และการลดอันตรายจากการใช้สาร</subtitle>
   <id>https://testd.website/atom.xml</id>
-  <updated>2026-08-22T15:14:04.599Z</updated>
+  <updated>2026-08-16T10:42:58.443Z</updated>
   <link rel="self" type="application/atom+xml" href="https://testd.website/atom.xml" />
   <link rel="alternate" type="text/html" href="https://testd.website/th/info" />
   <author><name>testD</name></author>
   <entry>
-    <title>71.7% อยู่ในกลุ่มเสี่ยงสูง: สิ่งที่แบบประเมิน PHQ-4 / ASSIST / C-SSRS บอกเราเรื่องเชมเซ็กซ์</title>
-    <id>https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data" />
+    <title>คู่มือความปลอดภัยเรื่องเชมเซ็กซ์ (Chemsex Safety Playbook) ฉบับข้อมูลจริงปี 2569</title>
+    <id>https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
     <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-22T15:14:04.599Z</updated>
-    <summary type="text">ผลแบบประเมินความเสี่ยง 53 ชุด ระหว่าง 12 มี.ค. – 8 ส.ค. 2569 พร้อมแนวโน้มรายเดือนและความหมายต่อการดูแลสุขภาพจิตของผู้ใช้สาร</summary>
+    <updated>2026-08-16T10:42:58.443Z</updated>
+    <summary type="text">คู่มือลดอันตรายจากเชมเซ็กซ์แบบครบวงจร อ้างอิงข้อมูลบริการจริง 15,077 คำขอชุดตรวจ, 25,133 นัดหมาย และแบบประเมินความเสี่ยง 53 ชุด พร้อมไทม์ไลน์ความปลอดภัยก่อน–ระหว่าง–หลังปาร์ตี้</summary>
+  </entry>
+  <entry>
+    <title>จาก 222 เป็น 2,819 ชุดต่อเดือน: เส้นทางชุดตรวจ HIV ด้วยตนเองกับกลุ่มใช้สาร</title>
+    <id>https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-28T10:47:04.347Z</updated>
+    <summary type="text">วิเคราะห์คำขอชุดตรวจ 15,077 รายการ ตั้งแต่ ต.ค. 2568 ถึง ส.ค. 2569 เห็นพฤติกรรมการตรวจของกลุ่มใช้สารและช่วงเวลาที่ควรสื่อสาร</summary>
   </entry>
   <entry>
     <title>ไอซ์กับการลดอันตราย: ข้อมูลพฤติกรรมผู้ใช้บริการไทย ปี 2568–2569</title>
@@ -24,12 +32,12 @@
     <summary type="text">เจาะข้อมูลรูปแบบการใช้เมทแอมเฟตามีน การฉีด (slam) และการผสมสาร พร้อมแนวทางลดอันตรายรายกลุ่ม อ้างอิงข้อมูลบริการ 11 เดือน</summary>
   </entry>
   <entry>
-    <title>จาก 222 เป็น 2,819 ชุดต่อเดือน: เส้นทางชุดตรวจ HIV ด้วยตนเองกับกลุ่มใช้สาร</title>
-    <id>https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
+    <title>71.7% อยู่ในกลุ่มเสี่ยงสูง: สิ่งที่แบบประเมิน PHQ-4 / ASSIST / C-SSRS บอกเราเรื่องเชมเซ็กซ์</title>
+    <id>https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data" />
     <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-16T06:05:18.841Z</updated>
-    <summary type="text">วิเคราะห์คำขอชุดตรวจ 15,077 รายการ ตั้งแต่ ต.ค. 2568 ถึง ส.ค. 2569 เห็นพฤติกรรมการตรวจของกลุ่มใช้สารและช่วงเวลาที่ควรสื่อสาร</summary>
+    <updated>2026-08-29T09:43:34.969Z</updated>
+    <summary type="text">ผลแบบประเมินความเสี่ยง 53 ชุด ระหว่าง 12 มี.ค. – 8 ส.ค. 2569 พร้อมแนวโน้มรายเดือนและความหมายต่อการดูแลสุขภาพจิตของผู้ใช้สาร</summary>
   </entry>
   <entry>
     <title>42 คู่ปฏิกิริยาระหว่างสาร: คู่ไหนเสี่ยงตาย คู่ไหนพอจัดการได้</title>
@@ -38,14 +46,6 @@
     <published>2026-08-09T08:58:43.832Z</published>
     <updated>2026-08-16T20:48:45.699Z</updated>
     <summary type="text">ฐานข้อมูลคู่ปฏิกิริยาระหว่างสาร 42 คู่ (วิกฤต 11 / สูง 19 / ปานกลาง 12) จากสาร 18 ชนิด พร้อมวิธีอ่านผลและใช้จริงในคืนที่มีการใช้สาร</summary>
-  </entry>
-  <entry>
-    <title>คู่มือความปลอดภัยเรื่องเชมเซ็กซ์ (Chemsex Safety Playbook) ฉบับข้อมูลจริงปี 2569</title>
-    <id>https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-16T10:42:58.443Z</updated>
-    <summary type="text">คู่มือลดอันตรายจากเชมเซ็กซ์แบบครบวงจร อ้างอิงข้อมูลบริการจริง 15,077 คำขอชุดตรวจ, 25,133 นัดหมาย และแบบประเมินความเสี่ยง 53 ชุด พร้อมไทม์ไลน์ความปลอดภัยก่อน–ระหว่าง–หลังปาร์ตี้</summary>
   </entry>
   <entry>
     <title>GHB/GBL: การตวง การเว้นช่วง และการช่วยชีวิตเมื่อเพื่อนหมดสติ</title>
@@ -60,7 +60,7 @@
     <id>https://testd.website/th/info/article/long-acting-injectable-prep</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/long-acting-injectable-prep" />
     <published>2026-08-06T18:39:55.954Z</published>
-    <updated>2026-08-24T11:42:34.487Z</updated>
+    <updated>2026-08-28T11:03:58.595Z</updated>
     <summary type="text">ทำความรู้จัก PrEP ฉีดชนิดออกฤทธิ์ยาว เปรียบเทียบ Lenacapavir กับ CAB-LA พร้อมข้อควรรู้เรื่องการตรวจ HIV ผลข้างเคียง และการเข้าถึงบริการ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/long-acting-injectable-prep-1786041595768.png" />
   </entry>
@@ -78,7 +78,7 @@
     <id>https://testd.website/th/info/article/prep-myths</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/prep-myths" />
     <published>2026-08-06T18:39:28.749Z</published>
-    <updated>2026-08-24T16:47:37.020Z</updated>
+    <updated>2026-08-28T07:20:38.934Z</updated>
     <summary type="text">ชวนแกะ 10 ความเข้าใจผิดเรื่อง PrEP ตั้งแต่ประสิทธิภาพ ผลข้างเคียง ไปจนถึงสิทธิรับบริการ เพื่อเลือกดูแลสุขภาพทางเพศอย่างมั่นใจ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-myths-1786043500001.png" />
   </entry>
@@ -87,7 +87,7 @@
     <id>https://testd.website/th/info/article/pep-72-hours</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/pep-72-hours" />
     <published>2026-08-06T18:39:25.252Z</published>
-    <updated>2026-08-24T11:43:21.337Z</updated>
+    <updated>2026-08-28T17:17:54.199Z</updated>
     <summary type="text">PEP ควรเริ่มเร็วที่สุดและไม่เกิน 72 ชั่วโมงหลังเสี่ยง HIV หากใกล้ครบเวลาหรือเลยแล้ว ควรทำอะไรต่อ อ่านขั้นตอนที่ปลอดภัยได้ที่นี่</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-72-hours-1786043500000.png" />
   </entry>
@@ -96,7 +96,7 @@
     <id>https://testd.website/th/info/article/intimate-image-leak-response</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/intimate-image-leak-response" />
     <published>2026-08-06T18:37:16.927Z</published>
-    <updated>2026-08-19T07:18:04.354Z</updated>
+    <updated>2026-08-29T03:26:30.838Z</updated>
     <summary type="text">ตั้งสติ เก็บหลักฐาน ปิดช่องเข้าถึง และขอให้แพลตฟอร์มนำออก วิธีรับมือ image based abuse ไทยโดยไม่โทษตัวเอง</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/intimate-image-leak-response-1786041436703.png" />
   </entry>
@@ -258,7 +258,7 @@
     <id>https://testd.website/th/info/article/doxypep-explained</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/doxypep-explained" />
     <published>2026-08-06T18:30:40.120Z</published>
-    <updated>2026-08-19T05:03:59.453Z</updated>
+    <updated>2026-08-29T10:51:15.049Z</updated>
     <summary type="text">รู้จัก DoxyPEP ยาปฏิชีวนะเพื่อป้องกัน STI หลังมีเพศสัมพันธ์ หลักฐานเรื่องซิฟิลิส ข้อจำกัด ความปลอดภัย และการตรวจติดตาม</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/doxypep-explained-1786041039870.png" />
   </entry>
@@ -276,7 +276,7 @@
     <id>https://testd.website/th/info/article/how-often-sti-testing</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/how-often-sti-testing" />
     <published>2026-08-06T18:30:39.611Z</published>
-    <updated>2026-08-19T14:12:42.578Z</updated>
+    <updated>2026-08-29T08:21:02.020Z</updated>
     <summary type="text">ตรวจ STI บ่อยแค่ไหนขึ้นอยู่กับพฤติกรรม จุดสัมผัส และคู่นอน เช็กแนวทางตรวจทุก 3–6 เดือน รายปี หรือทันทีเมื่อมีอาการ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/how-often-sti-testing-1786041039409.png" />
   </entry>
@@ -339,7 +339,7 @@
     <id>https://testd.website/th/info/article/syphilis-symptoms-treatment</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/syphilis-symptoms-treatment" />
     <published>2026-08-06T18:28:52.265Z</published>
-    <updated>2026-08-21T15:17:29.641Z</updated>
+    <updated>2026-08-28T22:12:45.904Z</updated>
     <summary type="text">ซิฟิลิสอาจไม่มีอาการหรือมีแผลไม่เจ็บ รู้จักสัญญาณสำคัญ วิธีตรวจ การรักษา และช่องทางตรวจที่เป็นมิตรและเป็นส่วนตัว</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/syphilis-symptoms-treatment-1786040932075.png" />
   </entry>
@@ -348,7 +348,7 @@
     <id>https://testd.website/th/info/article/reactive-hiv-self-test-next-steps</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/reactive-hiv-self-test-next-steps" />
     <published>2026-08-06T18:27:32.717Z</published>
-    <updated>2026-08-18T19:07:49.488Z</updated>
+    <updated>2026-08-27T23:31:14.356Z</updated>
     <summary type="text">ผลตรวจ HIV 2 ขีดหมายถึงผลเบื้องต้นเป็น reactive ยังไม่ใช่คำวินิจฉัย ควรตรวจยืนยันกับบุคลากรทางการแพทย์โดยเร็ว</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/reactive-hiv-self-test-next-steps-1786040852460.png" />
   </entry>
@@ -375,7 +375,7 @@
     <id>https://testd.website/th/info/article/free-anonymous-hiv-testing</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/free-anonymous-hiv-testing" />
     <published>2026-08-06T18:27:10.407Z</published>
-    <updated>2026-08-19T09:28:05.698Z</updated>
+    <updated>2026-08-26T03:56:07.506Z</updated>
     <summary type="text">ตรวจ HIV ฟรีได้จริง แต่การตรวจนิรนามกับการเก็บข้อมูลเป็นความลับไม่เหมือนกัน มาดูวิธีเลือกบริการที่เหมาะกับคุณ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/free-anonymous-hiv-testing-1786040830046.png" />
   </entry>
@@ -393,7 +393,7 @@
     <id>https://testd.website/th/info/article/pep-cost-and-coverage</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/pep-cost-and-coverage" />
     <published>2026-08-06T18:25:43.903Z</published>
-    <updated>2026-08-24T11:45:42.667Z</updated>
+    <updated>2026-08-29T07:03:08.447Z</updated>
     <summary type="text">PEP ราคาไม่เท่ากันตามสิทธิ สถานพยาบาล ค่าตรวจ และค่ายา รู้วิธีเช็กบัตรทองและขอรับบริการให้ทันภายใน 72 ชั่วโมง</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-cost-and-coverage-1786040743654.png" />
   </entry>
@@ -447,7 +447,7 @@
     <id>https://testd.website/th/info/article/prep-quarterly-followup</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/prep-quarterly-followup" />
     <published>2026-08-06T18:23:49.788Z</published>
-    <updated>2026-08-15T07:14:20.057Z</updated>
+    <updated>2026-08-29T04:37:22.992Z</updated>
     <summary type="text">การใช้ PrEP ไม่ได้จบแค่รับยา การตรวจ HIV ไต โรคติดต่อทางเพศสัมพันธ์ และทบทวนการใช้ทุก 3 เดือน ช่วยให้ดูแลสุขภาพได้อย่างปลอดภัย</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-quarterly-followup-1786040629401.png" />
   </entry>
