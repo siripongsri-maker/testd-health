@@ -422,7 +422,12 @@ export default function AdminChemsexCardsContent() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="links">
+          <ChemsexCardLinkBuilder knownCampaigns={campaigns.map((c) => c.campaign).filter(Boolean)} />
+        </TabsContent>
       </Tabs>
+
     </div>
   );
 }
