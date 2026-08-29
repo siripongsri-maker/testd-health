@@ -162,6 +162,24 @@ export default function AdminChemsexCardsContent() {
       placement: r.placement,
       opens: r.opens,
     }));
+    downloadCsv(rows, `chemsex-cards-${days}d.csv`);
+  };
+
+  const [exportingDetail, setExportingDetail] = useState(false);
+  const exportDetailCsv = async () => {
+    setExportingDetail(true);
+    const { data: rows, error } = await supabase.rpc("get_chemsex_card_events_export" as never, {
+      p_days: Number(days),
+    } as never);
+    setExportingDetail(false);
+    if (error) {
+      toast.error("ส่งออกไม่สำเร็จ: " + error.message);
+      return;
+    }
+    downloadCsv((rows as Record<string, unknown>[]) ?? [], `chemsex-card-events-${days}d.csv`);
+  };
+
+  function downloadCsv(rows: Record<string, unknown>[], filename: string) {
     if (rows.length === 0) {
       toast.error("ไม่มีข้อมูลให้ดาวน์โหลด");
       return;
@@ -170,10 +188,11 @@ export default function AdminChemsexCardsContent() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `chemsex-cards-${days}d.csv`;
+    a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
-  };
+    toast.success(`ดาวน์โหลด ${rows.length} แถว`);
+  }
 
   const stats = [
     { label: "เปิดดูการ์ด", value: totals.views, icon: Eye },
@@ -205,7 +224,10 @@ export default function AdminChemsexCardsContent() {
             <RefreshCw className={`h-4 w-4 mr-1 ${loading ? "animate-spin" : ""}`} /> รีเฟรช
           </Button>
           <Button variant="outline" size="sm" onClick={exportCsv}>
-            <Download className="h-4 w-4 mr-1" /> CSV
+            <Download className="h-4 w-4 mr-1" /> CSV สรุป
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => void exportDetailCsv()} disabled={exportingDetail}>
+            <Download className={`h-4 w-4 mr-1 ${exportingDetail ? "animate-spin" : ""}`} /> CSV รายละเอียด
           </Button>
         </div>
       </div>

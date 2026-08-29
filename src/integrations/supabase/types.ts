@@ -12136,6 +12136,10 @@ export type Database = {
         }[]
       }
       get_chemsex_card_analytics: { Args: { p_days?: number }; Returns: Json }
+      get_chemsex_card_events_export: {
+        Args: { p_days?: number }
+        Returns: Json
+      }
       get_client_hr_context: {
         Args: { _client_id: string; _reason?: string }
         Returns: Json
