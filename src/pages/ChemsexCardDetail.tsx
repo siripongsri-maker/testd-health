@@ -17,6 +17,7 @@ export default function ChemsexCardDetail() {
   const { language } = useLanguage();
   const isEn = language === "en";
   const prefix = isEn ? "/en" : "/th";
+  const [zoom, setZoom] = useState<"front" | "back" | null>(null);
 
   const card = getFactCard(slug);
 
