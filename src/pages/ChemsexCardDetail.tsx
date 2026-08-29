@@ -122,7 +122,7 @@ export default function ChemsexCardDetail() {
         {artwork && (
           <button
             type="button"
-            onClick={() => setZoom("front")}
+            onClick={() => { trackCardArtworkZoom(card, language, "front"); setZoom("front"); }}
             aria-label={isEn ? "View card front in full size" : "ดูภาพด้านหน้าขนาดใหญ่"}
             className="relative w-full mb-4 rounded-3xl overflow-hidden border border-border/50 bg-card group cursor-zoom-in"
           >
@@ -169,7 +169,7 @@ export default function ChemsexCardDetail() {
         {artwork && (
           <button
             type="button"
-            onClick={() => setZoom("back")}
+            onClick={() => { trackCardArtworkZoom(card, language, "back"); setZoom("back"); }}
             aria-label={isEn ? "View card back in full size" : "ดูภาพด้านหลังขนาดใหญ่"}
             className="relative w-full mb-6 rounded-3xl overflow-hidden border border-border/50 bg-card group cursor-zoom-in"
           >
@@ -212,8 +212,15 @@ export default function ChemsexCardDetail() {
                   <ul className="space-y-1">
                     {card.ctas.map((cta) => (
                       <li key={cta.to + cta.labelEn} className="text-sm text-muted-foreground">
-                        • <span className="font-semibold text-foreground">{isEn ? cta.labelEn : cta.labelTh}</span>
-                        {" "}({cta.service})
+                        •{" "}
+                        <button
+                          type="button"
+                          onClick={() => handleCta(cta, "lightbox")}
+                          className="font-semibold text-foreground underline underline-offset-2"
+                        >
+                          {isEn ? cta.labelEn : cta.labelTh}
+                        </button>{" "}
+                        ({cta.service})
                       </li>
                     ))}
                   </ul>
@@ -233,7 +240,7 @@ export default function ChemsexCardDetail() {
             {card.ctas.map((cta) => (
               <button
                 key={cta.to + cta.labelEn}
-                onClick={() => handleCta(cta.to, cta.service)}
+                onClick={() => handleCta(cta)}
                 className="w-full text-left rounded-2xl bg-card border border-border/50 p-4 flex items-center gap-3 transition-all hover:border-primary/30 hover:shadow-md active:scale-[0.98]"
               >
                 <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
