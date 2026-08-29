@@ -370,6 +370,342 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/privacy-policy" />
   </url>
   <url>
+    <loc>https://testd.website/th/chemsex-cards</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/chemsex-cards</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/chemsex-cards/before-you-start</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/before-you-start" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/before-you-start" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/before-you-start" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/chemsex-cards/before-you-start</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/before-you-start" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/before-you-start" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/before-you-start" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/chemsex-cards/during-session</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/during-session" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/during-session" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/during-session" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/chemsex-cards/during-session</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/during-session" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/during-session" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/during-session" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/chemsex-cards/after-session-recovery</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/after-session-recovery" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/after-session-recovery" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/after-session-recovery" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/chemsex-cards/after-session-recovery</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/after-session-recovery" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/after-session-recovery" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/after-session-recovery" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/chemsex-cards/drug-combinations</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/drug-combinations" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/drug-combinations" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/drug-combinations" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/chemsex-cards/drug-combinations</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/drug-combinations" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/drug-combinations" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/drug-combinations" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/chemsex-cards/overdose-response</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/overdose-response" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/overdose-response" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/overdose-response" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/chemsex-cards/overdose-response</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/overdose-response" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/overdose-response" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/overdose-response" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/chemsex-cards/injecting-vs-non-injecting</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/injecting-vs-non-injecting" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/injecting-vs-non-injecting" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/injecting-vs-non-injecting" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/chemsex-cards/injecting-vs-non-injecting</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/injecting-vs-non-injecting" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/injecting-vs-non-injecting" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/injecting-vs-non-injecting" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/chemsex-cards/chemsex-and-hiv</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/chemsex-and-hiv" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/chemsex-and-hiv" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/chemsex-and-hiv" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/chemsex-cards/chemsex-and-hiv</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/chemsex-and-hiv" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/chemsex-and-hiv" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/chemsex-and-hiv" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/chemsex-cards/prep-and-pep</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/prep-and-pep" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/prep-and-pep" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/prep-and-pep" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/chemsex-cards/prep-and-pep</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/prep-and-pep" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/prep-and-pep" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/prep-and-pep" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/chemsex-cards/sti-testing-window</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/sti-testing-window" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/sti-testing-window" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/sti-testing-window" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/chemsex-cards/sti-testing-window</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/sti-testing-window" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/sti-testing-window" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/sti-testing-window" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/chemsex-cards/condoms-and-lube</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/condoms-and-lube" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/condoms-and-lube" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/condoms-and-lube" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/chemsex-cards/condoms-and-lube</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/condoms-and-lube" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/condoms-and-lube" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/condoms-and-lube" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/chemsex-cards/the-crash</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/the-crash" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/the-crash" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/the-crash" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/chemsex-cards/the-crash</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/the-crash" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/the-crash" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/the-crash" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/chemsex-cards/anxiety-shame-guilt</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/anxiety-shame-guilt" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/anxiety-shame-guilt" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/anxiety-shame-guilt" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/chemsex-cards/anxiety-shame-guilt</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/anxiety-shame-guilt" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/anxiety-shame-guilt" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/anxiety-shame-guilt" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/chemsex-cards/when-to-seek-help</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/when-to-seek-help" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/when-to-seek-help" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/when-to-seek-help" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/chemsex-cards/when-to-seek-help</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/when-to-seek-help" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/when-to-seek-help" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/when-to-seek-help" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/chemsex-cards/staying-connected</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/staying-connected" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/staying-connected" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/staying-connected" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/chemsex-cards/staying-connected</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/staying-connected" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/staying-connected" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/staying-connected" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/chemsex-cards/client-pressure</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/client-pressure" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/client-pressure" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/client-pressure" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/chemsex-cards/client-pressure</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/client-pressure" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/client-pressure" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/client-pressure" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/chemsex-cards/work-safety-plan</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/work-safety-plan" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/work-safety-plan" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/work-safety-plan" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/chemsex-cards/work-safety-plan</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/work-safety-plan" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/work-safety-plan" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/work-safety-plan" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/chemsex-cards/know-your-rights</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/know-your-rights" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/know-your-rights" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/know-your-rights" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/chemsex-cards/know-your-rights</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/know-your-rights" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/know-your-rights" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/know-your-rights" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/chemsex-cards/migrant-msw-support</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/migrant-msw-support" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/migrant-msw-support" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/migrant-msw-support" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/chemsex-cards/migrant-msw-support</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/migrant-msw-support" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/migrant-msw-support" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/migrant-msw-support" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/chemsex-cards/first-visit-to-swing</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/first-visit-to-swing" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/first-visit-to-swing" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/first-visit-to-swing" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/chemsex-cards/first-visit-to-swing</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/first-visit-to-swing" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/first-visit-to-swing" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/first-visit-to-swing" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/chemsex-cards/confidentiality-and-rights</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/confidentiality-and-rights" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/confidentiality-and-rights" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/confidentiality-and-rights" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/chemsex-cards/confidentiality-and-rights</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/chemsex-cards/confidentiality-and-rights" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/chemsex-cards/confidentiality-and-rights" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/chemsex-cards/confidentiality-and-rights" />
+  </url>
+  <url>
     <loc>https://testd.website/th/info/category/prep</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
