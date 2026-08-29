@@ -95,12 +95,22 @@ export default function ChemsexCardDetail() {
 
         {/* Front of the card — printed artwork */}
         {artwork && (
-          <img
-            src={artwork.front}
-            alt={`${isEn ? "Fact card" : "การ์ดความรู้"} ${String(card.number).padStart(2, "0")} — ${title}`}
-            loading="eager"
-            className="w-full rounded-3xl border border-border/50 mb-4 bg-card"
-          />
+          <button
+            type="button"
+            onClick={() => setZoom("front")}
+            aria-label={isEn ? "View card front in full size" : "ดูภาพด้านหน้าขนาดใหญ่"}
+            className="relative w-full mb-4 rounded-3xl overflow-hidden border border-border/50 bg-card group cursor-zoom-in"
+          >
+            <img
+              src={artwork.front}
+              alt={`${isEn ? "Fact card" : "การ์ดความรู้"} ${String(card.number).padStart(2, "0")} — ${title}`}
+              loading="eager"
+              className="w-full"
+            />
+            <span className="absolute bottom-3 right-3 rounded-full bg-background/80 backdrop-blur p-2 opacity-80 group-hover:opacity-100 transition-opacity">
+              <ZoomIn className="h-4 w-4 text-foreground" />
+            </span>
+          </button>
         )}
 
         <article
