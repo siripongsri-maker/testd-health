@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
@@ -7,10 +7,15 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useLanguage } from "@/lib/i18n";
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Phone, ZoomIn } from "lucide-react";
 import { SEOHead, buildMedicalPageJsonLd, buildBreadcrumbJsonLd } from "@/components/seo";
-import { trackEvent } from "@/hooks/useAnalytics";
 import { CHEMSEX_FACT_CARDS, FACT_CARD_GROUPS, getFactCard } from "@/data/chemsexFactCards";
 import { CHEMSEX_CARD_IMAGES } from "@/data/chemsexFactCardImages";
 import { getFactCardAlt, getFactCardKeywords, getFactCardMetaDescription } from "@/data/chemsexFactCardSeo";
+import {
+  trackCardArtworkZoom,
+  trackCardServiceOpen,
+  trackCardView,
+} from "@/lib/chemsexCardTracking";
+
 
 export default function ChemsexCardDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -19,8 +24,18 @@ export default function ChemsexCardDetail() {
   const isEn = language === "en";
   const prefix = isEn ? "/en" : "/th";
   const [zoom, setZoom] = useState<"front" | "back" | null>(null);
+  const { search } = useLocation();
 
   const card = getFactCard(slug);
+
+  useEffect(() => {
+    if (!card) return;
+    const params = new URLSearchParams(search);
+    trackCardView(card, language, search, params.get("utm_campaign") || params.get("c"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [card?.slug, language, search]);
+
+
 
   if (!card) {
     return (
@@ -47,19 +62,19 @@ export default function ChemsexCardDetail() {
   const points = isEn ? card.pointsEn : card.pointsTh;
   const artwork = CHEMSEX_CARD_IMAGES[card.number];
 
-  const handleCta = (to: string, service: string) => {
-    trackEvent("chemsex_card_cta_click", {
-      card_slug: card.slug,
-      card_number: card.number,
-      target_path: to,
-      service,
-    });
+  const handleCta = (
+    cta: { to: string; service: string; labelTh: string; labelEn: string },
+    placement: "card_back" | "lightbox" = "card_back",
+  ) => {
+    const to = cta.to;
+    trackCardServiceOpen(card, language, cta, placement);
     if (to.startsWith("tel:")) {
       window.location.href = to;
       return;
     }
     navigate(to.startsWith("/th") || to.startsWith("/en") ? `${prefix}${to.slice(3)}` : to);
   };
+
 
   return (
     <>
@@ -107,7 +122,7 @@ export default function ChemsexCardDetail() {
         {artwork && (
           <button
             type="button"
-            onClick={() => setZoom("front")}
+            onClick={() => { trackCardArtworkZoom(card, language, "front"); setZoom("front"); }}
             aria-label={isEn ? "View card front in full size" : "ดูภาพด้านหน้าขนาดใหญ่"}
             className="relative w-full mb-4 rounded-3xl overflow-hidden border border-border/50 bg-card group cursor-zoom-in"
           >
@@ -154,7 +169,7 @@ export default function ChemsexCardDetail() {
         {artwork && (
           <button
             type="button"
-            onClick={() => setZoom("back")}
+            onClick={() => { trackCardArtworkZoom(card, language, "back"); setZoom("back"); }}
             aria-label={isEn ? "View card back in full size" : "ดูภาพด้านหลังขนาดใหญ่"}
             className="relative w-full mb-6 rounded-3xl overflow-hidden border border-border/50 bg-card group cursor-zoom-in"
           >
@@ -197,8 +212,15 @@ export default function ChemsexCardDetail() {
                   <ul className="space-y-1">
                     {card.ctas.map((cta) => (
                       <li key={cta.to + cta.labelEn} className="text-sm text-muted-foreground">
-                        • <span className="font-semibold text-foreground">{isEn ? cta.labelEn : cta.labelTh}</span>
-                        {" "}({cta.service})
+                        •{" "}
+                        <button
+                          type="button"
+                          onClick={() => handleCta(cta, "lightbox")}
+                          className="font-semibold text-foreground underline underline-offset-2"
+                        >
+                          {isEn ? cta.labelEn : cta.labelTh}
+                        </button>{" "}
+                        ({cta.service})
                       </li>
                     ))}
                   </ul>
@@ -218,7 +240,7 @@ export default function ChemsexCardDetail() {
             {card.ctas.map((cta) => (
               <button
                 key={cta.to + cta.labelEn}
-                onClick={() => handleCta(cta.to, cta.service)}
+                onClick={() => handleCta(cta)}
                 className="w-full text-left rounded-2xl bg-card border border-border/50 p-4 flex items-center gap-3 transition-all hover:border-primary/30 hover:shadow-md active:scale-[0.98]"
               >
                 <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
