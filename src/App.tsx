@@ -98,7 +98,6 @@ const OutreachForm = lazy(() => import("./pages/OutreachForm"));
 const PrivacyCenter = lazy(() => import("./pages/PrivacyCenter"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const PrivacySummary = lazy(() => import("./pages/PrivacySummary"));
-const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const YouthHivSurvey = lazy(() => import("./pages/YouthHivSurvey"));
 const MyRewards = lazy(() => import("./pages/MyRewards"));
 const ConnectAgent = lazy(() => import("./pages/ConnectAgent"));
@@ -261,7 +260,6 @@ function AppShell() {
               <Route path="/virtual" element={<VirtualMode />} />
               <Route path="/virtual/clinic" element={<VirtualMode forceClinic />} />
               <Route path="/virtual/:slug" element={<VirtualMode />} />
-              <Route path="/unsubscribe" element={<Unsubscribe />} />
               {/* ลิงก์เฉพาะกิจกรรมพื้นที่ปลอดภัย ไม่แสดงในเมนูและไม่อยู่ใน sitemap */}
               <Route path="/safe-space/quiz" element={<SafeSpaceQuiz />} />
               <Route path="/safe-space/care-card-print" element={<CareCardPrint />} />

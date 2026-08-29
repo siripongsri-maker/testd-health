@@ -3,6 +3,7 @@
 // Auth: staff/admin JWT, or the ADMIN_TASK_KEY header for scripted maintenance runs.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { sendManagedEmail } from '../_shared/transactional-email-templates/send-and-log.ts';
 
 const SMSMKT_URL = "https://portal-otp.smsmkt.com/api/send-message";
 const APP_BASE_URL = (Deno.env.get("APP_BASE_URL") || "https://testd.website").replace(/\/+$/, "");
@@ -158,22 +159,21 @@ Deno.serve(async (req) => {
       // 2) Email
       if (a.contact_email) {
         try {
-          const { error } = await admin.functions.invoke("send-transactional-email", {
-            body: {
-              templateName: "appointment-closure-notice",
-              recipientEmail: a.contact_email,
-              idempotencyKey: `slotshift-${a.appointment_date}-${a.id}`,
-              templateData: {
-                branchName: bName,
-                appointmentDate: dateTh,
-                appointmentTime: time,
-                closureTitle: noteTitle,
-                closureReason: noteReason,
-                rescheduleUrl: infoUrl,
-              },
+          const { error } = await sendManagedEmail(admin, {
+            templateName: "appointment-closure-notice",
+            recipientEmail: a.contact_email,
+            idempotencyKey: `slotshift-${a.appointment_date}-${a.id}`,
+            templateData: {
+              branchName: bName,
+              appointmentDate: dateTh,
+              appointmentTime: time,
+              closureTitle: noteTitle,
+              closureReason: noteReason,
+              rescheduleUrl: infoUrl,
             },
           });
-          if (error) throw error;
+          if (error) throw new Error(error.message);
+
           results.email++;
         } catch (e) {
           results.failed.push({ id: a.id, channel: "email", error: String(e) });

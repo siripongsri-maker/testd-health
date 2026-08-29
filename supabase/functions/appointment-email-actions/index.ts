@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sendManagedEmail } from '../_shared/transactional-email-templates/send-and-log.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -62,35 +63,6 @@ async function verifyAppointmentOwnership(
   }
 
   return null;
-}
-
-// Invoke send-transactional-email with the service-role bearer.
-// supabase.functions.invoke() forwards the caller's auth header (anon/user JWT),
-// which the send function rejects as 403 non-service-role. We must fetch directly.
-async function invokeSendTransactionalEmail(
-  supabaseUrl: string,
-  serviceKey: string,
-  payload: Record<string, unknown>,
-): Promise<{ error: { message: string; status?: number } | null }> {
-  try {
-    const res = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${serviceKey}`,
-        apikey: serviceKey,
-      },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      return { error: { message: text || `HTTP ${res.status}`, status: res.status } };
-    }
-    await res.text().catch(() => "");
-    return { error: null };
-  } catch (e) {
-    return { error: { message: e instanceof Error ? e.message : String(e) } };
-  }
 }
 
 Deno.serve(async (req) => {
@@ -265,7 +237,7 @@ Deno.serve(async (req) => {
         return m ? `${m[1]}:${m[2]}` : String(t);
       };
 
-      const { error: sendErr } = await invokeSendTransactionalEmail(supabaseUrl, serviceKey, {
+      const { error: sendErr } = await sendManagedEmail(supabase, {
         templateName: "appointment-action",
         recipientEmail: email,
         idempotencyKey: `apt-action-${appointment_id}`,
@@ -464,7 +436,7 @@ Deno.serve(async (req) => {
       const branchMapUrl = apt.booking_branches?.google_maps_url || '';
       const reviewUrl = `https://testd-health.lovable.app/my-appointments`;
 
-      const { error: sendErr } = await invokeSendTransactionalEmail(supabaseUrl, serviceKey, {
+      const { error: sendErr } = await sendManagedEmail(supabase, {
         templateName: 'post-service-review',
         recipientEmail: email,
         idempotencyKey: `review-${appointment_id}`,

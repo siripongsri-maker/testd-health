@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { sendManagedEmail } from '../_shared/transactional-email-templates/send-and-log.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -60,18 +61,18 @@ serve(async (req) => {
 
       // Send email notification via transactional email system
       try {
-        await supabaseAdmin.functions.invoke("send-transactional-email", {
-          body: {
-            templateName: "chat-new-message",
-            recipientEmail: adminUser.email,
-            idempotencyKey: `chat-notify-${thread_id}-${Date.now()}`,
-            templateData: {
-              senderName: sender_name || "ผู้ใช้",
-              messagePreview: (message_preview || "").slice(0, 100),
-              threadUrl: `${Deno.env.get("SUPABASE_URL")?.replace('.supabase.co', '')}/admin?tab=user-chats`,
-            },
+        const { error: emailError } = await sendManagedEmail(supabaseAdmin, {
+          templateName: "chat-new-message",
+          recipientEmail: adminUser.email,
+          idempotencyKey: `chat-notify-${thread_id}-${Date.now()}`,
+          templateData: {
+            senderName: sender_name || "ผู้ใช้",
+            messagePreview: (message_preview || "").slice(0, 100),
+            threadUrl: `${Deno.env.get("SUPABASE_URL")?.replace('.supabase.co', '')}/admin?tab=user-chats`,
           },
         });
+        if (emailError) throw new Error(emailError.message);
+
         emailsSent++;
       } catch (emailErr) {
         console.error(`Failed to send email to admin ${adminId}:`, emailErr);

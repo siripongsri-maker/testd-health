@@ -1,8 +1,9 @@
 // Notify the team when a self-test result comes back reactive (2 lines).
-// Uses the existing transactional email infrastructure (send-transactional-email).
+// App emails now send through Lovable managed delivery.
 // Idempotent via reactive_notified_at column.
 // Requires REACTIVE_NOTIFY_EMAILS env var (comma-separated list).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";
+import { sendManagedEmail } from '../_shared/transactional-email-templates/send-and-log.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -94,27 +95,20 @@ Deno.serve(async (req) => {
     adminUrl: `${ADMIN_BASE_URL}?tab=selftest-results&request=${request.id}`,
   };
 
-  // Send to each recipient through send-transactional-email (uses internal queue)
+  // Send to each recipient through Lovable's managed email API
   let sent = 0;
   const errors: string[] = [];
   for (const email of NOTIFY_EMAILS) {
     try {
-      const resp = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${serviceKey}`,
-        },
-        body: JSON.stringify({
-          templateName: "selftest-reactive-alert",
-          recipientEmail: email,
-          templateData,
-        }),
+      const { error } = await sendManagedEmail(supa, {
+        templateName: "selftest-reactive-alert",
+        recipientEmail: email,
+        idempotencyKey: `reactive-${request.id}-${email}`,
+        templateData,
       });
-      if (!resp.ok) {
-        const txt = await resp.text();
-        console.error("[notify-reactive-case] send fail", email, resp.status, txt);
-        errors.push(`${email}: ${resp.status}`);
+      if (error) {
+        console.error("[notify-reactive-case] send fail", email, error.message);
+        errors.push(`${email}: ${error.message}`);
       } else {
         sent++;
       }
@@ -123,6 +117,7 @@ Deno.serve(async (req) => {
       errors.push(`${email}: ${String(e)}`);
     }
   }
+
 
   if (sent > 0) {
     await supa
