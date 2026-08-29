@@ -52,7 +52,7 @@ export function FactCardGrid({ limit, className }: Props) {
             {CHEMSEX_CARD_IMAGES[card.number] && (
               <img
                 src={CHEMSEX_CARD_IMAGES[card.number].front}
-                alt={isEn ? card.titleEn : card.titleTh}
+                alt={getFactCardAlt(card, isEn ? "en" : "th", "thumb")}
                 loading="lazy"
                 className="w-full aspect-[16/9] object-cover rounded-xl mb-2 border border-border/40"
               />

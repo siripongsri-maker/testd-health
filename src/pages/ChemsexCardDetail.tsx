@@ -66,16 +66,25 @@ export default function ChemsexCardDetail() {
       <PageContainer className="pb-24">
         <SEOHead
           title={`${title} — ${isEn ? "Chemsex Fact Card" : "การ์ดความรู้ Chemsex"} ${String(card.number).padStart(2, "0")}`}
-          description={`${tagline} — ${points[0]}`.slice(0, 155)}
+          description={getFactCardMetaDescription(card, isEn ? "en" : "th")}
           canonicalPath={`/chemsex-cards/${card.slug}`}
           lang={language}
+          ogImageAlt={getFactCardAlt(card, isEn ? "en" : "th")}
+          extraMeta={[
+            { attr: "name", key: "keywords", content: getFactCardKeywords(card, isEn ? "en" : "th") },
+          ]}
           jsonLd={[
-            buildMedicalPageJsonLd({
-              name: title,
-              description: tagline,
-              url: `https://testd.website/th/chemsex-cards/${card.slug}`,
-              about: "Chemsex harm reduction",
-            }),
+            {
+              ...buildMedicalPageJsonLd({
+                name: title,
+                description: tagline,
+                url: `https://testd.website/${isEn ? "en" : "th"}/chemsex-cards/${card.slug}`,
+                about: "Chemsex harm reduction",
+              }),
+              alternateName: isEn ? card.titleTh : card.titleEn,
+              keywords: `${getFactCardKeywords(card, "th")}, ${getFactCardKeywords(card, "en")}`,
+              position: card.number,
+            },
             buildBreadcrumbJsonLd([
               { name: isEn ? "Harm Reduction" : "ลดอันตราย", path: "/th/harm-reduction" },
               { name: isEn ? "Chemsex Fact Cards" : "การ์ดความรู้ Chemsex", path: "/th/chemsex-cards" },

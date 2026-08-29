@@ -79,7 +79,7 @@ export default function ChemsexCards() {
                       {CHEMSEX_CARD_IMAGES[card.number] ? (
                         <img
                           src={CHEMSEX_CARD_IMAGES[card.number].front}
-                          alt={isEn ? card.titleEn : card.titleTh}
+                          alt={getFactCardAlt(card, isEn ? "en" : "th", "thumb")}
                           loading="lazy"
                           className="w-20 h-12 rounded-lg object-cover object-left border border-border/40 flex-shrink-0 bg-card"
                         />
