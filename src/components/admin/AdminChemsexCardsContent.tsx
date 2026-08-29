@@ -9,6 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { RefreshCw, Download, QrCode, Eye, ExternalLink, ZoomIn } from "lucide-react";
 import { toast } from "sonner";
+import ChemsexCardLinkBuilder from "@/components/admin/ChemsexCardLinkBuilder";
+
 import {
   Bar,
   BarChart,
@@ -264,7 +266,9 @@ export default function AdminChemsexCardsContent() {
           <TabsTrigger value="services">บริการปลายทาง</TabsTrigger>
           <TabsTrigger value="sources">ช่องทาง & แคมเปญ</TabsTrigger>
           <TabsTrigger value="trend">แนวโน้มรายวัน</TabsTrigger>
+          <TabsTrigger value="links">สร้างลิงก์ & QR</TabsTrigger>
         </TabsList>
+
 
         <TabsContent value="cards" className="space-y-4">
           <Card>
@@ -420,7 +424,12 @@ export default function AdminChemsexCardsContent() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="links">
+          <ChemsexCardLinkBuilder knownCampaigns={campaigns.map((c) => c.campaign).filter(Boolean)} />
+        </TabsContent>
       </Tabs>
+
     </div>
   );
 }
