@@ -12084,6 +12084,7 @@ export type Database = {
           survey_id: string
         }[]
       }
+      get_chemsex_card_analytics: { Args: { p_days?: number }; Returns: Json }
       get_client_hr_context: {
         Args: { _client_id: string; _reason?: string }
         Returns: Json
