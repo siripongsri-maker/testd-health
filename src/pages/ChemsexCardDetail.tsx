@@ -88,7 +88,16 @@ export default function ChemsexCardDetail() {
           {isEn ? "All fact cards" : "การ์ดทั้งหมด"}
         </Button>
 
-        {/* Front of the card */}
+        {/* Front of the card — printed artwork */}
+        {artwork && (
+          <img
+            src={artwork.front}
+            alt={`${isEn ? "Fact card" : "การ์ดความรู้"} ${String(card.number).padStart(2, "0")} — ${title}`}
+            loading="eager"
+            className="w-full rounded-3xl border border-border/50 mb-4 bg-card"
+          />
+        )}
+
         <article
           className="rounded-3xl p-5 text-white mb-4"
           style={{ background: "linear-gradient(135deg, hsl(340 60% 45%), hsl(270 50% 40%))" }}
@@ -115,6 +124,17 @@ export default function ChemsexCardDetail() {
             </li>
           ))}
         </ol>
+
+        {/* Back of the card — printed artwork */}
+        {artwork && (
+          <img
+            src={artwork.back}
+            alt={`${isEn ? "Fact card back" : "ด้านหลังการ์ด"} ${String(card.number).padStart(2, "0")} — ${title}`}
+            loading="lazy"
+            className="w-full rounded-3xl border border-border/50 mb-6 bg-card"
+          />
+        )}
+
 
         {/* Back of the card — services */}
         <section className="mb-6">
