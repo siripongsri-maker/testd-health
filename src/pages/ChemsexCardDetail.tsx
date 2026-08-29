@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Phone } from "lucide-
 import { SEOHead, buildMedicalPageJsonLd, buildBreadcrumbJsonLd } from "@/components/seo";
 import { trackEvent } from "@/hooks/useAnalytics";
 import { CHEMSEX_FACT_CARDS, FACT_CARD_GROUPS, getFactCard } from "@/data/chemsexFactCards";
+import { CHEMSEX_CARD_IMAGES } from "@/data/chemsexFactCardImages";
 
 export default function ChemsexCardDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -40,6 +41,7 @@ export default function ChemsexCardDetail() {
   const title = isEn ? card.titleEn : card.titleTh;
   const tagline = isEn ? card.taglineEn : card.taglineTh;
   const points = isEn ? card.pointsEn : card.pointsTh;
+  const artwork = CHEMSEX_CARD_IMAGES[card.number];
 
   const handleCta = (to: string, service: string) => {
     trackEvent("chemsex_card_cta_click", {
