@@ -71,9 +71,9 @@ export default function ChemsexCardDetail() {
               about: "Chemsex harm reduction",
             }),
             buildBreadcrumbJsonLd([
-              { name: isEn ? "Harm Reduction" : "ลดอันตราย", url: "https://testd.website/th/harm-reduction" },
-              { name: isEn ? "Chemsex Fact Cards" : "การ์ดความรู้ Chemsex", url: "https://testd.website/th/chemsex-cards" },
-              { name: title, url: `https://testd.website/th/chemsex-cards/${card.slug}` },
+              { name: isEn ? "Harm Reduction" : "ลดอันตราย", path: "/th/harm-reduction" },
+              { name: isEn ? "Chemsex Fact Cards" : "การ์ดความรู้ Chemsex", path: "/th/chemsex-cards" },
+              { name: title, path: `/th/chemsex-cards/${card.slug}` },
             ]),
           ]}
         />
