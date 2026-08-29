@@ -181,6 +181,9 @@ export default function Info() {
           </Button>
         </div>
 
+        {/* Chemsex Fact Cards — 20 topic pages */}
+        <FactCardGrid limit={6} className="mb-6" />
+
 
         {/* Search */}
         <div className="mb-6 relative">
