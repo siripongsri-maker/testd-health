@@ -3,6 +3,7 @@ import { useLanguage } from "@/lib/i18n";
 import { ChevronRight } from "lucide-react";
 import { CHEMSEX_FACT_CARDS, FACT_CARD_GROUPS } from "@/data/chemsexFactCards";
 import { CHEMSEX_CARD_IMAGES } from "@/data/chemsexFactCardImages";
+import { getFactCardAlt } from "@/data/chemsexFactCardSeo";
 
 interface Props {
   /** Show only the first N cards with a "see all" link */

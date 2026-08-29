@@ -10,6 +10,7 @@ import { SEOHead, buildMedicalPageJsonLd, buildBreadcrumbJsonLd } from "@/compon
 import { trackEvent } from "@/hooks/useAnalytics";
 import { CHEMSEX_FACT_CARDS, FACT_CARD_GROUPS, getFactCard } from "@/data/chemsexFactCards";
 import { CHEMSEX_CARD_IMAGES } from "@/data/chemsexFactCardImages";
+import { getFactCardAlt, getFactCardKeywords, getFactCardMetaDescription } from "@/data/chemsexFactCardSeo";
 
 export default function ChemsexCardDetail() {
   const { slug } = useParams<{ slug: string }>();

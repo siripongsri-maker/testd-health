@@ -8,6 +8,7 @@ import { ArrowLeft, ChevronRight } from "lucide-react";
 import { SEOHead, buildMedicalPageJsonLd } from "@/components/seo";
 import { CHEMSEX_FACT_CARDS, FACT_CARD_GROUPS, type ChemsexFactCard } from "@/data/chemsexFactCards";
 import { CHEMSEX_CARD_IMAGES } from "@/data/chemsexFactCardImages";
+import { getFactCardAlt, getFactCardKeywords } from "@/data/chemsexFactCardSeo";
 
 const GROUP_ORDER: ChemsexFactCard["group"][] = [
   "prepare",
