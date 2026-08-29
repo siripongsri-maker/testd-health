@@ -277,6 +277,57 @@ export type Database = {
           },
         ]
       }
+      anonymous_data_settings: {
+        Row: {
+          allow_user_optout: boolean
+          analytics_enabled: boolean
+          anonymous_id_rotation_days: number
+          created_at: string
+          disposal_method: string
+          id: string
+          last_run_at: string | null
+          privacy_note_th: string | null
+          raw_retention_days: number
+          singleton: boolean
+          store_referrer: boolean
+          store_user_agent: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          allow_user_optout?: boolean
+          analytics_enabled?: boolean
+          anonymous_id_rotation_days?: number
+          created_at?: string
+          disposal_method?: string
+          id?: string
+          last_run_at?: string | null
+          privacy_note_th?: string | null
+          raw_retention_days?: number
+          singleton?: boolean
+          store_referrer?: boolean
+          store_user_agent?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          allow_user_optout?: boolean
+          analytics_enabled?: boolean
+          anonymous_id_rotation_days?: number
+          created_at?: string
+          disposal_method?: string
+          id?: string
+          last_run_at?: string | null
+          privacy_note_th?: string | null
+          raw_retention_days?: number
+          singleton?: boolean
+          store_referrer?: boolean
+          store_user_agent?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       app_feature_flags: {
         Row: {
           enabled: boolean
@@ -12681,6 +12732,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      run_anonymous_data_retention: { Args: never; Returns: Json }
       save_agent_connect_settings: {
         Args: { p_anonymous_id: string; p_settings: Json }
         Returns: Json

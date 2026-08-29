@@ -595,6 +595,8 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.systemSettings': 'ตั้งค่าระบบ',
     'admin.complianceSecurity': 'ปฏิบัติตามกฎหมายและความปลอดภัย',
     'admin.pdpaCompliance': 'PDPA Compliance',
+    'admin.anonymousPrivacy': 'ความเป็นส่วนตัวข้อมูลไม่ระบุตัวตน',
+
     'admin.backToApp': 'กลับหน้าหลัก',
     'admin.logout': 'ออกจากระบบ',
 
@@ -1155,6 +1157,8 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.systemSettings': 'System Settings',
     'admin.complianceSecurity': 'Compliance & Security',
     'admin.pdpaCompliance': 'PDPA Compliance',
+    'admin.anonymousPrivacy': 'Anonymous Data Privacy',
+
     'admin.backToApp': 'Back to App',
     'admin.logout': 'Logout',
 
