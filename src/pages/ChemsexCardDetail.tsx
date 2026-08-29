@@ -62,19 +62,19 @@ export default function ChemsexCardDetail() {
   const points = isEn ? card.pointsEn : card.pointsTh;
   const artwork = CHEMSEX_CARD_IMAGES[card.number];
 
-  const handleCta = (to: string, service: string) => {
-    trackEvent("chemsex_card_cta_click", {
-      card_slug: card.slug,
-      card_number: card.number,
-      target_path: to,
-      service,
-    });
+  const handleCta = (
+    cta: { to: string; service: string; labelTh: string; labelEn: string },
+    placement: "card_back" | "lightbox" = "card_back",
+  ) => {
+    const to = cta.to;
+    trackCardServiceOpen(card, language, cta, placement);
     if (to.startsWith("tel:")) {
       window.location.href = to;
       return;
     }
     navigate(to.startsWith("/th") || to.startsWith("/en") ? `${prefix}${to.slice(3)}` : to);
   };
+
 
   return (
     <>
