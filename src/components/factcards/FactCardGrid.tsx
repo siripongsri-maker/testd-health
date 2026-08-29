@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 import { ChevronRight } from "lucide-react";
 import { CHEMSEX_FACT_CARDS, FACT_CARD_GROUPS } from "@/data/chemsexFactCards";
+import { CHEMSEX_CARD_IMAGES } from "@/data/chemsexFactCardImages";
 
 interface Props {
   /** Show only the first N cards with a "see all" link */
@@ -45,8 +46,16 @@ export function FactCardGrid({ limit, className }: Props) {
           <button
             key={card.slug}
             onClick={() => navigate(`${prefix}/chemsex-cards/${card.slug}`)}
-            className="text-left rounded-2xl bg-card border border-border/50 p-3 transition-all hover:border-primary/30 hover:shadow-md active:scale-[0.98]"
+            className="text-left rounded-2xl bg-card border border-border/50 overflow-hidden p-3 transition-all hover:border-primary/30 hover:shadow-md active:scale-[0.98]"
           >
+            {CHEMSEX_CARD_IMAGES[card.number] && (
+              <img
+                src={CHEMSEX_CARD_IMAGES[card.number].front}
+                alt={isEn ? card.titleEn : card.titleTh}
+                loading="lazy"
+                className="w-full aspect-[16/9] object-cover rounded-xl mb-2 border border-border/40"
+              />
+            )}
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-xl">{card.emoji}</span>
               <span className="text-[10px] font-bold text-muted-foreground/60">
