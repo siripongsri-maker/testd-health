@@ -7,6 +7,7 @@ import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Phone } from "lucide-
 import { SEOHead, buildMedicalPageJsonLd, buildBreadcrumbJsonLd } from "@/components/seo";
 import { trackEvent } from "@/hooks/useAnalytics";
 import { CHEMSEX_FACT_CARDS, FACT_CARD_GROUPS, getFactCard } from "@/data/chemsexFactCards";
+import { CHEMSEX_CARD_IMAGES } from "@/data/chemsexFactCardImages";
 
 export default function ChemsexCardDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -40,6 +41,7 @@ export default function ChemsexCardDetail() {
   const title = isEn ? card.titleEn : card.titleTh;
   const tagline = isEn ? card.taglineEn : card.taglineTh;
   const points = isEn ? card.pointsEn : card.pointsTh;
+  const artwork = CHEMSEX_CARD_IMAGES[card.number];
 
   const handleCta = (to: string, service: string) => {
     trackEvent("chemsex_card_cta_click", {
@@ -88,7 +90,16 @@ export default function ChemsexCardDetail() {
           {isEn ? "All fact cards" : "การ์ดทั้งหมด"}
         </Button>
 
-        {/* Front of the card */}
+        {/* Front of the card — printed artwork */}
+        {artwork && (
+          <img
+            src={artwork.front}
+            alt={`${isEn ? "Fact card" : "การ์ดความรู้"} ${String(card.number).padStart(2, "0")} — ${title}`}
+            loading="eager"
+            className="w-full rounded-3xl border border-border/50 mb-4 bg-card"
+          />
+        )}
+
         <article
           className="rounded-3xl p-5 text-white mb-4"
           style={{ background: "linear-gradient(135deg, hsl(340 60% 45%), hsl(270 50% 40%))" }}
@@ -115,6 +126,17 @@ export default function ChemsexCardDetail() {
             </li>
           ))}
         </ol>
+
+        {/* Back of the card — printed artwork */}
+        {artwork && (
+          <img
+            src={artwork.back}
+            alt={`${isEn ? "Fact card back" : "ด้านหลังการ์ด"} ${String(card.number).padStart(2, "0")} — ${title}`}
+            loading="lazy"
+            className="w-full rounded-3xl border border-border/50 mb-6 bg-card"
+          />
+        )}
+
 
         {/* Back of the card — services */}
         <section className="mb-6">
