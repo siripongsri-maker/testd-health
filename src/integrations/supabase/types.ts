@@ -11908,15 +11908,6 @@ export type Database = {
         Args: { p_relay_id?: string; p_user_id: string }
         Returns: number
       }
-      delete_email: {
-        Args: { message_id: number; queue_name: string }
-        Returns: boolean
-      }
-      email_queue_dispatch: { Args: never; Returns: undefined }
-      enqueue_email: {
-        Args: { payload: Json; queue_name: string }
-        Returns: number
-      }
       export_pre_post_full: {
         Args: never
         Returns: {
@@ -12636,15 +12627,6 @@ export type Database = {
       }
       mark_no_show_expired: { Args: { p_branch_id?: string }; Returns: number }
       mint_selftest_guest_upload_token: { Args: never; Returns: string }
-      move_to_dlq: {
-        Args: {
-          dlq_name: string
-          message_id: number
-          payload: Json
-          source_queue: string
-        }
-        Returns: number
-      }
       normalize_text_for_fp: { Args: { input: string }; Returns: string }
       note_appointment_id: { Args: { _note_id: string }; Returns: string }
       open_urgent_appointment_case: {
@@ -12652,14 +12634,6 @@ export type Database = {
         Returns: string
       }
       pre_service_can_analyze: { Args: never; Returns: boolean }
-      read_email_batch: {
-        Args: { batch_size: number; queue_name: string; vt: number }
-        Returns: {
-          message: Json
-          msg_id: number
-          read_ct: number
-        }[]
-      }
       record_partner_invite_event: {
         Args: {
           p_code: string
