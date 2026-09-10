@@ -80,6 +80,25 @@ const AppointmentActionEmail = ({
           <Text style={infoValue}>{referralCode}</Text>
         </Section>
 
+        <Section style={bringCard}>
+          <Text style={bringTitle}>🎒 สิ่งที่ต้องเอามาด้วย / What to bring</Text>
+          <Text style={bringItem}>
+            🪪 <strong>บัตรประชาชน</strong> (หรือบัตรที่มีรูป) — ใช้ลงทะเบียนและรับค่าเดินทาง
+            <br />
+            <span style={bringEn}>ID card or any photo ID — for registration and travel allowance</span>
+          </Text>
+          <Text style={bringItem}>
+            💊 <strong>ถุงยาเดิม — เอามาทั้งถุง</strong> รวมยาที่เหลือและซองยาทุกใบ
+            <br />
+            <span style={bringEn}>Your medicine bag — the whole bag, including leftover pills</span>
+          </Text>
+          <Text style={bringItem}>
+            🔖 <strong>รหัสนัดหมาย</strong> {referralCode || '—'} และมือถือที่ใช้จอง
+            <br />
+            <span style={bringEn}>Your booking code and the phone you booked with</span>
+          </Text>
+        </Section>
+
         <Section style={codeSection}>
           <Text style={codeLabel}>รหัสยืนยัน / Verification Code</Text>
           <Text style={codeValue}>{verificationCode}</Text>
