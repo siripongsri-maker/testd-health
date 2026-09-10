@@ -23,6 +23,9 @@ export default defineConfig(({ mode }) => ({
         // SPA shell — never fall back to offline.html for normal navigations,
         // otherwise slow networks/deep links render the "offline" screen.
         navigateFallback: "/index.html",
+        // Push + notification-click handlers live in a plain script so the
+        // generated Workbox service worker keeps handling caching.
+        importScripts: ["/push-sw.js"],
         navigateFallbackDenylist: [
           /^\/~oauth(?:\/|$)/,
           /^\/api(?:\/|$)/,

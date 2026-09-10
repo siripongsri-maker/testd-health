@@ -541,6 +541,36 @@ export type Database = {
           },
         ]
       }
+      appointment_reminder_sends: {
+        Row: {
+          appointment_id: string
+          channel: string
+          created_at: string
+          delivered: number
+          error_message: string | null
+          id: string
+          kind: string
+        }
+        Insert: {
+          appointment_id: string
+          channel?: string
+          created_at?: string
+          delivered?: number
+          error_message?: string | null
+          id?: string
+          kind: string
+        }
+        Update: {
+          appointment_id?: string
+          channel?: string
+          created_at?: string
+          delivered?: number
+          error_message?: string | null
+          id?: string
+          kind?: string
+        }
+        Relationships: []
+      }
       appointment_reviews: {
         Row: {
           appointment_id: string

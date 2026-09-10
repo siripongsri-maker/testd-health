@@ -11,6 +11,7 @@ import {
   downloadIcs,
   type CalendarEventInput,
 } from '@/lib/appointmentPrep';
+import { enableAppointmentPush } from '@/lib/pushNotifications';
 
 interface Props {
   appointmentId: string;
@@ -56,6 +57,39 @@ export function AppointmentPrepCard({
       toast.error(isTh ? 'อุปกรณ์นี้ไม่รองรับการแจ้งเตือน' : 'Notifications are not supported here');
       return;
     }
+
+    const result = await enableAppointmentPush();
+
+    if (result.ok) {
+      localStorage.setItem('aptPrepReminderEnabled', 'true');
+      toast.success(isTh ? 'เปิดการเตือนแล้ว' : 'Reminders enabled', {
+        description: isTh
+          ? 'จะเตือนเย็นวันก่อนนัด (19:00 น.) และ 1 ชั่วโมงก่อนถึงเวลานัด'
+          : 'You will be alerted at 19:00 the evening before and 1 hour ahead',
+      });
+      return;
+    }
+
+    if (result.reason === 'ios-install') {
+      toast.error(isTh ? 'ต้องเพิ่มเว็บลงหน้าจอโฮมก่อน' : 'Add to Home Screen first', {
+        description: isTh
+          ? 'บน iPhone กดปุ่มแชร์ แล้วเลือก “เพิ่มไปยังหน้าจอโฮม” จากนั้นกดเตือนอีกครั้ง'
+          : 'On iPhone: Share → Add to Home Screen, then tap Remind again',
+      });
+      return;
+    }
+
+    if (result.reason === 'denied') {
+      toast.error(isTh ? 'ยังไม่ได้อนุญาตการแจ้งเตือน' : 'Notification permission denied');
+      return;
+    }
+
+    if (result.reason === 'no-session') {
+      toast.error(isTh ? 'กรุณาเข้าสู่ระบบก่อนเปิดการเตือน' : 'Please sign in to enable reminders');
+      return;
+    }
+
+    // Unsupported browser or unexpected error — fall back to local reminders.
     const permission =
       Notification.permission === 'granted' ? 'granted' : await Notification.requestPermission();
     if (permission !== 'granted') {
@@ -63,10 +97,11 @@ export function AppointmentPrepCard({
       return;
     }
     localStorage.setItem('aptPrepReminderEnabled', 'true');
-    toast.success(
-      isTh ? 'เปิดการเตือนในเว็บแล้ว' : 'In-app reminders enabled',
-      { description: isTh ? 'จะเตือนก่อนถึงวันนัด และเช้าวันนัด' : 'You will be reminded the day before and on the day' },
-    );
+    toast.success(isTh ? 'เปิดการเตือนในเว็บแล้ว' : 'In-app reminders enabled', {
+      description: isTh
+        ? 'อุปกรณ์นี้เตือนได้เฉพาะตอนเปิดเว็บไว้'
+        : 'This device can only remind you while the site is open',
+    });
   };
 
   return (

@@ -46,3 +46,5 @@ project_id = "tzerhfvlrssrashrcbeg"
     verify_jwt = false
   [functions.handle-email-events]
     verify_jwt = false
+  [functions.send-appointment-reminders]
+    verify_jwt = false
