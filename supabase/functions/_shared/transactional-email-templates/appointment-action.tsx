@@ -187,6 +187,16 @@ const mapLink = {
   display: 'inline-block' as const,
   margin: '0 0 16px',
 }
+const bringCard = {
+  backgroundColor: '#fff7ed',
+  border: '1px solid #fed7aa',
+  borderRadius: '16px',
+  padding: '18px 20px',
+  margin: '0 0 24px',
+}
+const bringTitle = { fontSize: '15px', fontWeight: 'bold' as const, color: '#9a3412', margin: '0 0 12px' }
+const bringItem = { fontSize: '13px', color: '#1e1e2e', margin: '0 0 10px', lineHeight: '1.5' }
+const bringEn = { fontSize: '11px', color: '#777' }
 const codeSection = {
   backgroundColor: '#fdf2f8',
   borderRadius: '16px',
