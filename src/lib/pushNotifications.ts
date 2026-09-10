@@ -34,9 +34,13 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return output;
 }
 
-export type PushEnableResult =
-  | { ok: true }
-  | { ok: false; reason: 'unsupported' | 'ios-install' | 'denied' | 'no-session' | 'error'; message?: string };
+export type PushFailReason = 'unsupported' | 'ios-install' | 'denied' | 'no-session' | 'error';
+
+export interface PushEnableResult {
+  ok: boolean;
+  reason?: PushFailReason;
+  message?: string;
+}
 
 /** Ask permission, subscribe with the push service and store the subscription. */
 export async function enableAppointmentPush(): Promise<PushEnableResult> {
