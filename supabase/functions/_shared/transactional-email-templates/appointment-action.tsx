@@ -80,6 +80,25 @@ const AppointmentActionEmail = ({
           <Text style={infoValue}>{referralCode}</Text>
         </Section>
 
+        <Section style={bringCard}>
+          <Text style={bringTitle}>🎒 สิ่งที่ต้องเอามาด้วย / What to bring</Text>
+          <Text style={bringItem}>
+            🪪 <strong>บัตรประชาชน</strong> (หรือบัตรที่มีรูป) — ใช้ลงทะเบียนและรับค่าเดินทาง
+            <br />
+            <span style={bringEn}>ID card or any photo ID — for registration and travel allowance</span>
+          </Text>
+          <Text style={bringItem}>
+            💊 <strong>ถุงยาเดิม — เอามาทั้งถุง</strong> รวมยาที่เหลือและซองยาทุกใบ
+            <br />
+            <span style={bringEn}>Your medicine bag — the whole bag, including leftover pills</span>
+          </Text>
+          <Text style={bringItem}>
+            🔖 <strong>รหัสนัดหมาย</strong> {referralCode || '—'} และมือถือที่ใช้จอง
+            <br />
+            <span style={bringEn}>Your booking code and the phone you booked with</span>
+          </Text>
+        </Section>
+
         <Section style={codeSection}>
           <Text style={codeLabel}>รหัสยืนยัน / Verification Code</Text>
           <Text style={codeValue}>{verificationCode}</Text>
@@ -168,6 +187,16 @@ const mapLink = {
   display: 'inline-block' as const,
   margin: '0 0 16px',
 }
+const bringCard = {
+  backgroundColor: '#fff7ed',
+  border: '1px solid #fed7aa',
+  borderRadius: '16px',
+  padding: '18px 20px',
+  margin: '0 0 24px',
+}
+const bringTitle = { fontSize: '15px', fontWeight: 'bold' as const, color: '#9a3412', margin: '0 0 12px' }
+const bringItem = { fontSize: '13px', color: '#1e1e2e', margin: '0 0 10px', lineHeight: '1.5' }
+const bringEn = { fontSize: '11px', color: '#777' }
 const codeSection = {
   backgroundColor: '#fdf2f8',
   borderRadius: '16px',

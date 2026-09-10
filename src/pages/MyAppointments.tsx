@@ -33,6 +33,7 @@ import { MedicationSetupDialog, isMedicationService } from '@/components/Medicat
 import { GeofenceCheckinBanner } from '@/components/appointments/GeofenceCheckinBanner';
 import { RescheduleSuggestDialog } from '@/components/appointments/RescheduleSuggestDialog';
 import { ACTIVE_APPOINTMENT_STATUSES, normalizeStatus } from '@/lib/appointmentStatus';
+import { AppointmentPrepCard } from '@/components/appointments/AppointmentPrepCard';
 
 
 const STATUS_CONFIG: Record<string, { labelTh: string; labelEn: string; color: string; icon: typeof CheckCircle2 }> = {
@@ -370,6 +371,22 @@ export default function MyAppointments() {
                   <Copy className="h-4 w-4" />
                 </button>
               </div>
+            )}
+
+            {/* What to bring checklist + add to calendar */}
+            {(apt.status === 'booked' || apt.status === 'confirmed') && (
+              <AppointmentPrepCard
+                appointmentId={apt.id}
+                date={apt.appointment_date}
+                time={apt.start_time as string}
+                serviceName={displayServices.map(s => (language === 'th' ? s.name_th : s.name_en)).join(', ')}
+                branchName={
+                  (language === 'th' ? apt.booking_branches?.name_th : apt.booking_branches?.name_en) ||
+                  'SWING Clinic'
+                }
+                referralCode={apt.referral_code}
+                language={language === 'th' ? 'th' : 'en'}
+              />
             )}
 
             {/* Geofence-based auto check-in (also surfaces QR fallback) */}
