@@ -45,7 +45,7 @@ export function useAppointmentPrepReminder() {
         localStorage.setItem(flag, '1');
         const isTomorrow = apt.appointment_date === tomorrow;
         new Notification(isTomorrow ? '📋 พรุ่งนี้มีนัดที่คลินิก' : '📋 วันนี้มีนัดที่คลินิก', {
-          body: 'อย่าลืมเอาถุงยามาทั้งถุง และบัตรประชาชนนะ — testD',
+          body: 'บัตรประชาชน (ตัวจริง) • ถุงสำหรับใส่ยากลับบ้าน — testD',
           icon: '/pwa-192x192.png',
           tag: `apt-prep-${apt.id}`,
         });

@@ -17,30 +17,14 @@ export const PREP_ITEMS: PrepItem[] = [
   {
     id: 'id_card',
     emoji: '🪪',
-    labelTh: 'บัตรประชาชน (หรือบัตรที่มีรูป)',
-    labelEn: 'ID card (or any photo ID)',
-    hintTh: 'ใช้ลงทะเบียนและรับค่าเดินทาง',
-    hintEn: 'Needed for registration and travel allowance',
+    labelTh: 'บัตรประชาชน (ตัวจริง)',
+    labelEn: 'ID card (original)',
   },
   {
     id: 'med_bag',
-    emoji: '💊',
-    labelTh: 'ถุงยาเดิม — เอามาทั้งถุง',
-    labelEn: 'Your medicine bag — bring the whole bag',
-    hintTh: 'รวมยาที่เหลือและซองยาทุกใบ',
-    hintEn: 'Include leftover pills and all packets',
-  },
-  {
-    id: 'booking_code',
-    emoji: '🔖',
-    labelTh: 'รหัสนัดหมาย (อยู่ในหน้านี้)',
-    labelEn: 'Booking code (shown on this page)',
-  },
-  {
-    id: 'phone',
-    emoji: '📱',
-    labelTh: 'มือถือที่ใช้จอง',
-    labelEn: 'The phone you booked with',
+    emoji: '👜',
+    labelTh: 'ถุงสำหรับใส่ยากลับบ้าน (กรณีมีรับยา)',
+    labelEn: 'A bag for taking medicine home (if you receive any)',
   },
 ];
 
@@ -138,8 +122,8 @@ export function buildIcsContent(input: CalendarEventInput) {
   const { title, description } = buildCalendarText(input);
   const isTh = input.language === 'th';
   const alarmText = isTh
-    ? 'อย่าลืม: ถุงยาทั้งถุง + บัตรประชาชน'
-    : 'Remember: your whole medicine bag + ID card';
+    ? 'บัตรประชาชน (ตัวจริง) + ถุงสำหรับใส่ยากลับบ้าน'
+    : 'ID card (original) + a bag for medicine';
   const uid = `${input.referralCode || start}@testd.website`;
   const stamp = new Date().toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
 
