@@ -23,6 +23,7 @@ consumePendingReload();
 import { VersionAnnouncementBanner } from "@/components/VersionAnnouncementBanner";
 import { PwaUpdatePrompt } from "@/components/PwaUpdatePrompt";
 import { useMedicationReminder } from "@/hooks/useMedicationReminder";
+import { useAppointmentPrepReminder } from "@/hooks/useAppointmentPrepReminder";
 
 // Lazy load all pages for code-splitting
 const Home = lazy(() => import("./pages/Home"));
@@ -126,6 +127,7 @@ const queryClient = new QueryClient({
 /** Inner shell — lives inside BrowserRouter so children can useNavigate */
 function AppShell() {
   useMedicationReminder();
+  useAppointmentPrepReminder();
   const strippedLocation = useStrippedLocation();
 
   if (import.meta.env.DEV && strippedLocation.pathname === "/") {
