@@ -385,7 +385,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const handleManualRefresh = async () => {
     setRefreshing(true);
     try {
-      await Promise.all([fetchOrders(true), fetchHIVRequests(currentPage, searchQuery), fetchHIVStatusCounts()]);
+      await Promise.all([fetchOrders(true), fetchHIVRequests(currentPage, searchQuery), fetchHIVStatusCounts(), fetchTabCounts()]);
       setLastUpdated(new Date());
       toast.success(language === 'th' ? 'อัปเดตข้อมูลล่าสุดแล้ว' : 'Data refreshed');
     } finally {
