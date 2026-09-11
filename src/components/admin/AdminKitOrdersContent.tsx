@@ -210,6 +210,8 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     pickup: 0,
     silom: 0,
     pattaya: 0,
+    pickupSilom: 0,
+    pickupPattaya: 0,
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>("all");
