@@ -370,6 +370,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       .on('postgres_changes', { event: '*', schema: 'public', table: 'hiv_selftest_requests' }, () => {
         fetchHIVRequests(currentPage, searchQuery);
         fetchHIVStatusCounts();
+        fetchTabCounts();
         setLastUpdated(new Date());
       })
       .subscribe((status) => {
