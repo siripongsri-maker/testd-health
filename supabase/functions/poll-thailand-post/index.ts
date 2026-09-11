@@ -43,14 +43,19 @@ interface TpItem {
   status_date?: string;
 }
 
-async function trackBatch(token: string, barcodes: string[]): Promise<Record<string, TpItem[]>> {
+async function trackBatch(
+  token: string,
+  barcodes: string[],
+): Promise<Record<string, TpItem[]> | null> {
   const r = await fetch(TP_TRACK_URL, {
     method: "POST",
     headers: { Authorization: `Token ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify({ status: "all", language: "TH", barcode: barcodes }),
   });
   if (!r.ok) {
-    console.error("[tp] track fail", r.status, await r.text());
+    console.error("[tp] track fail", r.status, (await r.text()).slice(0, 200));
+    // 401/403 mean the credential is bad — stop the whole run instead of retrying every batch.
+    if (r.status === 401 || r.status === 403) return null;
     return {};
   }
   const j = await r.json();
@@ -143,8 +148,9 @@ Deno.serve(async (req) => {
     if (error) throw error;
     if (!rows?.length) return json({ ok: true, summary });
 
-    const token = await getTpAccessToken(apiKey);
-    if (!token) return json({ ok: false, error: "tp_auth_failed" }, 502);
+    // Some accounts hand out a long-lived access token instead of an API key;
+    // fall back to using the stored value directly if the auth call is rejected.
+    const token = (await getTpAccessToken(apiKey)) ?? apiKey;
 
     const pushReady = !!VAPID_PUBLIC_KEY && !!VAPID_PRIVATE_KEY;
     if (pushReady) webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY!, VAPID_PRIVATE_KEY!);
@@ -154,6 +160,8 @@ Deno.serve(async (req) => {
     for (let i = 0; i < rows.length; i += BATCH) {
       const slice = rows.slice(i, i + BATCH);
       const items = await trackBatch(token, slice.map((r) => r.tracking_number as string));
+      if (items === null) return json({ ok: false, error: "tp_auth_failed", summary }, 502);
+
 
       for (const r of slice) {
         summary.checked++;
