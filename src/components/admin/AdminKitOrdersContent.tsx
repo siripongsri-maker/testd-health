@@ -210,6 +210,8 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     pickup: 0,
     silom: 0,
     pattaya: 0,
+    pickupSilom: 0,
+    pickupPattaya: 0,
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>("all");
@@ -460,6 +462,9 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       .from('hiv_selftest_requests')
       .select(HIV_SELECT, { count: 'exact' });
 
+    // The on-site pickup view must only count/list pickup requests so the list
+    // total matches the badge on the tab.
+    if (dataSource === 'onsite_pickup') q = q.eq('delivery_mode', 'pickup');
     if (activeTab === 'flagged') q = q.eq('abuse_flag', true);
     else if (activeTab !== 'all') q = q.eq('status', activeTab);
     if (branchFilter !== 'all') q = q.eq('assigned_branch', branchFilter);
@@ -524,7 +529,11 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   };
 
   const fetchHIVStatusCounts = async () => {
-    const withBranch = (q: any) => (branchFilter !== 'all' ? q.eq('assigned_branch', branchFilter) : q);
+    const withBranch = (q: any) => {
+      let scoped = dataSource === 'onsite_pickup' ? q.eq('delivery_mode', 'pickup') : q;
+      if (branchFilter !== 'all') scoped = scoped.eq('assigned_branch', branchFilter);
+      return scoped;
+    };
     try {
       const [totalRes, flaggedRes, ...statusRes] = await Promise.all([
         withBranch(supabase.from('hiv_selftest_requests').select('id', { count: 'exact', head: true })),
@@ -546,12 +555,14 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const fetchTabCounts = async () => {
     try {
       const head = () => supabase.from('hiv_selftest_requests').select('id', { count: 'exact', head: true });
-      const [kitRes, hivRes, pickupRes, silomRes, pattayaRes] = await Promise.all([
+      const [kitRes, hivRes, pickupRes, silomRes, pattayaRes, pickupSilomRes, pickupPattayaRes] = await Promise.all([
         supabase.from('kit_orders').select('id', { count: 'exact', head: true }),
         head(),
         head().eq('delivery_mode', 'pickup'),
         head().eq('assigned_branch', 'silom'),
         head().eq('assigned_branch', 'pattaya'),
+        head().eq('delivery_mode', 'pickup').eq('assigned_branch', 'silom'),
+        head().eq('delivery_mode', 'pickup').eq('assigned_branch', 'pattaya'),
       ]);
       setTabCounts({
         kitOrders: kitRes.count ?? 0,
@@ -559,6 +570,8 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         pickup: pickupRes.count ?? 0,
         silom: silomRes.count ?? 0,
         pattaya: pattayaRes.count ?? 0,
+        pickupSilom: pickupSilomRes.count ?? 0,
+        pickupPattaya: pickupPattayaRes.count ?? 0,
       });
     } catch (error) {
       console.error('Error fetching tab counts:', error);
@@ -1301,7 +1314,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       </div>
 
       {/* Branch Filter (only for HIV requests) */}
-      {dataSource === 'hiv_requests' && (
+      {dataSource !== 'kit_orders' && (
         <div className="flex gap-2 mb-4 flex-wrap">
           <Button
             variant={branchFilter === 'all' ? 'default' : 'outline'}
@@ -1309,7 +1322,9 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             onClick={() => { setBranchFilter('all'); setCurrentPage(1); }}
           >
             {language === 'th' ? 'ทุกสาขา' : 'All Branches'}
-            <Badge variant="secondary" className="ml-1">{tabCounts.hivAll.toLocaleString()}</Badge>
+            <Badge variant="secondary" className="ml-1">
+              {(dataSource === 'onsite_pickup' ? tabCounts.pickup : tabCounts.hivAll).toLocaleString()}
+            </Badge>
           </Button>
           <Button
             variant={branchFilter === 'silom' ? 'default' : 'outline'}
@@ -1317,7 +1332,9 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             onClick={() => { setBranchFilter('silom'); setCurrentPage(1); }}
           >
             🏙️ {language === 'th' ? 'สีลม' : 'Silom'}
-            <Badge variant="secondary" className="ml-1">{tabCounts.silom.toLocaleString()}</Badge>
+            <Badge variant="secondary" className="ml-1">
+              {(dataSource === 'onsite_pickup' ? tabCounts.pickupSilom : tabCounts.silom).toLocaleString()}
+            </Badge>
           </Button>
           <Button
             variant={branchFilter === 'pattaya' ? 'default' : 'outline'}
@@ -1325,7 +1342,9 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             onClick={() => { setBranchFilter('pattaya'); setCurrentPage(1); }}
           >
             🏖️ {language === 'th' ? 'พัทยา' : 'Pattaya'}
-            <Badge variant="secondary" className="ml-1">{tabCounts.pattaya.toLocaleString()}</Badge>
+            <Badge variant="secondary" className="ml-1">
+              {(dataSource === 'onsite_pickup' ? tabCounts.pickupPattaya : tabCounts.pattaya).toLocaleString()}
+            </Badge>
           </Button>
         </div>
       )}
