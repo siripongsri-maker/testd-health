@@ -1286,7 +1286,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         >
           <TestTube className="h-4 w-4" />
           {language === 'th' ? 'คำขอชุดตรวจ HIV' : 'HIV Test Requests'}
-          <Badge variant="secondary" className="ml-1">{hivRequests.length}</Badge>
+          <Badge variant="secondary" className="ml-1">{tabCounts.hivAll.toLocaleString()}</Badge>
         </Button>
         <Button
           variant={dataSource === 'onsite_pickup' ? 'default' : 'outline'}
