@@ -44,8 +44,10 @@ export function parseLabelText(pageText: string, source: string): ParsedShipment
   const [tracking] = pickTracking(pageText);
   if (!tracking) return null;
 
-  // The recipient block starts after "กรุณานำส่ง" (with or without tone marks).
-  const afterRecipient = pageText.split(/กรุณาน[ำํา]?ส[่ ]?ง/)[1] ?? pageText;
+  // The recipient block starts after "กรุณานำส่ง". PDF text extraction often splits
+  // every glyph onto its own line and drops tone marks, so allow whitespace anywhere.
+  const recipientMarker = /ก\s*ร\s*ุ?\s*ณ\s*า\s*น\s*[ําำ\s]*ส\s*่?\s*ง/;
+  const afterRecipient = pageText.split(recipientMarker)[1] ?? pageText;
   const phones = afterRecipient.match(/0\d[\d\s-]{7,12}/g) ?? [];
   const phone = phones.length ? normalizePhone(phones[phones.length - 1]) : undefined;
 
