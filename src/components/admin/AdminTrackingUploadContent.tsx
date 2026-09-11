@@ -31,15 +31,23 @@ export default function AdminTrackingUploadContent() {
   const [selected, setSelected] = useState<Record<number, boolean>>({});
 
   const loadCandidates = useCallback(async (): Promise<RequestCandidate[]> => {
-    const { data, error } = await supabase
-      .from('hiv_selftest_requests')
-      .select('id, status, tracking_number, created_at, selftest_pii ( full_name, phone )')
-      .in('status', OPEN_STATUSES)
-      .order('created_at', { ascending: false })
-      .limit(3000);
-    if (error) throw error;
+    // Page through every open request — there are thousands, and an older order
+    // must still be matchable.
+    const PAGE = 1000;
+    const data: unknown[] = [];
+    for (let page = 0; page < 20; page++) {
+      const { data: chunk, error } = await supabase
+        .from('hiv_selftest_requests')
+        .select('id, status, tracking_number, created_at, selftest_pii ( full_name, phone )')
+        .in('status', OPEN_STATUSES)
+        .order('created_at', { ascending: false })
+        .range(page * PAGE, page * PAGE + PAGE - 1);
+      if (error) throw error;
+      data.push(...(chunk ?? []));
+      if (!chunk || chunk.length < PAGE) break;
+    }
 
-    return (data ?? []).map((r) => {
+    return (data as Record<string, unknown>[]).map((r) => {
       const pii = (r as unknown as { selftest_pii: PiiRow | PiiRow[] | null }).selftest_pii;
       const p = Array.isArray(pii) ? pii[0] : pii;
       return {
