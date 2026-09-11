@@ -156,6 +156,22 @@ export default function AdminKitDeliveryReportContent() {
     load();
   }, [load]);
 
+  const rows = useMemo<ReportRow[]>(() => {
+    const map = new Map<string, ReportRow>();
+    for (const d of details) {
+      const day = bkkDayKey(d.created_at);
+      const row =
+        map.get(day) ??
+        { day, waiting: 0, in_transit: 0, delivered: 0, failed: 0, with_tracking: 0, total: 0 };
+      const b = STATUS_TO_BUCKET.get(d.status) ?? 'waiting';
+      row[b] += 1;
+      if (d.tracking_number) row.with_tracking += 1;
+      row.total += 1;
+      map.set(day, row);
+    }
+    return [...map.values()].sort((a, b) => b.day.localeCompare(a.day));
+  }, [details]);
+
   const totals = useMemo(
     () =>
       rows.reduce(
