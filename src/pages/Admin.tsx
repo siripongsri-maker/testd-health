@@ -12,6 +12,7 @@ const AdminDashboardContent = lazy(() => import("@/components/admin/AdminDashboa
 const BranchDashboardContent = lazy(() => import("@/components/admin/BranchDashboardContent"));
 const AdminKitOrdersContent = lazy(() => import("@/components/admin/AdminKitOrdersContent"));
 const AdminTrackingUploadContent = lazy(() => import("@/components/admin/AdminTrackingUploadContent"));
+const AdminKitDeliveryReportContent = lazy(() => import("@/components/admin/AdminKitDeliveryReportContent"));
 const AdminAnalyticsContent = lazy(() => import("@/components/admin/AdminAnalyticsContent"));
 const AdminBlogContent = lazy(() => import("@/components/admin/AdminBlogContent"));
 const AdminSeoArticlesContent = lazy(() => import("@/components/admin/AdminSeoArticlesContent"));
