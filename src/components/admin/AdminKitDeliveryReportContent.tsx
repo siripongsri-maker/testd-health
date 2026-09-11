@@ -446,6 +446,12 @@ export default function AdminKitDeliveryReportContent() {
                         ขอเมื่อ {bkkDateTime(d.created_at)}
                         {d.assigned_branch ? ` · ${d.assigned_branch}` : ''}
                       </p>
+                      {d.tracking_stage && (
+                        <p className="text-[11px] text-muted-foreground">
+                          ไปรษณีย์: {STAGE_LABEL[d.tracking_stage] ?? d.tracking_stage}
+                          {d.tracking_stage_at ? ` · ${bkkDateTime(d.tracking_stage_at)}` : ''}
+                        </p>
+                      )}
                     </div>
                     <Badge
                       variant={
