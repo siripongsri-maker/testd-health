@@ -529,7 +529,11 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   };
 
   const fetchHIVStatusCounts = async () => {
-    const withBranch = (q: any) => (branchFilter !== 'all' ? q.eq('assigned_branch', branchFilter) : q);
+    const withBranch = (q: any) => {
+      let scoped = dataSource === 'onsite_pickup' ? q.eq('delivery_mode', 'pickup') : q;
+      if (branchFilter !== 'all') scoped = scoped.eq('assigned_branch', branchFilter);
+      return scoped;
+    };
     try {
       const [totalRes, flaggedRes, ...statusRes] = await Promise.all([
         withBranch(supabase.from('hiv_selftest_requests').select('id', { count: 'exact', head: true })),
