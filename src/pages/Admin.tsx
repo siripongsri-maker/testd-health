@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 const AdminDashboardContent = lazy(() => import("@/components/admin/AdminDashboardContent"));
 const BranchDashboardContent = lazy(() => import("@/components/admin/BranchDashboardContent"));
 const AdminKitOrdersContent = lazy(() => import("@/components/admin/AdminKitOrdersContent"));
+const AdminTrackingUploadContent = lazy(() => import("@/components/admin/AdminTrackingUploadContent"));
 const AdminAnalyticsContent = lazy(() => import("@/components/admin/AdminAnalyticsContent"));
 const AdminBlogContent = lazy(() => import("@/components/admin/AdminBlogContent"));
 const AdminSeoArticlesContent = lazy(() => import("@/components/admin/AdminSeoArticlesContent"));
@@ -103,7 +104,7 @@ const TabLoader = () => (
 );
 
 // Tabs accessible by moderators (branch staff)
-const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "selftest-results", "selftest-followup", "selftest-map", "selftest-missing-id", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk", "counselor-support", "daily-branch-brief", "concern-brief", "daily-ops"]);
+const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "tracking-upload", "selftest-results", "selftest-followup", "selftest-map", "selftest-missing-id", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk", "counselor-support", "daily-branch-brief", "concern-brief", "daily-ops"]);
 
 // Tabs accessible by M&E Analyst (read-only analytics/reporting)
 const ME_ANALYST_TABS = new Set([
@@ -236,6 +237,7 @@ export default function Admin() {
 
           {/* Operations */}
           {renderTab("kit-orders", <AdminKitOrdersContent userBranch={userBranch} isModerator={(isModerator && !isAdmin) || isMeAnalyst} />)}
+          {renderTab("tracking-upload", <AdminTrackingUploadContent />)}
           {renderTab("selftest-results", <AdminSelftestResultsContent />)}
           {renderTab("selftest-followup", <AdminSelftestFollowupContent />)}
           {renderTab("selftest-map", <AdminSelftestMapContent />)}
