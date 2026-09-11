@@ -64,7 +64,25 @@ interface DetailRow {
   status: string;
   tracking_number: string | null;
   assigned_branch: string | null;
+  tracking_stage: string | null;
+  tracking_stage_at: string | null;
 }
+
+const STAGE_LABEL: Record<string, string> = {
+  accepted: 'ไปรษณีย์รับเรื่องแล้ว',
+  in_transit: 'อยู่ระหว่างขนส่ง',
+  out_for_delivery: 'กำลังนำจ่าย',
+  delivered: 'นำจ่ายสำเร็จ',
+  failed: 'นำจ่ายไม่สำเร็จ',
+};
+
+const bkkDayKey = (iso: string) =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok' }).format(new Date(iso));
+
+const isoDayOffset = (offsetDays: number) =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok' }).format(
+    new Date(Date.now() - offsetDays * 86400000),
+  );
 
 const bkkDate = (iso: string) =>
   new Intl.DateTimeFormat('th-TH', {
