@@ -548,12 +548,14 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const fetchTabCounts = async () => {
     try {
       const head = () => supabase.from('hiv_selftest_requests').select('id', { count: 'exact', head: true });
-      const [kitRes, hivRes, pickupRes, silomRes, pattayaRes] = await Promise.all([
+      const [kitRes, hivRes, pickupRes, silomRes, pattayaRes, pickupSilomRes, pickupPattayaRes] = await Promise.all([
         supabase.from('kit_orders').select('id', { count: 'exact', head: true }),
         head(),
         head().eq('delivery_mode', 'pickup'),
         head().eq('assigned_branch', 'silom'),
         head().eq('assigned_branch', 'pattaya'),
+        head().eq('delivery_mode', 'pickup').eq('assigned_branch', 'silom'),
+        head().eq('delivery_mode', 'pickup').eq('assigned_branch', 'pattaya'),
       ]);
       setTabCounts({
         kitOrders: kitRes.count ?? 0,
@@ -561,6 +563,8 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         pickup: pickupRes.count ?? 0,
         silom: silomRes.count ?? 0,
         pattaya: pattayaRes.count ?? 0,
+        pickupSilom: pickupSilomRes.count ?? 0,
+        pickupPattaya: pickupPattayaRes.count ?? 0,
       });
     } catch (error) {
       console.error('Error fetching tab counts:', error);
