@@ -238,6 +238,7 @@ export default function Admin() {
           {/* Operations */}
           {renderTab("kit-orders", <AdminKitOrdersContent userBranch={userBranch} isModerator={(isModerator && !isAdmin) || isMeAnalyst} />)}
           {renderTab("tracking-upload", <AdminTrackingUploadContent />)}
+          {renderTab("delivery-report", <AdminKitDeliveryReportContent />)}
           {renderTab("selftest-results", <AdminSelftestResultsContent />)}
           {renderTab("selftest-followup", <AdminSelftestFollowupContent />)}
           {renderTab("selftest-map", <AdminSelftestMapContent />)}
