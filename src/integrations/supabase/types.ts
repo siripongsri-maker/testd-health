@@ -12261,6 +12261,18 @@ export type Database = {
           total_selftest_requests: number
         }[]
       }
+      get_kit_delivery_report: {
+        Args: { p_days?: number }
+        Returns: {
+          day: string
+          delivered: number
+          failed: number
+          in_transit: number
+          total: number
+          waiting: number
+          with_tracking: number
+        }[]
+      }
       get_language_analytics: {
         Args: { p_end?: string; p_start?: string }
         Returns: Json
