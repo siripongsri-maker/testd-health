@@ -223,12 +223,23 @@ export default function AdminKitDeliveryReportContent() {
       r.with_tracking,
       r.total,
     ]);
-    const detailHeader = ['วันที่ขอ', 'อัปเดตล่าสุด', 'สถานะ', 'กลุ่มสถานะ', 'เลขพัสดุ', 'สาขา'];
+    const detailHeader = [
+      'วันที่ขอ',
+      'อัปเดตล่าสุด',
+      'สถานะ',
+      'กลุ่มสถานะ',
+      'สถานะไปรษณีย์',
+      'อัปเดตสถานะไปรษณีย์',
+      'เลขพัสดุ',
+      'สาขา',
+    ];
     const detailBody = filteredDetails.map((d) => [
       d.created_at,
       d.updated_at ?? '',
       d.status,
       BUCKET_LABEL[STATUS_TO_BUCKET.get(d.status) ?? 'waiting'],
+      d.tracking_stage ? (STAGE_LABEL[d.tracking_stage] ?? d.tracking_stage) : '',
+      d.tracking_stage_at ?? '',
       d.tracking_number ?? '',
       d.assigned_branch ?? '',
     ]);
