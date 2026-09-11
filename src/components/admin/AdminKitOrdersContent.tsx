@@ -202,6 +202,15 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const [hivStatusCounts, setHivStatusCounts] = useState<Record<string, number>>({});
   const [hivGrandTotal, setHivGrandTotal] = useState(0);
   const [hivFlaggedTotal, setHivFlaggedTotal] = useState(0);
+  // Exact database-wide counts used on the tab/branch badges so they never
+  // show "how many rows are on screen" (which confused staff).
+  const [tabCounts, setTabCounts] = useState({
+    kitOrders: 0,
+    hivAll: 0,
+    pickup: 0,
+    silom: 0,
+    pattaya: 0,
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>("all");
   // Moderators default to HIV requests view and their branch filter
