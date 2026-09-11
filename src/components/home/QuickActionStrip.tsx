@@ -14,6 +14,15 @@ const actions = [
     event: 'homepage_quick_selftest_request',
   },
   {
+    icon: PackageSearch,
+    labelTh: 'สอบถามสถานะการส่ง',
+    labelEn: 'Delivery Status',
+    descTh: 'ดูเลขพัสดุ',
+    descEn: 'Tracking number',
+    path: '/kit-status',
+    event: 'homepage_quick_kit_status',
+  },
+  {
     icon: ClipboardCheck,
     labelTh: 'รายงานผลชุดตรวจ',
     labelEn: 'Report Result',
@@ -30,7 +39,7 @@ export function QuickActionStrip() {
 
   return (
     <section className="mb-6">
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         {actions.map((a) => (
           <button
             key={a.event}
