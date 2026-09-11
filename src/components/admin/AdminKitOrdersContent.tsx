@@ -335,6 +335,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   // Re-query from the server whenever the status tab or branch filter changes.
   useEffect(() => {
     fetchHIVRequests();
+    fetchHIVStatusCounts();
     setCurrentPage(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, branchFilter]);
