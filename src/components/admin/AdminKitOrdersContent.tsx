@@ -469,6 +469,17 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     'received', 'result_submitted', 'followed_up', 'rejected',
   ];
 
+  const HIV_STATUS_LABELS_TH: Record<string, string> = {
+    pending: 'รอดำเนินการ', approved: 'อนุมัติ', confirmed: 'ยืนยันแล้ว',
+    shipped: 'ส่งแล้ว', delivered: 'ถึงแล้ว', received: 'รับแล้ว',
+    result_submitted: 'รายงานผลแล้ว', followed_up: 'ติดตามแล้ว', rejected: 'ปฏิเสธ',
+  };
+  const HIV_STATUS_LABELS_EN: Record<string, string> = {
+    pending: 'Pending', approved: 'Approved', confirmed: 'Confirmed',
+    shipped: 'Shipped', delivered: 'Delivered', received: 'Received',
+    result_submitted: 'Result submitted', followed_up: 'Followed up', rejected: 'Rejected',
+  };
+
   const fetchHIVStatusCounts = async () => {
     const withBranch = (q: any) => (branchFilter !== 'all' ? q.eq('assigned_branch', branchFilter) : q);
     try {
