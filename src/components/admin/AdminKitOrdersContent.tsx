@@ -378,17 +378,12 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     }
   };
 
-  const fetchHIVRequests = async () => {
-    try {
-      const allData: HIVTestRequest[] = [];
-      const PAGE_SIZE = 1000;
-      let from = 0;
-      let hasMore = true;
+  const HIV_PAGE_SIZE = 500;
 
-      while (hasMore) {
-        const { data, error } = await supabase
-          .from('hiv_selftest_requests')
-          .select(`
+  const fetchHIVRequestsPage = async (offset: number) => {
+    const { data, error } = await supabase
+      .from('hiv_selftest_requests')
+      .select(`
             id,
             user_id,
             pii_id,
@@ -428,19 +423,132 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
               line_id,
               gender
             )
-          `)
-          .order('created_at', { ascending: false })
-          .range(from, from + PAGE_SIZE - 1);
+          `, { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(offset, offset + HIV_PAGE_SIZE - 1);
 
-        if (error) throw error;
-        allData.push(...(data || []));
-        hasMore = (data?.length || 0) === PAGE_SIZE;
-        from += PAGE_SIZE;
-      }
+    if (error) throw error;
+    return { rows: (data || []) as HIVTestRequest[], count: count0(data, error), total: (arguments as unknown as { total?: number }) };
+  };
 
-      setHivRequests(allData);
+  const fetchHIVRequests = async () => {
+    try {
+      const { data, error, count } = await supabase
+        .from('hiv_selftest_requests')
+        .select(`
+            id,
+            user_id,
+            pii_id,
+            status,
+            tracking_number,
+            created_at,
+            updated_at,
+            test_result,
+            staff_notes,
+            wants_callback,
+            callback_phone,
+            assigned_branch,
+            rejected_at,
+            rejected_by,
+            rejection_reason,
+            abuse_flag,
+            abuse_reason,
+            abuse_score,
+            result_photo_url,
+            delivery_mode,
+            pickup_latitude,
+            pickup_longitude,
+            pickup_location_captured,
+            pickup_location_status,
+            pickup_location_timestamp,
+            selftest_pii (
+              id,
+              full_name,
+              thai_id,
+              phone,
+              address,
+              district,
+              subdistrict,
+              province,
+              postal_code,
+              date_of_birth,
+              line_id,
+              gender
+            )
+          `, { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range(0, HIV_PAGE_SIZE - 1);
+
+      if (error) throw error;
+      const rows = (data || []) as HIVTestRequest[];
+      setHivRequests(rows);
+      setHivTotal(count ?? rows.length);
     } catch (error) {
       console.error('Error fetching HIV requests:', error);
+    }
+  };
+
+  const loadMoreHIVRequests = async () => {
+    setLoadingMoreHIV(true);
+    try {
+      const { data, error, count } = await supabase
+        .from('hiv_selftest_requests')
+        .select(`
+            id,
+            user_id,
+            pii_id,
+            status,
+            tracking_number,
+            created_at,
+            updated_at,
+            test_result,
+            staff_notes,
+            wants_callback,
+            callback_phone,
+            assigned_branch,
+            rejected_at,
+            rejected_by,
+            rejection_reason,
+            abuse_flag,
+            abuse_reason,
+            abuse_score,
+            result_photo_url,
+            delivery_mode,
+            pickup_latitude,
+            pickup_longitude,
+            pickup_location_captured,
+            pickup_location_status,
+            pickup_location_timestamp,
+            selftest_pii (
+              id,
+              full_name,
+              thai_id,
+              phone,
+              address,
+              district,
+              subdistrict,
+              province,
+              postal_code,
+              date_of_birth,
+              line_id,
+              gender
+            )
+          `, { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range(hivRequests.length, hivRequests.length + HIV_PAGE_SIZE - 1);
+
+      if (error) throw error;
+      const rows = (data || []) as HIVTestRequest[];
+      setHivRequests((prev) => {
+        const seen = new Set(prev.map((r) => r.id));
+        return [...prev, ...rows.filter((r) => !seen.has(r.id))];
+      });
+      if (typeof count === 'number') setHivTotal(count);
+    } catch (error) {
+      console.error('Error loading more HIV requests:', error);
+      toast.error(language === 'th' ? 'โหลดข้อมูลเพิ่มไม่สำเร็จ' : 'Failed to load more');
+    } finally {
+      setLoadingMoreHIV(false);
     }
   };
 
