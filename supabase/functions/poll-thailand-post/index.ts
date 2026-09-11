@@ -143,8 +143,9 @@ Deno.serve(async (req) => {
     if (error) throw error;
     if (!rows?.length) return json({ ok: true, summary });
 
-    const token = await getTpAccessToken(apiKey);
-    if (!token) return json({ ok: false, error: "tp_auth_failed" }, 502);
+    // Some accounts hand out a long-lived access token instead of an API key;
+    // fall back to using the stored value directly if the auth call is rejected.
+    const token = (await getTpAccessToken(apiKey)) ?? apiKey;
 
     const pushReady = !!VAPID_PUBLIC_KEY && !!VAPID_PRIVATE_KEY;
     if (pushReady) webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY!, VAPID_PRIVATE_KEY!);
