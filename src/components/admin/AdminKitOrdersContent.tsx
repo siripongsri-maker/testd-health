@@ -199,7 +199,6 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const [orders, setOrders] = useState<KitOrder[]>([]);
   const [hivRequests, setHivRequests] = useState<HIVTestRequest[]>([]);
   const [hivTotal, setHivTotal] = useState(0);
-  const [loadingMoreHIV, setLoadingMoreHIV] = useState(false);
   const [hivStatusCounts, setHivStatusCounts] = useState<Record<string, number>>({});
   const [hivGrandTotal, setHivGrandTotal] = useState(0);
   const [hivFlaggedTotal, setHivFlaggedTotal] = useState(0);
@@ -332,13 +331,19 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     fetchOrders();
   }, []);
 
-  // Re-query from the server whenever the status tab or branch filter changes.
+  // Re-query the exact server page whenever filters or pagination change.
   useEffect(() => {
-    fetchHIVRequests();
-    fetchHIVStatusCounts();
-    setCurrentPage(1);
+    const timer = window.setTimeout(() => {
+      fetchHIVRequests(currentPage, searchQuery);
+    }, searchQuery ? 300 : 0);
+    return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, branchFilter]);
+  }, [activeTab, branchFilter, currentPage, pageSize, searchQuery]);
+
+  useEffect(() => {
+    fetchHIVStatusCounts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [branchFilter]);
 
   // Realtime: auto-refresh when kit orders / HIV self-test requests change
   useEffect(() => {
@@ -349,7 +354,8 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         setLastUpdated(new Date());
       })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'hiv_selftest_requests' }, () => {
-        fetchHIVRequests();
+        fetchHIVRequests(currentPage, searchQuery);
+        fetchHIVStatusCounts();
         setLastUpdated(new Date());
       })
       .subscribe((status) => {
@@ -364,7 +370,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const handleManualRefresh = async () => {
     setRefreshing(true);
     try {
-      await Promise.all([fetchOrders(true), fetchHIVRequests()]);
+      await Promise.all([fetchOrders(true), fetchHIVRequests(currentPage, searchQuery), fetchHIVStatusCounts()]);
       setLastUpdated(new Date());
       toast.success(language === 'th' ? 'อัปเดตข้อมูลล่าสุดแล้ว' : 'Data refreshed');
     } finally {
@@ -389,8 +395,6 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       setLoading(false);
     }
   };
-
-  const HIV_PAGE_SIZE = 500;
 
   const HIV_SELECT = `
             id,
@@ -434,9 +438,9 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             )
           `;
 
-  // Status / branch filtering happens on the server so the counts and the
-  // "load older" button reflect the whole table, not just the loaded page.
-  const buildHIVQuery = (offset: number) => {
+  // Status, branch, search and pagination all happen on the server. This keeps
+  // every one of the 19k+ requests reachable without loading them into memory.
+  const buildHIVQuery = (page: number, matchingPiiIds: string[] = [], normalizedSearch = '') => {
     let q = supabase
       .from('hiv_selftest_requests')
       .select(HIV_SELECT, { count: 'exact' });
@@ -444,21 +448,45 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     if (activeTab === 'flagged') q = q.eq('abuse_flag', true);
     else if (activeTab !== 'all') q = q.eq('status', activeTab);
     if (branchFilter !== 'all') q = q.eq('assigned_branch', branchFilter);
+    if (normalizedSearch) {
+      const requestFilters = [
+        `callback_phone.ilike.%${normalizedSearch}%`,
+        `tracking_number.ilike.%${normalizedSearch}%`,
+      ];
+      if (matchingPiiIds.length > 0) requestFilters.push(`pii_id.in.(${matchingPiiIds.join(',')})`);
+      q = q.or(requestFilters.join(','));
+    }
 
+    const offset = (page - 1) * pageSize;
     return q
       .order('created_at', { ascending: false })
-      .range(offset, offset + HIV_PAGE_SIZE - 1);
+      .range(offset, offset + pageSize - 1);
   };
 
-  const fetchHIVRequests = async () => {
+  const fetchHIVRequests = async (page = currentPage, query = searchQuery) => {
     try {
-      const { data, error, count } = await buildHIVQuery(0);
+      const normalizedSearch = query.trim().replace(/[,()%]/g, '');
+      let matchingPiiIds: string[] = [];
+      if (normalizedSearch) {
+        const { data: piiMatches, error: piiError } = await supabase
+          .from('selftest_pii')
+          .select('id')
+          .or(`full_name.ilike.%${normalizedSearch}%,phone.ilike.%${normalizedSearch}%`)
+          .limit(1000);
+        if (piiError) throw piiError;
+        matchingPiiIds = (piiMatches || []).map((item) => item.id);
+      }
+
+      const { data, error, count } = await buildHIVQuery(page, matchingPiiIds, normalizedSearch);
       if (error) throw error;
       const rows = (data || []) as HIVTestRequest[];
       setHivRequests(rows);
       setHivTotal(count ?? rows.length);
+      const totalPages = Math.max(1, Math.ceil((count ?? rows.length) / pageSize));
+      if (page > totalPages) setCurrentPage(totalPages);
     } catch (error) {
       console.error('Error fetching HIV requests:', error);
+      toast.error(language === 'th' ? 'โหลดรายการคำขอไม่สำเร็จ' : 'Failed to load requests');
     }
   };
 
@@ -499,28 +527,6 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       console.error('Error fetching HIV status counts:', error);
     }
   };
-
-
-
-  const loadMoreHIVRequests = async () => {
-    setLoadingMoreHIV(true);
-    try {
-      const { data, error, count } = await buildHIVQuery(hivRequests.length);
-      if (error) throw error;
-      const rows = (data || []) as HIVTestRequest[];
-      setHivRequests((prev) => {
-        const seen = new Set(prev.map((r) => r.id));
-        return [...prev, ...rows.filter((r) => !seen.has(r.id))];
-      });
-      if (typeof count === 'number') setHivTotal(count);
-    } catch (error) {
-      console.error('Error loading more HIV requests:', error);
-      toast.error(language === 'th' ? 'โหลดข้อมูลเพิ่มไม่สำเร็จ' : 'Failed to load more');
-    } finally {
-      setLoadingMoreHIV(false);
-    }
-  };
-
   const fetchOrderEvents = async (orderId: string) => {
     try {
       const { data, error } = await supabase
@@ -920,26 +926,12 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     return matchesSearch && matchesTab;
   });
 
-  const filteredHIVRequests = hivRequests.filter(request => {
-    const matchesSearch = !searchQuery || 
-      request.selftest_pii?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      request.selftest_pii?.phone?.includes(searchQuery);
-    
-    const matchesTab = activeTab === 'all' 
-      || (activeTab === 'flagged' && request.abuse_flag === true)
-      || (activeTab !== 'flagged' && request.status === activeTab);
-    
-    const matchesBranch = branchFilter === 'all' || request.assigned_branch === branchFilter;
-    
-    return matchesSearch && matchesTab && matchesBranch;
-  });
-
-  const paginatedHIVRequests = filteredHIVRequests.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const filteredHIVRequests = hivRequests;
+  const paginatedHIVRequests = hivRequests;
 
   const selectAllVisible = useCallback(() => {
-    const paginated = filteredHIVRequests.slice((currentPage - 1) * pageSize, currentPage * pageSize);
-    setSelectedIds(new Set(paginated.map(r => r.id)));
-  }, [filteredHIVRequests, currentPage, pageSize]);
+    setSelectedIds(new Set(hivRequests.map(r => r.id)));
+  }, [hivRequests]);
 
 
   const formatDate = (date: string) => {
@@ -1564,8 +1556,8 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm text-muted-foreground">
                   {language === 'th'
-                    ? `แสดง ${filteredHIVRequests.length.toLocaleString()} • โหลดแล้ว ${hivRequests.length.toLocaleString()} จากแท็บนี้ ${hivTotal.toLocaleString()} • รวมทุกสถานะ ${hivGrandTotal.toLocaleString()}`
-                    : `Showing ${filteredHIVRequests.length.toLocaleString()} • loaded ${hivRequests.length.toLocaleString()} of ${hivTotal.toLocaleString()} in this tab • ${hivGrandTotal.toLocaleString()} overall`}
+                    ? `รายการที่ ${(hivTotal === 0 ? 0 : (currentPage - 1) * pageSize + 1).toLocaleString()}–${Math.min(currentPage * pageSize, hivTotal).toLocaleString()} จาก ${hivTotal.toLocaleString()} รายการ • รวมทุกสถานะ ${hivGrandTotal.toLocaleString()}`
+                    : `Items ${(hivTotal === 0 ? 0 : (currentPage - 1) * pageSize + 1).toLocaleString()}–${Math.min(currentPage * pageSize, hivTotal).toLocaleString()} of ${hivTotal.toLocaleString()} • ${hivGrandTotal.toLocaleString()} overall`}
                 </p>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground">{language === 'th' ? 'แสดง' : 'Show'}</span>
@@ -1866,14 +1858,22 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
               </ScrollArea>
 
               {/* Pagination controls */}
-              {filteredHIVRequests.length > pageSize && (
-                <div className="flex items-center justify-between mt-3">
+              {hivTotal > 0 && (
+                <div className="flex flex-wrap items-center justify-between gap-2 mt-3 border-t pt-3">
                   <p className="text-xs text-muted-foreground">
                     {language === 'th' 
-                      ? `หน้า ${currentPage} / ${Math.ceil(filteredHIVRequests.length / pageSize)}`
-                      : `Page ${currentPage} of ${Math.ceil(filteredHIVRequests.length / pageSize)}`}
+                      ? `หน้า ${currentPage.toLocaleString()} / ${Math.max(1, Math.ceil(hivTotal / pageSize)).toLocaleString()} • ครบทั้งหมด ${hivTotal.toLocaleString()} รายการ`
+                      : `Page ${currentPage.toLocaleString()} of ${Math.max(1, Math.ceil(hivTotal / pageSize)).toLocaleString()} • ${hivTotal.toLocaleString()} total`}
                   </p>
                   <div className="flex gap-1">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={currentPage <= 1}
+                      onClick={() => setCurrentPage(1)}
+                    >
+                      {language === 'th' ? 'หน้าแรก' : 'First'}
+                    </Button>
                     <Button
                       size="sm"
                       variant="outline"
@@ -1885,35 +1885,22 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                     <Button
                       size="sm"
                       variant="outline"
-                      disabled={currentPage >= Math.ceil(filteredHIVRequests.length / pageSize)}
+                      disabled={currentPage >= Math.ceil(hivTotal / pageSize)}
                       onClick={() => setCurrentPage(p => p + 1)}
                     >
                       {language === 'th' ? 'ถัดไป' : 'Next'}
                     </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={currentPage >= Math.ceil(hivTotal / pageSize)}
+                      onClick={() => setCurrentPage(Math.max(1, Math.ceil(hivTotal / pageSize)))}
+                    >
+                      {language === 'th' ? 'หน้าสุดท้าย' : 'Last'}
+                    </Button>
                   </div>
                 </div>
               )}
-
-              {/* Load older records */}
-              <div className="flex items-center justify-between mt-3 border-t pt-3">
-                <p className="text-xs text-muted-foreground">
-                  {language === 'th'
-                    ? `โหลดแล้ว ${hivRequests.length} จากทั้งหมด ${hivTotal} รายการ`
-                    : `Loaded ${hivRequests.length} of ${hivTotal}`}
-                </p>
-                {hivRequests.length < hivTotal && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={loadingMoreHIV}
-                    onClick={loadMoreHIVRequests}
-                  >
-                    {loadingMoreHIV
-                      ? (language === 'th' ? 'กำลังโหลด...' : 'Loading...')
-                      : (language === 'th' ? 'โหลดข้อมูลเก่าเพิ่ม' : 'Load older')}
-                  </Button>
-                )}
-              </div>
             </TabsContent>
           </Tabs>
         </>
