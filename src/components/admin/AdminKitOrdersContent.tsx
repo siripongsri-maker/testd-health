@@ -1314,7 +1314,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       </div>
 
       {/* Branch Filter (only for HIV requests) */}
-      {dataSource === 'hiv_requests' && (
+      {dataSource !== 'kit_orders' && (
         <div className="flex gap-2 mb-4 flex-wrap">
           <Button
             variant={branchFilter === 'all' ? 'default' : 'outline'}
@@ -1322,7 +1322,9 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             onClick={() => { setBranchFilter('all'); setCurrentPage(1); }}
           >
             {language === 'th' ? 'ทุกสาขา' : 'All Branches'}
-            <Badge variant="secondary" className="ml-1">{tabCounts.hivAll.toLocaleString()}</Badge>
+            <Badge variant="secondary" className="ml-1">
+              {(dataSource === 'onsite_pickup' ? tabCounts.pickup : tabCounts.hivAll).toLocaleString()}
+            </Badge>
           </Button>
           <Button
             variant={branchFilter === 'silom' ? 'default' : 'outline'}
@@ -1330,7 +1332,9 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             onClick={() => { setBranchFilter('silom'); setCurrentPage(1); }}
           >
             🏙️ {language === 'th' ? 'สีลม' : 'Silom'}
-            <Badge variant="secondary" className="ml-1">{tabCounts.silom.toLocaleString()}</Badge>
+            <Badge variant="secondary" className="ml-1">
+              {(dataSource === 'onsite_pickup' ? tabCounts.pickupSilom : tabCounts.silom).toLocaleString()}
+            </Badge>
           </Button>
           <Button
             variant={branchFilter === 'pattaya' ? 'default' : 'outline'}
@@ -1338,7 +1342,9 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             onClick={() => { setBranchFilter('pattaya'); setCurrentPage(1); }}
           >
             🏖️ {language === 'th' ? 'พัทยา' : 'Pattaya'}
-            <Badge variant="secondary" className="ml-1">{tabCounts.pattaya.toLocaleString()}</Badge>
+            <Badge variant="secondary" className="ml-1">
+              {(dataSource === 'onsite_pickup' ? tabCounts.pickupPattaya : tabCounts.pattaya).toLocaleString()}
+            </Badge>
           </Button>
         </div>
       )}
