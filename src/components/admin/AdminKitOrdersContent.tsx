@@ -380,56 +380,6 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
 
   const HIV_PAGE_SIZE = 500;
 
-  const fetchHIVRequestsPage = async (offset: number) => {
-    const { data, error } = await supabase
-      .from('hiv_selftest_requests')
-      .select(`
-            id,
-            user_id,
-            pii_id,
-            status,
-            tracking_number,
-            created_at,
-            updated_at,
-            test_result,
-            staff_notes,
-            wants_callback,
-            callback_phone,
-            assigned_branch,
-            rejected_at,
-            rejected_by,
-            rejection_reason,
-            abuse_flag,
-            abuse_reason,
-            abuse_score,
-            result_photo_url,
-            delivery_mode,
-            pickup_latitude,
-            pickup_longitude,
-            pickup_location_captured,
-            pickup_location_status,
-            pickup_location_timestamp,
-            selftest_pii (
-              id,
-              full_name,
-              thai_id,
-              phone,
-              address,
-              district,
-              subdistrict,
-              province,
-              postal_code,
-              date_of_birth,
-              line_id,
-              gender
-            )
-          `, { count: 'exact' })
-      .order('created_at', { ascending: false })
-      .range(offset, offset + HIV_PAGE_SIZE - 1);
-
-    if (error) throw error;
-    return { rows: (data || []) as HIVTestRequest[], count: count0(data, error), total: (arguments as unknown as { total?: number }) };
-  };
 
   const fetchHIVRequests = async () => {
     try {
