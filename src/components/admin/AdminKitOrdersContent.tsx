@@ -202,6 +202,15 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const [hivStatusCounts, setHivStatusCounts] = useState<Record<string, number>>({});
   const [hivGrandTotal, setHivGrandTotal] = useState(0);
   const [hivFlaggedTotal, setHivFlaggedTotal] = useState(0);
+  // Exact database-wide counts used on the tab/branch badges so they never
+  // show "how many rows are on screen" (which confused staff).
+  const [tabCounts, setTabCounts] = useState({
+    kitOrders: 0,
+    hivAll: 0,
+    pickup: 0,
+    silom: 0,
+    pattaya: 0,
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>("all");
   // Moderators default to HIV requests view and their branch filter
@@ -345,6 +354,11 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [branchFilter]);
 
+  useEffect(() => {
+    fetchTabCounts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Realtime: auto-refresh when kit orders / HIV self-test requests change
   useEffect(() => {
     const channel = supabase
@@ -356,6 +370,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       .on('postgres_changes', { event: '*', schema: 'public', table: 'hiv_selftest_requests' }, () => {
         fetchHIVRequests(currentPage, searchQuery);
         fetchHIVStatusCounts();
+        fetchTabCounts();
         setLastUpdated(new Date());
       })
       .subscribe((status) => {
@@ -370,7 +385,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const handleManualRefresh = async () => {
     setRefreshing(true);
     try {
-      await Promise.all([fetchOrders(true), fetchHIVRequests(currentPage, searchQuery), fetchHIVStatusCounts()]);
+      await Promise.all([fetchOrders(true), fetchHIVRequests(currentPage, searchQuery), fetchHIVStatusCounts(), fetchTabCounts()]);
       setLastUpdated(new Date());
       toast.success(language === 'th' ? 'อัปเดตข้อมูลล่าสุดแล้ว' : 'Data refreshed');
     } finally {
@@ -527,6 +542,29 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       console.error('Error fetching HIV status counts:', error);
     }
   };
+  // Database-wide totals for the top tab badges (independent of paging/filters).
+  const fetchTabCounts = async () => {
+    try {
+      const head = () => supabase.from('hiv_selftest_requests').select('id', { count: 'exact', head: true });
+      const [kitRes, hivRes, pickupRes, silomRes, pattayaRes] = await Promise.all([
+        supabase.from('kit_orders').select('id', { count: 'exact', head: true }),
+        head(),
+        head().eq('delivery_mode', 'pickup'),
+        head().eq('assigned_branch', 'silom'),
+        head().eq('assigned_branch', 'pattaya'),
+      ]);
+      setTabCounts({
+        kitOrders: kitRes.count ?? 0,
+        hivAll: hivRes.count ?? 0,
+        pickup: pickupRes.count ?? 0,
+        silom: silomRes.count ?? 0,
+        pattaya: pattayaRes.count ?? 0,
+      });
+    } catch (error) {
+      console.error('Error fetching tab counts:', error);
+    }
+  };
+
   const fetchOrderEvents = async (orderId: string) => {
     try {
       const { data, error } = await supabase
@@ -1238,7 +1276,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         >
           <Package className="h-4 w-4" />
           {language === 'th' ? 'คำสั่งซื้อ Kit' : 'Kit Orders'}
-          <Badge variant="secondary" className="ml-1">{orders.length}</Badge>
+          <Badge variant="secondary" className="ml-1">{tabCounts.kitOrders.toLocaleString()}</Badge>
         </Button>
         <Button
           variant={dataSource === 'hiv_requests' ? 'default' : 'outline'}
@@ -1248,7 +1286,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         >
           <TestTube className="h-4 w-4" />
           {language === 'th' ? 'คำขอชุดตรวจ HIV' : 'HIV Test Requests'}
-          <Badge variant="secondary" className="ml-1">{hivRequests.length}</Badge>
+          <Badge variant="secondary" className="ml-1">{tabCounts.hivAll.toLocaleString()}</Badge>
         </Button>
         <Button
           variant={dataSource === 'onsite_pickup' ? 'default' : 'outline'}
@@ -1258,7 +1296,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         >
           <MapPin className="h-4 w-4" />
           {language === 'th' ? 'รับที่หน้างาน' : 'On-site Pickup'}
-          <Badge variant="secondary" className="ml-1">{hivRequests.filter(r => r.delivery_mode === 'pickup').length}</Badge>
+          <Badge variant="secondary" className="ml-1">{tabCounts.pickup.toLocaleString()}</Badge>
         </Button>
       </div>
 
@@ -1271,7 +1309,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             onClick={() => { setBranchFilter('all'); setCurrentPage(1); }}
           >
             {language === 'th' ? 'ทุกสาขา' : 'All Branches'}
-            <Badge variant="secondary" className="ml-1">{hivRequests.length}</Badge>
+            <Badge variant="secondary" className="ml-1">{tabCounts.hivAll.toLocaleString()}</Badge>
           </Button>
           <Button
             variant={branchFilter === 'silom' ? 'default' : 'outline'}
@@ -1279,7 +1317,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             onClick={() => { setBranchFilter('silom'); setCurrentPage(1); }}
           >
             🏙️ {language === 'th' ? 'สีลม' : 'Silom'}
-            <Badge variant="secondary" className="ml-1">{hivRequests.filter(r => r.assigned_branch === 'silom').length}</Badge>
+            <Badge variant="secondary" className="ml-1">{tabCounts.silom.toLocaleString()}</Badge>
           </Button>
           <Button
             variant={branchFilter === 'pattaya' ? 'default' : 'outline'}
@@ -1287,7 +1325,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             onClick={() => { setBranchFilter('pattaya'); setCurrentPage(1); }}
           >
             🏖️ {language === 'th' ? 'พัทยา' : 'Pattaya'}
-            <Badge variant="secondary" className="ml-1">{hivRequests.filter(r => r.assigned_branch === 'pattaya').length}</Badge>
+            <Badge variant="secondary" className="ml-1">{tabCounts.pattaya.toLocaleString()}</Badge>
           </Button>
         </div>
       )}
