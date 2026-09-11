@@ -250,6 +250,7 @@ function AppShell() {
               <Route path="/hiv-self-test-guide" element={<SEOLanding />} />
               <Route path="/interaction/:slug" element={<InteractionPage />} />
               <Route path="/partners" element={<Partners />} />
+              <Route path="/swing" element={<Swing />} />
               
               <Route path="/admin/docs/harm-reduction-guide" element={<HarmReductionGuide />} />
               <Route path="/privacy-center" element={<PrivacyCenter />} />
