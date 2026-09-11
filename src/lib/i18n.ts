@@ -1087,6 +1087,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.selftestMap': 'Self-test Map',
     'admin.selftestMissingId': 'Missing Thai ID',
     'admin.trackingUpload': 'Upload tracking numbers',
+    'admin.deliveryReport': 'Delivery status report',
     'admin.notifications': 'Notifications',
     'admin.analytics': 'Analytics',
     'admin.analyticsOverview': 'Period Overview',
