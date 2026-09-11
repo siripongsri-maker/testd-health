@@ -248,14 +248,17 @@ export default function AdminKitDeliveryReportContent() {
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
+        <CardHeader className="flex flex-col gap-2 space-y-0 md:flex-row md:items-center md:justify-between">
           <CardTitle className="flex items-center gap-2 text-base">
             <Truck className="h-4 w-4" />
             รายงานสถานะการส่งชุดตรวจ
           </CardTitle>
-          <div className="flex items-center gap-2">
-            <Select value={String(days)} onValueChange={(v) => setDays(Number(v))}>
-              <SelectTrigger className="h-8 w-28">
+          <div className="flex flex-wrap items-center gap-2">
+            <Select
+              value={String(days)}
+              onValueChange={(v) => setDays(v === 'custom' ? 'custom' : Number(v))}
+            >
+              <SelectTrigger className="h-8 w-32">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -264,8 +267,28 @@ export default function AdminKitDeliveryReportContent() {
                     {d} วัน
                   </SelectItem>
                 ))}
+                <SelectItem value="custom">เลือกวันที่เอง</SelectItem>
               </SelectContent>
             </Select>
+            {days === 'custom' && (
+              <>
+                <Input
+                  type="date"
+                  value={fromDate}
+                  max={toDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  className="h-8 w-36"
+                />
+                <span className="text-xs text-muted-foreground">ถึง</span>
+                <Input
+                  type="date"
+                  value={toDate}
+                  min={fromDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="h-8 w-36"
+                />
+              </>
+            )}
             <Button size="sm" variant="outline" onClick={load} disabled={loading}>
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
