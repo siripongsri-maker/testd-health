@@ -1565,7 +1565,9 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
               {/* Per-page selector & count */}
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm text-muted-foreground">
-                  {language === 'th' ? `ทั้งหมด ${filteredHIVRequests.length} รายการ` : `${filteredHIVRequests.length} total`}
+                  {language === 'th'
+                    ? `แสดง ${filteredHIVRequests.length.toLocaleString()} • โหลดแล้ว ${hivRequests.length.toLocaleString()} จากแท็บนี้ ${hivTotal.toLocaleString()} • รวมทุกสถานะ ${hivGrandTotal.toLocaleString()}`
+                    : `Showing ${filteredHIVRequests.length.toLocaleString()} • loaded ${hivRequests.length.toLocaleString()} of ${hivTotal.toLocaleString()} in this tab • ${hivGrandTotal.toLocaleString()} overall`}
                 </p>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground">{language === 'th' ? 'แสดง' : 'Show'}</span>
