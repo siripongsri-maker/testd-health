@@ -1309,7 +1309,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             onClick={() => { setBranchFilter('all'); setCurrentPage(1); }}
           >
             {language === 'th' ? 'ทุกสาขา' : 'All Branches'}
-            <Badge variant="secondary" className="ml-1">{hivRequests.length}</Badge>
+            <Badge variant="secondary" className="ml-1">{tabCounts.hivAll.toLocaleString()}</Badge>
           </Button>
           <Button
             variant={branchFilter === 'silom' ? 'default' : 'outline'}
