@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { TestTube, ClipboardCheck } from 'lucide-react';
+import { TestTube, ClipboardCheck, PackageSearch } from 'lucide-react';
 import { trackEvent } from '@/hooks/useAnalytics';
 import { useLanguage } from '@/lib/i18n';
 
