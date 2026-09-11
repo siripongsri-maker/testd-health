@@ -3936,6 +3936,8 @@ export type Database = {
           thai_id: string | null
           tracking_carrier: string | null
           tracking_number: string | null
+          tracking_stage: string | null
+          tracking_stage_at: string | null
           updated_at: string
           user_id: string | null
           wants_callback: boolean | null
@@ -4008,6 +4010,8 @@ export type Database = {
           thai_id?: string | null
           tracking_carrier?: string | null
           tracking_number?: string | null
+          tracking_stage?: string | null
+          tracking_stage_at?: string | null
           updated_at?: string
           user_id?: string | null
           wants_callback?: boolean | null
@@ -4080,6 +4084,8 @@ export type Database = {
           thai_id?: string | null
           tracking_carrier?: string | null
           tracking_number?: string | null
+          tracking_stage?: string | null
+          tracking_stage_at?: string | null
           updated_at?: string
           user_id?: string | null
           wants_callback?: boolean | null
