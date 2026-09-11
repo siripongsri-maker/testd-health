@@ -160,6 +160,8 @@ Deno.serve(async (req) => {
     for (let i = 0; i < rows.length; i += BATCH) {
       const slice = rows.slice(i, i + BATCH);
       const items = await trackBatch(token, slice.map((r) => r.tracking_number as string));
+      if (items === null) return json({ ok: false, error: "tp_auth_failed", summary }, 502);
+
 
       for (const r of slice) {
         summary.checked++;
