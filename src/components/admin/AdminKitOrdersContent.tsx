@@ -200,6 +200,9 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const [hivRequests, setHivRequests] = useState<HIVTestRequest[]>([]);
   const [hivTotal, setHivTotal] = useState(0);
   const [loadingMoreHIV, setLoadingMoreHIV] = useState(false);
+  const [hivStatusCounts, setHivStatusCounts] = useState<Record<string, number>>({});
+  const [hivGrandTotal, setHivGrandTotal] = useState(0);
+  const [hivFlaggedTotal, setHivFlaggedTotal] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>("all");
   // Moderators default to HIV requests view and their branch filter
@@ -332,6 +335,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   // Re-query from the server whenever the status tab or branch filter changes.
   useEffect(() => {
     fetchHIVRequests();
+    fetchHIVStatusCounts();
     setCurrentPage(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, branchFilter]);
@@ -457,6 +461,46 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       console.error('Error fetching HIV requests:', error);
     }
   };
+
+  // Every status count comes straight from the database (head-only queries),
+  // so the numbers reflect the whole table, not just the loaded page.
+  const HIV_STATUS_KEYS = [
+    'pending', 'approved', 'confirmed', 'shipped', 'delivered',
+    'received', 'result_submitted', 'followed_up', 'rejected',
+  ];
+
+  const HIV_STATUS_LABELS_TH: Record<string, string> = {
+    pending: 'รอดำเนินการ', approved: 'อนุมัติ', confirmed: 'ยืนยันแล้ว',
+    shipped: 'ส่งแล้ว', delivered: 'ถึงแล้ว', received: 'รับแล้ว',
+    result_submitted: 'รายงานผลแล้ว', followed_up: 'ติดตามแล้ว', rejected: 'ปฏิเสธ',
+  };
+  const HIV_STATUS_LABELS_EN: Record<string, string> = {
+    pending: 'Pending', approved: 'Approved', confirmed: 'Confirmed',
+    shipped: 'Shipped', delivered: 'Delivered', received: 'Received',
+    result_submitted: 'Result submitted', followed_up: 'Followed up', rejected: 'Rejected',
+  };
+
+  const fetchHIVStatusCounts = async () => {
+    const withBranch = (q: any) => (branchFilter !== 'all' ? q.eq('assigned_branch', branchFilter) : q);
+    try {
+      const [totalRes, flaggedRes, ...statusRes] = await Promise.all([
+        withBranch(supabase.from('hiv_selftest_requests').select('id', { count: 'exact', head: true })),
+        withBranch(supabase.from('hiv_selftest_requests').select('id', { count: 'exact', head: true }).eq('abuse_flag', true)),
+        ...HIV_STATUS_KEYS.map((s) =>
+          withBranch(supabase.from('hiv_selftest_requests').select('id', { count: 'exact', head: true }).eq('status', s))
+        ),
+      ]);
+      const counts: Record<string, number> = {};
+      HIV_STATUS_KEYS.forEach((s, i) => { counts[s] = statusRes[i]?.count ?? 0; });
+      setHivStatusCounts(counts);
+      setHivGrandTotal(totalRes?.count ?? 0);
+      setHivFlaggedTotal(flaggedRes?.count ?? 0);
+    } catch (error) {
+      console.error('Error fetching HIV status counts:', error);
+    }
+  };
+
+
 
   const loadMoreHIVRequests = async () => {
     setLoadingMoreHIV(true);
@@ -1429,30 +1473,52 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         </>
       ) : dataSource === 'hiv_requests' ? (
         <>
+          {/* Full status tally straight from the database */}
+          <Card className="p-3 mb-4">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <span className="text-sm font-semibold">
+                {language === 'th' ? `รวมทั้งหมด ${hivGrandTotal.toLocaleString()} รายการ` : `Grand total ${hivGrandTotal.toLocaleString()}`}
+              </span>
+              {HIV_STATUS_KEYS.map((s) => (
+                <span key={s} className="text-xs text-muted-foreground">
+                  {(language === 'th' ? HIV_STATUS_LABELS_TH : HIV_STATUS_LABELS_EN)[s] || s}
+                  {': '}
+                  <span className="font-semibold text-foreground">{(hivStatusCounts[s] ?? 0).toLocaleString()}</span>
+                </span>
+              ))}
+              <span className="text-xs text-yellow-600">
+                ⚠️ {language === 'th' ? 'ตรวจสอบ' : 'Flagged'}
+                {': '}
+                <span className="font-semibold">{hivFlaggedTotal.toLocaleString()}</span>
+              </span>
+            </div>
+          </Card>
+
           <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setCurrentPage(1); }} className="w-full">
             <TabsList className="w-full mb-4 grid grid-cols-6 h-auto">
               <TabsTrigger value="all" className="text-xs py-2">
-                {language === 'th' ? 'ทั้งหมด' : 'All'}
+                {language === 'th' ? 'ทั้งหมด' : 'All'} ({hivGrandTotal.toLocaleString()})
               </TabsTrigger>
               <TabsTrigger value="pending" className="text-xs py-2">
-                {language === 'th' ? 'รอ' : 'Pending'}
+                {language === 'th' ? 'รอ' : 'Pending'} ({(hivStatusCounts.pending ?? 0).toLocaleString()})
               </TabsTrigger>
               <TabsTrigger value="flagged" className="text-xs py-2 text-yellow-600">
                 ⚠️ {language === 'th' ? 'ตรวจสอบ' : 'Flagged'}
-                {hivRequests.filter(r => r.abuse_flag).length > 0 && (
-                  <Badge variant="destructive" className="ml-1 text-[10px] h-4 px-1">{hivRequests.filter(r => r.abuse_flag).length}</Badge>
+                {hivFlaggedTotal > 0 && (
+                  <Badge variant="destructive" className="ml-1 text-[10px] h-4 px-1">{hivFlaggedTotal.toLocaleString()}</Badge>
                 )}
               </TabsTrigger>
               <TabsTrigger value="rejected" className="text-xs py-2 text-destructive">
-                {language === 'th' ? 'ปฏิเสธ' : 'Rejected'}
+                {language === 'th' ? 'ปฏิเสธ' : 'Rejected'} ({(hivStatusCounts.rejected ?? 0).toLocaleString()})
               </TabsTrigger>
               <TabsTrigger value="shipped" className="text-xs py-2">
-                {language === 'th' ? 'ส่งแล้ว' : 'Shipped'}
+                {language === 'th' ? 'ส่งแล้ว' : 'Shipped'} ({(hivStatusCounts.shipped ?? 0).toLocaleString()})
               </TabsTrigger>
               <TabsTrigger value="delivered" className="text-xs py-2">
-                {language === 'th' ? 'ถึงแล้ว' : 'Delivered'}
+                {language === 'th' ? 'ถึงแล้ว' : 'Delivered'} ({(hivStatusCounts.delivered ?? 0).toLocaleString()})
               </TabsTrigger>
             </TabsList>
+
 
             <TabsContent value={activeTab}>
               {/* SMS bulk toolbar — shipped → arrival check, delivered → test reminder */}
@@ -1499,7 +1565,9 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
               {/* Per-page selector & count */}
               <div className="flex items-center justify-between mb-3">
                 <p className="text-sm text-muted-foreground">
-                  {language === 'th' ? `ทั้งหมด ${filteredHIVRequests.length} รายการ` : `${filteredHIVRequests.length} total`}
+                  {language === 'th'
+                    ? `แสดง ${filteredHIVRequests.length.toLocaleString()} • โหลดแล้ว ${hivRequests.length.toLocaleString()} จากแท็บนี้ ${hivTotal.toLocaleString()} • รวมทุกสถานะ ${hivGrandTotal.toLocaleString()}`
+                    : `Showing ${filteredHIVRequests.length.toLocaleString()} • loaded ${hivRequests.length.toLocaleString()} of ${hivTotal.toLocaleString()} in this tab • ${hivGrandTotal.toLocaleString()} overall`}
                 </p>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-muted-foreground">{language === 'th' ? 'แสดง' : 'Show'}</span>
