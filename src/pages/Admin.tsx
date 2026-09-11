@@ -105,7 +105,7 @@ const TabLoader = () => (
 );
 
 // Tabs accessible by moderators (branch staff)
-const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "tracking-upload", "selftest-results", "selftest-followup", "selftest-map", "selftest-missing-id", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk", "counselor-support", "daily-branch-brief", "concern-brief", "daily-ops"]);
+const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "tracking-upload", "delivery-report", "selftest-results", "selftest-followup", "selftest-map", "selftest-missing-id", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk", "counselor-support", "daily-branch-brief", "concern-brief", "daily-ops"]);
 
 // Tabs accessible by M&E Analyst (read-only analytics/reporting)
 const ME_ANALYST_TABS = new Set([
