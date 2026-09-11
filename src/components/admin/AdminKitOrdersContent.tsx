@@ -1854,6 +1854,27 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                   </div>
                 </div>
               )}
+
+              {/* Load older records */}
+              <div className="flex items-center justify-between mt-3 border-t pt-3">
+                <p className="text-xs text-muted-foreground">
+                  {language === 'th'
+                    ? `โหลดแล้ว ${hivRequests.length} จากทั้งหมด ${hivTotal} รายการ`
+                    : `Loaded ${hivRequests.length} of ${hivTotal}`}
+                </p>
+                {hivRequests.length < hivTotal && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={loadingMoreHIV}
+                    onClick={loadMoreHIVRequests}
+                  >
+                    {loadingMoreHIV
+                      ? (language === 'th' ? 'กำลังโหลด...' : 'Loading...')
+                      : (language === 'th' ? 'โหลดข้อมูลเก่าเพิ่ม' : 'Load older')}
+                  </Button>
+                )}
+              </div>
             </TabsContent>
           </Tabs>
         </>
