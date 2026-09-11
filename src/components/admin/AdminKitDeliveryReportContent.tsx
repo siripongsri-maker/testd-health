@@ -103,38 +103,54 @@ const bkkDateTime = (iso: string) =>
   }).format(new Date(iso));
 
 export default function AdminKitDeliveryReportContent() {
-  const [days, setDays] = useState(30);
+  const [days, setDays] = useState<number | 'custom'>(30);
+  const [fromDate, setFromDate] = useState(() => isoDayOffset(30));
+  const [toDate, setToDate] = useState(() => isoDayOffset(0));
   const [loading, setLoading] = useState(true);
-  const [rows, setRows] = useState<ReportRow[]>([]);
   const [details, setDetails] = useState<DetailRow[]>([]);
   const [bucket, setBucket] = useState<Bucket | 'all'>('all');
   const [search, setSearch] = useState('');
   const [detailLimit, setDetailLimit] = useState(100);
 
+  const range = useMemo(() => {
+    const from = days === 'custom' ? fromDate : isoDayOffset(days - 1);
+    const to = days === 'custom' ? toDate : isoDayOffset(0);
+    return {
+      from,
+      to,
+      fromIso: `${from}T00:00:00+07:00`,
+      toIso: `${to}T23:59:59.999+07:00`,
+    };
+  }, [days, fromDate, toDate]);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const since = new Date(Date.now() - days * 86400000).toISOString();
-      const [report, detail] = await Promise.all([
-        supabase.rpc('get_kit_delivery_report', { p_days: days }),
-        supabase
+      const PAGE = 1000;
+      const all: DetailRow[] = [];
+      for (let page = 0; ; page++) {
+        const { data, error } = await supabase
           .from('hiv_selftest_requests')
-          .select('id, created_at, updated_at, status, tracking_number, assigned_branch')
-          .gte('created_at', since)
+          .select(
+            'id, created_at, updated_at, status, tracking_number, assigned_branch, tracking_stage, tracking_stage_at',
+          )
+          .gte('created_at', range.fromIso)
+          .lte('created_at', range.toIso)
           .order('created_at', { ascending: false })
-          .limit(3000),
-      ]);
-      if (report.error) throw report.error;
-      if (detail.error) throw detail.error;
-      setRows((report.data ?? []) as ReportRow[]);
-      setDetails((detail.data ?? []) as DetailRow[]);
+          .range(page * PAGE, page * PAGE + PAGE - 1);
+        if (error) throw error;
+        const batch = (data ?? []) as DetailRow[];
+        all.push(...batch);
+        if (batch.length < PAGE) break;
+      }
+      setDetails(all);
     } catch (e) {
       console.error(e);
       toast.error('โหลดรายงานไม่สำเร็จ');
     } finally {
       setLoading(false);
     }
-  }, [days]);
+  }, [range.fromIso, range.toIso]);
 
   useEffect(() => {
     load();
