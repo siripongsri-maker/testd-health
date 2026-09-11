@@ -35,7 +35,7 @@ export default function AdminTrackingUploadContent() {
     // must still be matchable.
     const PAGE = 1000;
     const data: unknown[] = [];
-    for (let page = 0; page < 20; page++) {
+    for (let page = 0; ; page++) {
       const { data: chunk, error } = await supabase
         .from('hiv_selftest_requests')
         .select('id, status, tracking_number, created_at, selftest_pii ( full_name, phone )')
