@@ -198,6 +198,8 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const [realtimeStatus, setRealtimeStatus] = useState<'connecting' | 'live' | 'off'>('connecting');
   const [orders, setOrders] = useState<KitOrder[]>([]);
   const [hivRequests, setHivRequests] = useState<HIVTestRequest[]>([]);
+  const [hivTotal, setHivTotal] = useState(0);
+  const [loadingMoreHIV, setLoadingMoreHIV] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<string>("all");
   // Moderators default to HIV requests view and their branch filter
