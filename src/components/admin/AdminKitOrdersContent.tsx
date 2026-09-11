@@ -461,6 +461,35 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     }
   };
 
+  // Every status count comes straight from the database (head-only queries),
+  // so the numbers reflect the whole table, not just the loaded page.
+  const HIV_STATUS_KEYS = [
+    'pending', 'approved', 'confirmed', 'shipped', 'delivered',
+    'received', 'result_submitted', 'followed_up', 'rejected',
+  ];
+
+  const fetchHIVStatusCounts = async () => {
+    const withBranch = (q: any) => (branchFilter !== 'all' ? q.eq('assigned_branch', branchFilter) : q);
+    try {
+      const [totalRes, flaggedRes, ...statusRes] = await Promise.all([
+        withBranch(supabase.from('hiv_selftest_requests').select('id', { count: 'exact', head: true })),
+        withBranch(supabase.from('hiv_selftest_requests').select('id', { count: 'exact', head: true }).eq('abuse_flag', true)),
+        ...HIV_STATUS_KEYS.map((s) =>
+          withBranch(supabase.from('hiv_selftest_requests').select('id', { count: 'exact', head: true }).eq('status', s))
+        ),
+      ]);
+      const counts: Record<string, number> = {};
+      HIV_STATUS_KEYS.forEach((s, i) => { counts[s] = statusRes[i]?.count ?? 0; });
+      setHivStatusCounts(counts);
+      setHivGrandTotal(totalRes?.count ?? 0);
+      setHivFlaggedTotal(flaggedRes?.count ?? 0);
+    } catch (error) {
+      console.error('Error fetching HIV status counts:', error);
+    }
+  };
+
+
+
   const loadMoreHIVRequests = async () => {
     setLoadingMoreHIV(true);
     try {
