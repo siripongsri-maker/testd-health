@@ -107,7 +107,7 @@ export async function parsePdfFile(file: File): Promise<ParsedShipment[]> {
     if (parsed) shipments.push(parsed);
   }
 
-  await doc.destroy();
+  doc.cleanup();
   return shipments;
 }
 
