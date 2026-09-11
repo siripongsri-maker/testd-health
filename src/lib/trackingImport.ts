@@ -39,17 +39,40 @@ function pickTracking(text: string): string[] {
   return found ? Array.from(new Set(found)) : [];
 }
 
+/** Thai marks/whitespace that PDF extraction scatters around; ignore them when searching. */
+const NOISE_RE = /[\s\u0E31\u0E34-\u0E3A\u0E47-\u0E4E\uF700-\uF71F]/;
+
+/**
+ * Find where the recipient block starts ("กรุณานำส่ง") even when the PDF splits
+ * every glyph onto its own line and mangles tone marks. Returns -1 if absent.
+ */
+function findRecipientIndex(text: string): number {
+  const target = 'กรณานาสง';
+  let stripped = '';
+  const map: number[] = [];
+  for (let i = 0; i < text.length; i++) {
+    let ch = text[i];
+    if (NOISE_RE.test(ch)) continue;
+    if (ch === '\u0E33') ch = 'า'; // ำ -> า
+    stripped += ch;
+    map.push(i);
+  }
+  const at = stripped.indexOf(target);
+  if (at === -1) return -1;
+  return map[Math.min(at + target.length, map.length - 1)] + 1;
+}
+
 /** Extract one shipment per Thailand Post label page. */
 export function parseLabelText(pageText: string, source: string): ParsedShipment | null {
   const [tracking] = pickTracking(pageText);
   if (!tracking) return null;
 
-  // The recipient block starts after "กรุณานำส่ง". PDF text extraction often splits
-  // every glyph onto its own line and drops tone marks, so allow whitespace anywhere.
-  const recipientMarker = /ก\s*ร\s*ุ?\s*ณ\s*า\s*น\s*[ําำ\s]*ส\s*่?\s*ง/;
-  const afterRecipient = pageText.split(recipientMarker)[1] ?? pageText;
-  const phones = afterRecipient.match(/0\d[\d\s-]{7,12}/g) ?? [];
-  const phone = phones.length ? normalizePhone(phones[phones.length - 1]) : undefined;
+  const at = findRecipientIndex(pageText);
+  const afterRecipient = at >= 0 ? pageText.slice(at) : pageText;
+
+  // Phones never wrap across lines — keep the match on a single line.
+  const phones = afterRecipient.match(/0\d[\d-]{7,11}/g) ?? [];
+  const phone = phones.length ? normalizePhone(phones[0]) : undefined;
 
   const nameLine = afterRecipient
     .split('\n')
