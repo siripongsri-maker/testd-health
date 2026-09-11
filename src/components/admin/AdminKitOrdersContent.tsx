@@ -462,6 +462,9 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       .from('hiv_selftest_requests')
       .select(HIV_SELECT, { count: 'exact' });
 
+    // The on-site pickup view must only count/list pickup requests so the list
+    // total matches the badge on the tab.
+    if (dataSource === 'onsite_pickup') q = q.eq('delivery_mode', 'pickup');
     if (activeTab === 'flagged') q = q.eq('abuse_flag', true);
     else if (activeTab !== 'all') q = q.eq('status', activeTab);
     if (branchFilter !== 'all') q = q.eq('assigned_branch', branchFilter);
