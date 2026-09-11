@@ -1317,7 +1317,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             onClick={() => { setBranchFilter('silom'); setCurrentPage(1); }}
           >
             🏙️ {language === 'th' ? 'สีลม' : 'Silom'}
-            <Badge variant="secondary" className="ml-1">{hivRequests.filter(r => r.assigned_branch === 'silom').length}</Badge>
+            <Badge variant="secondary" className="ml-1">{tabCounts.silom.toLocaleString()}</Badge>
           </Button>
           <Button
             variant={branchFilter === 'pattaya' ? 'default' : 'outline'}
