@@ -23,7 +23,7 @@ import {
 import {
   Shield, Home, LogOut, LayoutDashboard, Clock, Package,
   CalendarDays, Clipboard, Users, Building2, UserPlus,
-  Bell, BarChart3, FileText, ClipboardList, FileUp,
+  Bell, BarChart3, FileText, ClipboardList, FileUp, Truck,
   ChevronDown, Languages, ShieldAlert, RefreshCw, Gift, Heart,
   MessageSquare, CreditCard, Wallet, Link2, UserCheck,
   Activity, Wrench, Monitor, FileDown, Target, Fingerprint, ListOrdered,
@@ -77,6 +77,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "clinic-settings", icon: Stethoscope, labelKey: "admin.clinicSettings", adminOnly: true },
       { tab: "kit-orders", icon: Package, labelKey: "admin.kitOrders", meAnalyst: true },
       { tab: "tracking-upload", icon: FileUp, labelKey: "admin.trackingUpload" },
+      { tab: "delivery-report", icon: Truck, labelKey: "admin.deliveryReport", meAnalyst: true },
       { tab: "selftest-results", icon: Package, labelKey: "admin.selftestResults", meAnalyst: true },
       { tab: "selftest-followup", icon: Package, labelKey: "admin.selftestFollowup", meAnalyst: true },
       { tab: "selftest-map", icon: MapPin, labelKey: "admin.selftestMap", adminOnly: true, meAnalyst: true },
