@@ -9,8 +9,12 @@ const TP_TOKEN_URL = "https://trackapi.thailandpost.co.th/post/api/v1/authentica
 const TP_TRACK_URL = "https://trackapi.thailandpost.co.th/post/api/v1/track";
 
 const POLL_STATUSES = ["shipped", "confirmed", "approved"];
-const MAX_ROWS = 500;
+// Keep a single run short enough to answer within the platform request timeout;
+// the 15-minute cron drains the rest of the queue over subsequent runs.
+const MAX_ROWS = 200;
 const BATCH = 100;
+// The carrier quota is limited, so ignore parcels older than this.
+const RECENT_DAYS = 45;
 
 function json(payload: unknown, status = 200) {
   return new Response(JSON.stringify(payload), {
@@ -30,11 +34,27 @@ async function getTpAccessToken(apiKey: string): Promise<string | null> {
       return null;
     }
     const j = await r.json();
-    return j?.token?.access_token || null;
+    // The API returns { expire, token: "<jwt>" }; older docs show token.access_token.
+    if (typeof j?.token === "string") return j.token;
+    return j?.token?.access_token || j?.access_token || null;
   } catch (e) {
     console.error("[tp] token err", e);
     return null;
   }
+}
+
+// Thailand Post returns "DD/MM/YYYY HH:mm:ss+07:00" with a Buddhist-era year.
+function parseTpDate(raw?: string): string | null {
+  if (!raw) return null;
+  const m = raw.match(/^(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2}):(\d{2})([+-]\d{2}:\d{2})?$/);
+  if (m) {
+    const year = Number(m[3]) > 2400 ? Number(m[3]) - 543 : Number(m[3]);
+    const iso = `${year}-${m[2]}-${m[1]}T${m[4]}:${m[5]}:${m[6]}${m[7] ?? "+07:00"}`;
+    const d = new Date(iso);
+    if (!Number.isNaN(d.getTime())) return d.toISOString();
+  }
+  const d = new Date(raw);
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
 }
 
 interface TpItem {
@@ -43,10 +63,12 @@ interface TpItem {
   status_date?: string;
 }
 
-async function trackBatch(
-  token: string,
-  barcodes: string[],
-): Promise<Record<string, TpItem[]> | null> {
+type TrackOutcome =
+  | { kind: "ok"; items: Record<string, TpItem[]> }
+  | { kind: "auth_failed" }
+  | { kind: "quota" };
+
+async function trackBatch(token: string, barcodes: string[]): Promise<TrackOutcome> {
   const r = await fetch(TP_TRACK_URL, {
     method: "POST",
     headers: { Authorization: `Token ${token}`, "Content-Type": "application/json" },
@@ -55,11 +77,16 @@ async function trackBatch(
   if (!r.ok) {
     console.error("[tp] track fail", r.status, (await r.text()).slice(0, 200));
     // 401/403 mean the credential is bad — stop the whole run instead of retrying every batch.
-    if (r.status === 401 || r.status === 403) return null;
-    return {};
+    if (r.status === 401 || r.status === 403) return { kind: "auth_failed" };
+    return { kind: "ok", items: {} };
   }
   const j = await r.json();
-  return j?.response?.items || {};
+  // The API answers 200 with {"status":false,"message":"blocked, your request over quota!!"}
+  if (j?.status === false || /quota/i.test(String(j?.message ?? ""))) {
+    console.error("[tp] quota blocked", String(j?.message ?? ""));
+    return { kind: "quota" };
+  }
+  return { kind: "ok", items: j?.response?.items || {} };
 }
 
 type Stage = "accepted" | "in_transit" | "out_for_delivery" | "delivered" | "failed";
@@ -137,16 +164,28 @@ Deno.serve(async (req) => {
 
   try {
     const cutoff = new Date(Date.now() - 20 * 3600_000).toISOString();
-    const { data: rows, error } = await admin
+    // The carrier API has a daily barcode quota, so only poll parcels that are
+    // recent and not finished yet.
+    const recent = new Date(Date.now() - RECENT_DAYS * 86_400_000).toISOString();
+    const { data: allRows, error } = await admin
       .from("hiv_selftest_requests")
       .select("id, user_id, tracking_number, status, tracking_stage, last_tracking_check_at")
       .in("status", POLL_STATUSES)
       .not("tracking_number", "is", null)
+      // 13-char Thailand Post barcodes only (2 letters + 9 digits + TH)
+      .ilike("tracking_number", "___________TH")
+      .gte("created_at", recent)
+      .or("tracking_stage.is.null,tracking_stage.in.(accepted,in_transit,out_for_delivery)")
       .or(`last_tracking_check_at.is.null,last_tracking_check_at.lt.${cutoff}`)
       .order("last_tracking_check_at", { ascending: true, nullsFirst: true })
       .limit(MAX_ROWS);
     if (error) throw error;
-    if (!rows?.length) return json({ ok: true, summary });
+    // Only real Thailand Post barcodes (2 letters + 9 digits + TH); staff sometimes
+    // type placeholders like "sidebkk" that the API rejects.
+    const rows = (allRows ?? []).filter((r) =>
+      /^[A-Z]{2}\d{9}TH$/i.test(String(r.tracking_number ?? "").trim())
+    );
+    if (!rows.length) return json({ ok: true, summary });
 
     // Some accounts hand out a long-lived access token instead of an API key;
     // fall back to using the stored value directly if the auth call is rejected.
@@ -157,106 +196,124 @@ Deno.serve(async (req) => {
 
     const nowIso = new Date().toISOString();
 
+    const deadline = Date.now() + 50_000;
+    const barcode = (r: { tracking_number: string | null }) =>
+      String(r.tracking_number ?? "").trim().toUpperCase();
+
+    type Row = typeof rows[number];
+
+    const processRow = async (r: Row, items: Record<string, TpItem[]>) => {
+      summary.checked++;
+      const events = items[barcode(r)] || [];
+
+      if (events.length) {
+        const inserts = events.map((ev) => ({
+          request_id: r.id,
+          tracking_number: r.tracking_number,
+          carrier: "thailand_post",
+          event_code: ev.status || null,
+          event_description: ev.status_description || null,
+          event_at: parseTpDate(ev.status_date),
+          raw: ev as unknown as Record<string, unknown>,
+        }));
+        const { error: insErr } = await admin
+          .from("selftest_tracking_events")
+          .upsert(inserts, {
+            onConflict: "request_id,tracking_number,event_code,event_at",
+            ignoreDuplicates: true,
+          });
+        if (!insErr) summary.events_logged += inserts.length;
+      }
+
+      // Newest classified stage wins.
+      let stage: Stage | null = null;
+      let stageAt: string | null = null;
+      for (const ev of events) {
+        const s = classify(ev.status_description || "", ev.status || "");
+        if (!s) continue;
+        if (!stage || STAGE_ORDER[s] >= STAGE_ORDER[stage]) {
+          stage = s;
+          stageAt = parseTpDate(ev.status_date) ?? nowIso;
+        }
+      }
+
+      const update: Record<string, unknown> = {
+        last_tracking_check_at: nowIso,
+        tracking_carrier: "thailand_post",
+      };
+
+      const changed = !!stage && stage !== r.tracking_stage;
+      if (stage) {
+        update.tracking_stage = stage;
+        update.tracking_stage_at = stageAt ?? nowIso;
+        if (stage === "delivered") {
+          update.status = "delivered";
+          update.delivered_at = stageAt ?? nowIso;
+          summary.delivered++;
+        }
+      }
+
+      const { error: upErr } = await admin
+        .from("hiv_selftest_requests")
+        .update(update)
+        .eq("id", r.id);
+      if (upErr) {
+        summary.errors++;
+        return;
+      }
+      if (!changed) return;
+      summary.stage_changed++;
+
+      // Notify the requester (web push only; anonymous requests have no user_id).
+      if (!pushReady || !r.user_id) return;
+      const { data: subs } = await admin
+        .from("push_subscriptions")
+        .select("id, endpoint, p256dh, auth")
+        .eq("user_id", r.user_id);
+      if (!subs?.length) return;
+
+      const text = STAGE_TEXT[stage as Stage];
+      const payload = JSON.stringify({
+        title: text.title,
+        body: `${text.body} • เลขพัสดุ ${r.tracking_number}`,
+        url: "/kit-status",
+        tag: `kit-${r.id}-${stage}`,
+      });
+
+      let delivered = 0;
+      for (const sub of subs) {
+        try {
+          await webpush.sendNotification(
+            { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+            payload,
+          );
+          delivered++;
+        } catch (err) {
+          const status = (err as { statusCode?: number })?.statusCode;
+          if (status === 404 || status === 410) {
+            await admin.from("push_subscriptions").delete().eq("id", sub.id);
+          }
+        }
+      }
+      if (delivered > 0) summary.notified++;
+    };
+
     for (let i = 0; i < rows.length; i += BATCH) {
+      if (Date.now() > deadline) break;
       const slice = rows.slice(i, i + BATCH);
-      const items = await trackBatch(token, slice.map((r) => r.tracking_number as string));
-      if (items === null) return json({ ok: false, error: "tp_auth_failed", summary }, 502);
+      const outcome = await trackBatch(token, slice.map(barcode));
+      if (outcome.kind === "auth_failed") {
+        return json({ ok: false, error: "tp_auth_failed", summary }, 502);
+      }
+      // Daily barcode quota is exhausted; stop and let the next run continue.
+      if (outcome.kind === "quota") return json({ ok: true, quota_blocked: true, summary });
 
-
-      for (const r of slice) {
-        summary.checked++;
-        const events = items[r.tracking_number as string] || [];
-
-        if (events.length) {
-          const inserts = events.map((ev) => ({
-            request_id: r.id,
-            tracking_number: r.tracking_number,
-            carrier: "thailand_post",
-            event_code: ev.status || null,
-            event_description: ev.status_description || null,
-            event_at: ev.status_date ? new Date(ev.status_date).toISOString() : null,
-            raw: ev as unknown as Record<string, unknown>,
-          }));
-          const { error: insErr } = await admin
-            .from("selftest_tracking_events")
-            .upsert(inserts, {
-              onConflict: "request_id,tracking_number,event_code,event_at",
-              ignoreDuplicates: true,
-            });
-          if (!insErr) summary.events_logged += inserts.length;
-        }
-
-        // Newest classified stage wins.
-        let stage: Stage | null = null;
-        let stageAt: string | null = null;
-        for (const ev of events) {
-          const s = classify(ev.status_description || "", ev.status || "");
-          if (!s) continue;
-          if (!stage || STAGE_ORDER[s] >= STAGE_ORDER[stage]) {
-            stage = s;
-            stageAt = ev.status_date ? new Date(ev.status_date).toISOString() : nowIso;
-          }
-        }
-
-        const update: Record<string, unknown> = {
-          last_tracking_check_at: nowIso,
-          tracking_carrier: "thailand_post",
-        };
-
-        const changed = !!stage && stage !== r.tracking_stage;
-        if (stage) {
-          update.tracking_stage = stage;
-          update.tracking_stage_at = stageAt ?? nowIso;
-          if (stage === "delivered") {
-            update.status = "delivered";
-            update.delivered_at = stageAt ?? nowIso;
-            summary.delivered++;
-          }
-        }
-
-        const { error: upErr } = await admin
-          .from("hiv_selftest_requests")
-          .update(update)
-          .eq("id", r.id);
-        if (upErr) {
-          summary.errors++;
-          continue;
-        }
-        if (!changed) continue;
-        summary.stage_changed++;
-
-        // Notify the requester (web push only; anonymous requests have no user_id).
-        if (!pushReady || !r.user_id) continue;
-        const { data: subs } = await admin
-          .from("push_subscriptions")
-          .select("id, endpoint, p256dh, auth")
-          .eq("user_id", r.user_id);
-        if (!subs?.length) continue;
-
-        const text = STAGE_TEXT[stage as Stage];
-        const payload = JSON.stringify({
-          title: text.title,
-          body: `${text.body} • เลขพัสดุ ${r.tracking_number}`,
-          url: "/kit-status",
-          tag: `kit-${r.id}-${stage}`,
-        });
-
-        let delivered = 0;
-        for (const sub of subs) {
-          try {
-            await webpush.sendNotification(
-              { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-              payload,
-            );
-            delivered++;
-          } catch (err) {
-            const status = (err as { statusCode?: number })?.statusCode;
-            if (status === 404 || status === 410) {
-              await admin.from("push_subscriptions").delete().eq("id", sub.id);
-            }
-          }
-        }
-        if (delivered > 0) summary.notified++;
+      // Run row updates with bounded concurrency to stay inside the request budget.
+      const CONCURRENCY = 10;
+      for (let j = 0; j < slice.length; j += CONCURRENCY) {
+        await Promise.all(
+          slice.slice(j, j + CONCURRENCY).map((r) => processRow(r, outcome.items)),
+        );
       }
     }
 
