@@ -64,7 +64,25 @@ interface DetailRow {
   status: string;
   tracking_number: string | null;
   assigned_branch: string | null;
+  tracking_stage: string | null;
+  tracking_stage_at: string | null;
 }
+
+const STAGE_LABEL: Record<string, string> = {
+  accepted: 'ไปรษณีย์รับเรื่องแล้ว',
+  in_transit: 'อยู่ระหว่างขนส่ง',
+  out_for_delivery: 'กำลังนำจ่าย',
+  delivered: 'นำจ่ายสำเร็จ',
+  failed: 'นำจ่ายไม่สำเร็จ',
+};
+
+const bkkDayKey = (iso: string) =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok' }).format(new Date(iso));
+
+const isoDayOffset = (offsetDays: number) =>
+  new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok' }).format(
+    new Date(Date.now() - offsetDays * 86400000),
+  );
 
 const bkkDate = (iso: string) =>
   new Intl.DateTimeFormat('th-TH', {
@@ -85,42 +103,74 @@ const bkkDateTime = (iso: string) =>
   }).format(new Date(iso));
 
 export default function AdminKitDeliveryReportContent() {
-  const [days, setDays] = useState(30);
+  const [days, setDays] = useState<number | 'custom'>(30);
+  const [fromDate, setFromDate] = useState(() => isoDayOffset(30));
+  const [toDate, setToDate] = useState(() => isoDayOffset(0));
   const [loading, setLoading] = useState(true);
-  const [rows, setRows] = useState<ReportRow[]>([]);
   const [details, setDetails] = useState<DetailRow[]>([]);
   const [bucket, setBucket] = useState<Bucket | 'all'>('all');
   const [search, setSearch] = useState('');
   const [detailLimit, setDetailLimit] = useState(100);
 
+  const range = useMemo(() => {
+    const from = days === 'custom' ? fromDate : isoDayOffset(days - 1);
+    const to = days === 'custom' ? toDate : isoDayOffset(0);
+    return {
+      from,
+      to,
+      fromIso: `${from}T00:00:00+07:00`,
+      toIso: `${to}T23:59:59.999+07:00`,
+    };
+  }, [days, fromDate, toDate]);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const since = new Date(Date.now() - days * 86400000).toISOString();
-      const [report, detail] = await Promise.all([
-        supabase.rpc('get_kit_delivery_report', { p_days: days }),
-        supabase
+      const PAGE = 1000;
+      const all: DetailRow[] = [];
+      for (let page = 0; ; page++) {
+        const { data, error } = await supabase
           .from('hiv_selftest_requests')
-          .select('id, created_at, updated_at, status, tracking_number, assigned_branch')
-          .gte('created_at', since)
+          .select(
+            'id, created_at, updated_at, status, tracking_number, assigned_branch, tracking_stage, tracking_stage_at',
+          )
+          .gte('created_at', range.fromIso)
+          .lte('created_at', range.toIso)
           .order('created_at', { ascending: false })
-          .limit(3000),
-      ]);
-      if (report.error) throw report.error;
-      if (detail.error) throw detail.error;
-      setRows((report.data ?? []) as ReportRow[]);
-      setDetails((detail.data ?? []) as DetailRow[]);
+          .range(page * PAGE, page * PAGE + PAGE - 1);
+        if (error) throw error;
+        const batch = (data ?? []) as DetailRow[];
+        all.push(...batch);
+        if (batch.length < PAGE) break;
+      }
+      setDetails(all);
     } catch (e) {
       console.error(e);
       toast.error('โหลดรายงานไม่สำเร็จ');
     } finally {
       setLoading(false);
     }
-  }, [days]);
+  }, [range.fromIso, range.toIso]);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  const rows = useMemo<ReportRow[]>(() => {
+    const map = new Map<string, ReportRow>();
+    for (const d of details) {
+      const day = bkkDayKey(d.created_at);
+      const row =
+        map.get(day) ??
+        { day, waiting: 0, in_transit: 0, delivered: 0, failed: 0, with_tracking: 0, total: 0 };
+      const b = STATUS_TO_BUCKET.get(d.status) ?? 'waiting';
+      row[b] += 1;
+      if (d.tracking_number) row.with_tracking += 1;
+      row.total += 1;
+      map.set(day, row);
+    }
+    return [...map.values()].sort((a, b) => b.day.localeCompare(a.day));
+  }, [details]);
 
   const totals = useMemo(
     () =>
@@ -173,12 +223,23 @@ export default function AdminKitDeliveryReportContent() {
       r.with_tracking,
       r.total,
     ]);
-    const detailHeader = ['วันที่ขอ', 'อัปเดตล่าสุด', 'สถานะ', 'กลุ่มสถานะ', 'เลขพัสดุ', 'สาขา'];
+    const detailHeader = [
+      'วันที่ขอ',
+      'อัปเดตล่าสุด',
+      'สถานะ',
+      'กลุ่มสถานะ',
+      'สถานะไปรษณีย์',
+      'อัปเดตสถานะไปรษณีย์',
+      'เลขพัสดุ',
+      'สาขา',
+    ];
     const detailBody = filteredDetails.map((d) => [
       d.created_at,
       d.updated_at ?? '',
       d.status,
       BUCKET_LABEL[STATUS_TO_BUCKET.get(d.status) ?? 'waiting'],
+      d.tracking_stage ? (STAGE_LABEL[d.tracking_stage] ?? d.tracking_stage) : '',
+      d.tracking_stage_at ?? '',
       d.tracking_number ?? '',
       d.assigned_branch ?? '',
     ]);
@@ -198,14 +259,17 @@ export default function AdminKitDeliveryReportContent() {
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0">
+        <CardHeader className="flex flex-col gap-2 space-y-0 md:flex-row md:items-center md:justify-between">
           <CardTitle className="flex items-center gap-2 text-base">
             <Truck className="h-4 w-4" />
             รายงานสถานะการส่งชุดตรวจ
           </CardTitle>
-          <div className="flex items-center gap-2">
-            <Select value={String(days)} onValueChange={(v) => setDays(Number(v))}>
-              <SelectTrigger className="h-8 w-28">
+          <div className="flex flex-wrap items-center gap-2">
+            <Select
+              value={String(days)}
+              onValueChange={(v) => setDays(v === 'custom' ? 'custom' : Number(v))}
+            >
+              <SelectTrigger className="h-8 w-32">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -214,8 +278,28 @@ export default function AdminKitDeliveryReportContent() {
                     {d} วัน
                   </SelectItem>
                 ))}
+                <SelectItem value="custom">เลือกวันที่เอง</SelectItem>
               </SelectContent>
             </Select>
+            {days === 'custom' && (
+              <>
+                <Input
+                  type="date"
+                  value={fromDate}
+                  max={toDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  className="h-8 w-36"
+                />
+                <span className="text-xs text-muted-foreground">ถึง</span>
+                <Input
+                  type="date"
+                  value={toDate}
+                  min={fromDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="h-8 w-36"
+                />
+              </>
+            )}
             <Button size="sm" variant="outline" onClick={load} disabled={loading}>
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -362,6 +446,12 @@ export default function AdminKitDeliveryReportContent() {
                         ขอเมื่อ {bkkDateTime(d.created_at)}
                         {d.assigned_branch ? ` · ${d.assigned_branch}` : ''}
                       </p>
+                      {d.tracking_stage && (
+                        <p className="text-[11px] text-muted-foreground">
+                          ไปรษณีย์: {STAGE_LABEL[d.tracking_stage] ?? d.tracking_stage}
+                          {d.tracking_stage_at ? ` · ${bkkDateTime(d.tracking_stage_at)}` : ''}
+                        </p>
+                      )}
                     </div>
                     <Badge
                       variant={
