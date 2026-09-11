@@ -76,6 +76,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "service-pathways", icon: HeartHandshake, labelKey: "admin.servicePathways", adminOnly: true, meAnalyst: true },
       { tab: "clinic-settings", icon: Stethoscope, labelKey: "admin.clinicSettings", adminOnly: true },
       { tab: "kit-orders", icon: Package, labelKey: "admin.kitOrders", meAnalyst: true },
+      { tab: "tracking-upload", icon: FileUp, labelKey: "admin.trackingUpload" },
       { tab: "selftest-results", icon: Package, labelKey: "admin.selftestResults", meAnalyst: true },
       { tab: "selftest-followup", icon: Package, labelKey: "admin.selftestFollowup", meAnalyst: true },
       { tab: "selftest-map", icon: MapPin, labelKey: "admin.selftestMap", adminOnly: true, meAnalyst: true },

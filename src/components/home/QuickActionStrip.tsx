@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { TestTube, ClipboardCheck } from 'lucide-react';
+import { TestTube, ClipboardCheck, PackageSearch } from 'lucide-react';
 import { trackEvent } from '@/hooks/useAnalytics';
 import { useLanguage } from '@/lib/i18n';
 
@@ -12,6 +12,15 @@ const actions = [
     descEn: 'Self-request',
     path: '/hiv-selftest',
     event: 'homepage_quick_selftest_request',
+  },
+  {
+    icon: PackageSearch,
+    labelTh: 'สอบถามสถานะการส่ง',
+    labelEn: 'Delivery Status',
+    descTh: 'ดูเลขพัสดุ',
+    descEn: 'Tracking number',
+    path: '/kit-status',
+    event: 'homepage_quick_kit_status',
   },
   {
     icon: ClipboardCheck,
@@ -30,7 +39,7 @@ export function QuickActionStrip() {
 
   return (
     <section className="mb-6">
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         {actions.map((a) => (
           <button
             key={a.event}

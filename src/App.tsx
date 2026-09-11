@@ -90,6 +90,7 @@ const SEOLanding = lazy(() => import("./pages/SEOLanding"));
 const InteractionPage = lazy(() => import("./pages/InteractionPage"));
 const Partners = lazy(() => import("./pages/Partners"));
 const Swing = lazy(() => import("./pages/Swing"));
+const KitDeliveryStatus = lazy(() => import("./pages/KitDeliveryStatus"));
 
 const ClientFeedbackForm = lazy(() => import("./pages/ClientFeedbackForm"));
 const PostCounselingForm = lazy(() => import("./pages/PostCounselingForm"));
@@ -251,6 +252,7 @@ function AppShell() {
               <Route path="/interaction/:slug" element={<InteractionPage />} />
               <Route path="/partners" element={<Partners />} />
               <Route path="/swing" element={<Swing />} />
+              <Route path="/kit-status" element={<KitDeliveryStatus />} />
               
               <Route path="/admin/docs/harm-reduction-guide" element={<HarmReductionGuide />} />
               <Route path="/privacy-center" element={<PrivacyCenter />} />
