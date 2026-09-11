@@ -43,14 +43,19 @@ interface TpItem {
   status_date?: string;
 }
 
-async function trackBatch(token: string, barcodes: string[]): Promise<Record<string, TpItem[]>> {
+async function trackBatch(
+  token: string,
+  barcodes: string[],
+): Promise<Record<string, TpItem[]> | null> {
   const r = await fetch(TP_TRACK_URL, {
     method: "POST",
     headers: { Authorization: `Token ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify({ status: "all", language: "TH", barcode: barcodes }),
   });
   if (!r.ok) {
-    console.error("[tp] track fail", r.status, await r.text());
+    console.error("[tp] track fail", r.status, (await r.text()).slice(0, 200));
+    // 401/403 mean the credential is bad — stop the whole run instead of retrying every batch.
+    if (r.status === 401 || r.status === 403) return null;
     return {};
   }
   const j = await r.json();
