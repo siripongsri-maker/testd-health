@@ -523,6 +523,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     'admin.selftestMap': 'แผนที่กระจายชุดตรวจ',
     'admin.selftestMissingId': 'เลขบัตรหาย — ขอใหม่',
     'admin.trackingUpload': 'อัปโหลดเลขพัสดุ',
+    'admin.deliveryReport': 'รายงานสถานะการส่ง',
     'admin.notifications': 'แจ้งเตือน',
     'admin.analytics': 'สถิติ',
     'admin.analyticsOverview': 'ภาพรวมช่วงเวลา',
