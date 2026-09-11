@@ -89,6 +89,7 @@ const HarmReduction = lazy(() => import("./pages/HarmReduction"));
 const SEOLanding = lazy(() => import("./pages/SEOLanding"));
 const InteractionPage = lazy(() => import("./pages/InteractionPage"));
 const Partners = lazy(() => import("./pages/Partners"));
+const Swing = lazy(() => import("./pages/Swing"));
 
 const ClientFeedbackForm = lazy(() => import("./pages/ClientFeedbackForm"));
 const PostCounselingForm = lazy(() => import("./pages/PostCounselingForm"));
