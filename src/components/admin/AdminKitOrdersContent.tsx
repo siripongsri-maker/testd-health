@@ -1276,7 +1276,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         >
           <Package className="h-4 w-4" />
           {language === 'th' ? 'คำสั่งซื้อ Kit' : 'Kit Orders'}
-          <Badge variant="secondary" className="ml-1">{orders.length}</Badge>
+          <Badge variant="secondary" className="ml-1">{tabCounts.kitOrders.toLocaleString()}</Badge>
         </Button>
         <Button
           variant={dataSource === 'hiv_requests' ? 'default' : 'outline'}
