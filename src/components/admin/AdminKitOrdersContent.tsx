@@ -1497,26 +1497,24 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
           <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setCurrentPage(1); }} className="w-full">
             <TabsList className="w-full mb-4 grid grid-cols-6 h-auto">
               <TabsTrigger value="all" className="text-xs py-2">
-                {language === 'th' ? 'ทั้งหมด' : 'All'} ({hivGrandTotal.toLocaleString()})
+                {language === 'th' ? 'ทั้งหมด' : 'All'}
               </TabsTrigger>
               <TabsTrigger value="pending" className="text-xs py-2">
-                {language === 'th' ? 'รอ' : 'Pending'} ({(hivStatusCounts.pending ?? 0).toLocaleString()})
+                {language === 'th' ? 'รอ' : 'Pending'}
               </TabsTrigger>
               <TabsTrigger value="flagged" className="text-xs py-2 text-yellow-600">
                 ⚠️ {language === 'th' ? 'ตรวจสอบ' : 'Flagged'}
-                {hivFlaggedTotal > 0 && (
-                  <Badge variant="destructive" className="ml-1 text-[10px] h-4 px-1">{hivFlaggedTotal.toLocaleString()}</Badge>
-                )}
               </TabsTrigger>
               <TabsTrigger value="rejected" className="text-xs py-2 text-destructive">
-                {language === 'th' ? 'ปฏิเสธ' : 'Rejected'} ({(hivStatusCounts.rejected ?? 0).toLocaleString()})
+                {language === 'th' ? 'ปฏิเสธ' : 'Rejected'}
               </TabsTrigger>
               <TabsTrigger value="shipped" className="text-xs py-2">
-                {language === 'th' ? 'ส่งแล้ว' : 'Shipped'} ({(hivStatusCounts.shipped ?? 0).toLocaleString()})
+                {language === 'th' ? 'ส่งแล้ว' : 'Shipped'}
               </TabsTrigger>
               <TabsTrigger value="delivered" className="text-xs py-2">
-                {language === 'th' ? 'ถึงแล้ว' : 'Delivered'} ({(hivStatusCounts.delivered ?? 0).toLocaleString()})
+                {language === 'th' ? 'ถึงแล้ว' : 'Delivered'}
               </TabsTrigger>
+
             </TabsList>
 
 
