@@ -12711,6 +12711,17 @@ export type Database = {
           status: string
         }[]
       }
+      lookup_selftest_tracking: {
+        Args: { p_phone: string; p_thai_id: string }
+        Returns: {
+          masked_name: string
+          requested_at: string
+          status: string
+          tracking_carrier: string
+          tracking_number: string
+          updated_at: string
+        }[]
+      }
       mark_no_show_expired: { Args: { p_branch_id?: string }; Returns: number }
       mint_selftest_guest_upload_token: { Args: never; Returns: string }
       normalize_text_for_fp: { Args: { input: string }; Returns: string }
