@@ -1296,7 +1296,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         >
           <MapPin className="h-4 w-4" />
           {language === 'th' ? 'รับที่หน้างาน' : 'On-site Pickup'}
-          <Badge variant="secondary" className="ml-1">{hivRequests.filter(r => r.delivery_mode === 'pickup').length}</Badge>
+          <Badge variant="secondary" className="ml-1">{tabCounts.pickup.toLocaleString()}</Badge>
         </Button>
       </div>
 
