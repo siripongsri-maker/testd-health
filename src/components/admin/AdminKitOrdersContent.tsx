@@ -327,8 +327,14 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
 
   useEffect(() => {
     fetchOrders();
-    fetchHIVRequests();
   }, []);
+
+  // Re-query from the server whenever the status tab or branch filter changes.
+  useEffect(() => {
+    fetchHIVRequests();
+    setCurrentPage(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, branchFilter]);
 
   // Realtime: auto-refresh when kit orders / HIV self-test requests change
   useEffect(() => {
@@ -382,12 +388,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
 
   const HIV_PAGE_SIZE = 500;
 
-
-  const fetchHIVRequests = async () => {
-    try {
-      const { data, error, count } = await supabase
-        .from('hiv_selftest_requests')
-        .select(`
+  const HIV_SELECT = `
             id,
             user_id,
             pii_id,
@@ -427,10 +428,27 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
               line_id,
               gender
             )
-          `, { count: 'exact' })
-        .order('created_at', { ascending: false })
-        .range(0, HIV_PAGE_SIZE - 1);
+          `;
 
+  // Status / branch filtering happens on the server so the counts and the
+  // "load older" button reflect the whole table, not just the loaded page.
+  const buildHIVQuery = (offset: number) => {
+    let q = supabase
+      .from('hiv_selftest_requests')
+      .select(HIV_SELECT, { count: 'exact' });
+
+    if (activeTab === 'flagged') q = q.eq('abuse_flag', true);
+    else if (activeTab !== 'all') q = q.eq('status', activeTab);
+    if (branchFilter !== 'all') q = q.eq('assigned_branch', branchFilter);
+
+    return q
+      .order('created_at', { ascending: false })
+      .range(offset, offset + HIV_PAGE_SIZE - 1);
+  };
+
+  const fetchHIVRequests = async () => {
+    try {
+      const { data, error, count } = await buildHIVQuery(0);
       if (error) throw error;
       const rows = (data || []) as HIVTestRequest[];
       setHivRequests(rows);
@@ -443,52 +461,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const loadMoreHIVRequests = async () => {
     setLoadingMoreHIV(true);
     try {
-      const { data, error, count } = await supabase
-        .from('hiv_selftest_requests')
-        .select(`
-            id,
-            user_id,
-            pii_id,
-            status,
-            tracking_number,
-            created_at,
-            updated_at,
-            test_result,
-            staff_notes,
-            wants_callback,
-            callback_phone,
-            assigned_branch,
-            rejected_at,
-            rejected_by,
-            rejection_reason,
-            abuse_flag,
-            abuse_reason,
-            abuse_score,
-            result_photo_url,
-            delivery_mode,
-            pickup_latitude,
-            pickup_longitude,
-            pickup_location_captured,
-            pickup_location_status,
-            pickup_location_timestamp,
-            selftest_pii (
-              id,
-              full_name,
-              thai_id,
-              phone,
-              address,
-              district,
-              subdistrict,
-              province,
-              postal_code,
-              date_of_birth,
-              line_id,
-              gender
-            )
-          `, { count: 'exact' })
-        .order('created_at', { ascending: false })
-        .range(hivRequests.length, hivRequests.length + HIV_PAGE_SIZE - 1);
-
+      const { data, error, count } = await buildHIVQuery(hivRequests.length);
       if (error) throw error;
       const rows = (data || []) as HIVTestRequest[];
       setHivRequests((prev) => {
