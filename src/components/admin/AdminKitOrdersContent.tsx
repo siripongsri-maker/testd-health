@@ -1462,30 +1462,52 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         </>
       ) : dataSource === 'hiv_requests' ? (
         <>
+          {/* Full status tally straight from the database */}
+          <Card className="p-3 mb-4">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <span className="text-sm font-semibold">
+                {language === 'th' ? `รวมทั้งหมด ${hivGrandTotal.toLocaleString()} รายการ` : `Grand total ${hivGrandTotal.toLocaleString()}`}
+              </span>
+              {HIV_STATUS_KEYS.map((s) => (
+                <span key={s} className="text-xs text-muted-foreground">
+                  {(language === 'th' ? HIV_STATUS_LABELS_TH : HIV_STATUS_LABELS_EN)[s] || s}
+                  {': '}
+                  <span className="font-semibold text-foreground">{(hivStatusCounts[s] ?? 0).toLocaleString()}</span>
+                </span>
+              ))}
+              <span className="text-xs text-yellow-600">
+                ⚠️ {language === 'th' ? 'ตรวจสอบ' : 'Flagged'}
+                {': '}
+                <span className="font-semibold">{hivFlaggedTotal.toLocaleString()}</span>
+              </span>
+            </div>
+          </Card>
+
           <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setCurrentPage(1); }} className="w-full">
             <TabsList className="w-full mb-4 grid grid-cols-6 h-auto">
               <TabsTrigger value="all" className="text-xs py-2">
-                {language === 'th' ? 'ทั้งหมด' : 'All'}
+                {language === 'th' ? 'ทั้งหมด' : 'All'} ({hivGrandTotal.toLocaleString()})
               </TabsTrigger>
               <TabsTrigger value="pending" className="text-xs py-2">
-                {language === 'th' ? 'รอ' : 'Pending'}
+                {language === 'th' ? 'รอ' : 'Pending'} ({(hivStatusCounts.pending ?? 0).toLocaleString()})
               </TabsTrigger>
               <TabsTrigger value="flagged" className="text-xs py-2 text-yellow-600">
                 ⚠️ {language === 'th' ? 'ตรวจสอบ' : 'Flagged'}
-                {hivRequests.filter(r => r.abuse_flag).length > 0 && (
-                  <Badge variant="destructive" className="ml-1 text-[10px] h-4 px-1">{hivRequests.filter(r => r.abuse_flag).length}</Badge>
+                {hivFlaggedTotal > 0 && (
+                  <Badge variant="destructive" className="ml-1 text-[10px] h-4 px-1">{hivFlaggedTotal.toLocaleString()}</Badge>
                 )}
               </TabsTrigger>
               <TabsTrigger value="rejected" className="text-xs py-2 text-destructive">
-                {language === 'th' ? 'ปฏิเสธ' : 'Rejected'}
+                {language === 'th' ? 'ปฏิเสธ' : 'Rejected'} ({(hivStatusCounts.rejected ?? 0).toLocaleString()})
               </TabsTrigger>
               <TabsTrigger value="shipped" className="text-xs py-2">
-                {language === 'th' ? 'ส่งแล้ว' : 'Shipped'}
+                {language === 'th' ? 'ส่งแล้ว' : 'Shipped'} ({(hivStatusCounts.shipped ?? 0).toLocaleString()})
               </TabsTrigger>
               <TabsTrigger value="delivered" className="text-xs py-2">
-                {language === 'th' ? 'ถึงแล้ว' : 'Delivered'}
+                {language === 'th' ? 'ถึงแล้ว' : 'Delivered'} ({(hivStatusCounts.delivered ?? 0).toLocaleString()})
               </TabsTrigger>
             </TabsList>
+
 
             <TabsContent value={activeTab}>
               {/* SMS bulk toolbar — shipped → arrival check, delivered → test reminder */}
