@@ -354,6 +354,11 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [branchFilter]);
 
+  useEffect(() => {
+    fetchTabCounts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Realtime: auto-refresh when kit orders / HIV self-test requests change
   useEffect(() => {
     const channel = supabase
