@@ -584,6 +584,24 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       setHivStatusCounts(counts);
       setHivGrandTotal(totalRes?.count ?? 0);
       setHivFlaggedTotal(flaggedRes?.count ?? 0);
+
+      if (dataSource === 'onsite_pickup') {
+        const pickupBase = () => {
+          let q = supabase
+            .from('hiv_selftest_requests')
+            .select('id', { count: 'exact', head: true })
+            .eq('delivery_mode', 'pickup');
+          if (branchFilter !== 'all') q = q.eq('assigned_branch', branchFilter);
+          return q;
+        };
+        const [allPickup, withLoc] = await Promise.all([
+          pickupBase(),
+          pickupBase().eq('pickup_location_captured', true),
+        ]);
+        const total = allPickup?.count ?? 0;
+        const withLocation = withLoc?.count ?? 0;
+        setPickupCounts({ total, withLocation, withoutLocation: Math.max(0, total - withLocation) });
+      }
     } catch (error) {
       console.error('Error fetching HIV status counts:', error);
     }
