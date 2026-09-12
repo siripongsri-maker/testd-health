@@ -483,9 +483,39 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     }
 
     const offset = (page - 1) * pageSize;
+    const from = rangeOverride ? rangeOverride.from : offset;
+    const to = rangeOverride ? rangeOverride.to : offset + pageSize - 1;
     return q
       .order('created_at', { ascending: false })
-      .range(offset, offset + pageSize - 1);
+      .range(from, to);
+  };
+
+  // Export/print must cover every matching request, not just the page on screen.
+  const fetchAllMatchingHIVRequests = async (): Promise<HIVTestRequest[]> => {
+    const normalizedSearch = searchQuery.trim().replace(/[,()%]/g, '');
+    let matchingPiiIds: string[] = [];
+    if (normalizedSearch) {
+      const { data: piiMatches } = await supabase
+        .from('selftest_pii')
+        .select('id')
+        .or(`full_name.ilike.%${normalizedSearch}%,phone.ilike.%${normalizedSearch}%`)
+        .limit(1000);
+      matchingPiiIds = (piiMatches || []).map((item) => item.id);
+    }
+    const CHUNK = 1000;
+    const all: HIVTestRequest[] = [];
+    for (let offset = 0; ; offset += CHUNK) {
+      const { data, error } = await buildHIVQuery(1, matchingPiiIds, normalizedSearch, {
+        from: offset,
+        to: offset + CHUNK - 1,
+      });
+      if (error) throw error;
+      const rows = (data || []) as HIVTestRequest[];
+      all.push(...rows);
+      if (rows.length < CHUNK) break;
+      if (all.length >= 50000) break;
+    }
+    return all;
   };
 
   const fetchHIVRequests = async (page = currentPage, query = searchQuery) => {
