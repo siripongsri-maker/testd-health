@@ -1209,11 +1209,16 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     );
   };
 
-  const openPrintView = () => {
+  const openPrintView = async () => {
     if (dataSource === 'kit_orders') {
       setSelectedForPrint(filteredOrders);
     } else {
-      setSelectedForPrint(filteredHIVRequests);
+      try {
+        setSelectedForPrint(await fetchAllMatchingHIVRequests());
+      } catch {
+        setSelectedForPrint(hivRequests);
+        toast.error(language === 'th' ? 'โหลดรายการทั้งหมดไม่สำเร็จ' : 'Failed to load all rows');
+      }
     }
     setShowPrintDialog(true);
   };
