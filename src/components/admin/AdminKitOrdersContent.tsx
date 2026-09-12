@@ -349,12 +349,12 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     }, searchQuery ? 300 : 0);
     return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, branchFilter, currentPage, pageSize, searchQuery]);
+  }, [activeTab, branchFilter, currentPage, pageSize, searchQuery, dataSource]);
 
   useEffect(() => {
     fetchHIVStatusCounts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [branchFilter]);
+  }, [branchFilter, dataSource]);
 
   useEffect(() => {
     fetchTabCounts();
