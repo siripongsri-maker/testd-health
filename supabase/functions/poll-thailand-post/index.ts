@@ -187,9 +187,15 @@ Deno.serve(async (req) => {
     );
     if (!rows.length) return json({ ok: true, summary });
 
-    // Some accounts hand out a long-lived access token instead of an API key;
-    // fall back to using the stored value directly if the auth call is rejected.
-    const token = (await getTpAccessToken(apiKey)) ?? apiKey;
+    // Some accounts hand out a long-lived access token (a JWT) instead of an API key;
+    // only reuse the stored value directly in that case. Otherwise the login failure
+    // is final, and retrying with the raw key just produces a second 403.
+    const looksLikeJwt = apiKey.split(".").length === 3;
+    const fetched = await getTpAccessToken(apiKey);
+    if (!fetched && !looksLikeJwt) {
+      return json({ ok: false, error: "tp_credential_invalid", summary }, 502);
+    }
+    const token = fetched ?? apiKey;
 
     const pushReady = !!VAPID_PUBLIC_KEY && !!VAPID_PRIVATE_KEY;
     if (pushReady) webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC_KEY!, VAPID_PRIVATE_KEY!);
