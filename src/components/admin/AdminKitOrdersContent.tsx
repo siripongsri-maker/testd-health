@@ -1161,10 +1161,11 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         ])
       ];
     } else {
-      const signedUrls = await getSignedImageUrls(filteredHIVRequests);
+      const exportRows = await fetchAllMatchingHIVRequests();
+      const signedUrls = await getSignedImageUrls(exportRows);
       data = [
         ["Request ID", "Branch", "Thai ID", "Name", "Date of Birth", "Phone", "Line ID", "Address", "Subdistrict", "District", "Province", "Postal Code", "Status", "Tracking Number", "Test Result", "Result Image URL", "Result Image Filename", "Wants Callback", "Callback Phone", "Staff Notes", "Created At", "Updated At"],
-        ...filteredHIVRequests.map(request => {
+        ...exportRows.map(request => {
           const pii = request.selftest_pii;
           const resultImageUrl = request.result_photo_url
             ? (signedUrls[request.result_photo_url] || '')
