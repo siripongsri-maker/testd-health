@@ -457,7 +457,12 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
 
   // Status, branch, search and pagination all happen on the server. This keeps
   // every one of the 19k+ requests reachable without loading them into memory.
-  const buildHIVQuery = (page: number, matchingPiiIds: string[] = [], normalizedSearch = '') => {
+  const buildHIVQuery = (
+    page: number,
+    matchingPiiIds: string[] = [],
+    normalizedSearch = '',
+    rangeOverride?: { from: number; to: number },
+  ) => {
     let q = supabase
       .from('hiv_selftest_requests')
       .select(HIV_SELECT, { count: 'exact' });
