@@ -2024,7 +2024,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             <div className="grid grid-cols-3 gap-3 mb-4">
               <Card className="p-3 text-center">
                 <p className="text-2xl font-bold text-foreground">
-                  {hivRequests.filter(r => r.delivery_mode === 'pickup').length}
+                  {pickupCounts.total.toLocaleString()}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {language === 'th' ? 'รับที่หน้างานทั้งหมด' : 'Total Pickups'}
@@ -2032,7 +2032,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
               </Card>
               <Card className="p-3 text-center">
                 <p className="text-2xl font-bold text-green-600">
-                  {hivRequests.filter(r => r.delivery_mode === 'pickup' && r.pickup_location_captured).length}
+                  {pickupCounts.withLocation.toLocaleString()}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {language === 'th' ? 'มีพิกัด' : 'With Location'}
@@ -2040,7 +2040,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
               </Card>
               <Card className="p-3 text-center">
                 <p className="text-2xl font-bold text-muted-foreground">
-                  {hivRequests.filter(r => r.delivery_mode === 'pickup' && !r.pickup_location_captured).length}
+                  {pickupCounts.withoutLocation.toLocaleString()}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {language === 'th' ? 'ไม่มีพิกัด' : 'No Location'}
