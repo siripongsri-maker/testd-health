@@ -202,6 +202,8 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const [hivStatusCounts, setHivStatusCounts] = useState<Record<string, number>>({});
   const [hivGrandTotal, setHivGrandTotal] = useState(0);
   const [hivFlaggedTotal, setHivFlaggedTotal] = useState(0);
+  // Database-wide pickup counts so the on-site pickup cards never reflect a single page.
+  const [pickupCounts, setPickupCounts] = useState({ total: 0, withLocation: 0, withoutLocation: 0 });
   // Exact database-wide counts used on the tab/branch badges so they never
   // show "how many rows are on screen" (which confused staff).
   const [tabCounts, setTabCounts] = useState({
