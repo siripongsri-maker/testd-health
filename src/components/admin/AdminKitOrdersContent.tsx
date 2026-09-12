@@ -1094,10 +1094,12 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         csvContent += row + "\n";
       });
     } else {
-      const signedUrls = await getSignedImageUrls(filteredHIVRequests);
+      // Export every request matching the current filters, not just the page on screen.
+      const exportRows = await fetchAllMatchingHIVRequests();
+      const signedUrls = await getSignedImageUrls(exportRows);
       // CSV headers include gender field sourced from selftest_pii.gender
       csvContent = "Request ID,Branch,Thai ID,Name,Gender,Date of Birth,Phone,Line ID,Address,Subdistrict,District,Province,Postal Code,Status,Tracking Number,Test Result,Result Image URL,Result Image Filename,Wants Callback,Callback Phone,Staff Notes,Created At,Updated At\n";
-      filteredHIVRequests.forEach(request => {
+      exportRows.forEach(request => {
         const pii = request.selftest_pii;
         const resultImageUrl = request.result_photo_url
           ? (signedUrls[request.result_photo_url] || '')
