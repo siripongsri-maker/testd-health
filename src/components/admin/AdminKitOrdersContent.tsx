@@ -202,6 +202,8 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const [hivStatusCounts, setHivStatusCounts] = useState<Record<string, number>>({});
   const [hivGrandTotal, setHivGrandTotal] = useState(0);
   const [hivFlaggedTotal, setHivFlaggedTotal] = useState(0);
+  // Database-wide pickup counts so the on-site pickup cards never reflect a single page.
+  const [pickupCounts, setPickupCounts] = useState({ total: 0, withLocation: 0, withoutLocation: 0 });
   // Exact database-wide counts used on the tab/branch badges so they never
   // show "how many rows are on screen" (which confused staff).
   const [tabCounts, setTabCounts] = useState({
@@ -349,12 +351,12 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     }, searchQuery ? 300 : 0);
     return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, branchFilter, currentPage, pageSize, searchQuery]);
+  }, [activeTab, branchFilter, currentPage, pageSize, searchQuery, dataSource]);
 
   useEffect(() => {
     fetchHIVStatusCounts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [branchFilter]);
+  }, [branchFilter, dataSource]);
 
   useEffect(() => {
     fetchTabCounts();
@@ -457,7 +459,12 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
 
   // Status, branch, search and pagination all happen on the server. This keeps
   // every one of the 19k+ requests reachable without loading them into memory.
-  const buildHIVQuery = (page: number, matchingPiiIds: string[] = [], normalizedSearch = '') => {
+  const buildHIVQuery = (
+    page: number,
+    matchingPiiIds: string[] = [],
+    normalizedSearch = '',
+    rangeOverride?: { from: number; to: number },
+  ) => {
     let q = supabase
       .from('hiv_selftest_requests')
       .select(HIV_SELECT, { count: 'exact' });
@@ -478,9 +485,39 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     }
 
     const offset = (page - 1) * pageSize;
+    const from = rangeOverride ? rangeOverride.from : offset;
+    const to = rangeOverride ? rangeOverride.to : offset + pageSize - 1;
     return q
       .order('created_at', { ascending: false })
-      .range(offset, offset + pageSize - 1);
+      .range(from, to);
+  };
+
+  // Export/print must cover every matching request, not just the page on screen.
+  const fetchAllMatchingHIVRequests = async (): Promise<HIVTestRequest[]> => {
+    const normalizedSearch = searchQuery.trim().replace(/[,()%]/g, '');
+    let matchingPiiIds: string[] = [];
+    if (normalizedSearch) {
+      const { data: piiMatches } = await supabase
+        .from('selftest_pii')
+        .select('id')
+        .or(`full_name.ilike.%${normalizedSearch}%,phone.ilike.%${normalizedSearch}%`)
+        .limit(1000);
+      matchingPiiIds = (piiMatches || []).map((item) => item.id);
+    }
+    const CHUNK = 1000;
+    const all: HIVTestRequest[] = [];
+    for (let offset = 0; ; offset += CHUNK) {
+      const { data, error } = await buildHIVQuery(1, matchingPiiIds, normalizedSearch, {
+        from: offset,
+        to: offset + CHUNK - 1,
+      });
+      if (error) throw error;
+      const rows = (data || []) as HIVTestRequest[];
+      all.push(...rows);
+      if (rows.length < CHUNK) break;
+      if (all.length >= 50000) break;
+    }
+    return all;
   };
 
   const fetchHIVRequests = async (page = currentPage, query = searchQuery) => {
@@ -547,6 +584,24 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
       setHivStatusCounts(counts);
       setHivGrandTotal(totalRes?.count ?? 0);
       setHivFlaggedTotal(flaggedRes?.count ?? 0);
+
+      if (dataSource === 'onsite_pickup') {
+        const pickupBase = () => {
+          let q = supabase
+            .from('hiv_selftest_requests')
+            .select('id', { count: 'exact', head: true })
+            .eq('delivery_mode', 'pickup');
+          if (branchFilter !== 'all') q = q.eq('assigned_branch', branchFilter);
+          return q;
+        };
+        const [allPickup, withLoc] = await Promise.all([
+          pickupBase(),
+          pickupBase().eq('pickup_location_captured', true),
+        ]);
+        const total = allPickup?.count ?? 0;
+        const withLocation = withLoc?.count ?? 0;
+        setPickupCounts({ total, withLocation, withoutLocation: Math.max(0, total - withLocation) });
+      }
     } catch (error) {
       console.error('Error fetching HIV status counts:', error);
     }
@@ -1039,10 +1094,12 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         csvContent += row + "\n";
       });
     } else {
-      const signedUrls = await getSignedImageUrls(filteredHIVRequests);
+      // Export every request matching the current filters, not just the page on screen.
+      const exportRows = await fetchAllMatchingHIVRequests();
+      const signedUrls = await getSignedImageUrls(exportRows);
       // CSV headers include gender field sourced from selftest_pii.gender
       csvContent = "Request ID,Branch,Thai ID,Name,Gender,Date of Birth,Phone,Line ID,Address,Subdistrict,District,Province,Postal Code,Status,Tracking Number,Test Result,Result Image URL,Result Image Filename,Wants Callback,Callback Phone,Staff Notes,Created At,Updated At\n";
-      filteredHIVRequests.forEach(request => {
+      exportRows.forEach(request => {
         const pii = request.selftest_pii;
         const resultImageUrl = request.result_photo_url
           ? (signedUrls[request.result_photo_url] || '')
@@ -1104,10 +1161,11 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
         ])
       ];
     } else {
-      const signedUrls = await getSignedImageUrls(filteredHIVRequests);
+      const exportRows = await fetchAllMatchingHIVRequests();
+      const signedUrls = await getSignedImageUrls(exportRows);
       data = [
         ["Request ID", "Branch", "Thai ID", "Name", "Date of Birth", "Phone", "Line ID", "Address", "Subdistrict", "District", "Province", "Postal Code", "Status", "Tracking Number", "Test Result", "Result Image URL", "Result Image Filename", "Wants Callback", "Callback Phone", "Staff Notes", "Created At", "Updated At"],
-        ...filteredHIVRequests.map(request => {
+        ...exportRows.map(request => {
           const pii = request.selftest_pii;
           const resultImageUrl = request.result_photo_url
             ? (signedUrls[request.result_photo_url] || '')
@@ -1151,11 +1209,16 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     );
   };
 
-  const openPrintView = () => {
+  const openPrintView = async () => {
     if (dataSource === 'kit_orders') {
       setSelectedForPrint(filteredOrders);
     } else {
-      setSelectedForPrint(filteredHIVRequests);
+      try {
+        setSelectedForPrint(await fetchAllMatchingHIVRequests());
+      } catch {
+        setSelectedForPrint(hivRequests);
+        toast.error(language === 'th' ? 'โหลดรายการทั้งหมดไม่สำเร็จ' : 'Failed to load all rows');
+      }
     }
     setShowPrintDialog(true);
   };
@@ -1969,7 +2032,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             <div className="grid grid-cols-3 gap-3 mb-4">
               <Card className="p-3 text-center">
                 <p className="text-2xl font-bold text-foreground">
-                  {hivRequests.filter(r => r.delivery_mode === 'pickup').length}
+                  {pickupCounts.total.toLocaleString()}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {language === 'th' ? 'รับที่หน้างานทั้งหมด' : 'Total Pickups'}
@@ -1977,7 +2040,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
               </Card>
               <Card className="p-3 text-center">
                 <p className="text-2xl font-bold text-green-600">
-                  {hivRequests.filter(r => r.delivery_mode === 'pickup' && r.pickup_location_captured).length}
+                  {pickupCounts.withLocation.toLocaleString()}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {language === 'th' ? 'มีพิกัด' : 'With Location'}
@@ -1985,7 +2048,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
               </Card>
               <Card className="p-3 text-center">
                 <p className="text-2xl font-bold text-muted-foreground">
-                  {hivRequests.filter(r => r.delivery_mode === 'pickup' && !r.pickup_location_captured).length}
+                  {pickupCounts.withoutLocation.toLocaleString()}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {language === 'th' ? 'ไม่มีพิกัด' : 'No Location'}
