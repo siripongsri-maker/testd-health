@@ -253,6 +253,24 @@ export function ForceUpdateGuard({ children }: { children: React.ReactNode }) {
     if (!navigator.onLine) return;
     if (localStorage.getItem(RESET_KEY) === CACHE_RESET_VERSION) return;
 
+    // The reset wipes local storage and hard-reloads. That is safe on a fresh
+    // boot, but destructive while somebody is filling in a form (they lose the
+    // draft and get bounced back to the first step). So: if the visitor has
+    // already interacted with the page, skip this round entirely and retry on
+    // the next cold boot.
+    let interacted = false;
+    const markInteracted = () => { interacted = true; };
+    const interactionEvents: Array<keyof WindowEventMap> = [
+      "pointerdown",
+      "keydown",
+      "touchstart",
+    ];
+    interactionEvents.forEach((evt) =>
+      window.addEventListener(evt, markInteracted, { once: true, passive: true })
+    );
+    const cleanupInteraction = () =>
+      interactionEvents.forEach((evt) => window.removeEventListener(evt, markInteracted));
+
     // Mark so we don't loop, then nuke caches/SWs and hard-reload to pick up
     // the latest bundle. Without the reload, the user stays on the stale SW-
     // served HTML/JS even after unregister.
@@ -260,16 +278,36 @@ export function ForceUpdateGuard({ children }: { children: React.ReactNode }) {
     localStorage.setItem(VERSION_KEY, APP_VERSION);
     sessionStorage.setItem(SESSION_KEY, APP_VERSION);
 
-    void runCacheKillWorker()
-      .then(() => nukeCache("force_guard"))
-      .then(() => {
-      sessionStorage.setItem(SESSION_KEY, APP_VERSION);
-      localStorage.setItem(RESET_KEY, CACHE_RESET_VERSION);
-      dispatchAnalytics("background_cache_reset_completed");
-      markReloadPending("force_guard", APP_VERSION, 1);
-      // Small delay so analytics/log writes flush before navigation.
-      setTimeout(performHardReload, 300);
-    });
+    const timer = window.setTimeout(() => {
+      if (interacted) {
+        // Postpone: clear the marker so the reset runs on the next cold boot.
+        localStorage.removeItem(RESET_KEY);
+        cleanupInteraction();
+        return;
+      }
+      void runCacheKillWorker()
+        .then(() => nukeCache("force_guard"))
+        .then(() => {
+          cleanupInteraction();
+          sessionStorage.setItem(SESSION_KEY, APP_VERSION);
+          if (interacted) {
+            // Someone started using the page while we were clearing caches —
+            // never yank the page out from under them.
+            localStorage.removeItem(RESET_KEY);
+            return;
+          }
+          localStorage.setItem(RESET_KEY, CACHE_RESET_VERSION);
+          dispatchAnalytics("background_cache_reset_completed");
+          markReloadPending("force_guard", APP_VERSION, 1);
+          // Small delay so analytics/log writes flush before navigation.
+          setTimeout(performHardReload, 300);
+        });
+    }, 400);
+
+    return () => {
+      window.clearTimeout(timer);
+      cleanupInteraction();
+    };
   }, []);
 
   useEffect(() => {
