@@ -2050,7 +2050,9 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                   {pickupCounts.total.toLocaleString()}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {language === 'th' ? 'รับที่หน้างานทั้งหมด' : 'Total Pickups'}
+                  {language === 'th'
+                    ? (pickupDateFrom && pickupDateFrom === pickupDateTo ? 'รับหน้างานวันที่เลือก' : 'รับหน้างานในช่วงที่เลือก')
+                    : 'Pickups in selected range'}
                 </p>
               </Card>
               <Card className="p-3 text-center">
@@ -2073,17 +2075,10 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
 
             {/* Date range + SMS bulk actions */}
             {(() => {
-              const fromTs = pickupDateFrom ? new Date(pickupDateFrom + 'T00:00:00').getTime() : null;
-              const toTs = pickupDateTo ? new Date(pickupDateTo + 'T23:59:59').getTime() : null;
-              const inRange = (iso: string) => {
-                const t = new Date(iso).getTime();
-                if (fromTs !== null && t < fromTs) return false;
-                if (toTs !== null && t > toTs) return false;
-                return true;
-              };
+              // Date filtering now happens on the server (Bangkok day), so the list
+              // here only needs the free-text search narrowing.
               const filteredPickups = hivRequests
                 .filter(r => r.delivery_mode === 'pickup')
-                .filter(r => inRange(r.created_at))
                 .filter(r => {
                   if (!searchQuery) return true;
                   const q = searchQuery.toLowerCase();
@@ -2107,27 +2102,42 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                 setSmsTemplateKey(templateKey);
                 setSmsOpen(true);
               };
+              const setRange = (from: string, to: string) => {
+                setPickupDateFrom(from);
+                setPickupDateTo(to);
+                setCurrentPage(1);
+              };
               return (
                 <>
                   <Card className="p-3 mb-3">
+                    <div className="flex flex-wrap items-center gap-2 mb-3">
+                      <Button size="sm" variant={pickupDateFrom === bkkToday() && pickupDateTo === bkkToday() ? 'default' : 'outline'} onClick={() => setRange(bkkToday(), bkkToday())}>
+                        {language === 'th' ? 'วันนี้' : 'Today'}
+                      </Button>
+                      <Button size="sm" variant={pickupDateFrom === bkkDaysAgo(1) && pickupDateTo === bkkDaysAgo(1) ? 'default' : 'outline'} onClick={() => setRange(bkkDaysAgo(1), bkkDaysAgo(1))}>
+                        {language === 'th' ? 'เมื่อวาน' : 'Yesterday'}
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setRange(bkkDaysAgo(6), bkkToday())}>
+                        {language === 'th' ? '7 วันล่าสุด' : 'Last 7 days'}
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setRange(bkkDaysAgo(29), bkkToday())}>
+                        {language === 'th' ? '30 วันล่าสุด' : 'Last 30 days'}
+                      </Button>
+                      <Button size="sm" variant={!pickupDateFrom && !pickupDateTo ? 'default' : 'outline'} onClick={() => setRange('', '')}>
+                        {language === 'th' ? 'ทั้งหมด' : 'All time'}
+                      </Button>
+                    </div>
                     <div className="flex flex-wrap items-end gap-2">
                       <div className="flex-1 min-w-[140px]">
                         <Label className="text-xs">{language === 'th' ? 'ตั้งแต่วันที่' : 'From'}</Label>
-                        <Input type="date" value={pickupDateFrom} onChange={(e) => setPickupDateFrom(e.target.value)} />
+                        <Input type="date" value={pickupDateFrom} onChange={(e) => { setPickupDateFrom(e.target.value); setCurrentPage(1); }} />
                       </div>
                       <div className="flex-1 min-w-[140px]">
                         <Label className="text-xs">{language === 'th' ? 'ถึงวันที่' : 'To'}</Label>
-                        <Input type="date" value={pickupDateTo} onChange={(e) => setPickupDateTo(e.target.value)} />
+                        <Input type="date" value={pickupDateTo} onChange={(e) => { setPickupDateTo(e.target.value); setCurrentPage(1); }} />
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => { setPickupDateFrom(''); setPickupDateTo(''); }}
-                      >
-                        {language === 'th' ? 'ล้าง' : 'Clear'}
-                      </Button>
                       <div className="flex-1 min-w-[180px] text-xs text-muted-foreground">
-                        {language === 'th' ? 'พบ' : 'Found'} <strong>{filteredPickups.length}</strong> {language === 'th' ? 'รายการ' : 'records'} · {language === 'th' ? 'มีเบอร์โทร' : 'with phone'}: <strong>{smsTargets.length}</strong>
+                        {language === 'th' ? 'ทั้งหมด' : 'Total'} <strong>{hivTotal.toLocaleString()}</strong> {language === 'th' ? 'รายชื่อ' : 'records'} · {language === 'th' ? 'แสดง' : 'showing'} <strong>{filteredPickups.length}</strong> · {language === 'th' ? 'มีเบอร์โทร' : 'with phone'}: <strong>{smsTargets.length}</strong>
                       </div>
                       <Button
                         size="sm"
@@ -2138,7 +2148,20 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                         {language === 'th' ? `ส่ง SMS ตามผลตรวจ (${smsTargets.length})` : `Send SMS Follow-up (${smsTargets.length})`}
                       </Button>
                     </div>
+                    {hivTotal > filteredPickups.length && !searchQuery && (
+                      <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>
+                          {language === 'th'
+                            ? `แสดง ${filteredPickups.length} จาก ${hivTotal.toLocaleString()} รายชื่อ`
+                            : `Showing ${filteredPickups.length} of ${hivTotal.toLocaleString()}`}
+                        </span>
+                        <Button size="sm" variant="outline" onClick={() => { setPageSize(Math.min(1000, hivTotal)); setCurrentPage(1); }}>
+                          {language === 'th' ? 'แสดงรายชื่อทั้งหมด' : 'Show all'}
+                        </Button>
+                      </div>
+                    )}
                   </Card>
+
 
                   {/* Pickup Records List */}
                   <ScrollArea className="max-h-[60vh]">
