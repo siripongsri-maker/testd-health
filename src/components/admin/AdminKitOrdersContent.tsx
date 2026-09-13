@@ -280,9 +280,12 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const [smsTemplateKey, setSmsTemplateKey] = useState<string | undefined>(undefined);
   const [smsSource, setSmsSource] = useState<"kit_orders" | "selftest">("kit_orders");
 
-  // On-site pickup filters
-  const [pickupDateFrom, setPickupDateFrom] = useState<string>("");
-  const [pickupDateTo, setPickupDateTo] = useState<string>("");
+  // On-site pickup filters — default to today (Asia/Bangkok) so staff instantly
+  // see how many people picked up kits on site today.
+  const bkkToday = () => new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 10);
+  const bkkDaysAgo = (n: number) => new Date(Date.now() + 7 * 3600 * 1000 - n * 86400000).toISOString().slice(0, 10);
+  const [pickupDateFrom, setPickupDateFrom] = useState<string>(bkkToday());
+  const [pickupDateTo, setPickupDateTo] = useState<string>(bkkToday());
 
   const orderToSmsRecipient = (o: KitOrder): SmsRecipient => ({
     id: o.id,
