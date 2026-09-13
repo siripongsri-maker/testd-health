@@ -280,9 +280,12 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const [smsTemplateKey, setSmsTemplateKey] = useState<string | undefined>(undefined);
   const [smsSource, setSmsSource] = useState<"kit_orders" | "selftest">("kit_orders");
 
-  // On-site pickup filters
-  const [pickupDateFrom, setPickupDateFrom] = useState<string>("");
-  const [pickupDateTo, setPickupDateTo] = useState<string>("");
+  // On-site pickup filters — default to today (Asia/Bangkok) so staff instantly
+  // see how many people picked up kits on site today.
+  const bkkToday = () => new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 10);
+  const bkkDaysAgo = (n: number) => new Date(Date.now() + 7 * 3600 * 1000 - n * 86400000).toISOString().slice(0, 10);
+  const [pickupDateFrom, setPickupDateFrom] = useState<string>(bkkToday());
+  const [pickupDateTo, setPickupDateTo] = useState<string>(bkkToday());
 
   const orderToSmsRecipient = (o: KitOrder): SmsRecipient => ({
     id: o.id,
@@ -351,12 +354,12 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     }, searchQuery ? 300 : 0);
     return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, branchFilter, currentPage, pageSize, searchQuery, dataSource]);
+  }, [activeTab, branchFilter, currentPage, pageSize, searchQuery, dataSource, pickupDateFrom, pickupDateTo]);
 
   useEffect(() => {
     fetchHIVStatusCounts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [branchFilter, dataSource]);
+  }, [branchFilter, dataSource, pickupDateFrom, pickupDateTo]);
 
   useEffect(() => {
     fetchTabCounts();
@@ -471,7 +474,13 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
 
     // The on-site pickup view must only count/list pickup requests so the list
     // total matches the badge on the tab.
-    if (dataSource === 'onsite_pickup') q = q.eq('delivery_mode', 'pickup');
+    if (dataSource === 'onsite_pickup') {
+      q = q.eq('delivery_mode', 'pickup');
+      // Date filtering happens on the server (Bangkok day boundaries) so the
+      // day's total covers every record, not just the page on screen.
+      if (pickupDateFrom) q = q.gte('created_at', `${pickupDateFrom}T00:00:00+07:00`);
+      if (pickupDateTo) q = q.lte('created_at', `${pickupDateTo}T23:59:59.999+07:00`);
+    }
     if (activeTab === 'flagged') q = q.eq('abuse_flag', true);
     else if (activeTab !== 'all') q = q.eq('status', activeTab);
     if (branchFilter !== 'all') q = q.eq('assigned_branch', branchFilter);
@@ -566,8 +575,14 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   };
 
   const fetchHIVStatusCounts = async () => {
+    const withPickupDates = (q: any) => {
+      let scoped = q;
+      if (pickupDateFrom) scoped = scoped.gte('created_at', `${pickupDateFrom}T00:00:00+07:00`);
+      if (pickupDateTo) scoped = scoped.lte('created_at', `${pickupDateTo}T23:59:59.999+07:00`);
+      return scoped;
+    };
     const withBranch = (q: any) => {
-      let scoped = dataSource === 'onsite_pickup' ? q.eq('delivery_mode', 'pickup') : q;
+      let scoped = dataSource === 'onsite_pickup' ? withPickupDates(q.eq('delivery_mode', 'pickup')) : q;
       if (branchFilter !== 'all') scoped = scoped.eq('assigned_branch', branchFilter);
       return scoped;
     };
@@ -592,7 +607,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             .select('id', { count: 'exact', head: true })
             .eq('delivery_mode', 'pickup');
           if (branchFilter !== 'all') q = q.eq('assigned_branch', branchFilter);
-          return q;
+          return withPickupDates(q);
         };
         const [allPickup, withLoc] = await Promise.all([
           pickupBase(),
@@ -2035,7 +2050,9 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                   {pickupCounts.total.toLocaleString()}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {language === 'th' ? 'รับที่หน้างานทั้งหมด' : 'Total Pickups'}
+                  {language === 'th'
+                    ? (pickupDateFrom && pickupDateFrom === pickupDateTo ? 'รับหน้างานวันที่เลือก' : 'รับหน้างานในช่วงที่เลือก')
+                    : 'Pickups in selected range'}
                 </p>
               </Card>
               <Card className="p-3 text-center">
@@ -2058,17 +2075,10 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
 
             {/* Date range + SMS bulk actions */}
             {(() => {
-              const fromTs = pickupDateFrom ? new Date(pickupDateFrom + 'T00:00:00').getTime() : null;
-              const toTs = pickupDateTo ? new Date(pickupDateTo + 'T23:59:59').getTime() : null;
-              const inRange = (iso: string) => {
-                const t = new Date(iso).getTime();
-                if (fromTs !== null && t < fromTs) return false;
-                if (toTs !== null && t > toTs) return false;
-                return true;
-              };
+              // Date filtering now happens on the server (Bangkok day), so the list
+              // here only needs the free-text search narrowing.
               const filteredPickups = hivRequests
                 .filter(r => r.delivery_mode === 'pickup')
-                .filter(r => inRange(r.created_at))
                 .filter(r => {
                   if (!searchQuery) return true;
                   const q = searchQuery.toLowerCase();
@@ -2092,27 +2102,42 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                 setSmsTemplateKey(templateKey);
                 setSmsOpen(true);
               };
+              const setRange = (from: string, to: string) => {
+                setPickupDateFrom(from);
+                setPickupDateTo(to);
+                setCurrentPage(1);
+              };
               return (
                 <>
                   <Card className="p-3 mb-3">
+                    <div className="flex flex-wrap items-center gap-2 mb-3">
+                      <Button size="sm" variant={pickupDateFrom === bkkToday() && pickupDateTo === bkkToday() ? 'default' : 'outline'} onClick={() => setRange(bkkToday(), bkkToday())}>
+                        {language === 'th' ? 'วันนี้' : 'Today'}
+                      </Button>
+                      <Button size="sm" variant={pickupDateFrom === bkkDaysAgo(1) && pickupDateTo === bkkDaysAgo(1) ? 'default' : 'outline'} onClick={() => setRange(bkkDaysAgo(1), bkkDaysAgo(1))}>
+                        {language === 'th' ? 'เมื่อวาน' : 'Yesterday'}
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setRange(bkkDaysAgo(6), bkkToday())}>
+                        {language === 'th' ? '7 วันล่าสุด' : 'Last 7 days'}
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => setRange(bkkDaysAgo(29), bkkToday())}>
+                        {language === 'th' ? '30 วันล่าสุด' : 'Last 30 days'}
+                      </Button>
+                      <Button size="sm" variant={!pickupDateFrom && !pickupDateTo ? 'default' : 'outline'} onClick={() => setRange('', '')}>
+                        {language === 'th' ? 'ทั้งหมด' : 'All time'}
+                      </Button>
+                    </div>
                     <div className="flex flex-wrap items-end gap-2">
                       <div className="flex-1 min-w-[140px]">
                         <Label className="text-xs">{language === 'th' ? 'ตั้งแต่วันที่' : 'From'}</Label>
-                        <Input type="date" value={pickupDateFrom} onChange={(e) => setPickupDateFrom(e.target.value)} />
+                        <Input type="date" value={pickupDateFrom} onChange={(e) => { setPickupDateFrom(e.target.value); setCurrentPage(1); }} />
                       </div>
                       <div className="flex-1 min-w-[140px]">
                         <Label className="text-xs">{language === 'th' ? 'ถึงวันที่' : 'To'}</Label>
-                        <Input type="date" value={pickupDateTo} onChange={(e) => setPickupDateTo(e.target.value)} />
+                        <Input type="date" value={pickupDateTo} onChange={(e) => { setPickupDateTo(e.target.value); setCurrentPage(1); }} />
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => { setPickupDateFrom(''); setPickupDateTo(''); }}
-                      >
-                        {language === 'th' ? 'ล้าง' : 'Clear'}
-                      </Button>
                       <div className="flex-1 min-w-[180px] text-xs text-muted-foreground">
-                        {language === 'th' ? 'พบ' : 'Found'} <strong>{filteredPickups.length}</strong> {language === 'th' ? 'รายการ' : 'records'} · {language === 'th' ? 'มีเบอร์โทร' : 'with phone'}: <strong>{smsTargets.length}</strong>
+                        {language === 'th' ? 'ทั้งหมด' : 'Total'} <strong>{hivTotal.toLocaleString()}</strong> {language === 'th' ? 'รายชื่อ' : 'records'} · {language === 'th' ? 'แสดง' : 'showing'} <strong>{filteredPickups.length}</strong> · {language === 'th' ? 'มีเบอร์โทร' : 'with phone'}: <strong>{smsTargets.length}</strong>
                       </div>
                       <Button
                         size="sm"
@@ -2123,7 +2148,20 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
                         {language === 'th' ? `ส่ง SMS ตามผลตรวจ (${smsTargets.length})` : `Send SMS Follow-up (${smsTargets.length})`}
                       </Button>
                     </div>
+                    {hivTotal > filteredPickups.length && !searchQuery && (
+                      <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>
+                          {language === 'th'
+                            ? `แสดง ${filteredPickups.length} จาก ${hivTotal.toLocaleString()} รายชื่อ`
+                            : `Showing ${filteredPickups.length} of ${hivTotal.toLocaleString()}`}
+                        </span>
+                        <Button size="sm" variant="outline" onClick={() => { setPageSize(Math.min(1000, hivTotal)); setCurrentPage(1); }}>
+                          {language === 'th' ? 'แสดงรายชื่อทั้งหมด' : 'Show all'}
+                        </Button>
+                      </div>
+                    )}
                   </Card>
+
 
                   {/* Pickup Records List */}
                   <ScrollArea className="max-h-[60vh]">
