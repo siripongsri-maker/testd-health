@@ -575,8 +575,14 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   };
 
   const fetchHIVStatusCounts = async () => {
+    const withPickupDates = (q: any) => {
+      let scoped = q;
+      if (pickupDateFrom) scoped = scoped.gte('created_at', `${pickupDateFrom}T00:00:00+07:00`);
+      if (pickupDateTo) scoped = scoped.lte('created_at', `${pickupDateTo}T23:59:59.999+07:00`);
+      return scoped;
+    };
     const withBranch = (q: any) => {
-      let scoped = dataSource === 'onsite_pickup' ? q.eq('delivery_mode', 'pickup') : q;
+      let scoped = dataSource === 'onsite_pickup' ? withPickupDates(q.eq('delivery_mode', 'pickup')) : q;
       if (branchFilter !== 'all') scoped = scoped.eq('assigned_branch', branchFilter);
       return scoped;
     };
@@ -601,7 +607,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
             .select('id', { count: 'exact', head: true })
             .eq('delivery_mode', 'pickup');
           if (branchFilter !== 'all') q = q.eq('assigned_branch', branchFilter);
-          return q;
+          return withPickupDates(q);
         };
         const [allPickup, withLoc] = await Promise.all([
           pickupBase(),
