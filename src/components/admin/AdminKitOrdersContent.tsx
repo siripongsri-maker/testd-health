@@ -354,12 +354,12 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
     }, searchQuery ? 300 : 0);
     return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, branchFilter, currentPage, pageSize, searchQuery, dataSource]);
+  }, [activeTab, branchFilter, currentPage, pageSize, searchQuery, dataSource, pickupDateFrom, pickupDateTo]);
 
   useEffect(() => {
     fetchHIVStatusCounts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [branchFilter, dataSource]);
+  }, [branchFilter, dataSource, pickupDateFrom, pickupDateTo]);
 
   useEffect(() => {
     fetchTabCounts();
