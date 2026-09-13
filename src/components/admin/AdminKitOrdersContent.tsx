@@ -474,7 +474,13 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
 
     // The on-site pickup view must only count/list pickup requests so the list
     // total matches the badge on the tab.
-    if (dataSource === 'onsite_pickup') q = q.eq('delivery_mode', 'pickup');
+    if (dataSource === 'onsite_pickup') {
+      q = q.eq('delivery_mode', 'pickup');
+      // Date filtering happens on the server (Bangkok day boundaries) so the
+      // day's total covers every record, not just the page on screen.
+      if (pickupDateFrom) q = q.gte('created_at', `${pickupDateFrom}T00:00:00+07:00`);
+      if (pickupDateTo) q = q.lte('created_at', `${pickupDateTo}T23:59:59.999+07:00`);
+    }
     if (activeTab === 'flagged') q = q.eq('abuse_flag', true);
     else if (activeTab !== 'all') q = q.eq('status', activeTab);
     if (branchFilter !== 'all') q = q.eq('assigned_branch', branchFilter);
