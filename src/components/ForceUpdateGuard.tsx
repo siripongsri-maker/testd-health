@@ -253,6 +253,17 @@ export function ForceUpdateGuard({ children }: { children: React.ReactNode }) {
     if (!navigator.onLine) return;
     if (localStorage.getItem(RESET_KEY) === CACHE_RESET_VERSION) return;
 
+    // The boot-time runtime self-check already purged service workers/caches
+    // and hard-reloaded for this version. Doing it again here would reload the
+    // app a second time on the very same visit.
+    try {
+      if (sessionStorage.getItem("testd_runtime_selfcheck_reloaded") === APP_VERSION) {
+        localStorage.setItem(RESET_KEY, CACHE_RESET_VERSION);
+        localStorage.setItem(VERSION_KEY, APP_VERSION);
+        return;
+      }
+    } catch {}
+
     // The reset wipes local storage and hard-reloads. That is safe on a fresh
     // boot, but destructive while somebody is filling in a form (they lose the
     // draft and get bounced back to the first step). So: if the visitor has

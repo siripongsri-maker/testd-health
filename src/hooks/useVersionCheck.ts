@@ -42,8 +42,28 @@ export function detectUnsavedWork(): boolean {
   return PROTECTED_ROUTES.some(r => path.startsWith(r));
 }
 
+function parseVersion(value: string): number[] {
+  return String(value || '')
+    .split('.')
+    .map((part) => parseInt(part.replace(/\D/g, ''), 10) || 0);
+}
+
+/**
+ * Only treat the remote version as an update when it is strictly NEWER than
+ * the running bundle. A plain `!==` check made older/stale release rows (e.g.
+ * 5.1.1 while the app ships 6.0.0) force a hard-update modal and reload loop.
+ */
 function compareVersions(current: string, latest: string): boolean {
-  return current !== latest;
+  const cur = parseVersion(current);
+  const next = parseVersion(latest);
+  const len = Math.max(cur.length, next.length);
+  for (let i = 0; i < len; i++) {
+    const a = cur[i] ?? 0;
+    const b = next[i] ?? 0;
+    if (b > a) return true;
+    if (b < a) return false;
+  }
+  return false;
 }
 
 export function useVersionCheck() {
