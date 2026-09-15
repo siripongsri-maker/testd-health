@@ -56,6 +56,7 @@ export default function HrReferralQueue({ tx, readOnly = false }: Props) {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [branches, setBranches] = useState<Record<string, string>>({});
   const [branchFilter, setBranchFilter] = useState<string>("all");
+  const [openOnly, setOpenOnly] = useState(true);
 
 
   const load = useCallback(async () => {
@@ -120,8 +121,16 @@ export default function HrReferralQueue({ tx, readOnly = false }: Props) {
   const branchLabel = (id: string | null) =>
     (id && branches[id]) || tx("ไม่ระบุสาขา", "Unknown branch");
 
+  const isOpenCase = (r: Referral) =>
+    !["completed", "closed", "cancelled"].includes(r.status || "requested");
+  const openCount = rows.filter(isOpenCase).length;
+
   const branchKeys = Array.from(new Set(rows.map((r) => r.branch_id || "unknown")));
-  const visible = rows.filter((r) => branchFilter === "all" || (r.branch_id || "unknown") === branchFilter);
+  const visible = rows.filter(
+    (r) =>
+      (branchFilter === "all" || (r.branch_id || "unknown") === branchFilter) &&
+      (!openOnly || isOpenCase(r)),
+  );
   const sorted = [...visible].sort((a, b) => {
     const score = (r: Referral) => (isNew(r) ? 0 : 2) + (isUrgent(r) ? -1 : 0);
     return score(a) - score(b) || (a.created_at < b.created_at ? 1 : -1);
@@ -143,7 +152,15 @@ export default function HrReferralQueue({ tx, readOnly = false }: Props) {
             {tx("เคสเร่งด่วน", "Urgent")}: {urgentCount}
           </Badge>
         )}
-        <Button size="sm" variant="outline" className="ml-auto h-8 no-print" onClick={load} disabled={loading}>
+        <Button
+          size="sm"
+          variant={openOnly ? "default" : "outline"}
+          className="ml-auto h-8 text-[11px] no-print"
+          onClick={() => setOpenOnly((v) => !v)}
+        >
+          {tx("เฉพาะเคสที่ยังไม่ปิด", "Open cases only")} ({openCount})
+        </Button>
+        <Button size="sm" variant="outline" className="h-8 no-print" onClick={load} disabled={loading}>
           <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${loading ? "animate-spin" : ""}`} />
           {tx("รีเฟรช", "Refresh")}
         </Button>
@@ -239,6 +256,9 @@ export default function HrReferralQueue({ tx, readOnly = false }: Props) {
                     <div className="text-[11px] text-muted-foreground">
                       {new Date(r.created_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok" })}
                       {r.contact_method ? ` · ${r.contact_method}` : ""}
+                      {!isOpenCase(r) && r.handled_at
+                        ? ` · ${tx("ปิดเคสเมื่อ", "Closed")} ${new Date(r.handled_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok" })}`
+                        : ""}
                     </div>
                   </div>
                   <Badge variant="outline" className="text-[10px] shrink-0">

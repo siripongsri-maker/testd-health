@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { getDisplayServices, updateAppointmentStatusRPC, addStaffNoteRPC } from '@/lib/appointments';
 import { toast } from 'sonner';
 import { AlertTriangle, Clock, MapPin, Hash, User, MessageSquarePlus, Loader2, Calendar, UserPlus } from 'lucide-react';
-import { referAppointmentToCounselor } from '@/lib/urgentReferral';
+import { referAppointmentToCounselor, closeAppointmentReferrals } from '@/lib/urgentReferral';
 import { cn } from '@/lib/utils';
 import type { EnrichedAppointment } from './types';
 import { STATUS_OPTIONS, getStatusInfo, getUrgentSupportSignals } from './types';
@@ -51,6 +51,15 @@ export function AppointmentDetailDrawer({ appointment: apt, onClose, onRefresh }
     setUpdating(true);
     try {
       await updateAppointmentStatusRPC(apt.id, newStatus);
+      // Served / closed appointments should not keep an open counseling case.
+      if (['checked_out', 'completed', 'cancelled', 'no_show'].includes(newStatus)) {
+        await closeAppointmentReferrals(
+          apt.id,
+          newStatus === 'checked_out' || newStatus === 'completed'
+            ? 'ปิดเคส: ผู้รับบริการเข้ารับบริการแล้ว (เช็คเอาท์)'
+            : 'ปิดเคส: นัดหมายถูกยกเลิก/ไม่มาตามนัด',
+        );
+      }
       toast.success(language === 'th' ? 'อัปเดตแล้ว' : 'Updated');
       onRefresh();
     } catch {

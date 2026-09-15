@@ -72,3 +72,33 @@ export async function referAppointmentToCounselor(
   if (error) throw error;
   return { status: 'created' };
 }
+
+/**
+ * Close every open counseling referral tied to an appointment (used when the
+ * client has been served / checked out, or the appointment was cancelled).
+ * Idempotent and safe to call repeatedly.
+ */
+export async function closeAppointmentReferrals(
+  appointmentId: string,
+  reasonTh = 'ปิดเคส: ผู้รับบริการเข้ารับบริการแล้ว',
+): Promise<number> {
+  const { data: auth } = await supabase.auth.getUser();
+  const { data, error } = await supabase
+    .from('hr_referrals')
+    .update({
+      status: 'completed',
+      counselor_notes: reasonTh,
+      handled_by: auth.user?.id ?? null,
+      handled_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    } as never)
+    .ilike('notes', `%${APPT_TAG(appointmentId)}%`)
+    .in('status', OPEN_REFERRAL_STATUSES)
+    .select('id');
+
+  if (error) {
+    console.error('CLOSE_APPT_REFERRALS_FAILED', appointmentId, error);
+    return 0;
+  }
+  return ((data as any[]) || []).length;
+}
