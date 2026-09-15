@@ -364,7 +364,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   useEffect(() => {
     fetchTabCounts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [pickupDateFrom, pickupDateTo]);
 
   // Realtime: auto-refresh when kit orders / HIV self-test requests change
   useEffect(() => {
