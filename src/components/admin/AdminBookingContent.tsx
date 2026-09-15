@@ -344,7 +344,7 @@ export default function AdminBookingContent({ userBranch }: Props) {
 
       {/* Urgent cases banner */}
       {!loading && !inDrillDown && (
-        <UrgentCasesPanel appointments={appointments} onClickAppointment={setDrawerApt} />
+        <UrgentCasesPanel appointments={appointments} onClickAppointment={setDrawerApt} onRefresh={load} />
       )}
 
       {/* Main content */}
