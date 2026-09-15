@@ -170,6 +170,20 @@ export function UrgentCasesPanel({ appointments, onClickAppointment, onRefresh }
                 )}
               </div>
             </button>
+
+            <Button
+              size="sm"
+              variant="outline"
+              className="mt-1.5 h-7 w-full border-destructive/40 text-[10px] text-destructive hover:bg-destructive hover:text-destructive-foreground"
+              disabled={servingId === apt.id}
+              onClick={() => markServed(apt)}
+              title={th ? 'บันทึกว่าให้บริการแล้ว และปิดเคสส่งต่อ' : 'Mark as served and close the referral'}
+            >
+              {servingId === apt.id
+                ? <Loader2 className="h-3 w-3 animate-spin" />
+                : <><Check className="mr-1 h-3 w-3" />{th ? 'ให้บริการแล้ว' : 'Mark as served'}</>}
+            </Button>
+            </div>
           );
         })}
       </div>
