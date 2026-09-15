@@ -364,7 +364,7 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   useEffect(() => {
     fetchTabCounts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [pickupDateFrom, pickupDateTo]);
 
   // Realtime: auto-refresh when kit orders / HIV self-test requests change
   useEffect(() => {
@@ -625,14 +625,22 @@ export default function AdminKitOrdersContent({ userBranch, isModerator = false 
   const fetchTabCounts = async () => {
     try {
       const head = () => supabase.from('hiv_selftest_requests').select('id', { count: 'exact', head: true });
+      // Pickup badges must respect the same Bangkok-day range as the list below,
+      // otherwise the tab shows an all-time total next to a single-day list.
+      const pickupHead = () => {
+        let q = head().eq('delivery_mode', 'pickup');
+        if (pickupDateFrom) q = q.gte('created_at', `${pickupDateFrom}T00:00:00+07:00`);
+        if (pickupDateTo) q = q.lte('created_at', `${pickupDateTo}T23:59:59.999+07:00`);
+        return q;
+      };
       const [kitRes, hivRes, pickupRes, silomRes, pattayaRes, pickupSilomRes, pickupPattayaRes] = await Promise.all([
         supabase.from('kit_orders').select('id', { count: 'exact', head: true }),
         head(),
-        head().eq('delivery_mode', 'pickup'),
+        pickupHead(),
         head().eq('assigned_branch', 'silom'),
         head().eq('assigned_branch', 'pattaya'),
-        head().eq('delivery_mode', 'pickup').eq('assigned_branch', 'silom'),
-        head().eq('delivery_mode', 'pickup').eq('assigned_branch', 'pattaya'),
+        pickupHead().eq('assigned_branch', 'silom'),
+        pickupHead().eq('assigned_branch', 'pattaya'),
       ]);
       setTabCounts({
         kitOrders: kitRes.count ?? 0,
