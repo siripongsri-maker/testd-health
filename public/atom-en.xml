@@ -3,18 +3,10 @@
   <title>testD — Sexual health &amp; harm reduction articles</title>
   <subtitle>New articles from testD on HIV, PrEP, PEP, STIs and harm reduction.</subtitle>
   <id>https://testd.website/atom-en.xml</id>
-  <updated>2026-08-30T09:24:35.448Z</updated>
+  <updated>2026-08-29T16:48:30.960Z</updated>
   <link rel="self" type="application/atom+xml" href="https://testd.website/atom-en.xml" />
   <link rel="alternate" type="text/html" href="https://testd.website/en/info" />
   <author><name>testD</name></author>
-  <entry>
-    <title>71.7% at High Risk: What PHQ-4, ASSIST and C-SSRS Screening Tells Us About Chemsex</title>
-    <id>https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-30T09:24:35.448Z</updated>
-    <summary type="text">53 completed screenings between Mar 12 and Aug 8, 2026: monthly trends and what they mean for mental health care.</summary>
-  </entry>
   <entry>
     <title>Chemsex Safety Playbook: Thailand 2026 Data Edition</title>
     <id>https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026</id>
@@ -32,6 +24,22 @@
     <summary type="text">Meth use patterns, slamming and polydrug mixing in Thai service data, with population-specific harm reduction guidance.</summary>
   </entry>
   <entry>
+    <title>GHB/GBL: Dosing, Spacing and What To Do When Someone Goes Under</title>
+    <id>https://testd.website/en/info/article/ghb-overdose-prevention-timeline</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/ghb-overdose-prevention-timeline" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-16T06:27:38.428Z</updated>
+    <summary type="text">GHB forms critical interactions with alcohol and benzodiazepines. Spacing tables, danger signs and step-by-step response.</summary>
+  </entry>
+  <entry>
+    <title>71.7% at High Risk: What PHQ-4, ASSIST and C-SSRS Screening Tells Us About Chemsex</title>
+    <id>https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-08-30T09:24:35.448Z</updated>
+    <summary type="text">53 completed screenings between Mar 12 and Aug 8, 2026: monthly trends and what they mean for mental health care.</summary>
+  </entry>
+  <entry>
     <title>From 222 to 2,819 Kits a Month: The HIV Self-Test Pathway for People Who Use Drugs</title>
     <id>https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits" />
@@ -46,14 +54,6 @@
     <published>2026-08-09T08:58:43.832Z</published>
     <updated>2026-08-29T12:44:26.065Z</updated>
     <summary type="text">A breakdown of 42 documented substance interaction pairs — 11 critical, 19 high, 12 moderate — across 18 substances.</summary>
-  </entry>
-  <entry>
-    <title>GHB/GBL: Dosing, Spacing and What To Do When Someone Goes Under</title>
-    <id>https://testd.website/en/info/article/ghb-overdose-prevention-timeline</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/ghb-overdose-prevention-timeline" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-08-16T06:27:38.428Z</updated>
-    <summary type="text">GHB forms critical interactions with alcohol and benzodiazepines. Spacing tables, danger signs and step-by-step response.</summary>
   </entry>
   <entry>
     <title>Long-Acting Injectable PrEP: Lenacapavir and CAB-LA</title>
@@ -87,7 +87,7 @@
     <id>https://testd.website/en/info/article/pep-72-hours</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/pep-72-hours" />
     <published>2026-08-06T18:39:25.252Z</published>
-    <updated>2026-09-12T03:10:45.328Z</updated>
+    <updated>2026-09-13T19:55:52.392Z</updated>
     <summary type="text">PEP should start as soon as possible and within 72 hours of possible HIV exposure. Here is what to do if time is running out—or has passed.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-72-hours-1786043500000.png" />
   </entry>
@@ -258,7 +258,7 @@
     <id>https://testd.website/en/info/article/doxypep-explained</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/doxypep-explained" />
     <published>2026-08-06T18:30:40.120Z</published>
-    <updated>2026-08-31T11:04:38.903Z</updated>
+    <updated>2026-09-14T03:21:50.013Z</updated>
     <summary type="text">Learn how DoxyPEP may prevent syphilis and other bacterial STIs, who may benefit, its limitations, safety concerns, and follow-up testing.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/doxypep-explained-1786041039870.png" />
   </entry>
@@ -339,7 +339,7 @@
     <id>https://testd.website/en/info/article/syphilis-symptoms-treatment</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/syphilis-symptoms-treatment" />
     <published>2026-08-06T18:28:52.265Z</published>
-    <updated>2026-09-10T20:51:34.403Z</updated>
+    <updated>2026-09-13T10:58:39.333Z</updated>
     <summary type="text">Syphilis may cause no symptoms or a painless sore. Learn the signs, testing options, treatment, and where to access confidential care in Thailand.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/syphilis-symptoms-treatment-1786040932075.png" />
   </entry>
@@ -393,7 +393,7 @@
     <id>https://testd.website/en/info/article/pep-cost-and-coverage</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/pep-cost-and-coverage" />
     <published>2026-08-06T18:25:43.903Z</published>
-    <updated>2026-09-05T09:00:56.952Z</updated>
+    <updated>2026-09-13T19:55:09.050Z</updated>
     <summary type="text">PEP costs in Thailand vary by coverage, clinic, tests, and medication. Learn how NHSO coverage may apply and why care is urgent within 72 hours.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-cost-and-coverage-1786040743654.png" />
   </entry>
