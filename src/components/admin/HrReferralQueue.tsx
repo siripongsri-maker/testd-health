@@ -121,8 +121,16 @@ export default function HrReferralQueue({ tx, readOnly = false }: Props) {
   const branchLabel = (id: string | null) =>
     (id && branches[id]) || tx("ไม่ระบุสาขา", "Unknown branch");
 
+  const isOpenCase = (r: Referral) =>
+    !["completed", "closed", "cancelled"].includes(r.status || "requested");
+  const openCount = rows.filter(isOpenCase).length;
+
   const branchKeys = Array.from(new Set(rows.map((r) => r.branch_id || "unknown")));
-  const visible = rows.filter((r) => branchFilter === "all" || (r.branch_id || "unknown") === branchFilter);
+  const visible = rows.filter(
+    (r) =>
+      (branchFilter === "all" || (r.branch_id || "unknown") === branchFilter) &&
+      (!openOnly || isOpenCase(r)),
+  );
   const sorted = [...visible].sort((a, b) => {
     const score = (r: Referral) => (isNew(r) ? 0 : 2) + (isUrgent(r) ? -1 : 0);
     return score(a) - score(b) || (a.created_at < b.created_at ? 1 : -1);
