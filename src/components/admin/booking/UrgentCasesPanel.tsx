@@ -118,11 +118,14 @@ export function UrgentCasesPanel({ appointments, onClickAppointment, onRefresh }
         {urgent.map(({ apt, signals, phq }) => {
           const services = getDisplayServices(apt);
           return (
-            <button
+            <div
               key={apt.id}
+              className="group min-h-0 rounded-lg border border-destructive/35 bg-background/80 p-1.5 text-left backdrop-blur-sm transition-colors hover:border-destructive/70"
+            >
+            <button
               type="button"
               onClick={() => onClickAppointment(apt)}
-              className="group min-h-0 rounded-lg border border-destructive/35 bg-background/80 p-1.5 text-left backdrop-blur-sm transition-colors hover:border-destructive/70"
+              className="block w-full text-left"
               title={th ? 'กดเพื่อดูรายละเอียดเคส' : 'Click to view case details'}
             >
               <div className="flex min-w-0 items-center gap-1.5 text-[11px] font-bold leading-tight">
