@@ -1,36 +1,62 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AlertTriangle, ArrowRight, Clock, Hash, MapPin } from 'lucide-react';
+import { AlertTriangle, ArrowRight, Check, Clock, Hash, Loader2, MapPin } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 import { useLanguage } from '@/lib/i18n';
-import { getDisplayServices } from '@/lib/appointments';
-import { referAppointmentToCounselor, fetchReferredAppointmentIds } from '@/lib/urgentReferral';
+import { getDisplayServices, updateAppointmentStatusRPC } from '@/lib/appointments';
+import { referAppointmentToCounselor, fetchReferredAppointmentIds, closeAppointmentReferrals } from '@/lib/urgentReferral';
 import type { EnrichedAppointment } from './types';
 import { getUrgentSupportSignals, getPhq4Score } from './types';
+
+/** Appointment statuses that mean the urgent case no longer needs attention. */
+const RESOLVED_STATUSES = ['cancelled', 'no_show', 'checked_out', 'completed'];
 
 interface Props {
   appointments: EnrichedAppointment[];
   onClickAppointment: (apt: EnrichedAppointment) => void;
+  onRefresh?: () => void;
 }
 
-export function UrgentCasesPanel({ appointments, onClickAppointment }: Props) {
+export function UrgentCasesPanel({ appointments, onClickAppointment, onRefresh }: Props) {
   const { language } = useLanguage();
   const th = language === 'th';
   const [, setSyncedCount] = useState(0);
+  const [servingId, setServingId] = useState<string | null>(null);
+  const [servedIds, setServedIds] = useState<Set<string>>(new Set());
   const autoSynced = useRef<Set<string>>(new Set());
 
   // Only clients who voluntarily completed the PHQ-4 during booking can be
   // flagged as urgent. No PHQ-4 answers => never urgent, regardless of other
-  // keyword signals.
+  // keyword signals. Cases already served / closed drop off automatically.
   const urgent = useMemo(
     () => appointments
       .map(apt => ({ apt, phq: getPhq4Score(apt), signals: getUrgentSupportSignals(apt) }))
       .filter(x =>
         x.phq !== null &&
         x.phq >= 3 &&
-        !['cancelled', 'no_show'].includes(x.apt.status))
+        !RESOLVED_STATUSES.includes(x.apt.status) &&
+        !servedIds.has(x.apt.id))
       .sort((a, b) => (b.phq ?? 0) - (a.phq ?? 0)),
-    [appointments],
+    [appointments, servedIds],
   );
+
+  const markServed = async (apt: EnrichedAppointment) => {
+    setServingId(apt.id);
+    try {
+      if (apt.status !== 'checked_out') {
+        await updateAppointmentStatusRPC(apt.id, 'checked_out');
+      }
+      await closeAppointmentReferrals(apt.id);
+      setServedIds(prev => new Set(prev).add(apt.id));
+      toast.success(th ? 'บันทึกว่าให้บริการแล้ว' : 'Marked as served');
+      onRefresh?.();
+    } catch (err) {
+      console.error('URGENT_MARK_SERVED_FAILED', apt.id, err);
+      toast.error(th ? 'บันทึกไม่สำเร็จ' : 'Save failed');
+    }
+    setServingId(null);
+  };
 
   // Auto-push urgent cases into the counseling queue (idempotent) so counselors
   // always see them without relying on a manual click.
