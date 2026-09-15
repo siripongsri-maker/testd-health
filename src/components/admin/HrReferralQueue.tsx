@@ -256,6 +256,9 @@ export default function HrReferralQueue({ tx, readOnly = false }: Props) {
                     <div className="text-[11px] text-muted-foreground">
                       {new Date(r.created_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok" })}
                       {r.contact_method ? ` · ${r.contact_method}` : ""}
+                      {!isOpenCase(r) && r.handled_at
+                        ? ` · ${tx("ปิดเคสเมื่อ", "Closed")} ${new Date(r.handled_at).toLocaleString("th-TH", { timeZone: "Asia/Bangkok" })}`
+                        : ""}
                     </div>
                   </div>
                   <Badge variant="outline" className="text-[10px] shrink-0">
