@@ -165,7 +165,7 @@ export default function VirtualMode({ forceClinic, forceEp2 }: Props) {
         </button>
         <ShareEpisodeButton slug={activeEpisode.slug} title={activeEpisode.titleTh} />
         <iframe
-          src="/virtual/prep-boys/index.html"
+          src="/virtual/prep-boys/index.html?v=20260916-1"
           title="PrEP Boys"
           className="w-full h-full border-0"
           allow="autoplay; fullscreen"
