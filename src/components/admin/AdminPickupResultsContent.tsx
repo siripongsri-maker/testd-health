@@ -28,6 +28,9 @@ import {
 interface PiiRow {
   full_name: string | null;
   phone: string | null;
+  thai_id: string | null;
+  national_id: string | null;
+  passport_no: string | null;
 }
 
 interface RawRow {
@@ -42,8 +45,12 @@ interface RawRow {
   result_photo_url: string | null;
   full_name: string | null;
   phone: string | null;
+  thai_id: string | null;
+  national_id_hash: string | null;
   pii: PiiRow | PiiRow[] | null;
 }
+
+type MatchBy = "self" | "phone" | "id";
 
 interface PersonRow {
   id: string;
@@ -53,7 +60,7 @@ interface PersonRow {
   pickedUpAt: string;
   result: string | null;
   submittedAt: string | null;
-  linked: boolean;
+  matchBy: MatchBy;
 }
 
 const TZ = "Asia/Bangkok";
