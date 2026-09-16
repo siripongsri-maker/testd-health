@@ -28,6 +28,9 @@ import {
 interface PiiRow {
   full_name: string | null;
   phone: string | null;
+  thai_id: string | null;
+  national_id: string | null;
+  passport_no: string | null;
 }
 
 interface RawRow {
@@ -42,8 +45,12 @@ interface RawRow {
   result_photo_url: string | null;
   full_name: string | null;
   phone: string | null;
+  thai_id: string | null;
+  national_id_hash: string | null;
   pii: PiiRow | PiiRow[] | null;
 }
+
+type MatchBy = "self" | "phone" | "id";
 
 interface PersonRow {
   id: string;
@@ -53,7 +60,7 @@ interface PersonRow {
   pickedUpAt: string;
   result: string | null;
   submittedAt: string | null;
-  linked: boolean;
+  matchBy: MatchBy;
 }
 
 const TZ = "Asia/Bangkok";
@@ -112,42 +119,76 @@ export default function AdminPickupResultsContent() {
       const select = `
         id, created_at, status, assigned_branch, pickup_branch,
         self_reported_result, test_result, result_submitted_at, result_photo_url,
-        full_name, phone, pii:selftest_pii ( full_name, phone )
+        full_name, phone, thai_id, national_id_hash,
+        pii:selftest_pii ( full_name, phone, thai_id, national_id, passport_no )
       `;
 
-      const [pickupRes, submittedRes] = await Promise.all([
-        supabase
-          .from("hiv_selftest_requests")
-          .select(select)
-          .eq("delivery_mode", "pickup")
-          .gte("created_at", startIso)
-          .lte("created_at", endIso)
-          .order("created_at", { ascending: true })
-          .limit(2000),
-        supabase
+      // ผู้รับชุดตรวจหน้างานในช่วงวันที่ที่เลือก
+      const pickupRes = await supabase
+        .from("hiv_selftest_requests")
+        .select(select)
+        .eq("delivery_mode", "pickup")
+        .gte("created_at", startIso)
+        .lte("created_at", endIso)
+        .order("created_at", { ascending: true })
+        .limit(5000);
+
+      // ดึงรายการที่ "ส่งผลแล้ว" ทั้งหมดในระบบ (ไม่จำกัดวันที่) มาจับคู่ใหม่
+      const submissions: RawRow[] = [];
+      for (let page = 0; page < 20; page++) {
+        const { data, error } = await supabase
           .from("hiv_selftest_requests")
           .select(select)
           .not("result_submitted_at", "is", null)
-          .gte("result_submitted_at", startIso)
           .order("result_submitted_at", { ascending: true })
-          .limit(3000),
-      ]);
+          .range(page * 1000, page * 1000 + 999);
+        if (error) {
+          console.error(error);
+          toast.error(t("โหลดข้อมูลไม่สำเร็จ", "Failed to load data"));
+          return;
+        }
+        const chunk = (data ?? []) as unknown as RawRow[];
+        submissions.push(...chunk);
+        if (chunk.length < 1000) break;
+      }
 
-      if (pickupRes.error || submittedRes.error) {
-        console.error(pickupRes.error || submittedRes.error);
+      if (pickupRes.error) {
+        console.error(pickupRes.error);
         toast.error(t("โหลดข้อมูลไม่สำเร็จ", "Failed to load data"));
         return;
       }
 
-      const submissions = (submittedRes.data ?? []) as unknown as RawRow[];
+      const phoneKey = (r: RawRow): string => {
+        const d = digits(pii(r)?.phone ?? r.phone);
+        return d.length >= 9 ? d.slice(-9) : "";
+      };
+      const idKeys = (r: RawRow): string[] => {
+        const p = pii(r);
+        const raw = [p?.thai_id, p?.national_id, p?.passport_no, r.thai_id]
+          .map((v) => String(v ?? "").trim().toUpperCase())
+          .filter((v) => v.length >= 6);
+        const hash = String(r.national_id_hash ?? "").trim();
+        if (hash) raw.push(`H:${hash}`);
+        return Array.from(new Set(raw));
+      };
+
       const byPhone = new Map<string, RawRow[]>();
+      const byId = new Map<string, RawRow[]>();
       submissions.forEach((s) => {
-        const ph = digits(pii(s)?.phone ?? s.phone);
-        if (!ph) return;
-        const list = byPhone.get(ph) ?? [];
-        list.push(s);
-        byPhone.set(ph, list);
+        const ph = phoneKey(s);
+        if (ph) byPhone.set(ph, [...(byPhone.get(ph) ?? []), s]);
+        idKeys(s).forEach((k) => byId.set(k, [...(byId.get(k) ?? []), s]));
       });
+
+      const pickEarliest = (list: RawRow[], r: RawRow): RawRow | undefined =>
+        list
+          .filter(
+            (s) =>
+              s.id !== r.id &&
+              !!s.result_submitted_at &&
+              new Date(s.result_submitted_at) >= new Date(r.created_at),
+          )
+          .sort((a, b) => +new Date(a.result_submitted_at!) - +new Date(b.result_submitted_at!))[0];
 
       const rows: PersonRow[] = ((pickupRes.data ?? []) as unknown as RawRow[]).map((r) => {
         const p = pii(r);
@@ -155,17 +196,27 @@ export default function AdminPickupResultsContent() {
         const ownResult = r.self_reported_result ?? r.test_result;
         let result: string | null = ownResult ?? null;
         let submittedAt: string | null = r.result_submitted_at;
-        let linked = false;
+        let matchBy: MatchBy = "self";
 
         if (!result) {
-          const ph = digits(phone);
-          const match = (byPhone.get(ph) ?? [])
-            .filter((s) => s.id !== r.id && new Date(s.result_submitted_at!) >= new Date(r.created_at))
-            .sort((a, b) => +new Date(a.result_submitted_at!) - +new Date(b.result_submitted_at!))[0];
+          const ph = phoneKey(r);
+          const match = ph ? pickEarliest(byPhone.get(ph) ?? [], r) : undefined;
           if (match) {
             result = match.self_reported_result ?? match.test_result ?? null;
             submittedAt = match.result_submitted_at;
-            linked = true;
+            matchBy = "phone";
+          }
+        }
+
+        if (!result) {
+          for (const k of idKeys(r)) {
+            const match = pickEarliest(byId.get(k) ?? [], r);
+            if (match) {
+              result = match.self_reported_result ?? match.test_result ?? null;
+              submittedAt = match.result_submitted_at;
+              matchBy = "id";
+              break;
+            }
           }
         }
 
@@ -177,7 +228,7 @@ export default function AdminPickupResultsContent() {
           pickedUpAt: r.created_at,
           result,
           submittedAt: result ? submittedAt : null,
-          linked,
+          matchBy: result ? matchBy : "self",
         };
       });
 
@@ -382,9 +433,11 @@ export default function AdminPickupResultsContent() {
                         <Badge variant="outline" className={SELFTEST_RESULT_CLASS[key]}>
                           {selfTestResultLabel(p.result, language === "th" ? "th" : "en")}
                         </Badge>
-                        {p.linked && (
+                        {p.matchBy !== "self" && (
                           <span className="ml-2 text-[11px] text-muted-foreground">
-                            {t("จับคู่จากเบอร์โทร", "matched by phone")}
+                            {p.matchBy === "phone"
+                              ? t("จับคู่จากเบอร์โทร", "matched by phone")
+                              : t("จับคู่จากเลขบัตรประชาชน", "matched by ID number")}
                           </span>
                         )}
                       </TableCell>
