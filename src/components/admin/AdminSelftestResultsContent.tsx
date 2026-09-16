@@ -51,9 +51,9 @@ const RESULT_COLOR: Record<string, string> = {
 };
 
 const RESULT_OPTIONS = [
-  { value: "negative", labelTh: "ผลลบ (Negative)", labelEn: "Negative" },
-  { value: "reactive", labelTh: "ผลบวก/Reactive", labelEn: "Reactive" },
-  { value: "invalid", labelTh: "อ่านผลไม่ได้ (Invalid)", labelEn: "Invalid" },
+  { value: "negative", labelTh: "ไม่เกิดปฏิกิริยา (1 ขีด)", labelEn: "Non-reactive (1 line)" },
+  { value: "reactive", labelTh: "เกิดปฏิกิริยา (2 ขีด)", labelEn: "Reactive (2 lines)" },
+  { value: "invalid", labelTh: "อ่านผลไม่ได้", labelEn: "Invalid" },
 ];
 
 const STATUS_OPTIONS = [

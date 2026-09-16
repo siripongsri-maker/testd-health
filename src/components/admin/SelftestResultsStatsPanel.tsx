@@ -142,17 +142,17 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
 
   const resultLabel = (r: ResultStatRow) => {
     const res = resultOf(r);
-    if (res === "negative") return { text: t("ผลลบ", "Negative"), cls: "text-emerald-600" };
-    if (res === "reactive") return { text: "Reactive", cls: "text-rose-600" };
-    if (res === "invalid") return { text: t("อ่านไม่ได้", "Invalid"), cls: "text-amber-600" };
+    if (res === "negative") return { text: t("ไม่เกิดปฏิกิริยา (1 ขีด)", "Non-reactive"), cls: "text-emerald-600" };
+    if (res === "reactive") return { text: t("เกิดปฏิกิริยา (2 ขีด)", "Reactive"), cls: "text-rose-600" };
+    if (res === "invalid") return { text: t("อ่านผลไม่ได้", "Invalid"), cls: "text-amber-600" };
     return { text: t("ไม่ระบุ", "Unknown"), cls: "text-muted-foreground" };
   };
 
   const seriesDefs = useMemo(
     () => [
-      { key: "negative", label: t("ผลลบ", "Negative"), color: "hsl(152 60% 40%)" },
-      { key: "reactive", label: "Reactive", color: "hsl(348 75% 50%)" },
-      { key: "invalid", label: t("อ่านไม่ได้", "Invalid"), color: "hsl(38 92% 50%)" },
+      { key: "negative", label: t("ไม่เกิดปฏิกิริยา", "Non-reactive"), color: "hsl(152 60% 40%)" },
+      { key: "reactive", label: t("เกิดปฏิกิริยา", "Reactive"), color: "hsl(348 75% 50%)" },
+      { key: "invalid", label: t("อ่านผลไม่ได้", "Invalid"), color: "hsl(38 92% 50%)" },
       { key: "withPhoto", label: t("มีรูป", "Photo"), color: "hsl(217 80% 55%)" },
       { key: "followedUp", label: t("ติดตามแล้ว", "Followed up"), color: "hsl(268 60% 58%)" },
     ],
@@ -368,8 +368,8 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
 
   const kpis = [
     { icon: FlaskConical, label: t("ผลที่ส่งทั้งหมด", "Total results"), value: totals.total, tone: "text-primary" },
-    { icon: CheckCircle2, label: t("ผลลบ (Negative)", "Negative"), value: totals.negative, tone: "text-emerald-600" },
-    { icon: ShieldAlert, label: t("Reactive", "Reactive"), value: totals.reactive, tone: "text-rose-600" },
+    { icon: CheckCircle2, label: t("ไม่เกิดปฏิกิริยา (1 ขีด)", "Non-reactive"), value: totals.negative, tone: "text-emerald-600" },
+    { icon: ShieldAlert, label: t("เกิดปฏิกิริยา (2 ขีด)", "Reactive"), value: totals.reactive, tone: "text-rose-600" },
     { icon: AlertTriangle, label: t("อ่านผลไม่ได้", "Invalid"), value: totals.invalid, tone: "text-amber-600" },
   ];
 

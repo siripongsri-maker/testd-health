@@ -79,6 +79,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "tracking-upload", icon: FileUp, labelKey: "admin.trackingUpload" },
       { tab: "delivery-report", icon: Truck, labelKey: "admin.deliveryReport", meAnalyst: true },
       { tab: "selftest-results", icon: Package, labelKey: "admin.selftestResults", meAnalyst: true },
+      { tab: "pickup-results", icon: Package, labelKey: "admin.pickupResults", meAnalyst: true },
       { tab: "selftest-followup", icon: Package, labelKey: "admin.selftestFollowup", meAnalyst: true },
       { tab: "selftest-map", icon: MapPin, labelKey: "admin.selftestMap", adminOnly: true, meAnalyst: true },
       { tab: "selftest-missing-id", icon: ShieldAlert, labelKey: "admin.selftestMissingId" },
