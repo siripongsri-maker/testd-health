@@ -433,9 +433,11 @@ export default function AdminPickupResultsContent() {
                         <Badge variant="outline" className={SELFTEST_RESULT_CLASS[key]}>
                           {selfTestResultLabel(p.result, language === "th" ? "th" : "en")}
                         </Badge>
-                        {p.linked && (
+                        {p.matchBy !== "self" && (
                           <span className="ml-2 text-[11px] text-muted-foreground">
-                            {t("จับคู่จากเบอร์โทร", "matched by phone")}
+                            {p.matchBy === "phone"
+                              ? t("จับคู่จากเบอร์โทร", "matched by phone")
+                              : t("จับคู่จากเลขบัตรประชาชน", "matched by ID number")}
                           </span>
                         )}
                       </TableCell>
