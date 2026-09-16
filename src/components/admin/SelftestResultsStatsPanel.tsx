@@ -368,8 +368,8 @@ export default function SelftestResultsStatsPanel({ rows }: { rows: ResultStatRo
 
   const kpis = [
     { icon: FlaskConical, label: t("ผลที่ส่งทั้งหมด", "Total results"), value: totals.total, tone: "text-primary" },
-    { icon: CheckCircle2, label: t("ผลลบ (Negative)", "Negative"), value: totals.negative, tone: "text-emerald-600" },
-    { icon: ShieldAlert, label: t("Reactive", "Reactive"), value: totals.reactive, tone: "text-rose-600" },
+    { icon: CheckCircle2, label: t("ไม่เกิดปฏิกิริยา (1 ขีด)", "Non-reactive"), value: totals.negative, tone: "text-emerald-600" },
+    { icon: ShieldAlert, label: t("เกิดปฏิกิริยา (2 ขีด)", "Reactive"), value: totals.reactive, tone: "text-rose-600" },
     { icon: AlertTriangle, label: t("อ่านผลไม่ได้", "Invalid"), value: totals.invalid, tone: "text-amber-600" },
   ];
 
