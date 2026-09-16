@@ -77,6 +77,7 @@ const AdminConversionInsightsContent = lazyWithRetry(() => import("@/components/
 const AdminHarmReductionReportContent = lazyWithRetry(() => import("@/components/admin/AdminHarmReductionReportContent"));
 const AdminMonthlyDrawContent = lazyWithRetry(() => import("@/components/admin/AdminMonthlyDrawContent").then(m => ({ default: m.AdminMonthlyDrawContent })));
 const AdminSelftestResultsContent = lazyWithRetry(() => import("@/components/admin/AdminSelftestResultsContent"));
+const AdminPickupResultsContent = lazyWithRetry(() => import("@/components/admin/AdminPickupResultsContent"));
 const AdminSelftestFollowupContent = lazyWithRetry(() => import("@/components/admin/AdminSelftestFollowupContent"));
 const AdminSelftestMapContent = lazyWithRetry(() => import("@/components/admin/AdminSelftestMapContent"));
 const AdminSelftestMissingIdContent = lazyWithRetry(() => import("@/components/admin/AdminSelftestMissingIdContent"));
@@ -106,13 +107,13 @@ const TabLoader = () => (
 );
 
 // Tabs accessible by moderators (branch staff)
-const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "tracking-upload", "delivery-report", "selftest-results", "selftest-followup", "selftest-map", "selftest-missing-id", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk", "counselor-support", "daily-branch-brief", "concern-brief", "daily-ops"]);
+const MODERATOR_TABS = new Set(["dashboard", "kit-orders", "tracking-upload", "delivery-report", "selftest-results", "pickup-results", "selftest-followup", "selftest-map", "selftest-missing-id", "quick-register", "bookings", "today", "schedule", "queue-board", "front-desk", "counselor-support", "daily-branch-brief", "concern-brief", "daily-ops"]);
 
 // Tabs accessible by M&E Analyst (read-only analytics/reporting)
 const ME_ANALYST_TABS = new Set([
   "dashboard",
   // Operations (read-only)
-  "kit-orders", "selftest-results", "selftest-followup", "selftest-map", "bookings", "pair-sessions", "activity-logs",
+  "kit-orders", "selftest-results", "pickup-results", "selftest-followup", "selftest-map", "bookings", "pair-sessions", "activity-logs",
   // Partner Network
   "partner-invites", "anonymous-responses",
   // SMS & Credits (read-only)
@@ -242,6 +243,7 @@ export default function Admin() {
           {renderTab("tracking-upload", <AdminTrackingUploadContent />)}
           {renderTab("delivery-report", <AdminKitDeliveryReportContent />)}
           {renderTab("selftest-results", <AdminSelftestResultsContent />)}
+          {renderTab("pickup-results", <AdminPickupResultsContent />)}
           {renderTab("selftest-followup", <AdminSelftestFollowupContent />)}
           {renderTab("selftest-map", <AdminSelftestMapContent />)}
           {renderTab("selftest-missing-id", <AdminSelftestMissingIdContent />)}
