@@ -254,8 +254,12 @@ export default function AdminPickupResultsContent() {
       const key = normalizeSelfTestResult(p.result);
       if (statusFilter === "submitted" && key === "unknown") return false;
       if (statusFilter === "pending" && key !== "unknown") return false;
-      if (statusFilter !== "all" && statusFilter !== "submitted" && statusFilter !== "pending" && key !== statusFilter)
-        return false;
+      if (statusFilter !== "all" && statusFilter !== "submitted" && statusFilter !== "pending") {
+        // 'positive' is stored separately in the DB but is clinically the same as 'reactive' (2 lines)
+        const matches =
+          key === statusFilter || (statusFilter === "reactive" && key === "positive");
+        if (!matches) return false;
+      }
       if (q && !(p.name.toLowerCase().includes(q) || digits(p.phone).includes(digits(q)))) return false;
       return true;
     });
