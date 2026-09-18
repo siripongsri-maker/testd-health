@@ -11919,6 +11919,10 @@ export type Database = {
         Args: { target_user_id: string; xp_amount: number }
         Returns: undefined
       }
+      backfill_analytics_daily_rollup: {
+        Args: { p_from: string; p_to: string }
+        Returns: number
+      }
       can_view_client_hr_context: {
         Args: { _client_id: string }
         Returns: boolean
