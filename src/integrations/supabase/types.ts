@@ -110,6 +110,42 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_daily_rollup: {
+        Row: {
+          day: string
+          devices: Json
+          duration_count: number
+          duration_sum: number
+          event_counts: Json
+          pages: Json
+          pageviews: number
+          updated_at: string
+          visitors: number
+        }
+        Insert: {
+          day: string
+          devices?: Json
+          duration_count?: number
+          duration_sum?: number
+          event_counts?: Json
+          pages?: Json
+          pageviews?: number
+          updated_at?: string
+          visitors?: number
+        }
+        Update: {
+          day?: string
+          devices?: Json
+          duration_count?: number
+          duration_sum?: number
+          event_counts?: Json
+          pages?: Json
+          pageviews?: number
+          updated_at?: string
+          visitors?: number
+        }
+        Relationships: []
+      }
       analytics_daily_summary: {
         Row: {
           created_at: string
@@ -11883,6 +11919,10 @@ export type Database = {
         Args: { target_user_id: string; xp_amount: number }
         Returns: undefined
       }
+      backfill_analytics_daily_rollup: {
+        Args: { p_from: string; p_to: string }
+        Returns: number
+      }
       can_view_client_hr_context: {
         Args: { _client_id: string }
         Returns: boolean
@@ -12099,6 +12139,10 @@ export type Database = {
         Args: { p_anonymous_id: string }
         Returns: Json
       }
+      get_analytics_overview: {
+        Args: { p_end: string; p_start: string }
+        Returns: Json
+      }
       get_appointment_density: {
         Args: { p_branch_id?: string; p_end_date: string; p_start_date: string }
         Returns: {
@@ -12215,6 +12259,13 @@ export type Database = {
           reason: string
           remaining: number
           total_booked: number
+        }[]
+      }
+      get_event_type_counts: {
+        Args: { p_event_types: string[]; p_start: string }
+        Returns: {
+          count: number
+          event_type: string
         }[]
       }
       get_forecast_signals: {
@@ -12756,6 +12807,10 @@ export type Database = {
           p_event_type: string
           p_visitor_session_id: string
         }
+        Returns: undefined
+      }
+      refresh_analytics_daily_rollup: {
+        Args: { p_days?: number }
         Returns: undefined
       }
       refund_sms_credit: {

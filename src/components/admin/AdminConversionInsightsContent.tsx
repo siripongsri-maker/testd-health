@@ -35,18 +35,18 @@ export default function AdminConversionInsightsContent() {
   const { data: rawCounts, isLoading } = useQuery({
     queryKey: ['conversion-funnel', since],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('analytics_events')
-        .select('event_type')
-        .in('event_type', EVENT_TYPES as unknown as string[])
-        .gte('created_at', since);
+      // Counted server-side so long date ranges don't download every event row.
+      const { data, error } = await (supabase as any).rpc('get_event_type_counts', {
+        p_start: new Date(`${since}T00:00:00Z`).toISOString(),
+        p_event_types: EVENT_TYPES as unknown as string[],
+      });
 
       if (error) throw error;
 
       const counts: Record<string, number> = {};
       EVENT_TYPES.forEach(e => counts[e] = 0);
-      (data || []).forEach((row: { event_type: string }) => {
-        counts[row.event_type] = (counts[row.event_type] || 0) + 1;
+      (data || []).forEach((row: { event_type: string; count: number }) => {
+        counts[row.event_type] = Number(row.count) || 0;
       });
       return counts;
     },

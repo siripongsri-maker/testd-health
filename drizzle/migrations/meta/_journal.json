@@ -36,6 +36,27 @@
       "when": 1789750599397,
       "tag": "0004_reduce_polling_cron_frequency",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1789751021175,
+      "tag": "0005_analytics_server_side_aggregation",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789751199669,
+      "tag": "0006_analytics_daily_rollup",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789751222867,
+      "tag": "0007_analytics_rollup_backfill_helper",
+      "breakpoints": true
     }
   ]
 }
