@@ -11905,6 +11905,7 @@ export type Database = {
         Args: { p_email: string; p_user_id: string }
         Returns: number
       }
+      cleanup_operational_history: { Args: never; Returns: undefined }
       complete_sms_purchase: {
         Args: { p_payment_reference?: string; p_purchase_id: string }
         Returns: Json

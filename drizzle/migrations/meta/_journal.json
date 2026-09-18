@@ -22,6 +22,20 @@
       "when": 1789750157972,
       "tag": "0002_profiles_protect_allow_definer_updates",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789750578524,
+      "tag": "0003_storage_retention_cleanup_jobs",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789750599397,
+      "tag": "0004_reduce_polling_cron_frequency",
+      "breakpoints": true
     }
   ]
 }
