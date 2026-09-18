@@ -12099,6 +12099,10 @@ export type Database = {
         Args: { p_anonymous_id: string }
         Returns: Json
       }
+      get_analytics_overview: {
+        Args: { p_end: string; p_start: string }
+        Returns: Json
+      }
       get_appointment_density: {
         Args: { p_branch_id?: string; p_end_date: string; p_start_date: string }
         Returns: {
@@ -12215,6 +12219,13 @@ export type Database = {
           reason: string
           remaining: number
           total_booked: number
+        }[]
+      }
+      get_event_type_counts: {
+        Args: { p_event_types: string[]; p_start: string }
+        Returns: {
+          count: number
+          event_type: string
         }[]
       }
       get_forecast_signals: {

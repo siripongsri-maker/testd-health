@@ -36,6 +36,13 @@
       "when": 1789750599397,
       "tag": "0004_reduce_polling_cron_frequency",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1789751021175,
+      "tag": "0005_analytics_server_side_aggregation",
+      "breakpoints": true
     }
   ]
 }
