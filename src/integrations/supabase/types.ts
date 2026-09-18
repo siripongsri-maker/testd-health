@@ -110,6 +110,42 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_daily_rollup: {
+        Row: {
+          day: string
+          devices: Json
+          duration_count: number
+          duration_sum: number
+          event_counts: Json
+          pages: Json
+          pageviews: number
+          updated_at: string
+          visitors: number
+        }
+        Insert: {
+          day: string
+          devices?: Json
+          duration_count?: number
+          duration_sum?: number
+          event_counts?: Json
+          pages?: Json
+          pageviews?: number
+          updated_at?: string
+          visitors?: number
+        }
+        Update: {
+          day?: string
+          devices?: Json
+          duration_count?: number
+          duration_sum?: number
+          event_counts?: Json
+          pages?: Json
+          pageviews?: number
+          updated_at?: string
+          visitors?: number
+        }
+        Relationships: []
+      }
       analytics_daily_summary: {
         Row: {
           created_at: string
@@ -12767,6 +12803,10 @@ export type Database = {
           p_event_type: string
           p_visitor_session_id: string
         }
+        Returns: undefined
+      }
+      refresh_analytics_daily_rollup: {
+        Args: { p_days?: number }
         Returns: undefined
       }
       refund_sms_credit: {

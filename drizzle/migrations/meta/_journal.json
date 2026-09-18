@@ -43,6 +43,13 @@
       "when": 1789751021175,
       "tag": "0005_analytics_server_side_aggregation",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789751199669,
+      "tag": "0006_analytics_daily_rollup",
+      "breakpoints": true
     }
   ]
 }
