@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      _tmp_diag: {
+        Row: {
+          at: string | null
+          id: number
+          msg: string | null
+        }
+        Insert: {
+          at?: string | null
+          id?: number
+          msg?: string | null
+        }
+        Update: {
+          at?: string | null
+          id?: number
+          msg?: string | null
+        }
+        Relationships: []
+      }
       admin_chat_notification_prefs: {
         Row: {
           created_at: string
