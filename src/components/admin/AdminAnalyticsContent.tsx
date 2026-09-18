@@ -199,12 +199,11 @@ export default function AdminAnalyticsContent() {
     const startDate = startOfDay(subDays(new Date(), days - 1));
     const endDate = endOfDay(new Date());
 
-    const { data: events, error } = await supabase
-      .from('analytics_events')
-      .select('*')
-      .gte('created_at', startDate.toISOString())
-      .lte('created_at', endDate.toISOString())
-      .order('created_at', { ascending: true });
+    // Aggregated server-side (RPC) so large date ranges never hit the statement timeout.
+    const { data, error } = await (supabase as any).rpc('get_analytics_overview', {
+      p_start: startDate.toISOString(),
+      p_end: endDate.toISOString(),
+    });
 
     if (error) {
       console.error('Error fetching analytics:', error);
@@ -212,89 +211,41 @@ export default function AdminAnalyticsContent() {
       return;
     }
 
-    if (!events || events.length === 0) {
-      setDailyStats([]);
-      setPageStats([]);
-      setDeviceStats([]);
-      setTotals({ visitors: 0, pageviews: 0, uniqueSessions: 0, avgSessionDuration: 0 });
-      setLoading(false);
-      return;
-    }
+    const overview = (data || {}) as {
+      daily?: { date: string; visitors: number; pageviews: number }[];
+      pages?: { page_path: string; views: number }[];
+      devices?: { device_type: string; count: number }[];
+      totals?: { visitors: number; pageviews: number; uniqueSessions: number; avgSessionDuration: number };
+    };
 
-    // Calculate daily stats
-    const dailyMap = new Map<string, { visitors: Set<string>; pageviews: number }>();
-    
+    // Fill every day in range so the chart keeps a continuous x-axis.
+    const dailyMap = new Map<string, { visitors: number; pageviews: number }>();
     for (let i = 0; i < days; i++) {
       const date = format(subDays(new Date(), days - 1 - i), 'yyyy-MM-dd');
-      dailyMap.set(date, { visitors: new Set(), pageviews: 0 });
+      dailyMap.set(date, { visitors: 0, pageviews: 0 });
     }
-
-    events.forEach(event => {
-      const date = format(new Date(event.created_at), 'yyyy-MM-dd');
-      const dayStats = dailyMap.get(date);
-      if (dayStats) {
-        if (event.session_id) dayStats.visitors.add(event.session_id);
-        if (event.event_type === 'pageview') dayStats.pageviews++;
+    (overview.daily || []).forEach(row => {
+      const key = String(row.date).slice(0, 10);
+      if (dailyMap.has(key)) {
+        dailyMap.set(key, { visitors: Number(row.visitors) || 0, pageviews: Number(row.pageviews) || 0 });
       }
     });
 
     const dailyData: DailyStats[] = Array.from(dailyMap.entries()).map(([date, stats]) => ({
       date: format(new Date(date), 'MMM dd'),
-      visitors: stats.visitors.size,
+      visitors: stats.visitors,
       pageviews: stats.pageviews,
     }));
 
     setDailyStats(dailyData);
 
-    // Calculate page stats
-    const pageMap = new Map<string, number>();
-    events.forEach(event => {
-      if (event.event_type === 'pageview' && event.page_path) {
-        pageMap.set(event.page_path, (pageMap.get(event.page_path) || 0) + 1);
-      }
-    });
-
-    const pageData: PageStats[] = Array.from(pageMap.entries())
-      .map(([page_path, views]) => ({ page_path, views }))
-      .sort((a, b) => b.views - a.views)
-      .slice(0, 10);
-
-    setPageStats(pageData);
-
-    // Calculate device stats
-    const deviceMap = new Map<string, number>();
-    events.forEach(event => {
-      const device = event.device_type || 'unknown';
-      deviceMap.set(device, (deviceMap.get(device) || 0) + 1);
-    });
-
-    const deviceData: DeviceStats[] = Array.from(deviceMap.entries())
-      .map(([device_type, count]) => ({ device_type, count }));
-
-    setDeviceStats(deviceData);
-
-    // Calculate totals and session duration
-    const uniqueSessions = new Set(events.map(e => e.session_id).filter(Boolean));
-    
-    // Calculate average session duration from session_end events
-    const sessionEndEvents = events.filter(e => 
-      e.event_type === 'session_end' && 
-      (e as { session_duration_seconds?: number }).session_duration_seconds
-    );
-    
-    let avgDuration = 0;
-    if (sessionEndEvents.length > 0) {
-      const totalDuration = sessionEndEvents.reduce((sum, e) => 
-        sum + ((e as { session_duration_seconds?: number }).session_duration_seconds || 0), 0
-      );
-      avgDuration = Math.round(totalDuration / sessionEndEvents.length);
-    }
-    
+    setPageStats((overview.pages || []).map(p => ({ page_path: p.page_path, views: Number(p.views) || 0 })) as PageStats[]);
+    setDeviceStats((overview.devices || []).map(d => ({ device_type: d.device_type, count: Number(d.count) || 0 })) as DeviceStats[]);
     setTotals({
-      visitors: uniqueSessions.size,
-      pageviews: events.filter(e => e.event_type === 'pageview').length,
-      uniqueSessions: uniqueSessions.size,
-      avgSessionDuration: avgDuration,
+      visitors: Number(overview.totals?.visitors) || 0,
+      pageviews: Number(overview.totals?.pageviews) || 0,
+      uniqueSessions: Number(overview.totals?.uniqueSessions) || 0,
+      avgSessionDuration: Number(overview.totals?.avgSessionDuration) || 0,
     });
 
     setLoading(false);
