@@ -245,7 +245,21 @@ Deno.serve(async (req) => {
 
       if (reqErr) {
         console.error("hiv_selftest_requests insert failed", reqErr);
-        return json({ error: "request_insert_failed", detail: reqErr.message }, 500);
+        // Do not leave an orphan PII row behind when the request row fails —
+        // orphans are invisible to staff and impossible to fulfil.
+        const { error: cleanupErr } = await supa
+          .from("selftest_pii")
+          .delete()
+          .eq("id", piiRow.id);
+        if (cleanupErr) console.error("orphan selftest_pii cleanup failed", cleanupErr);
+        return json(
+          {
+            error: "request_insert_failed",
+            detail: reqErr.message,
+            message: "ระบบบันทึกคำขอไม่สำเร็จ กรุณาลองใหม่อีกครั้ง",
+          },
+          500,
+        );
       }
 
       return json({
