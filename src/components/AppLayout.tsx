@@ -1,4 +1,5 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { lazyWithRetry } from "@/lib/lazyWithRetry";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/hooks/useAuth";
@@ -7,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import testdLogo from "@/assets/testd-logo.png";
 import { User, LogIn, MapPin } from "lucide-react";
 
-const NotificationBell = lazy(() => import("@/components/NotificationBell").then(m => ({ default: m.NotificationBell })));
-const BottomNav = lazy(() => import("@/components/BottomNav").then(m => ({ default: m.BottomNav })));
-const GlobalPresence = lazy(() => import("@/components/GlobalPresence").then(m => ({ default: m.GlobalPresence })));
+const NotificationBell = lazyWithRetry(() => import("@/components/NotificationBell").then(m => ({ default: m.NotificationBell })));
+const BottomNav = lazyWithRetry(() => import("@/components/BottomNav").then(m => ({ default: m.BottomNav })));
+const GlobalPresence = lazyWithRetry(() => import("@/components/GlobalPresence").then(m => ({ default: m.GlobalPresence })));
 
 interface AppLayoutProps {
   children: React.ReactNode;
