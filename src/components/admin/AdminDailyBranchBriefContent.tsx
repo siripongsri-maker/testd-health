@@ -176,6 +176,8 @@ export default function AdminDailyBranchBriefContent({
   const [payouts, setPayouts] = useState<Map<string, PayoutStatus>>(new Map());
   const [queuingId, setQueuingId] = useState<string | null>(null);
   const [openingId, setOpeningId] = useState<string | null>(null);
+  /** appointment_id -> survey_id, for urgent cases opened from this page (enables the QR button). */
+  const [openedSurveyByAppt, setOpenedSurveyByAppt] = useState<Record<string, string>>({});
 
   const [noteDetails, setNoteDetails] = useState<Map<string, NoteDetail>>(new Map());
 
@@ -396,6 +398,7 @@ export default function AdminDailyBranchBriefContent({
       toast({ title: tx("เปิดเคสไม่สำเร็จ", "Failed to open case"), description: error.message, variant: "destructive" });
       return;
     }
+    if (data) setOpenedSurveyByAppt((m) => ({ ...m, [u.appointment_id]: data as string }));
     toast({
       title: tx("เปิดเคสแล้ว", "Case opened"),
       description: tx("เคสถูกเพิ่มในรายการด้านล่าง บันทึกผลและปิดเคสได้เลย", "The case now appears in the list below — record and close it there."),
@@ -577,6 +580,14 @@ export default function AdminDailyBranchBriefContent({
                   {openingId === u.appointment_id && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
                   {tx("เปิดเคสเพื่อบันทึกผล", "Open case to record")}
                 </Button>
+                {openedSurveyByAppt[u.appointment_id] && (
+                  <div className="no-print">
+                    <PostEvalQrDialog
+                      surveyId={openedSurveyByAppt[u.appointment_id]}
+                      caseCode={u.referral_code}
+                    />
+                  </div>
+                )}
               </div>
             ))}
 
