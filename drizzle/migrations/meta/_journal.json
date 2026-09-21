@@ -92,6 +92,13 @@
       "when": 1789969275807,
       "tag": "0012_fix_client_history_ambiguous_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1789969298112,
+      "tag": "0013_fix_client_history_stats_types",
+      "breakpoints": true
     }
   ]
 }
