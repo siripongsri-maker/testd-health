@@ -57,6 +57,20 @@
       "when": 1789751222867,
       "tag": "0007_analytics_rollup_backfill_helper",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1789968231080,
+      "tag": "0008_post_eval_qr_link_context",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1789968273819,
+      "tag": "0009_fix_ensure_post_eval_link_columns",
+      "breakpoints": true
     }
   ]
 }

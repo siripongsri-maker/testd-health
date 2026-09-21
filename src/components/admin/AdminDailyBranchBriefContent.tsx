@@ -21,6 +21,7 @@ import { exportToCsv, type CsvColumn } from "@/lib/adminCsvExport";
 import { format } from "date-fns";
 import { fetchUrgentCaseMap, fetchSurveyAppointmentMap, fetchUrgentAppointmentsForDay, type UrgentAppointmentRef } from "@/lib/urgentCases";
 import PrintButton from "./PrintButton";
+import PostEvalQrDialog from "./PostEvalQrDialog";
 
 
 
@@ -743,6 +744,7 @@ export default function AdminDailyBranchBriefContent({
                         ? tx("มีผู้รับผิดชอบแล้ว", "Assigned")
                         : tx("ยังไม่มีผู้รับผิดชอบ", "Unassigned")}
                     </span>
+                    <PostEvalQrDialog surveyId={c.survey_id} caseCode={c.case_code} />
                   </div>
 
                   {/* บันทึกผล / ส่งต่อ — the work page owns these commands */}
