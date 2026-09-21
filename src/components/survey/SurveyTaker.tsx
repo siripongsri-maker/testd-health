@@ -12,6 +12,11 @@ import { useLanguage } from "@/lib/i18n";
 import type { SurveyQuestion, AnswerData, SkipCondition } from "./types";
 import { cn } from "@/lib/utils";
 
+const OTHER_OPTION_RE = /อื่น|ระบุ|^other\b/i;
+function isOtherOption(option: { text_th: string; text_en: string }): boolean {
+  return OTHER_OPTION_RE.test(option.text_th) || OTHER_OPTION_RE.test(option.text_en);
+}
+
 function shouldShowQuestion(question: SurveyQuestion, allQuestions: SurveyQuestion[], answers: Record<string, AnswerData>): boolean {
   const condition = question.skip_condition as SkipCondition | null | undefined;
   if (!condition) return true;
@@ -94,8 +99,15 @@ export function SurveyTaker({ questions, onSubmit, isSubmitting = false, surveyI
     if (!currentAnswer) return false;
     switch (currentQuestion.question_type) {
       case 'multiple_choice':
-      case 'checkbox':
-        return currentAnswer.answer_options && currentAnswer.answer_options.length > 0;
+      case 'checkbox': {
+        if (!currentAnswer.answer_options || currentAnswer.answer_options.length === 0) return false;
+        // If an "other" option is selected, require the free-text detail
+        const selectedOther = currentQuestion.options.some(
+          (o) => currentAnswer.answer_options!.includes(o.id) && isOtherOption(o)
+        );
+        if (selectedOther) return !!currentAnswer.answer_text && currentAnswer.answer_text.trim().length > 0;
+        return true;
+      }
       case 'text_short':
       case 'text_long':
         return currentAnswer.answer_text && currentAnswer.answer_text.trim().length > 0;
@@ -198,11 +210,21 @@ export function SurveyTaker({ questions, onSubmit, isSubmitting = false, surveyI
               className="space-y-3"
             >
               {currentQuestion.options.map((option) => (
-                <div key={option.id} className="flex items-center space-x-3">
-                  <RadioGroupItem value={option.id} id={option.id} />
-                  <Label htmlFor={option.id} className="cursor-pointer flex-1 py-2">
-                    {language === 'th' ? option.text_th : option.text_en}
-                  </Label>
+                <div key={option.id} className="space-y-2">
+                  <div className="flex items-center space-x-3">
+                    <RadioGroupItem value={option.id} id={option.id} />
+                    <Label htmlFor={option.id} className="cursor-pointer flex-1 py-2">
+                      {language === 'th' ? option.text_th : option.text_en}
+                    </Label>
+                  </div>
+                  {isOtherOption(option) && currentAnswer?.answer_options?.[0] === option.id && (
+                    <Input
+                      value={currentAnswer?.answer_text || ''}
+                      onChange={(e) => updateAnswer({ answer_text: e.target.value })}
+                      placeholder={language === 'th' ? 'โปรดระบุ...' : 'Please specify...'}
+                      className="ml-7 max-w-sm"
+                    />
+                  )}
                 </div>
               ))}
             </RadioGroup>
@@ -214,22 +236,32 @@ export function SurveyTaker({ questions, onSubmit, isSubmitting = false, surveyI
               {currentQuestion.options.map((option) => {
                 const isChecked = currentAnswer?.answer_options?.includes(option.id) || false;
                 return (
-                  <div key={option.id} className="flex items-center space-x-3">
-                    <Checkbox
-                      id={option.id}
-                      checked={isChecked}
-                      onCheckedChange={(checked) => {
-                        const currentOptions = currentAnswer?.answer_options || [];
-                        if (checked) {
-                          updateAnswer({ answer_options: [...currentOptions, option.id] });
-                        } else {
-                          updateAnswer({ answer_options: currentOptions.filter((id) => id !== option.id) });
-                        }
-                      }}
-                    />
-                    <Label htmlFor={option.id} className="cursor-pointer flex-1 py-2">
-                      {language === 'th' ? option.text_th : option.text_en}
-                    </Label>
+                  <div key={option.id} className="space-y-2">
+                    <div className="flex items-center space-x-3">
+                      <Checkbox
+                        id={option.id}
+                        checked={isChecked}
+                        onCheckedChange={(checked) => {
+                          const currentOptions = currentAnswer?.answer_options || [];
+                          if (checked) {
+                            updateAnswer({ answer_options: [...currentOptions, option.id] });
+                          } else {
+                            updateAnswer({ answer_options: currentOptions.filter((id) => id !== option.id) });
+                          }
+                        }}
+                      />
+                      <Label htmlFor={option.id} className="cursor-pointer flex-1 py-2">
+                        {language === 'th' ? option.text_th : option.text_en}
+                      </Label>
+                    </div>
+                    {isOtherOption(option) && isChecked && (
+                      <Input
+                        value={currentAnswer?.answer_text || ''}
+                        onChange={(e) => updateAnswer({ answer_text: e.target.value })}
+                        placeholder={language === 'th' ? 'โปรดระบุ...' : 'Please specify...'}
+                        className="ml-7 max-w-sm"
+                      />
+                    )}
                   </div>
                 );
               })}
