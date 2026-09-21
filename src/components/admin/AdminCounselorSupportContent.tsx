@@ -22,6 +22,7 @@ import { useAdminRole } from "@/hooks/useAdminRole";
 import { toast } from "@/hooks/use-toast";
 import ClientHrContextPanel from "./ClientHrContextPanel";
 import HrReferralQueue from "./HrReferralQueue";
+import { UrgentNoSurveyPanel } from "./counselor/UrgentNoSurveyPanel";
 import { useStableRefresh, lockScroll } from "@/hooks/useStableRefresh";
 import { notifySaved, type FieldChange } from "@/lib/adminSaveToast";
 
