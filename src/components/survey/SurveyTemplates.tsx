@@ -1,7 +1,7 @@
 import { useLanguage } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ClipboardList, Heart, Stethoscope, MessageSquare, Star, Shield, Copy } from "lucide-react";
+import { ClipboardList, Heart, Stethoscope, MessageSquare, Star, Shield, Copy, Users } from "lucide-react";
 import type { QuestionFormData } from "./types";
 
 export interface SurveyTemplate {
