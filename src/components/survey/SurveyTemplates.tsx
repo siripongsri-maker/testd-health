@@ -250,7 +250,7 @@ export const SURVEY_TEMPLATES: SurveyTemplate[] = [
   {
     id: 'chemsex-organizers-circle',
     icon: <Users className="h-5 w-5 text-teal-500" />,
-    title_th: 'วงคุยของคนจัดวง พื้นที่ปลอดภัย ไม่ตัดสิน',
+    title_th: 'วงคุยของคนจัดงานโฮม พื้นที่ปลอดภัย',
     title_en: 'Safer Spaces: a circle for people who host',
     description_th:
       'ฟอร์มชวนคนจัดวงมาร่วมวงคุย (Output 1.1.5) ไม่ถามชื่อจริง ไม่ถามสถานที่ ไม่ถามเรื่องสาร',
