@@ -398,6 +398,7 @@ export default function AdminDailyBranchBriefContent({
       toast({ title: tx("เปิดเคสไม่สำเร็จ", "Failed to open case"), description: error.message, variant: "destructive" });
       return;
     }
+    if (data) setOpenedSurveyByAppt((m) => ({ ...m, [u.appointment_id]: data as string }));
     toast({
       title: tx("เปิดเคสแล้ว", "Case opened"),
       description: tx("เคสถูกเพิ่มในรายการด้านล่าง บันทึกผลและปิดเคสได้เลย", "The case now appears in the list below — record and close it there."),
