@@ -71,6 +71,34 @@
       "when": 1789968273819,
       "tag": "0009_fix_ensure_post_eval_link_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1789968933172,
+      "tag": "0010_client_service_history_rpcs",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1789968966326,
+      "tag": "0011_client_history_stats_cleanup",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1789969275807,
+      "tag": "0012_fix_client_history_ambiguous_columns",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1789969298112,
+      "tag": "0013_fix_client_history_stats_types",
+      "breakpoints": true
     }
   ]
 }

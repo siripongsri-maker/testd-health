@@ -11923,6 +11923,7 @@ export type Database = {
         Args: { p_from: string; p_to: string }
         Returns: number
       }
+      can_view_client_history: { Args: never; Returns: boolean }
       can_view_client_hr_context: {
         Args: { _client_id: string }
         Returns: boolean
@@ -12240,6 +12241,71 @@ export type Database = {
       get_client_hr_context: {
         Args: { _client_id: string; _reason?: string }
         Returns: Json
+      }
+      get_client_service_history: {
+        Args: {
+          _branch?: string
+          _from?: string
+          _limit?: number
+          _offset?: number
+          _search?: string
+          _stage?: string
+          _to?: string
+        }
+        Returns: {
+          appointments_count: number
+          claim_status: string
+          completed_visits: number
+          counseling_completed_at: string
+          evaluations: number
+          first_visit: string
+          last_branch_id: string
+          last_branch_name_en: string
+          last_branch_name_th: string
+          last_evaluation_at: string
+          last_visit: string
+          mel_events: number
+          note_status: string
+          stage: string
+          total_count: number
+          uic_display: string
+          uic_hash: string
+          visits: number
+        }[]
+      }
+      get_client_service_history_stats: {
+        Args: { _branch?: string; _from?: string; _to?: string }
+        Returns: {
+          awaiting_evaluation: number
+          clients: number
+          evaluated: number
+          in_counseling: number
+          returning_clients: number
+          survey_only: number
+          visits: number
+        }[]
+      }
+      get_client_visit_timeline: {
+        Args: { _uic_hash: string }
+        Returns: {
+          appointment_date: string
+          appointment_id: string
+          appointment_status: string
+          branch_id: string
+          branch_name_en: string
+          branch_name_th: string
+          claim_status: string
+          counseling_completed_at: string
+          evaluation_submitted_at: string
+          mel_event_count: number
+          note_id: string
+          note_status: string
+          post_eval_token: string
+          satisfaction_score: number
+          survey_at: string
+          survey_id: string
+          uic_display: string
+        }[]
       }
       get_daily_branch_brief: {
         Args: { p_branch_ids?: string[]; p_date?: string }
