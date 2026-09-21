@@ -253,9 +253,9 @@ export const SURVEY_TEMPLATES: SurveyTemplate[] = [
     title_th: 'วงคุยของคนจัดงานโฮม พื้นที่ปลอดภัย',
     title_en: 'Safer Spaces: a circle for people who host',
     description_th:
-      'ฟอร์มชวนคนจัดวงมาร่วมวงคุย (Output 1.1.5) ไม่ถามชื่อจริง ไม่ถามสถานที่ ไม่ถามเรื่องสาร',
+      'ฟอร์มชวนคนจัดวงมาร่วมวงคุย (Output 1.1.5) ไม่ถามชื่อจริง ไม่ถามสถานที่ ไม่ถามเรื่องสาร\n\nสอบถามเพิ่มเติม โทร 0625493639\nปิดรับ 30 กันยายน 2569 หรือจนกว่าจะครบ 10 คน',
     description_en:
-      'Recruitment form for people who host (Output 1.1.5). No real names, no venue, no substance questions.',
+      'Recruitment form for people who host (Output 1.1.5). No real names, no venue, no substance questions.\n\nQuestions: call 0625493639. Closes 30 September 2026 or when 10 people have joined.',
     questions: [
       {
         ...base,
