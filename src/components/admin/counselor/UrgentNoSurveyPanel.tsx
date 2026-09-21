@@ -48,16 +48,19 @@ export function UrgentNoSurveyPanel({ tx, branchId, branchName, days = 7, readOn
       const ids = Array.from(urgentMap.keys());
       if (ids.length === 0) { setRows([]); return; }
 
+      // Query by date window (an id list can be thousands of items -> 400 URL too long)
+      // and intersect with the urgent referral map in memory.
       const since = new Date(Date.now() - days * 86400000).toISOString().slice(0, 10);
       let q = supabase
         .from("appointments")
         .select("id, branch_id, appointment_date, start_time, referral_code, status, notes, staff_notes")
-        .in("id", ids)
         .gte("appointment_date", since)
-        .not("status", "in", '("cancelled","no_show")');
+        .not("status", "in", '("cancelled","no_show")')
+        .limit(2000);
       if (branchId) q = q.eq("branch_id", branchId);
-      const { data, error } = await q;
+      const { data: raw, error } = await q;
       if (error) throw error;
+      const data = ((raw as any[]) || []).filter((a) => urgentMap.has(a.id));
 
       const apptIds = ((data as any[]) || []).map((a) => a.id);
       const withSurvey = new Set<string>();
