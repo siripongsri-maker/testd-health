@@ -210,11 +210,21 @@ export function SurveyTaker({ questions, onSubmit, isSubmitting = false, surveyI
               className="space-y-3"
             >
               {currentQuestion.options.map((option) => (
-                <div key={option.id} className="flex items-center space-x-3">
-                  <RadioGroupItem value={option.id} id={option.id} />
-                  <Label htmlFor={option.id} className="cursor-pointer flex-1 py-2">
-                    {language === 'th' ? option.text_th : option.text_en}
-                  </Label>
+                <div key={option.id} className="space-y-2">
+                  <div className="flex items-center space-x-3">
+                    <RadioGroupItem value={option.id} id={option.id} />
+                    <Label htmlFor={option.id} className="cursor-pointer flex-1 py-2">
+                      {language === 'th' ? option.text_th : option.text_en}
+                    </Label>
+                  </div>
+                  {isOtherOption(option) && currentAnswer?.answer_options?.[0] === option.id && (
+                    <Input
+                      value={currentAnswer?.answer_text || ''}
+                      onChange={(e) => updateAnswer({ answer_text: e.target.value })}
+                      placeholder={language === 'th' ? 'โปรดระบุ...' : 'Please specify...'}
+                      className="ml-7 max-w-sm"
+                    />
+                  )}
                 </div>
               ))}
             </RadioGroup>
