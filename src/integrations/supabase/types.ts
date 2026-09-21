@@ -12036,6 +12036,22 @@ export type Database = {
         Args: { p_relay_id?: string; p_user_id: string }
         Returns: number
       }
+      ensure_post_eval_link: {
+        Args: { _survey_id: string }
+        Returns: {
+          branch_id: string
+          branch_name_en: string
+          branch_name_th: string
+          counseling_date: string
+          counselor_name: string
+          has_evaluation: boolean
+          note_id: string
+          status: string
+          survey_id: string
+          token: string
+          uic_display: string
+        }[]
+      }
       export_pre_post_full: {
         Args: never
         Returns: {
