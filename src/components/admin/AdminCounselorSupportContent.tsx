@@ -22,6 +22,7 @@ import { useAdminRole } from "@/hooks/useAdminRole";
 import { toast } from "@/hooks/use-toast";
 import ClientHrContextPanel from "./ClientHrContextPanel";
 import HrReferralQueue from "./HrReferralQueue";
+import { UrgentNoSurveyPanel } from "./counselor/UrgentNoSurveyPanel";
 import { useStableRefresh, lockScroll } from "@/hooks/useStableRefresh";
 import { notifySaved, type FieldChange } from "@/lib/adminSaveToast";
 
@@ -804,6 +805,16 @@ export default function AdminCounselorSupportContent({
           </Button>
         </div>
       </div>
+
+      {/* Urgent cases flagged on the appointments page that have no pre-service
+          survey yet — otherwise they never reach this queue. */}
+      <UrgentNoSurveyPanel
+        tx={tx}
+        branchId={branchFilter === "all" ? null : branchFilter}
+        branchName={branchName}
+        readOnly={viewOnly || isMeAnalyst}
+        onOpened={load}
+      />
 
       {/* Overview — collapsed by default so the queue itself is the hero */}
       <Collapsible open={showOverview} onOpenChange={setShowOverview}>
