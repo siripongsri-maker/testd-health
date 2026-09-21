@@ -176,6 +176,8 @@ export default function AdminDailyBranchBriefContent({
   const [payouts, setPayouts] = useState<Map<string, PayoutStatus>>(new Map());
   const [queuingId, setQueuingId] = useState<string | null>(null);
   const [openingId, setOpeningId] = useState<string | null>(null);
+  /** appointment_id -> survey_id, for urgent cases opened from this page (enables the QR button). */
+  const [openedSurveyByAppt, setOpenedSurveyByAppt] = useState<Record<string, string>>({});
 
   const [noteDetails, setNoteDetails] = useState<Map<string, NoteDetail>>(new Map());
 
