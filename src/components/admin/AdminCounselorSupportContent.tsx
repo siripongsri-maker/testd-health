@@ -805,6 +805,16 @@ export default function AdminCounselorSupportContent({
         </div>
       </div>
 
+      {/* Urgent cases flagged on the appointments page that have no pre-service
+          survey yet — otherwise they never reach this queue. */}
+      <UrgentNoSurveyPanel
+        tx={tx}
+        branchId={branchFilter === "all" ? null : branchFilter}
+        branchName={branchName}
+        readOnly={viewOnly || isMeAnalyst}
+        onOpened={load}
+      />
+
       {/* Overview — collapsed by default so the queue itself is the hero */}
       <Collapsible open={showOverview} onOpenChange={setShowOverview}>
         <Card className="p-2.5">
