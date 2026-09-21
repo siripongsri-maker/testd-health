@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight, CalendarDays, HeartHandshake, ClipboardList, Banknote, Brain, History } from "lucide-react";
+import { ChevronLeft, ChevronRight, CalendarDays, HeartHandshake, ClipboardList, Banknote, Brain, History, Users } from "lucide-react";
 import { format } from "date-fns";
 import { useLanguage } from "@/lib/i18n";
 import { useAdminRole } from "@/hooks/useAdminRole";
@@ -19,6 +19,7 @@ import AdminDailyBranchBriefContent from "./AdminDailyBranchBriefContent";
 import AdminConcernBriefContent from "./AdminConcernBriefContent";
 import AdminCounselingPayoutsContent from "./AdminCounselingPayoutsContent";
 import AdminAuditLogContent from "./AdminAuditLogContent";
+import AdminClientHistoryContent from "./AdminClientHistoryContent";
 
 /**
  * Daily Ops workspace — merges the four overlapping counseling menus
@@ -38,7 +39,7 @@ const shiftDay = (day: string, delta: number) => {
   return format(d, "yyyy-MM-dd");
 };
 
-type SubTab = "queue" | "branch" | "concern" | "payouts" | "audit";
+type SubTab = "queue" | "branch" | "concern" | "clients" | "payouts" | "audit";
 
 export default function AdminDailyOpsContent() {
   const { language } = useLanguage();
@@ -84,6 +85,7 @@ export default function AdminDailyOpsContent() {
     { key: "queue", icon: HeartHandshake, th: "คิวรวม (ดูอย่างเดียว)", en: "Queue overview" },
     { key: "branch", icon: ClipboardList, th: "สรุปรายสาขา (บันทึกผล)", en: "Branch brief (work page)" },
     { key: "concern", icon: Brain, th: "เรื่องที่กังวล", en: "Concerns" },
+    { key: "clients", icon: Users, th: "ประวัติผู้รับบริการ", en: "Client history" },
     { key: "payouts", icon: Banknote, th: "ค่าเดินทาง", en: "Travel allowance", adminOnly: true },
     { key: "audit", icon: History, th: "บันทึกกิจกรรม", en: "Audit log", adminOnly: true },
   ];
@@ -170,6 +172,9 @@ export default function AdminDailyOpsContent() {
             branchFilter={branchFilter} onBranchChange={setBranchFilter}
             hideToolbar
           />
+        </TabsContent>
+        <TabsContent value="clients" className="mt-4">
+          <AdminClientHistoryContent branchFilter={branchFilter} onBranchChange={setBranchFilter} />
         </TabsContent>
         {isAdmin && (
           <TabsContent value="payouts" className="mt-4">
