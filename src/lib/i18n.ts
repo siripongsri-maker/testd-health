@@ -474,7 +474,7 @@ const translations: Record<'th' | 'en', Record<string, string>> = {
     // Home menu grid (central labels — update here to change everywhere)
     'home.menu.consult': 'ขอคำปรึกษา',
     'home.menu.selftest': 'ชุดตรวจส่งถึงบ้าน',
-    'home.menu.risk': 'ประเมินความเสี่ยง',
+    'home.menu.risk': 'แบบประเมิน',
     'home.menu.invite': 'ชวนเพื่อน/แฟนตรวจ',
     'home.menu.learn': 'Blog เรื่องน่ารู้',
     'home.menu.selfcare': 'ดูแลตัวเอง รับถุงยาง รับชุดตรวจ',
