@@ -236,22 +236,32 @@ export function SurveyTaker({ questions, onSubmit, isSubmitting = false, surveyI
               {currentQuestion.options.map((option) => {
                 const isChecked = currentAnswer?.answer_options?.includes(option.id) || false;
                 return (
-                  <div key={option.id} className="flex items-center space-x-3">
-                    <Checkbox
-                      id={option.id}
-                      checked={isChecked}
-                      onCheckedChange={(checked) => {
-                        const currentOptions = currentAnswer?.answer_options || [];
-                        if (checked) {
-                          updateAnswer({ answer_options: [...currentOptions, option.id] });
-                        } else {
-                          updateAnswer({ answer_options: currentOptions.filter((id) => id !== option.id) });
-                        }
-                      }}
-                    />
-                    <Label htmlFor={option.id} className="cursor-pointer flex-1 py-2">
-                      {language === 'th' ? option.text_th : option.text_en}
-                    </Label>
+                  <div key={option.id} className="space-y-2">
+                    <div className="flex items-center space-x-3">
+                      <Checkbox
+                        id={option.id}
+                        checked={isChecked}
+                        onCheckedChange={(checked) => {
+                          const currentOptions = currentAnswer?.answer_options || [];
+                          if (checked) {
+                            updateAnswer({ answer_options: [...currentOptions, option.id] });
+                          } else {
+                            updateAnswer({ answer_options: currentOptions.filter((id) => id !== option.id) });
+                          }
+                        }}
+                      />
+                      <Label htmlFor={option.id} className="cursor-pointer flex-1 py-2">
+                        {language === 'th' ? option.text_th : option.text_en}
+                      </Label>
+                    </div>
+                    {isOtherOption(option) && isChecked && (
+                      <Input
+                        value={currentAnswer?.answer_text || ''}
+                        onChange={(e) => updateAnswer({ answer_text: e.target.value })}
+                        placeholder={language === 'th' ? 'โปรดระบุ...' : 'Please specify...'}
+                        className="ml-7 max-w-sm"
+                      />
+                    )}
                   </div>
                 );
               })}
