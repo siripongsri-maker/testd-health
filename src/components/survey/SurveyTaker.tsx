@@ -12,6 +12,11 @@ import { useLanguage } from "@/lib/i18n";
 import type { SurveyQuestion, AnswerData, SkipCondition } from "./types";
 import { cn } from "@/lib/utils";
 
+const OTHER_OPTION_RE = /อื่น|ระบุ|^other\b/i;
+function isOtherOption(option: { text_th: string; text_en: string }): boolean {
+  return OTHER_OPTION_RE.test(option.text_th) || OTHER_OPTION_RE.test(option.text_en);
+}
+
 function shouldShowQuestion(question: SurveyQuestion, allQuestions: SurveyQuestion[], answers: Record<string, AnswerData>): boolean {
   const condition = question.skip_condition as SkipCondition | null | undefined;
   if (!condition) return true;
@@ -94,8 +99,15 @@ export function SurveyTaker({ questions, onSubmit, isSubmitting = false, surveyI
     if (!currentAnswer) return false;
     switch (currentQuestion.question_type) {
       case 'multiple_choice':
-      case 'checkbox':
-        return currentAnswer.answer_options && currentAnswer.answer_options.length > 0;
+      case 'checkbox': {
+        if (!currentAnswer.answer_options || currentAnswer.answer_options.length === 0) return false;
+        // If an "other" option is selected, require the free-text detail
+        const selectedOther = currentQuestion.options.some(
+          (o) => currentAnswer.answer_options!.includes(o.id) && isOtherOption(o)
+        );
+        if (selectedOther) return !!currentAnswer.answer_text && currentAnswer.answer_text.trim().length > 0;
+        return true;
+      }
       case 'text_short':
       case 'text_long':
         return currentAnswer.answer_text && currentAnswer.answer_text.trim().length > 0;
