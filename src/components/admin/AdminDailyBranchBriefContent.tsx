@@ -580,6 +580,14 @@ export default function AdminDailyBranchBriefContent({
                   {openingId === u.appointment_id && <Loader2 className="mr-1 h-3 w-3 animate-spin" />}
                   {tx("เปิดเคสเพื่อบันทึกผล", "Open case to record")}
                 </Button>
+                {openedSurveyByAppt[u.appointment_id] && (
+                  <div className="no-print">
+                    <PostEvalQrDialog
+                      surveyId={openedSurveyByAppt[u.appointment_id]}
+                      caseCode={u.referral_code}
+                    />
+                  </div>
+                )}
               </div>
             ))}
 
