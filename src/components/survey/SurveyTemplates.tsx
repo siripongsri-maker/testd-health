@@ -16,6 +16,19 @@ export interface SurveyTemplate {
 
 const opt = (id: string, th: string, en: string) => ({ id, text_th: th, text_en: en });
 
+const o = (th: string, en: string) => opt(crypto.randomUUID(), th, en);
+
+const base = {
+  options: [] as QuestionFormData['options'],
+  rating_min: 1,
+  rating_max: 5,
+  rating_label_min_th: '',
+  rating_label_min_en: '',
+  rating_label_max_th: '',
+  rating_label_max_en: '',
+  is_required: false,
+};
+
 export const SURVEY_TEMPLATES: SurveyTemplate[] = [
   {
     id: 'prep-satisfaction',
