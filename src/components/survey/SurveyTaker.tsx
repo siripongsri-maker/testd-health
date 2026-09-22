@@ -12,7 +12,9 @@ import { useLanguage } from "@/lib/i18n";
 import type { SurveyQuestion, AnswerData, SkipCondition } from "./types";
 import { cn } from "@/lib/utils";
 
-const OTHER_OPTION_RE = /อื่น|ระบุ|^other\b/i;
+// Match only true "other" options: text must START with "อื่น" (e.g. "อื่นๆ (ระบุ...)")
+// or English "other". Ordinary options merely containing อื่น/ระบุ mid-sentence must not match.
+const OTHER_OPTION_RE = /^\s*(อื่น\s*ๆ?|other)\b/i;
 function isOtherOption(option: { text_th: string; text_en: string }): boolean {
   return OTHER_OPTION_RE.test(option.text_th) || OTHER_OPTION_RE.test(option.text_en);
 }
