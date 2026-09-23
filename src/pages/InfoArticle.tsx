@@ -119,6 +119,20 @@ export default function InfoArticle() {
   const [copied, setCopied] = useState(false);
   const questTrackedRef = useRef(false);
 
+  // Match a survey to this article's topic (inline CTA + floating prompt)
+  const matchText = article
+    ? [
+        article.title_th,
+        article.title_en,
+        article.excerpt_th || "",
+        article.excerpt_en || "",
+        (article.content_th || article.content_en || "").slice(0, 1200),
+        category?.name_th || "",
+        category?.name_en || "",
+      ].join(" ")
+    : null;
+  const relatedSurvey = useRelatedSurvey(matchText);
+
   // Track article read quest after 15 seconds on page
   useEffect(() => {
     if (article && !questTrackedRef.current) {
