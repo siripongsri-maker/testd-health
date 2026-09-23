@@ -182,22 +182,8 @@ export function useQuestProgress() {
           .eq('id', typedUserQuest.id);
       }
 
-      // 5. Award XP if completed
+      // 5. XP is awarded server-side when the quest row is marked complete
       if (isNowComplete && quest.reward_xp > 0) {
-        // Get current XP and increment
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('xp')
-          .eq('id', user.id)
-          .single();
-
-        if (profile) {
-          await supabase
-            .from('profiles')
-            .update({ xp: (profile.xp || 0) + quest.reward_xp })
-            .eq('id', user.id);
-        }
-
         const questTitle = language === 'th' ? quest.title_th : quest.title_en;
         toast.success(
           language === 'th' 

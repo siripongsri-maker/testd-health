@@ -17,6 +17,9 @@ import { SEOHead } from "@/components/seo/SEOHead";
 import { usePageLocale } from "@/components/seo/LocaleRouter";
 import { alternateLanguagePathsFor, type Locale } from "@/lib/seoLocalePrefix";
 import { RelatedArticles } from "@/components/blog/RelatedArticles";
+import { ArticleSurveyCta } from "@/components/blog/ArticleSurveyCta";
+import { FloatingSurveyPrompt } from "@/components/blog/FloatingSurveyPrompt";
+import { useRelatedSurvey } from "@/hooks/useRelatedSurvey";
 import {
   buildArticleJsonLd,
   buildArticleBreadcrumbJsonLd,
@@ -115,6 +118,20 @@ export default function InfoArticle() {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const questTrackedRef = useRef(false);
+
+  // Match a survey to this article's topic (inline CTA + floating prompt)
+  const matchText = article
+    ? [
+        article.title_th,
+        article.title_en,
+        article.excerpt_th || "",
+        article.excerpt_en || "",
+        (article.content_th || article.content_en || "").slice(0, 1200),
+        category?.name_th || "",
+        category?.name_en || "",
+      ].join(" ")
+    : null;
+  const relatedSurvey = useRelatedSurvey(matchText);
 
   // Track article read quest after 15 seconds on page
   useEffect(() => {
@@ -438,6 +455,8 @@ export default function InfoArticle() {
           </div>
         )}
 
+        {relatedSurvey && <ArticleSurveyCta survey={relatedSurvey} />}
+
         <RelatedArticles
           categoryId={article.category_id}
           categorySlug={category?.slug ?? null}
@@ -447,6 +466,7 @@ export default function InfoArticle() {
         {/* Comments Section */}
         <ArticleComments articleId={article.id} />
       </PageContainer>
+      {relatedSurvey && <FloatingSurveyPrompt survey={relatedSurvey} />}
       <BottomNav />
     </>
   );
