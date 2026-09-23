@@ -455,6 +455,8 @@ export default function InfoArticle() {
           </div>
         )}
 
+        {relatedSurvey && <ArticleSurveyCta survey={relatedSurvey} />}
+
         <RelatedArticles
           categoryId={article.category_id}
           categorySlug={category?.slug ?? null}
@@ -464,6 +466,7 @@ export default function InfoArticle() {
         {/* Comments Section */}
         <ArticleComments articleId={article.id} />
       </PageContainer>
+      {relatedSurvey && <FloatingSurveyPrompt survey={relatedSurvey} />}
       <BottomNav />
     </>
   );
