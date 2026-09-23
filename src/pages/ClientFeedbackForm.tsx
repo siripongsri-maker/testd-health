@@ -138,7 +138,8 @@ export default function ClientFeedbackForm() {
         is_anonymous: !user?.user?.id,
         user_id: user?.user?.id || null,
         created_by: user?.user?.id || null,
-        appointment_id: searchParams.get('appointment_id') || null,
+        // Public feedback must never self-attribute to an appointment or staff record.
+        appointment_id: null,
         uic: data.uic?.trim() || null,
         client_seed_id: seed,
         q1_respect: data.q1,
