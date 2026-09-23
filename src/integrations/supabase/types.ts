@@ -11955,6 +11955,10 @@ export type Database = {
         Args: { p_session_id?: string; p_survey_id: string }
         Returns: number
       }
+      complete_survey_response: {
+        Args: { p_response_id: string }
+        Returns: boolean
+      }
       complete_walkin_service: {
         Args: { p_appointment_id: string }
         Returns: undefined
