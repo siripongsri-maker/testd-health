@@ -67,7 +67,7 @@ export default function MelSafeSpacesContent() {
             </SelectContent>
           </Select>
           <Button asChild size="sm" variant="outline" className="gap-2">
-            <a href={activePrintSessionId ? `/safe-space/care-card-print?session=${encodeURIComponent(activePrintSessionId)}` : "#"} target="_blank" rel="noreferrer"><Printer className="h-4 w-4" />{isTh ? "พิมพ์การ์ดดูแลกัน" : "Print Care Cards"}</a>
+            <a href={activePrintSessionId ? `/safe-space/care-card-print?session=${encodeURIComponent(activePrintSessionId)}&mode=duplex` : "#"} target="_blank" rel="noreferrer"><Printer className="h-4 w-4" />{isTh ? "พิมพ์การ์ดหน้า–หลัง" : "Print Double-Sided Cards"}</a>
           </Button>
           <Button size="sm" className="gap-2" onClick={() => { setEditSession(null); setDrawerOpen(true); }}><Plus className="h-4 w-4" />{isTh ? "เพิ่มเซสชัน" : "Add Session"}</Button>
         </div>
@@ -103,7 +103,7 @@ export default function MelSafeSpacesContent() {
                     <div className="flex items-center gap-2">
                       <span className={`text-xs px-2 py-1 rounded-full ${s.status === "completed" ? "bg-green-500/10 text-green-600" : s.status === "in_progress" ? "bg-blue-500/10 text-blue-600" : "bg-muted text-muted-foreground"}`}>{s.status}</span>
                       <Button asChild size="sm" variant="outline" className="h-8 gap-1.5 text-xs" title={isTh ? "พิมพ์การ์ดของเซสชันนี้" : "Print cards for this session"}>
-                        <a href={`/safe-space/care-card-print?session=${encodeURIComponent(s.id)}`} target="_blank" rel="noreferrer"><Printer className="h-3.5 w-3.5" />{isTh ? "พิมพ์เซสชันนี้" : "Print"}</a>
+                        <a href={`/safe-space/care-card-print?session=${encodeURIComponent(s.id)}&mode=duplex`} target="_blank" rel="noreferrer"><Printer className="h-3.5 w-3.5" />{isTh ? "พิมพ์หน้า–หลัง" : "Double-sided"}</a>
                       </Button>
                       <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => { setEditSession(s); setDrawerOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
                       <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => setDeleteTarget(s)}><Trash2 className="h-3.5 w-3.5" /></Button>

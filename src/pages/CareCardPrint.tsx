@@ -112,7 +112,7 @@ export default function CareCardPrint() {
   const [switcherOpen, setSwitcherOpen] = useState(false);
   const [sessionQuery, setSessionQuery] = useState("");
   const [layout, setLayout] = useState<Layout>(6);
-  const [duplex, setDuplex] = useState(true);
+  const [duplex, setDuplex] = useState(() => searchParams.get("mode") !== "front");
   const [cutMarks, setCutMarks] = useState(true);
   const [zoom, setZoom] = useState(0.42);
 
@@ -183,8 +183,9 @@ export default function CareCardPrint() {
     else next.set("session", sessionId);
     if (eventCode.trim()) next.set("event", eventCode.trim());
     else next.delete("event");
+    next.set("mode", duplex ? "duplex" : "front");
     if (next.toString() !== searchParams.toString()) setSearchParams(next, { replace: true });
-  }, [eventCode, searchParams, sessionId, setSearchParams]);
+  }, [duplex, eventCode, searchParams, sessionId, setSearchParams]);
 
   const perSheet = useMemo(() => LAYOUTS[layout].cols * LAYOUTS[layout].rows, [layout]);
   const sessionOptions = useMemo(() => {
@@ -402,7 +403,7 @@ export default function CareCardPrint() {
 
 
           <div className="rounded-lg border bg-muted/40 p-3 space-y-2">
-            <Label className="text-xs">ดาวน์โหลดไฟล์ PDF (แยกไฟล์ตามจำนวนใบต่อแผ่น)</Label>
+            <Label className="text-xs">ดาวน์โหลดไฟล์ PDF หน้า–หลัง (หน้าแรก = ด้านหน้า · หน้าถัดไป = ด้านหลัง)</Label>
             <div className="flex flex-wrap gap-2">
               {(Object.keys(LAYOUTS) as unknown as Layout[]).map((k) => {
                 const key = Number(k) as Layout;
@@ -422,7 +423,7 @@ export default function CareCardPrint() {
               })}
             </div>
             <p className="text-[11px] text-muted-foreground">
-              {selectedSession ? "ไฟล์จะใช้ลิงก์ QR และการตั้งค่าเส้นตัด/พิมพ์สองหน้าปัจจุบัน" : "เลือกเซสชันก่อนจึงจะดาวน์โหลด PDF ได้"}
+              {selectedSession ? (duplex ? "ไฟล์พร้อมพิมพ์สองหน้า โดยด้านหลังจัดตำแหน่งให้ตรงกับด้านหน้า" : "ขณะนี้เลือกเฉพาะด้านหน้า เปิด “การ์ดหน้า–หลัง” เพื่อรวมด้านหลังในไฟล์") : "เลือกเซสชันก่อนจึงจะดาวน์โหลด PDF ได้"}
             </p>
           </div>
 
@@ -486,7 +487,7 @@ export default function CareCardPrint() {
               </div>
 
               <div className="flex items-center gap-6 flex-wrap">
-                <label className="flex items-center gap-2 text-xs"><Switch checked={duplex} onCheckedChange={setDuplex} />พิมพ์สองหน้า (พลิกด้านยาว)</label>
+                <label className="flex items-center gap-2 text-xs font-medium"><Switch checked={duplex} onCheckedChange={setDuplex} />การ์ดหน้า–หลัง (พลิกด้านยาว)</label>
                 <label className="flex items-center gap-2 text-xs"><Switch checked={cutMarks} onCheckedChange={setCutMarks} />เส้นตัด</label>
                 <label className="flex items-center gap-2 text-xs">
                   ย่อ/ขยายตัวอย่าง
