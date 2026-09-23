@@ -138,13 +138,18 @@ export default function SurveyTake() {
 
       if (answersError) throw answersError;
 
-      // Mark response as completed
-      const { error: updateError } = await supabase
-        .from('survey_responses')
-        .update({ completed_at: new Date().toISOString() })
-        .eq('id', responseId);
+      // Mark response as completed (RPC works for anonymous responses too)
+      const { data: marked, error: completeError } = await supabase.rpc('complete_survey_response', {
+        p_response_id: responseId,
+      });
 
-      if (updateError) throw updateError;
+      if (completeError || !marked) {
+        const { error: updateError } = await supabase
+          .from('survey_responses')
+          .update({ completed_at: new Date().toISOString() })
+          .eq('id', responseId);
+        if (updateError) throw updateError;
+      }
 
       // Award XP if user is logged in (only first completion awards XP)
       if (user && survey?.xp_reward && survey.xp_reward > 0) {
