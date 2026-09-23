@@ -17,6 +17,9 @@ import { SEOHead } from "@/components/seo/SEOHead";
 import { usePageLocale } from "@/components/seo/LocaleRouter";
 import { alternateLanguagePathsFor, type Locale } from "@/lib/seoLocalePrefix";
 import { RelatedArticles } from "@/components/blog/RelatedArticles";
+import { ArticleSurveyCta } from "@/components/blog/ArticleSurveyCta";
+import { FloatingSurveyPrompt } from "@/components/blog/FloatingSurveyPrompt";
+import { useRelatedSurvey } from "@/hooks/useRelatedSurvey";
 import {
   buildArticleJsonLd,
   buildArticleBreadcrumbJsonLd,
