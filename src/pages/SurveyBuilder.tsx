@@ -30,7 +30,7 @@ export default function SurveyBuilder() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { language } = useLanguage();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -63,8 +63,9 @@ export default function SurveyBuilder() {
   });
 
   useEffect(() => {
+    if (authLoading) return;
     checkAccess();
-  }, [user, id]);
+  }, [user, id, authLoading]);
 
   const checkAccess = async () => {
     if (!user) {
