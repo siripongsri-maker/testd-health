@@ -63,8 +63,9 @@ export default function SurveyBuilder() {
   });
 
   useEffect(() => {
+    if (authLoading) return;
     checkAccess();
-  }, [user, id]);
+  }, [user, id, authLoading]);
 
   const checkAccess = async () => {
     if (!user) {
