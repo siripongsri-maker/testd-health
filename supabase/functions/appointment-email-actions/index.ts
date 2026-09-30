@@ -13,6 +13,11 @@ function generateCode(): string {
     Array.from(crypto.getRandomValues(new Uint8Array(3))).map(b => (b % 10).toString()).join('');
 }
 
+// Basic email format check — catches typos before the provider rejects them.
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) && email.length <= 254;
+}
+
 async function sha256Hex(input: string): Promise<string> {
   const buf = new TextEncoder().encode(input);
   const digest = await crypto.subtle.digest("SHA-256", buf);
@@ -178,6 +183,13 @@ Deno.serve(async (req) => {
           { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
+      email = String(email).trim().toLowerCase();
+      if (!isValidEmail(email)) {
+        return new Response(
+          JSON.stringify({ error: "invalid_email", message: "The booking email address is invalid. Please check the email address and try again." }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
 
       // Mint verification code
       const verificationCode = generateCode();
@@ -259,6 +271,12 @@ Deno.serve(async (req) => {
 
       if (sendErr) {
         console.error("Failed to send action email:", sendErr);
+        if (/invalid_email|Invalid 'to' email/i.test(sendErr.message || "")) {
+          return new Response(
+            JSON.stringify({ error: "invalid_email", message: "The booking email address is invalid. Please check the email address and try again." }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
         return new Response(
           JSON.stringify({ error: "Failed to send email" }),
           { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -417,6 +435,13 @@ Deno.serve(async (req) => {
       if (!email) {
         return new Response(
           JSON.stringify({ success: true, message: "No email available", skipped: true }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      email = String(email).trim().toLowerCase();
+      if (!isValidEmail(email)) {
+        return new Response(
+          JSON.stringify({ success: true, message: "Invalid email address", skipped: true, reason: "invalid_email" }),
           { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
