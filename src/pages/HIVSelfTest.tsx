@@ -441,6 +441,11 @@ export default function HIVSelfTest() {
       return;
     }
 
+    // Just-submitted screens take priority: after a successful submission the
+    // request arrives as 'pending', which would otherwise yank the user off the
+    // account-success / request-sent confirmation back to intro.
+    if (currentStep === 'account-success' || currentStep === 'request-sent') return;
+
     if (activeRequest.status === 'pending' || activeRequest.status === 'approved' || activeRequest.status === 'shipped') {
       setCurrentStep('intro');
     } else if (activeRequest.status === 'delivered') {
