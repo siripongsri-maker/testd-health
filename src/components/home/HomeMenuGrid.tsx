@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/lib/i18n';
+import { SUPPORT_CHAT_URL } from '@/lib/openSupportChat';
+
 
 import consultImg from '@/assets/menu/consult.png';
 import selftestImg from '@/assets/menu/selftest.png';
