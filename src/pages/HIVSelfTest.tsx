@@ -28,7 +28,8 @@ import {
   Loader2,
   Check,
   X,
-  MessageCircle
+  MessageCircle,
+  PackageSearch
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -439,6 +440,11 @@ export default function HIVSelfTest() {
       } catch { /* noop */ }
       return;
     }
+
+    // Just-submitted screens take priority: after a successful submission the
+    // request arrives as 'pending', which would otherwise yank the user off the
+    // account-success / request-sent confirmation back to intro.
+    if (currentStep === 'account-success' || currentStep === 'request-sent') return;
 
     if (activeRequest.status === 'pending' || activeRequest.status === 'approved' || activeRequest.status === 'shipped') {
       setCurrentStep('intro');
@@ -891,10 +897,10 @@ export default function HIVSelfTest() {
       } else {
         toast.success(
           language === 'th' 
-            ? '🎉 ส่งคำขอสำเร็จ! เจ้าหน้าที่จะติดต่อกลับ' 
-            : '🎉 Request submitted! Staff will contact you.'
+            ? 'ได้รับคำขอของคุณแล้ว' 
+            : 'Your request has been received.'
         );
-        setCurrentStep('intro');
+        setCurrentStep('request-sent');
         trackEvent('selftest_submitted', { source: 'selftest', delivery_mode: deliveryMode, step: 'request_sent' });
       }
       
@@ -1218,7 +1224,7 @@ export default function HIVSelfTest() {
 
   const renderStepIndicator = () => {
     // Only show indicator during the request flow and testing flow (not on success screen)
-    if (currentStep === 'intro' || currentStep === 'account-success') return null;
+    if (currentStep === 'intro' || currentStep === 'account-success' || currentStep === 'request-sent') return null;
     if (isDirectSubmitAction && currentStep === 'photo-result') return null;
     
     const requestSteps = ['shipping', 'nhso-verify'];
@@ -2172,12 +2178,47 @@ export default function HIVSelfTest() {
             onContinue={() => {
               toast.success(
                 language === 'th' 
-                  ? '🎉 ส่งคำขอสำเร็จ! เจ้าหน้าที่จะติดต่อกลับ' 
-                  : '🎉 Request submitted! Staff will contact you.'
+                  ? 'ได้รับคำขอของคุณแล้ว' 
+                  : 'Your request has been received.'
               );
-              setCurrentStep('intro');
+              setCurrentStep('request-sent');
             }}
           />
+        )}
+
+        {/* Request received (delivery/ship mode) — confirms the submission
+            and links to the public delivery-status checker. */}
+        {currentStep === 'request-sent' && (
+          <Card className="p-6 space-y-4 text-center animate-fade-in border-success/30 bg-gradient-to-b from-success/10 to-transparent">
+            <div className="w-16 h-16 rounded-full bg-success/20 flex items-center justify-center mx-auto">
+              <CheckCircle2 className="h-10 w-10 text-success" />
+            </div>
+            <div className="space-y-1">
+              <h2 className="text-xl font-bold text-foreground">
+                {language === 'th' ? 'ได้รับคำขอของคุณแล้ว' : 'Your request has been received'}
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {language === 'th'
+                  ? 'เจ้าหน้าที่จะเตรียมจัดส่งชุดตรวจถึงคุณโดยเร็วที่สุด'
+                  : 'Our staff will prepare and ship your self-test kit as soon as possible.'}
+              </p>
+            </div>
+            <div className="grid gap-2">
+              <Button size="lg" className="gap-2" onClick={() => navigate('/kit-status')}>
+                <PackageSearch className="h-4 w-4" />
+                {language === 'th' ? 'ตรวจสอบสถานะการจัดส่ง' : 'Check delivery status'}
+              </Button>
+              <Button size="lg" variant="outline" className="gap-2" onClick={() => setCurrentStep('intro')}>
+                <ArrowLeft className="h-4 w-4" />
+                {language === 'th' ? 'กลับหน้าชุดตรวจ' : 'Back to kit page'}
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {language === 'th'
+                ? 'ตรวจสอบสถานะได้ด้วยเลขบัตรประชาชนและเบอร์โทรที่ใช้ตอนขอชุดตรวจ'
+                : 'Check your status with the ID number and phone number you used when requesting.'}
+            </p>
+          </Card>
         )}
         
         {(currentStep === 'confirm-receipt' ||
