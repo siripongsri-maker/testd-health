@@ -1,6 +1,6 @@
-// Centralized helper: "ขอคำปรึกษา" CTAs open LINE @swingthailand in a new tab.
+// Centralized helper: "ขอคำปรึกษา" / "ติดต่อเจ้าหน้าที่" CTAs open the SWING LINE office in a new tab.
 // Keep using this everywhere so we have a single source of truth.
-export const SUPPORT_CHAT_URL = 'https://line.me/R/ti/p/@swingthailand';
+export const SUPPORT_CHAT_URL = 'https://lin.ee/5flow4L';
 
 export function openSupportChat() {
   try {

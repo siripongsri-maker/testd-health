@@ -748,7 +748,7 @@ function OutcomeScreen({
             variant="outline"
             onClick={async () => {
               await onCareAction("chose_line_chat");
-              window.open("https://line.me/R/ti/p/@swingthailand", "_blank");
+              openSupportChat();
               onDone();
             }}
           >

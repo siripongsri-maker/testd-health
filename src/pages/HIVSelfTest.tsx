@@ -2088,7 +2088,7 @@ export default function HIVSelfTest() {
             <div className="flex flex-col sm:flex-row gap-2">
               <Button
                 className="flex-1 gap-2"
-                onClick={() => window.open('https://line.me/R/ti/p/@swingthailand', '_blank')}
+                onClick={() => openSupportChat()}
               >
                 <MessageCircle className="h-4 w-4" />
                 {language === 'th' ? 'ติดต่อ SWING' : 'Contact SWING'}

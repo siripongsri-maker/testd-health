@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/lib/i18n';
+import { SUPPORT_CHAT_URL } from '@/lib/openSupportChat';
+
 import {
   TestTube,
   Calendar,
@@ -73,7 +75,7 @@ export function HomeActionGrid() {
     {
       icon: <MessageCircle className="h-4 w-4" />,
       label: isEn ? 'Online Counselor' : 'ขอคำปรึกษา',
-      path: 'https://line.me/R/ti/p/@swingthailand',
+      path: SUPPORT_CHAT_URL,
       external: true,
     },
     {

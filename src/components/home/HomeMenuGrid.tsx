@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/lib/i18n';
+import { SUPPORT_CHAT_URL } from '@/lib/openSupportChat';
+
 
 import consultImg from '@/assets/menu/consult.png';
 import selftestImg from '@/assets/menu/selftest.png';
@@ -22,7 +24,7 @@ const items: MenuItem[] = [
   {
     img: consultImg,
     labelKey: 'home.menu.consult',
-    path: 'https://line.me/R/ti/p/@swingthailand',
+    path: SUPPORT_CHAT_URL,
     tint: 'from-rose-100/60 to-orange-50/40',
   },
   {
