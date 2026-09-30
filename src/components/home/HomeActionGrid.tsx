@@ -75,7 +75,7 @@ export function HomeActionGrid() {
     {
       icon: <MessageCircle className="h-4 w-4" />,
       label: isEn ? 'Online Counselor' : 'ขอคำปรึกษา',
-      path: 'https://line.me/R/ti/p/@swingthailand',
+      path: SUPPORT_CHAT_URL,
       external: true,
     },
     {
