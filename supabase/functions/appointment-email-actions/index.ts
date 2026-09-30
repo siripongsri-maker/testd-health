@@ -178,6 +178,13 @@ Deno.serve(async (req) => {
           { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
+      email = String(email).trim().toLowerCase();
+      if (!isValidEmail(email)) {
+        return new Response(
+          JSON.stringify({ error: "invalid_email", message: "The booking email address is invalid. Please check the email address and try again." }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
 
       // Mint verification code
       const verificationCode = generateCode();
@@ -259,6 +266,12 @@ Deno.serve(async (req) => {
 
       if (sendErr) {
         console.error("Failed to send action email:", sendErr);
+        if (/invalid_email|Invalid 'to' email/i.test(sendErr.message || "")) {
+          return new Response(
+            JSON.stringify({ error: "invalid_email", message: "The booking email address is invalid. Please check the email address and try again." }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
         return new Response(
           JSON.stringify({ error: "Failed to send email" }),
           { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
