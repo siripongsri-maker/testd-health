@@ -2176,12 +2176,23 @@ export default function HIVSelfTest() {
             username={generatedCredentials.username}
             password={generatedCredentials.password}
             onContinue={() => {
-              toast.success(
-                language === 'th' 
-                  ? 'ได้รับคำขอของคุณแล้ว' 
-                  : 'Your request has been received.'
-              );
-              setCurrentStep('request-sent');
+              if (deliveryMode === 'pickup') {
+                // Venue pickup: no package is shipped — ask the user to
+                // confirm they received the kit from staff.
+                toast.success(
+                  language === 'th'
+                    ? '📦 บันทึกข้อมูลแล้ว กรุณายืนยันการรับชุดตรวจจากเจ้าหน้าที่'
+                    : '📦 Info saved. Please confirm receipt from staff.'
+                );
+                setCurrentStep('confirm-receipt');
+              } else {
+                toast.success(
+                  language === 'th' 
+                    ? 'ได้รับคำขอของคุณแล้ว' 
+                    : 'Your request has been received.'
+                );
+                setCurrentStep('request-sent');
+              }
             }}
           />
         )}
