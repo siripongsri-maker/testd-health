@@ -127,7 +127,14 @@ export default function Auth() {
         const { data, error } = await signIn(internalEmail, password);
         
         if (error) {
-          setErrors({ username: language === 'th' ? 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' : 'Invalid username or password' });
+          const notConfirmed = (error as { code?: string }).code === 'email_not_confirmed' || /not confirmed/i.test(error.message);
+          setErrors({
+            username: notConfirmed
+              ? (language === 'th'
+                  ? 'บัญชีนี้ยังไม่ได้ยืนยัน กรุณาติดต่อเจ้าหน้าที่เพื่อเปิดใช้งานบัญชี'
+                  : 'This account has not been activated yet. Please contact staff to activate it.')
+              : (language === 'th' ? 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' : 'Invalid username or password'),
+          });
           toast.error(language === 'th' ? 'เข้าสู่ระบบล้มเหลว' : 'Login failed');
         } else if (data.user) {
           const displayName = data.user.user_metadata?.display_name || username.trim();
