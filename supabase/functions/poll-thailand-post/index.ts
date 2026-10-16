@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Daily job: poll the Thailand Post Track & Trace API for shipped self-test kits,
 // update the delivery stage, store raw events, and web-push the requester when the
 // stage changes. No-ops gracefully when THAILAND_POST_API_KEY is not configured.

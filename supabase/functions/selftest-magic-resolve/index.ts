@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Resolve a magic link token for self-test result re-entry.
 // Public (verify_jwt=false). Returns request_id + status if token valid+unused+unexpired.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";

@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { Button } from "@/components/ui/button";
 import { useLanguage, SUPPORTED_LANGUAGES, prefetchTranslations, type Language } from "@/lib/i18n";
 import { Languages, Check } from "lucide-react";
@@ -68,4 +69,3 @@ export function LanguageToggle() {
     </DropdownMenu>
   );
 }
-

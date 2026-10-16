@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Episode 2: มาร์คกับเข็มที่เขายังไม่รู้ว่ามีอยู่
 // PrEP & Lenacapavir interactive story data
 

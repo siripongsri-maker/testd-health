@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 /**
  * Normalizes raw gender values into 3 display categories.
  * Used ONLY at the display/aggregation level — never modifies DB data.

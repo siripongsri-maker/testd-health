@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 const VISIT_COUNT_KEY = 'testd_visit_count';
 const ACTION_TAKEN_KEY = 'testd_action_taken';
 const VIRTUAL_FLAG = 'testd_from_virtual';

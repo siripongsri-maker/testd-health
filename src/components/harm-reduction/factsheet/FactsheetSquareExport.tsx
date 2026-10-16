@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { forwardRef } from "react";
 import { Shield, AlertTriangle, CheckCircle2, Phone } from "lucide-react";
 import { SubstanceData, RISK_LABELS } from "@/data/substanceData";

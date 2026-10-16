@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Invite attribution context - persists through booking flow
 const ATTRIBUTION_KEY = 'invite_attribution';
 

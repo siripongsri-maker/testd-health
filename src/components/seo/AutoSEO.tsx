@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { getRouteSEO, getRobotsDirective } from "@/lib/seoConfig";
@@ -94,4 +95,3 @@ export function AutoSEO() {
 
   return null;
 }
-

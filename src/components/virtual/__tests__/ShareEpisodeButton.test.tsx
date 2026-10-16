@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 /**
  * Automated checks: every Virtual share/copy action must write the correct
  * slug + title (and event_type) into analytics_events via supabase insert.

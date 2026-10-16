@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 /** Artwork for the 20 Chemsex fact cards (front = knowledge, back = services). */
 import c01Front from "@/assets/chemsex/card-01-front.webp";
 import c01Back from "@/assets/chemsex/card-01-back.webp";

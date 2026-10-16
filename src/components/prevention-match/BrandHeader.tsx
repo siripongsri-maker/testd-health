@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import testdLogo from '@/assets/testd-logo.png';
 import swingLogo from '@/assets/swing-logo.png';
 

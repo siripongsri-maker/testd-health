@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // SMS link redirector with click tracking.
 // Public endpoint (no auth). Records each visit into sms_send_log
 // then 302-redirects to the original URL.

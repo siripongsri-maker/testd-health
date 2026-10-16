@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Notify the team when a self-test result comes back reactive (2 lines).
 // App emails now send through Lovable managed delivery.
 // Idempotent via reactive_notified_at column.

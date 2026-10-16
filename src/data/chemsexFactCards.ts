@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 /**
  * Chemsex Fact Cards — 20 topic cards split out of the printed
  * "Chemsex Fact Card" deck (front page = knowledge, back page = service link).

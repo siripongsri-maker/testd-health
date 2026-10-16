@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { corsHeaders } from "npm:@supabase/supabase-js@^2.95.0/cors";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 

@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Sends an email to the research lead every time a new submission of the
 // "ยกเลิก พ.ร.บ.ค้าประเวณี 2539" survey is completed, with TWO CSV attachments:
 //   1) the latest respondent's answers

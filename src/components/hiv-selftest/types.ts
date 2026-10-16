@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // HIV Self-Test Flow Types
 
 export type Step = 'intro' | 'shipping' | 'nhso-verify' | 'lite-request' | 'account-success' | 'request-sent' | 'confirm-receipt' | 'video' | 'testing' | 'timer' | 'photo-result' | 'existing-kit-upload';

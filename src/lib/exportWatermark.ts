@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 /**
  * Export Watermark Utility
  * Embeds invisible watermarks in CSV exports for traceability.

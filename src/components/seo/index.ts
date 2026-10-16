@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 export { SEOHead, buildMedicalPageJsonLd, buildFaqJsonLd, buildBreadcrumbJsonLd } from "./SEOHead";
 export { AutoSEO } from "./AutoSEO";
 export { AISummaryBlock } from "./AISummaryBlock";

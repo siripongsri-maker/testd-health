@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Public (verify_jwt=false). Submit a Thai national ID via a one-time magic link.
 // Validates token (purpose=update_thai_id), normalizes the ID to 13 digits,
 // updates selftest_pii.thai_id, and marks the token used.

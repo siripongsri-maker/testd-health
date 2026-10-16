@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Analytics dashboard for admin panel
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';

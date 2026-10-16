@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 /**
  * Article SEO helpers — Schema.org (Article + FAQPage + BreadcrumbList)
  * and OpenGraph/Twitter article metadata for /info/article/:slug pages.

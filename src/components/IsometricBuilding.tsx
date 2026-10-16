@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { ReactNode, useState } from "react";
 import { cn } from "@/lib/utils";
 import { playBuildingTap, playBuildingHover } from "@/lib/sounds";

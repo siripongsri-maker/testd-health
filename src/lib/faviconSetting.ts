@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 /**
  * Small app-level setting to choose which brand mark is used as the favicon.
  * Both options are pre-rendered as proper 64x64 squares (trimmed + padded)

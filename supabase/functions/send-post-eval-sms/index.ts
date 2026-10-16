@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Send the post-counseling evaluation magic link by SMS.
 // Uses the project's existing SMSMKT provider and logs every attempt to
 // post_eval_sms_dispatches (phone is never stored in clear text).

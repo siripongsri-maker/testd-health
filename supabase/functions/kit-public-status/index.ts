@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Public kit-order status lookup by order_code (no auth).
 // Used by the SMS deep link /track-kit/:code so recipients can see shipment status
 // and optionally confirm receipt without signing in.

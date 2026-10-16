@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { Pill, Shield, Flame, Award, Calendar, Star, Heart, TestTube, Zap, Trophy, Target, Sparkles } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 

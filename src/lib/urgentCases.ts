@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { supabase } from '@/integrations/supabase/client';
 import { OPEN_REFERRAL_STATUSES, APPT_TAG } from '@/lib/urgentReferral';
 
@@ -132,4 +133,3 @@ export async function fetchUrgentAppointmentsForDay(
 }
 
 export { APPT_TAG };
-

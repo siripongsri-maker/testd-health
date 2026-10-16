@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import React from "react";
 import { Activity, Brain, Flame, Droplets, Eye, type LucideIcon } from "lucide-react";
 

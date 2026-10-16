@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { Check, X, Pill, Clock, Sparkles } from "lucide-react";

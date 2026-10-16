@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Post-counseling travel-allowance ID card upload (guest, token-scoped).
 // Verifies the post-eval magic token server-side, stores the image in the
 // private `identity-docs` bucket and returns only the storage path.

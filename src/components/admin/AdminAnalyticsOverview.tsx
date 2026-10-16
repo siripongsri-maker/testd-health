@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { useLanguage } from "@/lib/i18n";
 import { AdminDateRangeFilter, useAdminDateRange } from "@/components/admin/analytics/AdminDateRangeFilter";
 import { AdminStatCard } from "@/components/admin/analytics/AdminStatCard";

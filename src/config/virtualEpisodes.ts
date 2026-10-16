@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Central registry for all Virtual episodes / mini-games.
 // Both the homepage carousel and /virtual page consume this list.
 // Sort by publishedAt DESC for "newest first" display.

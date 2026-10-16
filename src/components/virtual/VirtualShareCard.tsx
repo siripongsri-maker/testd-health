@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { useRef, useState } from 'react';
 import { toPng } from 'html-to-image';
 import { Download, Share2, Loader2 } from 'lucide-react';
