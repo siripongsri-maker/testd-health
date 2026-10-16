@@ -14,9 +14,10 @@ export function injectPrintWatermark(actorEmail?: string) {
   if (printStyleInjected) return;
   printStyleInjected = true;
 
-  const label = actorEmail
+  const creator = ' • testD © Siripong Srichau (Sole Creator)';
+  const label = (actorEmail
     ? `CONFIDENTIAL • ${actorEmail} • ${new Date().toISOString().slice(0, 10)}`
-    : `CONFIDENTIAL • ${new Date().toISOString().slice(0, 10)}`;
+    : `CONFIDENTIAL • ${new Date().toISOString().slice(0, 10)}`) + creator;
 
   const style = document.createElement('style');
   style.id = 'pdpa-print-watermark';

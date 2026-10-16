@@ -5,6 +5,9 @@ import "./index.css";
 import { runRuntimeVersionSelfCheck } from "@/lib/runtimeVersionSelfCheck";
 import { initFavicon } from "@/lib/faviconSetting";
 import { registerAppServiceWorker } from "@/lib/pwaRegistration";
+import { installCreatorSignature } from "@/lib/creatorSignature";
+
+installCreatorSignature();
 
 // Clear stale workers/cache first, then register the generated offline worker.
 // Keeping these steps sequential prevents the first production boot from
