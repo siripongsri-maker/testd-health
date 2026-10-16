@@ -176,7 +176,7 @@ export function buildArticleMeta(opts: {
     meta.push({ attr: "property", key: "article:author", content: opts.authorName });
   if (opts.categoryName)
     meta.push({ attr: "property", key: "article:section", content: opts.categoryName });
-  meta.push({ attr: "property", key: "og:site_name", content: "testD by SWING Foundation" });
+  meta.push({ attr: "property", key: "og:site_name", content: "testD" });
   if (opts.readingMinutes) {
     meta.push({
       attr: "name",
