@@ -157,8 +157,8 @@ export function getFactCardKeywords(card: ChemsexFactCard, lang: "th" | "en"): s
   const group = lang === "en" ? FACT_CARD_GROUPS[card.group].en : FACT_CARD_GROUPS[card.group].th;
   const base = lang === "en" ? seo.keywordsEn : seo.keywordsTh;
   const shared = lang === "en"
-    ? ["testD", "SWING Foundation", "chemsex fact card"]
-    : ["testD", "มูลนิธิ SWING", "การ์ดความรู้ chemsex"];
+    ? ["testD", "Siripong Srichau", "chemsex fact card"]
+    : ["testD", "Siripong Srichau", "การร์ดความรู้ chemsex"];
   return [...base, ...shared, group].join(", ");
 }
 
