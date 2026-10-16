@@ -1,6 +1,6 @@
-# testD by SWING Foundation
+# testD — created by Siripong Srichau
 
-> Community health platform for free HIV testing, clinic booking, PrEP/PEP guidance, harm-reduction tools, and confidential expert support — built by SWING Foundation Thailand.
+> Community health platform for free HIV testing, clinic booking, PrEP/PEP guidance, harm-reduction tools, and confidential expert support — created and built by Siripong Srichau.
 
 testD offers free HIV self-test kits delivered to your door, online appointment booking at SWING clinics (Bangkok and Pattaya), longitudinal health records, and harm-reduction resources covering chemsex safety, drug interactions, and sexual health. All services are anonymous, free, and offered in Thai and English.
 

@@ -101,13 +101,13 @@ export function buildArticleJsonLd(opts: {
     datePublished: opts.publishedAt || undefined,
     dateModified: opts.updatedAt || opts.publishedAt || undefined,
     author: {
-      "@type": opts.authorName ? "Person" : "Organization",
-      name: opts.authorName || "testD by SWING Foundation",
+      "@type": "Person",
+      name: opts.authorName || "Siripong Srichau",
       url: BASE_URL,
     },
     publisher: {
       "@type": "Organization",
-      name: "testD by SWING Foundation",
+      name: "Siripong Srichau",
       url: BASE_URL,
       logo: { "@type": "ImageObject", url: DEFAULT_OG_IMAGE },
     },
@@ -176,7 +176,7 @@ export function buildArticleMeta(opts: {
     meta.push({ attr: "property", key: "article:author", content: opts.authorName });
   if (opts.categoryName)
     meta.push({ attr: "property", key: "article:section", content: opts.categoryName });
-  meta.push({ attr: "property", key: "og:site_name", content: "testD by SWING Foundation" });
+  meta.push({ attr: "property", key: "og:site_name", content: "testD" });
   if (opts.readingMinutes) {
     meta.push({
       attr: "name",

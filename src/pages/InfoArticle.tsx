@@ -281,8 +281,8 @@ export default function InfoArticle() {
   const seoDesc = excerpt
     ? (excerpt.length > 157 ? `${excerpt.slice(0, 157)}…` : excerpt)
     : (language === 'th'
-        ? 'อ่านบทความสุขภาพจาก testD โดยมูลนิธิ SWING — ข้อมูลที่เชื่อถือได้ เป็นความลับ'
-        : 'Read trusted, confidential health articles from testD by SWING Foundation.');
+        ? 'อ่านบทความสุขภาพจาก testD — ข้อมูลที่เชื่อถือได้ เป็นความลับ'
+        : 'Read trusted, confidential health articles from testD.');
   const canonicalPath = `/info/article/${article.slug}`;
   const lang: Locale = seoLocale;
   const categoryName = category ? (lang === 'th' ? category.name_th : category.name_en) : null;

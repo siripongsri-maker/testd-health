@@ -26,8 +26,8 @@ export default function SupportFAQPage() {
         title={isEn ? "Help & FAQ — testD" : "ช่วยเหลือ & คำถามที่พบบ่อย — testD"}
         description={
           isEn
-            ? "Quick answers about booking, PrEP, PEP, HIV testing, and privacy at testD by SWING Foundation."
-            : "คำตอบด่วนเกี่ยวกับการจอง PrEP PEP การตรวจ HIV และความเป็นส่วนตัวจาก testD โดยมูลนิธิ SWING"
+            ? "Quick answers about booking, PrEP, PEP, HIV testing, and privacy on testD."
+            : "คำตอบด่วนเกี่ยวกับการจอง PrEP PEP การตรวจ HIV และความเป็นส่วนตัวจาก testD"
         }
         canonicalPath="/support-faq"
         lang={isEn ? "en" : "th"}
