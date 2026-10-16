@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Sends web-push appointment reminders:
 //  - "day_before": the evening (19:00 Asia/Bangkok) before the appointment
 //  - "hour_before": roughly one hour before the appointment start time

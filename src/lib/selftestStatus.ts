@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 /**
  * Single source of truth for deciding whether an HIV self-test request has
  * already had its result submitted, and whether it should still block a new

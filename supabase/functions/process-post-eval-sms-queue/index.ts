@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Sends queued post-counseling evaluation SMS (auto-queued at check-out).
 // Triggered by a scheduled job (x-cron-secret header) or manually by an admin.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";

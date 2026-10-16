@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Dynamic sitemap.xml generator with hreflang alternates
 // Public endpoint — no JWT required
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";

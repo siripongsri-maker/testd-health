@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Thai public holidays 2026 (subset relevant for clinic operations).
 // Source: Thai Bank of Thailand holiday calendar 2026.
 // Format: YYYY-MM-DD in Asia/Bangkok local date.

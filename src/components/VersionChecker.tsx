@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { useVersionCheck } from '@/hooks/useVersionCheck';
 import { UpdateBanner } from '@/components/UpdateBanner';
 import { HardUpdateModal } from '@/components/HardUpdateModal';

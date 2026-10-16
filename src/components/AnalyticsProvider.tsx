@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { ReactNode, useEffect } from 'react';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { initAttribution, linkVisitorToUser } from '@/lib/attribution';

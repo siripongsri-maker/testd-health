@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 /**
  * Browser Security Hardening for sensitive admin pages.
  * - Clipboard/copy protection for PII fields
@@ -13,9 +14,10 @@ export function injectPrintWatermark(actorEmail?: string) {
   if (printStyleInjected) return;
   printStyleInjected = true;
 
-  const label = actorEmail
+  const creator = ' • testD © Siripong Srichau (Sole Creator)';
+  const label = (actorEmail
     ? `CONFIDENTIAL • ${actorEmail} • ${new Date().toISOString().slice(0, 10)}`
-    : `CONFIDENTIAL • ${new Date().toISOString().slice(0, 10)}`;
+    : `CONFIDENTIAL • ${new Date().toISOString().slice(0, 10)}`) + creator;
 
   const style = document.createElement('style');
   style.id = 'pdpa-print-watermark';

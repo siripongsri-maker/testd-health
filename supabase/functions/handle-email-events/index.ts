@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { createEmailWebhookHandler } from 'npm:@lovable.dev/email-js@0.1.0'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 

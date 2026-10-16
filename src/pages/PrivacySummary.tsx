@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Database, MessageCircle, Phone, Shield, Trash2 } from 'lucide-react';
 import { PageContainer } from '@/components/PageContainer';

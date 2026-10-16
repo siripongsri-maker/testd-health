@@ -1,9 +1,13 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { runRuntimeVersionSelfCheck } from "@/lib/runtimeVersionSelfCheck";
 import { initFavicon } from "@/lib/faviconSetting";
 import { registerAppServiceWorker } from "@/lib/pwaRegistration";
+import { installCreatorSignature } from "@/lib/creatorSignature";
+
+installCreatorSignature();
 
 // Clear stale workers/cache first, then register the generated offline worker.
 // Keeping these steps sequential prevents the first production boot from

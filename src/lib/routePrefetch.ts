@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Route prefetch mapping - maps paths to their lazy import functions
 const routeImports: Record<string, () => Promise<unknown>> = {
   '/': () => import('@/pages/Home'),

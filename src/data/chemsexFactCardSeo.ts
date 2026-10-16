@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 /**
  * Per-card SEO metadata for the 20 Chemsex Fact Cards.
  * Keeps search-relevant keywords, alt text and meta descriptions

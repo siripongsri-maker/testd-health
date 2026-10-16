@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 /// <reference types="vite-plugin-pwa/client" />
 
 import { registerSW } from "virtual:pwa-register";

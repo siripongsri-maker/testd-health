@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { auth, defineMcp } from "@lovable.dev/mcp-js";
 import listBranches from "./tools/list-branches";
 import listServices from "./tools/list-services";

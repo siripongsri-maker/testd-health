@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // One-off / repeatable maintenance job: cancel appointments that fall outside the new
 // closing-hour rules and tell the client they can still walk in, but 20 minutes earlier.
 // Auth: staff/admin JWT, or the ADMIN_TASK_KEY header for scripted maintenance runs.

@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 /* ─── Substance Factsheet Data ─────────────────────────────────
    Structured, multi-substance, multi-language content source.
    Add new substances by appending to SUBSTANCES array.

@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Route health check — fetches each enabled target on the published site and records the result.
 // Public endpoint: callable by cron and by admin UI. No PII handled.
 import { createClient } from "npm:@supabase/supabase-js@2";

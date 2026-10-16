@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { useEffect, useRef, useState } from "react";
 import { Bell, BellOff, BellRing, CalendarClock, Check, Globe, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";

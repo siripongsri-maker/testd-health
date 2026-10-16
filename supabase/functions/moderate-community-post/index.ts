@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Hybrid moderation + smart FAQ matcher for community posts.
 // Flow:
 //  1) Hard keyword block (sales/sourcing) → reject (do not insert)

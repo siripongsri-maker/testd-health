@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 /**
  * Burns a visible "crossed" watermark onto an ID-card photo before it ever
  * leaves the device, so a leaked copy cannot be reused elsewhere.

@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import type { HourlyBaselineRow, DailyForecast } from '@/lib/forecast/forecastEngine';

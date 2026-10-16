@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { Card, CardContent } from "@/components/ui/card";
 import { CalendarCheck, BookOpen, ClipboardList, MessageSquare, Stethoscope, Zap } from "lucide-react";
 

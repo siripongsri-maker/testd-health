@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { QRCodeSVG } from "qrcode.react";
 import eltonImg from "@/assets/care-card/elton.svg";
 import swingImg from "@/assets/care-card/swing.png";

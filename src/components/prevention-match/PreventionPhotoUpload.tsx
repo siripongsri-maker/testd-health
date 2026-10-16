@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { useState, useRef } from 'react';
 import { Camera, X, SkipForward, ImagePlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';

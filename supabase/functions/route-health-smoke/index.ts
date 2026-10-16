@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Post-deploy smoke test for the live site.
 // Polls testd.website/index.html every 5 minutes, extracts the Vite asset fingerprint,
 // and if it changed since the last recorded deploy, runs all critical routes and records the result.

@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Admin-only: create a magic link so a self-test user can re-enter their Thai ID.
 // Returns { token, url, expires_at }. Token is stored hashed in selftest_magic_tokens.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.89.0";

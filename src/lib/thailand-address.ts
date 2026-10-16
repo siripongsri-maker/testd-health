@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Thailand Address Data - Complete 77 Provinces with all Districts and Subdistricts
 // Data sourced from thailand-geography-data (github.com/thailand-geography-data/thailand-geography-json)
 

@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Daily reminder for delivered self-test kits with no submitted result.
 // Sends SMS at D+2, D+7, D+14 with magic link to result submission.
 // Trigger via cron (daily). Idempotent via selftest_result_reminders log.

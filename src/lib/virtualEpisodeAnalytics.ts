@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Centralized analytics helpers for the Virtual episode/game system.
 // Persists to the existing `analytics_events` table via trackEvent — NO new tables.
 // All payloads are anonymous-by-default (anonymous_id + session_id via trackEvent).

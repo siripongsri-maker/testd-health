@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ClipboardList, ClipboardCheck, ArrowLeftRight, BarChart3, Banknote } from "lucide-react";
@@ -67,4 +68,3 @@ export default function AdminPreServiceHubContent() {
     </Tabs>
   );
 }
-

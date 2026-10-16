@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 /**
  * Appointment preparation helpers — "what to bring" checklist + calendar export.
  * Nothing here touches the server: checklist ticks live in localStorage only.

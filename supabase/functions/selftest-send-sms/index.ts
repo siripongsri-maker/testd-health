@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Selftest Follow-up: Send SMS via SMSMKT
 // Admin-only. Sends SMS to one or many selftest request recipients and logs every attempt.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";

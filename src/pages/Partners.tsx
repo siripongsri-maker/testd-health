@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { useLanguage } from "@/lib/i18n";
 import { SEOHead, buildFaqJsonLd } from "@/components/seo/SEOHead";
 import { FAQSection, type FAQItem } from "@/components/seo/FAQSection";

@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { Shield, Heart, CheckCircle, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { LanguageToggle } from "@/components/LanguageToggle";

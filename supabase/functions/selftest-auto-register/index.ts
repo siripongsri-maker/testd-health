@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Auto-register guest selftest user using admin API (no email confirmation needed).
 // Public (verify_jwt=false). Avoids the auth signup email rate limit on synthetic
 // @swingth.local addresses by creating the user with email_confirm=true.

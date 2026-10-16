@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 /**
  * Maps internal queue step_code + step_status into 4 simplified public TV statuses.
  * Used by QueueTV to hide operational detail from the public display.

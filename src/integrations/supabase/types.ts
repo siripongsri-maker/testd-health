@@ -10841,6 +10841,27 @@ export type Database = {
         }
         Relationships: []
       }
+      system_provenance: {
+        Row: {
+          creator_name: string
+          id: string
+          recorded_at: string
+          statement: string
+        }
+        Insert: {
+          creator_name: string
+          id?: string
+          recorded_at?: string
+          statement: string
+        }
+        Update: {
+          creator_name?: string
+          id?: string
+          recorded_at?: string
+          statement?: string
+        }
+        Relationships: []
+      }
       tracked_links: {
         Row: {
           branch_focus: string | null

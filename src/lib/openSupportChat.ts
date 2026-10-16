@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Centralized helper: "ขอคำปรึกษา" / "ติดต่อเจ้าหน้าที่" CTAs open the SWING LINE office in a new tab.
 // Keep using this everywhere so we have a single source of truth.
 export const SUPPORT_CHAT_URL = 'https://lin.ee/5flow4L';

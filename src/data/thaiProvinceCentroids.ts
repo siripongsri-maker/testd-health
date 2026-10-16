@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Approximate centroids for 77 Thai provinces (lat, lng)
 // Keys match the Thai province names stored in selftest_pii.province
 export const THAI_PROVINCE_CENTROIDS: Record<string, { lat: number; lng: number; en: string }> = {

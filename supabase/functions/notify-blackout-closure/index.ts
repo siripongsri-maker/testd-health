@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Notify all clients booked on a closed (blackout) day via email, SMS and in-app notification.
 // Staff/admin only. Includes a reschedule link (guest token link for anonymous bookings).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";

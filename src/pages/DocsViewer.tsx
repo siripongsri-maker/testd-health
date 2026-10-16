@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { FileText, ArrowLeft, AlertTriangle } from "lucide-react";
