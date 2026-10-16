@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 const PARTNERS_FAQ: FAQItem[] = [
-  { questionEn: "What is testD?", questionTh: "testD คืออะไร?", answerEn: "testD is a digital health platform focused on HIV prevention, chemsex harm reduction, and sexual health education. Built by SWING Foundation Thailand.", answerTh: "testD เป็นแพลตฟอร์มสุขภาพดิจิทัลที่มุ่งเน้นการป้องกัน HIV การลดอันตรายจากเคมเซ็กส์ และการให้ความรู้ด้านสุขภาพทางเพศ สร้างโดยมูลนิธิสวิง ประเทศไทย" },
+  { questionEn: "What is testD?", questionTh: "testD คืออะไร?", answerEn: "testD is a digital health platform focused on HIV prevention, chemsex harm reduction, and sexual health education. Created by Siripong Srichau.", answerTh: "testD เป็นแพลตฟอร์มสุขภาพดิจิทัลที่มุ่งเน้นการป้องกัน HIV การลดอันตรายจากเคมเซ็กส์ และการให้ความรู้ด้านสุขภาพทางเพศ สร้างสรรค์โดย Siripong Srichau" },
   { questionEn: "Can I link to testD resources?", questionTh: "ฉันสามารถลิงก์ไปยังแหล่งข้อมูล testD ได้หรือไม่?", answerEn: "Yes. All public knowledge pages are free to link to and cite. We encourage NGOs, educators, and health organizations to share our resources.", answerTh: "ได้ หน้าความรู้สาธารณะทั้งหมดสามารถลิงก์และอ้างอิงได้ฟรี" },
   { questionEn: "How can I partner with testD?", questionTh: "จะร่วมงานกับ testD ได้อย่างไร?", answerEn: "Contact us at partnerships@swingth.org with your organization details and proposed collaboration. We welcome co-branded guides, resource inclusions, and expert reviews.", answerTh: "ติดต่อเราที่ partnerships@swingth.org พร้อมรายละเอียดองค์กรและข้อเสนอความร่วมมือ" },
   { questionEn: "Is testD content evidence-based?", questionTh: "เนื้อหา testD อิงหลักฐานหรือไม่?", answerEn: "Yes. Our content follows WHO, UNODC, and EMCDDA guidelines. All harm reduction content is reviewed for medical accuracy and uses non-stigmatizing language.", answerTh: "ใช่ เนื้อหาของเราเป็นไปตามแนวทาง WHO, UNODC และ EMCDDA" },
@@ -98,8 +98,8 @@ export default function PartnersPage() {
             <CardContent className="p-6 space-y-3">
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {isEn
-                  ? "testD is a digital health platform by SWING Foundation (Service Workers IN Group), a Thai NGO supporting sex workers, MSM, transgender people, and people who use substances since 2004. testD provides HIV prevention tools, chemsex harm reduction education, and anonymous health support — all bilingual in Thai and English."
-                  : "testD เป็นแพลตฟอร์มสุขภาพดิจิทัลโดยมูลนิธิสวิง (Service Workers IN Group) องค์กรพัฒนาเอกชนไทยที่สนับสนุนพนักงานบริการทางเพศ ชายที่มีเพศสัมพันธ์กับชาย ผู้มีความหลากหลายทางเพศ และผู้ที่ใช้สาร ตั้งแต่ปี 2547"}
+                  ? "testD is a digital health platform created by Siripong Srichau, delivered with SWING Foundation (Service Workers IN Group), a Thai NGO supporting sex workers, MSM, transgender people, and people who use substances since 2004. testD provides HIV prevention tools, chemsex harm reduction education, and anonymous health support — all bilingual in Thai and English."
+                  : "testD เป็นแพลตฟอร์มสุขภาพดิจิทัลที่สร้างสรรค์โดย Siripong Srichau ให้บริการร่วมกับมูลนิธิสวิง (Service Workers IN Group) องค์กรพัฒนาเอกชนไทยที่สนับสนุนพนักงานบริการทางเพศ ชายที่มีเพศสัมพันธ์กับชาย ผู้มีความหลากหลายทางเพศ และผู้ที่ใช้สาร ตั้งแต่ปี 2547"}
               </p>
               <div className="flex flex-wrap gap-2">
                 {["HIV Prevention", "Chemsex Safety", "Harm Reduction", "Drug Interactions", "Mental Health"].map(tag => (
@@ -216,7 +216,7 @@ export default function PartnersPage() {
               : "testD ให้ข้อมูลการลดอันตรายเท่านั้น เนื้อหานี้ไม่ใช่คำแนะนำทางการแพทย์ ไม่สนับสนุนหรือส่งเสริมการใช้สารออกฤทธิ์ และไม่ควรใช้แทนการปรึกษาแพทย์ ข้อมูลทั้งหมดให้เพื่อการศึกษาภายในกรอบการลดอันตรายด้านสาธารณสุข หากต้องการความช่วยเหลือฉุกเฉิน โปรดโทรหาบริการฉุกเฉินในพื้นที่"}
           </p>
           <p className="text-xs text-muted-foreground">
-            {isEn ? "Last reviewed: March 2026" : "ตรวจสอบล่าสุด: มีนาคม 2569"} · © SWING Foundation
+            {isEn ? "Last reviewed: March 2026" : "ตรวจสอบล่าสุด: มีนาคม 2569"} · © Siripong Srichau
           </p>
         </footer>
       </div>
