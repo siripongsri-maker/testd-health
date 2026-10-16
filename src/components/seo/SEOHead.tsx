@@ -204,7 +204,7 @@ export function buildMedicalPageJsonLd({
     ...(lastReviewed && { lastReviewed }),
     publisher: {
       "@type": "Organization",
-      name: "SWING Foundation",
+      name: "Siripong Srichau",
       url: "https://testd.website",
     },
     medicalAudience: {

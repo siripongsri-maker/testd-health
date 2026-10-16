@@ -66,7 +66,7 @@ export default function PartnersPage() {
             "@type": "WebPage",
             name: isEn ? "Partners & Educators" : "พาร์ทเนอร์และนักการศึกษา",
             description: "Collaboration and partnership page for testD harm reduction platform",
-            publisher: { "@type": "Organization", name: "SWING Foundation", url: "https://testd-health.lovable.app" },
+            publisher: { "@type": "Organization", name: "Siripong Srichau", url: "https://testd-health.lovable.app" },
           },
           buildFaqJsonLd(faqs.map(f => ({ question: isEn ? f.questionEn : f.questionTh, answer: isEn ? f.answerEn : f.answerTh }))),
         ]}
