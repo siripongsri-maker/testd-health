@@ -130,6 +130,22 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/categories" />
   </url>
   <url>
+    <loc>https://testd.website/th/info/faq</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/faq" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/faq" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/faq" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/faq</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/faq" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/faq" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/faq" />
+  </url>
+  <url>
     <loc>https://testd.website/th/ghb-overdose</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -802,22 +818,742 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/category/lifestyle" />
   </url>
   <url>
-    <loc>https://testd.website/th/info/article/ghb-overdose-prevention-timeline</loc>
-    <lastmod>2026-10-16</lastmod>
+    <loc>https://testd.website/th/info/article/drug-checking-before-use</loc>
+    <lastmod>2026-10-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/ghb-overdose-prevention-timeline" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/drug-checking-before-use" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/drug-checking-before-use" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/drug-checking-before-use" />
   </url>
   <url>
-    <loc>https://testd.website/en/info/article/ghb-overdose-prevention-timeline</loc>
-    <lastmod>2026-10-16</lastmod>
+    <loc>https://testd.website/en/info/article/drug-checking-before-use</loc>
+    <lastmod>2026-10-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/ghb-overdose-prevention-timeline" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/drug-checking-before-use" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/drug-checking-before-use" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/drug-checking-before-use" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/overdose-response-friends</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/overdose-response-friends" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/overdose-response-friends" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/overdose-response-friends" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/overdose-response-friends</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/overdose-response-friends" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/overdose-response-friends" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/overdose-response-friends" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/world-aids-day-2025</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/world-aids-day-2025" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/world-aids-day-2025" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/world-aids-day-2025" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/world-aids-day-2025</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/world-aids-day-2025" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/world-aids-day-2025" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/world-aids-day-2025" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/hiv-retest-every-3-months-who</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-retest-every-3-months-who" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hiv-retest-every-3-months-who" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hiv-retest-every-3-months-who" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/hiv-retest-every-3-months-who</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-retest-every-3-months-who" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hiv-retest-every-3-months-who" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hiv-retest-every-3-months-who" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/party-safety-checklist</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/party-safety-checklist" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/party-safety-checklist" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/party-safety-checklist" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/party-safety-checklist</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/party-safety-checklist" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/party-safety-checklist" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/party-safety-checklist" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/thailand-hiv-statistics-2025</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/thailand-hiv-statistics-2025" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/thailand-hiv-statistics-2025" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/thailand-hiv-statistics-2025" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/thailand-hiv-statistics-2025</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/thailand-hiv-statistics-2025" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/thailand-hiv-statistics-2025" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/thailand-hiv-statistics-2025" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/long-term-hiv-living-well</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/long-term-hiv-living-well" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/long-term-hiv-living-well" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/long-term-hiv-living-well" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/long-term-hiv-living-well</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/long-term-hiv-living-well" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/long-term-hiv-living-well" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/long-term-hiv-living-well" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/viral-load-undetectable-meaning</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/viral-load-undetectable-meaning" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/viral-load-undetectable-meaning" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/viral-load-undetectable-meaning" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/viral-load-undetectable-meaning</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/viral-load-undetectable-meaning" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/viral-load-undetectable-meaning" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/viral-load-undetectable-meaning" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/anxiety-after-risky-exposure</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/anxiety-after-risky-exposure" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/anxiety-after-risky-exposure" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/anxiety-after-risky-exposure" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/anxiety-after-risky-exposure</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/anxiety-after-risky-exposure" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/anxiety-after-risky-exposure" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/anxiety-after-risky-exposure" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/msm-sexual-health-checklist</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/msm-sexual-health-checklist" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/msm-sexual-health-checklist" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/msm-sexual-health-checklist" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/msm-sexual-health-checklist</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/msm-sexual-health-checklist" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/msm-sexual-health-checklist" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/msm-sexual-health-checklist" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/hiv-self-test-how-to-use-saliva</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-self-test-how-to-use-saliva" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hiv-self-test-how-to-use-saliva" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hiv-self-test-how-to-use-saliva" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/hiv-self-test-how-to-use-saliva</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-self-test-how-to-use-saliva" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hiv-self-test-how-to-use-saliva" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hiv-self-test-how-to-use-saliva" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/hiv-test-30-baht-nhso</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-test-30-baht-nhso" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hiv-test-30-baht-nhso" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hiv-test-30-baht-nhso" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/hiv-test-30-baht-nhso</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-test-30-baht-nhso" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hiv-test-30-baht-nhso" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hiv-test-30-baht-nhso" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/sex-and-mental-health</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/sex-and-mental-health" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/sex-and-mental-health" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/sex-and-mental-health" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/sex-and-mental-health</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/sex-and-mental-health" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/sex-and-mental-health" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/sex-and-mental-health" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/hpv-vaccine-adults-thailand</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hpv-vaccine-adults-thailand" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hpv-vaccine-adults-thailand" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hpv-vaccine-adults-thailand" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/hpv-vaccine-adults-thailand</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hpv-vaccine-adults-thailand" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hpv-vaccine-adults-thailand" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hpv-vaccine-adults-thailand" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/prep-cost-thailand-2026</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-cost-thailand-2026" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/prep-cost-thailand-2026" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/prep-cost-thailand-2026" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/prep-cost-thailand-2026</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-cost-thailand-2026" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/prep-cost-thailand-2026" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/prep-cost-thailand-2026" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/hiv-youth-thailand-stats</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-youth-thailand-stats" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hiv-youth-thailand-stats" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hiv-youth-thailand-stats" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/hiv-youth-thailand-stats</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-youth-thailand-stats" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hiv-youth-thailand-stats" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hiv-youth-thailand-stats" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/dating-someone-with-hiv</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/dating-someone-with-hiv" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/dating-someone-with-hiv" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/dating-someone-with-hiv" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/dating-someone-with-hiv</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/dating-someone-with-hiv" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/dating-someone-with-hiv" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/dating-someone-with-hiv" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/sti-from-oral-sex</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/sti-from-oral-sex" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/sti-from-oral-sex" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/sti-from-oral-sex" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/sti-from-oral-sex</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/sti-from-oral-sex" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/sti-from-oral-sex" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/sti-from-oral-sex" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/pep-vs-prep-difference</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/pep-vs-prep-difference" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/pep-vs-prep-difference" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/pep-vs-prep-difference" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/pep-vs-prep-difference</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/pep-vs-prep-difference" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/pep-vs-prep-difference" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/pep-vs-prep-difference" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/hiv-test-before-marriage</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-test-before-marriage" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hiv-test-before-marriage" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hiv-test-before-marriage" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/hiv-test-before-marriage</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-test-before-marriage" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hiv-test-before-marriage" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hiv-test-before-marriage" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/just-diagnosed-hiv-coping</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/just-diagnosed-hiv-coping" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/just-diagnosed-hiv-coping" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/just-diagnosed-hiv-coping" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/just-diagnosed-hiv-coping</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/just-diagnosed-hiv-coping" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/just-diagnosed-hiv-coping" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/just-diagnosed-hiv-coping" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/sti-symptoms-often-missed</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/sti-symptoms-often-missed" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/sti-symptoms-often-missed" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/sti-symptoms-often-missed" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/sti-symptoms-often-missed</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/sti-symptoms-often-missed" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/sti-symptoms-often-missed" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/sti-symptoms-often-missed" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/can-you-buy-pep-yourself</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/can-you-buy-pep-yourself" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/can-you-buy-pep-yourself" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/can-you-buy-pep-yourself" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/can-you-buy-pep-yourself</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/can-you-buy-pep-yourself" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/can-you-buy-pep-yourself" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/can-you-buy-pep-yourself" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/u-equals-u-thailand</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/u-equals-u-thailand" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/u-equals-u-thailand" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/u-equals-u-thailand" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/u-equals-u-thailand</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/u-equals-u-thailand" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/u-equals-u-thailand" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/u-equals-u-thailand" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/fear-of-hiv-test-result</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/fear-of-hiv-test-result" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/fear-of-hiv-test-result" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/fear-of-hiv-test-result" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/fear-of-hiv-test-result</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/fear-of-hiv-test-result" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/fear-of-hiv-test-result" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/fear-of-hiv-test-result" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/full-sti-panel-where-to-test</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/full-sti-panel-where-to-test" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/full-sti-panel-where-to-test" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/full-sti-panel-where-to-test" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/full-sti-panel-where-to-test</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/full-sti-panel-where-to-test" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/full-sti-panel-where-to-test" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/full-sti-panel-where-to-test" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/prep-for-women-and-trans</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-for-women-and-trans" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/prep-for-women-and-trans" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/prep-for-women-and-trans" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/prep-for-women-and-trans</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-for-women-and-trans" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/prep-for-women-and-trans" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/prep-for-women-and-trans" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/hiv-reactive-two-lines-next-steps</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-reactive-two-lines-next-steps" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hiv-reactive-two-lines-next-steps" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hiv-reactive-two-lines-next-steps" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/hiv-reactive-two-lines-next-steps</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-reactive-two-lines-next-steps" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hiv-reactive-two-lines-next-steps" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hiv-reactive-two-lines-next-steps" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/lenacapavir-prep-injection-thailand</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/lenacapavir-prep-injection-thailand" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/lenacapavir-prep-injection-thailand" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/lenacapavir-prep-injection-thailand" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/lenacapavir-prep-injection-thailand</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/lenacapavir-prep-injection-thailand" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/lenacapavir-prep-injection-thailand" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/lenacapavir-prep-injection-thailand" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/herpes-hpv-warts-explained</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/herpes-hpv-warts-explained" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/herpes-hpv-warts-explained" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/herpes-hpv-warts-explained" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/herpes-hpv-warts-explained</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/herpes-hpv-warts-explained" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/herpes-hpv-warts-explained" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/herpes-hpv-warts-explained" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/how-to-start-prep-step-by-step</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/how-to-start-prep-step-by-step" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/how-to-start-prep-step-by-step" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/how-to-start-prep-step-by-step" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/how-to-start-prep-step-by-step</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/how-to-start-prep-step-by-step" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/how-to-start-prep-step-by-step" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/how-to-start-prep-step-by-step" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/doxypep-thailand-status</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/doxypep-thailand-status" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/doxypep-thailand-status" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/doxypep-thailand-status" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/doxypep-thailand-status</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/doxypep-thailand-status" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/doxypep-thailand-status" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/doxypep-thailand-status" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/gonorrhea-chlamydia-guide</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/gonorrhea-chlamydia-guide" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/gonorrhea-chlamydia-guide" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/gonorrhea-chlamydia-guide" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/gonorrhea-chlamydia-guide</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/gonorrhea-chlamydia-guide" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/gonorrhea-chlamydia-guide" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/gonorrhea-chlamydia-guide" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/prep-kidney-safety</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-kidney-safety" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/prep-kidney-safety" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/prep-kidney-safety" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/prep-kidney-safety</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-kidney-safety" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/prep-kidney-safety" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/prep-kidney-safety" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/hiv-self-test-accuracy</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-self-test-accuracy" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hiv-self-test-accuracy" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hiv-self-test-accuracy" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/hiv-self-test-accuracy</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-self-test-accuracy" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hiv-self-test-accuracy" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hiv-self-test-accuracy" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/mpox-thailand-update-2025</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/mpox-thailand-update-2025" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/mpox-thailand-update-2025" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/mpox-thailand-update-2025" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/mpox-thailand-update-2025</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/mpox-thailand-update-2025" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/mpox-thailand-update-2025" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/mpox-thailand-update-2025" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/syphilis-rising-thailand-2025</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/syphilis-rising-thailand-2025" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/syphilis-rising-thailand-2025" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/syphilis-rising-thailand-2025" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/syphilis-rising-thailand-2025</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/syphilis-rising-thailand-2025" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/syphilis-rising-thailand-2025" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/syphilis-rising-thailand-2025" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/prep-on-demand-2-1-1</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-on-demand-2-1-1" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/prep-on-demand-2-1-1" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/prep-on-demand-2-1-1" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/prep-on-demand-2-1-1</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-on-demand-2-1-1" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/prep-on-demand-2-1-1" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/prep-on-demand-2-1-1" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/hiv-test-free-bangkok</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-test-free-bangkok" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hiv-test-free-bangkok" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hiv-test-free-bangkok" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/hiv-test-free-bangkok</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hiv-test-free-bangkok" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hiv-test-free-bangkok" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hiv-test-free-bangkok" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/thailand-95-95-95-target</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/thailand-95-95-95-target" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/thailand-95-95-95-target" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/thailand-95-95-95-target" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/thailand-95-95-95-target</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/thailand-95-95-95-target" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/thailand-95-95-95-target" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/thailand-95-95-95-target" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/prep-free-gold-card-2026</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-free-gold-card-2026" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/prep-free-gold-card-2026" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/prep-free-gold-card-2026" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/prep-free-gold-card-2026</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/prep-free-gold-card-2026" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/prep-free-gold-card-2026" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/prep-free-gold-card-2026" />
   </url>
   <url>
     <loc>https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data</loc>
@@ -838,40 +1574,22 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data" />
   </url>
   <url>
-    <loc>https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</loc>
+    <loc>https://testd.website/th/info/article/ghb-overdose-prevention-timeline</loc>
     <lastmod>2026-10-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/ghb-overdose-prevention-timeline" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
   </url>
   <url>
-    <loc>https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026</loc>
+    <loc>https://testd.website/en/info/article/ghb-overdose-prevention-timeline</loc>
     <lastmod>2026-10-16</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
-  </url>
-  <url>
-    <loc>https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</loc>
-    <lastmod>2026-10-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
-  </url>
-  <url>
-    <loc>https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</loc>
-    <lastmod>2026-10-16</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/ghb-overdose-prevention-timeline" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
   </url>
   <url>
     <loc>https://testd.website/th/info/article/meth-harm-reduction-thailand-behaviour-2026</loc>
@@ -908,6 +1626,42 @@
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/42-critical-substance-interactions-chemsex" />
     <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/42-critical-substance-interactions-chemsex" />
     <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/42-critical-substance-interactions-chemsex" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</loc>
+    <lastmod>2026-10-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</loc>
+    <lastmod>2026-10-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</loc>
+    <lastmod>2026-10-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026</loc>
+    <lastmod>2026-10-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
   </url>
   <url>
     <loc>https://testd.website/th/info/article/long-acting-injectable-prep</loc>
@@ -965,7 +1719,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/pep-72-hours</loc>
-    <lastmod>2026-10-16</lastmod>
+    <lastmod>2026-10-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/pep-72-hours" />
@@ -974,7 +1728,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/pep-72-hours</loc>
-    <lastmod>2026-10-16</lastmod>
+    <lastmod>2026-10-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/pep-72-hours" />
@@ -1037,7 +1791,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/consent-in-real-life</loc>
-    <lastmod>2026-10-16</lastmod>
+    <lastmod>2026-10-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/consent-in-real-life" />
@@ -1046,7 +1800,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/consent-in-real-life</loc>
-    <lastmod>2026-10-16</lastmod>
+    <lastmod>2026-10-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/info/article/consent-in-real-life" />
