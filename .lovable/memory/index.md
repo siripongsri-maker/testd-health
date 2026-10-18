@@ -1,0 +1,1 @@
+- [Marketing research](mem://references/marketing-research) — research + plan saved in Project Files 2026-10-18
