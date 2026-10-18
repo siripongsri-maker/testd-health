@@ -111,7 +111,7 @@ export function ArticleBookingCta({
             <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             <span>
               {th
-                ? "\u{1F512} ข้อมูลของคุณจะถูกเก็บเป็นความลับ ปลอดภัย และใช้เพื่ อการให้บริการเท่านั้ น"
+                ? "ข้อมูลของคุณจะถูกเก็บเป็นความลับ ปลอดภัย และใช้เพื่ อการให้บริการเท่านั้ น"
                 : "Your information is kept confidential and used only to deliver the service."}
             </span>
           </p>

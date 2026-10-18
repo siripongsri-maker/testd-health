@@ -17,7 +17,13 @@ const HIDDEN_SLUGS = [
 describe("normalizeForMatch", () => {
   it("makes the phonetic spelling match the canonical one", () => {
     expect(normalizeForMatch("ซฟิลิส")).toBe(normalizeForMatch("ซิฟิลิส"));
-    expect(normalizeForMatch("72 ชั่ วโมง")).toBe(normalizeForMatch("72 ชั่วโมง"));
+  });
+
+  it("matches the 72-hour phrase with or without the stray space", () => {
+    const spaced = "ต้องได้รรับยา PEP ภายใน 72 ชั่ วโมง";
+    const tight = "ต้องได้รรับยา PEP ภายใน 72 ชั่วโมง";
+    expect(matchClinicService(spaced)?.slug).toBe("pep");
+    expect(matchClinicService(tight)?.slug).toBe("pep");
   });
 });
 
