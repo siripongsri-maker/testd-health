@@ -19,6 +19,7 @@ import { usePageLocale } from "@/components/seo/LocaleRouter";
 import { alternateLanguagePathsFor, type Locale } from "@/lib/seoLocalePrefix";
 import { RelatedArticles } from "@/components/blog/RelatedArticles";
 import { ArticleSurveyCta } from "@/components/blog/ArticleSurveyCta";
+import { ArticleBookingCta } from "@/components/blog/ArticleBookingCta";
 import { FloatingSurveyPrompt } from "@/components/blog/FloatingSurveyPrompt";
 import { useRelatedSurvey } from "@/hooks/useRelatedSurvey";
 import {
@@ -421,6 +422,12 @@ export default function InfoArticle() {
           />
         </div>
 
+        <ArticleBookingCta
+          articleText={matchText}
+          articleSlug={article.slug}
+          variant="compact"
+        />
+
         {/* Content */}
         <div className="rounded-2xl bg-card border border-border p-6 shadow-card">
           {content ? (
@@ -432,6 +439,7 @@ export default function InfoArticle() {
           )}
         </div>
 
+        <ArticleBookingCta articleText={matchText} articleSlug={article.slug} />
 
         {/* YouTube Video */}
         {article.video_url && extractYouTubeVideoId(article.video_url) && (
