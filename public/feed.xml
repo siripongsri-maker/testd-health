@@ -5,14 +5,335 @@
   <link>https://testd.website/th/info</link>
   <description>อัปเดตบทความใหม่จาก testD เรื่อง HIV, PrEP, PEP, โรคติดต่อทางเพศสัมพันธ์ และการลดอันตรายจากการใช้สาร</description>
   <language>th-TH</language>
-  <lastBuildDate>Fri, 16 Oct 2026 18:36:17 GMT</lastBuildDate>
+  <lastBuildDate>Sun, 18 Oct 2026 14:53:25 GMT</lastBuildDate>
   <atom:link href="https://testd.website/feed.xml" rel="self" type="application/rss+xml" />
   <item>
-    <title>GHB/GBL: การตวง การเว้นช่วง และการช่วยชีวิตเมื่อเพื่อนหมดสติ</title>
-    <link>https://testd.website/th/info/article/ghb-overdose-prevention-timeline</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/ghb-overdose-prevention-timeline</guid>
-    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
-    <description>GHB เป็นคู่ปฏิกิริยาระดับวิกฤตกับแอลกอฮอล์และยานอนหลับ บทความนี้ให้ตารางเวลาเว้นช่วง สัญญาณอันตราย และขั้นตอนช่วยชีวิตทีละขั้น</description>
+    <title>จะรู้ได้ยังไงว่าสารที่ได้มาคืออะไร? เรื่องการตรวจสารและความเสี่ยงยาปลอม</title>
+    <link>https://testd.website/th/info/article/drug-checking-before-use</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/drug-checking-before-use</guid>
+    <pubDate>Thu, 15 Oct 2026 14:40:12 GMT</pubDate>
+    <description>สารที่ซื้อมาอาจไม่ใช่สิ่งที่คิด — ยาปลอมและการปนเปื้อนเป็นความเสี่ยงจริง มาดูเรื่องการตรวจสาร (drug checking) และวิธีลดความเสี่ยงที่ทำได้จริง</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/bec8ed19-e126-44ed-aecd-951dd93bccda/cover-harm-reduction.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>เพื่อนใช้สารเกินขนาด: สัญญาณอันตรายและวิธีช่วยชีวิตก่อนรถพยาบาลมา</title>
+    <link>https://testd.website/th/info/article/overdose-response-friends</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/overdose-response-friends</guid>
+    <pubDate>Wed, 14 Oct 2026 14:40:12 GMT</pubDate>
+    <description>การใช้สารเกินขนาดช่วยได้ถ้ารู้ทัน มาดูสัญญาณเตือนของสารแต่ละกลุ่ม ท่านอนฟื้นคืนชีพ และเมื่อไหร่ต้องโทร 1669 ทันที</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/bec8ed19-e126-44ed-aecd-951dd93bccda/cover-harm-reduction.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>วันเอดส์โลก 1 ธันวาคม: ธีมปี 2568 และสิ่งที่คนไทยทำได้จริง</title>
+    <link>https://testd.website/th/info/article/world-aids-day-2025</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/world-aids-day-2025</guid>
+    <pubDate>Wed, 14 Oct 2026 14:25:27 GMT</pubDate>
+    <description>วันเอดส์โลก 1 ธันวาคม ธีมปี 2568 คือ &apos;ก้าวข้ามการหยุดชะงัก พลิกโฉมการรับมือเอดส์&apos; มาดูความหมายและสิ่งที่ทำได้จริงนอกเหนือจากติดริบบิ้น</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/53e8d852-cb15-4ebd-898a-9edd09eaa5a0/cover-world-aids-day.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>ใครบ้างที่ควรตรวจ HIV ซ้ำทุก 3 เดือน? เช็กลิสต์ฉบับเข้าใจง่าย</title>
+    <link>https://testd.website/th/info/article/hiv-retest-every-3-months-who</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/hiv-retest-every-3-months-who</guid>
+    <pubDate>Wed, 14 Oct 2026 14:15:31 GMT</pubDate>
+    <description>คนทั่วไปตรวจปีละครั้งก็พอ แต่บางกลุ่มควรตรวจทุก 3 เดือน มาดูว่าคุณอยู่ในกลุ่มนั้นหรือไม่ และทำไมการตรวจสม่ำเสมอถึงสำคัญ</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/58b5d0d4-12c4-4eb3-96da-b85a9ece7b03/cover-hiv-testing.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>เช็กลิสต์ปาร์ตี้ปลอดภัย: เตรียมตัวก่อนไป ระหว่างงาน และหลังกลับบ้าน</title>
+    <link>https://testd.website/th/info/article/party-safety-checklist</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/party-safety-checklist</guid>
+    <pubDate>Tue, 13 Oct 2026 14:40:12 GMT</pubDate>
+    <description>ออกไปสังสรรค์ไม่จำเป็นต้องเสี่ยง มาดูเช็กลิสต์ความปลอดภัยแบบลดอันตราย ตั้งแต่เตรียมตัวก่อนออกจากบ้านจนถึงเช้าวันรุ่งขึ้น</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/bec8ed19-e126-44ed-aecd-951dd93bccda/cover-harm-reduction.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>สถิติ HIV ไทยล่าสุด: ผู้ติดเชื้อรายใหม่ปีละ 8,000+ คน เกือบครึ่งเป็นวัยรุ่น</title>
+    <link>https://testd.website/th/info/article/thailand-hiv-statistics-2025</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/thailand-hiv-statistics-2025</guid>
+    <pubDate>Tue, 13 Oct 2026 14:25:27 GMT</pubDate>
+    <description>สรุปตัวเลข HIV ไทยล่าสุดจากกรมควบคุมโรค ผู้ติดเชื้อรายใหม่ 8,124 คนต่อปี วัย 15–24 ปี 3,958 คน และเป้าหมายจบเอดส์ปี 2573</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/db83b5dc-186f-4237-b68a-545e7be392df/cover-news-stats.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>อยู่กับ HIV อย่างมีคุณภาพ: กินยา ทำงาน มีความรัก ได้ตามปกติ</title>
+    <link>https://testd.website/th/info/article/long-term-hiv-living-well</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/long-term-hiv-living-well</guid>
+    <pubDate>Tue, 13 Oct 2026 14:21:59 GMT</pubDate>
+    <description>การมีเชื้อ HIV ในปี 2569 ไม่ใช่จุดจบ คนที่กินยาสม่ำเสมอใช้ชีวิตปกติได้ทุกด้าน มาดูเคล็ดลับดูแลร่างกาย จิตใจ และสิทธิที่ควรรู้</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/c6655cd4-0b23-48a2-8b63-0b037ad74161/cover-clinic.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>ปริมาณเชื้อในเลือด (Viral Load) คืออะไร? ตัวเลขที่เปลี่ยนชีวิตคนติดเชื้อ HIV</title>
+    <link>https://testd.website/th/info/article/viral-load-undetectable-meaning</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/viral-load-undetectable-meaning</guid>
+    <pubDate>Tue, 13 Oct 2026 14:15:31 GMT</pubDate>
+    <description>Viral Load คือตัวเลขปริมาณเชื้อ HIV ในเลือด ยิ่งต่ำยิ่งดี เมื่อต่ำกว่าระดับตรวจพบคือ U=U มาทำความเข้าใจตัวเลขนี้แบบง่าย ๆ</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/58b5d0d4-12c4-4eb3-96da-b85a9ece7b03/cover-hiv-testing.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>เพิ่งเสี่ยงมา นอนไม่หลับ คิดวนว่าจะติด HIV ไหม — ทำยังไงดี</title>
+    <link>https://testd.website/th/info/article/anxiety-after-risky-exposure</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/anxiety-after-risky-exposure</guid>
+    <pubDate>Mon, 12 Oct 2026 14:40:12 GMT</pubDate>
+    <description>ช่วงรอตรวจหลังมีความเสี่ยงเป็นช่วงที่เครียดที่สุด มาดูว่าควรทำอะไรทันที ตรวจเมื่อไหร่ และจัดการความกังวลระหว่างรอยังไง</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/144b68a7-fb57-4e49-b10a-01dc1b7c0692/cover-mental-health.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>เช็กลิสต์สุขภาพทางเพศสำหรับ MSM: ตรวจอะไร บ่อยแค่ไหน ป้องกันยังไง</title>
+    <link>https://testd.website/th/info/article/msm-sexual-health-checklist</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/msm-sexual-health-checklist</guid>
+    <pubDate>Mon, 12 Oct 2026 14:25:27 GMT</pubDate>
+    <description>สรุปเช็กลิสต์สุขภาพทางเพศสำหรับชายที่มีเพศสัมพันธ์กับชาย ตั้งแต่ตรวจ HIV/STI ทุก 3 เดือน PrEP วัคซีน ไปจนถึงสุขภาพจิต</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/c37405c3-300f-4ebb-960c-a2824ae20aeb/cover-youth.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>วิธีใช้ชุดตรวจ HIV แบบน้ำลาย ทีละขั้นตอน (พร้อมข้อผิดพลาดที่ต้องเลี่ยง)</title>
+    <link>https://testd.website/th/info/article/hiv-self-test-how-to-use-saliva</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/hiv-self-test-how-to-use-saliva</guid>
+    <pubDate>Mon, 12 Oct 2026 14:21:59 GMT</pubDate>
+    <description>คู่มือใช้ชุดตรวจ HIV แบบน้ำลายตั้งแต่เปิดกล่องจนอ่านผล ห้ามกินอะไรก่อนตรวจ ต้องรอนานแค่ไหน และทำอะไรต่อเมื่อได้ผล</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/58b5d0d4-12c4-4eb3-96da-b85a9ece7b03/cover-hiv-testing.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>สิทธิ 30 บาทตรวจ HIV ได้ไหม? สรุปสิทธิประกันสุขภาพเรื่อง HIV/STI</title>
+    <link>https://testd.website/th/info/article/hiv-test-30-baht-nhso</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/hiv-test-30-baht-nhso</guid>
+    <pubDate>Mon, 12 Oct 2026 14:15:31 GMT</pubDate>
+    <description>สรุปสิทธิบัตรทอง ประกันสังคม และข้าราชการเรื่องตรวจ HIV, PrEP, PEP และยาต้านไวรัส ว่าครอบคลุมอะไรบ้าง ใช้ที่ไหนได้</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/c6655cd4-0b23-48a2-8b63-0b037ad74161/cover-clinic.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>สุขภาพทางเพศกับสุขภาพจิต: เชื่อมโยงกันมากกว่าที่คิด</title>
+    <link>https://testd.website/th/info/article/sex-and-mental-health</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/sex-and-mental-health</guid>
+    <pubDate>Sun, 11 Oct 2026 14:40:12 GMT</pubDate>
+    <description>ความเครียด ซึมเศร้า และการตีตรา ส่งผลต่อชีวิตทางเพศและการดูแลสุขภาพของเราโดยตรง มาดูความเชื่อมโยงนี้และวิธีดูแลทั้งสองด้านพร้อมกัน</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/144b68a7-fb57-4e49-b10a-01dc1b7c0692/cover-mental-health.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>ผู้ใหญ่ฉีดวัคซีน HPV ยังทันไหม? ใครควรฉีด ราคาเท่าไหร่</title>
+    <link>https://testd.website/th/info/article/hpv-vaccine-adults-thailand</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/hpv-vaccine-adults-thailand</guid>
+    <pubDate>Sun, 11 Oct 2026 14:25:27 GMT</pubDate>
+    <description>วัคซีน HPV ไม่ได้มีไว้เฉพาะเด็ก ผู้ใหญ่ถึงอายุ 45 ยังได้ประโยชน์ โดยเฉพาะกลุ่มเสี่ยง มาดูว่าใครควรฉีดและหาฉีดได้ที่ไหน</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/c6655cd4-0b23-48a2-8b63-0b037ad74161/cover-clinic.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>PrEP ราคาเท่าไหร่ในปี 2569? เทียบรับฟรี vs ซื้อเอง vs คลินิกเอกชน</title>
+    <link>https://testd.website/th/info/article/prep-cost-thailand-2026</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/prep-cost-thailand-2026</guid>
+    <pubDate>Sun, 11 Oct 2026 14:21:59 GMT</pubDate>
+    <description>เปรียบเทียบช่องทางรับ PrEP ในไทย ทั้งฟรีตามสิทธิ สปสช. คลินิกชุมชน และคลินิกเอกชน พร้อมค่าใช้จ่ายแฝงที่ควรรู้ก่อนตัดสินใจ</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/ff170ee0-15d2-46f9-9234-a72d62e67ffc/cover-prep.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>HIV ในวัยรุ่นไทย: ตัวเลขล่าสุดที่พ่อแม่และวัยรุ่นควรรู้</title>
+    <link>https://testd.website/th/info/article/hiv-youth-thailand-stats</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/hiv-youth-thailand-stats</guid>
+    <pubDate>Sun, 11 Oct 2026 14:15:31 GMT</pubDate>
+    <description>ข้อมูลกรมควบคุมโรคชี้ผู้ติดเชื้อ HIV รายใหม่ในไทยปี 2567 ราว 8,124 คน เกือบครึ่งเป็นเยาวชนอายุ 15–24 ปี มาดูว่าทำไมและป้องกันยังไง</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/c37405c3-300f-4ebb-960c-a2824ae20aeb/cover-youth.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>คบกับคนที่มีเชื้อ HIV: สิ่งที่ควรรู้ก่อนตัดสินใจ (และสิ่งที่ไม่ต้องกลัว)</title>
+    <link>https://testd.website/th/info/article/dating-someone-with-hiv</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/dating-someone-with-hiv</guid>
+    <pubDate>Sat, 10 Oct 2026 14:40:12 GMT</pubDate>
+    <description>คนที่เราสนใจบอกว่ามีเชื้อ HIV ควรทำยังไง? บทความนี้ตอบทั้งเรื่องความเสี่ยงจริง U=U PrEP และการสร้างความสัมพันธ์ที่ปลอดภัยและอบอุ่น</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/144b68a7-fb57-4e49-b10a-01dc1b7c0692/cover-mental-health.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>Oral sex เสี่ยง STI ไหม? โรคไหนติดทางปากได้บ้าง</title>
+    <link>https://testd.website/th/info/article/sti-from-oral-sex</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/sti-from-oral-sex</guid>
+    <pubDate>Sat, 10 Oct 2026 14:25:27 GMT</pubDate>
+    <description>Oral sex เสี่ยง HIV ต่ำมาก แต่ติด STI อื่นได้จริง ทั้งหนองในที่คอ ซิฟิลิส เริม และ HPV มาดูความเสี่ยงแต่ละโรคและวิธีป้องกัน</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/1eff3a1f-8462-4eee-87e4-073b09dad931/cover-sti.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>PEP กับ PrEP ต่างกันยังไง? เลือกให้ถูก ใช้ให้ทัน</title>
+    <link>https://testd.website/th/info/article/pep-vs-prep-difference</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/pep-vs-prep-difference</guid>
+    <pubDate>Sat, 10 Oct 2026 14:21:59 GMT</pubDate>
+    <description>PrEP กินก่อนเสี่ยง PEP กินหลังเสี่ยง มาดูความแตกต่างแบบตารางเข้าใจง่าย ว่าแต่ละแบบเหมาะกับใคร ใช้นานแค่ไหน และจะเปลี่ยนจากแบบหนึ่งไปอีกแบบได้ยังไง</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/8f9f779c-9a55-437c-85f0-9257872e4f6e/cover-pep.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>ตรวจ HIV ก่อนแต่งงาน: เรื่องที่คู่รักยุคใหม่ควรคุยกัน</title>
+    <link>https://testd.website/th/info/article/hiv-test-before-marriage</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/hiv-test-before-marriage</guid>
+    <pubDate>Sat, 10 Oct 2026 14:15:31 GMT</pubDate>
+    <description>การตรวจ HIV และ STI ก่อนแต่งงานไม่ใช่เรื่องน่าอาย แต่คือการดูแลกันและกัน มาดูว่าควรชวนคู่คุยยังไง ตรวจอะไรบ้าง และตรวจที่ไหน</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/c6655cd4-0b23-48a2-8b63-0b037ad74161/cover-clinic.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>เพิ่งรู้ว่าติดเชื้อ HIV: 7 วันแรกควรทำอะไรบ้าง (ใจเย็น ๆ แล้วอ่าน)</title>
+    <link>https://testd.website/th/info/article/just-diagnosed-hiv-coping</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/just-diagnosed-hiv-coping</guid>
+    <pubDate>Fri, 09 Oct 2026 14:40:12 GMT</pubDate>
+    <description>วินาทีที่รู้ผลบวก โลกเหมือนหยุดหมุน บทความนี้เขียนเพื่อคนที่เพิ่งรู้ผล — สิ่งที่ควรทำใน 7 วันแรก ทีละขั้น ไม่ต้องรีบ</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/144b68a7-fb57-4e49-b10a-01dc1b7c0692/cover-mental-health.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>อาการ STI ที่คนมักมองข้าม: 5 สัญญาณเงียบที่ไม่ควรปล่อยผ่าน</title>
+    <link>https://testd.website/th/info/article/sti-symptoms-often-missed</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/sti-symptoms-often-missed</guid>
+    <pubDate>Fri, 09 Oct 2026 14:25:27 GMT</pubDate>
+    <description>STI หลายโรคไม่มีอาการชัด บางอาการดูเหมือนเรื่องเล็ก เช่น คัน ผื่น หรือตกขาวผิดปกติ มาดูสัญญาณที่ไม่ควรมองข้าม</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/1eff3a1f-8462-4eee-87e4-073b09dad931/cover-sti.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>PEP ซื้อเองที่ร้านยาได้ไหม? เสี่ยงมาแล้วต้องรีบทำอะไร</title>
+    <link>https://testd.website/th/info/article/can-you-buy-pep-yourself</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/can-you-buy-pep-yourself</guid>
+    <pubDate>Fri, 09 Oct 2026 14:21:59 GMT</pubDate>
+    <description>PEP คือยาต้านไวรัสฉุกเฉินที่ต้องเริ่มภายใน 72 ชั่วโมงหลังเสี่ยง ซื้อเองได้ไหม ไปรับที่ไหน ต้องตรวจอะไร สรุปให้ในที่เดียว</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/8f9f779c-9a55-437c-85f0-9257872e4f6e/cover-pep.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>U=U คืออะไร? ทำไมคนติดเชื้อ HIV ที่กินยาดีถึงแพร่เชื้อไม่ได้</title>
+    <link>https://testd.website/th/info/article/u-equals-u-thailand</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/u-equals-u-thailand</guid>
+    <pubDate>Fri, 09 Oct 2026 14:15:31 GMT</pubDate>
+    <description>U=U (Undetectable = Untransmittable) คือข้อเท็จจริงทางวิทยาศาสตร์ที่ว่า ผู้ติดเชื้อ HIV ที่กินยาจนเชื้อต่ำกว่าระดับตรวจพบ จะไม่แพร่เชื้อทางเพศสัมพันธ์</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/c6655cd4-0b23-48a2-8b63-0b037ad74161/cover-clinic.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>กลัวผลตรวจ HIV จนไม่กล้าตรวจ? วิธีจัดการความกลัวแบบจริงจัง</title>
+    <link>https://testd.website/th/info/article/fear-of-hiv-test-result</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/fear-of-hiv-test-result</guid>
+    <pubDate>Thu, 08 Oct 2026 14:40:12 GMT</pubDate>
+    <description>ความกลัวผลตรวจ HIV เป็นเหตุผลอันดับต้นที่คนไม่ยอมตรวจ มาดูว่าความกลัวนี้มาจากไหน และวิธีก้าวผ่านมันแบบไม่ต้องกล้ามาก</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/144b68a7-fb57-4e49-b10a-01dc1b7c0692/cover-mental-health.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>ตรวจ STI ครบชุดที่ไหนดี? รวมรายการที่ควรตรวจและที่ตั้งคลินิก</title>
+    <link>https://testd.website/th/info/article/full-sti-panel-where-to-test</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/full-sti-panel-where-to-test</guid>
+    <pubDate>Thu, 08 Oct 2026 14:25:27 GMT</pubDate>
+    <description>ตรวจ STI ครบชุดควรมีอะไรบ้าง ราคาเท่าไหร่ ตรวจที่ไหนแบบไม่อาย สรุปครบทั้งโรงพยาบาลรัฐ คลินิกนิรนาม และคลินิกชุมชน</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/c6655cd4-0b23-48a2-8b63-0b037ad74161/cover-clinic.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>PrEP สำหรับผู้หญิงและผู้หญิงข้ามเพศ: สิ่งที่ต่างออกไปและต้องรู้</title>
+    <link>https://testd.website/th/info/article/prep-for-women-and-trans</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/prep-for-women-and-trans</guid>
+    <pubDate>Thu, 08 Oct 2026 14:21:59 GMT</pubDate>
+    <description>PrEP ไม่ได้มีไว้เฉพาะผู้ชาย ผู้หญิงและผู้หญิงข้ามเพศก็ใช้ได้และได้ผลดี แต่มีรายละเอียดที่ต่างออกไป ทั้งเรื่องวิธีกินและฮอร์โมน</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/ff170ee0-15d2-46f9-9234-a72d62e67ffc/cover-prep.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>ตรวจ HIV ขึ้น 2 ขีด ต้องทำยังไงต่อ? คู่มือฉบับใจเย็น ๆ</title>
+    <link>https://testd.website/th/info/article/hiv-reactive-two-lines-next-steps</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/hiv-reactive-two-lines-next-steps</guid>
+    <pubDate>Thu, 08 Oct 2026 14:15:31 GMT</pubDate>
+    <description>ผลตรวจ HIV ขึ้น 2 ขีดไม่ได้แปลว่าติดเชื้อแน่ มาดูขั้นตอนที่ควรทำต่อ ตั้งแต่ตรวจยืนยัน ปรึกษา ไปจนถึงเริ่มยา ทุกขั้นทำได้แบบเป็นความลับ</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/58b5d0d4-12c4-4eb3-96da-b85a9ece7b03/cover-hiv-testing.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>PrEP ฉีดปีละ 2 ครั้ง (Lenacapavir): ยาแห่งอนาคตที่กำลังมาถึงไทย</title>
+    <link>https://testd.website/th/info/article/lenacapavir-prep-injection-thailand</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/lenacapavir-prep-injection-thailand</guid>
+    <pubDate>Wed, 07 Oct 2026 14:40:12 GMT</pubDate>
+    <description>Lenacapavir คือ PrEP แบบฉีดที่ป้องกันได้นาน 6 เดือนต่อเข็ม ไทยเตรียมนำร่องปลายปี 2569 กับราว 2,400 คนใน 9 หน่วยบริการ มาดูว่าคืออะไรและใครจะได้ใช้ก่อน</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/db83b5dc-186f-4237-b68a-545e7be392df/cover-news-stats.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>เริม หูดหงอนไก่ และ HPV: STI ที่อยู่กับเราได้ตลอดชีวิต แต่จัดการได้</title>
+    <link>https://testd.website/th/info/article/herpes-hpv-warts-explained</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/herpes-hpv-warts-explained</guid>
+    <pubDate>Wed, 07 Oct 2026 14:25:27 GMT</pubDate>
+    <description>เริมและ HPV ต่างจาก STI อื่นตรงที่เชื้ออยู่ในร่างกายตลอด แต่ควบคุมอาการและลดการแพร่ได้ มาดูวิธีอยู่ร่วมกับเชื้อเหล่านี้</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/1eff3a1f-8462-4eee-87e4-073b09dad931/cover-sti.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>เริ่ม PrEP ครั้งแรก ต้องทำอะไรบ้าง? ขั้นตอนตั้งแต่จองคิวยันรับยา</title>
+    <link>https://testd.website/th/info/article/how-to-start-prep-step-by-step</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/how-to-start-prep-step-by-step</guid>
+    <pubDate>Wed, 07 Oct 2026 14:21:59 GMT</pubDate>
+    <description>คู่มือเริ่ม PrEP ครั้งแรกแบบละเอียด ตั้งแต่จองคิว เตรียมตัว ตรวจเลือด ไปจนถึงรับยาและนัดติดตาม ใช้เวลาไม่นานอย่างที่คิด</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/c6655cd4-0b23-48a2-8b63-0b037ad74161/cover-clinic.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>DoxyPEP คืออะไร? ยาป้องกัน STI หลังเสี่ยงที่ไทยยังไม่แนะนำ</title>
+    <link>https://testd.website/th/info/article/doxypep-thailand-status</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/doxypep-thailand-status</guid>
+    <pubDate>Tue, 06 Oct 2026 14:40:12 GMT</pubDate>
+    <description>DoxyPEP คือการกินยาปฏิชีวนะหลังเพศสัมพันธ์เพื่อป้องกันซิฟิลิสและหนองใน หลายประเทศเริ่มใช้แล้ว แต่แนวทางไทยปี 2567 ยังไม่แนะนำ มาดูเหตุผล</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/db83b5dc-186f-4237-b68a-545e7be392df/cover-news-stats.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>หนองในกับหนองในเทียม: อาการ การรักษา และเรื่องเชื้อดื้อยาที่ต้องรู้</title>
+    <link>https://testd.website/th/info/article/gonorrhea-chlamydia-guide</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/gonorrhea-chlamydia-guide</guid>
+    <pubDate>Tue, 06 Oct 2026 14:25:27 GMT</pubDate>
+    <description>หนองในและหนองในเทียมเป็น STI ที่พบมากที่สุดในไทย หลายคนไม่มีอาการแต่แพร่เชื้อได้ มาดูอาการ การตรวจ และปัญหาเชื้อดื้อยา</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/1eff3a1f-8462-4eee-87e4-073b09dad931/cover-sti.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>กิน PrEP นาน ๆ ไตพังไหม? ข้อเท็จจริงเรื่อง PrEP กับการทำงานของไต</title>
+    <link>https://testd.website/th/info/article/prep-kidney-safety</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/prep-kidney-safety</guid>
+    <pubDate>Tue, 06 Oct 2026 14:21:59 GMT</pubDate>
+    <description>ความกังวลเรื่อง PrEP ทำร้ายไตเป็นเหตุผลอันดับต้นที่คนไม่กล้าเริ่มยา มาดูหลักฐานจริง ใครควรระวัง และการตรวจติดตามที่ช่วยให้ปลอดภัย</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/ff170ee0-15d2-46f9-9234-a72d62e67ffc/cover-prep.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>ชุดตรวจ HIV ด้วยตนเองแม่นยำแค่ไหน? อ่านผลยังไงไม่ให้พลาด</title>
+    <link>https://testd.website/th/info/article/hiv-self-test-accuracy</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/hiv-self-test-accuracy</guid>
+    <pubDate>Tue, 06 Oct 2026 14:15:31 GMT</pubDate>
+    <description>ชุดตรวจ HIV ด้วยตนเองแม่นยำสูงถึง 99% เมื่อใช้ถูกวิธีและหมดระยะฟักตัวแล้ว มาดูวิธีใช้ วิธีอ่านผล 1 ขีด 2 ขีด และข้อควรระวัง</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/58b5d0d4-12c4-4eb3-96da-b85a9ece7b03/cover-hiv-testing.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>อัปเดตฝีดาษลิง (mpox) ในไทย: สถานการณ์ล่าสุด อาการ และวัคซีน</title>
+    <link>https://testd.website/th/info/article/mpox-thailand-update-2025</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/mpox-thailand-update-2025</guid>
+    <pubDate>Mon, 05 Oct 2026 14:40:12 GMT</pubDate>
+    <description>สถานการณ์ mpox ในไทยลดลงในปี 2568 แต่ยังพบผู้ป่วยเรื่อย ๆ สะสมกว่า 900 รายตั้งแต่ปี 2565 มาดูอาการ การแพร่ และใครควรฉีดวัคซีน</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/db83b5dc-186f-4237-b68a-545e7be392df/cover-news-stats.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>ซิฟิลิสในไทยพุ่งเกือบเท่าตัวใน 3 ปี: ตัวเลขจริงและวิธีป้องกัน</title>
+    <link>https://testd.website/th/info/article/syphilis-rising-thailand-2025</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/syphilis-rising-thailand-2025</guid>
+    <pubDate>Mon, 05 Oct 2026 14:25:27 GMT</pubDate>
+    <description>ข้อมูลกรมควบคุมโรคชี้ซิฟิลิสในไทยเพิ่มขึ้นเกือบเท่าตัวใน 3 ปี ปีงบ 2568 พบราว 32,700 ราย วัย 15–24 ปีสูงสุด มาดูอาการ การตรวจ และการรักษา</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/db83b5dc-186f-4237-b68a-545e7be392df/cover-news-stats.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>PrEP แบบเฉพาะช่วง (2-1-1) คืออะไร? กินยังไงให้ได้ผลจริง</title>
+    <link>https://testd.website/th/info/article/prep-on-demand-2-1-1</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/prep-on-demand-2-1-1</guid>
+    <pubDate>Mon, 05 Oct 2026 14:21:59 GMT</pubDate>
+    <description>PrEP แบบ 2-1-1 หรือ On-Demand เหมาะกับคนที่มีเพศสัมพันธ์ไม่บ่อยและวางแผนได้ล่วงหน้า มาดูวิธีกินที่ถูกต้อง และใครที่ไม่ควรใช้แบบนี้</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/ff170ee0-15d2-46f9-9234-a72d62e67ffc/cover-prep.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>ตรวจ HIV ฟรีที่ไหนได้บ้างในกรุงเทพฯ (อัปเดต 2569)</title>
+    <link>https://testd.website/th/info/article/hiv-test-free-bangkok</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/hiv-test-free-bangkok</guid>
+    <pubDate>Mon, 05 Oct 2026 14:15:31 GMT</pubDate>
+    <description>รวมช่องทางตรวจ HIV ฟรีในกรุงเทพฯ ทั้งคลินิกชุมชน โรงพยาบาลรัฐ และชุดตรวจด้วยตนเองที่ส่งถึงบ้าน พร้อมวิธีจองคิวแบบไม่ต้องเปิดเผยตัวตน</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/c6655cd4-0b23-48a2-8b63-0b037ad74161/cover-clinic.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>เป้าหมาย 95-95-95 คืออะไร? ไทยจะจบเอดส์ภายในปี 2573 ได้จริงไหม</title>
+    <link>https://testd.website/th/info/article/thailand-95-95-95-target</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/thailand-95-95-95-target</guid>
+    <pubDate>Sun, 04 Oct 2026 14:40:12 GMT</pubDate>
+    <description>เป้าหมาย 95-95-95 คือเข็มทิศการจบเอดส์ของโลก มาดูว่าแต่ละตัวเลขหมายถึงอะไร ไทยอยู่ตรงไหน และอะไรคืออุปสรรคสำคัญ</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/db83b5dc-186f-4237-b68a-545e7be392df/cover-news-stats.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>PrEP ฟรีไหม? ใช้บัตรทอง/30 บาทรับ PrEP ได้ที่ไหน (2569)</title>
+    <link>https://testd.website/th/info/article/prep-free-gold-card-2026</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/prep-free-gold-card-2026</guid>
+    <pubDate>Sun, 04 Oct 2026 14:21:59 GMT</pubDate>
+    <description>PrEP อยู่ในสิทธิประโยชน์ของ สปสช. สำหรับคนไทยกลุ่มเสี่ยง มาดูเงื่อนไข ขั้นตอนรับยา และจุดบริการที่รับ PrEP ได้จริง</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/ff170ee0-15d2-46f9-9234-a72d62e67ffc/cover-prep.jpg" type="image/jpeg" length="0" />
   </item>
   <item>
     <title>71.7% อยู่ในกลุ่มเสี่ยงสูง: สิ่งที่แบบประเมิน PHQ-4 / ASSIST / C-SSRS บอกเราเรื่องเชมเซ็กซ์</title>
@@ -22,18 +343,11 @@
     <description>ผลแบบประเมินความเสี่ยง 53 ชุด ระหว่าง 12 มี.ค. – 8 ส.ค. 2569 พร้อมแนวโน้มรายเดือนและความหมายต่อการดูแลสุขภาพจิตของผู้ใช้สาร</description>
   </item>
   <item>
-    <title>คู่มือความปลอดภัยเรื่องเชมเซ็กซ์ (Chemsex Safety Playbook) ฉบับข้อมูลจริงปี 2569</title>
-    <link>https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</guid>
+    <title>GHB/GBL: การตวง การเว้นช่วง และการช่วยชีวิตเมื่อเพื่อนหมดสติ</title>
+    <link>https://testd.website/th/info/article/ghb-overdose-prevention-timeline</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/ghb-overdose-prevention-timeline</guid>
     <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
-    <description>คู่มือลดอันตรายจากเชมเซ็กซ์แบบครบวงจร อ้างอิงข้อมูลบริการจริง 15,077 คำขอชุดตรวจ, 25,133 นัดหมาย และแบบประเมินความเสี่ยง 53 ชุด พร้อมไทม์ไลน์ความปลอดภัยก่อน–ระหว่าง–หลังปาร์ตี้</description>
-  </item>
-  <item>
-    <title>จาก 222 เป็น 2,819 ชุดต่อเดือน: เส้นทางชุดตรวจ HIV ด้วยตนเองกับกลุ่มใช้สาร</title>
-    <link>https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</guid>
-    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
-    <description>วิเคราะห์คำขอชุดตรวจ 15,077 รายการ ตั้งแต่ ต.ค. 2568 ถึง ส.ค. 2569 เห็นพฤติกรรมการตรวจของกลุ่มใช้สารและช่วงเวลาที่ควรสื่อสาร</description>
+    <description>GHB เป็นคู่ปฏิกิริยาระดับวิกฤตกับแอลกอฮอล์และยานอนหลับ บทความนี้ให้ตารางเวลาเว้นช่วง สัญญาณอันตราย และขั้นตอนช่วยชีวิตทีละขั้น</description>
   </item>
   <item>
     <title>ไอซ์กับการลดอันตราย: ข้อมูลพฤติกรรมผู้ใช้บริการไทย ปี 2568–2569</title>
@@ -48,6 +362,20 @@
     <guid isPermaLink="true">https://testd.website/th/info/article/42-critical-substance-interactions-chemsex</guid>
     <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
     <description>ฐานข้อมูลคู่ปฏิกิริยาระหว่างสาร 42 คู่ (วิกฤต 11 / สูง 19 / ปานกลาง 12) จากสาร 18 ชนิด พร้อมวิธีอ่านผลและใช้จริงในคืนที่มีการใช้สาร</description>
+  </item>
+  <item>
+    <title>จาก 222 เป็น 2,819 ชุดต่อเดือน: เส้นทางชุดตรวจ HIV ด้วยตนเองกับกลุ่มใช้สาร</title>
+    <link>https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</guid>
+    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
+    <description>วิเคราะห์คำขอชุดตรวจ 15,077 รายการ ตั้งแต่ ต.ค. 2568 ถึง ส.ค. 2569 เห็นพฤติกรรมการตรวจของกลุ่มใช้สารและช่วงเวลาที่ควรสื่อสาร</description>
+  </item>
+  <item>
+    <title>คู่มือความปลอดภัยเรื่องเชมเซ็กซ์ (Chemsex Safety Playbook) ฉบับข้อมูลจริงปี 2569</title>
+    <link>https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</link>
+    <guid isPermaLink="true">https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</guid>
+    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
+    <description>คู่มือลดอันตรายจากเชมเซ็กซ์แบบครบวงจร อ้างอิงข้อมูลบริการจริง 15,077 คำขอชุดตรวจ, 25,133 นัดหมาย และแบบประเมินความเสี่ยง 53 ชุด พร้อมไทม์ไลน์ความปลอดภัยก่อน–ระหว่าง–หลังปาร์ตี้</description>
   </item>
   <item>
     <title>PrEP ฉีดออกฤทธิ์ยาว: รู้จัก Lenacapavir และ CAB-LA</title>
@@ -72,334 +400,6 @@
     <pubDate>Thu, 06 Aug 2026 18:39:28 GMT</pubDate>
     <description>ชวนแกะ 10 ความเข้าใจผิดเรื่อง PrEP ตั้งแต่ประสิทธิภาพ ผลข้างเคียง ไปจนถึงสิทธิรับบริการ เพื่อเลือกดูแลสุขภาพทางเพศอย่างมั่นใจ</description>
     <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-myths-1786043500001.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>PEP 72 ชั่วโมง: เริ่มช้าแล้วยังทันไหม?</title>
-    <link>https://testd.website/th/info/article/pep-72-hours</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/pep-72-hours</guid>
-    <pubDate>Thu, 06 Aug 2026 18:39:25 GMT</pubDate>
-    <description>PEP ควรเริ่มเร็วที่สุดและไม่เกิน 72 ชั่วโมงหลังเสี่ยง HIV หากใกล้ครบเวลาหรือเลยแล้ว ควรทำอะไรต่อ อ่านขั้นตอนที่ปลอดภัยได้ที่นี่</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-72-hours-1786043500000.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>ภาพหลุด ควรทำอะไรก่อน: รับมืออย่างปลอดภัย</title>
-    <link>https://testd.website/th/info/article/intimate-image-leak-response</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/intimate-image-leak-response</guid>
-    <pubDate>Thu, 06 Aug 2026 18:37:16 GMT</pubDate>
-    <description>ตั้งสติ เก็บหลักฐาน ปิดช่องเข้าถึง และขอให้แพลตฟอร์มนำออก วิธีรับมือ image based abuse ไทยโดยไม่โทษตัวเอง</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/intimate-image-leak-response-1786041436703.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>พนักงานบริการ สุขภาพและ sex worker สิทธิที่ควรรู้</title>
-    <link>https://testd.website/th/info/article/sex-worker-health-rights</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/sex-worker-health-rights</guid>
-    <pubDate>Thu, 06 Aug 2026 18:37:06 GMT</pubDate>
-    <description>พนักงานบริการมีสิทธิรับบริการสุขภาพอย่างเคารพ เป็นส่วนตัว และไม่ตีตรา พร้อมแนวทางใช้บัตรทอง ตรวจ HIV และขอความช่วยเหลือ</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/sex-worker-health-rights-1786041426147.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>เดตแอป ปลอดภัย: นัดเจอ ปกป้องข้อมูล และตั้งขอบเขต</title>
-    <link>https://testd.website/th/info/article/dating-app-safety</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/dating-app-safety</guid>
-    <pubDate>Thu, 06 Aug 2026 18:36:58 GMT</pubDate>
-    <description>คู่มือใช้เดตแอปอย่างปลอดภัย ตั้งแต่ปกป้องข้อมูล นัดเจอครั้งแรก สื่อสารขอบเขต ไปจนถึงดูแลสุขภาพทางเพศและรับมือเมื่อไม่สบายใจ</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/dating-app-safety-1786041417874.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>Consent และการยินยอม: ไม่ใช่แค่คำว่าใช่</title>
-    <link>https://testd.website/th/info/article/consent-in-real-life</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/consent-in-real-life</guid>
-    <pubDate>Thu, 06 Aug 2026 18:36:54 GMT</pubDate>
-    <description>เข้าใจ consent หรือการยินยอมที่ชัดเจน สมัครใจ เปลี่ยนใจได้ และต้องเช็กกันตลอด พร้อมวิธีรับมือเมื่อขอบเขตถูกละเมิด</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/consent-in-real-life-1786041413874.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>สายด่วนสุขภาพจิต 1323 และ 1669 เมื่อรู้สึกไม่ไหว</title>
-    <link>https://testd.website/th/info/article/mental-health-hotlines-thailand</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/mental-health-hotlines-thailand</guid>
-    <pubDate>Thu, 06 Aug 2026 18:35:37 GMT</pubDate>
-    <description>เมื่อความเครียด ความคิดทำร้ายตัวเอง หรืออาการฉุกเฉินเกินรับมือ ดูว่าเมื่อไรควรโทร 1323 หรือ 1669 และเตรียมข้อมูลอย่างไรให้ได้รับความช่วยเหลือเร็วขึ้น</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/mental-health-hotlines-thailand-1786041336907.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>เปิดเผยสถานะ HIV กับคู่อย่างไรให้ปลอดภัย</title>
-    <link>https://testd.website/th/info/article/hiv-status-disclosure</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/hiv-status-disclosure</guid>
-    <pubDate>Thu, 06 Aug 2026 18:35:17 GMT</pubDate>
-    <description>แนวทางเตรียมตัว เปิดบทสนทนา และวางแผนความปลอดภัยเมื่อต้องการบอกคู่เรื่องสถานะ HIV โดยเคารพทั้งตัวเราและอีกฝ่าย</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/hiv-status-disclosure-1786041317661.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>คุยเรื่องถุงยางยังไง ให้ใกล้ชิดโดยไม่เสียบรรยากาศ</title>
-    <link>https://testd.website/th/info/article/talking-about-condoms</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/talking-about-condoms</guid>
-    <pubDate>Thu, 06 Aug 2026 18:35:16 GMT</pubDate>
-    <description>วิธีคุยเรื่องถุงยางแบบเป็นธรรมชาติ พร้อมประโยคเริ่มต้น รับมือเมื่อเห็นต่าง และวางแผนดูแลสุขภาพทางเพศร่วมกัน</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/talking-about-condoms-1786041316287.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>นอนไม่หลับหลังใช้สาร: วิธีช่วยให้ร่างกายกลับมาพัก</title>
-    <link>https://testd.website/th/info/article/sleep-after-substance-use</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/sleep-after-substance-use</guid>
-    <pubDate>Thu, 06 Aug 2026 18:35:06 GMT</pubDate>
-    <description>แนวทางดูแลตัวเองเมื่อนอนไม่หลับหลังใช้สาร พร้อมสัญญาณอันตรายที่ควรโทร 1669 และช่องทางรับคำปรึกษาอย่างเป็นส่วนตัว</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/sleep-after-substance-use-1786041306399.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>เลือกถุงยางและเจลหล่อลื่นให้พอดี ปลอดภัย สบายใจ</title>
-    <link>https://testd.website/th/info/article/choosing-condoms-and-lube</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/choosing-condoms-and-lube</guid>
-    <pubDate>Thu, 06 Aug 2026 18:35:06 GMT</pubDate>
-    <description>วิธีเลือกถุงยางและเจลหล่อลื่นให้เข้ากับขนาด วัสดุ และกิจกรรมทางเพศ พร้อมวิธีใช้ที่ช่วยลดการฉีกขาดและการระคายเคือง</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/choosing-condoms-and-lube-1786041306101.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>Self stigma HIV: คลายการตีตราตัวเองอย่างอ่อนโยน</title>
-    <link>https://testd.website/th/info/article/hiv-self-stigma</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/hiv-self-stigma</guid>
-    <pubDate>Thu, 06 Aug 2026 18:33:45 GMT</pubDate>
-    <description>เข้าใจ self stigma HIV สังเกตเสียงตำหนิตัวเอง และฝึกวิธีคลายการตีตราด้วยข้อมูลจริง ความเมตตา และการสนับสนุนที่ปลอดภัย</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/hiv-self-stigma-1786041225681.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>เมท (Methamphetamine): ผลต่อร่างกายและจิตใจ</title>
-    <link>https://testd.website/th/info/article/methamphetamine-body-and-mind</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/methamphetamine-body-and-mind</guid>
-    <pubDate>Thu, 06 Aug 2026 18:33:44 GMT</pubDate>
-    <description>เข้าใจผลของเมทต่อสมอง หัวใจ การนอน และสุขภาพจิต พร้อมวิธีลดอันตราย สัญญาณฉุกเฉิน และช่องทางรับความช่วยเหลือโดยไม่ตัดสิน</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/methamphetamine-body-and-mind-1786041224446.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>PHQ-4: เช็กใจใน 2 นาที อ่านผลแบบประเมินสุขภาพจิต</title>
-    <link>https://testd.website/th/info/article/phq4-two-minute-check</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/phq4-two-minute-check</guid>
-    <pubDate>Thu, 06 Aug 2026 18:33:41 GMT</pubDate>
-    <description>รู้จัก PHQ-4 แบบประเมินสุขภาพจิต 4 ข้อ วิธีคิดคะแนน อ่านผลอย่างไม่ตีตราตัวเอง และสัญญาณที่ควรขอความช่วยเหลือ</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/phq4-two-minute-check-1786041221342.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>ปรึกษาการใช้สาร: บริการไม่ตัดสินในไทย</title>
-    <link>https://testd.website/th/info/article/non-judgemental-support-thailand</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/non-judgemental-support-thailand</guid>
-    <pubDate>Thu, 06 Aug 2026 18:33:40 GMT</pubDate>
-    <description>อยากหยุด ลด หรือแค่คุยก่อนก็ได้ รู้จักทางเลือกปรึกษาการใช้สารแบบเคารพเป้าหมาย ความเป็นส่วนตัว และความปลอดภัยของคุณ</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/non-judgemental-support-thailand-1786041220534.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>กังวล HIV ระหว่างรอผลตรวจ ดูแลใจอย่างไร</title>
-    <link>https://testd.website/th/info/article/hiv-anxiety-while-waiting</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/hiv-anxiety-while-waiting</guid>
-    <pubDate>Thu, 06 Aug 2026 18:33:33 GMT</pubDate>
-    <description>ความกังวลหลังมีความเสี่ยงเกิดขึ้นได้ มาวางแผนตรวจ จัดการความคิด และดูแลใจอย่างปลอดภัยระหว่างรอผล HIV</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/hiv-anxiety-while-waiting-1786041213714.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>GHB GBL: ความเสี่ยงจากเคลิ้มสู่หมดสติ</title>
-    <link>https://testd.website/th/info/article/ghb-gbl-risks</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/ghb-gbl-risks</guid>
-    <pubDate>Thu, 06 Aug 2026 18:32:14 GMT</pubDate>
-    <description>GHB GBL อาจทำให้จากเคลิ้มกลายเป็นหมดสติได้รวดเร็ว รู้สัญญาณฉุกเฉิน วิธีช่วยอย่างปลอดภัย และช่องทางรับบริการโดยไม่ตัดสิน</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/ghb-gbl-risks-1786041134208.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>แผนฟื้นตัวหลังใช้สารหลังปาร์ตี้: น้ำ อาหาร นอน เช็กใจ</title>
-    <link>https://testd.website/th/info/article/post-party-recovery-plan</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/post-party-recovery-plan</guid>
-    <pubDate>Thu, 06 Aug 2026 18:32:13 GMT</pubDate>
-    <description>แนวทางดูแลตัวเองหลังปาร์ตี้อย่างปลอดภัย ตั้งแต่จิบน้ำ กินอาหาร พักผ่อน เช็กอารมณ์ ไปจนถึงสัญญาณฉุกเฉินที่ไม่ควรรอ</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/post-party-recovery-plan-1786041132727.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>Overdose สัญญาณเตือนและปฐมพยาบาลใน 5 นาทีแรก</title>
-    <link>https://testd.website/th/info/article/overdose-warning-signs</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/overdose-warning-signs</guid>
-    <pubDate>Thu, 06 Aug 2026 18:32:02 GMT</pubDate>
-    <description>รู้จักสัญญาณ overdose วิธีโทร 1669 เช็กการหายใจ ทำ CPR จัดท่าพักฟื้น และช่วยอย่างปลอดภัยในช่วง 5 นาทีแรก</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/overdose-warning-signs-1786041122386.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>Safety Plan: ทำแผนความปลอดภัยก่อนออกไปข้างนอก</title>
-    <link>https://testd.website/th/info/article/personal-safety-plan</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/personal-safety-plan</guid>
-    <pubDate>Thu, 06 Aug 2026 18:32:01 GMT</pubDate>
-    <description>วิธีทำแผนความปลอดภัยก่อนเที่ยว นัดเดต ทำงาน หรือพบเพื่อน ตั้งแต่การเดินทาง ความยินยอม สุขภาพทางเพศ ไปจนถึงเหตุฉุกเฉิน</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/personal-safety-plan-1786041121002.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>DoxyPEP คืออะไร ป้องกันซิฟิลิสได้จริงไหม</title>
-    <link>https://testd.website/th/info/article/doxypep-explained</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/doxypep-explained</guid>
-    <pubDate>Thu, 06 Aug 2026 18:30:40 GMT</pubDate>
-    <description>รู้จัก DoxyPEP ยาปฏิชีวนะเพื่อป้องกัน STI หลังมีเพศสัมพันธ์ หลักฐานเรื่องซิฟิลิส ข้อจำกัด ความปลอดภัย และการตรวจติดตาม</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/doxypep-explained-1786041039870.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>Chemsex: ลดอันตรายและดูแลตัวเองแบบไม่ตัดสิน</title>
-    <link>https://testd.website/th/info/article/chemsex-self-care</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/chemsex-self-care</guid>
-    <pubDate>Thu, 06 Aug 2026 18:30:39 GMT</pubDate>
-    <description>เข้าใจ chemsex พร้อมแนวทางลดอันตราย ดูแลเรื่องเพศสัมพันธ์ สุขภาพใจ เหตุฉุกเฉิน และการเข้าถึงบริการในไทยโดยไม่ตีตรา</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/chemsex-self-care-1786041039371.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>ตรวจ STI บ่อยแค่ไหน? เช็กลิสต์ตามพฤติกรรม</title>
-    <link>https://testd.website/th/info/article/how-often-sti-testing</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/how-often-sti-testing</guid>
-    <pubDate>Thu, 06 Aug 2026 18:30:39 GMT</pubDate>
-    <description>ตรวจ STI บ่อยแค่ไหนขึ้นอยู่กับพฤติกรรม จุดสัมผัส และคู่นอน เช็กแนวทางตรวจทุก 3–6 เดือน รายปี หรือทันทีเมื่อมีอาการ</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/how-often-sti-testing-1786041039409.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>Drug interaction PrEP/ARV: สารออกฤทธิ์กับยาตีกันไหม</title>
-    <link>https://testd.website/th/info/article/substance-prep-arv-interactions</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/substance-prep-arv-interactions</guid>
-    <pubDate>Thu, 06 Aug 2026 18:30:39 GMT</pubDate>
-    <description>PrEP มักตีกับสารออกฤทธิ์ไม่มาก แต่ ARV บางสูตรอาจเพิ่มความเสี่ยงรุนแรง เช็กชื่อยา อาการเตือน และวิธีคุยกับทีมสุขภาพอย่างปลอดภัย</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/substance-prep-arv-interactions-1786041038971.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>Poppers ทำงานกับร่างกายอย่างไร และเสี่ยงอะไรบ้าง</title>
-    <link>https://testd.website/th/info/article/poppers-risks</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/poppers-risks</guid>
-    <pubDate>Thu, 06 Aug 2026 18:30:37 GMT</pubDate>
-    <description>รู้จัก poppers หรือ alkyl nitrite ผลต่อหลอดเลือด ความเสี่ยงต่อหัวใจ เลือด และดวงตา รวมถึงยาที่ห้ามใช้ร่วมกัน</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/poppers-risks-1786041037667.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>เริมที่อวัยวะเพศ: อาการ การดูแล และการอยู่กับมัน</title>
-    <link>https://testd.website/th/info/article/genital-herpes-care</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/genital-herpes-care</guid>
-    <pubDate>Thu, 06 Aug 2026 18:29:05 GMT</pubDate>
-    <description>เข้าใจอาการ การติดต่อ การตรวจ และวิธีดูแลเริมที่อวัยวะเพศอย่างปลอดภัย พร้อมแนวทางคุยกับคู่นอนโดยไม่ตีตราตัวเอง</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/genital-herpes-care-1786040945564.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>ไวรัสตับอักเสบ บี ซี: เพศสัมพันธ์และการใช้เข็ม</title>
-    <link>https://testd.website/th/info/article/hepatitis-b-and-c</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/hepatitis-b-and-c</guid>
-    <pubDate>Thu, 06 Aug 2026 18:29:02 GMT</pubDate>
-    <description>เข้าใจความเสี่ยงไวรัสตับอักเสบ บี ซี จากเพศสัมพันธ์และการใช้เข็ม พร้อมแนวทางตรวจ ป้องกัน และรับการดูแลอย่างไม่ตัดสิน</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/hepatitis-b-and-c-1786040941969.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>หนองในกับหนองในเทียมต่างกันยังไง? อาการและการตรวจ</title>
-    <link>https://testd.website/th/info/article/gonorrhea-vs-chlamydia</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/gonorrhea-vs-chlamydia</guid>
-    <pubDate>Thu, 06 Aug 2026 18:29:01 GMT</pubDate>
-    <description>หนองในและหนองในเทียมมีอาการคล้ายกัน แต่เกิดจากเชื้อต่างชนิด รู้จักอาการ วิธีตรวจ รักษา และดูแลคู่นอนอย่างปลอดภัย</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/gonorrhea-vs-chlamydia-1786040941502.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>วัคซีน HPV ผู้ชายและ LGBTQ+ จำเป็นไหม?</title>
-    <link>https://testd.website/th/info/article/hpv-vaccine-for-men</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/hpv-vaccine-for-men</guid>
-    <pubDate>Thu, 06 Aug 2026 18:28:56 GMT</pubDate>
-    <description>วัคซีน HPV ผู้ชายและ LGBTQ+ ช่วยป้องกันหูดและมะเร็งบางชนิด อ่านว่าใครควรฉีด ฉีดหลังเคยมีเพศสัมพันธ์ได้ไหม และเข้าถึงบริการอย่างไร</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/hpv-vaccine-for-men-1786040935913.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>ซิฟิลิส อาการที่มักถูกมองข้าม ตรวจและรักษาอย่างไร</title>
-    <link>https://testd.website/th/info/article/syphilis-symptoms-treatment</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/syphilis-symptoms-treatment</guid>
-    <pubDate>Thu, 06 Aug 2026 18:28:52 GMT</pubDate>
-    <description>ซิฟิลิสอาจไม่มีอาการหรือมีแผลไม่เจ็บ รู้จักสัญญาณสำคัญ วิธีตรวจ การรักษา และช่องทางตรวจที่เป็นมิตรและเป็นส่วนตัว</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/syphilis-symptoms-treatment-1786040932075.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>ผลตรวจ HIV 2 ขีด: ตั้งสติและทำอะไรต่อ</title>
-    <link>https://testd.website/th/info/article/reactive-hiv-self-test-next-steps</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/reactive-hiv-self-test-next-steps</guid>
-    <pubDate>Thu, 06 Aug 2026 18:27:32 GMT</pubDate>
-    <description>ผลตรวจ HIV 2 ขีดหมายถึงผลเบื้องต้นเป็น reactive ยังไม่ใช่คำวินิจฉัย ควรตรวจยืนยันกับบุคลากรทางการแพทย์โดยเร็ว</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/reactive-hiv-self-test-next-steps-1786040852460.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>ชุดตรวจ HIV ด้วยตัวเอง ใช้อย่างไรให้ผลแม่นยำ</title>
-    <link>https://testd.website/th/info/article/hiv-self-test-how-to-use</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/hiv-self-test-how-to-use</guid>
-    <pubDate>Thu, 06 Aug 2026 18:27:11 GMT</pubDate>
-    <description>วิธีใช้ชุดตรวจ HIV ด้วยตัวเอง ตั้งแต่เช็กชุดตรวจ จับเวลา อ่านผล ไปจนถึงสิ่งที่ควรทำเมื่อผลลบ ผลบวกเบื้องต้น หรือผลใช้ไม่ได้</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/hiv-self-test-how-to-use-1786040831150.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>Window period HIV คืออะไร ตรวจ HIV เมื่อไหร่ถึงจะชัวร์</title>
-    <link>https://testd.website/th/info/article/hiv-window-period</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/hiv-window-period</guid>
-    <pubDate>Thu, 06 Aug 2026 18:27:11 GMT</pubDate>
-    <description>เข้าใจ window period HIV ระยะเวลาของชุดตรวจแต่ละแบบ และควรตรวจ HIV เมื่อไหร่ พร้อมแนวทางหลังเหตุการณ์ล่าสุด</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/hiv-window-period-1786040831127.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>ตรวจ HIV ฟรีและตรวจนิรนาม ทำได้จริงไหม?</title>
-    <link>https://testd.website/th/info/article/free-anonymous-hiv-testing</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/free-anonymous-hiv-testing</guid>
-    <pubDate>Thu, 06 Aug 2026 18:27:10 GMT</pubDate>
-    <description>ตรวจ HIV ฟรีได้จริง แต่การตรวจนิรนามกับการเก็บข้อมูลเป็นความลับไม่เหมือนกัน มาดูวิธีเลือกบริการที่เหมาะกับคุณ</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/free-anonymous-hiv-testing-1786040830046.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>U=U คืออะไร ตรวจไม่เจอเท่ากับไม่แพร่จริงไหม</title>
-    <link>https://testd.website/th/info/article/u-equals-u</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/u-equals-u</guid>
-    <pubDate>Thu, 06 Aug 2026 18:27:06 GMT</pubDate>
-    <description>เข้าใจหลัก U=U เมื่อผู้มี HIV กินยาสม่ำเสมอและรักษาไวรัสให้อยู่ในระดับตรวจไม่พบ จะไม่ส่งต่อ HIV ผ่านเพศสัมพันธ์</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/u-equals-u-1786040826265.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>PEP ราคาเท่าไร ใช้บัตรทองได้ไหม ต้องจ่ายอะไรบ้าง</title>
-    <link>https://testd.website/th/info/article/pep-cost-and-coverage</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/pep-cost-and-coverage</guid>
-    <pubDate>Thu, 06 Aug 2026 18:25:43 GMT</pubDate>
-    <description>PEP ราคาไม่เท่ากันตามสิทธิ สถานพยาบาล ค่าตรวจ และค่ายา รู้วิธีเช็กบัตรทองและขอรับบริการให้ทันภายใน 72 ชั่วโมง</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-cost-and-coverage-1786040743654.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>PEP 28 วันสำคัญแค่ไหน ต้องตรวจซ้ำเมื่อไร</title>
-    <link>https://testd.website/th/info/article/pep-28-day-course</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/pep-28-day-course</guid>
-    <pubDate>Thu, 06 Aug 2026 18:25:38 GMT</pubDate>
-    <description>PEP ต้องกินต่อเนื่องครบ 28 วันตามแพทย์สั่ง พร้อมตรวจ HIV ซ้ำตามนัด เพราะผลลบวันเริ่มยาเพียงอย่างเดียวยังสรุปไม่ได้</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-28-day-course-1786040738534.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>PEP ล่วงละเมิดทางเพศ: การตรวจและดูแลใจ</title>
-    <link>https://testd.website/th/info/article/care-after-sexual-assault</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/care-after-sexual-assault</guid>
-    <pubDate>Thu, 06 Aug 2026 18:25:28 GMT</pubDate>
-    <description>สิ่งที่ควรทำหลังถูกล่วงละเมิดทางเพศ ตั้งแต่ PEP ภายใน 72 ชั่วโมง การตรวจเอชไอวีและโรคติดต่อทางเพศสัมพันธ์ ไปจนถึงการดูแลใจ</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/care-after-sexual-assault-1786040728443.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>PEP ที่ไหนในกรุงเทพและพัทยา? ขอยาต้านฉุกเฉิน</title>
-    <link>https://testd.website/th/info/article/pep-where-bangkok-pattaya</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/pep-where-bangkok-pattaya</guid>
-    <pubDate>Thu, 06 Aug 2026 18:25:28 GMT</pubDate>
-    <description>สัมผัสเชื้อเอชไอวีมาไม่เกิน 72 ชั่วโมง? ดูช่องทางขอ PEP ในกรุงเทพและพัทยา พร้อมขั้นตอนเตรียมตัวและบริการจาก SWING</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-where-bangkok-pattaya-1786040728178.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>ถุงยางแตกหรือหลุด: ทำอะไรใน 24 ชั่วโมงแรก</title>
-    <link>https://testd.website/th/info/article/condom-broke-what-to-do</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/condom-broke-what-to-do</guid>
-    <pubDate>Thu, 06 Aug 2026 18:25:27 GMT</pubDate>
-    <description>ถุงยางแตกหรือหลุด อย่าเพิ่งโทษตัวเอง เช็กขั้นตอนเร่งด่วนเรื่องยาต้านฉุกเฉิน การคุมกำเนิด และการตรวจภายใน 24 ชั่วโมงแรก</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/condom-broke-what-to-do-1786040727065.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>PrEP transgender: ใช้ร่วมกับฮอร์โมนข้ามเพศได้ไหม</title>
-    <link>https://testd.website/th/info/article/prep-and-gender-affirming-hormones</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/prep-and-gender-affirming-hormones</guid>
-    <pubDate>Thu, 06 Aug 2026 18:23:55 GMT</pubDate>
-    <description>PrEP ใช้ร่วมกับฮอร์โมนข้ามเพศได้โดยทั่วไป ไม่ควรหยุดยาเอง ควรตรวจ HIV ประเมินสุขภาพ และปรึกษาผู้ให้บริการที่เข้าใจคนข้ามเพศ</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-and-gender-affirming-hormones-1786040635484.png" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>PrEP ตรวจติดตามทุก 3 เดือน สำคัญอย่างไร</title>
-    <link>https://testd.website/th/info/article/prep-quarterly-followup</link>
-    <guid isPermaLink="true">https://testd.website/th/info/article/prep-quarterly-followup</guid>
-    <pubDate>Thu, 06 Aug 2026 18:23:49 GMT</pubDate>
-    <description>การใช้ PrEP ไม่ได้จบแค่รับยา การตรวจ HIV ไต โรคติดต่อทางเพศสัมพันธ์ และทบทวนการใช้ทุก 3 เดือน ช่วยให้ดูแลสุขภาพได้อย่างปลอดภัย</description>
-    <enclosure url="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-quarterly-followup-1786040629401.png" type="image/jpeg" length="0" />
   </item>
 </channel>
 </rss>

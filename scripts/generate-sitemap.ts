@@ -10,8 +10,11 @@ const BASE_URL = "https://testd.website";
 const LOCALES = ["th", "en"] as const;
 const DEFAULT_LOCALE = "th";
 
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL ?? "";
-const SUPABASE_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? "";
+// tsx does not load .env, so fall back to the public (publishable) project values.
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || "https://tzerhfvlrssrashrcbeg.supabase.co";
+const SUPABASE_KEY =
+  process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6ZXJoZnZscnNzcmFzaHJjYmVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3NDU0NDksImV4cCI6MjA4MzMyMTQ0OX0.xQZRtQ96QaCZVyUGd_AXsukfE5BAhUOQ26J8PlG_HBw";
 
 interface ImageEntry {
   loc: string;
