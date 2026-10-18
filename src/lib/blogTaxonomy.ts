@@ -70,10 +70,23 @@ export async function fetchPublishedArticles(): Promise<BlogArticleCard[]> {
 }
 
 /** Case-insensitive keyword match across bilingual title + excerpt. */
+/** Search synonyms: a query matches if the article contains any listed term. */
+const KEYWORD_SYNONYMS: Record<string, string[]> = {
+  hiv: ["hiv", "เอชไอวี", "เอดส์", "aids"],
+  "ตรวจเอดส์": ["ตรวจเอดส์", "ตรวจ hiv", "ตรวจเอชไอวี", "ชุดตรวจ", "hiv test", "self-test", "เอดส์", "hiv"],
+  "เอดส์": ["เอดส์", "เอชไอวี", "hiv", "aids"],
+  prep: ["prep", "เพร็พ", "เพรพ"],
+  pep: ["pep", "เป๊ป", "เป็ป", "72 ชั่วโมง"],
+  sti: ["sti", "std", "โรคติดต่อทางเพศ", "ซิฟิลิส", "หนองใน", "syphilis", "gonorrhea", "เริม", "hpv"],
+  testd: ["testd", "ชุดตรวจ", "ตรวจ hiv", "self-test", "จองคลินิก", "swing"],
+};
+
 export function matchesKeyword(article: BlogArticleCard, query: string): boolean {
   const q = query.trim().toLowerCase();
   if (!q) return true;
-  return [article.title_th, article.title_en, article.excerpt_th, article.excerpt_en]
+  const terms = KEYWORD_SYNONYMS[q] ?? [q];
+  const hay = [article.title_th, article.title_en, article.excerpt_th, article.excerpt_en]
     .filter(Boolean)
-    .some((v) => (v as string).toLowerCase().includes(q));
+    .map((v) => (v as string).toLowerCase());
+  return terms.some((t) => hay.some((v) => v.includes(t)));
 }

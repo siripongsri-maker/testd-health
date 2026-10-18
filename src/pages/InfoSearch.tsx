@@ -118,6 +118,23 @@ export default function InfoSearch() {
           )}
         </div>
 
+        <div className="flex flex-wrap gap-2 mb-3" aria-label={isTh ? "คำค้นยอดนิยม" : "Popular searches"}>
+          {["HIV", "PrEP", "PEP", "STI", "ตรวจเอดส์", "testD"].map((k) => (
+            <button
+              key={k}
+              onClick={() => setInput(k)}
+              className={cn(
+                "min-h-[36px] rounded-full border px-3 text-sm font-medium transition-colors",
+                input.toLowerCase() === k.toLowerCase()
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "border-border text-foreground hover:bg-muted",
+              )}
+            >
+              {k}
+            </button>
+          ))}
+        </div>
+
         <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 mb-4">
           <button
             onClick={() => setCategory("")}
