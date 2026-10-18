@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, BookOpen, Eye, ChevronRight, Loader2, PenSquare, Heart, User, Calendar, Share2, Check, Link, TrendingUp } from "lucide-react";
+import { Search, BookOpen, Eye, ChevronRight, Loader2, PenSquare, Heart, User, Calendar, Share2, Check, Link, TrendingUp, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -180,6 +180,10 @@ export default function Info() {
           <Button variant="outline" className="gap-2" onClick={() => navigate(`/${language === 'en' ? 'en' : 'th'}/info/search`)}>
             <Search className="h-4 w-4" />
             {language === 'th' ? 'ค้นหาบทความ' : 'Search articles'}
+          </Button>
+          <Button variant="outline" className="gap-2 col-span-2" onClick={() => navigate(`/${language === 'en' ? 'en' : 'th'}/info/faq`)}>
+            <HelpCircle className="h-4 w-4" />
+            {language === 'th' ? 'คำถามที่พบบ่อย' : 'FAQ'}
           </Button>
         </div>
 
