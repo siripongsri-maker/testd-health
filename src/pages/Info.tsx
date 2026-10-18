@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, BookOpen, Eye, ChevronRight, Loader2, PenSquare, Heart, User, Calendar, Share2, Check, Link, TrendingUp } from "lucide-react";
+import { Search, BookOpen, Eye, ChevronRight, Loader2, PenSquare, Heart, User, Calendar, Share2, Check, Link, TrendingUp, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { format } from "date-fns";
