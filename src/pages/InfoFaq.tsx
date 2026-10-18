@@ -99,10 +99,10 @@ export default function InfoFaq() {
           <h2 id="ddc-stats" className="mb-3 text-sm font-semibold text-foreground">
             สถานการณ์ในประเทศไทย
           </h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+          <div className="grid grid-cols-2 gap-3">
             {DDC_STATS.map((s) => (
               <div key={s.label} className="rounded-xl bg-muted/50 p-3">
-                <div className="text-xl font-bold text-primary">{s.value}</div>
+                <div className="text-lg font-bold text-primary tabular-nums">{s.value}</div>
                 <div className="text-xs text-muted-foreground">{s.label}</div>
               </div>
             ))}
