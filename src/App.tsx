@@ -47,6 +47,7 @@ const InfoArticle = lazy(() => import("./pages/InfoArticle"));
 const InfoCategories = lazy(() => import("./pages/InfoCategories"));
 const InfoCategory = lazy(() => import("./pages/InfoCategory"));
 const InfoSearch = lazy(() => import("./pages/InfoSearch"));
+const InfoFaq = lazy(() => import("./pages/InfoFaq"));
 
 const Settings = lazy(() => import("./pages/Settings"));
 const Community = lazy(() => import("./pages/Community"));
@@ -177,6 +178,7 @@ function AppShell() {
               <Route path="/info/categories" element={<InfoCategories />} />
               <Route path="/info/category/:slug" element={<InfoCategory />} />
               <Route path="/info/search" element={<InfoSearch />} />
+              <Route path="/info/faq" element={<InfoFaq />} />
               <Route path="/info/:id" element={<InfoArticle />} />
               <Route path="/info/article/:slug" element={<InfoArticle />} />
               <Route path="/info/write" element={<WriteArticle />} />

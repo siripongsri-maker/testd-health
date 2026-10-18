@@ -181,6 +181,10 @@ export default function Info() {
             <Search className="h-4 w-4" />
             {language === 'th' ? 'ค้นหาบทความ' : 'Search articles'}
           </Button>
+          <Button variant="outline" className="gap-2 col-span-2" onClick={() => navigate(`/${language === 'en' ? 'en' : 'th'}/info/faq`)}>
+            <HelpCircle className="h-4 w-4" />
+            {language === 'th' ? 'คำถามที่พบบ่อย' : 'FAQ'}
+          </Button>
         </div>
 
         {/* Chemsex Fact Cards — 20 topic pages */}
