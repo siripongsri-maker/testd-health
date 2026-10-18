@@ -2,6 +2,7 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
+import { Link } from "react-router-dom";
 
 const isSafeImageUrl = (url: string) =>
   /^https:\/\//i.test(url) || url.startsWith("/");
@@ -67,15 +68,29 @@ export function ArticleMarkdown({ content }: { content: string }) {
               {children}
             </blockquote>
           ),
-          a: ({ href, children }) => (
-            <a
-              href={href}
-              className="text-primary underline underline-offset-2"
-              rel="noopener noreferrer"
-            >
-              {children}
-            </a>
-          ),
+          a: ({ href, children }) => {
+            const isInternal = !!href && href.startsWith("/") && !href.startsWith("//");
+            if (isInternal) {
+              return (
+                <Link
+                  to={href}
+                  className="text-primary underline underline-offset-2"
+                >
+                  {children}
+                </Link>
+              );
+            }
+            return (
+              <a
+                href={href}
+                className="text-primary underline underline-offset-2"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {children}
+              </a>
+            );
+          },
           table: ({ children }) => (
             <div className="my-5 overflow-x-auto rounded-xl border border-border">
               <table className="w-full text-sm border-collapse">{children}</table>
