@@ -63,9 +63,9 @@ export const SEO_FALLBACK: RouteSEO = {
 export const SEO_MAP: Record<string, RouteSEO> = {
   "/": {
     titleTh: "testD — ตรวจ HIV ฟรี จองคลินิก ดูแลสุขภาพครบวงจร",
-    titleEn: "testD — Free HIV Testing, Clinic Booking & Health Tools",
+    titleEn: "Free HIV Test & PrEP in Bangkok and Pattaya | testD",
     descTh: "ตรวจ HIV ฟรีถึงบ้าน จองนัดคลินิก ปรึกษาผู้เชี่ยวชาญ PrEP/PEP ดูแลสุขภาพอย่างเป็นส่วนตัว ปลอดภัย",
-    descEn: "Free HIV self-test delivered home, clinic booking, PrEP/PEP support, and expert health counseling.",
+    descEn: "Get a free, confidential HIV self-test kit delivered anywhere in Thailand, or book free HIV testing, PrEP and PEP at SWING clinics in Bangkok and Pattaya.",
     routeClass: "public_indexable",
     canonicalPath: "/",
   },
