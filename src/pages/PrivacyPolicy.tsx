@@ -3,7 +3,7 @@ import { PageContainer } from '@/components/PageContainer';
 import { PageHeader } from '@/components/PageHeader';
 import { Card } from '@/components/ui/card';
 import { useLanguage } from '@/lib/i18n';
-import { Shield, Database, Lock, Users, Mail, Clock, Scale } from 'lucide-react';
+import { Shield, Database, Lock, Users, Mail, Clock, Scale, Cookie } from 'lucide-react';
 
 export default function PrivacyPolicy() {
   const { language } = useLanguage();
@@ -28,8 +28,20 @@ export default function PrivacyPolicy() {
       icon: Users,
       titleTh: 'การแบ่งปันข้อมูล',
       titleEn: 'Data Sharing',
-      contentTh: 'เราไม่ขายหรือแบ่งปันข้อมูลส่วนบุคคลของคุณกับบุคคลที่สาม ยกเว้นตามที่กฎหมายกำหนด หรือเพื่อการรายงาน สปสช. ตามที่คุณยินยอม',
-      contentEn: 'We do not sell or share your personal data with third parties, except as required by law or for NHSO reporting as consented by you.',
+      contentTh: 'เราไม่ขายข้อมูลส่วนบุคคลของคุณ การใช้ข้อมูลเพื่อให้บริการหรือรายงาน สปสช. เป็นไปตามฐานกฎหมายที่เกี่ยวข้องและความยินยอมเมื่อจำเป็น นอกจากนี้ เว็บไซต์โหลดบริการโฆษณา Google AdSense ซึ่งอาจรวบรวมข้อมูลทางเทคนิคและข้อมูลการใช้งานตามรายละเอียดในหัวข้อคุกกี้และโฆษณาด้านล่าง',
+      contentEn: 'We do not sell your personal data. Service delivery and NHSO reporting rely on applicable legal grounds and consent where required. The website also loads Google AdSense, which may collect technical and usage information as described in the cookies and advertising section below.',
+    },
+    {
+      icon: Cookie,
+      titleTh: 'คุกกี้และโฆษณา Google AdSense',
+      titleEn: 'Cookies and Google AdSense Advertising',
+      contentTh: 'เว็บไซต์โหลด Google AdSense ผู้ให้บริการภายนอก รวมถึง Google อาจใช้คุกกี้ เว็บบีคอน ที่อยู่ IP หรือตัวระบุอื่นเพื่อแสดงและวัดผลโฆษณา คุกกี้โฆษณาของ Google ช่วยให้ Google และพันธมิตรแสดงโฆษณาโดยอาศัยการเข้าชมเว็บไซต์นี้และเว็บไซต์อื่น ทั้งนี้ขึ้นอยู่กับการตั้งค่าและข้อกำหนดที่ใช้บังคับ คุณจัดการโฆษณาที่ปรับตามบุคคลได้ที่ My Ad Center และจัดการคุกกี้ในเบราว์เซอร์ การเปลี่ยนการตั้งค่าโฆษณาไม่ได้หมายความว่าจะหยุดการรวบรวมข้อมูลทั้งหมด',
+      contentEn: 'This website loads Google AdSense. Third-party vendors, including Google, may use cookies, web beacons, IP addresses or other identifiers to serve and measure ads. Google advertising cookies enable Google and its partners to serve ads based on visits to this and other websites, subject to settings and applicable requirements. You can manage personalized ads in My Ad Center and manage cookies in your browser. Changing ad preferences does not stop all data collection.',
+      links: [
+        { href: 'https://policies.google.com/technologies/partner-sites', th: 'การใช้ข้อมูลโดย Google', en: 'How Google uses information' },
+        { href: 'https://myadcenter.google.com/', th: 'จัดการโฆษณาใน My Ad Center', en: 'Manage ads in My Ad Center' },
+        { href: 'https://www.aboutads.info/choices/', th: 'ตัวเลือกโฆษณาจากผู้ให้บริการอื่น', en: 'Other vendors’ advertising choices' },
+      ],
     },
     {
       icon: Scale,
@@ -67,7 +79,7 @@ export default function PrivacyPolicy() {
                 {th ? 'นโยบายคุ้มครองข้อมูลส่วนบุคคล testD' : 'testD Privacy Protection Policy'}
               </h2>
               <p className="text-xs text-muted-foreground mt-1">
-                {th ? 'อัปเดตล่าสุด: มีนาคม 2569' : 'Last updated: March 2026'}
+                {th ? 'อัปเดตล่าสุด: 19 ตุลาคม 2569' : 'Last updated: 19 October 2026'}
               </p>
             </div>
           </div>
@@ -88,6 +100,17 @@ export default function PrivacyPolicy() {
                   <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
                     {th ? section.contentTh : section.contentEn}
                   </p>
+                  {section.links && (
+                    <ul className="mt-3 space-y-2 text-sm">
+                      {section.links.map((link) => (
+                        <li key={link.href}>
+                          <a href={link.href} target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-4">
+                            {th ? link.th : link.en}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               </div>
             </Card>

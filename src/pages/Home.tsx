@@ -137,11 +137,6 @@ export default function Home() {
     <div className="relative">
       <div className="fixed inset-0 gradient-hero" style={{ zIndex: -1 }} />
 
-      <span className="sr-only" data-ui-version={HOME_UI_VERSION}>
-        UI_VERSION: {HOME_UI_VERSION}
-      </span>
-
-
       <main className="px-5 sm:px-6 py-4 max-w-lg sm:max-w-5xl mx-auto relative">
         {/* Logo */}
         <div className="flex justify-center sm:justify-start mb-4">
