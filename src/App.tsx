@@ -15,6 +15,7 @@ import { AutoSEO } from "@/components/seo/AutoSEO";
 const FloatingMedClock = lazy(() => import("@/components/FloatingMedClock").then(m => ({ default: m.FloatingMedClock })));
 import { AppLayout } from "@/components/AppLayout";
 import { ForceUpdateGuard } from "@/components/ForceUpdateGuard";
+import { AdSenseRouteGate } from "@/components/AdSenseRouteGate";
 import { DeploymentVersionCheck } from "@/components/DeploymentVersionCheck";
 import { consumePendingReload } from "@/lib/cacheResetLog";
 import { APP_VERSION } from "@/config/appVersion";
@@ -144,6 +145,7 @@ function AppShell() {
 
   return (
     <>
+      <AdSenseRouteGate />
       <VersionAnnouncementBanner />
       <PwaUpdatePrompt />
       <AnalyticsProvider>
