@@ -138,7 +138,7 @@
     <id>https://testd.website/th/info/article/prep-cost-thailand-2026</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/prep-cost-thailand-2026" />
     <published>2026-10-11T14:21:59.022Z</published>
-    <updated>2026-10-19T21:34:54.022Z</updated>
+    <updated>2026-10-20T18:40:11.083Z</updated>
     <summary type="text">เปรียบเทียบช่องทางรับ PrEP ในไทย ทั้งฟรีตามสิทธิ สปสช. คลินิกชุมชน และคลินิกเอกชน พร้อมค่าใช้จ่ายแฝงที่ควรรู้ก่อนตัดสินใจ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/ff170ee0-15d2-46f9-9234-a72d62e67ffc/cover-prep.jpg" />
   </entry>
@@ -354,7 +354,7 @@
     <id>https://testd.website/th/info/article/hiv-test-free-bangkok</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hiv-test-free-bangkok" />
     <published>2026-10-05T14:15:31.038Z</published>
-    <updated>2026-10-18T15:13:29.736Z</updated>
+    <updated>2026-10-20T02:54:17.604Z</updated>
     <summary type="text">รวมช่องทางตรวจ HIV ฟรีในกรุงเทพฯ ทั้งคลินิกชุมชน โรงพยาบาลรัฐ และชุดตรวจด้วยตนเองที่ส่งถึงบ้าน พร้อมวิธีจองคิวแบบไม่ต้องเปิดเผยตัวตน</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/c6655cd4-0b23-48a2-8b63-0b037ad74161/cover-clinic.jpg" />
   </entry>
@@ -377,12 +377,28 @@
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/ff170ee0-15d2-46f9-9234-a72d62e67ffc/cover-prep.jpg" />
   </entry>
   <entry>
+    <title>คู่มือความปลอดภัยเรื่องเชมเซ็กซ์ (Chemsex Safety Playbook) ฉบับข้อมูลจริงปี 2569</title>
+    <id>https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-10-16T18:36:17.072Z</updated>
+    <summary type="text">คู่มือลดอันตรายจากเชมเซ็กซ์แบบครบวงจร อ้างอิงข้อมูลบริการจริง 15,077 คำขอชุดตรวจ, 25,133 นัดหมาย และแบบประเมินความเสี่ยง 53 ชุด พร้อมไทม์ไลน์ความปลอดภัยก่อน–ระหว่าง–หลังปาร์ตี้</summary>
+  </entry>
+  <entry>
     <title>42 คู่ปฏิกิริยาระหว่างสาร: คู่ไหนเสี่ยงตาย คู่ไหนพอจัดการได้</title>
     <id>https://testd.website/th/info/article/42-critical-substance-interactions-chemsex</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/42-critical-substance-interactions-chemsex" />
     <published>2026-08-09T08:58:43.832Z</published>
     <updated>2026-10-17T11:01:09.387Z</updated>
     <summary type="text">ฐานข้อมูลคู่ปฏิกิริยาระหว่างสาร 42 คู่ (วิกฤต 11 / สูง 19 / ปานกลาง 12) จากสาร 18 ชนิด พร้อมวิธีอ่านผลและใช้จริงในคืนที่มีการใช้สาร</summary>
+  </entry>
+  <entry>
+    <title>GHB/GBL: การตวง การเว้นช่วง และการช่วยชีวิตเมื่อเพื่อนหมดสติ</title>
+    <id>https://testd.website/th/info/article/ghb-overdose-prevention-timeline</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-10-16T18:36:17.072Z</updated>
+    <summary type="text">GHB เป็นคู่ปฏิกิริยาระดับวิกฤตกับแอลกอฮอล์และยานอนหลับ บทความนี้ให้ตารางเวลาเว้นช่วง สัญญาณอันตราย และขั้นตอนช่วยชีวิตทีละขั้น</summary>
   </entry>
   <entry>
     <title>ไอซ์กับการลดอันตราย: ข้อมูลพฤติกรรมผู้ใช้บริการไทย ปี 2568–2569</title>
@@ -401,28 +417,12 @@
     <summary type="text">ผลแบบประเมินความเสี่ยง 53 ชุด ระหว่าง 12 มี.ค. – 8 ส.ค. 2569 พร้อมแนวโน้มรายเดือนและความหมายต่อการดูแลสุขภาพจิตของผู้ใช้สาร</summary>
   </entry>
   <entry>
-    <title>GHB/GBL: การตวง การเว้นช่วง และการช่วยชีวิตเมื่อเพื่อนหมดสติ</title>
-    <id>https://testd.website/th/info/article/ghb-overdose-prevention-timeline</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">GHB เป็นคู่ปฏิกิริยาระดับวิกฤตกับแอลกอฮอล์และยานอนหลับ บทความนี้ให้ตารางเวลาเว้นช่วง สัญญาณอันตราย และขั้นตอนช่วยชีวิตทีละขั้น</summary>
-  </entry>
-  <entry>
     <title>จาก 222 เป็น 2,819 ชุดต่อเดือน: เส้นทางชุดตรวจ HIV ด้วยตนเองกับกลุ่มใช้สาร</title>
     <id>https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
     <published>2026-08-09T08:58:43.832Z</published>
     <updated>2026-10-16T18:36:17.072Z</updated>
     <summary type="text">วิเคราะห์คำขอชุดตรวจ 15,077 รายการ ตั้งแต่ ต.ค. 2568 ถึง ส.ค. 2569 เห็นพฤติกรรมการตรวจของกลุ่มใช้สารและช่วงเวลาที่ควรสื่อสาร</summary>
-  </entry>
-  <entry>
-    <title>คู่มือความปลอดภัยเรื่องเชมเซ็กซ์ (Chemsex Safety Playbook) ฉบับข้อมูลจริงปี 2569</title>
-    <id>https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">คู่มือลดอันตรายจากเชมเซ็กซ์แบบครบวงจร อ้างอิงข้อมูลบริการจริง 15,077 คำขอชุดตรวจ, 25,133 นัดหมาย และแบบประเมินความเสี่ยง 53 ชุด พร้อมไทม์ไลน์ความปลอดภัยก่อน–ระหว่าง–หลังปาร์ตี้</summary>
   </entry>
   <entry>
     <title>PrEP ฉีดออกฤทธิ์ยาว: รู้จัก Lenacapavir และ CAB-LA</title>
