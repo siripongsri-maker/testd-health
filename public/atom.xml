@@ -3,10 +3,37 @@
   <title>testD — บทความสุขภาพทางเพศและลดอันตราย</title>
   <subtitle>อัปเดตบทความใหม่จาก testD เรื่อง HIV, PrEP, PEP, โรคติดต่อทางเพศสัมพันธ์ และการลดอันตรายจากการใช้สาร</subtitle>
   <id>https://testd.website/atom.xml</id>
-  <updated>2026-10-22T13:59:26.255Z</updated>
+  <updated>2026-10-23T08:56:52.603Z</updated>
   <link rel="self" type="application/atom+xml" href="https://testd.website/atom.xml" />
   <link rel="alternate" type="text/html" href="https://testd.website/th/info" />
   <author><name>testD</name></author>
+  <entry>
+    <title>PrEP ฟรีที่ไหน? วิธีเช็กสิทธิ์และนัดปรึกษาที่ SWING ก่อนเริ่มยา</title>
+    <id>https://testd.website/th/info/article/free-prep-thailand-swing-eligibility</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/free-prep-thailand-swing-eligibility" />
+    <published>2026-10-23T08:56:52.603Z</published>
+    <updated>2026-10-23T08:56:52.603Z</updated>
+    <summary type="text">อยากเริ่ม PrEP แต่ไม่แน่ใจเรื่องค่าใช้จ่าย เช็กสิทธิ์กับหน่วยบริการ เตรียมข้อมูลที่จำเป็น และนัดปรึกษา SWING ผ่าน testD โดยไม่รับประกันว่าทุกคนทุกสาขาฟรี</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/5a16312d-54dd-4bf0-ac6b-e4ceb02e0f29/pantip-free-prep.jpg" />
+  </entry>
+  <entry>
+    <title>ชุดตรวจ HIV ขึ้นขีดจาง ๆ หมายความว่าอะไร? อ่านผลอย่างไรและควรทำอะไรต่อ</title>
+    <id>https://testd.website/th/info/article/hiv-self-test-faint-line-what-to-do</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hiv-self-test-faint-line-what-to-do" />
+    <published>2026-10-23T08:56:52.603Z</published>
+    <updated>2026-10-23T08:56:52.603Z</updated>
+    <summary type="text">ขีดจางไม่ใช่คำวินิจฉัย HIV อ่านผลตามคู่มือและเวลาของชุดตรวจ แยกผลมีปฏิกิริยา ผลลบ และผลใช้ไม่ได้ พร้อมขั้นตอนตรวจยืนยันที่คลินิก</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/058bf5a6-0181-45a9-9415-6898653a3a1d/pantip-hiv-faint-line.jpg" />
+  </entry>
+  <entry>
+    <title>ตรวจ HIV กี่วันถึงชัวร์? 14, 30, 45 หรือ 90 วัน ต้องดูชนิดการตรวจ</title>
+    <id>https://testd.website/th/info/article/hiv-test-window-period-how-many-days</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hiv-test-window-period-how-many-days" />
+    <published>2026-10-23T08:56:52.603Z</published>
+    <updated>2026-10-23T08:56:52.603Z</updated>
+    <summary type="text">ตรวจ HIV ไม่ได้มีจำนวนวันเดียวสำหรับทุกวิธี เปรียบเทียบการตรวจแอนติบอดี เลือดจากหลอดเลือดรุ่นที่ 4 และ NAT พร้อมข้อจำกัดของผลลบและแผนตรวจซ้ำ</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/157d4d2b-3610-4791-816a-04b8ab14ce3e/pantip-hiv-window-period.jpg" />
+  </entry>
   <entry>
     <title>จะรู้ได้ยังไงว่าสารที่ได้มาคืออะไร? เรื่องการตรวจสารและความเสี่ยงยาปลอม</title>
     <id>https://testd.website/th/info/article/drug-checking-before-use</id>
@@ -377,12 +404,12 @@
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/ff170ee0-15d2-46f9-9234-a72d62e67ffc/cover-prep.jpg" />
   </entry>
   <entry>
-    <title>71.7% อยู่ในกลุ่มเสี่ยงสูง: สิ่งที่แบบประเมิน PHQ-4 / ASSIST / C-SSRS บอกเราเรื่องเชมเซ็กซ์</title>
-    <id>https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data" />
+    <title>คู่มือความปลอดภัยเรื่องเชมเซ็กซ์ (Chemsex Safety Playbook) ฉบับข้อมูลจริงปี 2569</title>
+    <id>https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
     <published>2026-08-09T08:58:43.832Z</published>
     <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">ผลแบบประเมินความเสี่ยง 53 ชุด ระหว่าง 12 มี.ค. – 8 ส.ค. 2569 พร้อมแนวโน้มรายเดือนและความหมายต่อการดูแลสุขภาพจิตของผู้ใช้สาร</summary>
+    <summary type="text">คู่มือลดอันตรายจากเชมเซ็กซ์แบบครบวงจร อ้างอิงข้อมูลบริการจริง 15,077 คำขอชุดตรวจ, 25,133 นัดหมาย และแบบประเมินความเสี่ยง 53 ชุด พร้อมไทม์ไลน์ความปลอดภัยก่อน–ระหว่าง–หลังปาร์ตี้</summary>
   </entry>
   <entry>
     <title>จาก 222 เป็น 2,819 ชุดต่อเดือน: เส้นทางชุดตรวจ HIV ด้วยตนเองกับกลุ่มใช้สาร</title>
@@ -393,20 +420,20 @@
     <summary type="text">วิเคราะห์คำขอชุดตรวจ 15,077 รายการ ตั้งแต่ ต.ค. 2568 ถึง ส.ค. 2569 เห็นพฤติกรรมการตรวจของกลุ่มใช้สารและช่วงเวลาที่ควรสื่อสาร</summary>
   </entry>
   <entry>
+    <title>71.7% อยู่ในกลุ่มเสี่ยงสูง: สิ่งที่แบบประเมิน PHQ-4 / ASSIST / C-SSRS บอกเราเรื่องเชมเซ็กซ์</title>
+    <id>https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-10-16T18:36:17.072Z</updated>
+    <summary type="text">ผลแบบประเมินความเสี่ยง 53 ชุด ระหว่าง 12 มี.ค. – 8 ส.ค. 2569 พร้อมแนวโน้มรายเดือนและความหมายต่อการดูแลสุขภาพจิตของผู้ใช้สาร</summary>
+  </entry>
+  <entry>
     <title>42 คู่ปฏิกิริยาระหว่างสาร: คู่ไหนเสี่ยงตาย คู่ไหนพอจัดการได้</title>
     <id>https://testd.website/th/info/article/42-critical-substance-interactions-chemsex</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/42-critical-substance-interactions-chemsex" />
     <published>2026-08-09T08:58:43.832Z</published>
     <updated>2026-10-17T11:01:09.387Z</updated>
     <summary type="text">ฐานข้อมูลคู่ปฏิกิริยาระหว่างสาร 42 คู่ (วิกฤต 11 / สูง 19 / ปานกลาง 12) จากสาร 18 ชนิด พร้อมวิธีอ่านผลและใช้จริงในคืนที่มีการใช้สาร</summary>
-  </entry>
-  <entry>
-    <title>GHB/GBL: การตวง การเว้นช่วง และการช่วยชีวิตเมื่อเพื่อนหมดสติ</title>
-    <id>https://testd.website/th/info/article/ghb-overdose-prevention-timeline</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">GHB เป็นคู่ปฏิกิริยาระดับวิกฤตกับแอลกอฮอล์และยานอนหลับ บทความนี้ให้ตารางเวลาเว้นช่วง สัญญาณอันตราย และขั้นตอนช่วยชีวิตทีละขั้น</summary>
   </entry>
   <entry>
     <title>ไอซ์กับการลดอันตราย: ข้อมูลพฤติกรรมผู้ใช้บริการไทย ปี 2568–2569</title>
@@ -417,38 +444,11 @@
     <summary type="text">เจาะข้อมูลรูปแบบการใช้เมทแอมเฟตามีน การฉีด (slam) และการผสมสาร พร้อมแนวทางลดอันตรายรายกลุ่ม อ้างอิงข้อมูลบริการ 11 เดือน</summary>
   </entry>
   <entry>
-    <title>คู่มือความปลอดภัยเรื่องเชมเซ็กซ์ (Chemsex Safety Playbook) ฉบับข้อมูลจริงปี 2569</title>
-    <id>https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
+    <title>GHB/GBL: การตวง การเว้นช่วง และการช่วยชีวิตเมื่อเพื่อนหมดสติ</title>
+    <id>https://testd.website/th/info/article/ghb-overdose-prevention-timeline</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/ghb-overdose-prevention-timeline" />
     <published>2026-08-09T08:58:43.832Z</published>
     <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">คู่มือลดอันตรายจากเชมเซ็กซ์แบบครบวงจร อ้างอิงข้อมูลบริการจริง 15,077 คำขอชุดตรวจ, 25,133 นัดหมาย และแบบประเมินความเสี่ยง 53 ชุด พร้อมไทม์ไลน์ความปลอดภัยก่อน–ระหว่าง–หลังปาร์ตี้</summary>
-  </entry>
-  <entry>
-    <title>PrEP ฉีดออกฤทธิ์ยาว: รู้จัก Lenacapavir และ CAB-LA</title>
-    <id>https://testd.website/th/info/article/long-acting-injectable-prep</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/long-acting-injectable-prep" />
-    <published>2026-08-06T18:39:55.954Z</published>
-    <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">ทำความรู้จัก PrEP ฉีดชนิดออกฤทธิ์ยาว เปรียบเทียบ Lenacapavir กับ CAB-LA พร้อมข้อควรรู้เรื่องการตรวจ HIV ผลข้างเคียง และการเข้าถึงบริการ</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/long-acting-injectable-prep-1786041595768.png" />
-  </entry>
-  <entry>
-    <title>เข็มสะอาด: หลักการใช้เข็มให้ปลอดภัยขึ้น</title>
-    <id>https://testd.website/th/info/article/safer-injecting-basics</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/safer-injecting-basics" />
-    <published>2026-08-06T18:39:34.553Z</published>
-    <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">หลักลดอันตรายสำหรับผู้ใช้สารออกฤทธิ์ ตั้งแต่ไม่ใช้เข็มร่วมกัน ดูแลแผล ทิ้งอุปกรณ์อย่างปลอดภัย ไปจนถึงการตรวจ HIV และไวรัสตับอักเสบ</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/safer-injecting-basics-1786041574325.png" />
-  </entry>
-  <entry>
-    <title>PrEP ความเข้าใจผิด 10 ข้อที่ยังได้ยินบ่อย</title>
-    <id>https://testd.website/th/info/article/prep-myths</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/prep-myths" />
-    <published>2026-08-06T18:39:28.749Z</published>
-    <updated>2026-10-18T12:31:41.891Z</updated>
-    <summary type="text">ชวนแกะ 10 ความเข้าใจผิดเรื่อง PrEP ตั้งแต่ประสิทธิภาพ ผลข้างเคียง ไปจนถึงสิทธิรับบริการ เพื่อเลือกดูแลสุขภาพทางเพศอย่างมั่นใจ</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-myths-1786043500001.png" />
+    <summary type="text">GHB เป็นคู่ปฏิกิริยาระดับวิกฤตกับแอลกอฮอล์และยานอนหลับ บทความนี้ให้ตารางเวลาเว้นช่วง สัญญาณอันตราย และขั้นตอนช่วยชีวิตทีละขั้น</summary>
   </entry>
 </feed>
