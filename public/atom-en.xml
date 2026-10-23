@@ -3,10 +3,37 @@
   <title>testD — Sexual health &amp; harm reduction articles</title>
   <subtitle>New articles from testD on HIV, PrEP, PEP, STIs and harm reduction.</subtitle>
   <id>https://testd.website/atom-en.xml</id>
-  <updated>2026-10-22T13:59:26.255Z</updated>
+  <updated>2026-10-23T08:58:57.978Z</updated>
   <link rel="self" type="application/atom+xml" href="https://testd.website/atom-en.xml" />
   <link rel="alternate" type="text/html" href="https://testd.website/en/info" />
   <author><name>testD</name></author>
+  <entry>
+    <title>Where can I get free PrEP in Thailand? Check eligibility and book with SWING</title>
+    <id>https://testd.website/en/info/article/free-prep-thailand-swing-eligibility</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/free-prep-thailand-swing-eligibility" />
+    <published>2026-10-23T08:56:52.603Z</published>
+    <updated>2026-10-23T08:58:57.978Z</updated>
+    <summary type="text">Find out how to check PrEP eligibility and costs, prepare for a consultation, and book SWING through testD without assuming every visit is free for everyone.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/5a16312d-54dd-4bf0-ac6b-e4ceb02e0f29/pantip-free-prep.jpg" />
+  </entry>
+  <entry>
+    <title>Faint line on an HIV self-test: what it means and what to do next</title>
+    <id>https://testd.website/en/info/article/hiv-self-test-faint-line-what-to-do</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hiv-self-test-faint-line-what-to-do" />
+    <published>2026-10-23T08:56:52.603Z</published>
+    <updated>2026-10-23T08:58:53.275Z</updated>
+    <summary type="text">Read a faint HIV self-test line using the specific kit instructions. Learn the difference between reactive, negative and invalid results, and when to seek confirmatory testing.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/058bf5a6-0181-45a9-9415-6898653a3a1d/pantip-hiv-faint-line.jpg" />
+  </entry>
+  <entry>
+    <title>When is an HIV test reliable? Understanding 14, 30, 45 and 90 days</title>
+    <id>https://testd.website/en/info/article/hiv-test-window-period-how-many-days</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hiv-test-window-period-how-many-days" />
+    <published>2026-10-23T08:56:52.603Z</published>
+    <updated>2026-10-23T08:58:55.767Z</updated>
+    <summary type="text">HIV testing windows depend on the test: compare antibody tests, laboratory antigen/antibody tests and NAT, and learn when negative results need repeat testing.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/157d4d2b-3610-4791-816a-04b8ab14ce3e/pantip-hiv-window-period.jpg" />
+  </entry>
   <entry>
     <title>How Do You Know What&apos;s Actually in Your Drugs? Drug Checking Explained</title>
     <id>https://testd.website/en/info/article/drug-checking-before-use</id>
@@ -377,14 +404,6 @@
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/ff170ee0-15d2-46f9-9234-a72d62e67ffc/cover-prep.jpg" />
   </entry>
   <entry>
-    <title>71.7% at High Risk: What PHQ-4, ASSIST and C-SSRS Screening Tells Us About Chemsex</title>
-    <id>https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">53 completed screenings between Mar 12 and Aug 8, 2026: monthly trends and what they mean for mental health care.</summary>
-  </entry>
-  <entry>
     <title>From 222 to 2,819 Kits a Month: The HIV Self-Test Pathway for People Who Use Drugs</title>
     <id>https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits" />
@@ -399,6 +418,14 @@
     <published>2026-08-09T08:58:43.832Z</published>
     <updated>2026-10-17T11:01:09.387Z</updated>
     <summary type="text">A breakdown of 42 documented substance interaction pairs — 11 critical, 19 high, 12 moderate — across 18 substances.</summary>
+  </entry>
+  <entry>
+    <title>Chemsex Safety Playbook: Thailand 2026 Data Edition</title>
+    <id>https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-10-16T18:36:17.072Z</updated>
+    <summary type="text">A full chemsex harm reduction playbook grounded in real service data: 15,077 self-test kit requests, 25,133 clinic appointments and 53 completed risk screenings.</summary>
   </entry>
   <entry>
     <title>GHB/GBL: Dosing, Spacing and What To Do When Someone Goes Under</title>
@@ -417,38 +444,11 @@
     <summary type="text">Meth use patterns, slamming and polydrug mixing in Thai service data, with population-specific harm reduction guidance.</summary>
   </entry>
   <entry>
-    <title>Chemsex Safety Playbook: Thailand 2026 Data Edition</title>
-    <id>https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026" />
+    <title>71.7% at High Risk: What PHQ-4, ASSIST and C-SSRS Screening Tells Us About Chemsex</title>
+    <id>https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data" />
     <published>2026-08-09T08:58:43.832Z</published>
     <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">A full chemsex harm reduction playbook grounded in real service data: 15,077 self-test kit requests, 25,133 clinic appointments and 53 completed risk screenings.</summary>
-  </entry>
-  <entry>
-    <title>Long-Acting Injectable PrEP: Lenacapavir and CAB-LA</title>
-    <id>https://testd.website/en/info/article/long-acting-injectable-prep</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/long-acting-injectable-prep" />
-    <published>2026-08-06T18:39:55.954Z</published>
-    <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">Learn how long-acting injectable PrEP options Lenacapavir and CAB-LA differ, including HIV testing, side effects, and access to care.</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/long-acting-injectable-prep-1786041595768.png" />
-  </entry>
-  <entry>
-    <title>Clean Needles: Basic Needle Safety Harm Reduction</title>
-    <id>https://testd.website/en/info/article/safer-injecting-basics</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/safer-injecting-basics" />
-    <published>2026-08-06T18:39:34.553Z</published>
-    <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">Practical harm reduction: avoid sharing needles, prevent infection, dispose of equipment safely, care for wounds, and access HIV testing and support.</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/safer-injecting-basics-1786041574325.png" />
-  </entry>
-  <entry>
-    <title>10 Common PrEP Myths, Explained</title>
-    <id>https://testd.website/en/info/article/prep-myths</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/prep-myths" />
-    <published>2026-08-06T18:39:28.749Z</published>
-    <updated>2026-10-18T12:31:41.891Z</updated>
-    <summary type="text">We unpack 10 common PrEP myths about effectiveness, side effects, eligibility, and access so you can make an informed sexual-health choice.</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/prep-myths-1786043500001.png" />
+    <summary type="text">53 completed screenings between Mar 12 and Aug 8, 2026: monthly trends and what they mean for mental health care.</summary>
   </entry>
 </feed>
