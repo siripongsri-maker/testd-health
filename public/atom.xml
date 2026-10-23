@@ -3,7 +3,7 @@
   <title>testD — บทความสุขภาพทางเพศและลดอันตราย</title>
   <subtitle>อัปเดตบทความใหม่จาก testD เรื่อง HIV, PrEP, PEP, โรคติดต่อทางเพศสัมพันธ์ และการลดอันตรายจากการใช้สาร</subtitle>
   <id>https://testd.website/atom.xml</id>
-  <updated>2026-10-18T14:53:25.469Z</updated>
+  <updated>2026-10-22T13:59:26.255Z</updated>
   <link rel="self" type="application/atom+xml" href="https://testd.website/atom.xml" />
   <link rel="alternate" type="text/html" href="https://testd.website/th/info" />
   <author><name>testD</name></author>
@@ -12,7 +12,7 @@
     <id>https://testd.website/th/info/article/drug-checking-before-use</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/drug-checking-before-use" />
     <published>2026-10-15T14:40:12.337Z</published>
-    <updated>2026-10-18T14:53:25.469Z</updated>
+    <updated>2026-10-22T13:59:26.255Z</updated>
     <summary type="text">สารที่ซื้อมาอาจไม่ใช่สิ่งที่คิด — ยาปลอมและการปนเปื้อนเป็นความเสี่ยงจริง มาดูเรื่องการตรวจสาร (drug checking) และวิธีลดความเสี่ยงที่ทำได้จริง</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/bec8ed19-e126-44ed-aecd-951dd93bccda/cover-harm-reduction.jpg" />
   </entry>
@@ -84,7 +84,7 @@
     <id>https://testd.website/th/info/article/anxiety-after-risky-exposure</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/anxiety-after-risky-exposure" />
     <published>2026-10-12T14:40:12.337Z</published>
-    <updated>2026-10-18T14:53:25.446Z</updated>
+    <updated>2026-10-22T20:13:18.610Z</updated>
     <summary type="text">ช่วงรอตรวจหลังมีความเสี่ยงเป็นช่วงที่เครียดที่สุด มาดูว่าควรทำอะไรทันที ตรวจเมื่อไหร่ และจัดการความกังวลระหว่างรอยังไง</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/144b68a7-fb57-4e49-b10a-01dc1b7c0692/cover-mental-health.jpg" />
   </entry>
@@ -138,7 +138,7 @@
     <id>https://testd.website/th/info/article/prep-cost-thailand-2026</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/prep-cost-thailand-2026" />
     <published>2026-10-11T14:21:59.022Z</published>
-    <updated>2026-10-20T18:40:11.083Z</updated>
+    <updated>2026-10-23T03:12:55.214Z</updated>
     <summary type="text">เปรียบเทียบช่องทางรับ PrEP ในไทย ทั้งฟรีตามสิทธิ สปสช. คลินิกชุมชน และคลินิกเอกชน พร้อมค่าใช้จ่ายแฝงที่ควรรู้ก่อนตัดสินใจ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/ff170ee0-15d2-46f9-9234-a72d62e67ffc/cover-prep.jpg" />
   </entry>
@@ -354,7 +354,7 @@
     <id>https://testd.website/th/info/article/hiv-test-free-bangkok</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hiv-test-free-bangkok" />
     <published>2026-10-05T14:15:31.038Z</published>
-    <updated>2026-10-20T02:54:17.604Z</updated>
+    <updated>2026-10-23T03:12:54.867Z</updated>
     <summary type="text">รวมช่องทางตรวจ HIV ฟรีในกรุงเทพฯ ทั้งคลินิกชุมชน โรงพยาบาลรัฐ และชุดตรวจด้วยตนเองที่ส่งถึงบ้าน พร้อมวิธีจองคิวแบบไม่ต้องเปิดเผยตัวตน</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/c6655cd4-0b23-48a2-8b63-0b037ad74161/cover-clinic.jpg" />
   </entry>
@@ -377,12 +377,20 @@
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/ff170ee0-15d2-46f9-9234-a72d62e67ffc/cover-prep.jpg" />
   </entry>
   <entry>
-    <title>คู่มือความปลอดภัยเรื่องเชมเซ็กซ์ (Chemsex Safety Playbook) ฉบับข้อมูลจริงปี 2569</title>
-    <id>https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
+    <title>71.7% อยู่ในกลุ่มเสี่ยงสูง: สิ่งที่แบบประเมิน PHQ-4 / ASSIST / C-SSRS บอกเราเรื่องเชมเซ็กซ์</title>
+    <id>https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data" />
     <published>2026-08-09T08:58:43.832Z</published>
     <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">คู่มือลดอันตรายจากเชมเซ็กซ์แบบครบวงจร อ้างอิงข้อมูลบริการจริง 15,077 คำขอชุดตรวจ, 25,133 นัดหมาย และแบบประเมินความเสี่ยง 53 ชุด พร้อมไทม์ไลน์ความปลอดภัยก่อน–ระหว่าง–หลังปาร์ตี้</summary>
+    <summary type="text">ผลแบบประเมินความเสี่ยง 53 ชุด ระหว่าง 12 มี.ค. – 8 ส.ค. 2569 พร้อมแนวโน้มรายเดือนและความหมายต่อการดูแลสุขภาพจิตของผู้ใช้สาร</summary>
+  </entry>
+  <entry>
+    <title>จาก 222 เป็น 2,819 ชุดต่อเดือน: เส้นทางชุดตรวจ HIV ด้วยตนเองกับกลุ่มใช้สาร</title>
+    <id>https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-10-16T18:36:17.072Z</updated>
+    <summary type="text">วิเคราะห์คำขอชุดตรวจ 15,077 รายการ ตั้งแต่ ต.ค. 2568 ถึง ส.ค. 2569 เห็นพฤติกรรมการตรวจของกลุ่มใช้สารและช่วงเวลาที่ควรสื่อสาร</summary>
   </entry>
   <entry>
     <title>42 คู่ปฏิกิริยาระหว่างสาร: คู่ไหนเสี่ยงตาย คู่ไหนพอจัดการได้</title>
@@ -409,20 +417,12 @@
     <summary type="text">เจาะข้อมูลรูปแบบการใช้เมทแอมเฟตามีน การฉีด (slam) และการผสมสาร พร้อมแนวทางลดอันตรายรายกลุ่ม อ้างอิงข้อมูลบริการ 11 เดือน</summary>
   </entry>
   <entry>
-    <title>71.7% อยู่ในกลุ่มเสี่ยงสูง: สิ่งที่แบบประเมิน PHQ-4 / ASSIST / C-SSRS บอกเราเรื่องเชมเซ็กซ์</title>
-    <id>https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/phq4-assist-cssrs-chemsex-screening-data" />
+    <title>คู่มือความปลอดภัยเรื่องเชมเซ็กซ์ (Chemsex Safety Playbook) ฉบับข้อมูลจริงปี 2569</title>
+    <id>https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
     <published>2026-08-09T08:58:43.832Z</published>
     <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">ผลแบบประเมินความเสี่ยง 53 ชุด ระหว่าง 12 มี.ค. – 8 ส.ค. 2569 พร้อมแนวโน้มรายเดือนและความหมายต่อการดูแลสุขภาพจิตของผู้ใช้สาร</summary>
-  </entry>
-  <entry>
-    <title>จาก 222 เป็น 2,819 ชุดต่อเดือน: เส้นทางชุดตรวจ HIV ด้วยตนเองกับกลุ่มใช้สาร</title>
-    <id>https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">วิเคราะห์คำขอชุดตรวจ 15,077 รายการ ตั้งแต่ ต.ค. 2568 ถึง ส.ค. 2569 เห็นพฤติกรรมการตรวจของกลุ่มใช้สารและช่วงเวลาที่ควรสื่อสาร</summary>
+    <summary type="text">คู่มือลดอันตรายจากเชมเซ็กซ์แบบครบวงจร อ้างอิงข้อมูลบริการจริง 15,077 คำขอชุดตรวจ, 25,133 นัดหมาย และแบบประเมินความเสี่ยง 53 ชุด พร้อมไทม์ไลน์ความปลอดภัยก่อน–ระหว่าง–หลังปาร์ตี้</summary>
   </entry>
   <entry>
     <title>PrEP ฉีดออกฤทธิ์ยาว: รู้จัก Lenacapavir และ CAB-LA</title>
