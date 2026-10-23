@@ -2,6 +2,8 @@
 import { PageContainer } from '@/components/PageContainer';
 import { PageHeader } from '@/components/PageHeader';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 import { useLanguage } from '@/lib/i18n';
 import { Shield, Database, Lock, Users, Mail, Clock, Scale, Cookie } from 'lucide-react';
 
@@ -84,6 +86,13 @@ export default function PrivacyPolicy() {
             </div>
           </div>
         </Card>
+
+        <Button asChild variant="outline" className="h-auto w-full whitespace-normal py-3">
+          <Link to={`/${th ? 'th' : 'en'}/security-privacy`}>
+            <Shield className="mr-2 h-4 w-4 shrink-0" />
+            {th ? 'ความปลอดภัยและความเป็นส่วนตัว' : 'Security and privacy'}
+          </Link>
+        </Button>
 
         {sections.map((section, i) => {
           const Icon = section.icon;
