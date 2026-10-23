@@ -1,3 +1,4 @@
+/*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 // Runs before `vite dev` and `vite build` (predev/prebuild hooks); writes public/sitemap.xml.
 // Includes every public route plus all published blog/SEO articles, each emitted
 // in Thai (/th/...) and English (/en/...) with hreflang alternates.
@@ -56,6 +57,7 @@ const staticEntries: SitemapEntry[] = [
   { path: "/whats-new", changefreq: "monthly", priority: "0.4" },
   { path: "/support-faq", changefreq: "monthly", priority: "0.4" },
   { path: "/privacy-policy", changefreq: "monthly", priority: "0.4" },
+  { path: "/security-privacy", changefreq: "monthly", priority: "0.4" },
 ];
 
 function escapeXml(s: string) {

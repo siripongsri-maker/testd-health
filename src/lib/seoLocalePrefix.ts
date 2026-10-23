@@ -36,6 +36,7 @@ const SEO_ROUTE_PREFIXES: string[] = [
   "/meth-harm-reduction",
   "/support-faq",
   "/privacy-policy",
+  "/security-privacy",
   "/install",
   "/swing",
 ];
