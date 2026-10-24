@@ -3,10 +3,280 @@
   <title>testD — Sexual health &amp; harm reduction articles</title>
   <subtitle>New articles from testD on HIV, PrEP, PEP, STIs and harm reduction.</subtitle>
   <id>https://testd.website/atom-en.xml</id>
-  <updated>2026-10-24T14:00:49.566Z</updated>
+  <updated>2026-10-24T17:12:46.744Z</updated>
   <link rel="self" type="application/atom+xml" href="https://testd.website/atom-en.xml" />
   <link rel="alternate" type="text/html" href="https://testd.website/en/info" />
   <author><name>testD</name></author>
+  <entry>
+    <title>Choosing a finger-prick kit with a safe sharps-disposal plan</title>
+    <id>https://testd.website/en/info/article/safe-disposal-before-buying-kit</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/safe-disposal-before-buying-kit" />
+    <published>2026-10-24T17:11:40.979Z</published>
+    <updated>2026-10-24T17:12:46.744Z</updated>
+    <summary type="text">Before buying a finger-prick kit, plan secure sharps containment and an accepted local disposal route—not just the testing session.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Pregnancy and planning a family: kits do not replace antenatal care</title>
+    <id>https://testd.website/en/info/article/screening-kit-during-pregnancy</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/screening-kit-during-pregnancy" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:46.744Z</updated>
+    <summary type="text">Self-testing can start a conversation, but pregnancy care requires coordinated screening, interpretation, and treatment that kits cannot provide.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Gonorrhea/chlamydia kits: why the sample site matters</title>
+    <id>https://testd.website/en/info/article/gonorrhea-chlamydia-kit-sample-site</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/gonorrhea-chlamydia-kit-sample-site" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:46.744Z</updated>
+    <summary type="text">Choose gonorrhea/chlamydia testing around exposed body sites and the exact specimen accepted—not a claim that one kit checks everything.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>HIV and syphilis kits do not screen for every STI</title>
+    <id>https://testd.website/en/info/article/hiv-syphilis-do-not-cover-all-stis</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hiv-syphilis-do-not-cover-all-stis" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:46.744Z</updated>
+    <summary type="text">HIV and syphilis results do not describe your entire sexual health. Other infections and exposure sites may require different tests.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Syphilis kits and RPR/VDRL: different questions, different tests</title>
+    <id>https://testd.website/en/info/article/syphilis-kit-vs-rpr-vdrl</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/syphilis-kit-vs-rpr-vdrl" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:46.744Z</updated>
+    <summary type="text">Treponemal tests and RPR/VDRL play different roles, especially after past treatment. A retail screening result cannot determine treatment needs by itself.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>A negative result: planning repeat testing around exposure</title>
+    <id>https://testd.website/en/info/article/negative-result-repeat-test-plan</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/negative-result-repeat-test-plan" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:46.744Z</updated>
+    <summary type="text">Plan repeat testing from exposure dates, the actual test used, and antiretroviral use—not simply from how many kits remain.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Reactive results: why buying more brands is not confirmation</title>
+    <id>https://testd.website/en/info/article/reactive-test-confirmation-not-shopping</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/reactive-test-confirmation-not-shopping" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:46.744Z</updated>
+    <summary type="text">A reactive screening result calls for clinical follow-up, not a majority vote across brands. Different results do not cancel one another out.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>An invalid result: what to check before buying a replacement</title>
+    <id>https://testd.website/en/info/article/invalid-result-replacement-kit</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/invalid-result-replacement-kit" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:46.744Z</updated>
+    <summary type="text">An invalid test has not answered your infection question. Review the instructions and kit condition before choosing another self-test or clinic testing.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Travelling with test kits: choosing and protecting your supplies</title>
+    <id>https://testd.website/en/info/article/travelling-with-test-kits</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/travelling-with-test-kits" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:46.744Z</updated>
+    <summary type="text">Plan around the kit’s labeled storage conditions, your route, and access to care—not just whether the box fits in your luggage.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Buying kits for a partner or friend: consent before a bulk order</title>
+    <id>https://testd.website/en/info/article/testing-together-kit-consent</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/testing-together-kit-consent" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:46.744Z</updated>
+    <summary type="text">Before buying a kit for someone else, agree on consent, privacy, and support without making testing or result-sharing a condition of trust.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Free HIV kits or buying online: choosing the right route</title>
+    <id>https://testd.website/en/info/article/free-hiv-kit-vs-online-purchase</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/free-hiv-kit-vs-online-purchase" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:46.241Z</updated>
+    <summary type="text">Compare urgency, access requirements, privacy, and follow-up. Neither a free offer nor a paid purchase establishes test quality by itself.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Questions to ask a seller before ordering an HIV/STI kit</title>
+    <id>https://testd.website/en/info/article/seller-questions-before-test-kit-order</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/seller-questions-before-test-kit-order" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:46.241Z</updated>
+    <summary type="text">Ask about exact identity, permitted users, assay purpose, and support. Product information from a seller cannot replace an individualized clinical assessment.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Cheap or expensive kits: compare without equating price with quality</title>
+    <id>https://testd.website/en/info/article/test-kit-price-without-accuracy-claims</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/test-kit-price-without-accuracy-claims" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:46.241Z</updated>
+    <summary type="text">Price may reflect packaging, accessories, or service—not test performance. Compare authorization, suitability, and total practical costs instead.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Before buying: plan a private space and a result-reading routine</title>
+    <id>https://testd.website/en/info/article/private-testing-home-space</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/private-testing-home-space" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:46.241Z</updated>
+    <summary type="text">Plan privacy, lighting, timing, and follow-up before ordering. A private home test still needs a workable routine and a safe route to support.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Thai and English instructions: choose a kit you understand</title>
+    <id>https://testd.website/en/info/article/test-kit-language-instructions</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/test-kit-language-instructions" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:46.241Z</updated>
+    <summary type="text">Choose instructions you understand that match the exact product, including warnings, sample requirements, result timing, and interpretation—not just a translated sales page.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Small print and fiddly steps: choosing an accessible test kit</title>
+    <id>https://testd.website/en/info/article/accessible-test-kit-instructions</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/accessible-test-kit-instructions" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:46.241Z</updated>
+    <summary type="text">Assess whether you can read, handle, time, and interpret a kit before buying. “Easy to use” is not a substitute for accessible instructions.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Fear of needles: choosing an HIV testing option without pressure</title>
+    <id>https://testd.website/en/info/article/hiv-kit-needle-fear-choice</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hiv-kit-needle-fear-choice" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:46.241Z</updated>
+    <summary type="text">Needle fear does not make testing impossible. Consider authorized alternatives, supportive services, and the timing of a possible exposure without pressuring yourself.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Checking included accessories before choosing a finger-prick kit</title>
+    <id>https://testd.website/en/info/article/complete-kit-accessories-checklist</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/complete-kit-accessories-checklist" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:46.241Z</updated>
+    <summary type="text">Check the exact kit’s contents list, separately required items, and sharps-disposal needs instead of assuming every finger-prick kit includes the same accessories.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>A hot or damaged test-kit parcel: deciding whether to use it</title>
+    <id>https://testd.website/en/info/article/test-kit-parcel-heat-damage</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/test-kit-parcel-heat-damage" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:46.241Z</updated>
+    <summary type="text">A warm parcel alone cannot establish damage. Check the product limits, protective packaging, and available evidence before deciding whether to use it.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Expiry and storage: checking a kit before paying</title>
+    <id>https://testd.website/en/info/article/kit-expiry-and-storage-buying</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/kit-expiry-and-storage-buying" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:46.241Z</updated>
+    <summary type="text">Check expiry, storage requirements, and product identity before buying. A clean-looking box does not establish that a kit remains suitable for use.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Possible syphilis symptoms: a kit purchase or a clinic visit?</title>
+    <id>https://testd.website/en/info/article/syphilis-symptoms-before-buying</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/syphilis-symptoms-before-buying" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:45.732Z</updated>
+    <summary type="text">A suspicious sore or rash calls for clinical assessment without waiting for a kit, because a negative screen cannot explain symptoms.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Previously treated syphilis: what a home kit cannot tell you</title>
+    <id>https://testd.website/en/info/article/syphilis-kit-after-past-treatment</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/syphilis-kit-after-past-treatment" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:45.732Z</updated>
+    <summary type="text">Treponemal reactivity can persist after treatment; follow-up relies on clinical history and appropriately interpreted RPR/VDRL results.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>After PEP: choose testing around clinical follow-up</title>
+    <id>https://testd.website/en/info/article/choosing-kit-after-pep</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/choosing-kit-after-pep" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:45.732Z</updated>
+    <summary type="text">After PEP, testing should follow your medication history and clinical plan—not a retail promise of a final answer.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Choosing a kit while taking PrEP: keep clinic monitoring</title>
+    <id>https://testd.website/en/info/article/choosing-kit-while-on-prep</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/choosing-kit-while-on-prep" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:45.732Z</updated>
+    <summary type="text">A self-test should not replace PrEP follow-up because antiretrovirals can affect detection and result interpretation.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Recent exposure: what buying a kit today can and cannot answer</title>
+    <id>https://testd.website/en/info/article/choose-test-after-recent-exposure</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/choose-test-after-recent-exposure" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:45.732Z</updated>
+    <summary type="text">A test today may provide baseline information, but it cannot immediately exclude infection from a recent exposure.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Dual HIV/syphilis or separate kits: what to compare</title>
+    <id>https://testd.website/en/info/article/dual-hiv-syphilis-vs-separate-kits</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/dual-hiv-syphilis-vs-separate-kits" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:45.732Z</updated>
+    <summary type="text">Compare targets, intended use, and separate result meanings—not just how many infections appear on the box.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Self-test versus professional-use kits: why the label matters</title>
+    <id>https://testd.website/en/info/article/self-test-vs-professional-use-kit</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/self-test-vs-professional-use-kit" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:45.732Z</updated>
+    <summary type="text">Similar-looking devices are not interchangeable: the intended-user label matters before testing at home.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Before buying a test kit online: checking labels and authorization</title>
+    <id>https://testd.website/en/info/article/verify-online-test-kit-label</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/verify-online-test-kit-label" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:45.732Z</updated>
+    <summary type="text">Match the exact product and permitted use to official information rather than trusting badges, reviews, or seller claims.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Oral fluid or finger-prick: choosing the sample you can handle</title>
+    <id>https://testd.website/en/info/article/oral-fluid-vs-finger-prick-buying-guide</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/oral-fluid-vs-finger-prick-buying-guide" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:45.732Z</updated>
+    <summary type="text">Compare sample handling and comfort without assuming that specimen type reveals test generation or suitability after exposure.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
+  <entry>
+    <title>Choosing your first HIV and syphilis kit: a decision checklist</title>
+    <id>https://testd.website/en/info/article/choose-hiv-syphilis-kit-first-time</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/choose-hiv-syphilis-kit-first-time" />
+    <published>2026-10-24T17:11:40.978Z</published>
+    <updated>2026-10-24T17:12:45.732Z</updated>
+    <summary type="text">Start with your reason for testing, exposure timing, and follow-up options—not a brand or advertising claim.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
   <entry>
     <title>Where can I get free PrEP in Thailand? Check eligibility and book with SWING</title>
     <id>https://testd.website/en/info/article/free-prep-thailand-swing-eligibility</id>
@@ -186,269 +456,5 @@
     <updated>2026-10-18T14:53:25.426Z</updated>
     <summary type="text">คนที่เราสนใจบอกว่ามีเชื้อ HIV ควรทำยังไง? บทความนี้ตอบทั้งเรื่องความเสี่ยงจริง U=U PrEP และการสร้างความสัมพันธ์ที่ปลอดภัยและอบอุ่น</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/144b68a7-fb57-4e49-b10a-01dc1b7c0692/cover-mental-health.jpg" />
-  </entry>
-  <entry>
-    <title>Can You Get STIs from Oral Sex? What You Need to Know</title>
-    <id>https://testd.website/en/info/article/sti-from-oral-sex</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/sti-from-oral-sex" />
-    <published>2026-10-10T14:25:27.594Z</published>
-    <updated>2026-10-18T14:53:30.478Z</updated>
-    <summary type="text">Oral sex เสี่ยง HIV ต่ำมาก แต่ติด STI อื่นได้จริง ทั้งหนองในที่คอ ซิฟิลิส เริม และ HPV มาดูความเสี่ยงแต่ละโรคและวิธีป้องกัน</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/1eff3a1f-8462-4eee-87e4-073b09dad931/cover-sti.jpg" />
-  </entry>
-  <entry>
-    <title>PEP vs PrEP: What&apos;s the Difference and Which Do You Need?</title>
-    <id>https://testd.website/en/info/article/pep-vs-prep-difference</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/pep-vs-prep-difference" />
-    <published>2026-10-10T14:21:59.022Z</published>
-    <updated>2026-10-24T07:04:10.813Z</updated>
-    <summary type="text">PrEP กินก่อนเสี่ยง PEP กินหลังเสี่ยง มาดูความแตกต่างแบบตารางเข้าใจง่าย ว่าแต่ละแบบเหมาะกับใคร ใช้นานแค่ไหน และจะเปลี่ยนจากแบบหนึ่งไปอีกแบบได้ยังไง</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/8f9f779c-9a55-437c-85f0-9257872e4f6e/cover-pep.jpg" />
-  </entry>
-  <entry>
-    <title>HIV Testing Before Marriage: A Conversation Every Couple Should Have</title>
-    <id>https://testd.website/en/info/article/hiv-test-before-marriage</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hiv-test-before-marriage" />
-    <published>2026-10-10T14:15:31.038Z</published>
-    <updated>2026-10-18T14:53:45.561Z</updated>
-    <summary type="text">การตรวจ HIV และ STI ก่อนแต่งงานไม่ใช่เรื่องน่าอาย แต่คือการดูแลกันและกัน มาดูว่าควรชวนคู่คุยยังไง ตรวจอะไรบ้าง และตรวจที่ไหน</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/c6655cd4-0b23-48a2-8b63-0b037ad74161/cover-clinic.jpg" />
-  </entry>
-  <entry>
-    <title>Just Diagnosed with HIV: What to Do in Your First 7 Days</title>
-    <id>https://testd.website/en/info/article/just-diagnosed-hiv-coping</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/just-diagnosed-hiv-coping" />
-    <published>2026-10-09T14:40:12.337Z</published>
-    <updated>2026-10-18T14:53:20.015Z</updated>
-    <summary type="text">วินาทีที่รู้ผลบวก โลกเหมือนหยุดหมุน บทความนี้เขียนเพื่อคนที่เพิ่งรู้ผล — สิ่งที่ควรทำใน 7 วันแรก ทีละขั้น ไม่ต้องรีบ</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/144b68a7-fb57-4e49-b10a-01dc1b7c0692/cover-mental-health.jpg" />
-  </entry>
-  <entry>
-    <title>5 Silent STI Symptoms People Often Ignore</title>
-    <id>https://testd.website/en/info/article/sti-symptoms-often-missed</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/sti-symptoms-often-missed" />
-    <published>2026-10-09T14:25:27.594Z</published>
-    <updated>2026-10-18T14:53:35.485Z</updated>
-    <summary type="text">STI หลายโรคไม่มีอาการชัด บางอาการดูเหมือนเรื่องเล็ก เช่น คัน ผื่น หรือตกขาวผิดปกติ มาดูสัญญาณที่ไม่ควรมองข้าม</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/1eff3a1f-8462-4eee-87e4-073b09dad931/cover-sti.jpg" />
-  </entry>
-  <entry>
-    <title>Can You Buy PEP at a Pharmacy? What to Do After Exposure</title>
-    <id>https://testd.website/en/info/article/can-you-buy-pep-yourself</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/can-you-buy-pep-yourself" />
-    <published>2026-10-09T14:21:59.022Z</published>
-    <updated>2026-10-24T15:13:42.081Z</updated>
-    <summary type="text">PEP คือยาต้านไวรัสฉุกเฉินที่ต้องเริ่มภายใน 72 ชั่วโมงหลังเสี่ยง ซื้อเองได้ไหม ไปรับที่ไหน ต้องตรวจอะไร สรุปให้ในที่เดียว</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/8f9f779c-9a55-437c-85f0-9257872e4f6e/cover-pep.jpg" />
-  </entry>
-  <entry>
-    <title>U=U Explained: Why Undetectable Means Untransmittable</title>
-    <id>https://testd.website/en/info/article/u-equals-u-thailand</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/u-equals-u-thailand" />
-    <published>2026-10-09T14:15:31.038Z</published>
-    <updated>2026-10-18T14:53:45.519Z</updated>
-    <summary type="text">U=U (Undetectable = Untransmittable) คือข้อเท็จจริงทางวิทยาศาสตร์ที่ว่า ผู้ติดเชื้อ HIV ที่กินยาจนเชื้อต่ำกว่าระดับตรวจพบ จะไม่แพร่เชื้อทางเพศสัมพันธ์</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/c6655cd4-0b23-48a2-8b63-0b037ad74161/cover-clinic.jpg" />
-  </entry>
-  <entry>
-    <title>Afraid of Your HIV Test Result? How to Handle the Fear</title>
-    <id>https://testd.website/en/info/article/fear-of-hiv-test-result</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/fear-of-hiv-test-result" />
-    <published>2026-10-08T14:40:12.337Z</published>
-    <updated>2026-10-18T14:53:20.144Z</updated>
-    <summary type="text">ความกลัวผลตรวจ HIV เป็นเหตุผลอันดับต้นที่คนไม่ยอมตรวจ มาดูว่าความกลัวนี้มาจากไหน และวิธีก้าวผ่านมันแบบไม่ต้องกล้ามาก</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/144b68a7-fb57-4e49-b10a-01dc1b7c0692/cover-mental-health.jpg" />
-  </entry>
-  <entry>
-    <title>Where to Get a Full STI Panel: What to Test and Where</title>
-    <id>https://testd.website/en/info/article/full-sti-panel-where-to-test</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/full-sti-panel-where-to-test" />
-    <published>2026-10-08T14:25:27.594Z</published>
-    <updated>2026-10-18T14:53:30.267Z</updated>
-    <summary type="text">ตรวจ STI ครบชุดควรมีอะไรบ้าง ราคาเท่าไหร่ ตรวจที่ไหนแบบไม่อาย สรุปครบทั้งโรงพยาบาลรัฐ คลินิกนิรนาม และคลินิกชุมชน</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/c6655cd4-0b23-48a2-8b63-0b037ad74161/cover-clinic.jpg" />
-  </entry>
-  <entry>
-    <title>PrEP for Women and Trans Women: What&apos;s Different</title>
-    <id>https://testd.website/en/info/article/prep-for-women-and-trans</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/prep-for-women-and-trans" />
-    <published>2026-10-08T14:21:59.022Z</published>
-    <updated>2026-10-18T14:53:35.869Z</updated>
-    <summary type="text">PrEP ไม่ได้มีไว้เฉพาะผู้ชาย ผู้หญิงและผู้หญิงข้ามเพศก็ใช้ได้และได้ผลดี แต่มีรายละเอียดที่ต่างออกไป ทั้งเรื่องวิธีกินและฮอร์โมน</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/ff170ee0-15d2-46f9-9234-a72d62e67ffc/cover-prep.jpg" />
-  </entry>
-  <entry>
-    <title>HIV Self-Test Shows Two Lines: A Calm Step-by-Step Guide</title>
-    <id>https://testd.website/en/info/article/hiv-reactive-two-lines-next-steps</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hiv-reactive-two-lines-next-steps" />
-    <published>2026-10-08T14:15:31.038Z</published>
-    <updated>2026-10-18T14:53:49.143Z</updated>
-    <summary type="text">ผลตรวจ HIV ขึ้น 2 ขีดไม่ได้แปลว่าติดเชื้อแน่ มาดูขั้นตอนที่ควรทำต่อ ตั้งแต่ตรวจยืนยัน ปรึกษา ไปจนถึงเริ่มยา ทุกขั้นทำได้แบบเป็นความลับ</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/58b5d0d4-12c4-4eb3-96da-b85a9ece7b03/cover-hiv-testing.jpg" />
-  </entry>
-  <entry>
-    <title>Lenacapavir: The Twice-Yearly PrEP Injection Coming to Thailand</title>
-    <id>https://testd.website/en/info/article/lenacapavir-prep-injection-thailand</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/lenacapavir-prep-injection-thailand" />
-    <published>2026-10-07T14:40:12.337Z</published>
-    <updated>2026-10-18T14:53:25.305Z</updated>
-    <summary type="text">Lenacapavir คือ PrEP แบบฉีดที่ป้องกันได้นาน 6 เดือนต่อเข็ม ไทยเตรียมนำร่องปลายปี 2569 กับราว 2,400 คนใน 9 หน่วยบริการ มาดูว่าคืออะไรและใครจะได้ใช้ก่อน</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/db83b5dc-186f-4237-b68a-545e7be392df/cover-news-stats.jpg" />
-  </entry>
-  <entry>
-    <title>Herpes, Genital Warts, and HPV: Lifelong but Manageable</title>
-    <id>https://testd.website/en/info/article/herpes-hpv-warts-explained</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/herpes-hpv-warts-explained" />
-    <published>2026-10-07T14:25:27.594Z</published>
-    <updated>2026-10-18T14:53:35.746Z</updated>
-    <summary type="text">เริมและ HPV ต่างจาก STI อื่นตรงที่เชื้ออยู่ในร่างกายตลอด แต่ควบคุมอาการและลดการแพร่ได้ มาดูวิธีอยู่ร่วมกับเชื้อเหล่านี้</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/1eff3a1f-8462-4eee-87e4-073b09dad931/cover-sti.jpg" />
-  </entry>
-  <entry>
-    <title>Starting PrEP for the First Time: Step-by-Step</title>
-    <id>https://testd.website/en/info/article/how-to-start-prep-step-by-step</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/how-to-start-prep-step-by-step" />
-    <published>2026-10-07T14:21:59.022Z</published>
-    <updated>2026-10-18T14:53:35.907Z</updated>
-    <summary type="text">คู่มือเริ่ม PrEP ครั้งแรกแบบละเอียด ตั้งแต่จองคิว เตรียมตัว ตรวจเลือด ไปจนถึงรับยาและนัดติดตาม ใช้เวลาไม่นานอย่างที่คิด</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/c6655cd4-0b23-48a2-8b63-0b037ad74161/cover-clinic.jpg" />
-  </entry>
-  <entry>
-    <title>What Is DoxyPEP? The Post-Sex STI Pill Thailand Hasn&apos;t Adopted Yet</title>
-    <id>https://testd.website/en/info/article/doxypep-thailand-status</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/doxypep-thailand-status" />
-    <published>2026-10-06T14:40:12.337Z</published>
-    <updated>2026-10-18T14:53:25.464Z</updated>
-    <summary type="text">DoxyPEP คือการกินยาปฏิชีวนะหลังเพศสัมพันธ์เพื่อป้องกันซิฟิลิสและหนองใน หลายประเทศเริ่มใช้แล้ว แต่แนวทางไทยปี 2567 ยังไม่แนะนำ มาดูเหตุผล</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/db83b5dc-186f-4237-b68a-545e7be392df/cover-news-stats.jpg" />
-  </entry>
-  <entry>
-    <title>Gonorrhea and Chlamydia: Symptoms, Treatment, and Drug Resistance</title>
-    <id>https://testd.website/en/info/article/gonorrhea-chlamydia-guide</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/gonorrhea-chlamydia-guide" />
-    <published>2026-10-06T14:25:27.594Z</published>
-    <updated>2026-10-18T14:53:34.828Z</updated>
-    <summary type="text">หนองในและหนองในเทียมเป็น STI ที่พบมากที่สุดในไทย หลายคนไม่มีอาการแต่แพร่เชื้อได้ มาดูอาการ การตรวจ และปัญหาเชื้อดื้อยา</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/1eff3a1f-8462-4eee-87e4-073b09dad931/cover-sti.jpg" />
-  </entry>
-  <entry>
-    <title>Does Long-Term PrEP Damage Your Kidneys? The Facts</title>
-    <id>https://testd.website/en/info/article/prep-kidney-safety</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/prep-kidney-safety" />
-    <published>2026-10-06T14:21:59.022Z</published>
-    <updated>2026-10-18T14:53:40.328Z</updated>
-    <summary type="text">ความกังวลเรื่อง PrEP ทำร้ายไตเป็นเหตุผลอันดับต้นที่คนไม่กล้าเริ่มยา มาดูหลักฐานจริง ใครควรระวัง และการตรวจติดตามที่ช่วยให้ปลอดภัย</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/ff170ee0-15d2-46f9-9234-a72d62e67ffc/cover-prep.jpg" />
-  </entry>
-  <entry>
-    <title>How Accurate Are HIV Self-Test Kits? Reading Results Correctly</title>
-    <id>https://testd.website/en/info/article/hiv-self-test-accuracy</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hiv-self-test-accuracy" />
-    <published>2026-10-06T14:15:31.038Z</published>
-    <updated>2026-10-18T14:53:49.619Z</updated>
-    <summary type="text">ชุดตรวจ HIV ด้วยตนเองแม่นยำสูงถึง 99% เมื่อใช้ถูกวิธีและหมดระยะฟักตัวแล้ว มาดูวิธีใช้ วิธีอ่านผล 1 ขีด 2 ขีด และข้อควรระวัง</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/58b5d0d4-12c4-4eb3-96da-b85a9ece7b03/cover-hiv-testing.jpg" />
-  </entry>
-  <entry>
-    <title>Mpox in Thailand: Latest Situation, Symptoms, and Vaccines</title>
-    <id>https://testd.website/en/info/article/mpox-thailand-update-2025</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/mpox-thailand-update-2025" />
-    <published>2026-10-05T14:40:12.337Z</published>
-    <updated>2026-10-18T14:53:20.309Z</updated>
-    <summary type="text">สถานการณ์ mpox ในไทยลดลงในปี 2568 แต่ยังพบผู้ป่วยเรื่อย ๆ สะสมกว่า 900 รายตั้งแต่ปี 2565 มาดูอาการ การแพร่ และใครควรฉีดวัคซีน</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/db83b5dc-186f-4237-b68a-545e7be392df/cover-news-stats.jpg" />
-  </entry>
-  <entry>
-    <title>Syphilis Cases in Thailand Have Nearly Doubled in 3 Years</title>
-    <id>https://testd.website/en/info/article/syphilis-rising-thailand-2025</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/syphilis-rising-thailand-2025" />
-    <published>2026-10-05T14:25:27.594Z</published>
-    <updated>2026-10-18T14:53:30.590Z</updated>
-    <summary type="text">ข้อมูลกรมควบคุมโรคชี้ซิฟิลิสในไทยเพิ่มขึ้นเกือบเท่าตัวใน 3 ปี ปีงบ 2568 พบราว 32,700 ราย วัย 15–24 ปีสูงสุด มาดูอาการ การตรวจ และการรักษา</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/db83b5dc-186f-4237-b68a-545e7be392df/cover-news-stats.jpg" />
-  </entry>
-  <entry>
-    <title>On-Demand PrEP (2-1-1): How to Take It Correctly</title>
-    <id>https://testd.website/en/info/article/prep-on-demand-2-1-1</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/prep-on-demand-2-1-1" />
-    <published>2026-10-05T14:21:59.022Z</published>
-    <updated>2026-10-18T14:53:40.604Z</updated>
-    <summary type="text">PrEP แบบ 2-1-1 หรือ On-Demand เหมาะกับคนที่มีเพศสัมพันธ์ไม่บ่อยและวางแผนได้ล่วงหน้า มาดูวิธีกินที่ถูกต้อง และใครที่ไม่ควรใช้แบบนี้</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/ff170ee0-15d2-46f9-9234-a72d62e67ffc/cover-prep.jpg" />
-  </entry>
-  <entry>
-    <title>Where to Get a Free HIV Test in Bangkok (2026 Update)</title>
-    <id>https://testd.website/en/info/article/hiv-test-free-bangkok</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hiv-test-free-bangkok" />
-    <published>2026-10-05T14:15:31.038Z</published>
-    <updated>2026-10-23T03:12:54.867Z</updated>
-    <summary type="text">รวมช่องทางตรวจ HIV ฟรีในกรุงเทพฯ ทั้งคลินิกชุมชน โรงพยาบาลรัฐ และชุดตรวจด้วยตนเองที่ส่งถึงบ้าน พร้อมวิธีจองคิวแบบไม่ต้องเปิดเผยตัวตน</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/c6655cd4-0b23-48a2-8b63-0b037ad74161/cover-clinic.jpg" />
-  </entry>
-  <entry>
-    <title>What Is the 95-95-95 Target? Can Thailand End AIDS by 2030?</title>
-    <id>https://testd.website/en/info/article/thailand-95-95-95-target</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/thailand-95-95-95-target" />
-    <published>2026-10-04T14:40:12.337Z</published>
-    <updated>2026-10-18T14:53:25.345Z</updated>
-    <summary type="text">เป้าหมาย 95-95-95 คือเข็มทิศการจบเอดส์ของโลก มาดูว่าแต่ละตัวเลขหมายถึงอะไร ไทยอยู่ตรงไหน และอะไรคืออุปสรรคสำคัญ</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/db83b5dc-186f-4237-b68a-545e7be392df/cover-news-stats.jpg" />
-  </entry>
-  <entry>
-    <title>Is PrEP Free in Thailand? Getting PrEP with the Gold Card (2026)</title>
-    <id>https://testd.website/en/info/article/prep-free-gold-card-2026</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/prep-free-gold-card-2026" />
-    <published>2026-10-04T14:21:59.022Z</published>
-    <updated>2026-10-18T14:53:40.704Z</updated>
-    <summary type="text">PrEP อยู่ในสิทธิประโยชน์ของ สปสช. สำหรับคนไทยกลุ่มเสี่ยง มาดูเงื่อนไข ขั้นตอนรับยา และจุดบริการที่รับ PrEP ได้จริง</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/ff170ee0-15d2-46f9-9234-a72d62e67ffc/cover-prep.jpg" />
-  </entry>
-  <entry>
-    <title>Chemsex Safety Playbook: Thailand 2026 Data Edition</title>
-    <id>https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">A full chemsex harm reduction playbook grounded in real service data: 15,077 self-test kit requests, 25,133 clinic appointments and 53 completed risk screenings.</summary>
-  </entry>
-  <entry>
-    <title>GHB/GBL: Dosing, Spacing and What To Do When Someone Goes Under</title>
-    <id>https://testd.website/en/info/article/ghb-overdose-prevention-timeline</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/ghb-overdose-prevention-timeline" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">GHB forms critical interactions with alcohol and benzodiazepines. Spacing tables, danger signs and step-by-step response.</summary>
-  </entry>
-  <entry>
-    <title>From 222 to 2,819 Kits a Month: The HIV Self-Test Pathway for People Who Use Drugs</title>
-    <id>https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">Analysis of 15,077 HIV self-test kit requests from Oct 2025 to Aug 2026 and what they reveal about testing behaviour.</summary>
-  </entry>
-  <entry>
-    <title>71.7% at High Risk: What PHQ-4, ASSIST and C-SSRS Screening Tells Us About Chemsex</title>
-    <id>https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">53 completed screenings between Mar 12 and Aug 8, 2026: monthly trends and what they mean for mental health care.</summary>
-  </entry>
-  <entry>
-    <title>Methamphetamine Harm Reduction: Thai Service Behaviour Data 2025–2026</title>
-    <id>https://testd.website/en/info/article/meth-harm-reduction-thailand-behaviour-2026</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/meth-harm-reduction-thailand-behaviour-2026" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">Meth use patterns, slamming and polydrug mixing in Thai service data, with population-specific harm reduction guidance.</summary>
-  </entry>
-  <entry>
-    <title>42 Substance Interaction Pairs: Which Combinations Can Kill</title>
-    <id>https://testd.website/en/info/article/42-critical-substance-interactions-chemsex</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/42-critical-substance-interactions-chemsex" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-10-17T11:01:09.387Z</updated>
-    <summary type="text">A breakdown of 42 documented substance interaction pairs — 11 critical, 19 high, 12 moderate — across 18 substances.</summary>
   </entry>
 </feed>
