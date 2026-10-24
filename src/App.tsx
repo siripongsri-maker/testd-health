@@ -55,6 +55,7 @@ const Community = lazy(() => import("./pages/Community"));
 const ChatRoom = lazy(() => import("./pages/ChatRoom"));
 const Interests = lazy(() => import("./pages/Interests"));
 const SelfCare = lazy(() => import("./pages/SelfCare"));
+const TestKitFinder = lazy(() => import("./pages/TestKitFinder"));
 const HIVSelfTest = lazy(() => import("./pages/HIVSelfTest"));
 
 const ShareAchievements = lazy(() => import("./pages/ShareAchievements"));
@@ -192,6 +193,7 @@ function AppShell() {
               <Route path="/community/chat/:slug" element={<ChatRoom />} />
               <Route path="/community/interests" element={<Interests />} />
               <Route path="/self-care" element={<SelfCare />} />
+              <Route path="/test-kits" element={<TestKitFinder />} />
               <Route path="/hiv-selftest" element={<HIVSelfTest />} />
               {/* Branch-dedicated kit request links — no branch picker shown to the client. */}
               <Route path="/kit/bangkok" element={<Navigate to="/th/hiv-selftest?branch=silom" replace />} />

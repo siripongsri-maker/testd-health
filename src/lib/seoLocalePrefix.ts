@@ -41,6 +41,7 @@ const SEO_ROUTE_PREFIXES: string[] = [
   "/install",
   "/swing",
   "/self-care",
+  "/test-kits",
 ];
 
 /** Routes that must NEVER carry a locale prefix (auth, account, admin, ops). */
