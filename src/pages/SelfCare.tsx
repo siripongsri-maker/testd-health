@@ -90,7 +90,7 @@ export default function SelfCare() {
         {/* HIV Self-Test Kit Banner */}
          <Button
           variant="ghost"
-          className="h-auto w-full whitespace-normal p-5 mb-6 text-left glass glass-shine hover:shadow-soft transition-all duration-200 rounded-2xl"
+          className="h-auto sm:h-auto w-full whitespace-normal p-5 mb-6 text-left glass glass-shine hover:shadow-soft transition-all duration-200 rounded-2xl"
           onClick={() => navigate('/hiv-selftest')}
         >
           <div className="flex items-center gap-4">

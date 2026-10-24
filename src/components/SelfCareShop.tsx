@@ -17,7 +17,7 @@ export function SelfCareShop({ language }: { language: string }) {
           {isThai ? 'ลิงก์แนะนำสินค้า: เราอาจได้รับค่าคอมมิชชันจากการซื้อผ่านลิงก์เหล่านี้ ตามเงื่อนไขของ Shopee' : 'Affiliate links: we may earn a commission on purchases through these links, subject to Shopee’s terms.'}
         </p>
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3">
         {SELF_CARE_PRODUCTS.map((item) => (
           <Card key={item.id} className="flex min-w-0 flex-col overflow-hidden rounded-2xl glass">
             <img src={item.image} alt={isThai ? `ภาพประกอบ ${item.titleTh}` : `Illustration: ${item.titleEn}`} width={816} height={816} loading="lazy" className="aspect-square w-full object-contain" />
