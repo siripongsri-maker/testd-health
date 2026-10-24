@@ -1,5 +1,6 @@
 <!-- © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). -->
 # Current tasks
+- [ ] Enable indexed Thai/English Self Care pages and request publishing of the seven products.
 - [x] Add seven illustrated Shopee products to Self Care, preserve free kit access, and verify product links and layout.
 - [x] Publish three evidence-based HIV/PrEP Q&A articles with images and verify article pages, booking buttons, and sitemap.
 - [x] Add and verify a public security/privacy page linked from the existing privacy policy.
