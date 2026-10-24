@@ -38,6 +38,7 @@ const SEO_ROUTE_PREFIXES: string[] = [
   "/privacy-policy",
   "/security-privacy",
   "/contact",
+  "/clinics",
   "/install",
   "/swing",
   "/self-care",

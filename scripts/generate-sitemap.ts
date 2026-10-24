@@ -60,6 +60,7 @@ const staticEntries: SitemapEntry[] = [
   { path: "/privacy-policy", changefreq: "monthly", priority: "0.4" },
   { path: "/security-privacy", changefreq: "monthly", priority: "0.4" },
   { path: "/contact", changefreq: "monthly", priority: "0.6" },
+  { path: "/clinics", changefreq: "weekly", priority: "0.8" },
 ];
 
 function escapeXml(s: string) {
