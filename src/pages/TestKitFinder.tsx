@@ -73,12 +73,12 @@ export default function TestKitFinder() {
           <Chips label={th ? 'ราคา' : 'Price'} value={price} set={setPrice} opts={[['all', all], ['free', th ? 'ฟรี' : 'Free'], ['paid', th ? 'ซื้อใน Shopee' : 'Buy on Shopee']]} />
         </div>
         <p className="mb-3 text-sm text-muted-foreground" aria-live="polite">{th ? `พบ ${list.length} รายการ` : `${list.length} kits found`}</p>
-        <ul className="grid gap-3 sm:grid-cols-2">
+        <ul className="grid gap-3">
           {list.map((k) => (
             <li key={k.id} className="flex gap-3 rounded-2xl border border-border bg-card p-3">
               {k.image ? <img src={k.image} alt="" loading="lazy" className="h-20 w-20 shrink-0 rounded-xl object-cover" /> : <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-primary/10"><Gift className="h-8 w-8 text-primary" aria-hidden="true" /></div>}
               <div className="flex min-w-0 flex-1 flex-col gap-1">
-                <h2 className="font-semibold text-foreground">{th ? k.th : k.en}</h2>
+                <h2 className="text-base font-semibold leading-snug text-foreground">{th ? k.th : k.en}</h2>
                 <p className="text-xs text-muted-foreground">{th ? k.noteTh : k.noteEn}</p>
                 <p className="text-sm font-medium text-foreground">{k.price === 'free' ? (th ? 'ฟรี' : 'Free') : (th ? 'ดูราคาล่าสุดใน Shopee' : 'See current price on Shopee')}</p>
                 {k.internal ? (
