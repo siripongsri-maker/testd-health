@@ -252,8 +252,8 @@ export default function ContactFaq() {
           </h2>
           <p className="text-sm leading-relaxed text-muted-foreground">
             {th
-              ? 'หน้านี้ไม่ใช่ช่องทางฉุกเฉิน หากมีอาการเส้นเลือดในสมองแตก และมีโอกาสติดเชื้อ HIV ภายใน 72 ชั่วโมง ให้รีบไปพบแพทย์ทันที หรือโทรสายด่วน 1669'
-              : 'This page is not an emergency channel. If someone may have been exposed to HIV within the last 72 hours, seek medical care right away, or call the Thai emergency hotline 1669.'}
+              ? 'หน้านี้ไม่ใช่ช่องทางฉุกเฉิน หากคุณหรือคนใกล้ตัวมีอาการฉุกเฉิน หรือมีโอกาสเสี่ยงติดเชื้อ HIV ภายใน 72 ชั่วโมงที่ผ่านมา ให้รีบไปพบแพทย์ทันที หรือโทรสายด่วน 1669'
+              : 'This page is not an emergency channel. If you or someone near you has an emergency, or there may have been an HIV exposure within the last 72 hours, seek medical care right away, or call the Thai emergency hotline 1669.'}
           </p>
         </section>
       </main>

@@ -37,6 +37,7 @@ const SEO_ROUTE_PREFIXES: string[] = [
   "/support-faq",
   "/privacy-policy",
   "/security-privacy",
+  "/contact",
   "/install",
   "/swing",
   "/self-care",
