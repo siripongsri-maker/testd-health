@@ -308,6 +308,24 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/self-care" />
   </url>
   <url>
+    <loc>https://testd.website/th/test-kits</loc>
+    <lastmod>2026-10-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/test-kits" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/test-kits" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/test-kits" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/test-kits</loc>
+    <lastmod>2026-10-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/test-kits" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/test-kits" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/test-kits" />
+  </url>
+  <url>
     <loc>https://testd.website/th/consultation</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
