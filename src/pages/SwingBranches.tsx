@@ -129,7 +129,6 @@ export default function SwingBranches() {
           branches.map((b) => {
             const name = th ? b.name_th : b.name_en;
             const address = th ? b.address_th || b.address_en : b.address_en || b.address_th;
-            const comingSoon = b.status === 'coming_soon';
             const comingMsg = th ? b.coming_soon_message_th : b.coming_soon_message_en;
             return (
               <Card key={b.slug} className="border-border/60">
