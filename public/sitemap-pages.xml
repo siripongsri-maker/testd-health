@@ -438,6 +438,22 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/contact" />
   </url>
   <url>
+    <loc>https://testd.website/th/clinics</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/clinics" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/clinics" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/clinics" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/clinics</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/clinics" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/clinics" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/clinics" />
+  </url>
+  <url>
     <loc>https://testd.website/th/chemsex-cards</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
