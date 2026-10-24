@@ -1,6 +1,6 @@
 /*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link as RouterLink } from "react-router-dom";
 import { PageContainer } from "@/components/PageContainer";
 import { BottomNav } from "@/components/BottomNav";
 import { Button } from "@/components/ui/button";
@@ -443,6 +443,21 @@ export default function InfoArticle() {
         <ArticleBookingCta articleText={matchText} articleSlug={article.slug} />
 
         <ArticleKitShop text={matchText} content={content} isThai={language === 'th'} />
+
+        {/* Contact & general questions link */}
+        <div className="mt-6 rounded-2xl bg-card border border-border p-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-muted-foreground">
+            {language === 'th'
+              ? 'ยังมีคำถามเรื่องการตรวจหรือชุดตรวจ? ดูคำตอบทั่วไปหรือติดต่อทีมงานได้'
+              : 'Still have questions about testing or test kits? See general answers or contact the team.'}
+          </p>
+          <RouterLink
+            to={`/${pageLocale}/contact`}
+            className="shrink-0 inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-4 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            {language === 'th' ? 'ติดต่อและคำถามทั่วไป' : 'Contact & general questions'}
+          </RouterLink>
+        </div>
 
         {/* YouTube Video */}
         {article.video_url && extractYouTubeVideoId(article.video_url) && (

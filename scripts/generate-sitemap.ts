@@ -58,6 +58,7 @@ const staticEntries: SitemapEntry[] = [
   { path: "/support-faq", changefreq: "monthly", priority: "0.4" },
   { path: "/privacy-policy", changefreq: "monthly", priority: "0.4" },
   { path: "/security-privacy", changefreq: "monthly", priority: "0.4" },
+  { path: "/contact", changefreq: "monthly", priority: "0.6" },
 ];
 
 function escapeXml(s: string) {
