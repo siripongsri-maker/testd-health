@@ -22,7 +22,7 @@ export function SelfCareShop({ language }: { language: string }) {
           <Card key={item.id} className="flex min-w-0 flex-col overflow-hidden rounded-2xl glass">
             <img src={item.image} alt={isThai ? `ภาพประกอบ ${item.titleTh}` : `Illustration: ${item.titleEn}`} width={816} height={816} loading="lazy" className="aspect-square w-full object-contain" />
             <div className="flex flex-1 flex-col p-3 sm:p-4">
-              <p className="mb-1 text-xs text-muted-foreground">{item.category === 'protection' ? (isThai ? 'อุปกรณ์ดูแลตัวเอง' : 'Personal care') : (isThai ? 'ชุดตรวจคัดกรอง' : 'Screening tests')}</p>
+              <p className="mb-1 text-xs text-muted-foreground">{item.category === 'protection' ? (isThai ? 'อุปกรณ์ดูแลตัวเอง' : 'Personal care') : item.category === 'supplies' ? (isThai ? 'อุปกรณ์ปลอดเชื้อ ใช้ครั้งเดียว' : 'Sterile single-use supplies') : item.category === 'wellness' ? (isThai ? 'สุขอนามัยและไลฟ์สไตล์' : 'Hygiene & lifestyle') : (isThai ? 'ชุดตรวจคัดกรอง' : 'Screening tests')}</p>
               <h3 className="mb-4 break-words text-sm font-semibold leading-relaxed text-foreground">{isThai ? item.titleTh : item.titleEn}</h3>
               <Button asChild variant="outline" size="sm" className="mt-auto w-full gap-1 px-2 text-xs">
                 <a href={item.link} target="_blank" rel="sponsored noopener noreferrer" aria-label={`${isThai ? 'ดูสินค้าใน Shopee:' : 'View on Shopee:'} ${isThai ? item.titleTh : item.titleEn}`}>
