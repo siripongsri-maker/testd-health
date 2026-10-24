@@ -13,9 +13,7 @@ export function SelfCareShop({ language }: { language: string }) {
           <ShoppingBag className="h-5 w-5 text-primary" />
           {isThai ? 'เลือกซื้อเพื่อดูแลตัวเอง' : 'Shop for self-care'}
         </h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          {isThai ? 'ลิงก์แนะนำสินค้า: เราอาจได้รับค่าคอมมิชชันจากการซื้อผ่านลิงก์เหล่านี้ ตามเงื่อนไขของ Shopee' : 'Affiliate links: we may earn a commission on purchases through these links, subject to Shopee’s terms.'}
-        </p>
+        <p className="mt-2 text-sm text-muted-foreground">{"\n"}</p>
       </div>
       <div className="grid grid-cols-2 gap-3">
         {SELF_CARE_PRODUCTS.map((item) => (
