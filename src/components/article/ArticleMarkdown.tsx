@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import { Link } from "react-router-dom";
+import { SELF_CARE_PRODUCTS } from "@/data/selfCareProducts";
 
 const isSafeImageUrl = (url: string) =>
   /^https:\/\//i.test(url) || url.startsWith("/");
@@ -85,7 +86,7 @@ export function ArticleMarkdown({ content }: { content: string }) {
                 href={href}
                 className="text-primary underline underline-offset-2"
                 target="_blank"
-                rel="noopener noreferrer"
+                rel={SELF_CARE_PRODUCTS.some((product) => product.link === href) ? "sponsored noopener noreferrer" : "noopener noreferrer"}
               >
                 {children}
               </a>
