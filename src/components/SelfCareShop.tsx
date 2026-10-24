@@ -32,7 +32,7 @@ export function SelfCareShop({ language }: { language: string }) {
         ))}
       </div>
       <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-        {isThai ? 'ภาพประกอบสร้างขึ้น ไม่ใช่ภาพสินค้าจริง โปรดตรวจรุ่น ราคา ผู้ขาย สถานะการอนุญาต และคำแนะนำของผลิตภัณฑ์ใน Shopee ก่อนซื้อ ชุดตรวจใช้เพื่อคัดกรอง ไม่ใช่การวินิจฉัย หากผลมีปฏิกิริยา มีอาการ หรือยังสงสัย ควรปรึกษาคลินิกเพื่อตรวจยืนยัน' : 'These are generated illustrations, not actual product photos. Check the model, price, seller, regulatory status and product instructions on Shopee before buying. Screening tests are not a diagnosis. If a result is reactive, you have symptoms or remain concerned, contact a clinic for confirmatory testing.'}
+        {"\n"}
       </p>
     </section>
   );
