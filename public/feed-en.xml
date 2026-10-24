@@ -5,8 +5,16 @@
   <link>https://testd.website/en/info</link>
   <description>New articles from testD on HIV, PrEP, PEP, STIs and harm reduction.</description>
   <language>en</language>
-  <lastBuildDate>Sat, 24 Oct 2026 17:12:46 GMT</lastBuildDate>
+  <lastBuildDate>Sat, 24 Oct 2026 17:23:55 GMT</lastBuildDate>
   <atom:link href="https://testd.website/feed-en.xml" rel="self" type="application/rss+xml" />
+  <item>
+    <title>HIV and STI Home Test Kits in Thailand: 5 Types and How to Choose</title>
+    <link>https://testd.website/en/info/article/hiv-sti-home-test-kits-guide-thailand</link>
+    <guid isPermaLink="true">https://testd.website/en/info/article/hiv-sti-home-test-kits-guide-thailand</guid>
+    <pubDate>Sat, 24 Oct 2026 17:23:55 GMT</pubDate>
+    <description>Finger-prick HIV, oral HIV, syphilis, dual HIV &amp; syphilis, and gonorrhea &amp; chlamydia kits: what each detects, window periods, and what to do after your result.</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" type="image/jpeg" length="0" />
+  </item>
   <item>
     <title>Choosing a finger-prick kit with a safe sharps-disposal plan</title>
     <link>https://testd.website/en/info/article/safe-disposal-before-buying-kit</link>
@@ -398,14 +406,6 @@
     <pubDate>Sun, 11 Oct 2026 14:15:31 GMT</pubDate>
     <description>ข้อมูลกรมควบคุมโรคชี้ผู้ติดเชื้อ HIV รายใหม่ในไทยปี 2567 ราว 8,124 คน เกือบครึ่งเป็นเยาวชนอายุ 15–24 ปี มาดูว่าทำไมและป้องกันยังไง</description>
     <enclosure url="https://testd.website/__l5e/assets-v1/c37405c3-300f-4ebb-960c-a2824ae20aeb/cover-youth.jpg" type="image/jpeg" length="0" />
-  </item>
-  <item>
-    <title>Dating Someone with HIV: What to Know Before You Decide</title>
-    <link>https://testd.website/en/info/article/dating-someone-with-hiv</link>
-    <guid isPermaLink="true">https://testd.website/en/info/article/dating-someone-with-hiv</guid>
-    <pubDate>Sat, 10 Oct 2026 14:40:12 GMT</pubDate>
-    <description>คนที่เราสนใจบอกว่ามีเชื้อ HIV ควรทำยังไง? บทความนี้ตอบทั้งเรื่องความเสี่ยงจริง U=U PrEP และการสร้างความสัมพันธ์ที่ปลอดภัยและอบอุ่น</description>
-    <enclosure url="https://testd.website/__l5e/assets-v1/144b68a7-fb57-4e49-b10a-01dc1b7c0692/cover-mental-health.jpg" type="image/jpeg" length="0" />
   </item>
 </channel>
 </rss>

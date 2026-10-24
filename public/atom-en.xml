@@ -3,10 +3,19 @@
   <title>testD — Sexual health &amp; harm reduction articles</title>
   <subtitle>New articles from testD on HIV, PrEP, PEP, STIs and harm reduction.</subtitle>
   <id>https://testd.website/atom-en.xml</id>
-  <updated>2026-10-24T17:12:46.744Z</updated>
+  <updated>2026-10-24T17:23:55.207Z</updated>
   <link rel="self" type="application/atom+xml" href="https://testd.website/atom-en.xml" />
   <link rel="alternate" type="text/html" href="https://testd.website/en/info" />
   <author><name>testD</name></author>
+  <entry>
+    <title>HIV and STI Home Test Kits in Thailand: 5 Types and How to Choose</title>
+    <id>https://testd.website/en/info/article/hiv-sti-home-test-kits-guide-thailand</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hiv-sti-home-test-kits-guide-thailand" />
+    <published>2026-10-24T17:23:55.123Z</published>
+    <updated>2026-10-24T17:23:55.207Z</updated>
+    <summary type="text">Finger-prick HIV, oral HIV, syphilis, dual HIV &amp; syphilis, and gonorrhea &amp; chlamydia kits: what each detects, window periods, and what to do after your result.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
+  </entry>
   <entry>
     <title>Choosing a finger-prick kit with a safe sharps-disposal plan</title>
     <id>https://testd.website/en/info/article/safe-disposal-before-buying-kit</id>
@@ -300,7 +309,7 @@
     <id>https://testd.website/en/info/article/hiv-self-test-faint-line-what-to-do</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hiv-self-test-faint-line-what-to-do" />
     <published>2026-10-23T08:56:52.603Z</published>
-    <updated>2026-10-24T07:02:46.138Z</updated>
+    <updated>2026-10-24T17:22:26.683Z</updated>
     <summary type="text">Read a faint HIV self-test line using the specific kit instructions. Learn the difference between reactive, negative and invalid results, and when to seek confirmatory testing.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/058bf5a6-0181-45a9-9415-6898653a3a1d/pantip-hiv-faint-line.jpg" />
   </entry>
@@ -447,14 +456,5 @@
     <updated>2026-10-18T14:53:46.666Z</updated>
     <summary type="text">ข้อมูลกรมควบคุมโรคชี้ผู้ติดเชื้อ HIV รายใหม่ในไทยปี 2567 ราว 8,124 คน เกือบครึ่งเป็นเยาวชนอายุ 15–24 ปี มาดูว่าทำไมและป้องกันยังไง</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/c37405c3-300f-4ebb-960c-a2824ae20aeb/cover-youth.jpg" />
-  </entry>
-  <entry>
-    <title>Dating Someone with HIV: What to Know Before You Decide</title>
-    <id>https://testd.website/en/info/article/dating-someone-with-hiv</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/dating-someone-with-hiv" />
-    <published>2026-10-10T14:40:12.337Z</published>
-    <updated>2026-10-18T14:53:25.426Z</updated>
-    <summary type="text">คนที่เราสนใจบอกว่ามีเชื้อ HIV ควรทำยังไง? บทความนี้ตอบทั้งเรื่องความเสี่ยงจริง U=U PrEP และการสร้างความสัมพันธ์ที่ปลอดภัยและอบอุ่น</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/144b68a7-fb57-4e49-b10a-01dc1b7c0692/cover-mental-health.jpg" />
   </entry>
 </feed>
