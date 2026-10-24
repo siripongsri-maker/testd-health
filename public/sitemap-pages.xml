@@ -291,6 +291,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/self-care</loc>
+    <lastmod>2026-10-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/self-care" />
@@ -299,6 +300,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/self-care</loc>
+    <lastmod>2026-10-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
     <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/self-care" />
