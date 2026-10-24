@@ -20,6 +20,7 @@ import { alternateLanguagePathsFor, type Locale } from "@/lib/seoLocalePrefix";
 import { RelatedArticles } from "@/components/blog/RelatedArticles";
 import { ArticleSurveyCta } from "@/components/blog/ArticleSurveyCta";
 import { ArticleBookingCta } from "@/components/blog/ArticleBookingCta";
+import { ArticleKitShop } from "@/components/blog/ArticleKitShop";
 import { FloatingSurveyPrompt } from "@/components/blog/FloatingSurveyPrompt";
 import { useRelatedSurvey } from "@/hooks/useRelatedSurvey";
 import {
@@ -440,6 +441,8 @@ export default function InfoArticle() {
         </div>
 
         <ArticleBookingCta articleText={matchText} articleSlug={article.slug} />
+
+        <ArticleKitShop text={matchText} content={content} isThai={language === 'th'} />
 
         {/* YouTube Video */}
         {article.video_url && extractYouTubeVideoId(article.video_url) && (
