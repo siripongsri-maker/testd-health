@@ -5,7 +5,7 @@
   <link>https://testd.website/en/info</link>
   <description>New articles from testD on HIV, PrEP, PEP, STIs and harm reduction.</description>
   <language>en</language>
-  <lastBuildDate>Fri, 23 Oct 2026 08:58:57 GMT</lastBuildDate>
+  <lastBuildDate>Sat, 24 Oct 2026 14:00:49 GMT</lastBuildDate>
   <atom:link href="https://testd.website/feed-en.xml" rel="self" type="application/rss+xml" />
   <item>
     <title>Where can I get free PrEP in Thailand? Check eligibility and book with SWING</title>
@@ -16,20 +16,20 @@
     <enclosure url="https://testd.website/__l5e/assets-v1/5a16312d-54dd-4bf0-ac6b-e4ceb02e0f29/pantip-free-prep.jpg" type="image/jpeg" length="0" />
   </item>
   <item>
-    <title>Faint line on an HIV self-test: what it means and what to do next</title>
-    <link>https://testd.website/en/info/article/hiv-self-test-faint-line-what-to-do</link>
-    <guid isPermaLink="true">https://testd.website/en/info/article/hiv-self-test-faint-line-what-to-do</guid>
-    <pubDate>Fri, 23 Oct 2026 08:56:52 GMT</pubDate>
-    <description>Read a faint HIV self-test line using the specific kit instructions. Learn the difference between reactive, negative and invalid results, and when to seek confirmatory testing.</description>
-    <enclosure url="https://testd.website/__l5e/assets-v1/058bf5a6-0181-45a9-9415-6898653a3a1d/pantip-hiv-faint-line.jpg" type="image/jpeg" length="0" />
-  </item>
-  <item>
     <title>When is an HIV test reliable? Understanding 14, 30, 45 and 90 days</title>
     <link>https://testd.website/en/info/article/hiv-test-window-period-how-many-days</link>
     <guid isPermaLink="true">https://testd.website/en/info/article/hiv-test-window-period-how-many-days</guid>
     <pubDate>Fri, 23 Oct 2026 08:56:52 GMT</pubDate>
     <description>HIV testing windows depend on the test: compare antibody tests, laboratory antigen/antibody tests and NAT, and learn when negative results need repeat testing.</description>
     <enclosure url="https://testd.website/__l5e/assets-v1/157d4d2b-3610-4791-816a-04b8ab14ce3e/pantip-hiv-window-period.jpg" type="image/jpeg" length="0" />
+  </item>
+  <item>
+    <title>Faint line on an HIV self-test: what it means and what to do next</title>
+    <link>https://testd.website/en/info/article/hiv-self-test-faint-line-what-to-do</link>
+    <guid isPermaLink="true">https://testd.website/en/info/article/hiv-self-test-faint-line-what-to-do</guid>
+    <pubDate>Fri, 23 Oct 2026 08:56:52 GMT</pubDate>
+    <description>Read a faint HIV self-test line using the specific kit instructions. Learn the difference between reactive, negative and invalid results, and when to seek confirmatory testing.</description>
+    <enclosure url="https://testd.website/__l5e/assets-v1/058bf5a6-0181-45a9-9415-6898653a3a1d/pantip-hiv-faint-line.jpg" type="image/jpeg" length="0" />
   </item>
   <item>
     <title>How Do You Know What&apos;s Actually in Your Drugs? Drug Checking Explained</title>
@@ -360,20 +360,6 @@
     <enclosure url="https://testd.website/__l5e/assets-v1/ff170ee0-15d2-46f9-9234-a72d62e67ffc/cover-prep.jpg" type="image/jpeg" length="0" />
   </item>
   <item>
-    <title>From 222 to 2,819 Kits a Month: The HIV Self-Test Pathway for People Who Use Drugs</title>
-    <link>https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</link>
-    <guid isPermaLink="true">https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</guid>
-    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
-    <description>Analysis of 15,077 HIV self-test kit requests from Oct 2025 to Aug 2026 and what they reveal about testing behaviour.</description>
-  </item>
-  <item>
-    <title>42 Substance Interaction Pairs: Which Combinations Can Kill</title>
-    <link>https://testd.website/en/info/article/42-critical-substance-interactions-chemsex</link>
-    <guid isPermaLink="true">https://testd.website/en/info/article/42-critical-substance-interactions-chemsex</guid>
-    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
-    <description>A breakdown of 42 documented substance interaction pairs — 11 critical, 19 high, 12 moderate — across 18 substances.</description>
-  </item>
-  <item>
     <title>Chemsex Safety Playbook: Thailand 2026 Data Edition</title>
     <link>https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026</link>
     <guid isPermaLink="true">https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026</guid>
@@ -388,11 +374,11 @@
     <description>GHB forms critical interactions with alcohol and benzodiazepines. Spacing tables, danger signs and step-by-step response.</description>
   </item>
   <item>
-    <title>Methamphetamine Harm Reduction: Thai Service Behaviour Data 2025–2026</title>
-    <link>https://testd.website/en/info/article/meth-harm-reduction-thailand-behaviour-2026</link>
-    <guid isPermaLink="true">https://testd.website/en/info/article/meth-harm-reduction-thailand-behaviour-2026</guid>
+    <title>From 222 to 2,819 Kits a Month: The HIV Self-Test Pathway for People Who Use Drugs</title>
+    <link>https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</link>
+    <guid isPermaLink="true">https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</guid>
     <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
-    <description>Meth use patterns, slamming and polydrug mixing in Thai service data, with population-specific harm reduction guidance.</description>
+    <description>Analysis of 15,077 HIV self-test kit requests from Oct 2025 to Aug 2026 and what they reveal about testing behaviour.</description>
   </item>
   <item>
     <title>71.7% at High Risk: What PHQ-4, ASSIST and C-SSRS Screening Tells Us About Chemsex</title>
@@ -400,6 +386,20 @@
     <guid isPermaLink="true">https://testd.website/en/info/article/phq4-assist-cssrs-chemsex-screening-data</guid>
     <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
     <description>53 completed screenings between Mar 12 and Aug 8, 2026: monthly trends and what they mean for mental health care.</description>
+  </item>
+  <item>
+    <title>Methamphetamine Harm Reduction: Thai Service Behaviour Data 2025–2026</title>
+    <link>https://testd.website/en/info/article/meth-harm-reduction-thailand-behaviour-2026</link>
+    <guid isPermaLink="true">https://testd.website/en/info/article/meth-harm-reduction-thailand-behaviour-2026</guid>
+    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
+    <description>Meth use patterns, slamming and polydrug mixing in Thai service data, with population-specific harm reduction guidance.</description>
+  </item>
+  <item>
+    <title>42 Substance Interaction Pairs: Which Combinations Can Kill</title>
+    <link>https://testd.website/en/info/article/42-critical-substance-interactions-chemsex</link>
+    <guid isPermaLink="true">https://testd.website/en/info/article/42-critical-substance-interactions-chemsex</guid>
+    <pubDate>Sun, 09 Aug 2026 08:58:43 GMT</pubDate>
+    <description>A breakdown of 42 documented substance interaction pairs — 11 critical, 19 high, 12 moderate — across 18 substances.</description>
   </item>
 </channel>
 </rss>

@@ -3,7 +3,7 @@
   <title>testD — บทความสุขภาพทางเพศและลดอันตราย</title>
   <subtitle>อัปเดตบทความใหม่จาก testD เรื่อง HIV, PrEP, PEP, โรคติดต่อทางเพศสัมพันธ์ และการลดอันตรายจากการใช้สาร</subtitle>
   <id>https://testd.website/atom.xml</id>
-  <updated>2026-10-23T08:58:57.978Z</updated>
+  <updated>2026-10-24T14:00:49.566Z</updated>
   <link rel="self" type="application/atom+xml" href="https://testd.website/atom.xml" />
   <link rel="alternate" type="text/html" href="https://testd.website/th/info" />
   <author><name>testD</name></author>
@@ -12,27 +12,27 @@
     <id>https://testd.website/th/info/article/free-prep-thailand-swing-eligibility</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/free-prep-thailand-swing-eligibility" />
     <published>2026-10-23T08:56:52.603Z</published>
-    <updated>2026-10-23T08:58:57.978Z</updated>
+    <updated>2026-10-24T14:00:49.566Z</updated>
     <summary type="text">อยากเริ่ม PrEP แต่ไม่แน่ใจเรื่องค่าใช้จ่าย เช็กสิทธิ์กับหน่วยบริการ เตรียมข้อมูลที่จำเป็น และนัดปรึกษา SWING ผ่าน testD โดยไม่รับประกันว่าทุกคนทุกสาขาฟรี</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/5a16312d-54dd-4bf0-ac6b-e4ceb02e0f29/pantip-free-prep.jpg" />
-  </entry>
-  <entry>
-    <title>ชุดตรวจ HIV ขึ้นขีดจาง ๆ หมายความว่าอะไร? อ่านผลอย่างไรและควรทำอะไรต่อ</title>
-    <id>https://testd.website/th/info/article/hiv-self-test-faint-line-what-to-do</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hiv-self-test-faint-line-what-to-do" />
-    <published>2026-10-23T08:56:52.603Z</published>
-    <updated>2026-10-23T08:58:53.275Z</updated>
-    <summary type="text">ขีดจางไม่ใช่คำวินิจฉัย HIV อ่านผลตามคู่มือและเวลาของชุดตรวจ แยกผลมีปฏิกิริยา ผลลบ และผลใช้ไม่ได้ พร้อมขั้นตอนตรวจยืนยันที่คลินิก</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/058bf5a6-0181-45a9-9415-6898653a3a1d/pantip-hiv-faint-line.jpg" />
   </entry>
   <entry>
     <title>ตรวจ HIV กี่วันถึงชัวร์? 14, 30, 45 หรือ 90 วัน ต้องดูชนิดการตรวจ</title>
     <id>https://testd.website/th/info/article/hiv-test-window-period-how-many-days</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hiv-test-window-period-how-many-days" />
     <published>2026-10-23T08:56:52.603Z</published>
-    <updated>2026-10-23T08:58:55.767Z</updated>
+    <updated>2026-10-24T14:01:21.353Z</updated>
     <summary type="text">ตรวจ HIV ไม่ได้มีจำนวนวันเดียวสำหรับทุกวิธี เปรียบเทียบการตรวจแอนติบอดี เลือดจากหลอดเลือดรุ่นที่ 4 และ NAT พร้อมข้อจำกัดของผลลบและแผนตรวจซ้ำ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/157d4d2b-3610-4791-816a-04b8ab14ce3e/pantip-hiv-window-period.jpg" />
+  </entry>
+  <entry>
+    <title>ชุดตรวจ HIV ขึ้นขีดจาง ๆ หมายความว่าอะไร? อ่านผลอย่างไรและควรทำอะไรต่อ</title>
+    <id>https://testd.website/th/info/article/hiv-self-test-faint-line-what-to-do</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hiv-self-test-faint-line-what-to-do" />
+    <published>2026-10-23T08:56:52.603Z</published>
+    <updated>2026-10-24T07:02:46.138Z</updated>
+    <summary type="text">ขีดจางไม่ใช่คำวินิจฉัย HIV อ่านผลตามคู่มือและเวลาของชุดตรวจ แยกผลมีปฏิกิริยา ผลลบ และผลใช้ไม่ได้ พร้อมขั้นตอนตรวจยืนยันที่คลินิก</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/058bf5a6-0181-45a9-9415-6898653a3a1d/pantip-hiv-faint-line.jpg" />
   </entry>
   <entry>
     <title>จะรู้ได้ยังไงว่าสารที่ได้มาคืออะไร? เรื่องการตรวจสารและความเสี่ยงยาปลอม</title>
@@ -84,7 +84,7 @@
     <id>https://testd.website/th/info/article/thailand-hiv-statistics-2025</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/thailand-hiv-statistics-2025" />
     <published>2026-10-13T14:25:27.594Z</published>
-    <updated>2026-10-18T14:53:30.688Z</updated>
+    <updated>2026-10-23T14:13:56.981Z</updated>
     <summary type="text">สรุปตัวเลข HIV ไทยล่าสุดจากกรมควบคุมโรค ผู้ติดเชื้อรายใหม่ 8,124 คนต่อปี วัย 15–24 ปี 3,958 คน และเป้าหมายจบเอดส์ปี 2573</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/db83b5dc-186f-4237-b68a-545e7be392df/cover-news-stats.jpg" />
   </entry>
@@ -165,7 +165,7 @@
     <id>https://testd.website/th/info/article/prep-cost-thailand-2026</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/prep-cost-thailand-2026" />
     <published>2026-10-11T14:21:59.022Z</published>
-    <updated>2026-10-23T06:43:07.738Z</updated>
+    <updated>2026-10-23T14:13:05.974Z</updated>
     <summary type="text">เปรียบเทียบช่องทางรับ PrEP ในไทย ทั้งฟรีตามสิทธิ สปสช. คลินิกชุมชน และคลินิกเอกชน พร้อมค่าใช้จ่ายแฝงที่ควรรู้ก่อนตัดสินใจ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/ff170ee0-15d2-46f9-9234-a72d62e67ffc/cover-prep.jpg" />
   </entry>
@@ -201,7 +201,7 @@
     <id>https://testd.website/th/info/article/pep-vs-prep-difference</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/pep-vs-prep-difference" />
     <published>2026-10-10T14:21:59.022Z</published>
-    <updated>2026-10-23T08:05:33.023Z</updated>
+    <updated>2026-10-24T07:04:10.813Z</updated>
     <summary type="text">PrEP กินก่อนเสี่ยง PEP กินหลังเสี่ยง มาดูความแตกต่างแบบตารางเข้าใจง่าย ว่าแต่ละแบบเหมาะกับใคร ใช้นานแค่ไหน และจะเปลี่ยนจากแบบหนึ่งไปอีกแบบได้ยังไง</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/8f9f779c-9a55-437c-85f0-9257872e4f6e/cover-pep.jpg" />
   </entry>
@@ -237,7 +237,7 @@
     <id>https://testd.website/th/info/article/can-you-buy-pep-yourself</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/can-you-buy-pep-yourself" />
     <published>2026-10-09T14:21:59.022Z</published>
-    <updated>2026-10-18T14:53:44.844Z</updated>
+    <updated>2026-10-24T15:13:42.081Z</updated>
     <summary type="text">PEP คือยาต้านไวรัสฉุกเฉินที่ต้องเริ่มภายใน 72 ชั่วโมงหลังเสี่ยง ซื้อเองได้ไหม ไปรับที่ไหน ต้องตรวจอะไร สรุปให้ในที่เดียว</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/8f9f779c-9a55-437c-85f0-9257872e4f6e/cover-pep.jpg" />
   </entry>
@@ -404,22 +404,6 @@
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/ff170ee0-15d2-46f9-9234-a72d62e67ffc/cover-prep.jpg" />
   </entry>
   <entry>
-    <title>จาก 222 เป็น 2,819 ชุดต่อเดือน: เส้นทางชุดตรวจ HIV ด้วยตนเองกับกลุ่มใช้สาร</title>
-    <id>https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">วิเคราะห์คำขอชุดตรวจ 15,077 รายการ ตั้งแต่ ต.ค. 2568 ถึง ส.ค. 2569 เห็นพฤติกรรมการตรวจของกลุ่มใช้สารและช่วงเวลาที่ควรสื่อสาร</summary>
-  </entry>
-  <entry>
-    <title>42 คู่ปฏิกิริยาระหว่างสาร: คู่ไหนเสี่ยงตาย คู่ไหนพอจัดการได้</title>
-    <id>https://testd.website/th/info/article/42-critical-substance-interactions-chemsex</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/42-critical-substance-interactions-chemsex" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-10-17T11:01:09.387Z</updated>
-    <summary type="text">ฐานข้อมูลคู่ปฏิกิริยาระหว่างสาร 42 คู่ (วิกฤต 11 / สูง 19 / ปานกลาง 12) จากสาร 18 ชนิด พร้อมวิธีอ่านผลและใช้จริงในคืนที่มีการใช้สาร</summary>
-  </entry>
-  <entry>
     <title>คู่มือความปลอดภัยเรื่องเชมเซ็กซ์ (Chemsex Safety Playbook) ฉบับข้อมูลจริงปี 2569</title>
     <id>https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/chemsex-safety-playbook-thailand-2026" />
@@ -436,12 +420,12 @@
     <summary type="text">GHB เป็นคู่ปฏิกิริยาระดับวิกฤตกับแอลกอฮอล์และยานอนหลับ บทความนี้ให้ตารางเวลาเว้นช่วง สัญญาณอันตราย และขั้นตอนช่วยชีวิตทีละขั้น</summary>
   </entry>
   <entry>
-    <title>ไอซ์กับการลดอันตราย: ข้อมูลพฤติกรรมผู้ใช้บริการไทย ปี 2568–2569</title>
-    <id>https://testd.website/th/info/article/meth-harm-reduction-thailand-behaviour-2026</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/meth-harm-reduction-thailand-behaviour-2026" />
+    <title>จาก 222 เป็น 2,819 ชุดต่อเดือน: เส้นทางชุดตรวจ HIV ด้วยตนเองกับกลุ่มใช้สาร</title>
+    <id>https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hivst-chemsex-pathway-15000-kits" />
     <published>2026-08-09T08:58:43.832Z</published>
     <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">เจาะข้อมูลรูปแบบการใช้เมทแอมเฟตามีน การฉีด (slam) และการผสมสาร พร้อมแนวทางลดอันตรายรายกลุ่ม อ้างอิงข้อมูลบริการ 11 เดือน</summary>
+    <summary type="text">วิเคราะห์คำขอชุดตรวจ 15,077 รายการ ตั้งแต่ ต.ค. 2568 ถึง ส.ค. 2569 เห็นพฤติกรรมการตรวจของกลุ่มใช้สารและช่วงเวลาที่ควรสื่อสาร</summary>
   </entry>
   <entry>
     <title>71.7% อยู่ในกลุ่มเสี่ยงสูง: สิ่งที่แบบประเมิน PHQ-4 / ASSIST / C-SSRS บอกเราเรื่องเชมเซ็กซ์</title>
@@ -450,5 +434,21 @@
     <published>2026-08-09T08:58:43.832Z</published>
     <updated>2026-10-16T18:36:17.072Z</updated>
     <summary type="text">ผลแบบประเมินความเสี่ยง 53 ชุด ระหว่าง 12 มี.ค. – 8 ส.ค. 2569 พร้อมแนวโน้มรายเดือนและความหมายต่อการดูแลสุขภาพจิตของผู้ใช้สาร</summary>
+  </entry>
+  <entry>
+    <title>ไอซ์กับการลดอันตราย: ข้อมูลพฤติกรรมผู้ใช้บริการไทย ปี 2568–2569</title>
+    <id>https://testd.website/th/info/article/meth-harm-reduction-thailand-behaviour-2026</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/meth-harm-reduction-thailand-behaviour-2026" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-10-16T18:36:17.072Z</updated>
+    <summary type="text">เจาะข้อมูลรูปแบบการใช้เมทแอมเฟตามีน การฉีด (slam) และการผสมสาร พร้อมแนวทางลดอันตรายรายกลุ่ม อ้างอิงข้อมูลบริการ 11 เดือน</summary>
+  </entry>
+  <entry>
+    <title>42 คู่ปฏิกิริยาระหว่างสาร: คู่ไหนเสี่ยงตาย คู่ไหนพอจัดการได้</title>
+    <id>https://testd.website/th/info/article/42-critical-substance-interactions-chemsex</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/42-critical-substance-interactions-chemsex" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-10-17T11:01:09.387Z</updated>
+    <summary type="text">ฐานข้อมูลคู่ปฏิกิริยาระหว่างสาร 42 คู่ (วิกฤต 11 / สูง 19 / ปานกลาง 12) จากสาร 18 ชนิด พร้อมวิธีอ่านผลและใช้จริงในคืนที่มีการใช้สาร</summary>
   </entry>
 </feed>
