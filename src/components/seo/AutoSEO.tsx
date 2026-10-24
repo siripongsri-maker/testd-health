@@ -63,7 +63,7 @@ export function AutoSEO() {
     // Canonical — prefer locale-prefixed canonical for SEO routes.
     const baseCanonical = seo.canonicalPath || stripped;
     const canonical = isSeoPath(baseCanonical)
-      ? canonicalPathFor(baseCanonical)
+      ? canonicalPathFor(baseCanonical, isEn ? "en" : "th")
       : baseCanonical;
 
     if (canonical) {

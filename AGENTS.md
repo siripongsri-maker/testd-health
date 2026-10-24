@@ -6,3 +6,4 @@
 - AdSense loads only on routes allowed by `src/lib/adsensePolicy.ts` via `AdSenseRouteGate`, never as a global script — Google policy bans ads on form/account/admin screens and drug-use content.
 - The public security/privacy page uses localized public routing and links to policy, consent history, and support; describe safeguards with limitations, not security certifications or live scan results, to avoid misleading assurance.
 - Self-care shopping uses the shared product catalog and SelfCareShop view, separate from free-kit access; external referral links carry sponsored/noopener/noreferrer and generated art is disclosed to avoid misleading product representations.
+- Self-care is a public locale-prefixed page with reciprocal language links; automatic SEO canonicals follow the rendered locale so English pages are not attributed to Thai.

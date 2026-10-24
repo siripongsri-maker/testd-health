@@ -12,7 +12,8 @@ import { SelfCareShop } from "@/components/SelfCareShop";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { withLocalePrefix } from "@/lib/seoLocalePrefix";
 
 export default function SelfCare() {
   const { t, language } = useLanguage();
@@ -86,12 +87,16 @@ export default function SelfCare() {
     <>
       <PageContainer>
         <PageHeader title={t('selfCare.title')} subtitle={t('selfCare.subtitle')} />
+        <nav aria-label="Language" className="mb-4 flex justify-end gap-2">
+          <Button asChild variant="ghost" size="sm"><Link to="/th/self-care" hrefLang="th" lang="th">ไทย</Link></Button>
+          <Button asChild variant="ghost" size="sm"><Link to="/en/self-care" hrefLang="en" lang="en">English</Link></Button>
+        </nav>
 
         {/* HIV Self-Test Kit Banner */}
          <Button
           variant="ghost"
           className="h-auto sm:h-auto w-full whitespace-normal p-5 mb-6 text-left glass glass-shine hover:shadow-soft transition-all duration-200 rounded-2xl"
-          onClick={() => navigate('/hiv-selftest')}
+          onClick={() => navigate(withLocalePrefix('/hiv-selftest', language === 'en' ? 'en' : 'th'))}
         >
           <div className="flex items-center gap-4">
             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/20">
