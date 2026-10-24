@@ -3,7 +3,7 @@
   <title>testD — Sexual health &amp; harm reduction articles</title>
   <subtitle>New articles from testD on HIV, PrEP, PEP, STIs and harm reduction.</subtitle>
   <id>https://testd.website/atom-en.xml</id>
-  <updated>2026-10-23T08:58:57.978Z</updated>
+  <updated>2026-10-24T14:00:49.566Z</updated>
   <link rel="self" type="application/atom+xml" href="https://testd.website/atom-en.xml" />
   <link rel="alternate" type="text/html" href="https://testd.website/en/info" />
   <author><name>testD</name></author>
@@ -12,27 +12,27 @@
     <id>https://testd.website/en/info/article/free-prep-thailand-swing-eligibility</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/free-prep-thailand-swing-eligibility" />
     <published>2026-10-23T08:56:52.603Z</published>
-    <updated>2026-10-23T08:58:57.978Z</updated>
+    <updated>2026-10-24T14:00:49.566Z</updated>
     <summary type="text">Find out how to check PrEP eligibility and costs, prepare for a consultation, and book SWING through testD without assuming every visit is free for everyone.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/5a16312d-54dd-4bf0-ac6b-e4ceb02e0f29/pantip-free-prep.jpg" />
-  </entry>
-  <entry>
-    <title>Faint line on an HIV self-test: what it means and what to do next</title>
-    <id>https://testd.website/en/info/article/hiv-self-test-faint-line-what-to-do</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hiv-self-test-faint-line-what-to-do" />
-    <published>2026-10-23T08:56:52.603Z</published>
-    <updated>2026-10-23T08:58:53.275Z</updated>
-    <summary type="text">Read a faint HIV self-test line using the specific kit instructions. Learn the difference between reactive, negative and invalid results, and when to seek confirmatory testing.</summary>
-    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/058bf5a6-0181-45a9-9415-6898653a3a1d/pantip-hiv-faint-line.jpg" />
   </entry>
   <entry>
     <title>When is an HIV test reliable? Understanding 14, 30, 45 and 90 days</title>
     <id>https://testd.website/en/info/article/hiv-test-window-period-how-many-days</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hiv-test-window-period-how-many-days" />
     <published>2026-10-23T08:56:52.603Z</published>
-    <updated>2026-10-23T08:58:55.767Z</updated>
+    <updated>2026-10-24T14:01:21.353Z</updated>
     <summary type="text">HIV testing windows depend on the test: compare antibody tests, laboratory antigen/antibody tests and NAT, and learn when negative results need repeat testing.</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/157d4d2b-3610-4791-816a-04b8ab14ce3e/pantip-hiv-window-period.jpg" />
+  </entry>
+  <entry>
+    <title>Faint line on an HIV self-test: what it means and what to do next</title>
+    <id>https://testd.website/en/info/article/hiv-self-test-faint-line-what-to-do</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hiv-self-test-faint-line-what-to-do" />
+    <published>2026-10-23T08:56:52.603Z</published>
+    <updated>2026-10-24T07:02:46.138Z</updated>
+    <summary type="text">Read a faint HIV self-test line using the specific kit instructions. Learn the difference between reactive, negative and invalid results, and when to seek confirmatory testing.</summary>
+    <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/058bf5a6-0181-45a9-9415-6898653a3a1d/pantip-hiv-faint-line.jpg" />
   </entry>
   <entry>
     <title>How Do You Know What&apos;s Actually in Your Drugs? Drug Checking Explained</title>
@@ -84,7 +84,7 @@
     <id>https://testd.website/en/info/article/thailand-hiv-statistics-2025</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/thailand-hiv-statistics-2025" />
     <published>2026-10-13T14:25:27.594Z</published>
-    <updated>2026-10-18T14:53:30.688Z</updated>
+    <updated>2026-10-23T14:13:56.981Z</updated>
     <summary type="text">สรุปตัวเลข HIV ไทยล่าสุดจากกรมควบคุมโรค ผู้ติดเชื้อรายใหม่ 8,124 คนต่อปี วัย 15–24 ปี 3,958 คน และเป้าหมายจบเอดส์ปี 2573</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/db83b5dc-186f-4237-b68a-545e7be392df/cover-news-stats.jpg" />
   </entry>
@@ -165,7 +165,7 @@
     <id>https://testd.website/en/info/article/prep-cost-thailand-2026</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/prep-cost-thailand-2026" />
     <published>2026-10-11T14:21:59.022Z</published>
-    <updated>2026-10-23T06:43:07.738Z</updated>
+    <updated>2026-10-23T14:13:05.974Z</updated>
     <summary type="text">เปรียบเทียบช่องทางรับ PrEP ในไทย ทั้งฟรีตามสิทธิ สปสช. คลินิกชุมชน และคลินิกเอกชน พร้อมค่าใช้จ่ายแฝงที่ควรรู้ก่อนตัดสินใจ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/ff170ee0-15d2-46f9-9234-a72d62e67ffc/cover-prep.jpg" />
   </entry>
@@ -201,7 +201,7 @@
     <id>https://testd.website/en/info/article/pep-vs-prep-difference</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/pep-vs-prep-difference" />
     <published>2026-10-10T14:21:59.022Z</published>
-    <updated>2026-10-23T08:05:33.023Z</updated>
+    <updated>2026-10-24T07:04:10.813Z</updated>
     <summary type="text">PrEP กินก่อนเสี่ยง PEP กินหลังเสี่ยง มาดูความแตกต่างแบบตารางเข้าใจง่าย ว่าแต่ละแบบเหมาะกับใคร ใช้นานแค่ไหน และจะเปลี่ยนจากแบบหนึ่งไปอีกแบบได้ยังไง</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/8f9f779c-9a55-437c-85f0-9257872e4f6e/cover-pep.jpg" />
   </entry>
@@ -237,7 +237,7 @@
     <id>https://testd.website/en/info/article/can-you-buy-pep-yourself</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/can-you-buy-pep-yourself" />
     <published>2026-10-09T14:21:59.022Z</published>
-    <updated>2026-10-18T14:53:44.844Z</updated>
+    <updated>2026-10-24T15:13:42.081Z</updated>
     <summary type="text">PEP คือยาต้านไวรัสฉุกเฉินที่ต้องเริ่มภายใน 72 ชั่วโมงหลังเสี่ยง ซื้อเองได้ไหม ไปรับที่ไหน ต้องตรวจอะไร สรุปให้ในที่เดียว</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/8f9f779c-9a55-437c-85f0-9257872e4f6e/cover-pep.jpg" />
   </entry>
@@ -404,22 +404,6 @@
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/ff170ee0-15d2-46f9-9234-a72d62e67ffc/cover-prep.jpg" />
   </entry>
   <entry>
-    <title>From 222 to 2,819 Kits a Month: The HIV Self-Test Pathway for People Who Use Drugs</title>
-    <id>https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">Analysis of 15,077 HIV self-test kit requests from Oct 2025 to Aug 2026 and what they reveal about testing behaviour.</summary>
-  </entry>
-  <entry>
-    <title>42 Substance Interaction Pairs: Which Combinations Can Kill</title>
-    <id>https://testd.website/en/info/article/42-critical-substance-interactions-chemsex</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/42-critical-substance-interactions-chemsex" />
-    <published>2026-08-09T08:58:43.832Z</published>
-    <updated>2026-10-17T11:01:09.387Z</updated>
-    <summary type="text">A breakdown of 42 documented substance interaction pairs — 11 critical, 19 high, 12 moderate — across 18 substances.</summary>
-  </entry>
-  <entry>
     <title>Chemsex Safety Playbook: Thailand 2026 Data Edition</title>
     <id>https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026</id>
     <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/chemsex-safety-playbook-thailand-2026" />
@@ -436,12 +420,12 @@
     <summary type="text">GHB forms critical interactions with alcohol and benzodiazepines. Spacing tables, danger signs and step-by-step response.</summary>
   </entry>
   <entry>
-    <title>Methamphetamine Harm Reduction: Thai Service Behaviour Data 2025–2026</title>
-    <id>https://testd.website/en/info/article/meth-harm-reduction-thailand-behaviour-2026</id>
-    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/meth-harm-reduction-thailand-behaviour-2026" />
+    <title>From 222 to 2,819 Kits a Month: The HIV Self-Test Pathway for People Who Use Drugs</title>
+    <id>https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/hivst-chemsex-pathway-15000-kits" />
     <published>2026-08-09T08:58:43.832Z</published>
     <updated>2026-10-16T18:36:17.072Z</updated>
-    <summary type="text">Meth use patterns, slamming and polydrug mixing in Thai service data, with population-specific harm reduction guidance.</summary>
+    <summary type="text">Analysis of 15,077 HIV self-test kit requests from Oct 2025 to Aug 2026 and what they reveal about testing behaviour.</summary>
   </entry>
   <entry>
     <title>71.7% at High Risk: What PHQ-4, ASSIST and C-SSRS Screening Tells Us About Chemsex</title>
@@ -450,5 +434,21 @@
     <published>2026-08-09T08:58:43.832Z</published>
     <updated>2026-10-16T18:36:17.072Z</updated>
     <summary type="text">53 completed screenings between Mar 12 and Aug 8, 2026: monthly trends and what they mean for mental health care.</summary>
+  </entry>
+  <entry>
+    <title>Methamphetamine Harm Reduction: Thai Service Behaviour Data 2025–2026</title>
+    <id>https://testd.website/en/info/article/meth-harm-reduction-thailand-behaviour-2026</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/meth-harm-reduction-thailand-behaviour-2026" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-10-16T18:36:17.072Z</updated>
+    <summary type="text">Meth use patterns, slamming and polydrug mixing in Thai service data, with population-specific harm reduction guidance.</summary>
+  </entry>
+  <entry>
+    <title>42 Substance Interaction Pairs: Which Combinations Can Kill</title>
+    <id>https://testd.website/en/info/article/42-critical-substance-interactions-chemsex</id>
+    <link rel="alternate" type="text/html" href="https://testd.website/en/info/article/42-critical-substance-interactions-chemsex" />
+    <published>2026-08-09T08:58:43.832Z</published>
+    <updated>2026-10-17T11:01:09.387Z</updated>
+    <summary type="text">A breakdown of 42 documented substance interaction pairs — 11 critical, 19 high, 12 moderate — across 18 substances.</summary>
   </entry>
 </feed>

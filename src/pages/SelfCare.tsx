@@ -7,61 +7,12 @@ import { useLanguage } from "@/lib/i18n";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { TestTube, Heart, Shield, ExternalLink, Bell, Package, ArrowRight, Sparkles } from "lucide-react";
+import { TestTube, Bell, ArrowRight } from "lucide-react";
+import { SelfCareShop } from "@/components/SelfCareShop";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-
-// Fallback images
-import loveKitImg from "@/assets/love-kit.jpg";
-import selfKitImg from "@/assets/self-kit.jpg";
-import safeKitImg from "@/assets/safe-kit.jpg";
-import hivSelftestKitImg from "@/assets/hiv-selftest-kit.jpg";
-
-interface SelfCareItem {
-  id: string;
-  icon: React.ElementType;
-  fallbackImage: string;
-  titleEn: string;
-  titleTh: string;
-  descEn: string;
-  descTh: string;
-  link: string;
-}
-
-const SELF_CARE_ITEMS: SelfCareItem[] = [
-  {
-    id: 'condoms',
-    icon: Heart,
-    fallbackImage: loveKitImg,
-    titleEn: 'Love Kit - Condoms',
-    titleTh: 'Love Kit - ถุงยางอนามัย',
-    descEn: 'Essential protection, discreet delivery',
-    descTh: 'ป้องกันพื้นฐาน จัดส่งอย่างลับ',
-    link: 'https://shopee.co.th/swingthailand/48800599211',
-  },
-  {
-    id: 'hiv-test',
-    icon: TestTube,
-    fallbackImage: hivSelftestKitImg,
-    titleEn: 'Self Kit - HIV Self-Test',
-    titleTh: 'Self Kit - ชุดตรวจ HIV ด้วยตัวเอง',
-    descEn: 'Quick, private, and accurate home testing',
-    descTh: 'ตรวจที่บ้านได้ รวดเร็วและแม่นยำ',
-    link: 'https://shopee.co.th/swingthailand/43777530134',
-  },
-  {
-    id: 'harm-reduction',
-    icon: Shield,
-    fallbackImage: safeKitImg,
-    titleEn: 'Safe Kit - Harm Reduction Set',
-    titleTh: 'Safe Kit - ชุดลดอันตราย',
-    descEn: 'Lubricants and safer use supplies',
-    descTh: 'เจลหล่อลื่นและอุปกรณ์ปลอดภัย',
-    link: 'https://shopee.co.th/swingthailand/55553565341',
-  },
-];
 
 export default function SelfCare() {
   const { t, language } = useLanguage();
@@ -131,18 +82,15 @@ export default function SelfCare() {
     }
   };
 
-  const openLink = (link: string) => {
-    window.open(link, '_blank', 'noopener,noreferrer');
-  };
-
   return (
     <>
       <PageContainer>
         <PageHeader title={t('selfCare.title')} subtitle={t('selfCare.subtitle')} />
 
         {/* HIV Self-Test Kit Banner */}
-         <Card 
-          className="p-5 mb-6 cursor-pointer glass glass-shine hover:shadow-soft transition-all duration-200 rounded-2xl"
+         <Button
+          variant="ghost"
+          className="h-auto sm:h-auto w-full whitespace-normal p-5 mb-6 text-left glass glass-shine hover:shadow-soft transition-all duration-200 rounded-2xl"
           onClick={() => navigate('/hiv-selftest')}
         >
           <div className="flex items-center gap-4">
@@ -159,56 +107,9 @@ export default function SelfCare() {
             </div>
             <ArrowRight className="h-5 w-5 text-primary shrink-0" />
           </div>
-        </Card>
+         </Button>
 
-        {/* Products Header */}
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-            <Sparkles className="h-4 w-4" />
-            {language === 'th' ? 'สินค้าแนะนำ' : 'Recommended Products'}
-          </h2>
-        </div>
-
-        {/* Product Cards */}
-        <div className="space-y-4 mb-8">
-          {SELF_CARE_ITEMS.map((item, index) => (
-             <Card 
-              key={item.id} 
-              className="overflow-hidden rounded-2xl glass hover:shadow-soft transition-all duration-200 animate-fade-in"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className="flex">
-                <div className="w-28 h-28 shrink-0 bg-muted/30 relative overflow-hidden">
-                  <img 
-                    src={item.fallbackImage} 
-                    alt={item.titleEn}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="flex-1 p-4 flex flex-col justify-between">
-                  <div>
-                    <h3 className="font-semibold text-foreground text-sm">
-                      {language === 'th' ? item.titleTh : item.titleEn}
-                    </h3>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {language === 'th' ? item.descTh : item.descEn}
-                    </p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => openLink(item.link)}
-                    className="gap-2 w-fit mt-3 rounded-lg text-xs h-8"
-                  >
-                    <Package className="h-3.5 w-3.5" />
-                    {t('selfCare.orderNow')}
-                    <ExternalLink className="h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+        <SelfCareShop language={language} />
 
         {/* Reminders */}
         <div>

@@ -3,7 +3,7 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://testd.website/th/info/article/free-prep-thailand-swing-eligibility</loc>
-    <lastmod>2026-10-23</lastmod>
+    <lastmod>2026-10-24</lastmod>
     <image:image>
       <image:loc>https://testd.website/__l5e/assets-v1/5a16312d-54dd-4bf0-ac6b-e4ceb02e0f29/pantip-free-prep.jpg</image:loc>
       <image:title>PrEP ฟรีที่ไหน? วิธีเช็กสิทธิ์และนัดปรึกษาที่ SWING ก่อนเริ่มยา</image:title>
@@ -12,7 +12,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/free-prep-thailand-swing-eligibility</loc>
-    <lastmod>2026-10-23</lastmod>
+    <lastmod>2026-10-24</lastmod>
     <image:image>
       <image:loc>https://testd.website/__l5e/assets-v1/5a16312d-54dd-4bf0-ac6b-e4ceb02e0f29/pantip-free-prep.jpg</image:loc>
       <image:title>Where can I get free PrEP in Thailand? Check eligibility and book with SWING</image:title>
@@ -20,26 +20,8 @@
     </image:image>
   </url>
   <url>
-    <loc>https://testd.website/th/info/article/hiv-self-test-faint-line-what-to-do</loc>
-    <lastmod>2026-10-23</lastmod>
-    <image:image>
-      <image:loc>https://testd.website/__l5e/assets-v1/058bf5a6-0181-45a9-9415-6898653a3a1d/pantip-hiv-faint-line.jpg</image:loc>
-      <image:title>ชุดตรวจ HIV ขึ้นขีดจาง ๆ หมายความว่าอะไร? อ่านผลอย่างไรและควรทำอะไรต่อ</image:title>
-      <image:caption>ขีดจางไม่ใช่คำวินิจฉัย HIV อ่านผลตามคู่มือและเวลาของชุดตรวจ แยกผลมีปฏิกิริยา ผลลบ และผลใช้ไม่ได้ พร้อมขั้นตอนตรวจยืนยันที่คลินิก</image:caption>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://testd.website/en/info/article/hiv-self-test-faint-line-what-to-do</loc>
-    <lastmod>2026-10-23</lastmod>
-    <image:image>
-      <image:loc>https://testd.website/__l5e/assets-v1/058bf5a6-0181-45a9-9415-6898653a3a1d/pantip-hiv-faint-line.jpg</image:loc>
-      <image:title>Faint line on an HIV self-test: what it means and what to do next</image:title>
-      <image:caption>Read a faint HIV self-test line using the specific kit instructions. Learn the difference between reactive, negative and invalid results, and when to seek confirmatory testing.</image:caption>
-    </image:image>
-  </url>
-  <url>
     <loc>https://testd.website/th/info/article/hiv-test-window-period-how-many-days</loc>
-    <lastmod>2026-10-23</lastmod>
+    <lastmod>2026-10-24</lastmod>
     <image:image>
       <image:loc>https://testd.website/__l5e/assets-v1/157d4d2b-3610-4791-816a-04b8ab14ce3e/pantip-hiv-window-period.jpg</image:loc>
       <image:title>ตรวจ HIV กี่วันถึงชัวร์? 14, 30, 45 หรือ 90 วัน ต้องดูชนิดการตรวจ</image:title>
@@ -48,11 +30,29 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/hiv-test-window-period-how-many-days</loc>
-    <lastmod>2026-10-23</lastmod>
+    <lastmod>2026-10-24</lastmod>
     <image:image>
       <image:loc>https://testd.website/__l5e/assets-v1/157d4d2b-3610-4791-816a-04b8ab14ce3e/pantip-hiv-window-period.jpg</image:loc>
       <image:title>When is an HIV test reliable? Understanding 14, 30, 45 and 90 days</image:title>
       <image:caption>HIV testing windows depend on the test: compare antibody tests, laboratory antigen/antibody tests and NAT, and learn when negative results need repeat testing.</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://testd.website/th/info/article/hiv-self-test-faint-line-what-to-do</loc>
+    <lastmod>2026-10-24</lastmod>
+    <image:image>
+      <image:loc>https://testd.website/__l5e/assets-v1/058bf5a6-0181-45a9-9415-6898653a3a1d/pantip-hiv-faint-line.jpg</image:loc>
+      <image:title>ชุดตรวจ HIV ขึ้นขีดจาง ๆ หมายความว่าอะไร? อ่านผลอย่างไรและควรทำอะไรต่อ</image:title>
+      <image:caption>ขีดจางไม่ใช่คำวินิจฉัย HIV อ่านผลตามคู่มือและเวลาของชุดตรวจ แยกผลมีปฏิกิริยา ผลลบ และผลใช้ไม่ได้ พร้อมขั้นตอนตรวจยืนยันที่คลินิก</image:caption>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://testd.website/en/info/article/hiv-self-test-faint-line-what-to-do</loc>
+    <lastmod>2026-10-24</lastmod>
+    <image:image>
+      <image:loc>https://testd.website/__l5e/assets-v1/058bf5a6-0181-45a9-9415-6898653a3a1d/pantip-hiv-faint-line.jpg</image:loc>
+      <image:title>Faint line on an HIV self-test: what it means and what to do next</image:title>
+      <image:caption>Read a faint HIV self-test line using the specific kit instructions. Learn the difference between reactive, negative and invalid results, and when to seek confirmatory testing.</image:caption>
     </image:image>
   </url>
   <url>
@@ -147,7 +147,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/thailand-hiv-statistics-2025</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <image:image>
       <image:loc>https://testd.website/__l5e/assets-v1/db83b5dc-186f-4237-b68a-545e7be392df/cover-news-stats.jpg</image:loc>
       <image:title>สถิติ HIV ไทยล่าสุด: ผู้ติดเชื้อรายใหม่ปีละ 8,000+ คน เกือบครึ่งเป็นวัยรุ่น</image:title>
@@ -156,7 +156,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/thailand-hiv-statistics-2025</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <image:image>
       <image:loc>https://testd.website/__l5e/assets-v1/db83b5dc-186f-4237-b68a-545e7be392df/cover-news-stats.jpg</image:loc>
       <image:title>Thailand&apos;s Latest HIV Statistics: Over 8,000 New Cases a Year</image:title>
@@ -381,7 +381,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/pep-vs-prep-difference</loc>
-    <lastmod>2026-10-23</lastmod>
+    <lastmod>2026-10-24</lastmod>
     <image:image>
       <image:loc>https://testd.website/__l5e/assets-v1/8f9f779c-9a55-437c-85f0-9257872e4f6e/cover-pep.jpg</image:loc>
       <image:title>PEP กับ PrEP ต่างกันยังไง? เลือกให้ถูก ใช้ให้ทัน</image:title>
@@ -390,7 +390,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/pep-vs-prep-difference</loc>
-    <lastmod>2026-10-23</lastmod>
+    <lastmod>2026-10-24</lastmod>
     <image:image>
       <image:loc>https://testd.website/__l5e/assets-v1/8f9f779c-9a55-437c-85f0-9257872e4f6e/cover-pep.jpg</image:loc>
       <image:title>PEP vs PrEP: What&apos;s the Difference and Which Do You Need?</image:title>
@@ -453,7 +453,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/can-you-buy-pep-yourself</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-24</lastmod>
     <image:image>
       <image:loc>https://testd.website/__l5e/assets-v1/8f9f779c-9a55-437c-85f0-9257872e4f6e/cover-pep.jpg</image:loc>
       <image:title>PEP ซื้อเองที่ร้านยาได้ไหม? เสี่ยงมาแล้วต้องรีบทำอะไร</image:title>
@@ -462,7 +462,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/can-you-buy-pep-yourself</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-24</lastmod>
     <image:image>
       <image:loc>https://testd.website/__l5e/assets-v1/8f9f779c-9a55-437c-85f0-9257872e4f6e/cover-pep.jpg</image:loc>
       <image:title>Can You Buy PEP at a Pharmacy? What to Do After Exposure</image:title>
@@ -849,7 +849,7 @@
   </url>
   <url>
     <loc>https://testd.website/th/info/article/pep-72-hours</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-24</lastmod>
     <image:image>
       <image:loc>https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-72-hours-1786043500000.png</image:loc>
       <image:title>PEP 72 ชั่วโมง: เริ่มช้าแล้วยังทันไหม?</image:title>
@@ -858,7 +858,7 @@
   </url>
   <url>
     <loc>https://testd.website/en/info/article/pep-72-hours</loc>
-    <lastmod>2026-10-18</lastmod>
+    <lastmod>2026-10-24</lastmod>
     <image:image>
       <image:loc>https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/seo/pep-72-hours-1786043500000.png</image:loc>
       <image:title>PEP Within 72 Hours: Is It Too Late to Start?</image:title>
@@ -1973,7 +1973,7 @@ But the real question is: was it PrEP failure or timing failure?</image:caption>
   </url>
   <url>
     <loc>https://testd.website/th/info/article/stis-101-what-you-should-know-about-sexually-trans-mknp4vme</loc>
-    <lastmod>2026-10-23</lastmod>
+    <lastmod>2026-10-24</lastmod>
     <image:image>
       <image:loc>https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/1768980157916.png</image:loc>
       <image:title>STIs 101: เรื่องพื้นฐานที่ควรรู้เกี่ยวกับโรคติดต่อทางเพศสัมพันธ์</image:title>
@@ -1982,7 +1982,7 @@ But the real question is: was it PrEP failure or timing failure?</image:caption>
   </url>
   <url>
     <loc>https://testd.website/en/info/article/stis-101-what-you-should-know-about-sexually-trans-mknp4vme</loc>
-    <lastmod>2026-10-23</lastmod>
+    <lastmod>2026-10-24</lastmod>
     <image:image>
       <image:loc>https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/1768980157916.png</image:loc>
       <image:title>STIs 101: What You Should Know About Sexually Transmitted Infections</image:title>
@@ -2009,7 +2009,7 @@ But the real question is: was it PrEP failure or timing failure?</image:caption>
   </url>
   <url>
     <loc>https://testd.website/th/info/article/prep-mknoygs9</loc>
-    <lastmod>2026-10-19</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <image:image>
       <image:loc>https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/1768979840344.jpeg</image:loc>
       <image:title>PrEP คืออะไร และทำไมถึงสำคัญกับเรา</image:title>
@@ -2018,7 +2018,7 @@ But the real question is: was it PrEP failure or timing failure?</image:caption>
   </url>
   <url>
     <loc>https://testd.website/en/info/article/prep-mknoygs9</loc>
-    <lastmod>2026-10-19</lastmod>
+    <lastmod>2026-10-23</lastmod>
     <image:image>
       <image:loc>https://tzerhfvlrssrashrcbeg.supabase.co/storage/v1/object/public/blog-images/covers/1768979840344.jpeg</image:loc>
       <image:title>What is PrEP and Why It Matters</image:title>
