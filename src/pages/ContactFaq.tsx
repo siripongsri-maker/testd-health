@@ -13,6 +13,7 @@ import {
 import { SEOHead, buildFaqJsonLd } from '@/components/seo/SEOHead';
 import { openSupportChat } from '@/lib/openSupportChat';
 import { usePageLocale } from '@/components/seo/LocaleRouter';
+import { ContactAssistant } from '@/components/ContactAssistant';
 
 interface FaqEntry {
   question: { th: string; en: string };
@@ -192,6 +193,8 @@ export default function ContactFaq() {
             </Button>
           </div>
         </section>
+
+        <ContactAssistant th={th} />
 
         {/* FAQ */}
         <section className="space-y-3" aria-label={th ? 'คำถามทั่วไปเรื่องการตรวจและชุดตรวจ' : 'General questions about testing and kits'}>
