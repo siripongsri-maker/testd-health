@@ -404,6 +404,22 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/security-privacy" />
   </url>
   <url>
+    <loc>https://testd.website/th/contact</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/contact" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/contact" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/contact" />
+  </url>
+  <url>
+    <loc>https://testd.website/en/contact</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="th" href="https://testd.website/th/contact" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://testd.website/en/contact" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://testd.website/th/contact" />
+  </url>
+  <url>
     <loc>https://testd.website/th/chemsex-cards</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
