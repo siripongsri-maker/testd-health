@@ -8,3 +8,4 @@
 - Self-care shopping uses the shared product catalog and SelfCareShop view, separate from free-kit access; external referral links carry sponsored/noopener/noreferrer and generated art is disclosed to avoid misleading product representations.
 - Self-care is a public locale-prefixed page with reciprocal language links; automatic SEO canonicals follow the rendered locale so English pages are not attributed to Thai.
 - Article Markdown recognizes exact shared-catalog referral URLs as sponsored links; kit-selection articles disclose commercial interests and unverified product status separately from clinical guidance.
+- HIV/STI article pages append a labeled sponsored test-kit block (tests category only) via `src/lib/articleKitMatch.ts`; it is skipped on drug-use topics and when content already has Shopee links, to keep ads policy-safe and avoid duplicates.
