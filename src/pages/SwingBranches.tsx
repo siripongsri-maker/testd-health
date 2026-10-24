@@ -146,7 +146,7 @@ export default function SwingBranches() {
                     )}
                   </div>
 
-                  {comingSoon && comingMsg && (
+                  {comingMsg && (
                     <p className="text-xs rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400 px-3 py-2">
                       {comingMsg}
                     </p>
