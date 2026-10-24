@@ -1,5 +1,6 @@
 <!-- © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). -->
 # Current tasks
+- [ ] Write and review 30 distinct Thai/English HIV and syphilis kit-selection articles with sources and complete sponsored kit links; publish content and verify sitemap and article pages.
 - [x] Enable indexed Thai/English Self Care pages and request publishing of the seven products.
 - [x] Add seven illustrated Shopee products to Self Care, preserve free kit access, and verify product links and layout.
 - [x] Publish three evidence-based HIV/PrEP Q&A articles with images and verify article pages, booking buttons, and sitemap.
