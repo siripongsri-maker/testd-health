@@ -68,9 +68,9 @@ export default function TestKitFinder() {
           <Button asChild variant="ghost" size="sm"><Link to="/en/test-kits" hrefLang="en" lang="en">English</Link></Button>
         </nav>
         <div className="mb-6 space-y-4 rounded-2xl border border-border bg-card p-4">
-          <Chips label={th ? 'แบบตรวจ' : 'Test'} value={test} set={setTest} opts={[['all', all], ['hiv', 'HIV'], ['syphilis', th ? 'ซิฟิลิส' : 'Syphilis'], ['gc-ct', th ? 'หนองใน/หนองในเทียม' : 'Gonorrhea/chlamydia']]} />
-          <Chips label={th ? 'วิธีเก็บตัวอย่าง' : 'Sample'} value={sample} set={setSample} opts={[['all', all], ['blood', th ? 'เลือดปลายนิ้ว' : 'Finger-prick blood'], ['oral', th ? 'น้ำลาย/ป้ายเหงือก' : 'Oral fluid'], ['urine-swab', th ? 'ปัสสาวะ/สวอบ' : 'Urine/swab']]} />
-          <Chips label={th ? 'ราคา' : 'Price'} value={price} set={setPrice} opts={[['all', all], ['free', th ? 'ฟรี' : 'Free'], ['paid', th ? 'ซื้อใน Shopee' : 'Buy on Shopee']]} />
+          <Chips<Test | 'all'> label={th ? 'แบบตรวจ' : 'Test'} value={test} set={setTest} opts={[['all', all], ['hiv', 'HIV'], ['syphilis', th ? 'ซิฟิลิส' : 'Syphilis'], ['gc-ct', th ? 'หนองใน/หนองในเทียม' : 'Gonorrhea/chlamydia']]} />
+          <Chips<Sample | 'all'> label={th ? 'วิธีเก็บตัวอย่าง' : 'Sample'} value={sample} set={setSample} opts={[['all', all], ['blood', th ? 'เลือดปลายนิ้ว' : 'Finger-prick blood'], ['oral', th ? 'น้ำลาย/ป้ายเหงือก' : 'Oral fluid'], ['urine-swab', th ? 'ปัสสาวะ/สวอบ' : 'Urine/swab']]} />
+          <Chips<Price | 'all'> label={th ? 'ราคา' : 'Price'} value={price} set={setPrice} opts={[['all', all], ['free', th ? 'ฟรี' : 'Free'], ['paid', th ? 'ซื้อใน Shopee' : 'Buy on Shopee']]} />
         </div>
         <p className="mb-3 text-sm text-muted-foreground" aria-live="polite">{th ? `พบ ${list.length} รายการ` : `${list.length} kits found`}</p>
         <ul className="grid gap-3">
