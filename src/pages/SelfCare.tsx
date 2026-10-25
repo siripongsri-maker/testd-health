@@ -6,6 +6,7 @@ import { useLanguage } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { TestTube, ArrowRight } from "lucide-react";
 import { SelfCareShop } from "@/components/SelfCareShop";
+import { ContactAssistant } from "@/components/ContactAssistant";
 import { Link, useNavigate } from "react-router-dom";
 import { withLocalePrefix } from "@/lib/seoLocalePrefix";
 
@@ -45,6 +46,10 @@ export default function SelfCare() {
          </Button>
 
         <SelfCareShop language={language} />
+
+        <div className="mt-6">
+          <ContactAssistant th={language !== 'en'} />
+        </div>
       </PageContainer>
       <BottomNav />
     </>
