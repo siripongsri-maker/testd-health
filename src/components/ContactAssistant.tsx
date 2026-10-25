@@ -8,6 +8,16 @@ import { Input } from '@/components/ui/input';
 
 type Msg = { role: 'user' | 'assistant'; content: string };
 
+const SESSION_KEY = 'contact_chat_session_v1';
+function getSessionId(): string {
+  let id = localStorage.getItem(SESSION_KEY);
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem(SESSION_KEY, id);
+  }
+  return id;
+}
+
 export function ContactAssistant({ th }: { th: boolean }) {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [text, setText] = useState('');
