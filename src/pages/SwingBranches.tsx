@@ -170,7 +170,10 @@ export default function SwingBranches() {
                     </p>
                     <p className="flex items-center gap-2">
                       <PhoneCall className="h-4 w-4 flex-shrink-0" />
-                      <a href={`tel:${CLINIC_PHONE_TEL}`} className="underline underline-offset-2">
+                      <a
+                        href={`tel:${(b.phone || CLINIC_PHONE).replace(/[^\d+]/g, '')}`}
+                        className="underline underline-offset-2"
+                      >
                         {b.phone || CLINIC_PHONE}
                       </a>
                     </p>
