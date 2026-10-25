@@ -50,6 +50,7 @@ const AdminRouteHealthContent = lazyWithRetry(() => import("@/components/admin/A
 const AdminGlyphQaContent = lazyWithRetry(() => import("@/components/admin/AdminGlyphQaContent"));
 const AdminMilestonesContent = lazyWithRetry(() => import("@/components/admin/AdminMilestonesContent"));
 const AdminUserChatsContent = lazyWithRetry(() => import("@/components/admin/AdminUserChatsContent"));
+const AdminContactChatsContent = lazyWithRetry(() => import("@/components/admin/AdminContactChatsContent"));
 const AdminIPDocsContent = lazyWithRetry(() => import("@/components/admin/AdminIPDocsContent"));
 const AdminAnalyticsOverview = lazyWithRetry(() => import("@/components/admin/AdminAnalyticsOverview"));
 const AdminQueueBoardContent = lazyWithRetry(() => import("@/components/admin/AdminQueueBoardContent"));
@@ -283,6 +284,7 @@ export default function Admin() {
           {renderTab("monthly-draw", <AdminMonthlyDrawContent />)}
           {renderTab("milestones", <AdminMilestonesContent />)}
           {renderTab("user-chats", <AdminUserChatsContent />)}
+          {renderTab("contact-chats", <AdminContactChatsContent />)}
           {renderTab("notifications", <AdminNotificationsContent />)}
           {renderTab("translations", <AdminTranslationsContent />)}
 

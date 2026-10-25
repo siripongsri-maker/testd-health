@@ -31,6 +31,7 @@ import {
   Network, Sparkles, Globe, BookOpen, HeartHandshake,
   Stethoscope,
   Play,
+  Bot,
   type LucideIcon,
   MapPin,
 } from "lucide-react";
@@ -143,6 +144,7 @@ const menuGroups: MenuGroup[] = [
       { tab: "milestones", icon: Target, labelKey: "admin.milestones", adminOnly: true },
       { tab: "notifications", icon: Bell, labelKey: "admin.notifications", adminOnly: true },
       { tab: "user-chats", icon: MessageSquare, labelKey: "admin.userChats", adminOnly: true },
+      { tab: "contact-chats", icon: Bot, labelKey: "admin.contactChats", adminOnly: true, meAnalyst: true },
       { tab: "translations", icon: Languages, labelKey: "admin.translations", adminOnly: true },
     ],
   },
