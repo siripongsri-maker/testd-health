@@ -1,5 +1,6 @@
 /*! © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). All rights reserved. */
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
+import { createClient } from "npm:@supabase/supabase-js@2";
 import { generateResponse } from "npm:@lovable.dev/ai-gateway";
 
 const SYSTEM = `You are the automatic help assistant on the testD contact page (SWING Foundation, Thailand).
@@ -19,6 +20,11 @@ function limited(ip: string) {
 const json = (b: unknown, status = 200) =>
   new Response(JSON.stringify(b), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
+const supabase = createClient(
+  Deno.env.get("SUPABASE_URL")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+);
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
@@ -27,6 +33,8 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => null);
     const msgs = Array.isArray(body?.messages) ? body.messages : null;
     if (!msgs || msgs.length === 0 || msgs.length > 20) return json({ error: "messages required" }, 400);
+    const rawSession = typeof body?.session_id === "string" ? body.session_id : "";
+    const sessionId = /^[A-Za-z0-9-]{8,64}$/.test(rawSession) ? rawSession : null;
     const input = msgs.slice(-10).map((m: { role?: string; content?: unknown }) => ({
       role: m.role === "assistant" ? "assistant" as const : "user" as const,
       content: String(m.content ?? "").slice(0, 800),
@@ -40,6 +48,14 @@ Deno.serve(async (req) => {
       .filter((c: any) => c.type === "output_text")
       // deno-lint-ignore no-explicit-any
       .map((c: any) => c.text).join("\n").trim();
+    if (sessionId && text) {
+      const lastUser = input[input.length - 1];
+      const { error } = await supabase.from("contact_chat_messages").insert([
+        { session_id: sessionId, role: "user", content: lastUser.content },
+        { session_id: sessionId, role: "assistant", content: text },
+      ]);
+      if (error) console.error("contact_chat_messages insert failed", error.message);
+    }
     return json({ reply: text || null });
   } catch (e) {
     console.error("contact-assistant failed", e);
