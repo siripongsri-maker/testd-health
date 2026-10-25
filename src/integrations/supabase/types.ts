@@ -2637,6 +2637,30 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_chat_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          role: string
+          session_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          role: string
+          session_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          role?: string
+          session_id?: string
+        }
+        Relationships: []
+      }
       counseling_payout_batches: {
         Row: {
           batch_code: string
