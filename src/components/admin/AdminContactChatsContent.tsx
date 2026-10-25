@@ -58,7 +58,7 @@ export default function AdminContactChatsContent() {
       arr.push(r);
       map.set(r.session_id, arr);
     });
-    return [...map.entries()].map(([session_id, msgs]) => {
+    return [...map.entries()].map(([session_id, msgs]): SessionSummary => {
       const firstUser = msgs.find((m) => m.role === "user");
       return {
         session_id,
