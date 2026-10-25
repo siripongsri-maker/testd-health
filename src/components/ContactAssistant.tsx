@@ -8,6 +8,16 @@ import { Input } from '@/components/ui/input';
 
 type Msg = { role: 'user' | 'assistant'; content: string };
 
+const SESSION_KEY = 'contact_chat_session_v1';
+function getSessionId(): string {
+  let id = localStorage.getItem(SESSION_KEY);
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem(SESSION_KEY, id);
+  }
+  return id;
+}
+
 export function ContactAssistant({ th }: { th: boolean }) {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [text, setText] = useState('');
@@ -20,7 +30,7 @@ export function ContactAssistant({ th }: { th: boolean }) {
     if (!question || busy) return;
     const next: Msg[] = [...msgs, { role: 'user', content: question }];
     setMsgs(next); setText(''); setBusy(true);
-    const { data, error } = await supabase.functions.invoke('contact-assistant', { body: { messages: next } });
+    const { data, error } = await supabase.functions.invoke('contact-assistant', { body: { messages: next, session_id: getSessionId() } });
     const fail = th ? 'ตอบไม่ได้ในตอนนี้ ลองอีกครั้ง หรือแชท LINE กับทีมงาน' : "Couldn't answer right now. Try again or chat with staff on LINE.";
     setMsgs([...next, { role: 'assistant', content: !error && data?.reply ? data.reply : fail }]);
     setBusy(false);

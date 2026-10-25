@@ -120,6 +120,13 @@
       "when": 1792167570722,
       "tag": "0016_system_provenance",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1792889445291,
+      "tag": "0017_create_contact_chat_messages",
+      "breakpoints": true
     }
   ]
 }
