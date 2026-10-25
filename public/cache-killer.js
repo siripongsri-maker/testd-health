@@ -24,7 +24,7 @@ self.addEventListener("activate", (event) =>
         const windowClients = await self.clients.matchAll({ type: "window" });
         windowClients.forEach((client) => {
           try {
-            client.postMessage({ type: "TESTD_CACHE_KILLED", version: "6.0.0" });
+            client.postMessage({ type: "TESTD_CACHE_KILLED", version: "6.1.0" });
           } catch (_) {
             /* noop */
           }
