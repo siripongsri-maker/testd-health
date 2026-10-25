@@ -13,7 +13,7 @@ const RESET_KEY = "testd_forced_cache_reset";
 const SESSION_KEY = "testd_session_checked_version";
 const RETRY_KEY = "testd_refresh_retries";
 const MAX_RETRIES = 3;
-const CACHE_RESET_VERSION = `${APP_VERSION}:v6-force-clear-2026-08-14`;
+const CACHE_RESET_VERSION = `${APP_VERSION}:v6.1-force-clear-2026-10-25`;
 
 function isPreviewOrDevHost(): boolean {
   const host = window.location.hostname;
