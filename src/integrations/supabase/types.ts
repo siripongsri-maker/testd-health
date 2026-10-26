@@ -11968,6 +11968,7 @@ export type Database = {
         Args: { p_from: string; p_to: string }
         Returns: number
       }
+      can_enter_travel_claim: { Args: { _branch_id: string }; Returns: boolean }
       can_view_client_history: { Args: never; Returns: boolean }
       can_view_client_hr_context: {
         Args: { _client_id: string }
@@ -13008,6 +13009,11 @@ export type Database = {
         Args: { _appointment_id: string }
         Returns: boolean
       }
+      staff_submit_travel_claim: {
+        Args: { _evaluation_id: string; _payload: Json }
+        Returns: string
+      }
+      staff_travel_claim_candidates: { Args: never; Returns: Json }
       start_walkin_service: {
         Args: { p_appointment_id: string }
         Returns: undefined
