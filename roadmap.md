@@ -1,5 +1,7 @@
 <!-- © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). -->
 # Current tasks
+- [ ] Send one real appointment email for SWG123456 — waiting for sender-domain verification and a valid appointment/recipient.
+- [ ] Add and verify an assistant-chat-history button from appointment management without linking visitor identities.
 - [ ] Restore appointment emails — blocked by missing sender-domain delegation; complete verification in More → Emails.
 - [x] Fix assistant conversations beyond ten questions; twelve-question regression test and eleven real replies verified.
 - [x] Add staff travel-allowance entry linked to existing claims; validate inputs in the UI and test transactional save/readback and duplicate rejection without leaving test claims.

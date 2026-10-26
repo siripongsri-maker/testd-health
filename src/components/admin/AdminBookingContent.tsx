@@ -8,7 +8,7 @@ import { useLanguage } from '@/lib/i18n';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import {
-  Loader2, RefreshCcw, Wifi, WifiOff, Search, LayoutGrid, CalendarDays, ChevronLeft, ChevronRight, BarChart3, Sparkles,
+  Loader2, RefreshCcw, Wifi, WifiOff, Search, LayoutGrid, CalendarDays, ChevronLeft, ChevronRight, BarChart3, Sparkles, MessagesSquare,
 } from 'lucide-react';
 import { format, startOfWeek, endOfWeek, addMonths, subMonths } from 'date-fns';
 import {
@@ -32,9 +32,10 @@ import { STATUS_OPTIONS } from './booking/types';
 
 interface Props {
   userBranch: string | null;
+  onOpenChatHistory?: () => void;
 }
 
-export default function AdminBookingContent({ userBranch }: Props) {
+export default function AdminBookingContent({ userBranch, onOpenChatHistory }: Props) {
   const { language } = useLanguage();
   const { user } = useAuth();
 
@@ -209,6 +210,14 @@ export default function AdminBookingContent({ userBranch }: Props) {
 
   return (
     <div className="space-y-3">
+      {onOpenChatHistory && (
+        <div className="flex justify-end">
+          <Button variant="outline" size="sm" onClick={onOpenChatHistory}>
+            <MessagesSquare className="mr-2 h-4 w-4" aria-hidden="true" />
+            {language === 'th' ? 'เปิดประวัติแชทผู้ช่วยอัตโนมัติ' : 'Open assistant chat history'}
+          </Button>
+        </div>
+      )}
       {/* Top bar: branch tabs + controls */}
       {!inDrillDown && (
         <>
