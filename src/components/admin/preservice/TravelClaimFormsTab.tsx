@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Loader2, RefreshCw, Eye, EyeOff, FileSignature, IdCard, Banknote, ShieldCheck } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useLanguage } from "@/lib/i18n";
+import StaffTravelClaimEntry from "../StaffTravelClaimEntry";
 
 interface ClaimRow {
   id: string;
@@ -128,6 +129,7 @@ export default function TravelClaimFormsTab() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <StaffTravelClaimEntry onSaved={load} />
           <Input value={search} onChange={(e) => setSearch(e.target.value)}
             placeholder={tx("ค้นหา ชื่อ / เลขท้าย / สาขา", "Search name / last4 / branch")} className="h-9 w-56" />
           <Button variant="outline" size="sm" onClick={load} className="h-9">

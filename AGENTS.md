@@ -10,3 +10,4 @@
 - Article Markdown recognizes exact shared-catalog referral URLs as sponsored links; kit-selection articles disclose commercial interests and unverified product status separately from clinical guidance.
 - HIV/STI article pages append a labeled sponsored test-kit block (tests category only) via `src/lib/articleKitMatch.ts`; it is skipped on drug-use topics and when content already has Shopee links, to keep ads policy-safe and avoid duplicates.
 - The public contact page's automatic assistant (contact-assistant function) is anonymous, IP rate-limited and scoped to HIV testing/kits topics; it never collects identity data, to keep it PDPA-safe and abuse-resistant.
+- Staff travel claims use a shared entry dialog and authenticated branch-scoped RPC wrapping the existing payout submission; this preserves quota, attendance, duplicate safeguards and audited staff reasons without direct client inserts.
