@@ -3,7 +3,7 @@
   <title>testD — บทความสุขภาพทางเพศและลดอันตราย</title>
   <subtitle>อัปเดตบทความใหม่จาก testD เรื่อง HIV, PrEP, PEP, โรคติดต่อทางเพศสัมพันธ์ และการลดอันตรายจากการใช้สาร</subtitle>
   <id>https://testd.website/atom.xml</id>
-  <updated>2026-10-24T17:47:59.517Z</updated>
+  <updated>2026-10-25T09:12:54.861Z</updated>
   <link rel="self" type="application/atom+xml" href="https://testd.website/atom.xml" />
   <link rel="alternate" type="text/html" href="https://testd.website/th/info" />
   <author><name>testD</name></author>
@@ -12,7 +12,7 @@
     <id>https://testd.website/th/info/article/hiv-sti-home-test-kits-guide-thailand</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/hiv-sti-home-test-kits-guide-thailand" />
     <published>2026-10-24T17:23:55.123Z</published>
-    <updated>2026-10-24T17:47:59.517Z</updated>
+    <updated>2026-10-25T09:12:54.861Z</updated>
     <summary type="text">ชุดตรวจ HIV และ STI 5 แบบ ตรวจอะไรได้ และควรทำอย่างไรหลังรู้ผล</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
   </entry>
@@ -21,7 +21,7 @@
     <id>https://testd.website/th/info/article/safe-disposal-before-buying-kit</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/safe-disposal-before-buying-kit" />
     <published>2026-10-24T17:11:40.979Z</published>
-    <updated>2026-10-24T17:12:46.744Z</updated>
+    <updated>2026-10-25T09:18:24.095Z</updated>
     <summary type="text">ก่อนซื้อชุดตรวจเจาะปลายนิ้ว ควรรู้ว่าจะเก็บและส่งทิ้งอุปกรณ์เจาะอย่างไร เพื่อไม่ให้ความเสี่ยงตกไปอยู่กับคนในบ้านหรือผู้เก็บขยะ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
   </entry>
@@ -30,7 +30,7 @@
     <id>https://testd.website/th/info/article/screening-kit-during-pregnancy</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/screening-kit-during-pregnancy" />
     <published>2026-10-24T17:11:40.978Z</published>
-    <updated>2026-10-24T17:12:46.744Z</updated>
+    <updated>2026-10-25T09:13:17.001Z</updated>
     <summary type="text">ชุดตรวจอาจช่วยเริ่มต้นการดูแล แต่ไม่แทนการฝากครรภ์ การตรวจตามแผน หรือการรักษาที่ต้องประเมินทั้งผู้ตั้งครรภ์และทารก</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
   </entry>
@@ -39,7 +39,7 @@
     <id>https://testd.website/th/info/article/gonorrhea-chlamydia-kit-sample-site</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/gonorrhea-chlamydia-kit-sample-site" />
     <published>2026-10-24T17:11:40.978Z</published>
-    <updated>2026-10-24T17:12:46.744Z</updated>
+    <updated>2026-10-25T09:12:04.604Z</updated>
     <summary type="text">ก่อนเลือกการตรวจหนองในหรือหนองในเทียม ต้องรู้ว่าตำแหน่งใดสัมผัสและผลิตภัณฑ์รองรับตัวอย่างใด ชุดตรวจปัสสาวะไม่ได้ครอบคลุมคอหรือทวารหนักโดยอัตโนมัติ</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
   </entry>
@@ -57,7 +57,7 @@
     <id>https://testd.website/th/info/article/syphilis-kit-vs-rpr-vdrl</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/syphilis-kit-vs-rpr-vdrl" />
     <published>2026-10-24T17:11:40.978Z</published>
-    <updated>2026-10-24T17:12:46.744Z</updated>
+    <updated>2026-10-25T09:18:23.890Z</updated>
     <summary type="text">การตรวจแอนติบอดีแบบ treponemal กับ RPR/VDRL มีบทบาทต่างกัน โดยเฉพาะผู้เคยรักษาซิฟิลิส ผลจากชุดตรวจอย่างเดียวจึงไม่บอกว่าต้องรักษาซ้ำหรือไม่</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/364b2d94-5a53-47c0-9127-c7d22f1f0890/test-kit-selection.jpg" />
   </entry>
@@ -390,7 +390,7 @@
     <id>https://testd.website/th/info/article/anxiety-after-risky-exposure</id>
     <link rel="alternate" type="text/html" href="https://testd.website/th/info/article/anxiety-after-risky-exposure" />
     <published>2026-10-12T14:40:12.337Z</published>
-    <updated>2026-10-22T20:13:18.610Z</updated>
+    <updated>2026-10-25T06:52:15.761Z</updated>
     <summary type="text">ช่วงรอตรวจหลังมีความเสี่ยงเป็นช่วงที่เครียดที่สุด มาดูว่าควรทำอะไรทันที ตรวจเมื่อไหร่ และจัดการความกังวลระหว่างรอยังไง</summary>
     <link rel="enclosure" type="image/jpeg" href="https://testd.website/__l5e/assets-v1/144b68a7-fb57-4e49-b10a-01dc1b7c0692/cover-mental-health.jpg" />
   </entry>
