@@ -134,6 +134,13 @@
       "when": 1793000631787,
       "tag": "0018_staff_travel_claim_entry",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1793000711957,
+      "tag": "0019_payout_digest_resolution",
+      "breakpoints": true
     }
   ]
 }
