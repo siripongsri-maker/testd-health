@@ -13,6 +13,7 @@ import { fetchUrgentCaseMap, type UrgentCaseRef } from "@/lib/urgentCases";
 import PrintButton from "./PrintButton";
 import { useStableRefresh, lockScroll } from "@/hooks/useStableRefresh";
 import { notifySaved } from "@/lib/adminSaveToast";
+import StaffTravelClaimEntry from "./StaffTravelClaimEntry";
 
 
 
@@ -335,6 +336,7 @@ export default function AdminCounselingPayoutsContent({
           </p>
         </div>
         <div className="flex gap-2 no-print">
+          <StaffTravelClaimEntry onSaved={load} />
           <Button size="sm" variant="outline" onClick={load}>
             <RefreshCw className="h-3.5 w-3.5 mr-1" />รีเฟรช
           </Button>
