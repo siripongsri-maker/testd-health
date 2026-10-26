@@ -249,7 +249,7 @@ export default function Admin() {
           {renderTab("selftest-followup", <AdminSelftestFollowupContent />)}
           {renderTab("selftest-map", <AdminSelftestMapContent />)}
           {renderTab("selftest-missing-id", <AdminSelftestMissingIdContent />)}
-          {renderTab("bookings", <AdminBookingContent userBranch={userBranch} />)}
+          {renderTab("bookings", <AdminBookingContent userBranch={userBranch} onOpenChatHistory={canAccess("contact-chats") ? () => handleTabChange("contact-chats") : undefined} />)}
           {renderTab("today", <AdminTodayBoard userBranch={userBranch} />)}
           {renderTab("schedule", <AdminScheduleContent />)}
           {renderTab("queue-board", <AdminQueueBoardContent userBranch={userBranch} lockBranch={isCounselor || isModerator} />)}
