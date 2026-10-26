@@ -30,7 +30,8 @@ export function ContactAssistant({ th }: { th: boolean }) {
     if (!question || busy) return;
     const next: Msg[] = [...msgs, { role: 'user', content: question }];
     setMsgs(next); setText(''); setBusy(true);
-    const { data, error } = await supabase.functions.invoke('contact-assistant', { body: { messages: next, session_id: getSessionId() } });
+    // Keep the visible conversation, but send only the context the assistant uses.
+    const { data, error } = await supabase.functions.invoke('contact-assistant', { body: { messages: next.slice(-10), session_id: getSessionId() } });
     const fail = th ? 'ตอบไม่ได้ในตอนนี้ ลองอีกครั้ง หรือแชท LINE กับทีมงาน' : "Couldn't answer right now. Try again or chat with staff on LINE.";
     setMsgs([...next, { role: 'assistant', content: !error && data?.reply ? data.reply : fail }]);
     setBusy(false);
