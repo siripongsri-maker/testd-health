@@ -1,6 +1,6 @@
 <!-- © 2026 Siripong Srichau — ผู้สร้างสรรค์แต่เพียงผู้เดียว (Sole Creator). -->
 # Current tasks
-- [ ] Add staff travel-allowance entry linked to existing claims, validate permissions and inputs, and verify saving and readback.
+- [x] Add staff travel-allowance entry linked to existing claims; validate inputs in the UI and test transactional save/readback and duplicate rejection without leaving test claims.
 - [x] Write and review 30 distinct Thai/English HIV and syphilis kit-selection articles with sources and complete sponsored kit links; publish content and verify sitemap and article pages.
 - [x] Enable indexed Thai/English Self Care pages and request publishing of the seven products.
 - [x] Add seven illustrated Shopee products to Self Care, preserve free kit access, and verify product links and layout.
